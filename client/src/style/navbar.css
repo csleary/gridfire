@@ -1,0 +1,85 @@
+nav.navbar {
+  background-color: #fff;
+  /*border-bottom: 2px solid rgba(0,0,0,.075);*/
+  padding: 0 1rem;
+}
+
+.navbar-nav {
+  flex-direction: row;
+}
+
+nav.navbar a {
+  padding-top: 2px;
+  border-bottom: 2px solid transparent;
+  color: #999;
+  transition-duration: 0.25s;
+}
+
+nav.navbar a.active {
+  border-bottom: 2px solid #666;
+  color: #666;
+}
+
+nav.navbar a.active:hover {
+  border-color: #5ab3e8;
+}
+
+nav.navbar .nav-item a.nav-link:hover {
+  color: #5ab3e8;
+}
+
+nav.navbar .nav-item {
+  line-height: 2rem;
+  padding: 0;
+  margin: 0 1rem;
+}
+
+nav.navbar .nav-item:last-of-type {
+  margin-right: 0;
+}
+
+nav.navbar a.navbar-brand-link {
+  flex-direction: column;
+  display: flex;
+  align-content: center;
+  padding: 0;
+  border: 0;
+}
+
+.navbar-brand {
+  fill: #999;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  transition-duration: 0.25s;
+  width: 4rem;
+}
+
+nav.navbar a .navbar-brand:hover {
+  fill: #666;
+}
+
+nav .icon-left {
+  margin-right: 0.25rem;
+}
+
+span.nav-label {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-nav .nav-link {
+    padding: 0;
+    padding-top: 2px;
+  }
+}
+
+@media (min-width: 576px) {
+  .navbar-expand-lg .navbar-nav {
+    flex-direction: row;
+  }
+
+  span.nav-label {
+    display: inline;
+  }
+}

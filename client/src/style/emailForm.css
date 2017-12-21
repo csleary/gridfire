@@ -1,0 +1,35 @@
+.email-form,
+.email-form:valid {
+  animation: animateColour 30s ease-in-out infinite alternate;
+  border-radius: .25rem;
+  border-style: solid;
+  border-width: 2px;
+  color: #333;
+  font-size: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding: .75rem 1.5rem;
+  text-align: center;
+}
+
+.email-form:invalid {
+  border: 2px solid #ff0050;
+}
+
+.email-form:disabled {
+  animation: none;
+  background-color: transparent;
+  border: 2px solid #999;
+  color: #999;
+  cursor: not-allowed;
+}
+
+@keyframes animateColour {
+  0% {
+    border-color: rgba(65, 206, 124, .5);
+  }
+
+  100% {
+    border-color: rgba(90, 179, 232, .5);
+  }
+}

@@ -1,0 +1,82 @@
+.row.selected-release {
+  padding-top: 0;
+}
+
+.selected-release .buy-button {
+  margin: 2rem auto 1rem auto;
+}
+
+.selected-release .tracklist-wrapper {
+  columns: 2;
+  margin-bottom: 1rem;
+}
+
+.selected-release .tracklist {
+  color: #999;
+  padding-left: 2rem;
+}
+
+.selected-release .tracklist li a {
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.selected-release .tracklist .now-playing {
+  animation: now-playing 2s ease 1s infinite;
+  color: #5ab3e8;
+  padding-left: 0.5rem;
+}
+
+.artwork {
+  padding: 0;
+  position: relative;
+}
+
+.selected-release .artwork {
+  margin-bottom: 2rem;
+}
+
+.artwork .cover-artwork-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  display: flex;
+  font-size: 4rem;
+  justify-content: space-evenly;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.artwork .cover-artwork-overlay:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.artwork .cover-artwork-overlay .play {
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+@keyframes now-playing {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 576px) {
+  .selected-release .artwork {
+    margin-bottom: 0;
+  }
+}

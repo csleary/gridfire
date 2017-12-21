@@ -1,0 +1,61 @@
+.front-page {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: repeat(2, auto);
+  justify-content: space-between;
+}
+
+.front-page .cover-artwork img.artwork {
+  width: 100%;
+}
+
+.front-page .cover-artwork {
+  position: relative;
+  flex-basis: 30%;
+}
+
+.front-page .cover-artwork img.artwork:hover {
+  filter: blur(3px);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #999;
+  display: flex;
+  font-size: 4rem;
+  justify-content: space-evenly;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay a {
+  color: #999;
+}
+
+.front-page .cover-artwork .cover-artwork-overlay:hover {
+  opacity: 1;
+}
+
+.front-page .cover-artwork .cover-artwork-overlay .info,
+.front-page .cover-artwork .cover-artwork-overlay .play {
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay .info:hover,
+.front-page .cover-artwork .cover-artwork-overlay .play:hover {
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (min-width: 576px) {
+  .front-page {
+    grid-gap: 1rem;
+    grid-template-columns: repeat(3, auto);
+  }
+}

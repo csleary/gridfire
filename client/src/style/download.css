@@ -1,0 +1,9 @@
+.disabled:hover {
+  background-color: transparent;
+  color: #5ab3e8;
+  cursor: progress;
+}
+
+.button-icon {
+  margin-left: 1rem;
+}

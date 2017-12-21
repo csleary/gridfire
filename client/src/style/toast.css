@@ -1,0 +1,45 @@
+.toast {
+  bottom: 5rem;
+  position: fixed;
+  right: 3rem;
+}
+
+.toast.toast-show {
+  animation: toast 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.toast.toast-fade {
+  opacity: 0;
+  transition: all 2s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transform: translateY(0.5rem);
+}
+
+.toast.alert {
+  background: #e9f5fc;
+  border-color: #5ab3e8;
+  color: #5ab3e8;
+}
+
+.toast.alert.alert-success {
+  background: #ebfaf1;
+  border-color: #41ce7c;
+  color: #41ce7c;
+}
+
+.toast.alert.alert-danger {
+  background: #fff0f5;
+  border-color: #ff0050;
+  color: #ff0050;
+}
+
+@keyframes toast {
+  from {
+    transform: translateX(-2rem);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

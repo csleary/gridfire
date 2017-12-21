@@ -1,0 +1,60 @@
+header {
+  animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  background-color: #fff; /* #e1e1e1 */
+}
+
+.header-logo {
+  animation: title 2s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  display: block;
+  height: auto;
+  margin: 1rem auto 0 auto;
+  max-width: 20rem;
+}
+
+.user-admin {
+  color: #666;
+  font-weight: bold;
+  padding: 0 1rem 2px 0;
+}
+
+.google-icon {
+  color: #d84b37;
+}
+
+.title {
+  animation: title 2s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  color: #666;
+  font-family: 'Righteous', sans-serif;
+  font-size: 6rem;
+  padding-bottom: 1rem;
+  text-shadow: 4px 4px 0 #41ce7c, 8px 8px 0 #5ab3e8;
+}
+
+.gradient {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  background: linear-gradient(to right, #41ce7c, #5ab3e8);
+  height: 4px;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes title {
+  from {
+    opacity: 0;
+    transform: scaleX(1.05);
+  }
+
+  to {
+    opacity: 1;
+    transform: unset;
+  }
+}

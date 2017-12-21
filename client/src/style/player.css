@@ -1,0 +1,100 @@
+.player {
+  background: #e1e1e1;
+  bottom: 0;
+  color: #666;
+  font-size: 2rem;
+  position: fixed;
+  text-align: center;
+  transform: translateY(100%);
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 100%;
+}
+
+.player.show {
+  transform: translateY(0);
+}
+
+.player .interface {
+  align-items: center;
+}
+
+.player .interface .controls {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.player .player-button {
+  font-size: 2rem;
+  padding: 0.5rem;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.player .player-button:hover,
+.player .player-current-time:hover {
+  color: #000;
+  cursor: pointer;
+}
+
+.player .player-button.waiting {
+}
+
+.player .player-button.waiting:hover {
+  color: #666;
+  cursor: unset;
+}
+
+.player-current-time {
+  padding: 0 1rem;
+  display: inline-block;
+  text-align: right;
+  width: 7rem;
+}
+
+.player-current-time:focus {
+  outline: none;
+}
+
+#player-progress {
+  background: #666;
+  height: 100%;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 0;
+}
+
+.player .seek-bar {
+  height: 4px;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 100%;
+}
+
+.player:hover .seek-bar {
+  background: rgba(102, 102, 102, 0.1);
+  cursor: pointer;
+  height: 8px;
+}
+
+.player:hover #player-progress {
+  background: #5ab3e8;
+}
+
+.player .track-info {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding-left: 1rem;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.player-button.hide-player {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 576px) {
+  .player .interface .controls {
+    justify-content: flex-end;
+  }
+}

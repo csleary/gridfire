@@ -1,0 +1,38 @@
+.transactions {
+  margin-top: 3rem;
+}
+
+h3.transactions-searching {
+  margin-top: 3rem;
+}
+
+.tx-list {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  list-style-position: inside;
+  margin-bottom: 2rem;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+button.download-button {
+  margin: 0 auto 2rem;
+  width: 24rem;
+}
+
+button.download-button:focus {
+  color: #41ce7c;
+}
+
+button.download-button:hover {
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
