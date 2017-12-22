@@ -1,3 +1,13 @@
 footer {
   padding: 2rem 0 6rem;
 }
+
+footer .github a {
+  color: #999;
+  font-size: 2rem;
+  transition: 0.25s;
+}
+
+footer .github a:hover {
+  color: #5ab3e8;
+}
