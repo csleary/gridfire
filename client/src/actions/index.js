@@ -24,8 +24,6 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
-  // TRANSCODE_AUDIO_STARTED,
-  // TRANSCODE_AUDIO_FINISHED,
   UPDATE_RELEASE
 } from './types';
 
@@ -258,14 +256,12 @@ export const toastMessage = toast => (dispatch) => {
 };
 
 export const transcodeAudio = (id, index) => async () => {
-  // dispatch({ type: TRANSCODE_AUDIO_STARTED });
-  const res = await axios.get('/api/transcode/audio', {
+  await axios.get('/api/transcode/audio', {
     params: {
       id,
       index
     }
   });
-  // if (res.status === 200) dispatch({ type: TRANSCODE_AUDIO_FINISHED });
 };
 
 export const updateRelease = (values, callback) => async (dispatch) => {

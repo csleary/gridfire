@@ -7,24 +7,7 @@ import App from './components/App';
 import reducers from './reducers';
 import './style/index.css';
 
-const socketMiddleWare = store => next => (action) => {
-  const { dispatch } = store;
-  // Socket client.
-  if (action.type === 'SOCKET_TX_UNCONFIRMED') {
-    dispatch({
-      type: 'SOCKET_TX_UNCONFIRMED',
-      payload: action.data
-    });
-  }
-
-  next(action);
-};
-
-const store = createStore(
-  reducers,
-  {},
-  applyMiddleware(reduxThunk, socketMiddleWare)
-);
+const store = createStore(reducers, {}, applyMiddleware(reduxThunk));
 
 ReactDOM.render(
   <Provider store={store}>
