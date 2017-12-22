@@ -13,8 +13,6 @@ import {
   MOVE_TRACK,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
-  TRANSCODE_AUDIO_STARTED,
-  TRANSCODE_AUDIO_FINISHED,
   UPDATE_RELEASE
 } from '../actions/types';
 
@@ -106,16 +104,6 @@ export default (state = initialState, action) => {
         selectedRelease: action.payload,
         paymentAddress: action.paymentAddress,
         paymentHash: action.paymentHash
-      };
-    case TRANSCODE_AUDIO_STARTED:
-      return {
-        ...state,
-        transcoding: true
-      };
-    case TRANSCODE_AUDIO_FINISHED:
-      return {
-        ...state,
-        transcoding: false
       };
     case UPDATE_RELEASE:
       return {
