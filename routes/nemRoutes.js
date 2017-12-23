@@ -1,13 +1,13 @@
+const mongoose = require('mongoose');
+const nem = require('nem-sdk').default;
+const jwt = require('jsonwebtoken');
+const fetchIncomingTransactions = require('./fetchIncomingTransactions');
+const keys = require('../config/keys');
+const requireLogin = require('../middlewares/requireLogin');
+
+const User = mongoose.model('users');
+
 module.exports = (app) => {
-  const mongoose = require('mongoose');
-  const nem = require('nem-sdk').default;
-  const jwt = require('jsonwebtoken');
-  const fetchIncomingTransactions = require('./fetchIncomingTransactions');
-  const keys = require('../config/keys');
-  const requireLogin = require('../middlewares/requireLogin');
-
-  const User = mongoose.model('users');
-
   const getXemPrice = async () => {
     const xem = await nem.com.requests.market.xem();
     const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
