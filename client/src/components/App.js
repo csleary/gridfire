@@ -13,30 +13,42 @@ import Payment from './Payment';
 import Player from './Player';
 import Register from './Register';
 import SelectedRelease from './SelectedRelease';
+import Spinner from './Spinner';
 import Toast from './Toast';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true
+    };
+  }
+
   componentDidMount() {
     window.scrollTo(0, 0);
-    this.props.fetchUser();
+    this.props.fetchUser().then(() => this.setState({ isLoading: false }));
   }
 
   render() {
     const PrivateRoute = ({ component: PrivateComponent, ...rest }) => (
       <Route
         {...rest}
-        render={props =>
-          (this.props.user.isLoggedIn ? (
-            <PrivateComponent {...props} />
-          ) : (
+        render={(props) => {
+          if (this.state.isLoading) {
+            return <Spinner />;
+          }
+          if (this.props.user.isLoggedIn) {
+            return <PrivateComponent {...props} />;
+          }
+          return (
             <Redirect
               to={{
                 pathname: '/login',
                 state: { from: props.location }
               }}
             />
-          ))
-        }
+          );
+        }}
       />
     );
 

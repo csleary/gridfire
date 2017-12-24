@@ -1,18 +1,18 @@
+const archiver = require('archiver');
+const aws = require('aws-sdk');
+const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const nem = require('nem-sdk').default;
+const request = require('request');
+const SHA256 = require('crypto-js/sha256');
+const keys = require('../config/keys');
+const requireLogin = require('../middlewares/requireLogin');
+
+const Release = mongoose.model('releases');
+const User = mongoose.model('users');
+aws.config.region = 'us-east-1';
+
 module.exports = (app) => {
-  const archiver = require('archiver');
-  const aws = require('aws-sdk');
-  const jwt = require('jsonwebtoken');
-  const mongoose = require('mongoose');
-  const nem = require('nem-sdk').default;
-  const request = require('request');
-  const SHA256 = require('crypto-js/sha256');
-  const keys = require('../config/keys');
-  const requireLogin = require('../middlewares/requireLogin');
-
-  const Release = mongoose.model('releases');
-  const User = mongoose.model('users');
-  aws.config.region = 'us-east-1';
-
   // Add New Release
   app.post('/api/release', requireLogin, async (req, res) => {
     const release = await new Release({

@@ -1,8 +1,7 @@
+const omit = require('lodash.omit');
+const passport = require('passport');
+
 module.exports = (app) => {
-  const omit = require('lodash.omit');
-
-  const passport = require('passport');
-
   app.post(
     '/auth/login',
     passport.authenticate('local-login', {

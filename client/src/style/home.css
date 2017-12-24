@@ -59,3 +59,9 @@
     grid-template-columns: repeat(3, auto);
   }
 }
+
+@media (min-width: 1600px) {
+  .front-page {
+    grid-template-columns: repeat(4, auto);
+  }
+}
