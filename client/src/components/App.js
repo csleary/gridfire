@@ -59,7 +59,7 @@ class App extends Component {
           <Navbar user={this.props.user} />
           <main className="App container-fluid">
             <div className="row justify-content-center">
-              <div className="col-lg-8">
+              <div className="col-8">
                 <Switch>
                   <Route exact path="/" component={Home} />
                   <Route path="/login" component={Login} />

@@ -136,7 +136,7 @@ const UserReleases = (props) => {
         <FontAwesome name="plus-circle" className="icon-left" />
         Add Release
       </Link>
-      <ul className="list-group user-releases">{renderUserReleases()}</ul>
+      <ul className="user-releases">{renderUserReleases()}</ul>
     </div>
   );
 };

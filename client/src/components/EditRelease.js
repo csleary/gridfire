@@ -266,115 +266,115 @@ class EditRelease extends Component {
   }
 
   renderTrackList = ({ fields, uploadingAudio }) => (
-    <ul className="list-group track-list">
-      {fields.map((track, index) => (
-        <li
-          className={`list-group-item ${this.hasAudio(index)}`}
-          key={`${track}._id`}
-        >
-          <Field
-            component={this.renderTrack}
-            label={index + 1}
-            name={`${track}.trackTitle`}
-            type="text"
-          />
-          <div className="d-flex">
-            {index < fields.length - 1 && (
-              <button
-                type="button"
-                title="Move Down"
-                onClick={() => {
-                  const { _id } = this.props.release;
-                  this.props
-                    .moveTrack(_id, index, index + 1)
-                    .then(fields.swap(index, index + 1));
-                }}
-                className="btn btn-outline-secondary btn-sm"
-              >
-                <FontAwesome name="arrow-down" className="icon-left" />
-                Down
-              </button>
-            )}
-            {index > 0 && (
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => {
-                  const { _id } = this.props.release;
-                  this.props
-                    .moveTrack(_id, index, index - 1)
-                    .then(fields.swap(index, index - 1));
-                }}
-                title="Move Up"
-                type="button"
-              >
-                <FontAwesome name="arrow-up" className="icon-left" />
-                Up
-              </button>
-            )}
-            <Dropzone
-              accept=".wav, .aif, .aiff"
-              activeClassName="dropzone-audio-active"
-              className="btn btn-outline-primary btn-sm dropzone-audio"
-              disablePreview
-              multiple={false}
-              onDrop={(accepted, rejected) =>
-                this.onDropAudio(accepted, rejected, index)
-              }
-            >
-              {uploadingAudio[index] && uploadingAudio[index] < 100 ? (
-                <FontAwesome name="cog" spin className="icon-left" />
-              ) : (
-                <FontAwesome name="plus-circle" className="icon-left" />
-              )}
-              {this.state.uploadingAudio[index] < 100 &&
-              this.state.uploadingAudio[index] > 0
-                ? `${this.state.uploadingAudio[index]
-                  .toString(10)
-                  .padStart(2, '0')}%`
-                : 'Audio'}
-            </Dropzone>
-            <button
-              className="btn btn-outline-danger btn-sm ml-auto"
-              onClick={() =>
-                this.pleaseConfirm(
-                  this.props.release.trackList[index].trackTitle,
-                  () => {
+    <div>
+      <ul className="list-group track-list">
+        {fields.map((track, index) => (
+          <li
+            className={`list-group-item ${this.hasAudio(index)}`}
+            key={`${track}._id`}
+          >
+            <Field
+              component={this.renderTrack}
+              label={index + 1}
+              name={`${track}.trackTitle`}
+              type="text"
+            />
+            <div className="d-flex">
+              {index < fields.length - 1 && (
+                <button
+                  type="button"
+                  title="Move Down"
+                  onClick={() => {
+                    const { _id } = this.props.release;
                     this.props
-                      .deleteTrack(
-                        this.props.release._id,
-                        this.props.release.trackList[index]._id
-                      )
-                      .then(fields.remove(index));
-                  }
-                )
-              }
-              title="Remove Track"
-              type="button"
-            >
-              <FontAwesome name="trash" className="icon-left" />
-              Remove
-            </button>
-          </div>
-          <ProgressBar
-            percentComplete={uploadingAudio[index]}
-            willDisplay={uploadingAudio[index] && uploadingAudio[index] < 100}
-          />
-        </li>
-      ))}
-      <li className="list-group-item">
-        <button
-          className="btn btn-outline-primary btn-sm add-track"
-          onClick={() => {
-            this.props.addTrack(this.props.release._id).then(fields.push());
-          }}
-          title="Add Track"
-          type="button"
-        >
-          <FontAwesome name="plus-circle" className="icon-left" />
-          Add
-        </button>
-      </li>
-    </ul>
+                      .moveTrack(_id, index, index + 1)
+                      .then(fields.swap(index, index + 1));
+                  }}
+                  className="btn btn-outline-secondary btn-sm"
+                >
+                  <FontAwesome name="arrow-down" className="icon-left" />
+                  Down
+                </button>
+              )}
+              {index > 0 && (
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => {
+                    const { _id } = this.props.release;
+                    this.props
+                      .moveTrack(_id, index, index - 1)
+                      .then(fields.swap(index, index - 1));
+                  }}
+                  title="Move Up"
+                  type="button"
+                >
+                  <FontAwesome name="arrow-up" className="icon-left" />
+                  Up
+                </button>
+              )}
+              <Dropzone
+                accept=".wav, .aif, .aiff"
+                activeClassName="dropzone-audio-active"
+                className="btn btn-outline-primary btn-sm dropzone-audio"
+                disablePreview
+                multiple={false}
+                onDrop={(accepted, rejected) =>
+                  this.onDropAudio(accepted, rejected, index)
+                }
+              >
+                {uploadingAudio[index] && uploadingAudio[index] < 100 ? (
+                  <FontAwesome name="cog" spin className="icon-left" />
+                ) : (
+                  <FontAwesome name="plus-circle" className="icon-left" />
+                )}
+                {this.state.uploadingAudio[index] < 100 &&
+                this.state.uploadingAudio[index] > 0
+                  ? `${this.state.uploadingAudio[index]
+                    .toString(10)
+                    .padStart(2, '0')}%`
+                  : 'Audio'}
+              </Dropzone>
+              <button
+                className="btn btn-outline-danger btn-sm ml-auto"
+                onClick={() =>
+                  this.pleaseConfirm(
+                    this.props.release.trackList[index].trackTitle,
+                    () => {
+                      this.props
+                        .deleteTrack(
+                          this.props.release._id,
+                          this.props.release.trackList[index]._id
+                        )
+                        .then(fields.remove(index));
+                    }
+                  )
+                }
+                title="Remove Track"
+                type="button"
+              >
+                <FontAwesome name="trash" className="icon-left" />
+                Remove
+              </button>
+            </div>
+            <ProgressBar
+              percentComplete={uploadingAudio[index]}
+              willDisplay={uploadingAudio[index] && uploadingAudio[index] < 100}
+            />
+          </li>
+        ))}
+      </ul>
+      <button
+        className="btn btn-outline-primary btn-sm add-track"
+        onClick={() => {
+          this.props.addTrack(this.props.release._id).then(fields.push());
+        }}
+        title="Add Track"
+        type="button"
+      >
+        <FontAwesome name="plus-circle" className="icon-left" />
+        Add
+      </button>
+    </div>
   );
 
   renderHeader() {
@@ -443,14 +443,14 @@ class EditRelease extends Component {
             accept=".png, .jpg, .jpeg"
             activeClassName="dropzone-art-active"
             className="dropzone-art"
-            maxSize={1024 * 1024 * 10}
+            maxSize={1024 * 1024 * 2}
             multiple={false}
             onDrop={this.onDropArt}
           >
             <FontAwesome name="upload" className="icon-left" />
             {this.state.uploadingArt && this.state.uploadingArt < 100
               ? `Uploading: ${this.state.uploadingArt}%`
-              : 'Drop artwork here, or click to select.'}
+              : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
             <ProgressBar
               percentComplete={this.state.uploadingArt}
               willDisplay={

@@ -5,12 +5,30 @@ import '../style/footer.css';
 const today = new Date();
 const year = today.getFullYear();
 
+const networkLinks = () => {
+  if (
+    process.env.NODE_ENV !== 'production' ||
+    process.env.REACT_APP_NEM_NETWORK === 'testnet'
+  ) {
+    return (
+      <p className="text-center">
+        Currently running on the NEM testnet. Want to try the{' '}
+        <a href="https://nemp3v2.herokuapp.com/">mainnet version</a>?
+      </p>
+    );
+  } else if (process.env.REACT_APP_NEM_NETWORK === 'mainnet') {
+    return (
+      <p className="text-center">
+        Try the NEM{' '}
+        <a href="https://nemp3v2-testnet.herokuapp.com/">testnet version.</a>
+      </p>
+    );
+  }
+};
+
 const Footer = () => (
   <footer>
-    {(process.env.NODE_ENV !== 'production' ||
-      process.env.REACT_APP_NEM_NETWORK === 'testnet') && (
-        <p className="text-center">Currently running on the NEM testnet.</p>
-      )}
+    {networkLinks()}
     <small>
       <p className="text-center">
         &copy; {year !== 2017 && <span>2017&ndash;</span>}

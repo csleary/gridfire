@@ -10,8 +10,12 @@ h3.transactions-searching {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   list-style-position: inside;
   margin-bottom: 2rem;
-  overflow: auto;
   white-space: nowrap;
+}
+
+.tx-list li {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 button.download-button {
@@ -36,3 +40,13 @@ button.download-button:hover {
     opacity: 1;
   }
 }
+
+/* @media (min-width: 1200px) {
+  .transactions {
+    margin-top: 0;
+  }
+
+  h3.transactions-searching {
+    margin-top: 0;
+  }
+} */
