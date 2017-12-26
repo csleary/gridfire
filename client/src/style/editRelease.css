@@ -89,6 +89,10 @@ input[type='date'] {
   margin: 2rem 0 1rem;
 }
 
+.track-list .form-control {
+  padding: 0.5rem;
+}
+
 .track-list label {
   color: #999;
   font-size: 1.5rem;
@@ -97,21 +101,22 @@ input[type='date'] {
   padding-right: 1rem;
 }
 
-.track-list .list-group-item {
-  background: none;
-  border: none;
-  border-bottom: 2px dashed rgba(0, 0, 0, 0.15);
-  margin-bottom: 0;
-  padding: 1rem 0 1rem 1rem;
-}
-
 .track-list .list-group-item:first-child {
   border-top: 2px dashed rgba(0, 0, 0, 0.15);
   border-radius: 0;
 }
 
-.track-list .list-group-item:last-child {
+.track-list .list-group-item {
+  background: none;
   border: none;
+  border-right: 2px dashed rgba(0, 0, 0, 0.15);
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.15);
+  margin-bottom: 0;
+  padding: 1rem;
+}
+
+.track-list .list-group-item:last-child {
+  border-radius: 0;
 }
 
 .track-list .list-group-item .btn {
@@ -120,8 +125,14 @@ input[type='date'] {
   width: 6rem;
 }
 
-.track-list .list-group-item .btn.add-track {
-  margin: 0;
+.track-list .list-group-item .btn:last-of-type {
+  margin-right: 0;
+}
+
+.btn.add-track {
+  margin: 1rem 0.25rem 0 calc(1rem + 4px);
+  margin-right: 0.25rem;
+  width: 6rem;
 }
 
 .track-list .list-group-item.audio-true {

@@ -88,8 +88,9 @@ const TransactionsList = (props) => {
   return (
     <div className="transactions">
       <h3 className="text-center">
-        <FontAwesome name="cog" spin className="icon-left" />
-        Listening for Transactions
+        {/* <FontAwesome name="cog" spin className="icon-left" />
+        Listening for Transactions */}
+        Transactions
       </h3>
       <p>
         <FontAwesome name="server" className="icon-left" />

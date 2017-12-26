@@ -82,7 +82,7 @@ class Payment extends Component {
         </p>
       </div>
     ) : (
-      <div className="d-flex justify-content-end">
+      <div className="d-flex justify-content-center">
         <button
           className="btn btn-outline-primary btn-sm show-payment-info"
           onClick={() => this.setState({ showPaymentInfo: true })}
@@ -108,7 +108,9 @@ class Payment extends Component {
           code, you can also{' '}
           <a
             onClick={() =>
-              this.setState({ showPaymentInfo: !this.state.showPaymentInfo })
+              this.setState({
+                showPaymentInfo: !this.state.showPaymentInfo
+              })
             }
             role="button"
             style={{ cursor: 'pointer' }}

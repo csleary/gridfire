@@ -7,13 +7,13 @@
 }
 
 .selected-release .tracklist-wrapper {
-  columns: 2;
-  margin-bottom: 1rem;
+  columns: 1;
+  margin-bottom: 2rem;
+  padding-left: 2rem;
 }
 
 .selected-release .tracklist {
   color: #999;
-  padding-left: 2rem;
 }
 
 .selected-release .tracklist li a {
@@ -78,5 +78,11 @@
 @media (min-width: 576px) {
   .selected-release .artwork {
     margin-bottom: 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .selected-release .tracklist-wrapper {
+    columns: 2;
   }
 }
