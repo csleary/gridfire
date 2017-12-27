@@ -58,7 +58,7 @@
 #player-progress {
   background: #666;
   height: 100%;
-  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transition: 0.125s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 0;
 }
 
