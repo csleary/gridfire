@@ -11,6 +11,7 @@ class Player extends Component {
     this.state = {
       elapsedTime: '',
       expandSeekBar: false,
+      isSeeking: false,
       percentComplete: 0,
       showRemaining: false
     };
@@ -71,6 +72,15 @@ class Player extends Component {
     this.stopAudio();
   }
 
+  handleSeek(event) {
+    const audioPlayer = document.getElementById('player');
+    const seekBar = document.getElementById('seek-bar');
+    const x = event.clientX;
+    const width = seekBar.clientWidth;
+    const percentage = x / width;
+    audioPlayer.currentTime = audioPlayer.duration * percentage;
+  }
+
   playAudio() {
     const audioPlayer = document.getElementById('player');
     if (this.props.player.isPlaying) {
@@ -99,7 +109,7 @@ class Player extends Component {
   }
 
   renderPlayButton() {
-    if (!this.state.ready) {
+    if (!this.state.ready || this.state.isSeeking) {
       return (
         <FontAwesome
           name="circle-o-notch"
@@ -134,7 +144,13 @@ class Player extends Component {
           preload="metadata"
           autoPlay
         />
-        <div className="seek-bar">
+        <div
+          className="seek-bar"
+          id="seek-bar"
+          onClick={event => this.handleSeek(event)}
+          role="button"
+          tabIndex="-1"
+        >
           <div
             id="player-progress"
             style={{ width: `${this.state.percentComplete}%` }}
