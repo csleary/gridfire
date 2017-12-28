@@ -16,6 +16,7 @@ class Payment extends Component {
       showPaymentInfo: false
     };
   }
+
   componentDidMount() {
     const { id } = this.props.match.params;
     this.props.fetchXemPrice();
@@ -34,6 +35,16 @@ class Payment extends Component {
   }
 
   render() {
+    const { id } = this.props.match.params;
+    const { price } = this.props.release;
+    const paymentAddress = this.props.paymentAddress.replace(/-/g, '');
+    const { paymentHash } = this.props;
+    const paymentParams = {
+      id,
+      paymentAddress,
+      paymentHash,
+      price
+    };
     const paymentInfo = this.state.showPaymentInfo ? (
       <div>
         <h3 className="text-center">Manual Payment</h3>
@@ -128,14 +139,17 @@ class Payment extends Component {
         )}
         {paymentInfo}
         <TransactionsList
+          downloadToken={this.props.downloadToken}
           isLoadingTxs={this.props.isLoadingTxs}
+          isUpdating={this.props.isUpdating}
           nemNode={this.props.nemNode}
           paidToDate={this.props.paidToDate.toFixed(2)}
+          price={this.props.release.price}
+          paymentParams={paymentParams}
           release={this.props.release}
           toastMessage={this.props.toastMessage}
-          downloadToken={this.props.downloadToken}
           transactions={this.props.transactions}
-          // unconfirmed={this.state.unconfirmed}
+          updateIncomingTxs={this.props.updateIncomingTxs}
         />
       </div>
     );
@@ -145,9 +159,10 @@ class Payment extends Component {
 function mapStateToProps(state) {
   return {
     downloadToken: state.transactions.downloadToken,
+    hasPaid: state.transactions.hasPaid,
     isLoading: state.releases.isLoading,
     isLoadingTxs: state.transactions.isLoading,
-    hasPaid: state.transactions.hasPaid,
+    isUpdating: state.transactions.isUpdating,
     nemNode: state.transactions.nemNode,
     paidToDate: state.transactions.paidToDate,
     paymentAddress: state.releases.paymentAddress,

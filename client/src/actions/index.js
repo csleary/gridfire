@@ -24,6 +24,8 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
+  UPDATE_TRANSACTIONS,
+  UPDATE_TRANSACTIONS_LOADING,
   UPDATE_RELEASE
 } from './types';
 
@@ -264,8 +266,20 @@ export const transcodeAudio = (id, index) => async () => {
   });
 };
 
+export const updateIncomingTxs = paymentParams => async (dispatch) => {
+  dispatch({ type: UPDATE_TRANSACTIONS_LOADING });
+  const res = await axios.post('/api/nem/transactions', paymentParams);
+  dispatch({
+    type: UPDATE_TRANSACTIONS,
+    isUpdating: false,
+    payload: res.data,
+    downloadToken: res.headers.authorization
+  });
+};
+
 export const updateRelease = (values, callback) => async (dispatch) => {
   const res = await axios.put('/api/release', values);
   callback();
   dispatch({ type: UPDATE_RELEASE, payload: res.data });
 };
+

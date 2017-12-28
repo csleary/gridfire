@@ -149,6 +149,10 @@ a:focus {
   margin-right: 0.5rem;
 }
 
+.icon-right {
+  margin-left: 0.5rem;
+}
+
 .form-control,
 .form-control:focus {
   border: none;
