@@ -17,8 +17,8 @@ const TransactionsList = (props) => {
             window.location = `/api/download/${props.downloadToken}`;
           }}
         >
-          Download Release{' '}
-          <FontAwesome name="download" className="button-icon" />
+          <FontAwesome name="download" className="icon-left" />
+          Download Release
         </button>
       </div>
     </div>
@@ -33,35 +33,23 @@ const TransactionsList = (props) => {
     />
   ));
 
-  const transactionsPreamble = !props.transactions.length ? (
-    <p>No transactions found just yet&hellip;</p>
-  ) : (
-    <div>
-      <p>
-        Paid to date: <strong>{props.paidToDate} XEM</strong>.
-      </p>
-    </div>
+  const underpaid = (
+    <p>
+      Please pay a futher {(props.price - props.paidToDate).toFixed(2)} XEM to
+      activate your download, then hit the refresh button below to check again.
+    </p>
   );
 
-  // const UnconfirmedtxList = props.unconfirmed.map(tx => (
-  //   <SingleTransaction
-  //     key={tx.meta.hash.data}
-  //     hash={tx.meta.hash.data}
-  //     amount={tx.transaction.amount * (10 ** -6)}
-  //     date={nem.utils.format.nemDate(tx.transaction.timeStamp)}
-  //   />
-  // ));
-
-  // const unconfirmedTransactions = props.unconfirmed.length !== 0 && (
-  //   <div>
-  //     <h5>
-  //       Unconfirmed Transactions:
-  //     </h5>
-  //     <ol className="list-group tx-list">
-  //       {UnconfirmedtxList}
-  //     </ol>
-  //   </div>
-  // );
+  const transactionsPreamble = !props.transactions.length ? (
+    <p>
+      No transactions found just yet. Please hit the refresh button below to
+      check again for confirmed payments.
+    </p>
+  ) : (
+    <p>
+      Paid to date: <strong>{props.paidToDate} XEM</strong>.
+    </p>
+  );
 
   const confirmedTransactions = props.transactions.length > 0 && (
     <div>
@@ -87,18 +75,26 @@ const TransactionsList = (props) => {
   }
   return (
     <div className="transactions">
-      <h3 className="text-center">
-        {/* <FontAwesome name="cog" spin className="icon-left" />
-        Listening for Transactions */}
-        Transactions
-      </h3>
+      <h3 className="text-center">Transactions</h3>
       <p>
         <FontAwesome name="server" className="icon-left" />
-        Connected to node: <strong>{props.nemNode}</strong>
+        Connected to NIS Node: <strong>{props.nemNode}</strong>
       </p>
       {transactionsPreamble}
+      {props.paidToDate < props.price && underpaid}
+      <button
+        className="btn btn-outline-primary btn-sm refresh-txs"
+        disabled={props.isUpdating}
+        onClick={() => props.updateIncomingTxs(props.paymentParams)}
+      >
+        <FontAwesome
+          name="refresh"
+          className="icon-left"
+          spin={props.isUpdating}
+        />
+        Refresh
+      </button>
       {downloadButton}
-      {/* {unconfirmedTransactions} */}
       {confirmedTransactions}
     </div>
   );

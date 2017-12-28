@@ -2,8 +2,19 @@
   margin-top: 3rem;
 }
 
+.transactions h5 {
+  margin-bottom: 1rem;
+}
+
 h3.transactions-searching {
   margin-top: 3rem;
+}
+
+button.refresh-txs {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  width: unset;
 }
 
 .tx-list {
@@ -40,13 +51,3 @@ button.download-button:hover {
     opacity: 1;
   }
 }
-
-/* @media (min-width: 1200px) {
-  .transactions {
-    margin-top: 0;
-  }
-
-  h3.transactions-searching {
-    margin-top: 0;
-  }
-} */

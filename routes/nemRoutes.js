@@ -22,9 +22,6 @@ module.exports = (app) => {
 
     fetchIncomingTransactions(paymentAddress, paymentHash, (transactions) => {
       // Issue download token to user on successful payment.
-
-      // TODO Insert socket module, hold paidToDate and check with each transaction received whether enough has been paid, then move on to the token. Will need to break-out address filter and payment combo into separate files for reuse with the sockets.
-
       if (transactions.paidToDate >= price) {
         const token = jwt.sign(
           {
