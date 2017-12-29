@@ -36,7 +36,8 @@ const TransactionsList = (props) => {
   const underpaid = (
     <p>
       Please pay a futher {(props.price - props.paidToDate).toFixed(2)} XEM to
-      activate your download, then hit the refresh button below to check again.
+      activate your download, then tap the refresh button below to check for
+      confirmed payments.
     </p>
   );
 
@@ -81,7 +82,7 @@ const TransactionsList = (props) => {
         Connected to NIS Node: <strong>{props.nemNode}</strong>
       </p>
       {transactionsPreamble}
-      {props.paidToDate < props.price && underpaid}
+      {props.paidToDate > 0 && props.paidToDate < props.price && underpaid}
       <button
         className="btn btn-outline-primary btn-sm refresh-txs"
         disabled={props.isUpdating}
