@@ -9,6 +9,9 @@ import Spinner from './Spinner';
 import UserReleases from './UserReleases';
 import '../style/dashboard.css';
 
+const addressPrefix =
+  process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
+
 class Dashboard extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
@@ -58,7 +61,7 @@ class Dashboard extends Component {
         <input
           {...input}
           className="form-control"
-          placeholder="NEM Address (should start with an 'N')"
+          placeholder={`NEM Address (should start with ${addressPrefix})`}
           type={type}
         />
         <small className="form-text text-muted">
