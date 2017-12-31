@@ -117,26 +117,28 @@ const UserReleases = (props) => {
   };
 
   return (
-    <div>
-      <h3>My Releases</h3>
-      {!props.isLoadingUserReleases &&
-        props.userReleases &&
-        !props.userReleases.length && (
-          <p>
-            You don&rsquo;t currently have any releases for sale. Please hit the
-            button below to add your first release.
-          </p>
-        )}
-      <Link
-        className="btn btn-outline-primary btn-sm add-release"
-        title="Add Release"
-        role="button"
-        to={'/release/add/'}
-      >
-        <FontAwesome name="plus-circle" className="icon-left" />
-        Add Release
-      </Link>
-      <ul className="user-releases">{renderUserReleases()}</ul>
+    <div className="row">
+      <div className="col-12">
+        <h3>My Releases</h3>
+        {!props.isLoadingUserReleases &&
+          props.userReleases &&
+          !props.userReleases.length && (
+            <p>
+              You don&rsquo;t currently have any releases for sale. Please hit
+              the button below to add your first release.
+            </p>
+          )}
+        <Link
+          className="btn btn-outline-primary btn-sm add-release"
+          title="Add Release"
+          role="button"
+          to={'/release/add/'}
+        >
+          <FontAwesome name="plus-circle" className="icon-left" />
+          Add Release
+        </Link>
+        <ul className="user-releases">{renderUserReleases()}</ul>
+      </div>
     </div>
   );
 };
