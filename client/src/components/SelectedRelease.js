@@ -102,58 +102,60 @@ class SelectedRelease extends Component {
     } = this.props.release;
 
     return (
-      <div className="row selected-release">
-        <div className="col-md-6">
-          <div className="artwork">
-            <img src={artwork} alt={releaseTitle} className="img-fluid" />
-            <div
-              className="cover-artwork-overlay"
-              onClick={() => {
-                this.props.playTrack(
-                  _id,
-                  trackList[0]._id,
-                  artistName,
-                  trackList[0].trackTitle
-                );
-                this.nowPlayingToast(trackList[0].trackTitle);
-              }}
-              role="button"
-              tabIndex="-1"
-              title={`${artistName} - ${releaseTitle}`}
-            >
-              <FontAwesome className="play" name="play" />
+      <main className="container">
+        <div className="row selected-release">
+          <div className="col-md">
+            <div className="artwork">
+              <img src={artwork} alt={releaseTitle} className="img-fluid" />
+              <div
+                className="cover-artwork-overlay"
+                onClick={() => {
+                  this.props.playTrack(
+                    _id,
+                    trackList[0]._id,
+                    artistName,
+                    trackList[0].trackTitle
+                  );
+                  this.nowPlayingToast(trackList[0].trackTitle);
+                }}
+                role="button"
+                tabIndex="-1"
+                title={`${artistName} - ${releaseTitle}`}
+              >
+                <FontAwesome className="play" name="play" />
+              </div>
+            </div>
+          </div>
+          <div className="col-md release-info">
+            <h2 className="release-title text-center">{releaseTitle}</h2>
+            <h4 className="artist-name text-center">{artistName}</h4>
+            <h6 className="release-price text-center">
+              {price} XEM{' '}
+              {this.props.xemPriceUsd &&
+                `(~$${(
+                  this.props.release.price * this.props.xemPriceUsd
+                ).toFixed(2)} USD)`}
+            </h6>
+            <div className="tracklist-wrapper">
+              <ol className="tracklist">{this.renderTrackList()}</ol>
+            </div>
+            <h6>
+              <FontAwesome name="calendar-o" className="icon-left" />
+              {this.formatDate(releaseDate)}
+            </h6>
+            <h6>{recordLabel && `Label: ${recordLabel}`}</h6>
+            <h6>{catNumber && `Cat.: ${catNumber}`}</h6>
+            <div className="d-flex justify-content-center">
+              <Link
+                to={`/payment/${this.props.release._id}`}
+                className="btn btn-outline-primary buy-button"
+              >
+                Purchase
+              </Link>
             </div>
           </div>
         </div>
-        <div className="col-md-6 release-info">
-          <h2 className="release-title text-center">{releaseTitle}</h2>
-          <h4 className="artist-name text-center">{artistName}</h4>
-          <h6 className="release-price text-center">
-            {price} XEM{' '}
-            {this.props.xemPriceUsd &&
-              `(~$${(this.props.release.price * this.props.xemPriceUsd).toFixed(
-                2
-              )} USD)`}
-          </h6>
-          <div className="tracklist-wrapper">
-            <ol className="tracklist">{this.renderTrackList()}</ol>
-          </div>
-          <h6>
-            <FontAwesome name="calendar-o" className="icon-left" />
-            {this.formatDate(releaseDate)}
-          </h6>
-          <h6>{recordLabel && `Label: ${recordLabel}`}</h6>
-          <h6>{catNumber && `Cat.: ${catNumber}`}</h6>
-          <div className="d-flex justify-content-center">
-            <Link
-              to={`/payment/${this.props.release._id}`}
-              className="btn btn-outline-primary buy-button"
-            >
-              Purchase
-            </Link>
-          </div>
-        </div>
-      </div>
+      </main>
     );
   }
 }

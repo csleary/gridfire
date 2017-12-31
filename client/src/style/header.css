@@ -14,7 +14,7 @@ header {
 .user-admin {
   color: #666;
   font-weight: bold;
-  padding: 0 1rem 2px 0;
+  text-align: right;
 }
 
 .google-icon {

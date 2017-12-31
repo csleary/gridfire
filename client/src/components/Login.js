@@ -22,8 +22,12 @@ class Login extends Component {
   render() {
     const { handleSubmit, pristine, submitting } = this.props;
     return (
-      <div className="container">
-        <h2 className="text-center">Log In</h2>
+      <main className="container">
+        <div className="row">
+          <div className="col">
+            <h2 className="text-center">Log In</h2>
+          </div>
+        </div>
         <div className="row">
           <div className="col-xl">
             <p>
@@ -82,7 +86,7 @@ class Login extends Component {
             </p>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 }

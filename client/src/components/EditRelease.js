@@ -390,146 +390,153 @@ class EditRelease extends Component {
     if (this.state.isLoading) {
       return <Spinner />;
     }
+
     return (
-      <form onSubmit={this.props.handleSubmit(this.onSubmit)}>
-        <h2 className="text-center">{this.renderHeader()}</h2>
-        {!this.state.isEditing && (
-          <p>
-            Please enter your release info below. Artwork and audio will be
-            saved instantly after uploading.
-          </p>
-        )}
-        <div>
-          {(this.state.coverArtPreview || this.props.release.artwork) && (
-            <div className="cover-art">
-              <img
-                className="img-fluid"
-                alt=""
-                src={
-                  this.state.coverArtPreview
-                    ? this.state.coverArtPreview
-                    : this.props.release.artwork
-                }
-              />
-              <div className="d-flex flex-row justify-content-end cover-art-overlay">
-                <div className="delete">
-                  <a
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => {
-                      const { release } = this.props;
-                      if (release.published) {
-                        this.props.publishStatus(release._id);
+      <main className="container">
+        <div className="row">
+          <div className="col">
+            <form onSubmit={this.props.handleSubmit(this.onSubmit)}>
+              <h2 className="text-center">{this.renderHeader()}</h2>
+              {!this.state.isEditing && (
+                <p>
+                  Please enter your release info below. Artwork and audio will
+                  be saved instantly after uploading.
+                </p>
+              )}
+              <div>
+                {(this.state.coverArtPreview || this.props.release.artwork) && (
+                  <div className="cover-art">
+                    <img
+                      className="img-fluid"
+                      alt=""
+                      src={
+                        this.state.coverArtPreview
+                          ? this.state.coverArtPreview
+                          : this.props.release.artwork
                       }
-                      this.props.deleteArtwork(release._id).then(() => {
-                        if (artworkFile) {
-                          window.URL.revokeObjectURL(artworkFile.preview);
-                        }
-                        this.props.toastMessage({
-                          alertClass: 'alert-success',
-                          message:
-                            'Artwork deleted. If your release was previously published, it has also been taken offline.'
-                        });
-                      });
-                    }}
-                  >
-                    <FontAwesome name="trash" />
-                  </a>
+                    />
+                    <div className="d-flex flex-row justify-content-end cover-art-overlay">
+                      <div className="delete">
+                        <a
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => {
+                            const { release } = this.props;
+                            if (release.published) {
+                              this.props.publishStatus(release._id);
+                            }
+                            this.props.deleteArtwork(release._id).then(() => {
+                              if (artworkFile) {
+                                window.URL.revokeObjectURL(artworkFile.preview);
+                              }
+                              this.props.toastMessage({
+                                alertClass: 'alert-success',
+                                message:
+                                  'Artwork deleted. If your release was previously published, it has also been taken offline.'
+                              });
+                            });
+                          }}
+                        >
+                          <FontAwesome name="trash" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <Dropzone
+                  accept=".png, .jpg, .jpeg"
+                  activeClassName="dropzone-art-active"
+                  className="dropzone-art"
+                  maxSize={1024 * 1024 * 2}
+                  multiple={false}
+                  onDrop={this.onDropArt}
+                >
+                  <FontAwesome name="upload" className="icon-left" />
+                  {this.state.uploadingArt && this.state.uploadingArt < 100
+                    ? `Uploading: ${this.state.uploadingArt}%`
+                    : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
+                  <ProgressBar
+                    percentComplete={this.state.uploadingArt}
+                    willDisplay={
+                      this.state.uploadingArt && this.state.uploadingArt < 100
+                    }
+                  />
+                </Dropzone>
+              </div>
+              <div className="row p-0">
+                <div className="col-lg">
+                  <Field
+                    component={this.renderReleaseField}
+                    label="Artist Name"
+                    name="artistName"
+                    required
+                    type="text"
+                  />
+                  <Field
+                    component={this.renderReleaseField}
+                    formText="This won't affect the visibility of your release."
+                    label="Release Date"
+                    name="releaseDate"
+                    required
+                    type="date"
+                  />
+                  <Field
+                    component={this.renderReleaseField}
+                    label="Record Label"
+                    name="recordLabel"
+                    type="text"
+                  />
+                </div>
+                <div className="col-lg">
+                  <Field
+                    component={this.renderReleaseField}
+                    label="Release Title"
+                    name="releaseTitle"
+                    required
+                    type="text"
+                  />
+                  <Field
+                    component={this.renderReleaseField}
+                    formText={
+                      this.props.price
+                        ? `Approximately $${(
+                          this.props.price * this.props.xemPriceUsd
+                        ).toFixed(2)} USD. (Enter '0' for free.)`
+                        : "Set your price in XEM (enter '0' for free)."
+                    }
+                    label="Price"
+                    name="price"
+                    required
+                    type="number"
+                  />
+                  <Field
+                    component={this.renderReleaseField}
+                    formText="Your own identifier, if you have one."
+                    label="Catalogue Number"
+                    name="catNumber"
+                    type="text"
+                  />
                 </div>
               </div>
-            </div>
-          )}
-          <Dropzone
-            accept=".png, .jpg, .jpeg"
-            activeClassName="dropzone-art-active"
-            className="dropzone-art"
-            maxSize={1024 * 1024 * 2}
-            multiple={false}
-            onDrop={this.onDropArt}
-          >
-            <FontAwesome name="upload" className="icon-left" />
-            {this.state.uploadingArt && this.state.uploadingArt < 100
-              ? `Uploading: ${this.state.uploadingArt}%`
-              : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
-            <ProgressBar
-              percentComplete={this.state.uploadingArt}
-              willDisplay={
-                this.state.uploadingArt && this.state.uploadingArt < 100
-              }
-            />
-          </Dropzone>
-        </div>
-        <div className="row p-0">
-          <div className="col-lg">
-            <Field
-              component={this.renderReleaseField}
-              label="Artist Name"
-              name="artistName"
-              required
-              type="text"
-            />
-            <Field
-              component={this.renderReleaseField}
-              formText="This won't affect the visibility of your release."
-              label="Release Date"
-              name="releaseDate"
-              required
-              type="date"
-            />
-            <Field
-              component={this.renderReleaseField}
-              label="Record Label"
-              name="recordLabel"
-              type="text"
-            />
-          </div>
-          <div className="col-lg">
-            <Field
-              component={this.renderReleaseField}
-              label="Release Title"
-              name="releaseTitle"
-              required
-              type="text"
-            />
-            <Field
-              component={this.renderReleaseField}
-              formText={
-                this.props.price
-                  ? `Approximately $${(
-                    this.props.price * this.props.xemPriceUsd
-                  ).toFixed(2)} USD. (Enter '0' for free.)`
-                  : "Set your price in XEM (enter '0' for free)."
-              }
-              label="Price"
-              name="price"
-              required
-              type="number"
-            />
-            <Field
-              component={this.renderReleaseField}
-              formText="Your own identifier, if you have one."
-              label="Catalogue Number"
-              name="catNumber"
-              type="text"
-            />
+              <h3 className="track-list-title text-center">Track List</h3>
+              <FieldArray
+                name="trackList"
+                component={this.renderTrackList}
+                uploadingAudio={this.state.uploadingAudio}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary btn-lg"
+                  disabled={this.props.pristine || this.props.submitting}
+                >
+                  {this.state.isEditing ? 'Update Release' : 'Add Release'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-        <h3 className="track-list-title text-center">Track List</h3>
-        <FieldArray
-          name="trackList"
-          component={this.renderTrackList}
-          uploadingAudio={this.state.uploadingAudio}
-        />
-        <div className="d-flex justify-content-end">
-          <button
-            type="submit"
-            className="btn btn-outline-primary btn-lg"
-            disabled={this.props.pristine || this.props.submitting}
-          >
-            {this.state.isEditing ? 'Update Release' : 'Add Release'}
-          </button>
-        </div>
-      </form>
+      </main>
     );
   }
 }

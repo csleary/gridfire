@@ -61,9 +61,9 @@
 .front-page .cover-artwork .artist-name,
 .front-page .cover-artwork .release-title {
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   text-align: center;
 }
 
@@ -82,15 +82,21 @@
   }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .front-page {
     grid-template-columns: repeat(3, auto);
   }
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 992px) {
   .front-page {
     grid-template-columns: repeat(4, auto);
+  }
+}
+
+@media (min-width: 1600px) {
+  .front-page {
+    grid-template-columns: repeat(6, auto);
   }
 
   .front-page .cover-artwork .cover-artwork-overlay {

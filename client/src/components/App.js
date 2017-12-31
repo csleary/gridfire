@@ -57,30 +57,21 @@ class App extends Component {
         <div>
           <Header user={this.props.user} />
           <Navbar user={this.props.user} />
-          <main className="App container-fluid">
-            <div className="row justify-content-center">
-              <div className="col-8">
-                <Switch>
-                  <Route exact path="/" component={Home} />
-                  <Route path="/login" component={Login} />
-                  <Route path="/register" component={Register} />
-                  <Route
-                    exact
-                    strict
-                    path="/release/:id"
-                    component={SelectedRelease}
-                  />
-                  <PrivateRoute path="/release/add/" component={EditRelease} />
-                  <PrivateRoute
-                    path="/release/edit/:id"
-                    component={EditRelease}
-                  />
-                  <PrivateRoute path="/payment/:id" component={Payment} />
-                  <PrivateRoute path="/dashboard" component={Dashboard} />
-                </Switch>
-              </div>
-            </div>
-          </main>
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
+            <Route
+              exact
+              strict
+              path="/release/:id"
+              component={SelectedRelease}
+            />
+            <PrivateRoute path="/release/add/" component={EditRelease} />
+            <PrivateRoute path="/release/edit/:id" component={EditRelease} />
+            <PrivateRoute path="/payment/:id" component={Payment} />
+            <PrivateRoute path="/dashboard" component={Dashboard} />
+          </Switch>
           <Footer />
           <Player />
           <Toast />

@@ -78,11 +78,17 @@ class Home extends Component {
       return <Spinner message={<h2>Loading catalogue&hellip;</h2>} />;
     }
     return (
-      <div>
-        <h2 className="text-center">Sell Your Music with the NEM Blockchain</h2>
-        <h2>New Releases</h2>
-        <div className="front-page">{this.renderReleases()}</div>
-      </div>
+      <main className="container-fluid">
+        <div className="row">
+          <div className="col">
+            <h2 className="text-center">
+              Sell Your Music with the NEM Blockchain
+            </h2>
+            <h2>New Releases</h2>
+            <div className="front-page">{this.renderReleases()}</div>
+          </div>
+        </div>
+      </main>
     );
   }
 }
