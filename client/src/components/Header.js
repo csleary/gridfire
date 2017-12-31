@@ -10,12 +10,11 @@ const Header = ({ user }) => {
     if (!user.isLoggedIn) return null;
 
     return (
-      <span className="text-right">
+      <span>
         {user.auth.googleId && (
           <FontAwesome name="google" className="icon-left google-icon" />
         )}
         {user.auth.email}
-        <br />
       </span>
     );
   }
@@ -23,7 +22,7 @@ const Header = ({ user }) => {
   return (
     <div>
       <div className="gradient" />
-      <header className="container-fluid header">
+      <header className="container-fluid">
         <div className="row">
           <div className="col-lg-2" />
           <div className="col-lg-8">
@@ -124,7 +123,7 @@ const Header = ({ user }) => {
             </Link>
           </div>
           <div className="col-lg-2 align-self-end user-admin">
-            <ul className="nav flex-column">{authStatus()}</ul>
+            {authStatus()}
           </div>
         </div>
       </header>

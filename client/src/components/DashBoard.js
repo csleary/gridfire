@@ -79,41 +79,45 @@ class Dashboard extends Component {
 
     const { handleSubmit, pristine, submitting } = this.props;
     return (
-      <div>
-        <h2 className="text-center">Dashboard</h2>
-        <h3>Payment Address</h3>
-        <p>Please add your NEM address to receive customer payments.</p>
-        <form onSubmit={handleSubmit(this.onSubmit)}>
-          <Field
-            disabled={submitting}
-            id="nemAddress"
-            label="NEM Address"
-            name="nemAddress"
-            type="text"
-            component={this.renderNemAddressField}
-            validate={this.checkNemAddress}
-          />
-          <div className="d-flex justify-content-end">
-            <button
-              type="submit"
-              className="btn btn-outline-primary btn-lg"
-              disabled={pristine || submitting}
-            >
-              Save Address
-            </button>
-          </div>
-        </form>
+      <main className="container">
+        <div className="row">
+          <div className="col">
+            <h2 className="text-center">Dashboard</h2>
+            <h3>Payment Address</h3>
+            <p>Please add your NEM address to receive customer payments.</p>
+            <form onSubmit={handleSubmit(this.onSubmit)}>
+              <Field
+                disabled={submitting}
+                id="nemAddress"
+                label="NEM Address"
+                name="nemAddress"
+                type="text"
+                component={this.renderNemAddressField}
+                validate={this.checkNemAddress}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary btn-lg"
+                  disabled={pristine || submitting}
+                >
+                  Save Address
+                </button>
+              </div>
+            </form>
 
-        <UserReleases
-          isLoadingUserReleases={this.props.isLoadingUserReleases}
-          history={this.props.history}
-          userReleases={this.props.userReleases}
-          editRelease={this.props.editRelease}
-          publishStatus={this.props.publishStatus}
-          publishLoading={this.props.publishLoading}
-          deleteRelease={this.props.deleteRelease}
-        />
-      </div>
+            <UserReleases
+              isLoadingUserReleases={this.props.isLoadingUserReleases}
+              history={this.props.history}
+              userReleases={this.props.userReleases}
+              editRelease={this.props.editRelease}
+              publishStatus={this.props.publishStatus}
+              publishLoading={this.props.publishLoading}
+              deleteRelease={this.props.deleteRelease}
+            />
+          </div>
+        </div>
+      </main>
     );
   }
 }

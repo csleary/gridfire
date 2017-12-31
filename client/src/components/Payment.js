@@ -107,51 +107,55 @@ class Payment extends Component {
       return <Spinner message={<h2>Loading Payment Info&hellip;</h2>} />;
     }
     return (
-      <div>
-        <h2 className="text-center">Payment</h2>
-        <h3 className="text-center">
-          {this.props.release.artistName} -{' '}
-          <em>{this.props.release.releaseTitle}</em>
-        </h3>
-        <p>
-          Please scan the QR code below with the NEM Wallet app to make your
-          payment. If you&rsquo;re on a mobile device, or cannot scan the QR
-          code, you can also{' '}
-          <a
-            onClick={() =>
-              this.setState({
-                showPaymentInfo: !this.state.showPaymentInfo
-              })
-            }
-            role="button"
-            style={{ cursor: 'pointer' }}
-            tabIndex="-1"
-          >
-            pay manually
-          </a>.
-        </p>
-        {!this.state.showPaymentInfo && (
-          <QRCode
-            paymentAddress={this.props.paymentAddress.replace(/-/g, '')}
-            price={this.props.release.price}
-            idHash={this.props.paymentHash}
-          />
-        )}
-        {paymentInfo}
-        <TransactionsList
-          downloadToken={this.props.downloadToken}
-          isLoadingTxs={this.props.isLoadingTxs}
-          isUpdating={this.props.isUpdating}
-          nemNode={this.props.nemNode}
-          paidToDate={this.props.paidToDate.toFixed(2)}
-          price={this.props.release.price}
-          paymentParams={paymentParams}
-          release={this.props.release}
-          toastMessage={this.props.toastMessage}
-          transactions={this.props.transactions}
-          updateIncomingTxs={this.props.updateIncomingTxs}
-        />
-      </div>
+      <main className="container">
+        <div className="row">
+          <div className="col">
+            <h2 className="text-center">Payment</h2>
+            <h3 className="text-center">
+              {this.props.release.artistName} -{' '}
+              <em>{this.props.release.releaseTitle}</em>
+            </h3>
+            <p>
+              Please scan the QR code below with the NEM Wallet app to make your
+              payment. If you&rsquo;re on a mobile device, or cannot scan the QR
+              code, you can also{' '}
+              <a
+                onClick={() =>
+                  this.setState({
+                    showPaymentInfo: !this.state.showPaymentInfo
+                  })
+                }
+                role="button"
+                style={{ cursor: 'pointer' }}
+                tabIndex="-1"
+              >
+                pay manually
+              </a>.
+            </p>
+            {!this.state.showPaymentInfo && (
+              <QRCode
+                paymentAddress={this.props.paymentAddress.replace(/-/g, '')}
+                price={this.props.release.price}
+                idHash={this.props.paymentHash}
+              />
+            )}
+            {paymentInfo}
+            <TransactionsList
+              downloadToken={this.props.downloadToken}
+              isLoadingTxs={this.props.isLoadingTxs}
+              isUpdating={this.props.isUpdating}
+              nemNode={this.props.nemNode}
+              paidToDate={this.props.paidToDate.toFixed(2)}
+              price={this.props.release.price}
+              paymentParams={paymentParams}
+              release={this.props.release}
+              toastMessage={this.props.toastMessage}
+              transactions={this.props.transactions}
+              updateIncomingTxs={this.props.updateIncomingTxs}
+            />
+          </div>
+        </div>
+      </main>
     );
   }
 }

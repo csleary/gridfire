@@ -27,20 +27,24 @@ const networkLinks = () => {
 };
 
 const Footer = () => (
-  <footer>
-    {networkLinks()}
-    <small>
-      <p className="text-center">
-        &copy; {year !== 2017 && <span>2017&ndash;</span>}
-        {year}
-        <a href="http://ochremusic.com"> Christopher Leary</a>
-      </p>
-    </small>
-    <p className="text-center github">
-      <a href="https://github.com/csleary/nemp3v2">
-        <FontAwesome name="github" className="icon-left" />
-      </a>
-    </p>
+  <footer className="container-fluid">
+    <div className="row">
+      <div className="col">
+        {networkLinks()}
+        <small>
+          <p className="text-center">
+            &copy; {year !== 2017 && <span>2017&ndash;</span>}
+            {year}
+            <a href="http://ochremusic.com"> Christopher Leary</a>
+          </p>
+        </small>
+        <p className="text-center github">
+          <a href="https://github.com/csleary/nemp3v2">
+            <FontAwesome name="github" className="icon-left" />
+          </a>
+        </p>
+      </div>
+    </div>
   </footer>
 );
 
