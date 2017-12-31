@@ -103,7 +103,7 @@ class SelectedRelease extends Component {
 
     return (
       <div className="row selected-release">
-        <div className="col-sm">
+        <div className="col-md-6">
           <div className="artwork">
             <img src={artwork} alt={releaseTitle} className="img-fluid" />
             <div
@@ -125,10 +125,10 @@ class SelectedRelease extends Component {
             </div>
           </div>
         </div>
-        <div className="col-sm release-info">
-          <h2 className="mb-2 text-center">{releaseTitle}</h2>
-          <h4 className="mb-2 text-center">{artistName}</h4>
-          <h6 className="mb-3 text-center">
+        <div className="col-md-6 release-info">
+          <h2 className="release-title text-center">{releaseTitle}</h2>
+          <h4 className="artist-name text-center">{artistName}</h4>
+          <h6 className="release-price text-center">
             {price} XEM{' '}
             {this.props.xemPriceUsd &&
               `(~$${(this.props.release.price * this.props.xemPriceUsd).toFixed(
