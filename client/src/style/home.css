@@ -1,7 +1,7 @@
 .front-page {
   display: grid;
   grid-gap: 15px;
-  grid-template-columns: repeat(2, auto);
+  grid-template-columns: repeat(1, auto);
   justify-content: space-between;
 }
 
@@ -14,17 +14,14 @@
   flex-basis: 30%;
 }
 
-.front-page .cover-artwork img.artwork:hover {
-  filter: blur(3px);
-}
-
 .front-page .cover-artwork .cover-artwork-overlay {
-  align-items: center;
+  align-items: stretch;
   background: rgba(0, 0, 0, 0.5);
   color: #999;
   display: flex;
+  flex-direction: column;
   font-size: 4rem;
-  justify-content: space-evenly;
+  justify-content: space-between;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -38,8 +35,16 @@
   color: #999;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay:hover {
+.front-page .cover-artwork .cover-artwork-overlay:hover,
+.front-page .cover-artwork .cover-artwork-overlay:active {
   opacity: 1;
+}
+
+.front-page .cover-artwork .cover-artwork-overlay .buttons {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
 }
 
 .front-page .cover-artwork .cover-artwork-overlay .info,
@@ -53,9 +58,32 @@
   cursor: pointer;
 }
 
+.front-page .cover-artwork .artist-name,
+.front-page .cover-artwork .release-title {
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.front-page .cover-artwork .artist-name {
+  text-align: left;
+}
+
+.front-page .cover-artwork .release-title {
+  text-align: right;
+}
+
 @media (min-width: 576px) {
   .front-page {
     grid-gap: 1rem;
+    grid-template-columns: repeat(2, auto);
+  }
+}
+
+@media (min-width: 992px) {
+  .front-page {
     grid-template-columns: repeat(3, auto);
   }
 }
@@ -63,5 +91,9 @@
 @media (min-width: 1600px) {
   .front-page {
     grid-template-columns: repeat(4, auto);
+  }
+
+  .front-page .cover-artwork .cover-artwork-overlay {
+    font-size: 5rem;
   }
 }

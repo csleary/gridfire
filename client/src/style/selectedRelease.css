@@ -8,7 +8,7 @@
 
 .selected-release .tracklist-wrapper {
   columns: 1;
-  margin-bottom: 2rem;
+  margin: 3rem 0;
   padding-left: 2rem;
 }
 
@@ -61,6 +61,10 @@
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.release-info .release-title {
+  margin-bottom: 0.5rem;
+}
+
 @keyframes now-playing {
   0% {
     opacity: 1;
@@ -75,7 +79,7 @@
   }
 }
 
-@media (min-width: 576px) {
+@media (min-width: 768px) {
   .selected-release .artwork {
     margin-bottom: 0;
   }
@@ -84,5 +88,30 @@
 @media (min-width: 992px) {
   .selected-release .tracklist-wrapper {
     columns: 2;
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 1200px) {
+  .selected-release .tracklist-wrapper {
+    padding-left: 2rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .release-info .release-title {
+    font-size: 3rem;
+  }
+
+  .release-info .artist-name {
+    font-size: 2rem;
+  }
+
+  .release-info .release-price {
+    font-size: 1.2rem;
+  }
+
+  .selected-release .tracklist {
+    font-size: 1.2rem;
   }
 }

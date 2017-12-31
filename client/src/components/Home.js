@@ -42,28 +42,32 @@ class Home extends Component {
           className="cover-artwork-overlay"
           title={`${release.artistName} - ${release.releaseTitle}`}
         >
-          <FontAwesome
-            className="play"
-            name="play"
-            onClick={() => {
-              this.props.playTrack(
-                release._id,
-                release.trackList[0]._id,
-                release.artistName,
-                release.trackList[0].trackTitle
-              );
-              this.props.fetchRelease(release._id);
-              this.props.toastMessage({
-                alertClass: 'alert-info',
-                message: `Loading ${release.artistName} - '${
+          <div className="artist-name">{release.artistName}</div>
+          <div className="buttons">
+            <FontAwesome
+              className="play"
+              name="play"
+              onClick={() => {
+                this.props.playTrack(
+                  release._id,
+                  release.trackList[0]._id,
+                  release.artistName,
                   release.trackList[0].trackTitle
-                }'`
-              });
-            }}
-          />
-          <Link to={`/release/${release._id}`}>
-            <FontAwesome className="info" name="info-circle" />
-          </Link>
+                );
+                this.props.fetchRelease(release._id);
+                this.props.toastMessage({
+                  alertClass: 'alert-info',
+                  message: `Loading ${release.artistName} - '${
+                    release.trackList[0].trackTitle
+                  }'`
+                });
+              }}
+            />
+            <Link to={`/release/${release._id}`}>
+              <FontAwesome className="info" name="info-circle" />
+            </Link>
+          </div>
+          <div className="release-title">{release.releaseTitle}</div>
         </div>
       </div>
     ));
