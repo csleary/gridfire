@@ -81,7 +81,7 @@ class Dashboard extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col">
+          <div className="col-8 mx-auto">
             <h2 className="text-center">Dashboard</h2>
             <h3>Payment Address</h3>
             <p>Please add your NEM address to receive customer payments.</p>
@@ -105,18 +105,17 @@ class Dashboard extends Component {
                 </button>
               </div>
             </form>
-
-            <UserReleases
-              isLoadingUserReleases={this.props.isLoadingUserReleases}
-              history={this.props.history}
-              userReleases={this.props.userReleases}
-              editRelease={this.props.editRelease}
-              publishStatus={this.props.publishStatus}
-              publishLoading={this.props.publishLoading}
-              deleteRelease={this.props.deleteRelease}
-            />
           </div>
         </div>
+        <UserReleases
+          isLoadingUserReleases={this.props.isLoadingUserReleases}
+          history={this.props.history}
+          userReleases={this.props.userReleases}
+          editRelease={this.props.editRelease}
+          publishStatus={this.props.publishStatus}
+          publishLoading={this.props.publishLoading}
+          deleteRelease={this.props.deleteRelease}
+        />
       </main>
     );
   }
