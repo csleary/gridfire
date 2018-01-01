@@ -70,8 +70,14 @@ a.btn.add-release {
   width: 12rem;
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1200px) {
   .user-releases {
     grid-template-columns: repeat(2, auto);
+  }
+}
+
+@media (min-width: 1600px) {
+  .user-releases {
+    grid-template-columns: repeat(3, auto);
   }
 }

@@ -67,14 +67,6 @@
   text-align: center;
 }
 
-.front-page .cover-artwork .artist-name {
-  text-align: left;
-}
-
-.front-page .cover-artwork .release-title {
-  text-align: right;
-}
-
 @media (min-width: 576px) {
   .front-page {
     grid-gap: 1rem;
