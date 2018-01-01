@@ -79,32 +79,34 @@ class Dashboard extends Component {
 
     const { handleSubmit, pristine, submitting } = this.props;
     return (
-      <main className="container">
-        <div className="row">
-          <div className="col-8 mx-auto">
-            <h2 className="text-center">Dashboard</h2>
-            <h3>Payment Address</h3>
-            <p>Please add your NEM address to receive customer payments.</p>
-            <form onSubmit={handleSubmit(this.onSubmit)}>
-              <Field
-                disabled={submitting}
-                id="nemAddress"
-                label="NEM Address"
-                name="nemAddress"
-                type="text"
-                component={this.renderNemAddressField}
-                validate={this.checkNemAddress}
-              />
-              <div className="d-flex justify-content-end">
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary btn-lg"
-                  disabled={pristine || submitting}
-                >
-                  Save Address
-                </button>
-              </div>
-            </form>
+      <main>
+        <div className="container">
+          <div className="row">
+            <div className="col-xl-8 mx-auto">
+              <h2 className="text-center">Dashboard</h2>
+              <h3>Payment Address</h3>
+              <p>Please add your NEM address to receive customer payments.</p>
+              <form onSubmit={handleSubmit(this.onSubmit)}>
+                <Field
+                  disabled={submitting}
+                  id="nemAddress"
+                  label="NEM Address"
+                  name="nemAddress"
+                  type="text"
+                  component={this.renderNemAddressField}
+                  validate={this.checkNemAddress}
+                />
+                <div className="d-flex justify-content-end">
+                  <button
+                    type="submit"
+                    className="btn btn-outline-primary btn-lg"
+                    disabled={pristine || submitting}
+                  >
+                    Save Address
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
         <UserReleases
