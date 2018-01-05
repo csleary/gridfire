@@ -33,12 +33,20 @@ passport.use(
     async (req, email, password, done) => {
       try {
         const existingUser = await User.findOne({ 'auth.email': email });
-        if (!existingUser) return done(null, false);
+        if (!existingUser) {
+          return done(null, false, req.flash('error', 'User not found.'));
+        }
         const isMatched = await existingUser.comparePassword(password);
-        if (!isMatched) return done(null, false);
-        done(null, existingUser);
-      } catch (err) {
-        return done(err);
+        if (!isMatched) {
+          return done(null, false, req.flash('error', 'Password incorrect.'));
+        }
+        done(
+          null,
+          existingUser,
+          req.flash('success', 'Successfully logged in.')
+        );
+      } catch (error) {
+        return done(error);
       }
     }
   )
@@ -56,7 +64,7 @@ passport.use(
         const user = await User.findOne({ 'auth.email': email });
 
         if (user) {
-          return done(null, false);
+          return done(null, false, req.flash('error', 'User already exists.'));
         }
 
         const newUser = await new User({
@@ -67,9 +75,56 @@ passport.use(
           }
         }).save();
 
-        done(null, newUser);
-      } catch (err) {
-        done(err);
+        done(
+          null,
+          newUser,
+          req.flash('success', 'Thanks for registering. You are now logged in.')
+        );
+      } catch (error) {
+        done(
+          error,
+          null,
+          req.flash('error', 'Sorry, an error occurred! Request not completed.')
+        );
+      }
+    }
+  )
+);
+
+passport.use(
+  'local-update',
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passReqToCallback: true
+    },
+    async (req, email, password, done) => {
+      console.log(req.params);
+      try {
+        const existingUser = await User.findOne({ 'auth.email': email });
+        if (!existingUser) {
+          return done(null, false, req.flash('error', 'Incorrect username.'));
+        }
+        const isMatched = await existingUser.comparePassword(password);
+        if (!isMatched) {
+          return done(null, false, req.flash('error', 'Incorrect password.'));
+        }
+        if (req.body.passwordNew !== req.body.passwordConfirm) {
+          return done(
+            null,
+            false,
+            req.flash('error', 'Passwords do not match.')
+          );
+        }
+        existingUser.auth.password = req.body.passwordNew;
+        existingUser.save();
+        done(
+          null,
+          existingUser,
+          req.flash('success', 'Password updated successfully.')
+        );
+      } catch (error) {
+        return done(error);
       }
     }
   )

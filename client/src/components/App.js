@@ -33,7 +33,7 @@ class App extends Component {
     const PrivateRoute = ({ component: PrivateComponent, ...rest }) => (
       <Route
         {...rest}
-        render={(props) => {
+        render={props => {
           if (this.state.isLoading) {
             return <Spinner />;
           }

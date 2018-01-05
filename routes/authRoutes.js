@@ -1,7 +1,7 @@
 const omit = require('lodash.omit');
 const passport = require('passport');
 
-module.exports = (app) => {
+module.exports = app => {
   app.post(
     '/auth/login',
     passport.authenticate('local-login', {
@@ -18,12 +18,21 @@ module.exports = (app) => {
     })
   );
 
-  app.get('/auth/failure', (req, res) => {
-    res.status(401).send();
-  });
+  app.post(
+    '/auth/update',
+    passport.authenticate('local-update', {
+      successRedirect: '/auth/success',
+      failureRedirect: '/auth/failure',
+      failureFlash: true
+    })
+  );
 
   app.get('/auth/success', (req, res) => {
-    res.status(200).send();
+    res.send({ success: req.flash('success')[0] });
+  });
+
+  app.get('/auth/failure', (req, res) => {
+    res.send({ error: req.flash('error')[0] });
   });
 
   app.get(

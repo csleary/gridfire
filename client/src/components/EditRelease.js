@@ -97,7 +97,7 @@ class EditRelease extends Component {
               headers: {
                 'Content-Type': artworkFile.type
               },
-              onUploadProgress: (event) => {
+              onUploadProgress: event => {
                 const progress = event.loaded / event.total * 100;
                 this.setState({
                   uploadingArt: Math.floor(progress)
@@ -153,7 +153,7 @@ class EditRelease extends Component {
           headers: {
             'Content-Type': audioFile.type
           },
-          onUploadProgress: (event) => {
+          onUploadProgress: event => {
             const progress = event.loaded / event.total * 100;
             this.setState({
               uploadingAudio: {
@@ -185,7 +185,7 @@ class EditRelease extends Component {
     }
   };
 
-  onSubmit = (values) => {
+  onSubmit = values => {
     this.props.updateRelease(values, () => {
       this.props.history.push('/dashboard');
       this.props.toastMessage({
@@ -330,8 +330,8 @@ class EditRelease extends Component {
                 {this.state.uploadingAudio[index] < 100 &&
                 this.state.uploadingAudio[index] > 0
                   ? `${this.state.uploadingAudio[index]
-                    .toString(10)
-                    .padStart(2, '0')}%`
+                      .toString(10)
+                      .padStart(2, '0')}%`
                   : 'Audio'}
               </Dropzone>
               <button
@@ -500,8 +500,8 @@ class EditRelease extends Component {
                     formText={
                       this.props.price
                         ? `Approximately $${(
-                          this.props.price * this.props.xemPriceUsd
-                        ).toFixed(2)} USD. (Enter '0' for free.)`
+                            this.props.price * this.props.xemPriceUsd
+                          ).toFixed(2)} USD. (Enter '0' for free.)`
                         : "Set your price in XEM (enter '0' for free)."
                     }
                     label="Price"
