@@ -5,7 +5,7 @@ import SingleTransaction from './SingleTransaction';
 import Spinner from './Spinner';
 import '../style/transactionsList.css';
 
-const TransactionsList = (props) => {
+const TransactionsList = props => {
   const downloadButton = props.downloadToken && (
     <div>
       <h3 className="text-center">Thank you!</h3>
@@ -33,13 +33,21 @@ const TransactionsList = (props) => {
     />
   ));
 
-  const underpaid = (
-    <p>
-      Please pay a futher {(props.price - props.paidToDate).toFixed(2)} XEM to
-      activate your download, then tap the refresh button below to check for
-      confirmed payments.
-    </p>
-  );
+  const underpaid = () => {
+    const delta = props.price - props.paidToDate;
+    const roundUp = precision => {
+      const factor = 10 ** precision;
+      return Math.ceil(delta * factor) / factor;
+    };
+
+    return (
+      <p>
+        Please pay a futher <strong>{roundUp(2)} XEM</strong> to activate your
+        download, then tap the refresh button below to check for confirmed
+        payments.
+      </p>
+    );
+  };
 
   const transactionsPreamble = !props.transactions.length ? (
     <p>
@@ -82,7 +90,7 @@ const TransactionsList = (props) => {
         Connected to NIS Node: <strong>{props.nemNode}</strong>
       </p>
       {transactionsPreamble}
-      {props.paidToDate > 0 && props.paidToDate < props.price && underpaid}
+      {props.paidToDate > 0 && props.paidToDate < props.price && underpaid()}
       <button
         className="btn btn-outline-primary btn-sm refresh-txs"
         disabled={props.isUpdating}

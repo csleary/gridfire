@@ -81,57 +81,57 @@ class Dashboard extends Component {
 
     const { handleSubmit, pristine, submitting } = this.props;
     return (
-      <main>
-        <div className="container">
-          <div className="row">
-            <div className="col">
-              <h2 className="text-center mb-0">Dashboard</h2>
-            </div>
+      <main className="container-fluid">
+        <div className="row">
+          <div className="col">
+            <h2 className="text-center mb-0">Dashboard</h2>
           </div>
         </div>
-        <div className="container">
-          <div className="row">
-            <div className="col-lg">
-              <h3>Payment Address</h3>
-              <p>
-                Please add your NEM address if you wish to sell music. This
-                won&rsquo;t be necessary if you only plan on purchasing music.
-              </p>
-              <form onSubmit={handleSubmit(this.onSubmit)}>
-                <Field
-                  disabled={submitting}
-                  id="nemAddress"
-                  label="NEM Address"
-                  name="nemAddress"
-                  type="text"
-                  component={this.renderNemAddressField}
-                  validate={this.checkNemAddress}
-                />
-                <div className="d-flex justify-content-end">
-                  <button
-                    type="submit"
-                    className="btn btn-outline-primary btn-lg"
-                    disabled={pristine || submitting}
-                  >
-                    Save Address
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div className="col-lg">
-              <PasswordUpdate />
-            </div>
+        <div className="row">
+          <div className="col-lg">
+            <h3>Payment Address</h3>
+            <p>
+              Please add your NEM address if you wish to sell music. This
+              won&rsquo;t be necessary if you only plan on purchasing music.
+            </p>
+            <form onSubmit={handleSubmit(this.onSubmit)}>
+              <Field
+                disabled={submitting}
+                id="nemAddress"
+                label="NEM Address"
+                name="nemAddress"
+                type="text"
+                component={this.renderNemAddressField}
+                validate={this.checkNemAddress}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary btn-lg"
+                  disabled={pristine || submitting}
+                >
+                  Save Address
+                </button>
+              </div>
+            </form>
+          </div>
+          <div className="col-lg">
+            <PasswordUpdate />
           </div>
         </div>
-        <UserReleases
-          isLoadingUserReleases={this.props.isLoadingUserReleases}
-          history={this.props.history}
-          userReleases={this.props.userReleases}
-          editRelease={this.props.editRelease}
-          publishStatus={this.props.publishStatus}
-          publishLoading={this.props.publishLoading}
-          deleteRelease={this.props.deleteRelease}
-        />
+        <div className="row">
+          <div className="col-lg">
+            <UserReleases
+              isLoadingUserReleases={this.props.isLoadingUserReleases}
+              history={this.props.history}
+              userReleases={this.props.userReleases}
+              editRelease={this.props.editRelease}
+              publishStatus={this.props.publishStatus}
+              publishLoading={this.props.publishLoading}
+              deleteRelease={this.props.deleteRelease}
+            />
+          </div>
+        </div>
       </main>
     );
   }
