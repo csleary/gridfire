@@ -12,7 +12,7 @@ class Login extends Component {
     }
   }
 
-  onSubmit = (values) => {
+  onSubmit = values => {
     this.props.login(values, () => {
       this.props.reset();
       this.props.history.push('/');

@@ -79,8 +79,8 @@
 }
 
 .player .track-info {
-  display: flex;
   align-items: center;
+  display: flex;
   font-size: 1.5rem;
   justify-content: space-between;
   overflow: hidden;

@@ -145,7 +145,7 @@ class Payment extends Component {
               isLoadingTxs={this.props.isLoadingTxs}
               isUpdating={this.props.isUpdating}
               nemNode={this.props.nemNode}
-              paidToDate={this.props.paidToDate.toFixed(2)}
+              paidToDate={this.props.paidToDate}
               price={this.props.release.price}
               paymentParams={paymentParams}
               release={this.props.release}

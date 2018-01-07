@@ -60,7 +60,8 @@
 
 .front-page .cover-artwork .artist-name,
 .front-page .cover-artwork .release-title {
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  color: #ddd;
+  /* text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); */
   font-size: 1.2rem;
   font-weight: bold;
   padding: 0.75rem 1.25rem;

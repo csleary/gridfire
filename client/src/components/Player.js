@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { playTrack, playerPause, playerPlay, playerHide } from '../actions';
 import '../style/player.css';
 
@@ -135,6 +135,31 @@ class Player extends Component {
     );
   }
 
+  renderTrackInfo() {
+    if (
+      this.props.history.location.pathname !==
+      `/release/${this.props.player.albumId}`
+    ) {
+      return (
+        <Link to={`/release/${this.props.player.albumId}`}>
+          {this.props.player.artistName} &bull;{' '}
+          <em>{this.props.player.trackTitle}</em>
+        </Link>
+      );
+    }
+    return (
+      <span
+        style={{
+          color: '#5ab3e8',
+          fontWeight: 'bold'
+        }}
+      >
+        {this.props.player.artistName} &bull;{' '}
+        <em>{this.props.player.trackTitle}</em>
+      </span>
+    );
+  }
+
   render() {
     return (
       <div className={`player ${this.showPlayer()}`}>
@@ -184,12 +209,7 @@ class Player extends Component {
               {!this.state.ready ? (
                 <span>Loading&hellip;</span>
               ) : (
-                <span>
-                  <Link to={`/release/${this.props.player.albumId}`}>
-                    {this.props.player.artistName} &bull;{' '}
-                    <em>{this.props.player.trackTitle}</em>
-                  </Link>
-                </span>
+                this.renderTrackInfo()
               )}
               <FontAwesome
                 name="chevron-circle-down"
@@ -217,4 +237,4 @@ export default connect(mapStateToProps, {
   playerPause,
   playerPlay,
   playerHide
-})(Player);
+})(withRouter(Player));

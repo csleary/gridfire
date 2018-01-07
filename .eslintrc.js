@@ -7,6 +7,7 @@ module.exports = {
   },
   plugins: ['jsx-a11y'],
   rules: {
+    'arrow-parens': ['error', 'as-needed'],
     'class-methods-use-this': 0,
     'comma-dangle': ['error', 'never'],
     'consistent-return': 0,

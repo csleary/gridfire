@@ -5,6 +5,7 @@ import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
 import * as actions from '../actions';
+import PasswordUpdate from './PasswordUpdate';
 import Spinner from './Spinner';
 import UserReleases from './UserReleases';
 import '../style/dashboard.css';
@@ -21,7 +22,7 @@ class Dashboard extends Component {
     });
   }
 
-  onSubmit = (values) => {
+  onSubmit = values => {
     this.props
       .addNemAddress(values)
       .then(() => this.props.fetchUser())
@@ -33,12 +34,13 @@ class Dashboard extends Component {
       );
   };
 
-  checkNemAddress = (address) => {
+  checkNemAddress = address => {
     if (address && !nem.model.address.isValid(address)) {
       return (
         <div>
           <FontAwesome name="exclamation-circle" className="icon-left" />
-          Does not appear to be a valid NEM address. Please double-check it!
+          This doesn&rsquo;t appear to be a valid NEM address. Please
+          double-check it!
         </div>
       );
     }
@@ -79,45 +81,57 @@ class Dashboard extends Component {
 
     const { handleSubmit, pristine, submitting } = this.props;
     return (
-      <main>
-        <div className="container">
-          <div className="row">
-            <div className="col-xl-8 mx-auto">
-              <h2 className="text-center">Dashboard</h2>
-              <h3>Payment Address</h3>
-              <p>Please add your NEM address to receive customer payments.</p>
-              <form onSubmit={handleSubmit(this.onSubmit)}>
-                <Field
-                  disabled={submitting}
-                  id="nemAddress"
-                  label="NEM Address"
-                  name="nemAddress"
-                  type="text"
-                  component={this.renderNemAddressField}
-                  validate={this.checkNemAddress}
-                />
-                <div className="d-flex justify-content-end">
-                  <button
-                    type="submit"
-                    className="btn btn-outline-primary btn-lg"
-                    disabled={pristine || submitting}
-                  >
-                    Save Address
-                  </button>
-                </div>
-              </form>
-            </div>
+      <main className="container-fluid">
+        <div className="row">
+          <div className="col">
+            <h2 className="text-center mb-0">Dashboard</h2>
           </div>
         </div>
-        <UserReleases
-          isLoadingUserReleases={this.props.isLoadingUserReleases}
-          history={this.props.history}
-          userReleases={this.props.userReleases}
-          editRelease={this.props.editRelease}
-          publishStatus={this.props.publishStatus}
-          publishLoading={this.props.publishLoading}
-          deleteRelease={this.props.deleteRelease}
-        />
+        <div className="row">
+          <div className="col-lg">
+            <h3>Payment Address</h3>
+            <p>
+              Please add your NEM address if you wish to sell music. This
+              won&rsquo;t be necessary if you only plan on purchasing music.
+            </p>
+            <form onSubmit={handleSubmit(this.onSubmit)}>
+              <Field
+                disabled={submitting}
+                id="nemAddress"
+                label="NEM Address"
+                name="nemAddress"
+                type="text"
+                component={this.renderNemAddressField}
+                validate={this.checkNemAddress}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary btn-lg"
+                  disabled={pristine || submitting}
+                >
+                  Save Address
+                </button>
+              </div>
+            </form>
+          </div>
+          <div className="col-lg">
+            <PasswordUpdate />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-lg">
+            <UserReleases
+              isLoadingUserReleases={this.props.isLoadingUserReleases}
+              history={this.props.history}
+              userReleases={this.props.userReleases}
+              editRelease={this.props.editRelease}
+              publishStatus={this.props.publishStatus}
+              publishLoading={this.props.publishLoading}
+              deleteRelease={this.props.deleteRelease}
+            />
+          </div>
+        </div>
       </main>
     );
   }

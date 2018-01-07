@@ -7,7 +7,7 @@ const requireLogin = require('../middlewares/requireLogin');
 
 const User = mongoose.model('users');
 
-module.exports = (app) => {
+module.exports = app => {
   const getXemPrice = async () => {
     const xem = await nem.com.requests.market.xem();
     const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
@@ -20,7 +20,7 @@ module.exports = (app) => {
   app.post('/api/nem/transactions', requireLogin, (req, res) => {
     const { id, paymentAddress, paymentHash, price } = req.body;
 
-    fetchIncomingTransactions(paymentAddress, paymentHash, (transactions) => {
+    fetchIncomingTransactions(paymentAddress, paymentHash, transactions => {
       // Issue download token to user on successful payment.
       if (transactions.paidToDate >= price) {
         const token = jwt.sign(

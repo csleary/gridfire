@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const express = require('express');
+const flash = require('connect-flash');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const path = require('path');
@@ -16,10 +17,11 @@ app.use(bodyParser.json());
 app.use(
   cookieSession({
     name: 'NEMp3 session',
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    keys: [keys.cookieKey]
+    keys: [keys.cookieKey],
+    maxAge: 24 * 60 * 60 * 1000
   })
 );
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 

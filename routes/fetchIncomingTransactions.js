@@ -14,7 +14,7 @@ module.exports = (paymentAddress, idHash, done) => {
   let incomingTxs = [];
   let paidToDate = 0;
 
-  const fetchTransactions = async (callback) => {
+  const fetchTransactions = async callback => {
     const tx = await nem.com.requests.account.transactions.incoming(
       endpoint,
       paymentAddress,
