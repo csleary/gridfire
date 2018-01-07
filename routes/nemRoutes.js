@@ -20,22 +20,36 @@ module.exports = app => {
   app.post('/api/nem/transactions', requireLogin, (req, res) => {
     const { id, paymentAddress, paymentHash, price } = req.body;
 
-    fetchIncomingTransactions(paymentAddress, paymentHash, transactions => {
-      // Issue download token to user on successful payment.
-      if (transactions.paidToDate >= price) {
-        const token = jwt.sign(
-          {
-            id,
-            expiresIn: '1hr'
-          },
-          keys.nemp3Secret
-        );
-        res.append('Authorization', `Bearer ${token}`);
-        res.send(transactions);
-      } else {
-        res.send(transactions);
+    fetchIncomingTransactions(
+      paymentAddress,
+      paymentHash,
+      async transactions => {
+        if (transactions.paidToDate >= price) {
+          // Add purchase to user account, if not already added.
+          if (!req.user.purchases.filter(purchase => purchase.id).length > 0) {
+            const user = await User.findById(req.user._id);
+            user.purchases.push({
+              purchaseDate: Date.now(),
+              id
+            });
+            user.save();
+          }
+
+          // Issue download token to user on successful payment.
+          const token = jwt.sign(
+            {
+              id,
+              expiresIn: '10m'
+            },
+            keys.nemp3Secret
+          );
+          res.append('Authorization', `Bearer ${token}`);
+          res.send(transactions);
+        } else {
+          res.send(transactions);
+        }
       }
-    });
+    );
   });
 
   app.get('/api/nem/price', async (req, res) => {

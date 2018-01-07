@@ -8,8 +8,8 @@ body {
   padding: 0;
 }
 
-main .row {
-  padding-top: 2rem;
+main {
+  margin: 2rem 0;
 }
 
 h1,

@@ -5,16 +5,22 @@ const { Schema } = mongoose;
 
 const UserSchema = new Schema({
   auth: {
-    googleId: String,
     email: { type: String, trim: true },
+    googleId: String,
     idHash: String,
     name: String,
     password: String
   },
-  nemAddress: String
+  nemAddress: String,
+  purchases: [
+    {
+      purchaseDate: Date,
+      id: String
+    }
+  ]
 });
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function(next) {
   try {
     const user = this;
     if (!user.isModified('auth.password')) return next();
@@ -27,7 +33,7 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword) {
+UserSchema.methods.comparePassword = async function(candidatePassword) {
   try {
     const isMatch = await bcrypt.compare(candidatePassword, this.auth.password);
     return isMatch;
