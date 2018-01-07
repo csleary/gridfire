@@ -84,7 +84,7 @@ class Dashboard extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
-            <h2 className="text-center mb-0">Dashboard</h2>
+            <h2 className="text-center">Dashboard</h2>
           </div>
         </div>
         <div className="row">

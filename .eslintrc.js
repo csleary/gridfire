@@ -12,6 +12,7 @@ module.exports = {
     'comma-dangle': ['error', 'never'],
     'consistent-return': 0,
     'func-names': 0,
+    'global-require': 0,
     indent: ['off', 2],
     'jsx-a11y/media-has-caption': 0,
     'max-len': 0,
@@ -20,9 +21,16 @@ module.exports = {
     'no-param-reassign': 0,
     'no-underscore-dangle': 0,
     'no-unused-expressions': 0,
-    'global-require': 0,
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
     'react/prop-types': 0,
+    'space-before-function-paren': [
+      'error',
+      {
+        anonymous: 'never',
+        named: 'never',
+        asyncArrow: 'always'
+      }
+    ],
     strict: 0
   }
 };
