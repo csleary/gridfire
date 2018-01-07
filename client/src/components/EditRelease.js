@@ -205,7 +205,14 @@ class EditRelease extends Component {
     this.setState({ isEditing: true });
   };
 
-  pleaseConfirm(title, callback) {
+  handleMoveTrack(swap, index, direction) {
+    const { _id } = this.props.release;
+    this.props.moveTrack(_id, index, index + direction, () => {
+      swap(index, index + direction);
+    });
+  }
+
+  handleConfirm(title, callback) {
     const confirmation = window.confirm(
       `Are you sure you want to delete ${title || 'this track'}?`
     );
@@ -282,15 +289,10 @@ class EditRelease extends Component {
             <div className="d-flex">
               {index < fields.length - 1 && (
                 <button
-                  type="button"
-                  title="Move Down"
-                  onClick={() => {
-                    const { _id } = this.props.release;
-                    this.props
-                      .moveTrack(_id, index, index + 1)
-                      .then(fields.swap(index, index + 1));
-                  }}
                   className="btn btn-outline-secondary btn-sm"
+                  onClick={() => this.handleMoveTrack(fields.swap, index, 1)}
+                  title="Move Down"
+                  type="button"
                 >
                   <FontAwesome name="arrow-down" className="icon-left" />
                   Down
@@ -299,12 +301,7 @@ class EditRelease extends Component {
               {index > 0 && (
                 <button
                   className="btn btn-outline-secondary btn-sm"
-                  onClick={() => {
-                    const { _id } = this.props.release;
-                    this.props
-                      .moveTrack(_id, index, index - 1)
-                      .then(fields.swap(index, index - 1));
-                  }}
+                  onClick={() => this.handleMoveTrack(fields.swap, index, -1)}
                   title="Move Up"
                   type="button"
                 >
@@ -337,7 +334,7 @@ class EditRelease extends Component {
               <button
                 className="btn btn-outline-danger btn-sm ml-auto"
                 onClick={() =>
-                  this.pleaseConfirm(
+                  this.handleConfirm(
                     this.props.release.trackList[index].trackTitle,
                     () => {
                       this.props
@@ -403,72 +400,19 @@ class EditRelease extends Component {
                   be saved instantly after uploading.
                 </p>
               )}
-              <div>
-                {(this.state.coverArtPreview || this.props.release.artwork) && (
-                  <div className="cover-art">
-                    <img
-                      className="img-fluid"
-                      alt=""
-                      src={
-                        this.state.coverArtPreview
-                          ? this.state.coverArtPreview
-                          : this.props.release.artwork
-                      }
-                    />
-                    <div className="d-flex flex-row justify-content-end cover-art-overlay">
-                      <div className="delete">
-                        <a
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => {
-                            const { release } = this.props;
-                            if (release.published) {
-                              this.props.publishStatus(release._id);
-                            }
-                            this.props.deleteArtwork(release._id).then(() => {
-                              if (artworkFile) {
-                                window.URL.revokeObjectURL(artworkFile.preview);
-                              }
-                              this.props.toastMessage({
-                                alertClass: 'alert-success',
-                                message:
-                                  'Artwork deleted. If your release was previously published, it has also been taken offline.'
-                              });
-                            });
-                          }}
-                        >
-                          <FontAwesome name="trash" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <Dropzone
-                  accept=".png, .jpg, .jpeg"
-                  activeClassName="dropzone-art-active"
-                  className="dropzone-art"
-                  maxSize={1024 * 1024 * 2}
-                  multiple={false}
-                  onDrop={this.onDropArt}
-                >
-                  <FontAwesome name="upload" className="icon-left" />
-                  {this.state.uploadingArt && this.state.uploadingArt < 100
-                    ? `Uploading: ${this.state.uploadingArt}%`
-                    : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
-                  <ProgressBar
-                    percentComplete={this.state.uploadingArt}
-                    willDisplay={
-                      this.state.uploadingArt && this.state.uploadingArt < 100
-                    }
-                  />
-                </Dropzone>
-              </div>
               <div className="row p-0">
-                <div className="col-lg">
+                <div className="col-md">
                   <Field
                     component={this.renderReleaseField}
                     label="Artist Name"
                     name="artistName"
+                    required
+                    type="text"
+                  />
+                  <Field
+                    component={this.renderReleaseField}
+                    label="Release Title"
+                    name="releaseTitle"
                     required
                     type="text"
                   />
@@ -482,21 +426,6 @@ class EditRelease extends Component {
                   />
                   <Field
                     component={this.renderReleaseField}
-                    label="Record Label"
-                    name="recordLabel"
-                    type="text"
-                  />
-                </div>
-                <div className="col-lg">
-                  <Field
-                    component={this.renderReleaseField}
-                    label="Release Title"
-                    name="releaseTitle"
-                    required
-                    type="text"
-                  />
-                  <Field
-                    component={this.renderReleaseField}
                     formText={
                       this.props.price
                         ? `Approximately $${(
@@ -504,10 +433,16 @@ class EditRelease extends Component {
                           ).toFixed(2)} USD. (Enter '0' for free.)`
                         : "Set your price in XEM (enter '0' for free)."
                     }
-                    label="Price"
+                    label="Price (XEM)"
                     name="price"
                     required
                     type="number"
+                  />
+                  <Field
+                    component={this.renderReleaseField}
+                    label="Record Label"
+                    name="recordLabel"
+                    type="text"
                   />
                   <Field
                     component={this.renderReleaseField}
@@ -516,6 +451,70 @@ class EditRelease extends Component {
                     name="catNumber"
                     type="text"
                   />
+                </div>
+                <div className="col-md">
+                  <h3 className="text-center">Artwork</h3>
+                  {(this.state.coverArtPreview ||
+                    this.props.release.artwork) && (
+                    <div className="cover-art">
+                      <img
+                        className="img-fluid"
+                        alt=""
+                        src={
+                          this.state.coverArtPreview
+                            ? this.state.coverArtPreview
+                            : this.props.release.artwork
+                        }
+                      />
+                      <div className="d-flex flex-row justify-content-end cover-art-overlay">
+                        <div className="delete">
+                          <a
+                            role="button"
+                            tabIndex={-1}
+                            onClick={() => {
+                              const { release } = this.props;
+                              if (release.published) {
+                                this.props.publishStatus(release._id);
+                              }
+                              this.props.deleteArtwork(release._id).then(() => {
+                                if (artworkFile) {
+                                  window.URL.revokeObjectURL(
+                                    artworkFile.preview
+                                  );
+                                }
+                                this.props.toastMessage({
+                                  alertClass: 'alert-success',
+                                  message:
+                                    'Artwork deleted. If your release was previously published, it has also been taken offline.'
+                                });
+                              });
+                            }}
+                          >
+                            <FontAwesome name="trash" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <Dropzone
+                    accept=".png, .jpg, .jpeg"
+                    activeClassName="dropzone-art-active"
+                    className="dropzone-art"
+                    maxSize={1024 * 1024 * 2}
+                    multiple={false}
+                    onDrop={this.onDropArt}
+                  >
+                    <FontAwesome name="upload" className="icon-left" />
+                    {this.state.uploadingArt && this.state.uploadingArt < 100
+                      ? `Uploading: ${this.state.uploadingArt}%`
+                      : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
+                    <ProgressBar
+                      percentComplete={this.state.uploadingArt}
+                      willDisplay={
+                        this.state.uploadingArt && this.state.uploadingArt < 100
+                      }
+                    />
+                  </Dropzone>
                 </div>
               </div>
               <h3 className="track-list-title text-center">Track List</h3>

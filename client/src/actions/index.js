@@ -157,9 +157,15 @@ export const login = (values, callback) => async dispatch => {
   }
 };
 
-export const moveTrack = (releaseId, index, direction) => async dispatch => {
+export const moveTrack = (
+  releaseId,
+  index,
+  direction,
+  callback
+) => async dispatch => {
   const res = await axios.patch(`/api/${releaseId}/${index}/${direction}`);
   dispatch({ type: MOVE_TRACK, payload: res.data });
+  callback();
 };
 
 export const passwordUpdate = values => async dispatch => {

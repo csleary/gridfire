@@ -5,7 +5,6 @@ input[type='date'] {
 .cover-art {
   display: block;
   margin: 0 auto 2rem;
-  max-width: 24rem;
   position: relative;
 }
 
@@ -45,7 +44,6 @@ input[type='date'] {
   color: #999;
   margin: 2rem auto;
   max-height: 12rem;
-  max-width: 24rem;
   padding: 1rem;
   text-align: center;
   transition: 0.25s;
@@ -89,7 +87,8 @@ input[type='date'] {
   margin: 2rem 0 1rem;
 }
 
-.track-list .form-control {
+.track-list .form-control,
+.track-list .form-control:focus {
   padding: 0.5rem;
 }
 
