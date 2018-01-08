@@ -20,7 +20,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      logoOpacity: 0,
+      logoOpacity: 1,
       isLoading: true
     };
   }
@@ -28,29 +28,6 @@ class App extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
     this.props.fetchUser().then(() => this.setState({ isLoading: false }));
-
-    let y = 0;
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      y = window.scrollY;
-
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          // this.showLogo(y);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    });
-  }
-
-  showLogo(y) {
-    const headerHeight = document.getElementById('header').offsetHeight;
-    if (y > headerHeight) {
-      this.setState({ logoOpacity: 1 });
-    } else {
-      this.setState({ logoOpacity: 0 });
-    }
   }
 
   render() {
