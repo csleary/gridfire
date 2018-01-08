@@ -36,7 +36,7 @@ class App extends Component {
 
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          this.showLogo(y);
+          // this.showLogo(y);
           ticking = false;
         });
         ticking = true;
