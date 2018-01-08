@@ -12,7 +12,7 @@ const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 aws.config.region = 'us-east-1';
 
-module.exports = (app) => {
+module.exports = app => {
   // Add New Release
   app.post('/api/release', requireLogin, async (req, res) => {
     const release = await new Release({
@@ -202,11 +202,11 @@ module.exports = (app) => {
           const urls = [];
           const tracks = data.Contents;
 
-          tracks.forEach(async (track) => {
+          tracks.forEach(async track => {
             const title =
               process.env.NEM_NETWORK === 'mainnet'
                 ? trackList.filter(tr => track.Key.includes(tr._id))[0]
-                  .trackTitle
+                    .trackTitle
                 : 'Test Track';
 
             const ext = track.Key.substring(track.Key.lastIndexOf('.'));
@@ -226,7 +226,7 @@ module.exports = (app) => {
 
         archive.on('end', () => {});
 
-        archive.on('error', (error) => {
+        archive.on('error', error => {
           res.status(500).send({ error: error.message });
         });
 
