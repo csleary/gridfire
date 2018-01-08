@@ -22,7 +22,7 @@ const Header = ({ user }) => {
   return (
     <div>
       <div className="gradient" />
-      <header className="container-fluid">
+      <header className="container-fluid" id="header">
         <div className="row">
           <div className="col-lg-2" />
           <div className="col-lg-8">
