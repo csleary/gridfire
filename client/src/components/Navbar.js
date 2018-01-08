@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import '../style/navbar.css';
 
-const Navbar = ({ user }) => {
+const Navbar = ({ logoOpacity, user }) => {
   function authStatus() {
     if (user.isLoading) {
       return null;
@@ -49,7 +49,11 @@ const Navbar = ({ user }) => {
   }
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
-      <Link to={'/'} className="navbar-brand-link">
+      <Link
+        to={'/'}
+        className="navbar-brand-link"
+        style={{ opacity: logoOpacity }}
+      >
         <svg
           className="navbar-brand"
           width="500"

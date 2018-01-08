@@ -83,6 +83,7 @@ const UserReleases = props => {
               <FontAwesome name="file-audio-o" className="icon-left" />
               {release.trackList.length} Tracks
             </h6>
+            <h6>Sold: {release.numSold}</h6>
           </div>
           <div className="d-flex align-items-end ml-auto mt-auto">
             <button

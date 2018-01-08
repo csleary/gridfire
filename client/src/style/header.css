@@ -14,11 +14,12 @@ header {
 .user-admin {
   color: #666;
   font-weight: bold;
+  padding-bottom: 0.5rem;
   text-align: right;
 }
 
 .google-icon {
-  color: #d84b37;
+  /* color: #d84b37; */
 }
 
 .title {

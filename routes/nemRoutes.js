@@ -5,6 +5,7 @@ const fetchIncomingTransactions = require('./fetchIncomingTransactions');
 const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
 
+const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 
 module.exports = app => {
@@ -26,13 +27,18 @@ module.exports = app => {
       async transactions => {
         if (transactions.paidToDate >= price) {
           // Add purchase to user account, if not already added.
-          if (!req.user.purchases.filter(purchase => purchase.id).length > 0) {
+          if (!req.user.purchases.some(purchase => purchase.id)) {
             const user = await User.findById(req.user._id);
             user.purchases.push({
               purchaseDate: Date.now(),
               id
             });
             user.save();
+
+            // Increment sales.
+            const release = await Release.findById(id);
+            release.numSold += 1;
+            release.save();
           }
 
           // Issue download token to user on successful payment.
@@ -59,7 +65,7 @@ module.exports = app => {
 
   app.post('/api/nem/address', requireLogin, async (req, res) => {
     const { nemAddress } = req.body;
-    const user = await User.where({ _id: req.user.id }).update({
+    const user = await User.findById(req.user.id).update({
       nemAddress: nemAddress.toUpperCase().replace(/-/g, '')
     });
     res.send(user);
