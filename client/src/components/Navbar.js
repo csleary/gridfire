@@ -8,7 +8,7 @@ class Navbar extends Component {
     super(props);
     this.handleScroll = this.handleScroll.bind(this);
     this.state = {
-      logoOpacity: 1
+      logoOpacity: 0
     };
   }
 
