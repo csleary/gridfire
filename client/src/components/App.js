@@ -20,7 +20,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      logoOpacity: 1,
       isLoading: true
     };
   }
@@ -57,7 +56,7 @@ class App extends Component {
       <BrowserRouter>
         <div>
           <Header user={this.props.user} />
-          <Navbar user={this.props.user} logoOpacity={this.state.logoOpacity} />
+          <Navbar user={this.props.user} />
           <Switch>
             <Route exact path="/" component={Home} />
             <Route path="/login" component={Login} />
