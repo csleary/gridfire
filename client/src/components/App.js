@@ -54,7 +54,7 @@ class App extends Component {
 
     return (
       <BrowserRouter>
-        <div>
+        <div className="app-wrapper">
           <Header user={this.props.user} />
           <Navbar user={this.props.user} />
           <Switch>

@@ -9,6 +9,7 @@ body {
 }
 
 main {
+  flex: 1;
   margin: 2rem 0;
 }
 
@@ -33,6 +34,12 @@ a:focus {
   color: #5ab3e8;
   font-weight: bold;
   text-decoration: none;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .alert {
