@@ -1,6 +1,6 @@
 const aws = require('aws-sdk');
 
-module.exports = (app) => {
+module.exports = app => {
   app.get('/api/play-track', async (req, res) => {
     const { albumId, trackId } = req.query;
     const s3 = new aws.S3();

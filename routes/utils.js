@@ -1,7 +1,7 @@
 const nem = require('nem-sdk').default;
 
 module.exports.filterTransactions = (idHash, transactions, filtered = []) => {
-  transactions.forEach((tx) => {
+  transactions.forEach(tx => {
     const { hexMessage } = nem.utils.format;
 
     const payload =
@@ -20,7 +20,7 @@ module.exports.filterTransactions = (idHash, transactions, filtered = []) => {
 };
 
 module.exports.checkPayments = (transactions, paid = []) => {
-  transactions.forEach((tx) => {
+  transactions.forEach(tx => {
     'otherTrans' in tx.transaction
       ? paid.push(tx.transaction.otherTrans.amount)
       : paid.push(tx.transaction.amount);

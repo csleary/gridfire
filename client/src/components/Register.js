@@ -3,12 +3,15 @@ import FontAwesome from 'react-fontawesome';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import Recaptcha from 'react-google-recaptcha';
 import { register } from '../actions';
+
+const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
 class Register extends Component {
   componentDidMount() {}
 
-  onSubmit = (values) => {
+  onSubmit = values => {
     this.props.register(values, () => {
       this.props.reset();
       this.props.history.push('/');
@@ -17,6 +20,14 @@ class Register extends Component {
 
   render() {
     const { handleSubmit, pristine, submitting } = this.props;
+
+    const recaptcha = ({ input }) => (
+      <Recaptcha
+        sitekey={sitekey}
+        onChange={response => input.onChange(response)}
+      />
+    );
+
     return (
       <main className="container">
         <div className="row">
@@ -53,6 +64,9 @@ class Register extends Component {
                 <small className="form-text text-muted">
                   A strong and unique alphanumeric password recommended.
                 </small>
+              </div>
+              <div className="form-group d-flex justify-content-center py-2">
+                <Field component={recaptcha} name="recaptcha" />
               </div>
               <div className="d-flex justify-content-center">
                 <button

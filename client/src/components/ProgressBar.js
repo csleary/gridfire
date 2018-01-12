@@ -1,7 +1,7 @@
 import React from 'react';
 import '../style/progressBar.css';
 
-const ProgressBar = (props) => {
+const ProgressBar = props => {
   if (props.willDisplay) {
     return (
       <div
