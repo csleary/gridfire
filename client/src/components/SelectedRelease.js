@@ -52,7 +52,7 @@ class SelectedRelease extends Component {
   }
 
   renderTrackList = () =>
-    this.props.release.trackList.map((track) => {
+    this.props.release.trackList.map(track => {
       const nowPlaying = () => {
         if (
           track.trackTitle === this.props.player.trackTitle &&

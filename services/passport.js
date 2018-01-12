@@ -1,4 +1,5 @@
 const passport = require('passport');
+const request = require('request');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
@@ -61,30 +62,55 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        const user = await User.findOne({ 'auth.email': email });
+        request.post(
+          'https://www.google.com/recaptcha/api/siteverify',
+          {
+            form: {
+              secret: keys.recaptchaSecretKey,
+              response: req.body.recaptcha
+            }
+          },
+          async (error, response, body) => {
+            if (!JSON.parse(body).success) {
+              return done(null, false, req.flash('error', body['error-codes']));
+            }
 
-        if (user) {
-          return done(null, false, req.flash('error', 'User already exists.'));
-        }
+            const user = await User.findOne({ 'auth.email': email });
 
-        const newUser = await new User({
-          auth: {
-            email,
-            idHash: idHash(email),
-            password
+            if (user) {
+              return done(
+                null,
+                false,
+                req.flash('error', 'User already exists.')
+              );
+            }
+
+            const newUser = await new User({
+              auth: {
+                email,
+                idHash: idHash(email),
+                password
+              }
+            }).save();
+
+            done(
+              null,
+              newUser,
+              req.flash(
+                'success',
+                'Thanks for registering. You are now logged in.'
+              )
+            );
           }
-        }).save();
-
-        done(
-          null,
-          newUser,
-          req.flash('success', 'Thanks for registering. You are now logged in.')
         );
-      } catch (error) {
-        done(
-          error,
+      } catch (err) {
+        return done(
+          err,
           null,
-          req.flash('error', 'Sorry, an error occurred! Request not completed.')
+          req.flash(
+            'error',
+            `Sorry, there was an error completing your request. ${err}`
+          )
         );
       }
     }
@@ -99,7 +125,6 @@ passport.use(
       passReqToCallback: true
     },
     async (req, email, password, done) => {
-      console.log(req.params);
       try {
         const existingUser = await User.findOne({ 'auth.email': email });
         if (!existingUser) {
