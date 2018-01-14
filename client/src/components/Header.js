@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
-import Spinner from './Spinner';
 import '../style/header.css';
 
 const Header = ({ user }) => {
   function authStatus() {
-    if (user.isLoading) return <Spinner setClass="spinner-small" />;
     if (!user.isLoggedIn) return null;
 
     return (

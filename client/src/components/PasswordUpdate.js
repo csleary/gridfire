@@ -33,7 +33,7 @@ class PasswordUpdate extends Component {
 
     return (
       <div className="form-group">
-        <label htmlFor="password">{label}</label>
+        <label htmlFor={name}>{label}</label>
         <input
           {...input}
           className="form-control"
@@ -48,7 +48,7 @@ class PasswordUpdate extends Component {
   };
 
   render() {
-    const { handleSubmit, pristine, submitting } = this.props;
+    const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
       <div>
@@ -85,7 +85,7 @@ class PasswordUpdate extends Component {
           <div className="d-flex justify-content-end">
             <button
               className="btn btn-outline-primary btn-lg"
-              disabled={pristine || submitting}
+              disabled={invalid || pristine || submitting}
               type="submit"
             >
               Update

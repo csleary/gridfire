@@ -9,8 +9,6 @@ import { register } from '../actions';
 const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
 class Register extends Component {
-  componentDidMount() {}
-
   onSubmit = values => {
     this.props.register(values, () => {
       this.props.reset();
@@ -18,15 +16,61 @@ class Register extends Component {
     });
   };
 
-  render() {
-    const { handleSubmit, pristine, submitting } = this.props;
+  required = value => (value ? undefined : 'Please enter a value.');
 
-    const recaptcha = ({ input }) => (
-      <Recaptcha
-        sitekey={sitekey}
-        onChange={response => input.onChange(response)}
-      />
+  renderRecaptcha = field => {
+    const { error, input, touched } = field;
+
+    return (
+      <div className="form-group d-flex justify-content-center py-2">
+        <Recaptcha
+          onChange={response => input.onChange(response)}
+          sitekey={sitekey}
+        />
+        {error && (
+          <div className="invalid-feedback">{touched && error && error}</div>
+        )}
+      </div>
     );
+  };
+
+  renderField = field => {
+    const {
+      hint,
+      icon,
+      input,
+      label,
+      meta: { touched, error },
+      name,
+      placeholder,
+      required,
+      type
+    } = field;
+
+    return (
+      <div className="form-group">
+        <label htmlFor={name}>
+          <FontAwesome name={icon} className="icon-left" />
+          {label}
+        </label>
+        <input
+          {...input}
+          className="form-control"
+          name={name}
+          placeholder={placeholder}
+          required={required}
+          type={type}
+        />
+        {error && (
+          <div className="invalid-feedback">{touched && error && error}</div>
+        )}
+        {hint && <small className="form-text text-muted">{hint}</small>}
+      </div>
+    );
+  };
+
+  render() {
+    const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
       <main className="container">
@@ -34,44 +78,37 @@ class Register extends Component {
           <div className="col-6 mx-auto">
             <h2 className="text-center">Register</h2>
             <form onSubmit={handleSubmit(this.onSubmit)}>
-              <div className="form-group">
-                <label htmlFor="email">
-                  <FontAwesome name="envelope-o" className="icon-left" />
-                  Email Address:
-                </label>
-                <Field
-                  className="form-control"
-                  component="input"
-                  name="email"
-                  placeholder="Email Address"
-                  required
-                  type="email"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="password">
-                  <FontAwesome name="key" className="icon-left" />
-                  Password:
-                </label>
-                <Field
-                  className="form-control"
-                  component="input"
-                  name="password"
-                  placeholder="Password"
-                  required
-                  type="password"
-                />
-                <small className="form-text text-muted">
-                  A strong and unique alphanumeric password recommended.
-                </small>
-              </div>
-              <div className="form-group d-flex justify-content-center py-2">
-                <Field component={recaptcha} name="recaptcha" />
-              </div>
+              <Field
+                component={this.renderField}
+                icon="envelope-o"
+                label="Email Address:"
+                name="email"
+                placeholder="Email Address"
+                required
+                type="email"
+                validate={this.required}
+              />
+              <Field
+                className="form-control"
+                component={this.renderField}
+                hint="A strong and unique alphanumeric password recommended."
+                icon="key"
+                label="Password:"
+                name="password"
+                placeholder="Password"
+                required
+                type="password"
+                validate={this.required}
+              />
+              <Field
+                component={this.renderRecaptcha}
+                name="recaptcha"
+                validate={this.required}
+              />
               <div className="d-flex justify-content-center">
                 <button
                   className="btn btn-outline-primary"
-                  disabled={pristine || submitting}
+                  disabled={invalid || pristine || submitting}
                   type="submit"
                 >
                   Sign Up
