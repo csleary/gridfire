@@ -25,6 +25,7 @@ class Login extends Component {
     const {
       hint,
       icon,
+      id,
       input,
       label,
       meta: { touched, error },
@@ -36,7 +37,7 @@ class Login extends Component {
 
     return (
       <div className="form-group">
-        <label htmlFor={name}>
+        <label htmlFor={id}>
           <FontAwesome name={icon} className="icon-left" />
           {label}
         </label>
@@ -48,9 +49,7 @@ class Login extends Component {
           required={required}
           type={type}
         />
-        {error && (
-          <div className="invalid-feedback">{touched && error && error}</div>
-        )}
+        <div className="invalid-feedback">{touched && error && error}</div>
         {hint && <small className="form-text text-muted">{hint}</small>}
       </div>
     );
@@ -76,6 +75,7 @@ class Login extends Component {
                 className="form-control"
                 component={this.renderField}
                 icon="envelope-o"
+                id="email"
                 label="Email Address:"
                 name="email"
                 placeholder="Email Address"
@@ -87,6 +87,7 @@ class Login extends Component {
                 className="form-control"
                 component={this.renderField}
                 icon="key"
+                id="password"
                 label="Password:"
                 name="password"
                 placeholder="Password"
@@ -109,7 +110,7 @@ class Login extends Component {
               <Link to={'/register'}>sign up here</Link>.
             </p>
           </div>
-          <div className="col-xl">
+          <div className="col-xl d-flex align-items-center justify-content-center">
             <p>
               <FontAwesome name="google" className="icon-left" />
               You can also{' '}

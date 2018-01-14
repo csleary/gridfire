@@ -6,10 +6,12 @@ import { passwordUpdate } from '../actions';
 
 class PasswordUpdate extends Component {
   onSubmit = values =>
-    this.props.passwordUpdate({
-      email: this.props.user.auth.email,
-      ...values
-    });
+    this.props
+      .passwordUpdate({
+        email: this.props.user.auth.email,
+        ...values
+      })
+      .then(this.props.reset);
 
   required = value => (value ? undefined : 'Please enter a value.');
 
@@ -22,6 +24,7 @@ class PasswordUpdate extends Component {
 
   renderField = field => {
     const {
+      id,
       input,
       label,
       meta: { touched, error },
@@ -33,7 +36,7 @@ class PasswordUpdate extends Component {
 
     return (
       <div className="form-group">
-        <label htmlFor={name}>{label}</label>
+        <label htmlFor={id}>{label}</label>
         <input
           {...input}
           className="form-control"
@@ -51,12 +54,16 @@ class PasswordUpdate extends Component {
     const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
-      <div>
+      <div className="col-lg">
         <h3>Update Password</h3>
-        <p>You can update your password using the form below.</p>
+        <p>
+          You can update your password using the form below (unless you&rsquo;ve
+          logged-in with a Google account).
+        </p>
         <form onSubmit={handleSubmit(this.onSubmit)}>
           <Field
             component={this.renderField}
+            id="password"
             label="Current Password:"
             name="password"
             placeholder="Current Password"
@@ -66,6 +73,7 @@ class PasswordUpdate extends Component {
           />
           <Field
             component={this.renderField}
+            id="passwordNew"
             label="New Password:"
             name="passwordNew"
             placeholder="New Password"
@@ -75,6 +83,7 @@ class PasswordUpdate extends Component {
           />
           <Field
             component={this.renderField}
+            id="passwordConfirm"
             label="Confirm New Password:"
             name="passwordConfirm"
             placeholder="New Password"

@@ -93,7 +93,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         isLoading: action.isLoading,
-        userReleases: state.userReleases.map((release) => {
+        userReleases: state.userReleases.map(release => {
           if (release._id === action.payload._id) return action.payload;
           return release;
         })

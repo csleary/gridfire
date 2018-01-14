@@ -1,9 +1,7 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
-import { toastMessage } from '../actions';
 import Spinner from './Spinner';
 
 const handlePublishStatus = (props, release) => {
@@ -118,7 +116,7 @@ const UserReleases = props => {
   };
 
   return (
-    <div>
+    <div className="col-lg">
       <h3>My Releases</h3>
       {!props.isLoadingUserReleases &&
         props.userReleases &&
@@ -142,4 +140,4 @@ const UserReleases = props => {
   );
 };
 
-export default connect(null, { toastMessage })(UserReleases);
+export default UserReleases;

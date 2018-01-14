@@ -65,9 +65,9 @@ module.exports = app => {
 
   app.post('/api/nem/address', requireLogin, async (req, res) => {
     const { nemAddress } = req.body;
-    const user = await User.findById(req.user.id).update({
-      nemAddress: nemAddress.toUpperCase().replace(/-/g, '')
-    });
+    const user = await User.findById(req.user.id);
+    user.nemAddress = nemAddress.toUpperCase().replace(/-/g, '');
+    user.save();
     res.send(user);
   });
 };
