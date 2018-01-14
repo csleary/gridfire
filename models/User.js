@@ -34,12 +34,8 @@ UserSchema.pre('save', async function(next) {
 });
 
 UserSchema.methods.comparePassword = async function(candidatePassword) {
-  try {
-    const isMatch = await bcrypt.compare(candidatePassword, this.auth.password);
-    return isMatch;
-  } catch (err) {
-    return err;
-  }
+  const isMatched = await bcrypt.compare(candidatePassword, this.auth.password);
+  return isMatched;
 };
 
 mongoose.model('users', UserSchema);

@@ -27,9 +27,7 @@ class Register extends Component {
           onChange={response => input.onChange(response)}
           sitekey={sitekey}
         />
-        {error && (
-          <div className="invalid-feedback">{touched && error && error}</div>
-        )}
+        <div className="invalid-feedback">{touched && error && error}</div>
       </div>
     );
   };
@@ -38,6 +36,7 @@ class Register extends Component {
     const {
       hint,
       icon,
+      id,
       input,
       label,
       meta: { touched, error },
@@ -49,7 +48,7 @@ class Register extends Component {
 
     return (
       <div className="form-group">
-        <label htmlFor={name}>
+        <label htmlFor={id}>
           <FontAwesome name={icon} className="icon-left" />
           {label}
         </label>
@@ -81,6 +80,7 @@ class Register extends Component {
               <Field
                 component={this.renderField}
                 icon="envelope-o"
+                id="email"
                 label="Email Address:"
                 name="email"
                 placeholder="Email Address"
@@ -93,6 +93,7 @@ class Register extends Component {
                 component={this.renderField}
                 hint="A strong and unique alphanumeric password recommended."
                 icon="key"
+                id="password"
                 label="Password:"
                 name="password"
                 placeholder="Password"

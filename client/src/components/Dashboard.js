@@ -1,85 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Field, reduxForm } from 'redux-form';
-import FontAwesome from 'react-fontawesome';
-import nem from 'nem-sdk';
-import * as actions from '../actions';
+import { reduxForm } from 'redux-form';
+import {
+  deleteRelease,
+  fetchUserReleases,
+  publishStatus,
+  toastMessage
+} from '../actions';
+import NemAddress from './NemAddress';
 import PasswordUpdate from './PasswordUpdate';
-import Spinner from './Spinner';
 import UserReleases from './UserReleases';
 import '../style/dashboard.css';
-
-const addressPrefix =
-  process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
 
 class Dashboard extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
     this.props.fetchUserReleases();
-    this.props.initialize({
-      nemAddress: nem.utils.format.address(this.props.nemAddress)
-    });
   }
 
-  onSubmit = values => {
-    this.props
-      .addNemAddress(values)
-      .then(() => this.props.fetchUser())
-      .then(() =>
-        this.props.toastMessage({
-          alertClass: 'alert-success',
-          message: 'NEM payment address updated.'
-        })
-      );
-  };
-
-  checkNemAddress = address => {
-    if (address && !nem.model.address.isValid(address)) {
-      return (
-        <div>
-          <FontAwesome name="exclamation-circle" className="icon-left" />
-          This doesn&rsquo;t appear to be a valid NEM address. Please
-          double-check it!
-        </div>
-      );
-    }
-    return undefined;
-  };
-
-  renderNemAddressField = ({
-    id,
-    input,
-    label,
-    type,
-    meta: { active, error, touched }
-  }) => {
-    const className = `form-group ${
-      !active && touched && error ? 'invalid' : ''
-    }`;
-    return (
-      <div className={className}>
-        <label htmlFor={id}>{label}</label>
-        <input
-          {...input}
-          className="form-control"
-          placeholder={`NEM Address (should start with ${addressPrefix})`}
-          type={type}
-        />
-        <small className="form-text text-muted">
-          It doesn&rsquo;t matter whether you include dashes or not.
-        </small>
-        <div className="invalid-feedback">{!active && touched && error}</div>
-      </div>
-    );
-  };
-
   render() {
-    if (this.props.nemAddress === undefined) {
-      return <Spinner />;
-    }
-
-    const { handleSubmit, pristine, submitting } = this.props;
     return (
       <main className="container-fluid">
         <div className="row">
@@ -88,49 +28,18 @@ class Dashboard extends Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-lg">
-            <h3>Payment Address</h3>
-            <p>
-              Please add your NEM address if you wish to sell music. This
-              won&rsquo;t be necessary if you only plan on purchasing music.
-            </p>
-            <form onSubmit={handleSubmit(this.onSubmit)}>
-              <Field
-                disabled={submitting}
-                id="nemAddress"
-                label="NEM Address"
-                name="nemAddress"
-                type="text"
-                component={this.renderNemAddressField}
-                validate={this.checkNemAddress}
-              />
-              <div className="d-flex justify-content-end">
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary btn-lg"
-                  disabled={pristine || submitting}
-                >
-                  Save Address
-                </button>
-              </div>
-            </form>
-          </div>
-          <div className="col-lg">
-            <PasswordUpdate />
-          </div>
+          <NemAddress />
+          <PasswordUpdate />
         </div>
         <div className="row">
-          <div className="col-lg">
-            <UserReleases
-              isLoadingUserReleases={this.props.isLoadingUserReleases}
-              history={this.props.history}
-              userReleases={this.props.userReleases}
-              editRelease={this.props.editRelease}
-              publishStatus={this.props.publishStatus}
-              publishLoading={this.props.publishLoading}
-              deleteRelease={this.props.deleteRelease}
-            />
-          </div>
+          <UserReleases
+            deleteRelease={this.props.deleteRelease}
+            history={this.props.history}
+            isLoadingUserReleases={this.props.isLoadingUserReleases}
+            publishStatus={this.props.publishStatus}
+            toastMessage={this.props.toastMessage}
+            userReleases={this.props.userReleases}
+          />
         </div>
       </main>
     );
@@ -140,12 +49,17 @@ class Dashboard extends Component {
 function mapStateToProps(state) {
   return {
     isLoadingUserReleases: state.releases.isLoading,
-    publishLoading: state.releases.publishLoading,
-    nemAddress: state.user.nemAddress,
     userReleases: state.releases.userReleases
   };
 }
 
 export default reduxForm({
   form: 'DashboardForm'
-})(connect(mapStateToProps, actions)(withRouter(Dashboard)));
+})(
+  connect(mapStateToProps, {
+    deleteRelease,
+    fetchUserReleases,
+    publishStatus,
+    toastMessage
+  })(withRouter(Dashboard))
+);

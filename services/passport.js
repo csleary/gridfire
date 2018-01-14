@@ -34,10 +34,13 @@ passport.use(
     async (req, email, password, done) => {
       try {
         const existingUser = await User.findOne({ 'auth.email': email });
+
         if (!existingUser) {
           return done(null, false, req.flash('error', 'User not found.'));
         }
+
         const isMatched = await existingUser.comparePassword(password);
+
         if (!isMatched) {
           return done(null, false, req.flash('error', 'Password incorrect.'));
         }
@@ -127,13 +130,17 @@ passport.use(
     async (req, email, password, done) => {
       try {
         const existingUser = await User.findOne({ 'auth.email': email });
+
         if (!existingUser) {
           return done(null, false, req.flash('error', 'Incorrect username.'));
         }
+
         const isMatched = await existingUser.comparePassword(password);
+
         if (!isMatched) {
           return done(null, false, req.flash('error', 'Incorrect password.'));
         }
+
         if (req.body.passwordNew !== req.body.passwordConfirm) {
           return done(
             null,
@@ -141,6 +148,7 @@ passport.use(
             req.flash('error', 'Passwords do not match.')
           );
         }
+
         existingUser.auth.password = req.body.passwordNew;
         existingUser.save();
         done(
