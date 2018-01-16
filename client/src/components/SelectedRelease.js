@@ -106,7 +106,11 @@ class SelectedRelease extends Component {
         <div className="row selected-release">
           <div className="col-md">
             <div className="artwork">
-              <img src={artwork} alt={releaseTitle} className="img-fluid" />
+              <img
+                data-src={artwork}
+                alt={releaseTitle}
+                className="lazyload img-fluid"
+              />
               <div
                 className="cover-artwork-overlay"
                 onClick={() => {

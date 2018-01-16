@@ -23,13 +23,23 @@
   padding-left: 0.5rem;
 }
 
-.artwork {
+.selected-release .artwork {
+  margin-bottom: 2rem;
   padding: 0;
   position: relative;
 }
 
-.selected-release .artwork {
-  margin-bottom: 2rem;
+.selected-release .artwork img {
+  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.selected-release .artwork .lazyload,
+.selected-release .artwork .lazyloading {
+  opacity: 0;
+}
+
+.selected-release .artwork .lazyloaded {
+  opacity: 1;
 }
 
 .artwork .cover-artwork-overlay {

@@ -61,8 +61,8 @@ const UserReleases = props => {
       >
         <div className="artwork">
           <img
-            className="img-fluid"
-            src={release.artwork ? release.artwork : null}
+            className="lazyload img-fluid"
+            data-src={release.artwork ? release.artwork : null}
             alt={release.artwork && `'${release.releaseTitle}' Artwork`}
           />
         </div>
