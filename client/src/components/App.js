@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
+import 'lazysizes';
 import { fetchUser } from '../actions';
 import Login from './Login';
 import Dashboard from './Dashboard';

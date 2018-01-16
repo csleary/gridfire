@@ -34,9 +34,9 @@ class Home extends Component {
     return catalogue.map(release => (
       <div className="cover-artwork" key={release._id}>
         <img
-          className="artwork"
-          src={release.artwork ? release.artwork : null}
           alt={`${release.artistName} - ${release.releaseTitle}`}
+          className="lazyload artwork"
+          data-src={release.artwork ? release.artwork : null}
         />
         <div
           className="cover-artwork-overlay"
