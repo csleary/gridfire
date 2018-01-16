@@ -24,6 +24,10 @@
 }
 
 .selected-release .artwork {
+  background-image: url('../logoSmall.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 25% auto;
   margin-bottom: 2rem;
   padding: 0;
   position: relative;

@@ -5,12 +5,16 @@
   justify-content: space-between;
 }
 
-.front-page .cover-artwork img.artwork {
-  width: 100%;
+.front-page .cover-artwork {
+  background-image: url('../logoSmall.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 25% auto;
+  position: relative;
 }
 
-.front-page .cover-artwork {
-  position: relative;
+.front-page .cover-artwork img.artwork {
+  width: 100%;
 }
 
 .front-page .cover-artwork .cover-artwork-overlay {
