@@ -90,7 +90,10 @@ const TransactionsList = props => {
         Connected to NIS Node: <strong>{props.nemNode}</strong>
       </p>
       {transactionsPreamble}
-      {props.paidToDate > 0 && props.paidToDate < props.price && underpaid()}
+      {props.paidToDate > 0 &&
+        !props.downloadToken &&
+        props.paidToDate < props.price &&
+        underpaid()}
       <button
         className="btn btn-outline-primary btn-sm refresh-txs"
         disabled={props.isUpdating}

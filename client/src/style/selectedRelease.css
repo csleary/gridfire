@@ -24,6 +24,7 @@
 }
 
 .selected-release .artwork {
+  background: rgba(0, 0, 0, 0.05);
   background-image: url('../logoSmall.svg');
   background-position: center;
   background-repeat: no-repeat;
@@ -31,6 +32,9 @@
   margin-bottom: 2rem;
   padding: 0;
   position: relative;
+  /* Tp ensure placeholder doesn't collapse */
+  padding-bottom: 100%;
+  height: 0;
 }
 
 .selected-release .artwork img {

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.16.2",
+    "bootstrap": "^4.0.0",
     "crypto-js": "^3.1.9-1",
     "lazysizes": "^4.0.1",
     "moment": "^2.20.1",
@@ -12,14 +13,14 @@
     "react": "^16.2.0",
     "react-async-script": "^0.9.1",
     "react-dom": "^16.2.0",
-    "react-dropzone": "^4.2.3",
+    "react-dropzone": "^4.2.6",
     "react-fontawesome": "^1.6.1",
     "react-google-recaptcha": "^0.9.9",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.0",
     "react-scripts": "1.0.11",
     "redux": "^3.7.2",
-    "redux-form": "^7.2.0",
+    "redux-form": "^7.2.1",
     "redux-thunk": "^2.2.0"
   },
   "scripts": {

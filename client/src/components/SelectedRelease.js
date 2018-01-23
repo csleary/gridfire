@@ -107,9 +107,9 @@ class SelectedRelease extends Component {
           <div className="col-md">
             <div className="artwork">
               <img
-                data-src={artwork}
                 alt={releaseTitle}
                 className="lazyload img-fluid"
+                data-src={artwork}
               />
               <div
                 className="cover-artwork-overlay"
