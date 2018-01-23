@@ -20,12 +20,15 @@ module.exports = app => {
 
   app.post('/api/nem/transactions', requireLogin, (req, res) => {
     const { id, paymentAddress, paymentHash, price } = req.body;
+    const hasPreviouslyPurchased = req.user.purchases.some(
+      purchase => id === purchase.id
+    );
 
     fetchIncomingTransactions(
       paymentAddress,
       paymentHash,
       async transactions => {
-        if (transactions.paidToDate >= price) {
+        if (transactions.paidToDate >= price || hasPreviouslyPurchased) {
           // Add purchase to user account, if not already added.
           if (!req.user.purchases.some(purchase => purchase.id)) {
             const user = await User.findById(req.user._id);

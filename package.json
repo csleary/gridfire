@@ -17,8 +17,8 @@
   "author": "Christopher Leary",
   "license": "ISC",
   "dependencies": {
-    "archiver": "^2.1.0",
-    "aws-sdk": "^2.171.0",
+    "archiver": "^2.1.1",
+    "aws-sdk": "^2.184.0",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "connect-flash": "^0.1.1",
@@ -27,7 +27,7 @@
     "express": "^4.16.2",
     "jsonwebtoken": "^8.1.0",
     "lodash.omit": "^4.5.0",
-    "mongoose": "^4.13.7",
+    "mongoose": "^4.13.9",
     "nem-sdk": "^1.6.2",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^1.0.0",
@@ -35,17 +35,17 @@
     "readable-stream": "^2.3.3",
     "request": "^2.83.0",
     "spawn-command": "0.0.2",
-    "uuid": "^3.1.0"
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "concurrently": "^3.5.1",
-    "eslint": "^4.13.1",
+    "eslint": "^4.15.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.5.1",
-    "nodemon": "^1.13.3",
-    "prettier-eslint": "^8.7.0"
+    "nodemon": "^1.14.11",
+    "prettier-eslint": "^8.8.0"
   }
 }

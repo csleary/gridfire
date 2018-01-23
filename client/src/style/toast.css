@@ -6,12 +6,14 @@
 
 .toast.toast-show {
   animation: toast 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: visible;
 }
 
 .toast.toast-fade {
   opacity: 0;
   transition: all 2s cubic-bezier(0.2, 0.8, 0.4, 1);
   transform: translateY(0.5rem);
+  visibility: hidden;
 }
 
 .toast.alert {

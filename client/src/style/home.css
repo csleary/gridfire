@@ -5,12 +5,20 @@
   justify-content: space-between;
 }
 
-.front-page .cover-artwork img.artwork {
-  width: 100%;
+.front-page .cover-artwork {
+  background: rgba(0, 0, 0, 0.05);
+  background-image: url('../logoSmall.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 25% auto;
+  position: relative;
+  /* To ensure placeholder doesn't collapse */
+  padding-bottom: 100%;
+  height: 0;
 }
 
-.front-page .cover-artwork {
-  position: relative;
+.front-page .cover-artwork img.artwork {
+  width: 100%;
 }
 
 .front-page .cover-artwork .cover-artwork-overlay {
@@ -28,15 +36,17 @@
   right: 0;
   opacity: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
 }
 
 .front-page .cover-artwork .cover-artwork-overlay a {
   color: #999;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay:hover,
-.front-page .cover-artwork .cover-artwork-overlay:active {
+.front-page .cover-artwork:hover .cover-artwork-overlay,
+.front-page .cover-artwork:active .cover-artwork-overlay {
   opacity: 1;
+  visibility: visible;
 }
 
 .front-page .cover-artwork .cover-artwork-overlay .buttons {
