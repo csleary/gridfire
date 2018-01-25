@@ -36,6 +36,7 @@ class Navbar extends Component {
     if (this.props.user.isLoading) {
       return null;
     }
+
     switch (this.props.user.auth) {
       case null:
         return null;

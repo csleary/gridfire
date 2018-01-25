@@ -1,3 +1,12 @@
+nav.navbar.sub-menu {
+  background: #f8f8f8;
+}
+
+nav.navbar.sub-menu a.active {
+  background: #e8e8e8;
+  color: #666;
+}
+
 .user-releases {
   color: #333;
   display: grid;
@@ -17,7 +26,6 @@
 
 a.btn.add-release {
   display: inline-block;
-  margin: 1rem auto 1rem 0;
   padding: 0.5rem 1rem;
   width: unset;
 }

@@ -69,11 +69,15 @@ export const fetchArtworkUploadUrl = (id, type) => async dispatch => {
   dispatch({ type: FETCH_ARTWORK_UPLOAD_URL, payload: res.data });
 };
 
-export const fetchAudioUploadUrl = (id, index, type) => async dispatch => {
+export const fetchAudioUploadUrl = (
+  releaseId,
+  trackId,
+  type
+) => async dispatch => {
   const res = await axios.get('/api/upload/audio', {
     params: {
-      id,
-      index,
+      releaseId,
+      trackId,
       type
     }
   });
@@ -289,11 +293,11 @@ export const toastMessage = toast => dispatch => {
   dispatch({ type: TOAST_MESSAGE, payload: toast });
 };
 
-export const transcodeAudio = (id, index) => async () => {
+export const transcodeAudio = (releaseId, trackId) => async () => {
   await axios.get('/api/transcode/audio', {
     params: {
-      id,
-      index
+      releaseId,
+      trackId
     }
   });
 };

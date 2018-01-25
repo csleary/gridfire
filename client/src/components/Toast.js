@@ -53,10 +53,9 @@ class Toast extends Component {
     const icon = this.toastIcon(this.props.toast.alertClass);
     return (
       <div
-        className={`toast alert ${this.props.toast.alertClass} ${this.state
-          .isVisible
-          ? 'toast-show'
-          : 'toast-fade'}`}
+        className={`toast alert ${this.props.toast.alertClass} ${
+          this.state.isVisible ? 'toast-show' : 'toast-fade'
+        }`}
       >
         <FontAwesome name={icon} className="icon-left" />
         {this.state.message}

@@ -54,54 +54,58 @@ class PasswordUpdate extends Component {
     const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
-      <div className="col-lg">
-        <h3>Update Password</h3>
-        <p>
-          You can update your password using the form below (unless you&rsquo;ve
-          logged-in with a Google account).
-        </p>
-        <form onSubmit={handleSubmit(this.onSubmit)}>
-          <Field
-            component={this.renderField}
-            id="password"
-            label="Current Password:"
-            name="password"
-            placeholder="Current Password"
-            required="true"
-            type="password"
-            validate={this.required}
-          />
-          <Field
-            component={this.renderField}
-            id="passwordNew"
-            label="New Password:"
-            name="passwordNew"
-            placeholder="New Password"
-            required
-            type="password"
-            validate={this.required}
-          />
-          <Field
-            component={this.renderField}
-            id="passwordConfirm"
-            label="Confirm New Password:"
-            name="passwordConfirm"
-            placeholder="New Password"
-            required
-            type="password"
-            validate={[this.required, this.isMatched]}
-          />
-          <div className="d-flex justify-content-end">
-            <button
-              className="btn btn-outline-primary btn-lg"
-              disabled={invalid || pristine || submitting}
-              type="submit"
-            >
-              Update
-            </button>
+      <main className="container">
+        <div className="row">
+          <div className="col-lg">
+            <h3>Update Password</h3>
+            <p>
+              You can update your password using the form below (unless
+              you&rsquo;ve logged-in with a Google account).
+            </p>
+            <form onSubmit={handleSubmit(this.onSubmit)}>
+              <Field
+                component={this.renderField}
+                id="password"
+                label="Current Password:"
+                name="password"
+                placeholder="Current Password"
+                required="true"
+                type="password"
+                validate={this.required}
+              />
+              <Field
+                component={this.renderField}
+                id="passwordNew"
+                label="New Password:"
+                name="passwordNew"
+                placeholder="New Password"
+                required
+                type="password"
+                validate={this.required}
+              />
+              <Field
+                component={this.renderField}
+                id="passwordConfirm"
+                label="Confirm New Password:"
+                name="passwordConfirm"
+                placeholder="New Password"
+                required
+                type="password"
+                validate={[this.required, this.isMatched]}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  className="btn btn-outline-primary btn-lg"
+                  disabled={invalid || pristine || submitting}
+                  type="submit"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
-      </div>
+        </div>
+      </main>
     );
   }
 }

@@ -70,33 +70,37 @@ class Dashboard extends Component {
     const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
-      <div className="col-lg">
-        <h3>Payment Address</h3>
-        <p>
-          Please add your NEM address if you wish to sell music. This
-          won&rsquo;t be necessary if you only plan on purchasing music.
-        </p>
-        <form onSubmit={handleSubmit(this.onSubmit)}>
-          <Field
-            disabled={submitting}
-            id="nemAddress"
-            label="NEM Address"
-            name="nemAddress"
-            type="text"
-            component={this.renderNemAddressField}
-            validate={this.checkNemAddress}
-          />
-          <div className="d-flex justify-content-end">
-            <button
-              type="submit"
-              className="btn btn-outline-primary btn-lg"
-              disabled={invalid || pristine || submitting}
-            >
-              Save Address
-            </button>
+      <main className="container">
+        <div className="row">
+          <div className="col-lg">
+            <h3>Payment Address</h3>
+            <p>
+              Please add your NEM address if you wish to sell music. This
+              won&rsquo;t be necessary if you only plan on purchasing music.
+            </p>
+            <form onSubmit={handleSubmit(this.onSubmit)}>
+              <Field
+                disabled={submitting}
+                id="nemAddress"
+                label="NEM Address"
+                name="nemAddress"
+                type="text"
+                component={this.renderNemAddressField}
+                validate={this.checkNemAddress}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary btn-lg"
+                  disabled={invalid || pristine || submitting}
+                >
+                  Save Address
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
-      </div>
+        </div>
+      </main>
     );
   }
 }

@@ -317,11 +317,9 @@ module.exports = app => {
 
   // Transcode Audio
   app.get('/api/transcode/audio', requireLogin, async (req, res) => {
-    const { id, index } = req.query;
-    const release = await Release.findById(id);
-    const trackId = release.trackList[index]._id;
+    const { releaseId, trackId } = req.query;
     const s3 = new aws.S3();
-    const key = `${id}/${trackId}`;
+    const key = `${releaseId}/${trackId}`;
     const listParams = {
       Bucket: 'nemp3-src',
       Prefix: key
@@ -339,7 +337,7 @@ module.exports = app => {
         ],
         Outputs: [
           {
-            Key: `${id}/${trackId}.m4a`,
+            Key: `${releaseId}/${trackId}.m4a`,
             PresetId: '1351620000001-100120'
           }
         ],
@@ -402,9 +400,9 @@ module.exports = app => {
 
   // Upload Audio
   app.get('/api/upload/audio', requireLogin, async (req, res) => {
-    const { id, index, type } = req.query;
-    const release = await Release.findById(id);
-    const trackId = release.trackList[index]._id;
+    const { releaseId, trackId, type } = req.query;
+    const release = await Release.findById(releaseId);
+    // const trackId = release.trackList[index]._id;
 
     let ext;
     if (type === 'audio/wav') {
@@ -414,7 +412,7 @@ module.exports = app => {
     }
 
     const s3 = new aws.S3();
-    const key = `${id}/${trackId}${ext}`;
+    const key = `${releaseId}/${trackId}${ext}`;
     const params = {
       ContentType: `${type}`,
       Bucket: 'nemp3-src',
@@ -423,6 +421,9 @@ module.exports = app => {
     };
 
     s3.getSignedUrl('putObject', params, (error, url) => {
+      const index = release.trackList.findIndex(
+        track => track._id.toString() === trackId
+      );
       release.trackList[index].hasAudio = true;
       release.save();
       res.send(url);

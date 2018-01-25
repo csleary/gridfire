@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import {
   deleteRelease,
@@ -14,6 +14,8 @@ import UserReleases from './UserReleases';
 import '../style/dashboard.css';
 
 class Dashboard extends Component {
+  state = { page: 'UserReleases' };
+
   componentDidMount() {
     window.scrollTo(0, 0);
     this.props.fetchUserReleases();
@@ -21,27 +23,44 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <main className="container-fluid">
-        <div className="row">
-          <div className="col">
-            <h2 className="text-center">Dashboard</h2>
-          </div>
-        </div>
-        <div className="row">
-          <NemAddress />
-          <PasswordUpdate />
-        </div>
-        <div className="row">
-          <UserReleases
-            deleteRelease={this.props.deleteRelease}
-            history={this.props.history}
-            isLoadingUserReleases={this.props.isLoadingUserReleases}
-            publishStatus={this.props.publishStatus}
-            toastMessage={this.props.toastMessage}
-            userReleases={this.props.userReleases}
+      <div>
+        <nav className="navbar navbar-expand-lg sub-menu">
+          <ul className="navbar-nav mx-auto">
+            <li className="nav-item">
+              <NavLink exact to={'/dashboard'} className="nav-link">
+                Releases
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to={'/dashboard/nem-address'} className="nav-link">
+                Payment
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to={'/dashboard/password-update'} className="nav-link">
+                Password
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
+        <Switch>
+          <Route path="/dashboard/nem-address" component={NemAddress} />
+          <Route path="/dashboard/password-update" component={PasswordUpdate} />
+          <Route
+            path="/dashboard"
+            render={() => (
+              <UserReleases
+                deleteRelease={this.props.deleteRelease}
+                history={this.props.history}
+                isLoadingUserReleases={this.props.isLoadingUserReleases}
+                publishStatus={this.props.publishStatus}
+                toastMessage={this.props.toastMessage}
+                userReleases={this.props.userReleases}
+              />
+            )}
           />
-        </div>
-      </main>
+        </Switch>
+      </div>
     );
   }
 }

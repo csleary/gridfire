@@ -56,7 +56,7 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div className="app-wrapper">
-          <Header user={this.props.user} />
+          <Header />
           <Navbar user={this.props.user} />
           <Switch>
             <Route exact path="/" component={Home} />
