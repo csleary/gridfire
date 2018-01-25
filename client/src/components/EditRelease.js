@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Field, FieldArray, formValueSelector, reduxForm } from 'redux-form';
-import Dropzone from 'react-dropzone';
 import axios from 'axios';
-import FontAwesome from 'react-fontawesome';
-import ProgressBar from './ProgressBar';
+import RenderArtwork from './editRelease/RenderArtwork';
+import RenderReleaseField from './editRelease/RenderReleaseField';
+import RenderTrack from './editRelease/RenderTrack';
 import Spinner from './Spinner';
 import {
   addRelease,
@@ -25,8 +25,6 @@ import {
 } from '../actions';
 import '../style/editRelease.css';
 
-let artworkFile;
-
 class EditRelease extends Component {
   constructor(props) {
     super(props);
@@ -35,18 +33,23 @@ class EditRelease extends Component {
       isLoading: false,
       coverArtPreview: '',
       uploadingArt: '',
-      uploadingAudio: ''
+      uploadingAudio: {}
     };
+    this.onDropArt = this.onDropArt.bind(this);
+    this.onDropAudio = this.onDropAudio.bind(this);
+    this.handleDeletePreview = this.handleDeletePreview.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.artworkFile;
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.setLoading(true);
     window.scrollTo(0, 0);
     this.props.fetchXemPrice();
-    const { id } = this.props.match.params;
-    if (id) {
+    const releaseId = this.props.match.params.id;
+    if (releaseId) {
       this.setEditing();
-      this.props.fetchRelease(id).then(() => {
+      this.props.fetchRelease(releaseId).then(() => {
         const release = this.props.release;
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
@@ -61,13 +64,13 @@ class EditRelease extends Component {
         this.setLoading(false);
       });
     }
-  };
-
-  componentWillUnmount() {
-    if (artworkFile) window.URL.revokeObjectURL(artworkFile.preview);
   }
 
-  onDropArt = (accepted, rejected) => {
+  componentWillUnmount() {
+    if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
+  }
+
+  onDropArt(accepted, rejected) {
     if (rejected.length > 0) {
       this.props.toastMessage({
         alertClass: 'alert-danger',
@@ -75,10 +78,10 @@ class EditRelease extends Component {
           'Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 10MB in size.'
       });
     } else {
-      artworkFile = accepted[0];
-      const { _id } = this.props.release;
+      this.artworkFile = accepted[0];
+      const releaseId = this.props.release._id;
       const image = new Image();
-      image.src = window.URL.createObjectURL(artworkFile);
+      image.src = window.URL.createObjectURL(this.artworkFile);
       let height;
       let width;
 
@@ -91,46 +94,48 @@ class EditRelease extends Component {
             message: `Sorry, but your image must be square (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
           });
         } else {
-          this.props.fetchArtworkUploadUrl(_id, artworkFile.type).then(() => {
-            const { artworkUploadUrl } = this.props;
-            const config = {
-              headers: {
-                'Content-Type': artworkFile.type
-              },
-              onUploadProgress: event => {
-                const progress = event.loaded / event.total * 100;
-                this.setState({
-                  uploadingArt: Math.floor(progress)
-                });
-              }
-            };
+          this.props
+            .fetchArtworkUploadUrl(releaseId, this.artworkFile.type)
+            .then(() => {
+              const { artworkUploadUrl } = this.props;
+              const config = {
+                headers: {
+                  'Content-Type': this.artworkFile.type
+                },
+                onUploadProgress: event => {
+                  const progress = event.loaded / event.total * 100;
+                  this.setState({
+                    uploadingArt: Math.floor(progress)
+                  });
+                }
+              };
 
-            axios
-              .put(artworkUploadUrl, artworkFile, config)
-              .then(() => {
-                this.props.toastMessage({
-                  alertClass: 'alert-success',
-                  message: 'Artwork uploaded!'
-                });
-              })
-              .catch(error =>
-                this.props.toastMessage({
-                  alertClass: 'alert-danger',
-                  message: `Upload failed. Here's the message we received: ${
-                    error.message
-                  }`
+              axios
+                .put(artworkUploadUrl, this.artworkFile, config)
+                .then(() => {
+                  this.props.toastMessage({
+                    alertClass: 'alert-success',
+                    message: 'Artwork uploaded!'
+                  });
                 })
-              );
-          });
+                .catch(error =>
+                  this.props.toastMessage({
+                    alertClass: 'alert-danger',
+                    message: `Upload failed. Here's the message we received: ${
+                      error.message
+                    }`
+                  })
+                );
+            });
           this.setState({
-            coverArtPreview: artworkFile.preview
+            coverArtPreview: this.artworkFile.preview
           });
         }
       };
     }
-  };
+  }
 
-  onDropAudio = (accepted, rejected, index) => {
+  onDropAudio(accepted, rejected, index, trackId) {
     if (rejected.length > 0) {
       this.props.toastMessage({
         alertClass: 'alert-danger',
@@ -139,53 +144,55 @@ class EditRelease extends Component {
       });
     } else {
       const audioFile = accepted[0];
-      const id = this.props.release._id;
-      this.props.fetchAudioUploadUrl(id, index, audioFile.type).then(() => {
-        this.props.toastMessage({
-          alertClass: 'alert-info',
-          message: `Uploading '${audioFile.name}' for track ${parseInt(
-            index,
-            10
-          ) + 1}.`
-        });
-        const { audioUploadUrl } = this.props;
-        const config = {
-          headers: {
-            'Content-Type': audioFile.type
-          },
-          onUploadProgress: event => {
-            const progress = event.loaded / event.total * 100;
-            this.setState({
-              uploadingAudio: {
-                ...this.state.uploadingAudio,
-                [index]: Math.floor(progress)
-              }
-            });
-          }
-        };
-        axios
-          .put(audioUploadUrl, audioFile, config)
-          .then(() => {
-            this.props.transcodeAudio(id, index);
-            this.props.fetchUserRelease(id);
-            this.props.toastMessage({
-              alertClass: 'alert-success',
-              message: `Track ${parseInt(index, 10) + 1} uploaded!`
-            });
-          })
-          .catch(error =>
-            this.props.toastMessage({
-              alertClass: 'alert-danger',
-              message: `Upload failed. Here's the message we received: ${
-                error.message
-              }`
+      const releaseId = this.props.release._id;
+      this.props
+        .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
+        .then(() => {
+          this.props.toastMessage({
+            alertClass: 'alert-info',
+            message: `Uploading '${audioFile.name}' for track ${parseInt(
+              index,
+              10
+            ) + 1}.`
+          });
+          const { audioUploadUrl } = this.props;
+          const config = {
+            headers: {
+              'Content-Type': audioFile.type
+            },
+            onUploadProgress: event => {
+              const progress = event.loaded / event.total * 100;
+              this.setState({
+                uploadingAudio: {
+                  ...this.state.uploadingAudio,
+                  [trackId]: Math.floor(progress)
+                }
+              });
+            }
+          };
+          axios
+            .put(audioUploadUrl, audioFile, config)
+            .then(() => {
+              this.props.transcodeAudio(releaseId, trackId);
+              this.props.fetchUserRelease(releaseId);
+              this.props.toastMessage({
+                alertClass: 'alert-success',
+                message: `Track ${parseInt(index, 10) + 1} uploaded!`
+              });
             })
-          );
-      });
+            .catch(error =>
+              this.props.toastMessage({
+                alertClass: 'alert-danger',
+                message: `Upload failed. Here's the message we received: ${
+                  error.message
+                }`
+              })
+            );
+        });
     }
-  };
+  }
 
-  onSubmit = values => {
+  onSubmit(values) {
     this.props.updateRelease(values, () => {
       this.props.history.push('/dashboard');
       this.props.toastMessage({
@@ -193,7 +200,7 @@ class EditRelease extends Component {
         message: `${this.props.release.releaseTitle || 'Release'} saved!`
       });
     });
-  };
+  }
 
   setLoading(boolean) {
     this.setState({
@@ -201,178 +208,13 @@ class EditRelease extends Component {
     });
   }
 
-  setEditing = () => {
+  setEditing() {
     this.setState({ isEditing: true });
-  };
-
-  handleMoveTrack(swap, index, direction) {
-    const { _id } = this.props.release;
-    this.props.moveTrack(_id, index, index + direction, () => {
-      swap(index, index + direction);
-    });
   }
 
-  handleConfirm(title, callback) {
-    const confirmation = window.confirm(
-      `Are you sure you want to delete ${title || 'this track'}?`
-    );
-    if (confirmation) callback();
+  handleDeletePreview() {
+    this.setState({ coverArtPreview: '' });
   }
-
-  hasAudio(index) {
-    if (
-      (this.props.release.trackList[index] &&
-        this.props.release.trackList[index].hasAudio) ||
-      this.state.uploadingAudio[index] === 100
-    ) {
-      return 'audio-true';
-    } else if (this.state.uploadingAudio[index] < 100) {
-      return 'audio-uploading';
-    }
-    return 'audio-false';
-  }
-
-  renderReleaseField = ({
-    formText,
-    input,
-    label,
-    meta: { error, touched },
-    name,
-    type
-  }) => {
-    const className = `form-group ${touched && error ? 'invalid' : ''}`;
-    return (
-      <div className={className}>
-        <label htmlFor={name}>{label}</label>
-        <input className="form-control" id={name} type={type} {...input} />
-        <small className="form-text text-muted">{formText}</small>
-        <div className="invalid-feedback">{touched && error}</div>
-      </div>
-    );
-  };
-
-  renderTrack({ input, label, meta: { touched, error }, name, type }) {
-    const className = `form-control ${touched && error ? 'invalid' : ''}`;
-    return (
-      <div>
-        <div className="d-flex align-items-center">
-          <label htmlFor={name}>{label}</label>
-          <input
-            className={className}
-            id={name}
-            name="trackTitle"
-            placeholder={`Track ${label} Title`}
-            required
-            type={type}
-            {...input}
-          />
-        </div>
-        <div className="invalid-feedback">{touched && error}</div>
-      </div>
-    );
-  }
-
-  renderTrackList = ({ fields, uploadingAudio }) => (
-    <div>
-      <ul className="list-group track-list">
-        {fields.map((track, index) => (
-          <li
-            className={`list-group-item ${this.hasAudio(index)}`}
-            key={`${track}._id`}
-          >
-            <Field
-              component={this.renderTrack}
-              label={index + 1}
-              name={`${track}.trackTitle`}
-              type="text"
-            />
-            <div className="d-flex">
-              {index < fields.length - 1 && (
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => this.handleMoveTrack(fields.swap, index, 1)}
-                  title="Move Down"
-                  type="button"
-                >
-                  <FontAwesome name="arrow-down" className="icon-left" />
-                  Down
-                </button>
-              )}
-              {index > 0 && (
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => this.handleMoveTrack(fields.swap, index, -1)}
-                  title="Move Up"
-                  type="button"
-                >
-                  <FontAwesome name="arrow-up" className="icon-left" />
-                  Up
-                </button>
-              )}
-              <Dropzone
-                accept=".wav, .aif, .aiff"
-                activeClassName="dropzone-audio-active"
-                className="btn btn-outline-primary btn-sm dropzone-audio"
-                disablePreview
-                multiple={false}
-                onDrop={(accepted, rejected) =>
-                  this.onDropAudio(accepted, rejected, index)
-                }
-              >
-                {uploadingAudio[index] && uploadingAudio[index] < 100 ? (
-                  <FontAwesome name="cog" spin className="icon-left" />
-                ) : (
-                  <FontAwesome name="plus-circle" className="icon-left" />
-                )}
-                {this.state.uploadingAudio[index] < 100 &&
-                this.state.uploadingAudio[index] > 0
-                  ? `${this.state.uploadingAudio[index]
-                      .toString(10)
-                      .padStart(2, '0')}%`
-                  : 'Audio'}
-              </Dropzone>
-              <button
-                className="btn btn-outline-danger btn-sm ml-auto"
-                onClick={() =>
-                  this.handleConfirm(
-                    this.props.release.trackList[index].trackTitle,
-                    () => {
-                      this.props
-                        .deleteTrack(
-                          this.props.release._id,
-                          this.props.release.trackList[index]._id
-                        )
-                        .then(fields.remove(index));
-                    }
-                  )
-                }
-                title="Remove Track"
-                type="button"
-              >
-                <FontAwesome name="trash" className="icon-left" />
-                Remove
-              </button>
-            </div>
-            <ProgressBar
-              percentComplete={uploadingAudio[index]}
-              willDisplay={uploadingAudio[index] && uploadingAudio[index] < 100}
-            />
-          </li>
-        ))}
-      </ul>
-      <button
-        className="btn btn-outline-primary btn-sm add-track"
-        onClick={() => {
-          this.props.addTrack(this.props.release._id).then(fields.push());
-        }}
-        title="Add Track"
-        type="button"
-      >
-        <FontAwesome name="plus-circle" className="icon-left" />
-        Add
-      </button>
-    </div>
-  );
 
   renderHeader() {
     if (this.state.isEditing && this.props.release.releaseTitle) {
@@ -403,21 +245,21 @@ class EditRelease extends Component {
               <div className="row p-0">
                 <div className="col-md">
                   <Field
-                    component={this.renderReleaseField}
+                    component={RenderReleaseField}
                     label="Artist Name"
                     name="artistName"
                     required
                     type="text"
                   />
                   <Field
-                    component={this.renderReleaseField}
+                    component={RenderReleaseField}
                     label="Release Title"
                     name="releaseTitle"
                     required
                     type="text"
                   />
                   <Field
-                    component={this.renderReleaseField}
+                    component={RenderReleaseField}
                     formText="This won't affect the visibility of your release."
                     label="Release Date"
                     name="releaseDate"
@@ -425,7 +267,7 @@ class EditRelease extends Component {
                     type="date"
                   />
                   <Field
-                    component={this.renderReleaseField}
+                    component={RenderReleaseField}
                     formText={
                       this.props.price
                         ? `Approximately $${(
@@ -439,88 +281,40 @@ class EditRelease extends Component {
                     type="number"
                   />
                   <Field
-                    component={this.renderReleaseField}
+                    component={RenderReleaseField}
                     label="Record Label"
                     name="recordLabel"
                     type="text"
                   />
                   <Field
-                    component={this.renderReleaseField}
+                    component={RenderReleaseField}
                     formText="Your own identifier, if you have one."
                     label="Catalogue Number"
                     name="catNumber"
                     type="text"
                   />
                 </div>
-                <div className="col-md">
-                  <h3 className="text-center">Artwork</h3>
-                  {(this.state.coverArtPreview ||
-                    this.props.release.artwork) && (
-                    <div className="cover-art">
-                      <img
-                        className="img-fluid"
-                        alt=""
-                        src={
-                          this.state.coverArtPreview
-                            ? this.state.coverArtPreview
-                            : this.props.release.artwork
-                        }
-                      />
-                      <div className="d-flex flex-row justify-content-end cover-art-overlay">
-                        <div className="delete">
-                          <a
-                            role="button"
-                            tabIndex={-1}
-                            onClick={() => {
-                              const { release } = this.props;
-                              if (release.published) {
-                                this.props.publishStatus(release._id);
-                              }
-                              this.props.deleteArtwork(release._id).then(() => {
-                                if (artworkFile) {
-                                  window.URL.revokeObjectURL(
-                                    artworkFile.preview
-                                  );
-                                }
-                                this.props.toastMessage({
-                                  alertClass: 'alert-success',
-                                  message:
-                                    'Artwork deleted. If your release was previously published, it has also been taken offline.'
-                                });
-                              });
-                            }}
-                          >
-                            <FontAwesome name="trash" />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <Dropzone
-                    accept=".png, .jpg, .jpeg"
-                    activeClassName="dropzone-art-active"
-                    className="dropzone-art"
-                    maxSize={1024 * 1024 * 2}
-                    multiple={false}
-                    onDrop={this.onDropArt}
-                  >
-                    <FontAwesome name="upload" className="icon-left" />
-                    {this.state.uploadingArt && this.state.uploadingArt < 100
-                      ? `Uploading: ${this.state.uploadingArt}%`
-                      : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
-                    <ProgressBar
-                      percentComplete={this.state.uploadingArt}
-                      willDisplay={
-                        this.state.uploadingArt && this.state.uploadingArt < 100
-                      }
-                    />
-                  </Dropzone>
-                </div>
+                <RenderArtwork
+                  artworkFile={this.artworkFile}
+                  coverArtPreview={this.state.coverArtPreview}
+                  deleteArtwork={this.props.deleteArtwork}
+                  handleDeletePreview={this.handleDeletePreview}
+                  onDropArt={this.onDropArt}
+                  publishStatus={this.props.publishStatus}
+                  release={this.props.release}
+                  toastMessage={this.props.toastMessage}
+                  uploadingArt={this.state.uploadingArt}
+                />
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
               <FieldArray
                 name="trackList"
-                component={this.renderTrackList}
+                component={RenderTrack}
+                addTrack={this.props.addTrack}
+                deleteTrack={this.props.deleteTrack}
+                moveTrack={this.props.moveTrack}
+                onDropAudio={this.onDropAudio}
+                release={this.props.release}
                 uploadingAudio={this.state.uploadingAudio}
               />
               <div className="d-flex justify-content-end">

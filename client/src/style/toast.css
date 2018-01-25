@@ -2,6 +2,7 @@
   bottom: 5rem;
   position: fixed;
   right: 3rem;
+  z-index: 1070;
 }
 
 .toast.toast-show {

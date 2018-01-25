@@ -84,7 +84,6 @@ class Home extends Component {
             <h2 className="text-center">
               Sell Your Music with the NEM Blockchain
             </h2>
-            <h2>New Releases</h2>
             <div className="front-page">{this.renderReleases()}</div>
           </div>
         </div>
