@@ -1,5 +1,5 @@
 .transactions {
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 
 .transactions h5 {
@@ -7,7 +7,7 @@
 }
 
 h3.transactions-searching {
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 
 button.refresh-txs {

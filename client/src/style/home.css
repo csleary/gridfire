@@ -40,7 +40,12 @@
 }
 
 .front-page .cover-artwork .cover-artwork-overlay a {
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   color: #999;
+}
+
+.front-page .cover-artwork .cover-artwork-overlay a:hover {
+  color: #fff;
 }
 
 .front-page .cover-artwork:hover .cover-artwork-overlay,
@@ -65,12 +70,13 @@
 .front-page .cover-artwork .cover-artwork-overlay .play:hover {
   color: #fff;
   cursor: pointer;
+  transform: scale(1.1);
 }
 
 .front-page .cover-artwork .artist-name,
-.front-page .cover-artwork .release-title {
+.front-page .cover-artwork .release-title,
+.front-page .cover-artwork .release-title a {
   color: #ddd;
-  /* text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); */
   font-size: 1.2rem;
   font-weight: bold;
   padding: 0.75rem 1.25rem;

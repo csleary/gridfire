@@ -6,7 +6,7 @@ const Spinner = props => {
   let styleClass = 'spinner';
   if (props.setClass) styleClass = props.setClass;
   return (
-    <main className="container">
+    <main className="container d-flex align-items-center justify-content-center">
       <div className="row">
         <div className="col text-center">
           {props.message && (
