@@ -1,20 +1,21 @@
 import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import { Field } from 'redux-form';
+import classNames from 'classnames';
 import RenderTrackField from './RenderTrackField';
 import ProgressBar from './ProgressBar';
 
-const hasAudio = (release, index, uploadingAudio) => {
-  if (
-    (release.trackList[index] && release.trackList[index].hasAudio) ||
-    uploadingAudio === 100
-  ) {
-    return 'audio-true';
-  } else if (uploadingAudio < 100) {
-    return 'audio-uploading';
-  }
-  return 'audio-false';
-};
+// const hasAudio = (release, index, uploadingAudio) => {
+//   if (
+//     (release.trackList[index] && release.trackList[index].hasAudio) ||
+//     uploadingAudio === 100
+//   ) {
+//     return 'audio-true';
+//   } else if (uploadingAudio < 100) {
+//     return 'audio-uploading';
+//   }
+//   return 'audio-false';
+// };
 
 const handleMoveTrack = (moveTrack, swap, id, index, direction) => {
   moveTrack(id, index, index + direction, () => {
@@ -31,35 +32,39 @@ const handleConfirm = (title, callback) => {
 
 const RenderTrack = props => {
   const { fields, moveTrack, release, uploadingAudio } = props;
+  const { trackList } = release;
   const id = release._id;
 
   return (
     <div>
       <ul className="list-group track-list">
         {fields.map((track, index) => {
-          const trackId =
-            release.trackList[index] && release.trackList[index]._id;
+          const trackId = trackList[index] && trackList[index]._id;
+          const hasAudio =
+            (release.trackList[index] && release.trackList[index].hasAudio) ||
+            uploadingAudio[trackId] === 100;
+          const isUploadingAudio = uploadingAudio[trackId] < 100;
+          const audioStatus = classNames({
+            'audio-true': hasAudio,
+            'audio-uploading': isUploadingAudio,
+            'audio-false': !hasAudio && !isUploadingAudio
+          });
+          const classTrack = classNames('list-group-item', audioStatus);
 
           return (
-            <li
-              className={`list-group-item ${hasAudio(
-                release,
-                index,
-                uploadingAudio[trackId]
-              )}`}
-              key={`${track}._id`}
-            >
+            <li className={classTrack} key={`${track}._id`}>
               <Field
                 component={RenderTrackField}
                 trackId={trackId}
                 hasAudio={hasAudio}
+                audioStatus={audioStatus}
                 index={index}
                 label={index + 1}
                 name={`${track}.trackTitle`}
                 release={props.release}
                 type="text"
                 onDropAudio={props.onDropAudio}
-                uploadingAudio={uploadingAudio}
+                uploadingAudio={uploadingAudio[trackId]}
               />
               <div className="d-flex mt-3">
                 {index < fields.length - 1 && (

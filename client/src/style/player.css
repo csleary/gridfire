@@ -7,11 +7,13 @@
   text-align: center;
   transform: translateY(100%);
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
   width: 100%;
 }
 
 .player.show {
   transform: translateY(0);
+  visibility: visible;
 }
 
 .player .interface {

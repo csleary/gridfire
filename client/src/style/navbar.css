@@ -1,4 +1,5 @@
-nav.navbar {
+nav.navbar,
+nav.navbar.sub-menu {
   background-color: #fff;
   height: 2.5rem;
   padding: 0;
@@ -13,7 +14,8 @@ nav.navbar a {
   transition-duration: 0.25s;
 }
 
-nav.navbar a.active {
+nav.navbar a.active,
+nav.navbar.sub-menu a.active {
   background: #f8f8f8;
   color: #666;
 }
@@ -38,8 +40,13 @@ nav.navbar a.navbar-brand-link {
   flex-direction: column;
   display: flex;
   align-content: center;
+  opacity: 0;
   margin-left: 15px;
   border: 0;
+}
+
+nav.navbar a.navbar-brand-link.navbar-brand-show {
+  opacity: 1;
 }
 
 .navbar-brand {

@@ -34,8 +34,7 @@ const Footer = () => (
         <small>
           <p className="text-center">
             &copy; {year !== 2017 && <span>2017&ndash;</span>}
-            {year}
-            <a href="http://ochremusic.com"> Christopher Leary</a>
+            {year} <a href="http://ochremusic.com">Christopher Leary</a>
           </p>
         </small>
         <p className="text-center github">

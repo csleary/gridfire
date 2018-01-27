@@ -1,9 +1,19 @@
+/*
+hsla(233, 25%, 5%, 1)
+hsla(233, 25%, 10%, 1)
+hsla(233, 25%, 40%, 1)
+hsla(233, 25%, 80%, 1)
+#4f80e1
+#18cdca
+#f0f0f1
+#ff5349
+*/
+
 @import 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';
 
 body {
   background-color: #f8f8f8;
   color: #111;
-  font-family: sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -16,8 +26,10 @@ main {
 h1,
 h2,
 h3,
-h4 {
-  font-family: 'Roboto Condensed', sans-serif;
+h4,
+h5,
+h6 {
+  /* font-weight: 600; */
 }
 
 h2,
@@ -36,7 +48,7 @@ a:active,
 a:visited,
 a:focus {
   color: #5ab3e8;
-  font-weight: bold;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -60,6 +72,7 @@ a:focus {
   border-radius: 10rem;
   border-width: 2px;
   font-weight: bold;
+  text-transform: uppercase;
   width: 18rem;
 }
 

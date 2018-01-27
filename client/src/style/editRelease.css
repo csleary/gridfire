@@ -76,7 +76,8 @@ input[type='date'] {
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.track-list .list-group-item .dropzone-audio:hover {
+.track-list .list-group-item .dropzone-audio:hover,
+.track-list .list-group-item .dropzone-audio.audio-uploading {
   background-color: #fff;
   border-color: #5ab3e8;
   color: #5ab3e8;

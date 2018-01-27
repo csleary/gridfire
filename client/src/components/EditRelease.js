@@ -39,7 +39,7 @@ class EditRelease extends Component {
     this.onDropAudio = this.onDropAudio.bind(this);
     this.handleDeletePreview = this.handleDeletePreview.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-    this.artworkFile;
+    this.artworkFile = null;
   }
 
   componentDidMount() {
