@@ -1,12 +1,3 @@
-nav.navbar.sub-menu {
-  background: #f8f8f8;
-}
-
-nav.navbar.sub-menu a.active {
-  background: #e8e8e8;
-  color: #666;
-}
-
 .user-releases {
   color: #333;
   display: grid;
