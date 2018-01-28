@@ -8,9 +8,9 @@ import {
   publishStatus,
   toastMessage
 } from '../actions';
-import NemAddress from './NemAddress';
-import PasswordUpdate from './PasswordUpdate';
-import UserReleases from './UserReleases';
+import NemAddress from './dashboard/NemAddress';
+import PasswordUpdate from './dashboard/PasswordUpdate';
+import UserReleases from './dashboard/UserReleases';
 import '../style/dashboard.css';
 
 class Dashboard extends Component {

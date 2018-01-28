@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { passwordUpdate } from '../actions';
+import { passwordUpdate } from '../../actions';
 
 class PasswordUpdate extends Component {
   onSubmit = values =>

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import reduxThunk from 'redux-thunk';
 import 'bootstrap/dist/css/bootstrap.css';
+import '@ibm/type/css/ibm-type.min.css';
 import App from './components/App';
 import reducers from './reducers';
 import './style/index.css';

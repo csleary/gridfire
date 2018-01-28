@@ -1,5 +1,5 @@
 input[type='date'] {
-  height: 3.625rem;
+  /* height: 3.625rem; */
 }
 
 .cover-art {
@@ -29,19 +29,21 @@ input[type='date'] {
 }
 
 .cover-art-overlay .delete a {
-  color: #999;
+  color: hsla(233, 10%, 75%, 1);
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .cover-art-overlay .delete a:hover {
-  color: #fff;
+  color: #f0f0f1;
   cursor: pointer;
 }
 
 .dropzone-art {
-  border: 2px dashed #999;
+  background: #000;
+  border: 2px dashed hsla(233, 10%, 50%, 1);
   border-radius: 0.25rem;
-  color: #999;
+  color: hsla(233, 10%, 50%, 1);
+  font-weight: 600;
   margin: 2rem auto;
   max-height: 12rem;
   padding: 1rem;
@@ -50,24 +52,25 @@ input[type='date'] {
 }
 
 .dropzone-art:hover {
-  background-color: #fff;
-  border-color: #5ab3e8;
-  color: #5ab3e8;
+  background-color: #000;
+  border-color: #18cdca;
+  color: #18cdca;
   cursor: pointer;
 }
 
 .dropzone-art-active {
-  background-color: #fff;
-  border-color: #41ce7c;
-  color: #41ce7c;
+  background-color: #f0f0f1;
+  border-color: #18cdca;
+  color: #18cdca;
 }
 
 .track-list .list-group-item .dropzone-audio {
   align-items: center;
   align-self: stretch;
-  border: 2px dashed #999;
+  background-color: #000;
+  border: 2px dashed hsla(233, 10%, 75%, 1);
   border-radius: 0.25rem;
-  color: #999;
+  color: hsla(233, 10%, 75%, 1);
   display: flex;
   flex: 1 0 12rem;
   font-weight: bold;
@@ -76,33 +79,34 @@ input[type='date'] {
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.track-list .list-group-item .dropzone-audio:hover {
-  background-color: #fff;
-  border-color: #5ab3e8;
-  color: #5ab3e8;
+.track-list .list-group-item .dropzone-audio:hover,
+.track-list .list-group-item .dropzone-audio.audio-uploading {
+  background-color: #000;
+  border-color: #18cdca;
+  color: #18cdca;
   cursor: pointer;
 }
 
 .track-list .list-group-item .dropzone-audio-active,
 .track-list .list-group-item .dropzone-audio.audio-true {
-  background-color: #fff;
-  border-color: #41ce7c;
-  color: #41ce7c;
+  background-color: #000;
+  border-color: #18cdca;
+  color: #18cdca;
 }
 
 .track-list .list-group-item .dropzone-audio-active:hover,
 .track-list .list-group-item .dropzone-audio.audio-true:hover {
-  background-color: #41ce7c;
-  color: #fff;
+  background-color: #18cdca;
+  color: #292c44;
 }
 
 .invalid input.form-control,
 .invalid {
-  border-color: #ff0050;
+  border-color: #ff5349;
 }
 
 .invalid-feedback {
-  color: #ff0050;
+  color: #ff5349;
   display: inherit;
 }
 
@@ -110,13 +114,8 @@ input[type='date'] {
   margin: 2rem 0 1rem;
 }
 
-.track-list .form-control,
-.track-list .form-control:focus {
-  padding: 0.5rem;
-}
-
 .track-list label {
-  color: #999;
+  color: hsla(233, 10%, 30%, 1);
   font-size: 1.5rem;
   margin: 0;
   padding: 0;
@@ -124,16 +123,13 @@ input[type='date'] {
 }
 
 .track-list .list-group-item:first-child {
-  border-top: 2px dashed rgba(0, 0, 0, 0.15);
   border-radius: 0;
 }
 
 .track-list .list-group-item {
-  background: none;
+  background: hsla(233, 10%, 10%, 1);
   border: none;
-  border-right: 2px dashed rgba(0, 0, 0, 0.15);
-  border-bottom: 2px dashed rgba(0, 0, 0, 0.15);
-  margin-bottom: 0;
+  margin-bottom: 15px;
   padding: 1rem;
 }
 
@@ -149,7 +145,8 @@ input[type='date'] {
 
 .track-list .list-group-item .btn {
   border: 0;
-  color: #666;
+  border-radius: 0.25rem;
+  color: hsla(233, 10%, 50%, 1);
   width: auto;
   padding: 0.25rem 0.75rem;
   opacity: 0;
@@ -159,11 +156,11 @@ input[type='date'] {
 }
 
 .track-list .list-group-item .btn:not(:hover) {
-  background: #f8f8f8;
+  background: #000;
 }
 
 .track-list .list-group-item .btn:hover {
-  color: #fff;
+  color: #f0f0f1;
 }
 
 .track-list .list-group-item .btn:last-of-type {
@@ -171,19 +168,20 @@ input[type='date'] {
 }
 
 .btn.add-track {
+  border-radius: 0.25rem;
   margin: 1rem 0.25rem 0 calc(1rem + 4px);
   margin-right: 0.25rem;
   width: 6rem;
 }
 
 .track-list .list-group-item.audio-true {
-  border-left: 4px solid #41ce7c;
+  border-left: 4px solid #18cdca;
 }
 
 .track-list .list-group-item.audio-false {
-  border-left: 4px solid #ff0050;
+  border-left: 4px solid #ff5349;
 }
 
 .track-list .list-group-item.audio-uploading {
-  border-left: 4px solid #5ab3e8;
+  border-left: 4px solid #4f80e1;
 }

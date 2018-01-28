@@ -3,11 +3,11 @@ footer {
 }
 
 footer .github a {
-  color: #999;
+  color: hsla(233, 10%, 75%, 1);
   font-size: 2rem;
   transition: 0.25s;
 }
 
 footer .github a:hover {
-  color: #5ab3e8;
+  color: #18cdca;
 }

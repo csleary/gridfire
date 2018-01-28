@@ -44,13 +44,13 @@ export const addTrack = releaseId => async dispatch => {
   dispatch({ type: ADD_TRACK, payload: res.data });
 };
 
-export const deleteArtwork = id => async dispatch => {
-  const res = await axios.delete(`/api/artwork/${id}`);
+export const deleteArtwork = releaseId => async dispatch => {
+  const res = await axios.delete(`/api/artwork/${releaseId}`);
   dispatch({ type: DELETE_ARTWORK, payload: res.data });
 };
 
-export const deleteRelease = id => async dispatch => {
-  const res = await axios.delete(`/api/release/${id}`);
+export const deleteRelease = releaseId => async dispatch => {
+  const res = await axios.delete(`/api/release/${releaseId}`);
   dispatch({ type: DELETE_RELEASE, payload: res.data });
 };
 
@@ -59,10 +59,10 @@ export const deleteTrack = (releaseId, trackId) => async dispatch => {
   dispatch({ type: DELETE_TRACK, payload: res.data });
 };
 
-export const fetchArtworkUploadUrl = (id, type) => async dispatch => {
+export const fetchArtworkUploadUrl = (releaseId, type) => async dispatch => {
   const res = await axios.get('/api/upload/artwork', {
     params: {
-      id,
+      releaseId,
       type
     }
   });
@@ -89,8 +89,8 @@ export const fetchCatalogue = () => async dispatch => {
   dispatch({ type: FETCH_CATALOGUE, payload: res.data });
 };
 
-export const fetchRelease = id => async dispatch => {
-  const res = await axios.get(`/api/release/${id}`);
+export const fetchRelease = releaseId => async dispatch => {
+  const res = await axios.get(`/api/release/${releaseId}`);
   dispatch({
     type: FETCH_RELEASE,
     payload: res.data.release
@@ -119,8 +119,8 @@ export const fetchUser = () => async dispatch => {
   });
 };
 
-export const fetchUserRelease = id => async dispatch => {
-  const res = await axios.get(`/api/user/release/${id}`);
+export const fetchUserRelease = releaseId => async dispatch => {
+  const res = await axios.get(`/api/user/release/${releaseId}`);
   dispatch({ type: FETCH_USER_RELEASE, payload: res.data });
 };
 
@@ -248,13 +248,13 @@ export const playerHide = () => dispatch => {
   });
 };
 
-export const publishStatus = id => async dispatch => {
-  const res = await axios.patch(`/api/release/${id}`);
+export const publishStatus = releaseId => async dispatch => {
+  const res = await axios.patch(`/api/release/${releaseId}`);
   dispatch({ type: PUBLISH_STATUS, payload: res.data });
 };
 
-export const purchaseRelease = id => async dispatch => {
-  const res = await axios.get(`/api/purchase/${id}`);
+export const purchaseRelease = releaseId => async dispatch => {
+  const res = await axios.get(`/api/purchase/${releaseId}`);
   dispatch({
     type: PURCHASE_RELEASE,
     payload: res.data.release,

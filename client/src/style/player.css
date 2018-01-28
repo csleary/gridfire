@@ -1,17 +1,19 @@
 .player {
-  background: #e1e1e1;
+  background: hsla(233, 10%, 10%, 1);
   bottom: 0;
-  color: #666;
+  color: hsla(233, 10%, 75%, 1);
   font-size: 2rem;
   position: fixed;
   text-align: center;
   transform: translateY(100%);
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
   width: 100%;
 }
 
 .player.show {
   transform: translateY(0);
+  visibility: visible;
 }
 
 .player .interface {
@@ -32,7 +34,7 @@
 
 .player .player-button:hover,
 .player .player-current-time:hover {
-  color: #000;
+  color: #f0f0f1;
   cursor: pointer;
 }
 
@@ -40,7 +42,7 @@
 }
 
 .player .player-button.waiting:hover {
-  color: #666;
+  color: hsla(233, 10%, 50%, 1);
   cursor: unset;
 }
 
@@ -48,6 +50,7 @@
   padding: 0 1rem;
   display: inline-block;
   text-align: right;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 7rem;
 }
 
@@ -56,7 +59,7 @@
 }
 
 #player-progress {
-  background: #666;
+  background: hsla(233, 10%, 50%, 1);
   height: 100%;
   transition: 0.125s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 0;
@@ -69,13 +72,13 @@
 }
 
 .player:hover .seek-bar {
-  background: rgba(102, 102, 102, 0.1);
+  background: hsla(233, 10%, 20%, 1);
   cursor: pointer;
   height: 8px;
 }
 
 .player:hover #player-progress {
-  background: #5ab3e8;
+  background: #18cdca;
 }
 
 .player .track-info {
@@ -89,7 +92,13 @@
   text-overflow: ellipsis;
 }
 
+.player .track-info .no-link {
+  color: #18cdca;
+  font-weight: bold;
+}
+
 .player-button.hide-player {
+  color: hsla(233, 10%, 50%, 1);
   font-size: 1.5rem;
 }
 

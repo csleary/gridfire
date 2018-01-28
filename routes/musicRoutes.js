@@ -33,15 +33,15 @@ module.exports = app => {
   });
 
   // Delete Artwork
-  app.delete('/api/artwork/:id', requireLogin, async (req, res) => {
-    const { id } = req.params;
+  app.delete('/api/artwork/:releaseId', requireLogin, async (req, res) => {
+    const { releaseId } = req.params;
 
     // Delete from S3
     const s3 = new aws.S3();
     s3.listObjectsV2(
       {
         Bucket: 'nemp3-img',
-        Prefix: `${id}`
+        Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
@@ -56,7 +56,7 @@ module.exports = app => {
 
     // Delete from db
     const release = await Release.findByIdAndUpdate(
-      id,
+      releaseId,
       { $set: { artwork: undefined } },
       { new: true }
     );
@@ -64,8 +64,8 @@ module.exports = app => {
   });
 
   // Delete Release
-  app.delete('/api/release/:id', requireLogin, async (req, res) => {
-    const { id } = req.params;
+  app.delete('/api/release/:releaseId', requireLogin, async (req, res) => {
+    const { releaseId } = req.params;
 
     // Delete audio from S3
     const s3 = new aws.S3();
@@ -73,7 +73,7 @@ module.exports = app => {
     s3.listObjectsV2(
       {
         Bucket: 'nemp3-src',
-        Prefix: `${id}`
+        Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
@@ -94,7 +94,7 @@ module.exports = app => {
     s3.listObjectsV2(
       {
         Bucket: 'nemp3-opt',
-        Prefix: `${id}`
+        Prefix: `m4a/${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
@@ -115,7 +115,7 @@ module.exports = app => {
     s3.listObjectsV2(
       {
         Bucket: 'nemp3-img',
-        Prefix: `${id}`
+        Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
@@ -129,7 +129,7 @@ module.exports = app => {
     );
 
     // Delete from db
-    const result = await Release.findByIdAndRemove(id);
+    const result = await Release.findByIdAndRemove(releaseId);
     res.send(result._id);
   });
 
@@ -205,7 +205,7 @@ module.exports = app => {
           tracks.forEach(async track => {
             const title =
               process.env.NEM_NETWORK === 'mainnet'
-                ? trackList.filter(tr => track.Key.includes(tr._id))[0]
+                ? trackList.filter(_track => track.Key.includes(_track._id))[0]
                     .trackTitle
                 : 'Test Track';
 
@@ -236,8 +236,9 @@ module.exports = app => {
         downloadUrls.forEach((track, index) => {
           const trackNumber =
             process.env.NEM_NETWORK === 'mainnet'
-              ? release.trackList.findIndex(tr => track.url.includes(tr._id)) +
-                1
+              ? release.trackList.findIndex(_track =>
+                  track.url.includes(_track._id)
+                ) + 1
               : index + 1;
 
           archive.append(request(track.url, { encoding: null }), {
@@ -260,8 +261,8 @@ module.exports = app => {
   });
 
   // Fetch Release
-  app.get('/api/release/:id', async (req, res) => {
-    const release = await Release.findOne({ _id: req.params.id });
+  app.get('/api/release/:releaseId', async (req, res) => {
+    const release = await Release.findOne({ _id: req.params.releaseId });
     const artist = await User.findOne({ _id: release._user });
     const paymentInfo = {
       paymentAddress: nem.utils.format.address(artist.nemAddress)
@@ -270,8 +271,8 @@ module.exports = app => {
   });
 
   // Fetch Single User Release
-  app.get('/api/user/release/:id', requireLogin, async (req, res) => {
-    const release = await Release.findById(req.params.id);
+  app.get('/api/user/release/:releaseId', requireLogin, async (req, res) => {
+    const release = await Release.findById(req.params.releaseId);
     res.send(release);
   });
 
@@ -293,8 +294,8 @@ module.exports = app => {
   });
 
   // Purchase Release
-  app.get('/api/purchase/:id', requireLogin, async (req, res) => {
-    const release = await Release.findOne({ _id: req.params.id });
+  app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
+    const release = await Release.findOne({ _id: req.params.releaseId });
     const artist = await User.findOne({ _id: release._user });
     const customerIdHash = req.user.auth.idHash;
     const paymentHash = SHA256(release._id + customerIdHash)
@@ -308,8 +309,8 @@ module.exports = app => {
   });
 
   // Toggle Release Status
-  app.patch('/api/release/:id', requireLogin, async (req, res) => {
-    const release = await Release.findById(req.params.id);
+  app.patch('/api/release/:releaseId', requireLogin, async (req, res) => {
+    const release = await Release.findById(req.params.releaseId);
     release.published = !release.published;
     release.save();
     res.send(release);
@@ -354,14 +355,14 @@ module.exports = app => {
 
   // Upload Artwork
   app.get('/api/upload/artwork', requireLogin, async (req, res) => {
-    const { id, type } = req.query;
+    const { releaseId, type } = req.query;
 
     // If replacing, delete from S3
     const s3 = new aws.S3();
     s3.listObjectsV2(
       {
         Bucket: 'nemp3-img',
-        Prefix: `${id}`
+        Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
@@ -386,13 +387,13 @@ module.exports = app => {
       ContentType: `${type}`,
       Bucket: 'nemp3-img',
       Expires: 30,
-      Key: `${id}${ext}`
+      Key: `${releaseId}${ext}`
     };
 
     s3.getSignedUrl('putObject', params, async (error, url) => {
       if (error) null;
-      const release = await Release.findById(id);
-      release.artwork = `https://s3.amazonaws.com/nemp3-img/${id}${ext}`;
+      const release = await Release.findById(releaseId);
+      release.artwork = `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`;
       release.save();
       res.send(url);
     });
@@ -432,7 +433,7 @@ module.exports = app => {
 
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {
-    const id = req.body._id;
+    const releaseId = req.body._id;
     const {
       artistName,
       catNumber,
@@ -441,7 +442,7 @@ module.exports = app => {
       releaseDate,
       releaseTitle
     } = req.body;
-    const release = await Release.findById(id);
+    const release = await Release.findById(releaseId);
     release.artistName = artistName;
     release.catNumber = catNumber;
     release.price = price;

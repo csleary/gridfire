@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
-import { addNemAddress, fetchUser, toastMessage } from '../actions';
+import { addNemAddress, fetchUser, toastMessage } from '../../actions';
 
 const addressPrefix =
   process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
@@ -53,7 +53,7 @@ class Dashboard extends Component {
         <label htmlFor={id}>{label}</label>
         <input
           {...input}
-          className="form-control"
+          className="form-control payment-address"
           name={name}
           placeholder={`NEM Address (should start with ${addressPrefix})`}
           type={type}

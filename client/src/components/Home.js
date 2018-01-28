@@ -67,7 +67,9 @@ class Home extends Component {
               <FontAwesome className="info" name="info-circle" />
             </Link>
           </div>
-          <div className="release-title">{release.releaseTitle}</div>
+          <div className="release-title">
+            <Link to={`/release/${release._id}`}>{release.releaseTitle}</Link>
+          </div>
         </div>
       </div>
     ));

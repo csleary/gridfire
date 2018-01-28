@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
+import classNames from 'classnames';
 import Logo from './Logo';
 import '../style/navbar.css';
 
 class Navbar extends Component {
   constructor(props) {
     super(props);
-    this.handleScroll = this.handleScroll.bind(this);
     this.state = {
-      logoOpacity: 0
+      showLogo: false
     };
+    this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
@@ -22,13 +23,13 @@ class Navbar extends Component {
   }
 
   handleScroll() {
-    const headerHeight = document.getElementById('header').offsetHeight;
+    const headerHeight = document.getElementById('header').offsetHeight + 4;
     const y = window.scrollY;
 
     if (y > headerHeight) {
-      this.setState({ logoOpacity: 1 });
+      this.setState({ showLogo: true });
     } else {
-      this.setState({ logoOpacity: 0 });
+      this.setState({ showLogo: false });
     }
   }
 
@@ -78,13 +79,13 @@ class Navbar extends Component {
   }
 
   render() {
+    const className = classNames({
+      'navbar-brand-link': true,
+      'navbar-brand-show': this.state.showLogo
+    });
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
-        <Link
-          to={'/'}
-          className="navbar-brand-link"
-          style={{ opacity: this.state.logoOpacity }}
-        >
+        <Link to={'/'} className={className}>
           <Logo class="navbar-brand" />
         </Link>
         {this.authStatus()}

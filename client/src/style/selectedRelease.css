@@ -9,7 +9,7 @@
 }
 
 .selected-release .tracklist {
-  color: #999;
+  color: hsla(233, 10%, 75%, 1);
 }
 
 .selected-release .tracklist li a {
@@ -19,7 +19,7 @@
 
 .selected-release .tracklist .now-playing {
   animation: now-playing 2s ease 1s infinite;
-  color: #5ab3e8;
+  color: #18cdca;
   padding-left: 0.5rem;
 }
 
@@ -75,8 +75,35 @@
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.release-info {
+  background: hsla(233, 10%, 10%, 1);
+  padding: 1rem;
+}
+
 .release-info .release-title {
+  font-size: 2.4rem;
   margin-bottom: 0.5rem;
+}
+
+.release-info .release-price {
+  display: flex;
+  align-items: center;
+  color: #ff5349;
+}
+
+.release-info .release-price::before,
+.release-info .release-price::after {
+  background: #ff5349;
+  content: '';
+  flex: 1 1;
+  height: 2px;
+}
+.release-info .release-price::before {
+  margin-right: 0.25rem;
+}
+
+.release-info .release-price::after {
+  margin-left: 0.25rem;
 }
 
 @keyframes now-playing {

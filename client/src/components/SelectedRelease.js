@@ -102,7 +102,7 @@ class SelectedRelease extends Component {
     } = this.props.release;
 
     return (
-      <main className="container">
+      <main className="container d-flex align-items-center">
         <div className="row selected-release">
           <div className="col-md">
             <div className="artwork">

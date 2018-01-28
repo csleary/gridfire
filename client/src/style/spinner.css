@@ -1,11 +1,7 @@
 .fa-spin.spinner {
-  animation: spinner-gradient 1s linear normal infinite;
-  color: #41ce7c;
+  /* animation: spinner-gradient 1s linear normal infinite; */
+  color: #18cdca;
   font-size: 4rem;
-}
-
-.spinner-small {
-  color: #999;
 }
 
 .spinner-message {
@@ -14,16 +10,16 @@
 
 @keyframes spinner-gradient {
   0% {
-    color: #41ce7c;
+    color: #4f80e1;
     transform: rotate(0deg);
   }
 
   50% {
-    color: #5ab3e8;
+    color: #18cdca;
   }
 
   100% {
-    color: #41ce7c;
+    color: #4f80e1;
     transform: rotate(359deg);
   }
 }

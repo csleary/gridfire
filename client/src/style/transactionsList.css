@@ -1,5 +1,5 @@
 .transactions {
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 
 .transactions h5 {
@@ -7,7 +7,12 @@
 }
 
 h3.transactions-searching {
-  margin-top: 3rem;
+  margin-top: 2rem;
+}
+
+.bold-red {
+  color: #ff5349;
+  font-weight: 600;
 }
 
 button.refresh-txs {
@@ -24,22 +29,30 @@ button.refresh-txs {
   white-space: nowrap;
 }
 
-.tx-list li {
+ol.tx-list {
+  color: hsla(233, 10%, 75%, 1);
+}
+
+.tx-list li.list-item {
+  color: #f0f0f1;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 button.download-button {
+  background-color: #000;
+  border-color: #000;
+  color: #18cdca;
   margin: 0 auto 2rem;
   width: 24rem;
 }
 
 button.download-button:focus {
-  color: #41ce7c;
+  color: #18cdca;
 }
 
 button.download-button:hover {
-  color: #fff;
+  color: #292c44;
 }
 
 @keyframes fadeIn {

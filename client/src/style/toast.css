@@ -1,5 +1,8 @@
 .toast {
+  border: 0;
+  border-radius: 0.5rem;
   bottom: 5rem;
+  font-weight: 600;
   position: fixed;
   right: 3rem;
   z-index: 1070;
@@ -18,21 +21,16 @@
 }
 
 .toast.alert {
-  background: #e9f5fc;
-  border-color: #5ab3e8;
-  color: #5ab3e8;
+  background: #000;
+  color: #18cdca;
 }
 
 .toast.alert.alert-success {
-  background: #ebfaf1;
-  border-color: #41ce7c;
-  color: #41ce7c;
+  /* color: #4f80e1; */
 }
 
 .toast.alert.alert-danger {
-  background: #fff0f5;
-  border-color: #ff0050;
-  color: #ff0050;
+  color: #ff5349;
 }
 
 @keyframes toast {
