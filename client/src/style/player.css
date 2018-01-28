@@ -1,7 +1,7 @@
 .player {
   background: hsla(233, 10%, 10%, 1);
   bottom: 0;
-  color: hsla(233, 10%, 75%, 1);
+  color: hsla(233, 10%, 50%, 1);
   font-size: 2rem;
   position: fixed;
   text-align: center;

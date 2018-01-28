@@ -6,11 +6,8 @@
 }
 
 .front-page .cover-artwork {
-  background: hsla(233, 10%, 10%, 1);
+  /* background: hsla(233, 10%, 10%, 1); */
   position: relative;
-  /* To ensure placeholder doesn't collapse */
-  /* padding-bottom: 100%;
-  height: 0; */
 }
 
 .front-page .cover-artwork img.artwork {
