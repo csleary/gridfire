@@ -24,17 +24,20 @@
 }
 
 .selected-release .artwork {
-  background: rgba(0, 0, 0, 0.05);
-  background-image: url('../logoSmall.svg');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 25% auto;
+  background: hsla(233, 10%, 10%, 1);
+  /* background-image: url('../logoSmall.svg'); */
+  /* background-position: center; */
+  /* background-repeat: no-repeat; */
+  /* background-size: 25% auto; */
   margin-bottom: 2rem;
   padding: 0;
   position: relative;
-  /* Tp ensure placeholder doesn't collapse */
-  padding-bottom: 100%;
+}
+
+.selected-release .artwork::before {
+  content: '';
   height: 0;
+  padding-bottom: 100%;
 }
 
 .selected-release .artwork img {
@@ -64,11 +67,13 @@
   right: 0;
   opacity: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
 }
 
-.artwork .cover-artwork-overlay:hover {
+.artwork:hover .cover-artwork-overlay {
   opacity: 1;
   cursor: pointer;
+  visibility: visible;
 }
 
 .artwork .cover-artwork-overlay .play {
@@ -95,8 +100,8 @@
 .release-info .release-price::after {
   background: #ff5349;
   content: '';
-  flex: 1 1;
-  height: 2px;
+  flex: 1 0 auto;
+  height: 1px;
 }
 .release-info .release-price::before {
   margin-right: 0.25rem;

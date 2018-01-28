@@ -90,7 +90,8 @@ a:focus {
   color: #18cdca;
 }
 
-.btn-outline-primary:hover {
+.btn-outline-primary:hover,
+.btn-outline-primary:not(:disabled):not(.disabled):active {
   background-color: #18cdca;
   border-color: #18cdca;
   color: #292c44;
