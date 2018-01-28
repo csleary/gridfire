@@ -28,8 +28,9 @@
 }
 
 .selected-release .artwork {
+  align-self: start;
   flex: 1;
-  background: hsla(233, 10%, 10%, 1);
+  /* background: hsla(233, 10%, 10%, 1); */
   /* background-image: url('../logoSmall.svg'); */
   /* background-position: center; */
   /* background-repeat: no-repeat; */
