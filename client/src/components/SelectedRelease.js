@@ -104,7 +104,7 @@ class SelectedRelease extends Component {
     return (
       <main className="container d-flex align-items-center">
         <div className="row selected-release">
-          <div className="col-md">
+          <div className="col-md d-flex">
             <div className="artwork">
               <img
                 alt={releaseTitle}
