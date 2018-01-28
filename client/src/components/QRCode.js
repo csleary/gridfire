@@ -19,8 +19,8 @@ const QrCode = props => {
       <QRCode
         value={JSON.stringify(paymentData)}
         size={256}
-        fgColor={'#22232a'}
-        bgColor={'#f0f0f1'}
+        fgColor={'#f0f0f1'}
+        bgColor={'#22232a'}
         level={'M'}
       />
     </div>
