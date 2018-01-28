@@ -5,18 +5,6 @@ import classNames from 'classnames';
 import RenderTrackField from './RenderTrackField';
 import ProgressBar from './ProgressBar';
 
-// const hasAudio = (release, index, uploadingAudio) => {
-//   if (
-//     (release.trackList[index] && release.trackList[index].hasAudio) ||
-//     uploadingAudio === 100
-//   ) {
-//     return 'audio-true';
-//   } else if (uploadingAudio < 100) {
-//     return 'audio-uploading';
-//   }
-//   return 'audio-false';
-// };
-
 const handleMoveTrack = (moveTrack, swap, id, index, direction) => {
   moveTrack(id, index, index + direction, () => {
     swap(index, index + direction);
@@ -108,11 +96,11 @@ const RenderTrack = props => {
                       }
                     )
                   }
-                  title="Remove Track"
+                  title="Delete Track"
                   type="button"
                 >
                   <FontAwesome name="trash" className="icon-left" />
-                  Remove
+                  Delete
                 </button>
               </div>
               <ProgressBar

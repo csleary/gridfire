@@ -1,6 +1,6 @@
 header {
   animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
-  background: #fff;
+  background: hsla(233, 10%, 20%, 1);
 }
 
 .header-logo {
@@ -12,19 +12,19 @@ header {
 }
 
 path.layer0 {
-  fill: #666;
+  fill: hsla(233, 10%, 10%, 1);
 }
 
 path.layer1 {
-  fill: #fff;
+  fill: #f0f0f1;
 }
 
 path.layer2 {
-  fill: #41ce7c;
+  fill: #000;
 }
 
 path.layer3 {
-  fill: #5ab3e8;
+  fill: #ff5349;
 }
 
 .title {
@@ -33,7 +33,7 @@ path.layer3 {
 
 .gradient {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
-  background: linear-gradient(to right, #41ce7c, #5ab3e8);
+  background: linear-gradient(to right, #ff5349, #18cdca);
   height: 4px;
   width: 100%;
 }

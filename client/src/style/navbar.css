@@ -1,6 +1,6 @@
 nav.navbar,
 nav.navbar.sub-menu {
-  background-color: #fff;
+  background-color: hsla(233, 10%, 20%, 1);
   height: 2.5rem;
   padding: 0;
 }
@@ -10,26 +10,23 @@ nav.navbar.sub-menu {
 }
 
 nav.navbar a {
-  color: #999;
+  color: hsla(233, 10%, 75%, 1);
   transition-duration: 0.25s;
 }
 
 nav.navbar a.active,
 nav.navbar.sub-menu a.active {
-  background: #f8f8f8;
-  color: #666;
-}
-
-nav.navbar a.active:hover {
-  border-color: #5ab3e8;
+  background: hsla(233, 10%, 15%, 1);
+  color: #f0f0f1;
 }
 
 .navbar-expand-lg .navbar-nav .nav-link {
   padding: 0.5rem 15px;
+  text-transform: uppercase;
 }
 
 nav.navbar .nav-item a.nav-link:hover {
-  color: #5ab3e8;
+  color: #18cdca;
 }
 
 nav.navbar .nav-item:last-of-type {
@@ -50,7 +47,7 @@ nav.navbar a.navbar-brand-link.navbar-brand-show {
 }
 
 .navbar-brand {
-  fill: #999;
+  fill: hsla(233, 10%, 50%, 1);
   height: auto;
   margin: 0;
   padding: 0;
@@ -59,7 +56,7 @@ nav.navbar a.navbar-brand-link.navbar-brand-show {
 }
 
 nav.navbar a .navbar-brand:hover {
-  fill: #666;
+  fill: #18cdca;
 }
 
 nav .icon-left {

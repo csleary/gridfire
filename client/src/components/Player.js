@@ -148,12 +148,7 @@ class Player extends Component {
       );
     }
     return (
-      <span
-        style={{
-          color: '#5ab3e8',
-          fontWeight: 'bold'
-        }}
-      >
+      <span className="no-link">
         {this.props.player.artistName} &bull;{' '}
         <em>{this.props.player.trackTitle}</em>
       </span>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
-import Spinner from './Spinner';
+import Spinner from './../Spinner';
 
 const handlePublishStatus = (props, release) => {
   if (
@@ -47,6 +47,14 @@ const renderTitle = release => {
   return <h6>Untitled Release</h6>;
 };
 
+const copiesSold = numSold => {
+  if (numSold === 1) {
+    return <h6>{numSold} copy sold.</h6>;
+  } else if (numSold > 1) {
+    return <h6>{numSold} copies sold.</h6>;
+  }
+};
+
 const UserReleases = props => {
   const renderUserReleases = () => {
     if (props.isLoadingUserReleases) {
@@ -81,7 +89,7 @@ const UserReleases = props => {
               <FontAwesome name="file-audio-o" className="icon-left" />
               {release.trackList.length} Tracks
             </h6>
-            <h6>Sold: {release.numSold}</h6>
+            {copiesSold(release.numSold)}
           </div>
           <div className="d-flex align-items-end ml-auto mt-auto">
             <button
