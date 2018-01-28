@@ -1,3 +1,7 @@
+.selected-release {
+  flex: 1;
+}
+
 .selected-release .buy-button {
   margin: 2rem auto 1rem auto;
 }
@@ -24,6 +28,7 @@
 }
 
 .selected-release .artwork {
+  flex: 1;
   background: hsla(233, 10%, 10%, 1);
   /* background-image: url('../logoSmall.svg'); */
   /* background-position: center; */
@@ -32,12 +37,6 @@
   margin-bottom: 2rem;
   padding: 0;
   position: relative;
-}
-
-.selected-release .artwork::before {
-  content: '';
-  height: 0;
-  padding-bottom: 100%;
 }
 
 .selected-release .artwork img {
