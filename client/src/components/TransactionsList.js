@@ -18,7 +18,8 @@ const TransactionsList = props => {
           }}
         >
           <FontAwesome name="download" className="icon-left" />
-          Download Release
+          Download{' '}
+          <span className="ibm-type-italic">{props.release.releaseTitle}</span>
         </button>
       </div>
     </div>
@@ -56,7 +57,7 @@ const TransactionsList = props => {
     </p>
   ) : (
     <p>
-      Paid to date: <span className="bold-red">{props.paidToDate} XEM</span>.
+      Paid to date: <span className="bold-red">{props.paidToDate} XEM</span>
     </p>
   );
 

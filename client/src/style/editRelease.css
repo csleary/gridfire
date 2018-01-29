@@ -68,9 +68,9 @@ input[type='date'] {
   align-items: center;
   align-self: stretch;
   background-color: #000;
-  border: 2px dashed hsla(233, 10%, 75%, 1);
+  border: 2px dashed hsla(233, 10%, 50%, 1);
   border-radius: 0.25rem;
-  color: hsla(233, 10%, 75%, 1);
+  color: hsla(233, 10%, 50%, 1);
   display: flex;
   flex: 1 0 12rem;
   font-weight: bold;

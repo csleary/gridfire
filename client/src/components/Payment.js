@@ -113,7 +113,9 @@ class Payment extends Component {
             <h2 className="text-center">Payment</h2>
             <h3 className="text-center">
               {this.props.release.artistName} -{' '}
-              <em>{this.props.release.releaseTitle}</em>
+              <span className="ibm-type-italic">
+                {this.props.release.releaseTitle}
+              </span>
             </h3>
             <p>
               Please scan the QR code below with the NEM Wallet app to make your
