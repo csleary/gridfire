@@ -19,7 +19,7 @@ button.refresh-txs {
   display: inline-block;
   margin-bottom: 1.5rem;
   padding: 0.5rem 1rem;
-  width: unset;
+  width: auto;
 }
 
 .tx-list {
@@ -44,7 +44,7 @@ button.download-button {
   border-color: #000;
   color: #18cdca;
   margin: 0 auto 2rem;
-  width: 24rem;
+  min-width: 100%;
 }
 
 button.download-button:focus {
@@ -62,5 +62,11 @@ button.download-button:hover {
 
   to {
     opacity: 1;
+  }
+}
+
+@media (min-width: 576px) {
+  button.download-button {
+    min-width: 24rem;
   }
 }

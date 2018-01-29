@@ -76,7 +76,7 @@ a:focus {
   border-width: 2px;
   font-weight: bold;
   text-transform: uppercase;
-  width: 18rem;
+  min-width: 18rem;
 }
 
 .btn-sm {
