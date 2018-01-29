@@ -11,7 +11,7 @@
   border: 0;
   border-radius: 0;
   color: hsla(233, 10%, 75%, 1);
-  width: auto;
+  min-width: auto;
   padding: 0.25rem 0.75rem;
 }
 
@@ -28,7 +28,7 @@
 a.btn.add-release {
   display: inline-block;
   padding: 0.5rem 1rem;
-  width: unset;
+  min-width: auto;
 }
 
 .payment-address {
