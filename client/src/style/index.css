@@ -101,7 +101,7 @@ a:focus {
 .btn-outline-primary:disabled,
 .btn-outline-primary:disabled:hover {
   background-color: transparent;
-  border-color: #18cdca80;
+  border: 2px solid transparent;
   color: #18cdca80;
   cursor: default;
 }
@@ -120,7 +120,10 @@ a:focus {
 }
 
 .btn-outline-secondary:disabled {
+  background-color: transparent;
+  border: 2px solid transparent;
   color: hsla(233, 10%, 50%, 1);
+  cursor: default;
 }
 
 .btn-outline-success {

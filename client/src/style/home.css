@@ -1,16 +1,15 @@
 .front-page {
   display: grid;
   grid-gap: 15px;
-  grid-template-columns: repeat(1, auto);
-  justify-content: space-between;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .front-page .cover-artwork {
-  /* background: hsla(233, 10%, 10%, 1); */
   position: relative;
 }
 
 .front-page .cover-artwork img.artwork {
+  display: flex;
   width: 100%;
 }
 
@@ -67,8 +66,7 @@
 }
 
 .front-page .cover-artwork .artist-name,
-.front-page .cover-artwork .release-title,
-.front-page .cover-artwork .release-title a {
+.front-page .cover-artwork .release-title {
   color: hsla(233, 10%, 75%, 1);
   font-size: 1.2rem;
   font-weight: bold;
@@ -76,29 +74,7 @@
   text-align: center;
 }
 
-@media (min-width: 576px) {
-  .front-page {
-    grid-template-columns: repeat(2, auto);
-  }
-}
-
-@media (min-width: 768px) {
-  .front-page {
-    grid-template-columns: repeat(3, auto);
-  }
-}
-
-@media (min-width: 992px) {
-  .front-page {
-    grid-template-columns: repeat(4, auto);
-  }
-}
-
 @media (min-width: 1600px) {
-  .front-page {
-    grid-template-columns: repeat(6, auto);
-  }
-
   .front-page .cover-artwork .cover-artwork-overlay {
     font-size: 5rem;
   }

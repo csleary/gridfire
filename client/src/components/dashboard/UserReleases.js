@@ -40,7 +40,8 @@ const renderTitle = release => {
   if (release.artistName) {
     return (
       <h6>
-        {release.artistName} &bull; <em>{release.releaseTitle}</em>
+        {release.artistName} &bull;{' '}
+        <span className="ibm-type-italic">{release.releaseTitle}</span>
       </h6>
     );
   }
