@@ -147,12 +147,12 @@ input[type='date'] {
   border: 0;
   border-radius: 0.25rem;
   color: hsla(233, 10%, 50%, 1);
-  width: auto;
-  padding: 0.25rem 0.75rem;
-  opacity: 0;
   margin: 0 0 0 0.25rem;
-  visibility: hidden;
+  min-width: auto;
+  opacity: 0;
+  padding: 0.25rem 0.75rem;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
 }
 
 .track-list .list-group-item .btn:not(:hover) {
@@ -169,9 +169,9 @@ input[type='date'] {
 
 .btn.add-track {
   border-radius: 0.25rem;
-  margin: 1rem 0.25rem 0 calc(1rem + 4px);
+  margin: 1rem 0 0 0;
   margin-right: 0.25rem;
-  width: 6rem;
+  min-width: 6rem;
 }
 
 .track-list .list-group-item.audio-true {
