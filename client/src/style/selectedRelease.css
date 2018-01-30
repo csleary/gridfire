@@ -2,6 +2,10 @@
   flex: 1;
 }
 
+.selected-release .col-artwork {
+  padding: 0;
+}
+
 .selected-release .buy-button {
   margin: 2rem auto 1rem auto;
 }
@@ -22,21 +26,13 @@
 }
 
 .selected-release .tracklist .now-playing {
-  animation: now-playing 2s ease 1s infinite;
+  animation: now-playing 2s ease 1s infinite alternate;
   color: #18cdca;
   padding-left: 0.5rem;
 }
 
 .selected-release .artwork {
-  align-self: start;
-  flex: 1;
-  /* background: hsla(233, 10%, 10%, 1); */
-  /* background-image: url('../logoSmall.svg'); */
-  /* background-position: center; */
-  /* background-repeat: no-repeat; */
-  /* background-size: 25% auto; */
-  margin-bottom: 2rem;
-  padding: 0;
+  align-self: flex-start;
   position: relative;
 }
 
@@ -111,23 +107,10 @@
   margin-left: 0.25rem;
 }
 
-@keyframes now-playing {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
 @media (min-width: 768px) {
-  .selected-release .artwork {
+  .selected-release .col-artwork {
     margin-bottom: 0;
+    padding-right: 15px;
   }
 }
 
@@ -159,5 +142,15 @@
 
   .selected-release .tracklist {
     font-size: 1.2rem;
+  }
+}
+
+@keyframes now-playing {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
   }
 }

@@ -104,7 +104,7 @@ class SelectedRelease extends Component {
     return (
       <main className="container d-flex align-items-center">
         <div className="row selected-release">
-          <div className="col-md d-flex">
+          <div className="col-md-6 col-artwork">
             <div className="artwork">
               <img
                 alt={releaseTitle}
@@ -130,7 +130,7 @@ class SelectedRelease extends Component {
               </div>
             </div>
           </div>
-          <div className="col-md release-info">
+          <div className="col-md-6 release-info">
             <h2 className="release-title text-center">{releaseTitle}</h2>
             <h4 className="artist-name text-center">{artistName}</h4>
             <h6 className="release-price text-center">
@@ -147,8 +147,8 @@ class SelectedRelease extends Component {
               <FontAwesome name="calendar-o" className="icon-left" />
               {this.formatDate(releaseDate)}
             </h6>
-            <h6>{recordLabel && `Label: ${recordLabel}`}</h6>
-            <h6>{catNumber && `Cat.: ${catNumber}`}</h6>
+            {recordLabel && <h6>{recordLabel && `Label: ${recordLabel}`}</h6>}
+            {catNumber && <h6>{catNumber && `Cat.: ${catNumber}`}</h6>}
             <div className="d-flex justify-content-center">
               <Link
                 to={`/payment/${this.props.release._id}`}
