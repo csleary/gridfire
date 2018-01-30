@@ -34,16 +34,18 @@ nav.navbar .nav-item:last-of-type {
 }
 
 nav.navbar a.navbar-brand-link {
-  flex-direction: column;
-  display: flex;
   align-content: center;
-  opacity: 0;
-  margin-left: 15px;
   border: 0;
+  display: flex;
+  flex-direction: column;
+  margin-left: 15px;
+  opacity: 0;
+  visibility: hidden;
 }
 
 nav.navbar a.navbar-brand-link.navbar-brand-show {
   opacity: 1;
+  visibility: visible;
 }
 
 .navbar-brand {

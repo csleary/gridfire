@@ -24,7 +24,6 @@ body {
 
 main {
   flex: 1;
-  margin: 15px 0;
 }
 
 h1,
@@ -239,4 +238,10 @@ img {
 ::selection {
   background-color: #292c44;
   color: #18cdca;
+}
+
+@media (min-width: 576px) {
+  main {
+    margin: 15px 0;
+  }
 }
