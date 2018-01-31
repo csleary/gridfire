@@ -46,7 +46,7 @@ class EditRelease extends Component {
     this.setLoading(true);
     window.scrollTo(0, 0);
     this.props.fetchXemPrice();
-    const releaseId = this.props.match.params.id;
+    const { releaseId } = this.props.match.params;
     if (releaseId) {
       this.setEditing();
       this.props.fetchRelease(releaseId).then(() => {

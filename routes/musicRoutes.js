@@ -186,10 +186,10 @@ module.exports = app => {
     const s3 = new aws.S3();
     const token = req.params.token.substring(7);
     const decoded = jwt.verify(token, keys.nemp3Secret);
-    const id = decoded.id;
+    const { releaseId } = decoded;
     const prefix =
-      process.env.NEM_NETWORK === 'mainnet' ? `${id}` : 'test/test';
-    const release = await Release.findById(id);
+      process.env.NEM_NETWORK === 'mainnet' ? `${releaseId}` : 'test/test';
+    const release = await Release.findById(releaseId);
     const { trackList } = release;
 
     s3.listObjectsV2(
@@ -295,8 +295,9 @@ module.exports = app => {
 
   // Purchase Release
   app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
-    const release = await Release.findOne({ _id: req.params.releaseId });
-    const artist = await User.findOne({ _id: release._user });
+    const { releaseId } = req.params;
+    const release = await Release.findById(releaseId);
+    const artist = await User.findById(release._user);
     const customerIdHash = req.user.auth.idHash;
     const paymentHash = SHA256(release._id + customerIdHash)
       .toString()

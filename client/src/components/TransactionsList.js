@@ -35,7 +35,7 @@ const TransactionsList = props => {
   ));
 
   const underpaid = () => {
-    const delta = props.price - props.paidToDate;
+    const delta = props.release.price - props.paidToDate;
     const roundUp = precision => {
       const factor = 10 ** precision;
       return Math.ceil(delta * factor) / factor;

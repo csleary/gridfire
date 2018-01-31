@@ -18,32 +18,24 @@ class Payment extends Component {
   }
 
   componentDidMount() {
-    const { id } = this.props.match.params;
+    const { releaseId } = this.props.match.params;
     this.props.fetchXemPrice();
-    this.props.purchaseRelease(id).then(() => {
+    this.props.purchaseRelease(releaseId).then(() => {
       this.setState({ isLoading: false });
-      const { price } = this.props.release;
-      const paymentAddress = this.props.paymentAddress.replace(/-/g, '');
       const { paymentHash } = this.props;
       this.props.fetchIncomingTxs({
-        id,
-        paymentAddress,
-        paymentHash,
-        price
+        releaseId,
+        paymentHash
       });
     });
   }
 
   render() {
-    const { id } = this.props.match.params;
-    const { price } = this.props.release;
-    const paymentAddress = this.props.paymentAddress.replace(/-/g, '');
+    const { releaseId } = this.props.match.params;
     const { paymentHash } = this.props;
     const paymentParams = {
-      id,
-      paymentAddress,
-      paymentHash,
-      price
+      releaseId,
+      paymentHash
     };
     const paymentInfo = this.state.showPaymentInfo ? (
       <div>
@@ -148,7 +140,6 @@ class Payment extends Component {
               isUpdating={this.props.isUpdating}
               nemNode={this.props.nemNode}
               paidToDate={this.props.paidToDate}
-              price={this.props.release.price}
               paymentParams={paymentParams}
               release={this.props.release}
               toastMessage={this.props.toastMessage}
