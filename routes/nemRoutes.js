@@ -18,10 +18,14 @@ module.exports = app => {
     return xemPriceUsd;
   };
 
-  app.post('/api/nem/transactions', requireLogin, (req, res) => {
-    const { id, paymentAddress, paymentHash, price } = req.body;
+  app.post('/api/nem/transactions', requireLogin, async (req, res) => {
+    const { releaseId, paymentHash } = req.body;
+    const release = await Release.findById(releaseId);
+    const artist = await User.findById(release._user);
+    const price = release.price;
+    const paymentAddress = artist.nemAddress;
     const hasPreviouslyPurchased = req.user.purchases.some(
-      purchase => id === purchase.id
+      purchase => releaseId === purchase.id
     );
 
     fetchIncomingTransactions(
@@ -34,12 +38,11 @@ module.exports = app => {
             const user = await User.findById(req.user._id);
             user.purchases.push({
               purchaseDate: Date.now(),
-              id
+              releaseId
             });
             user.save();
 
             // Increment sales.
-            const release = await Release.findById(id);
             release.numSold += 1;
             release.save();
           }
@@ -47,7 +50,7 @@ module.exports = app => {
           // Issue download token to user on successful payment.
           const token = jwt.sign(
             {
-              id,
+              releaseId,
               expiresIn: '10m'
             },
             keys.nemp3Secret

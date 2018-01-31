@@ -79,8 +79,7 @@ class Navbar extends Component {
   }
 
   render() {
-    const className = classNames({
-      'navbar-brand-link': true,
+    const className = classNames('navbar-brand-link', {
       'navbar-brand-show': this.state.showLogo
     });
     return (

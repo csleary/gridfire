@@ -65,12 +65,15 @@ class App extends Component {
             <Route
               exact
               strict
-              path="/release/:id"
+              path="/release/:releaseId"
               component={SelectedRelease}
             />
             <PrivateRoute path="/release/add/" component={EditRelease} />
-            <PrivateRoute path="/release/edit/:id" component={EditRelease} />
-            <PrivateRoute path="/payment/:id" component={Payment} />
+            <PrivateRoute
+              path="/release/edit/:releaseId"
+              component={EditRelease}
+            />
+            <PrivateRoute path="/payment/:releaseId" component={Payment} />
             <PrivateRoute path="/dashboard" component={Dashboard} />
           </Switch>
           <Footer />
