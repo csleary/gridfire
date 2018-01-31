@@ -15,7 +15,7 @@ const UserSchema = new Schema({
   purchases: [
     {
       purchaseDate: Date,
-      id: String
+      releaseId: String
     }
   ]
 });
