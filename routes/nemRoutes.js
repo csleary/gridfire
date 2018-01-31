@@ -25,7 +25,7 @@ module.exports = app => {
     const price = release.price;
     const paymentAddress = artist.nemAddress;
     const hasPreviouslyPurchased = req.user.purchases.some(
-      purchase => releaseId === purchase.id
+      purchase => releaseId === purchase.releaseId
     );
 
     fetchIncomingTransactions(
@@ -34,7 +34,7 @@ module.exports = app => {
       async transactions => {
         if (transactions.paidToDate >= price || hasPreviouslyPurchased) {
           // Add purchase to user account, if not already added.
-          if (!req.user.purchases.some(purchase => purchase.id)) {
+          if (!hasPreviouslyPurchased) {
             const user = await User.findById(req.user._id);
             user.purchases.push({
               purchaseDate: Date.now(),

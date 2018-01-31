@@ -131,7 +131,8 @@ a:focus {
   color: #18cdca;
 }
 
-.btn-outline-success:hover {
+.btn-outline-success:hover,
+.btn-outline-success:not(:disabled):not(.disabled):active {
   background-color: #18cdca;
   border-color: #18cdca;
   color: #292c44;
