@@ -1,8 +1,7 @@
 import {
   FETCH_INCOMING_TRANSACTIONS,
   FETCH_INCOMING_TRANSACTIONS_LOADING,
-  UPDATE_TRANSACTIONS,
-  UPDATE_TRANSACTIONS_LOADING
+  FETCH_INCOMING_TRANSACTIONS_UPDATING
 } from '../actions/types';
 
 const initialState = {
@@ -21,23 +20,17 @@ export default (state = initialState, action) => {
         ...state,
         isLoading: true
       };
-    case UPDATE_TRANSACTIONS_LOADING:
+    case FETCH_INCOMING_TRANSACTIONS_UPDATING:
       return {
         ...state,
         isUpdating: true
       };
     case FETCH_INCOMING_TRANSACTIONS:
       return {
+        ...state,
+        isLoading: false,
+        isUpdating: false,
         downloadToken: action.downloadToken,
-        isLoading: action.isLoading,
-        incomingTxs: action.payload.incomingTxs,
-        nemNode: action.payload.nemNode,
-        paidToDate: action.payload.paidToDate
-      };
-    case UPDATE_TRANSACTIONS:
-      return {
-        downloadToken: action.downloadToken,
-        isUpdating: action.isLoading,
         incomingTxs: action.payload.incomingTxs,
         nemNode: action.payload.nemNode,
         paidToDate: action.payload.paidToDate
