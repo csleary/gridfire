@@ -12,6 +12,7 @@ import {
   FETCH_RELEASE,
   FETCH_INCOMING_TRANSACTIONS,
   FETCH_INCOMING_TRANSACTIONS_LOADING,
+  FETCH_INCOMING_TRANSACTIONS_UPDATING,
   FETCH_USER,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
@@ -24,8 +25,6 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
-  UPDATE_TRANSACTIONS,
-  UPDATE_TRANSACTIONS_LOADING,
   UPDATE_RELEASE
 } from './types';
 
@@ -97,12 +96,20 @@ export const fetchRelease = releaseId => async dispatch => {
   });
 };
 
-export const fetchIncomingTxs = paymentParams => async dispatch => {
-  dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING });
+export const fetchIncomingTxs = (
+  paymentParams,
+  isUpdating
+) => async dispatch => {
+  if (isUpdating) {
+    dispatch({ type: FETCH_INCOMING_TRANSACTIONS_UPDATING });
+  } else {
+    dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING });
+  }
   const res = await axios.post('/api/nem/transactions', paymentParams);
   dispatch({
     type: FETCH_INCOMING_TRANSACTIONS,
     isLoading: false,
+    isUpdating: false,
     payload: res.data,
     downloadToken: res.headers.authorization
   });
@@ -299,17 +306,6 @@ export const transcodeAudio = (releaseId, trackId) => async () => {
       releaseId,
       trackId
     }
-  });
-};
-
-export const updateIncomingTxs = paymentParams => async dispatch => {
-  dispatch({ type: UPDATE_TRANSACTIONS_LOADING });
-  const res = await axios.post('/api/nem/transactions', paymentParams);
-  dispatch({
-    type: UPDATE_TRANSACTIONS,
-    isUpdating: false,
-    payload: res.data,
-    downloadToken: res.headers.authorization
   });
 };
 

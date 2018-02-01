@@ -15,6 +15,7 @@ class Payment extends Component {
       isLoading: true,
       showPaymentInfo: false
     };
+    this.handleFetchIncomingTxs = this.handleFetchIncomingTxs.bind(this);
   }
 
   componentDidMount() {
@@ -22,22 +23,24 @@ class Payment extends Component {
     this.props.fetchXemPrice();
     this.props.purchaseRelease(releaseId).then(() => {
       this.setState({ isLoading: false });
-      const { paymentHash } = this.props;
-      this.props.fetchIncomingTxs({
-        releaseId,
-        paymentHash
-      });
+      this.handleFetchIncomingTxs();
     });
   }
 
-  render() {
-    const { releaseId } = this.props.match.params;
+  handleFetchIncomingTxs(isUpdating = false) {
     const { paymentHash } = this.props;
-    const paymentParams = {
-      releaseId,
-      paymentHash
-    };
-    const paymentInfo = this.state.showPaymentInfo ? (
+    const { releaseId } = this.props.match.params;
+    this.props.fetchIncomingTxs(
+      {
+        releaseId,
+        paymentHash
+      },
+      isUpdating
+    );
+  }
+
+  render() {
+    const manualPayment = (
       <div>
         <h3 className="text-center">Manual Payment</h3>
         <p>
@@ -84,7 +87,9 @@ class Payment extends Component {
           button (assuming your payments have met the price!).
         </p>
       </div>
-    ) : (
+    );
+
+    const manualPaymentButton = (
       <div className="d-flex justify-content-center">
         <button
           className="btn btn-outline-primary btn-sm show-payment-info"
@@ -95,9 +100,14 @@ class Payment extends Component {
       </div>
     );
 
+    const paymentInfo = this.state.showPaymentInfo
+      ? manualPayment
+      : manualPaymentButton;
+
     if (this.state.isLoading) {
       return <Spinner message={<h2>Loading Payment Info&hellip;</h2>} />;
     }
+
     return (
       <main className="container">
         <div className="row">
@@ -136,15 +146,14 @@ class Payment extends Component {
             {paymentInfo}
             <TransactionsList
               downloadToken={this.props.downloadToken}
+              handleFetchIncomingTxs={this.handleFetchIncomingTxs}
               isLoadingTxs={this.props.isLoadingTxs}
               isUpdating={this.props.isUpdating}
               nemNode={this.props.nemNode}
               paidToDate={this.props.paidToDate}
-              paymentParams={paymentParams}
               release={this.props.release}
               toastMessage={this.props.toastMessage}
               transactions={this.props.transactions}
-              updateIncomingTxs={this.props.updateIncomingTxs}
             />
           </div>
         </div>
@@ -156,7 +165,6 @@ class Payment extends Component {
 function mapStateToProps(state) {
   return {
     downloadToken: state.transactions.downloadToken,
-    hasPaid: state.transactions.hasPaid,
     isLoading: state.releases.isLoading,
     isLoadingTxs: state.transactions.isLoading,
     isUpdating: state.transactions.isUpdating,

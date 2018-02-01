@@ -7,7 +7,7 @@ const SingleTransaction = props => (
       href={`http://bob.nem.ninja:8765/#/transfer/${props.hash}`}
       title={props.date}
     >
-      {props.hash}
+      {`${props.amount} XEM`}
     </a>
   </li>
 );

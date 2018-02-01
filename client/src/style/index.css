@@ -237,8 +237,8 @@ img {
 }
 
 ::selection {
-  background-color: #292c44;
-  color: #18cdca;
+  background-color: #4f80e1;
+  color: #f0f0f1;
 }
 
 @media (min-width: 576px) {

@@ -22,16 +22,11 @@
 }
 
 .disabled-textarea.form-control:focus {
-  box-shadow: 0 0 0.5rem 0.25rem #00000040;
+  box-shadow: none;
 }
 
 .disabled-textarea::placeholder {
   color: hsla(233, 10%, 50%, 1);
-}
-
-.disabled-textarea::selection {
-  background-color: #18cdca;
-  color: #000;
 }
 
 @keyframes fadeIn {
