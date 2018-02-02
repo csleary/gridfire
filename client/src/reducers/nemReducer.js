@@ -1,9 +1,10 @@
 import { FETCH_XEM_PRICE } from '../actions/types';
 
 export default (state = 0, action) => {
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case FETCH_XEM_PRICE:
-      return { ...state, xemPriceUsd: action.payload };
+      return { ...state, xemPriceUsd: payload };
     default:
       return state;
   }

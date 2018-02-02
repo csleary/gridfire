@@ -43,7 +43,7 @@ nav.navbar a.navbar-brand-link {
   visibility: hidden;
 }
 
-nav.navbar a.navbar-brand-link.navbar-brand-show {
+nav.navbar a.show.navbar-brand-link {
   opacity: 1;
   visibility: visible;
 }

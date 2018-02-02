@@ -41,7 +41,9 @@ const renderTitle = release => {
     return (
       <h6>
         {release.artistName} &bull;{' '}
-        <span className="ibm-type-italic">{release.releaseTitle}</span>
+        <Link to={`/release/${release._id}`}>
+          <span className="ibm-type-italic">{release.releaseTitle}</span>
+        </Link>
       </h6>
     );
   }
@@ -69,25 +71,27 @@ const UserReleases = props => {
         key={release._id}
       >
         <div className="artwork">
-          <img
-            className="lazyload img-fluid"
-            data-src={release.artwork ? release.artwork : null}
-            alt={release.artwork && `'${release.releaseTitle}' Artwork`}
-          />
+          <Link to={`/release/${release._id}`}>
+            <img
+              className="lazyload img-fluid"
+              data-src={release.artwork ? release.artwork : null}
+              alt={release.artwork && `'${release.releaseTitle}' Artwork`}
+            />
+          </Link>
         </div>
         <div className="col d-flex flex-column">
           <div>
             {renderTitle(release)}
             <h6>
-              <FontAwesome name="tag" className="icon-left" />
+              <FontAwesome name="tag" className="icon-left red" />
               {release.price} XEM
             </h6>
             <h6>
-              <FontAwesome name="calendar-o" className="icon-left" />
+              <FontAwesome name="calendar-o" className="icon-left red" />
               {moment(new Date(release.releaseDate)).format('Do of MMM, YYYY')}
             </h6>
             <h6>
-              <FontAwesome name="file-audio-o" className="icon-left" />
+              <FontAwesome name="file-audio-o" className="icon-left red" />
               {release.trackList.length} Tracks
             </h6>
             {copiesSold(release.numSold)}

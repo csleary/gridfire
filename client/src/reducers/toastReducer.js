@@ -6,7 +6,8 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  switch (action.type) {
+  const { type } = action;
+  switch (type) {
     case TOAST_MESSAGE:
       return {
         ...state,

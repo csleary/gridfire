@@ -146,7 +146,7 @@ class SelectedRelease extends Component {
               <ol className="tracklist">{this.renderTrackList()}</ol>
             </div>
             <h6>
-              <FontAwesome name="calendar-o" className="icon-left" />
+              <FontAwesome name="calendar-o" className="icon-left red" />
               {this.formatDate(releaseDate)}
             </h6>
             {recordLabel && <h6>{recordLabel && `Label: ${recordLabel}`}</h6>}

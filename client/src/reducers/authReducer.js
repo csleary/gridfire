@@ -7,15 +7,16 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case ADD_NEM_ADDRESS:
-      return { ...state, ...action.payload };
+      return { ...state, ...payload };
     case FETCH_USER:
       return {
         ...state,
         isLoading: action.isLoading,
         isLoggedIn: state.isLoggedIn || action.isLoggedIn,
-        ...action.payload
+        ...payload
       };
     default:
       return state;

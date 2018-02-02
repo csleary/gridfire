@@ -14,7 +14,8 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  switch (action.type) {
+  const { type } = action;
+  switch (type) {
     case FETCH_INCOMING_TRANSACTIONS_LOADING:
       return {
         ...state,
