@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
+import throttle from 'lodash.throttle';
 import Logo from './Logo';
 import '../style/navbar.css';
 
@@ -15,21 +16,21 @@ class Navbar extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll);
+    document.addEventListener('scroll', throttle(this.handleScroll, 100));
   }
 
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
+    document.removeEventListener('scroll', this.handleScroll);
   }
 
   handleScroll() {
-    const headerHeight = document.getElementById('header').offsetHeight + 4;
-    const y = window.scrollY;
+    const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
+    const scrollPos = window.pageYOffset;
 
-    if (y > headerHeight) {
-      this.setState({ showLogo: true });
-    } else {
+    if (scrollPos < navbarPos) {
       this.setState({ showLogo: false });
+    } else {
+      this.setState({ showLogo: true });
     }
   }
 
@@ -79,9 +80,12 @@ class Navbar extends Component {
   }
 
   render() {
-    const className = classNames('navbar-brand-link', {
-      'navbar-brand-show': this.state.showLogo
-    });
+    const className = classNames(
+      {
+        show: this.state.showLogo
+      },
+      'navbar-brand-link'
+    );
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
         <Link to={'/'} className={className}>

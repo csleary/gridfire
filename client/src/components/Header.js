@@ -5,7 +5,7 @@ import '../style/header.css';
 const Header = () => (
   <div>
     <div className="gradient" />
-    <header className="container-fluid" id="header">
+    <header className="header container-fluid">
       <div className="row">
         <div className="col">
           <Link to="/">

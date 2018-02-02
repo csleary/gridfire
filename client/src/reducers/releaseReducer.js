@@ -25,90 +25,63 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case ADD_RELEASE:
-      return {
-        ...state,
-        selectedRelease: action.payload
-      };
     case ADD_TRACK:
-      return {
-        ...state,
-        selectedRelease: action.payload
-      };
     case DELETE_ARTWORK:
+    case DELETE_TRACK:
+    case FETCH_RELEASE:
+    case FETCH_USER_RELEASE:
+    case MOVE_TRACK:
+    case UPDATE_RELEASE:
       return {
         ...state,
-        selectedRelease: action.payload
+        selectedRelease: payload
       };
     case DELETE_RELEASE:
       return {
         ...state,
         userReleases: state.userReleases.filter(
-          release => release._id !== action.payload
+          release => release._id !== payload
         )
-      };
-    case DELETE_TRACK:
-      return {
-        ...state,
-        selectedRelease: action.payload
       };
     case FETCH_ARTWORK_UPLOAD_URL:
       return {
         ...state,
-        artworkUploadUrl: action.payload
+        artworkUploadUrl: payload
       };
     case FETCH_AUDIO_UPLOAD_URL:
       return {
         ...state,
-        audioUploadUrl: action.payload
+        audioUploadUrl: payload
       };
     case FETCH_CATALOGUE:
       return {
         ...state,
-        catalogue: action.payload
-      };
-    case FETCH_RELEASE:
-      return {
-        ...state,
-        selectedRelease: action.payload
-      };
-    case FETCH_USER_RELEASE:
-      return {
-        ...state,
-        selectedRelease: action.payload
+        catalogue: payload
       };
     case FETCH_USER_RELEASES:
       return {
         ...state,
         isLoading: action.isLoading,
-        userReleases: action.payload
-      };
-    case MOVE_TRACK:
-      return {
-        ...state,
-        selectedRelease: action.payload
+        userReleases: payload
       };
     case PUBLISH_STATUS:
       return {
         ...state,
         isLoading: action.isLoading,
         userReleases: state.userReleases.map(release => {
-          if (release._id === action.payload._id) return action.payload;
+          if (release._id === payload._id) return payload;
           return release;
         })
       };
     case PURCHASE_RELEASE:
       return {
         ...state,
-        selectedRelease: action.payload,
+        selectedRelease: payload,
         paymentAddress: action.paymentAddress,
         paymentHash: action.paymentHash
-      };
-    case UPDATE_RELEASE:
-      return {
-        ...state,
-        selectedRelease: action.payload
       };
     default:
       return state;

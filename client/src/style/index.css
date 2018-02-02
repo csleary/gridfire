@@ -24,6 +24,7 @@ body {
 
 main {
   flex: 1;
+  margin: 15px 0;
 }
 
 h1,
@@ -185,6 +186,10 @@ a:focus {
   margin-left: 0.5rem;
 }
 
+.fa.red {
+  color: #ff5349;
+}
+
 .form-control,
 .form-control:focus {
   border: none;
@@ -239,10 +244,4 @@ img {
 ::selection {
   background-color: #4f80e1;
   color: #f0f0f1;
-}
-
-@media (min-width: 576px) {
-  main {
-    margin: 15px 0;
-  }
 }

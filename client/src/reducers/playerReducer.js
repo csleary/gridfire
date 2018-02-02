@@ -12,7 +12,8 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case PLAY_TRACK:
       return {
         ...state,
@@ -24,19 +25,11 @@ export default (state = initialState, action) => {
         trackTitle: action.payload.trackTitle
       };
     case PLAYER_PLAY:
-      return {
-        ...state,
-        ...action.payload
-      };
     case PLAYER_PAUSE:
-      return {
-        ...state,
-        ...action.payload
-      };
     case PLAYER_HIDE:
       return {
         ...state,
-        ...action.payload
+        ...payload
       };
     default:
       return state;
