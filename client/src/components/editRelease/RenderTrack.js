@@ -40,7 +40,11 @@ const RenderTrack = props => {
           const classTrack = classNames('list-group-item', audioStatus);
 
           return (
-            <li className={classTrack} key={`${track}._id`}>
+            <li
+              className={classTrack}
+              key={`${track}._id`}
+              onTouchStart={() => {}}
+            >
               <Field
                 component={RenderTrackField}
                 trackId={trackId}

@@ -32,7 +32,7 @@ class Home extends Component {
     const { catalogue } = this.props;
 
     return catalogue.map(release => (
-      <div className="cover-artwork" key={release._id}>
+      <div className="cover-artwork" key={release._id} onTouchStart={() => {}}>
         <img
           alt={`${release.artistName} - ${release.releaseTitle}`}
           className="lazyload artwork"

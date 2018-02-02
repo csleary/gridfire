@@ -20,7 +20,8 @@ input[type='date'] {
   background: rgba(0, 0, 0, 0.5);
 }
 
-.cover-art-overlay:hover {
+.cover-art-overlay:hover,
+.cover-art-overlay:active {
   opacity: 1;
 }
 
