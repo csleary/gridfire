@@ -77,7 +77,11 @@ class Home extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <Spinner message={<h2>Loading catalogue&hellip;</h2>} />;
+      return (
+        <Spinner>
+          <h2>Loading catalogue&hellip;</h2>
+        </Spinner>
+      );
     }
     return (
       <main className="container-fluid">

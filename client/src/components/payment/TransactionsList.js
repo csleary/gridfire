@@ -2,8 +2,8 @@ import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
 import SingleTransaction from './SingleTransaction';
-import Spinner from './Spinner';
-import '../style/transactionsList.css';
+import Spinner from './../Spinner';
+import '../../style/transactionsList.css';
 
 const TransactionsList = props => {
   const {

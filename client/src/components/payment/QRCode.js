@@ -1,6 +1,6 @@
 import React from 'react';
 import QRCode from 'qrcode.react';
-import '../style/qrcode.css';
+import '../../style/qrcode.css';
 
 const QrCode = props => {
   const v = process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? 2 : 1;

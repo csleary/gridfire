@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import * as actions from '../actions';
-import QRCode from './QRCode';
-import ReadOnlyTextarea from './ReadOnlyTextarea';
+import QRCode from './payment/QRCode';
+import ReadOnlyTextarea from './payment/ReadOnlyTextarea';
 import Spinner from './Spinner';
-import TransactionsList from './TransactionsList';
+import TransactionsList from './payment/TransactionsList';
 import '../style/payment.css';
 
 class Payment extends Component {
@@ -82,8 +82,8 @@ class Payment extends Component {
         />
         <h4>3. Send It!</h4>
         <p>
-          Once you have paid it will be listed below. Once confirmed, your
-          payments will be totalled and you will be presented with a download
+          Once you have paid, and your payments has been confirmed by the NEM
+          network, they will be totalled before presenting you with a download
           button (assuming your payments have met the price!).
         </p>
       </div>
