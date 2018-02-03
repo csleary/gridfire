@@ -8,7 +8,7 @@ module.exports.checkPayments = (transactions, paid = []) => {
   });
 
   let sum = paid.reduce((acc, cur) => acc + cur, 0);
-  sum *= 10 ** -6;
+  sum /= 10 ** 6;
   return sum;
 };
 
