@@ -84,7 +84,7 @@ const UserReleases = props => {
             {renderTitle(release)}
             <h6>
               <FontAwesome name="tag" className="icon-left red" />
-              {release.price} XEM
+              ${release.price} USD
             </h6>
             <h6>
               <FontAwesome name="calendar-o" className="icon-left red" />

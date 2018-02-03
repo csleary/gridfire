@@ -265,9 +265,7 @@ export const purchaseRelease = releaseId => async dispatch => {
   const res = await axios.get(`/api/purchase/${releaseId}`);
   dispatch({
     type: PURCHASE_RELEASE,
-    payload: res.data.release,
-    paymentAddress: res.data.paymentInfo.paymentAddress,
-    paymentHash: res.data.paymentInfo.paymentHash
+    payload: res.data
   });
 };
 

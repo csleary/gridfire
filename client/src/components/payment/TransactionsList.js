@@ -13,7 +13,9 @@ const TransactionsList = props => {
     isUpdating,
     nemNode,
     paidToDate,
-    release: { price, releaseTitle },
+    price,
+    releaseTitle,
+    roundUp,
     transactions
   } = props;
 
@@ -46,17 +48,14 @@ const TransactionsList = props => {
 
   const underpaid = () => {
     const delta = price - paidToDate;
-    const roundUp = precision => {
-      const factor = 10 ** precision;
-      return Math.ceil(delta * factor) / factor;
-    };
 
     if (paidToDate > 0 && paidToDate < price && !downloadToken) {
       return (
         <p>
-          Please pay a futher <span className="bold-red">{roundUp(2)} XEM</span>{' '}
-          to activate your download, then tap the refresh button below to check
-          for confirmed payments.
+          Please pay a futher{' '}
+          <span className="bold-red">{roundUp(delta, 2)} XEM</span> to activate
+          your download, then tap the refresh button below to check for
+          confirmed payments.
         </p>
       );
     }
@@ -85,14 +84,12 @@ const TransactionsList = props => {
 
   if (isLoadingTxs) {
     return (
-      <Spinner
-        message={
-          <h3 className="transactions-searching">
-            <FontAwesome name="search" className="icon-left" />
-            Searching for Transactions&hellip;
-          </h3>
-        }
-      />
+      <Spinner>
+        <h3 className="transactions-searching">
+          <FontAwesome name="search" className="icon-left" />
+          Searching for Transactions&hellip;
+        </h3>
+      </Spinner>
     );
   }
 

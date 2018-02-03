@@ -1,28 +1,20 @@
 const mongoose = require('mongoose');
-const nem = require('nem-sdk').default;
+// const nem = require('nem-sdk').default;
 const jwt = require('jsonwebtoken');
 const fetchIncomingTransactions = require('./fetchIncomingTransactions');
 const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
+const utils = require('./utils');
 
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 
 module.exports = app => {
-  const getXemPrice = async () => {
-    const xem = await nem.com.requests.market.xem();
-    const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
-    const btc = await nem.com.requests.market.btc();
-    const btcPriceUsd = btc.USD.last;
-    const xemPriceUsd = btcPriceUsd * xemPriceBtc;
-    return xemPriceUsd;
-  };
-
   app.post('/api/nem/transactions', requireLogin, async (req, res) => {
     const { releaseId, paymentHash } = req.body;
+    const { price } = req.session;
     const release = await Release.findById(releaseId);
     const artist = await User.findById(release._user);
-    const price = release.price;
     const paymentAddress = artist.nemAddress;
     const hasPreviouslyPurchased = req.user.purchases.some(
       purchase => releaseId === purchase.releaseId
@@ -65,7 +57,7 @@ module.exports = app => {
   });
 
   app.get('/api/nem/price', async (req, res) => {
-    const xemPriceUsd = await getXemPrice();
+    const xemPriceUsd = await utils.getXemPrice();
     res.send({ xemPriceUsd });
   });
 

@@ -2,3 +2,28 @@
   padding: 0.5rem 1rem;
   min-width: auto;
 }
+
+.manual-payment {
+  background: hsla(233, 10%, 20%, 1);
+  border-radius: 0;
+  margin: 2rem -1rem;
+  padding: 2rem 1rem;
+}
+
+.manual-payment p:last-of-type {
+  margin-bottom: 0;
+}
+
+.please-note {
+  color: #ff5349;
+  text-shadow: 2px 2px 0px hsla(233, 10%, 10%, 1);
+  padding: 0 1rem;
+}
+
+@media (min-width: 576px) {
+  .manual-payment {
+    border-radius: 0.5rem;
+    margin: 2rem;
+    padding: 2rem;
+  }
+}

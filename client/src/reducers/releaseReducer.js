@@ -20,6 +20,7 @@ const initialState = {
   isLoading: false,
   catalogue: [],
   paymentAddress: '',
+  priceInXem: '',
   selectedRelease: false,
   userReleases: []
 };
@@ -79,9 +80,10 @@ export default (state = initialState, action) => {
     case PURCHASE_RELEASE:
       return {
         ...state,
-        selectedRelease: payload,
-        paymentAddress: action.paymentAddress,
-        paymentHash: action.paymentHash
+        selectedRelease: payload.release,
+        paymentAddress: payload.paymentInfo.paymentAddress,
+        paymentHash: payload.paymentInfo.paymentHash,
+        priceInXem: payload.price
       };
     default:
       return state;

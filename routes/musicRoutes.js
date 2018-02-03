@@ -7,6 +7,7 @@ const request = require('request');
 const SHA256 = require('crypto-js/sha256');
 const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
+const utils = require('./utils');
 
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
@@ -295,18 +296,24 @@ module.exports = app => {
 
   // Purchase Release
   app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
+    req.session.price = null;
     const { releaseId } = req.params;
     const release = await Release.findById(releaseId);
     const artist = await User.findById(release._user);
     const customerIdHash = req.user.auth.idHash;
+    const xemPriceUsd = await utils.getXemPrice();
+    const price = release.price / xemPriceUsd; // Convert depending on currency used.
+    req.session.price = price;
+
     const paymentHash = SHA256(release._id + customerIdHash)
       .toString()
       .substring(0, 31);
+
     const paymentInfo = {
       paymentAddress: nem.utils.format.address(artist.nemAddress),
       paymentHash
     };
-    res.send({ release, paymentInfo });
+    res.send({ release, paymentInfo, price });
   });
 
   // Toggle Release Status

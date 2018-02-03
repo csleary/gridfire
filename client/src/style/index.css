@@ -219,11 +219,6 @@ form {
   margin-bottom: 2rem;
 }
 
-.please-note {
-  color: #ff5349;
-  padding: 0 1rem;
-}
-
 img {
   transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }

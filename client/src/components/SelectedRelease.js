@@ -158,11 +158,11 @@ class SelectedRelease extends Component {
             <h2 className="release-title text-center">{releaseTitle}</h2>
             <h4 className="artist-name text-center">{artistName}</h4>
             <h6 className="release-price text-center">
-              {price} XEM{' '}
+              ${price} USD{' '}
               {this.props.xemPriceUsd &&
-                `(~$${(
-                  this.props.release.price * this.props.xemPriceUsd
-                ).toFixed(2)} USD)`}
+                `(~${(
+                  this.props.release.price / this.props.xemPriceUsd
+                ).toFixed(2)} XEM)`}
             </h6>
             <div className="tracklist-wrapper">
               <ol className="tracklist">{this.renderTrackList()}</ol>
