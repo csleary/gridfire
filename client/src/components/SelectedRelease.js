@@ -6,6 +6,8 @@ import moment from 'moment';
 import {
   fetchRelease,
   fetchXemPrice,
+  playerPause,
+  playerPlay,
   playTrack,
   toastMessage
 } from '../actions';
@@ -53,6 +55,27 @@ class SelectedRelease extends Component {
     });
   }
 
+  handlePlayRelease() {
+    const audioPlayer = document.getElementById('player');
+    const { artistName, _id, trackList } = this.props.release;
+
+    if (this.props.player.isPlaying) {
+      audioPlayer.pause();
+      this.props.playerPause();
+    } else if (this.props.player.isPaused) {
+      audioPlayer.play();
+      this.props.playerPlay();
+    } else {
+      this.props.playTrack(
+        _id,
+        trackList[0]._id,
+        artistName,
+        trackList[0].trackTitle
+      );
+      this.nowPlayingToast(trackList[0].trackTitle);
+    }
+  }
+
   renderTrackList = () =>
     this.props.release.trackList.map(track => {
       const nowPlaying = () => {
@@ -61,6 +84,11 @@ class SelectedRelease extends Component {
           this.props.player.isPlaying
         ) {
           return <FontAwesome className="now-playing" name="play" />;
+        } else if (
+          track.trackTitle === this.props.player.trackTitle &&
+          this.props.player.isPaused
+        ) {
+          return <FontAwesome className="now-playing" name="pause" />;
         }
       };
 
@@ -95,19 +123,17 @@ class SelectedRelease extends Component {
       artistName,
       artwork,
       catNumber,
-      _id,
       price,
       recordLabel,
       releaseTitle,
-      releaseDate,
-      trackList
+      releaseDate
     } = this.props.release;
 
     return (
       <main className="container d-flex align-items-center">
         <div className="row selected-release">
           <div className="col-md-6 col-artwork">
-            <div className="artwork">
+            <div className="artwork" onTouchStart={() => {}}>
               <img
                 alt={releaseTitle}
                 className="lazyload img-fluid"
@@ -115,20 +141,16 @@ class SelectedRelease extends Component {
               />
               <div
                 className="cover-artwork-overlay"
-                onClick={() => {
-                  this.props.playTrack(
-                    _id,
-                    trackList[0]._id,
-                    artistName,
-                    trackList[0].trackTitle
-                  );
-                  this.nowPlayingToast(trackList[0].trackTitle);
-                }}
+                onClick={() => this.handlePlayRelease()}
                 role="button"
                 tabIndex="-1"
                 title={`${artistName} - ${releaseTitle}`}
               >
-                <FontAwesome className="play" name="play" />
+                {!this.props.player.isPlaying ? (
+                  <FontAwesome className="play" name="play" />
+                ) : (
+                  <FontAwesome className="" name="pause" />
+                )}
               </div>
             </div>
           </div>
@@ -136,11 +158,11 @@ class SelectedRelease extends Component {
             <h2 className="release-title text-center">{releaseTitle}</h2>
             <h4 className="artist-name text-center">{artistName}</h4>
             <h6 className="release-price text-center">
-              {price} XEM{' '}
+              ${price} USD{' '}
               {this.props.xemPriceUsd &&
-                `(~$${(
-                  this.props.release.price * this.props.xemPriceUsd
-                ).toFixed(2)} USD)`}
+                `(~${(
+                  this.props.release.price / this.props.xemPriceUsd
+                ).toFixed(2)} XEM)`}
             </h6>
             <div className="tracklist-wrapper">
               <ol className="tracklist">{this.renderTrackList()}</ol>
@@ -177,6 +199,8 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   fetchRelease,
   fetchXemPrice,
+  playerPause,
+  playerPlay,
   playTrack,
   toastMessage
 })(SelectedRelease);

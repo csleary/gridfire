@@ -270,12 +270,12 @@ class EditRelease extends Component {
                     component={RenderReleaseField}
                     formText={
                       this.props.price
-                        ? `Approximately $${(
-                            this.props.price * this.props.xemPriceUsd
-                          ).toFixed(2)} USD. (Enter '0' for free.)`
-                        : "Set your price in XEM (enter '0' for free)."
+                        ? `Approximately ${(
+                            this.props.price / this.props.xemPriceUsd
+                          ).toFixed(2)} XEM. (Enter '0' for free.)`
+                        : "Set your price in USD (enter '0' for free)."
                     }
-                    label="Price (XEM)"
+                    label="Price (USD)"
                     name="price"
                     required
                     type="number"

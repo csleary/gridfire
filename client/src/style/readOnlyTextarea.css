@@ -10,11 +10,11 @@
   border-radius: 0.5rem;
   color: #f0f0f1;
   font-size: 1.3rem;
-  height: 2.5rem;
+  height: 4rem;
   line-height: 1.5rem;
   margin: 0 auto 3rem auto;
   overflow: hidden;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   resize: none;
   text-align: center;
   max-width: 38rem;
@@ -27,6 +27,17 @@
 
 .disabled-textarea::placeholder {
   color: hsla(233, 10%, 50%, 1);
+}
+
+@media (min-width: 768px) {
+  .disabled-textarea,
+  .disabled-textarea[readonly],
+  .disabled-textarea:active,
+  .disabled-textarea:disabled,
+  .disabled-textarea:focus,
+  .disabled-textarea.form-control:focus {
+    height: 2.5rem;
+  }
 }
 
 @keyframes fadeIn {

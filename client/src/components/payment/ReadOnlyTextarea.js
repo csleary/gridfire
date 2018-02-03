@@ -1,5 +1,5 @@
 import React from 'react';
-import '../style/readOnlyTextarea.css';
+import '../../style/readOnlyTextarea.css';
 
 const ReadOnlyTextarea = props => (
   <textarea

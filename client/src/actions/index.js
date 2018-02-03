@@ -19,9 +19,10 @@ import {
   FETCH_XEM_PRICE,
   MOVE_TRACK,
   PLAY_TRACK,
+  PLAYER_HIDE,
   PLAYER_PAUSE,
   PLAYER_PLAY,
-  PLAYER_HIDE,
+  PLAYER_STOP,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
@@ -226,32 +227,32 @@ export const playTrack = (
   });
 };
 
-export const playerPause = () => dispatch => {
-  dispatch({
-    type: PLAYER_PAUSE,
-    payload: {
-      isPlaying: false
-    }
-  });
-};
-
-export const playerPlay = () => dispatch => {
-  dispatch({
-    type: PLAYER_PLAY,
-    payload: {
-      isPlaying: true,
-      showPlayer: true
-    }
-  });
-};
-
 export const playerHide = () => dispatch => {
   dispatch({
     type: PLAYER_HIDE,
     payload: {
       isPlaying: false,
+      isPaused: false,
       showPlayer: false
     }
+  });
+};
+
+export const playerPause = () => dispatch => {
+  dispatch({
+    type: PLAYER_PAUSE
+  });
+};
+
+export const playerPlay = () => dispatch => {
+  dispatch({
+    type: PLAYER_PLAY
+  });
+};
+
+export const playerStop = () => dispatch => {
+  dispatch({
+    type: PLAYER_STOP
   });
 };
 
@@ -264,9 +265,7 @@ export const purchaseRelease = releaseId => async dispatch => {
   const res = await axios.get(`/api/purchase/${releaseId}`);
   dispatch({
     type: PURCHASE_RELEASE,
-    payload: res.data.release,
-    paymentAddress: res.data.paymentInfo.paymentAddress,
-    paymentHash: res.data.paymentInfo.paymentHash
+    payload: res.data
   });
 };
 

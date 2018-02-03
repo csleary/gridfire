@@ -2,7 +2,13 @@ import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import { playTrack, playerPause, playerPlay, playerHide } from '../actions';
+import {
+  playTrack,
+  playerHide,
+  playerPause,
+  playerPlay,
+  playerStop
+} from '../actions';
 import '../style/player.css';
 
 class Player extends Component {
@@ -105,7 +111,7 @@ class Player extends Component {
     const audioPlayer = document.getElementById('player');
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
-    this.props.playerPause();
+    this.props.playerStop();
   }
 
   renderPlayButton() {
@@ -229,7 +235,8 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   playTrack,
+  playerHide,
   playerPause,
   playerPlay,
-  playerHide
+  playerStop
 })(withRouter(Player));

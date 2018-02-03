@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ibm/type": "^0.5.3",
+    "@ibm/type": "^0.5.4",
     "axios": "^0.16.2",
     "bootstrap": "^4.0.0",
     "classnames": "^2.2.5",
@@ -23,7 +23,7 @@
     "react-router-dom": "^4.2.0",
     "react-scripts": "1.0.11",
     "redux": "^3.7.2",
-    "redux-form": "^7.2.1",
+    "redux-form": "^7.2.3",
     "redux-thunk": "^2.2.0"
   },
   "scripts": {
