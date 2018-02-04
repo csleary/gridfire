@@ -63,7 +63,7 @@ class Payment extends Component {
       transactions
     } = this.props;
     const { artistName, releaseTitle } = release;
-    const priceInXem = parseFloat(this.props.priceInXem).toFixed(2);
+    const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
     const manualPaymentButton = (
       <div className="d-flex justify-content-center">

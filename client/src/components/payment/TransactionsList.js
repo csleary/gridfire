@@ -53,9 +53,9 @@ const TransactionsList = props => {
       return (
         <p>
           Please pay a futher{' '}
-          <span className="bold-red">{roundUp(delta, 2)} XEM</span> to activate
-          your download, then tap the refresh button below to check for
-          confirmed payments.
+          <span className="bold-red">{roundUp(delta, 2).toFixed(2)} XEM</span>{' '}
+          to activate your download, then tap the refresh button below to check
+          for confirmed payments.
         </p>
       );
     }
@@ -68,7 +68,8 @@ const TransactionsList = props => {
     </p>
   ) : (
     <p>
-      Paid to date: <span className="bold-red">{paidToDate} XEM</span>
+      Paid to date:{' '}
+      <span className="bold-red">{paidToDate.toFixed(2)} XEM</span>
     </p>
   );
 

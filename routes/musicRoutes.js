@@ -302,7 +302,7 @@ module.exports = app => {
     const artist = await User.findById(release._user);
     const customerIdHash = req.user.auth.idHash;
     const xemPriceUsd = await utils.getXemPrice();
-    const price = release.price / xemPriceUsd; // Convert depending on currency used.
+    const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
     req.session.price = price;
 
     const paymentHash = SHA256(release._id + customerIdHash)
