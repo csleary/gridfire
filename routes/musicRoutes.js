@@ -68,6 +68,9 @@ module.exports = app => {
   app.delete('/api/release/:releaseId', requireLogin, async (req, res) => {
     const { releaseId } = req.params;
 
+    // Delete from db
+    const result = await Release.findByIdAndRemove(releaseId);
+
     // Delete audio from S3
     const s3 = new aws.S3();
     // Delete source audio
@@ -128,9 +131,6 @@ module.exports = app => {
         }
       }
     );
-
-    // Delete from db
-    const result = await Release.findByIdAndRemove(releaseId);
     res.send(result._id);
   });
 

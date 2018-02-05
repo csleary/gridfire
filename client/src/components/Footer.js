@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import '../style/footer.css';
 
@@ -10,38 +11,61 @@ const networkLinks = () => {
     process.env.NODE_ENV !== 'production' ||
     process.env.REACT_APP_NEM_NETWORK === 'testnet'
   ) {
-    return (
-      <p className="text-center">
-        Currently running on the NEM testnet. Want to try the{' '}
-        <a href="https://nemp3v2.herokuapp.com/">mainnet version</a>?
-      </p>
-    );
+    return <a href="https://nemp3.ochremusic.com/">Mainnet version</a>;
   } else if (process.env.REACT_APP_NEM_NETWORK === 'mainnet') {
-    return (
-      <p className="text-center">
-        Try the NEM{' '}
-        <a href="https://nemp3v2-testnet.herokuapp.com/">testnet version.</a>
-      </p>
-    );
+    return <a href="https://nemp3v2-testnet.herokuapp.com/">Testnet version</a>;
   }
 };
 
-const Footer = () => (
+const Footer = props => (
   <footer className="container-fluid">
+    <div className="row justify-content-center">
+      <div className="col-sm-2">
+        <ul>
+          <li>
+            <Link to={'/'}>About</Link>
+          </li>
+          <li>
+            <Link to={'/'}>Contact</Link>
+          </li>
+          <li>
+            <Link to={'/support'}>Support</Link>
+          </li>
+        </ul>
+      </div>
+      <div className="col-sm-2">
+        {props.user &&
+          !props.user.auth && (
+            <ul>
+              <li>
+                <Link to={'/login'}>Log In</Link>
+              </li>
+              <li>
+                <Link to={'/register'}>Register</Link>
+              </li>
+            </ul>
+          )}
+      </div>
+    </div>
     <div className="row">
       <div className="col">
-        {networkLinks()}
         <small>
           <p className="text-center">
             &copy; {year !== 2017 && <span>2017&ndash;</span>}
             {year} <a href="http://ochremusic.com">Christopher Leary</a>
           </p>
+          <p className="text-center">
+            {networkLinks()} | <a href="https://nem.io/">NEM</a>
+          </p>
         </small>
-        <p className="text-center github">
+        <div className="text-center social">
+          <a href="https://twitter.com/ochremusic">
+            <FontAwesome name="twitter" className="icon-left" />
+          </a>
           <a href="https://github.com/csleary/nemp3v2">
             <FontAwesome name="github" className="icon-left" />
           </a>
-        </p>
+        </div>
       </div>
     </div>
   </footer>

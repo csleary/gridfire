@@ -8,6 +8,7 @@ import Dashboard from './Dashboard';
 import EditRelease from './EditRelease';
 import Footer from './Footer';
 import Header from './Header';
+import Support from './Support';
 import Home from './Home';
 import Navbar from './Navbar';
 import Payment from './Payment';
@@ -60,6 +61,7 @@ class App extends Component {
           <Navbar user={this.props.user} />
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route path="/support" component={Support} />
             <Route path="/login" component={Login} />
             <Route path="/register" component={Register} />
             <Route
@@ -76,7 +78,7 @@ class App extends Component {
             <PrivateRoute path="/payment/:releaseId" component={Payment} />
             <PrivateRoute path="/dashboard" component={Dashboard} />
           </Switch>
-          <Footer />
+          <Footer user={this.props.user} />
           <Player />
           <Toast />
         </div>

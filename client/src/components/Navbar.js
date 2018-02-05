@@ -48,7 +48,7 @@ class Navbar extends Component {
             <li className="nav-item">
               <NavLink to={'/login'} className="nav-link">
                 <FontAwesome name="sign-in" className="icon-left" />
-                <span className="nav-label">Login</span>
+                <span className="nav-label">Log In</span>
               </NavLink>
             </li>
           </ul>

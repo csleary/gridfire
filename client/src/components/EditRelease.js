@@ -11,6 +11,7 @@ import {
   addRelease,
   addTrack,
   deleteArtwork,
+  deleteRelease,
   deleteTrack,
   fetchArtworkUploadUrl,
   fetchAudioUploadUrl,
@@ -67,6 +68,14 @@ class EditRelease extends Component {
   }
 
   componentWillUnmount() {
+    if (!this.props.valid) {
+      this.props.deleteRelease(this.props.release._id).then(() => {
+        this.props.toastMessage({
+          alertClass: 'alert-warning',
+          message: 'Invalid or incomplete release discarded.'
+        });
+      });
+    }
     if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
   }
 
@@ -393,6 +402,7 @@ export default reduxForm({
     addRelease,
     addTrack,
     deleteArtwork,
+    deleteRelease,
     deleteTrack,
     fetchArtworkUploadUrl,
     fetchAudioUploadUrl,

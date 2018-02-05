@@ -155,7 +155,9 @@ class SelectedRelease extends Component {
             </div>
           </div>
           <div className="col-md-6 release-info">
-            <h2 className="release-title text-center">{releaseTitle}</h2>
+            <h2 className="release-title text-center ibm-type-italic">
+              {releaseTitle}
+            </h2>
             <h4 className="artist-name text-center">{artistName}</h4>
             <h6 className="release-price text-center">
               ${price} USD{' '}
