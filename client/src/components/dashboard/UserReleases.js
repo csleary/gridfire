@@ -114,7 +114,12 @@ const UserReleases = props => {
             <button
               onClick={() =>
                 pleaseConfirm(release.releaseTitle, () =>
-                  props.deleteRelease(release._id)
+                  props.deleteRelease(release._id).then(
+                    props.toastMessage({
+                      alertClass: 'alert-success',
+                      message: `'${release.releaseTitle}' deleted.`
+                    })
+                  )
                 )
               }
               className="btn btn-outline-danger btn-sm"

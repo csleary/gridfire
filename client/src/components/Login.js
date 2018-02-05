@@ -4,6 +4,7 @@ import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { login } from '../actions';
+import '../style/login.css';
 
 class Login extends Component {
   componentDidMount() {
@@ -65,7 +66,7 @@ class Login extends Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-xl">
+          <div className="col-md">
             <p>
               If you already have an account with us, please log in with the
               form below.
@@ -97,7 +98,7 @@ class Login extends Component {
               />
               <div className="d-flex justify-content-center">
                 <button
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-primary mt-3"
                   disabled={invalid || pristine || submitting}
                   type="submit"
                 >
@@ -110,11 +111,11 @@ class Login extends Component {
               <Link to={'/register'}>sign up here</Link>.
             </p>
           </div>
-          <div className="col-xl d-flex align-items-center justify-content-center">
+          <div className="divider">Or</div>
+          <div className="col-md d-flex align-items-center justify-content-center">
             <p>
               <FontAwesome name="google" className="icon-left" />
-              You can also{' '}
-              <a href="auth/google/">log in with your Google credentials</a>.
+              <a href="auth/google/">Log in with your Google credentials</a>.
             </p>
           </div>
         </div>

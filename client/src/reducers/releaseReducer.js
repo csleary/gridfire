@@ -41,12 +41,15 @@ export default (state = initialState, action) => {
         selectedRelease: payload
       };
     case DELETE_RELEASE:
-      return {
-        ...state,
-        userReleases: state.userReleases.filter(
-          release => release._id !== payload
-        )
-      };
+      if (state.userReleases) {
+        return {
+          ...state,
+          userReleases: state.userReleases.filter(
+            release => release._id !== payload
+          )
+        };
+      }
+      return { ...state };
     case FETCH_ARTWORK_UPLOAD_URL:
       return {
         ...state,

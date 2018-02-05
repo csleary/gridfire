@@ -29,6 +29,10 @@
   /* color: #4f80e1; */
 }
 
+.toast.alert.alert-warning {
+  color: #ffd24d;
+}
+
 .toast.alert.alert-danger {
   color: #ff5349;
 }

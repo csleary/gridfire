@@ -42,6 +42,8 @@ class Toast extends Component {
     switch (alertClass) {
       case 'alert-success':
         return 'thumbs-o-up';
+      case 'alert-warning':
+        return 'exclamation-circle';
       case 'alert-danger':
         return 'exclamation-circle';
       default:
