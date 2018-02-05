@@ -3,19 +3,21 @@ import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import 'lazysizes';
 import { fetchUser } from '../actions';
-import Login from './Login';
+import About from './About';
+import Contact from './Contact';
 import Dashboard from './Dashboard';
 import EditRelease from './EditRelease';
 import Footer from './Footer';
 import Header from './Header';
-import Support from './Support';
 import Home from './Home';
+import Login from './Login';
 import Navbar from './Navbar';
 import Payment from './Payment';
 import Player from './Player';
 import Register from './Register';
 import SelectedRelease from './SelectedRelease';
 import Spinner from './Spinner';
+import Support from './Support';
 import Toast from './Toast';
 
 class App extends Component {
@@ -61,9 +63,11 @@ class App extends Component {
           <Navbar user={this.props.user} />
           <Switch>
             <Route exact path="/" component={Home} />
-            <Route path="/support" component={Support} />
+            <Route path="/about" component={About} />
             <Route path="/login" component={Login} />
+            <Route path="/contact" component={Contact} />
             <Route path="/register" component={Register} />
+            <Route path="/support" component={Support} />
             <Route
               exact
               strict
