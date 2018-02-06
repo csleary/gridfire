@@ -22,12 +22,15 @@ class Register extends Component {
     const { error, input, touched } = field;
 
     return (
-      <div className="form-group d-flex justify-content-center py-2">
+      <div className="form-group d-flex flex-wrap justify-content-center py-2">
         <Recaptcha
           onChange={response => input.onChange(response)}
           sitekey={sitekey}
         />
-        <div className="invalid-feedback">{touched && error && error}</div>
+        {touched &&
+          error && (
+            <div className="invalid-feedback">{touched && error && error}</div>
+          )}
       </div>
     );
   };
