@@ -11,12 +11,21 @@ header {
   max-width: 20rem;
 }
 
+.header-logo:hover path.layer1 {
+  fill: hsla(233, 10%, 50%, 1);
+}
+
+.header-logo:hover path.layer3 {
+  fill: #18cdca;
+}
+
 path.layer0 {
   fill: hsla(233, 10%, 10%, 1);
 }
 
 path.layer1 {
   fill: #f0f0f1;
+  transition: all 1s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 path.layer2 {
@@ -25,6 +34,7 @@ path.layer2 {
 
 path.layer3 {
   fill: #ff5349;
+  transition: all 1s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .title {

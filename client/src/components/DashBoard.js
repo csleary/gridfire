@@ -21,6 +21,22 @@ class Dashboard extends Component {
     this.props.fetchUserReleases();
   }
 
+  renderPasswordChange() {
+    if (
+      this.props.user &&
+      !this.props.user.auth.googleId &&
+      this.props.user.auth.email
+    ) {
+      return (
+        <li className="nav-item">
+          <NavLink to={'/dashboard/password-update'} className="nav-link">
+            Password
+          </NavLink>
+        </li>
+      );
+    }
+  }
+
   render() {
     return (
       <div>
@@ -36,11 +52,7 @@ class Dashboard extends Component {
                 Payment
               </NavLink>
             </li>
-            <li className="nav-item">
-              <NavLink to={'/dashboard/password-update'} className="nav-link">
-                Password
-              </NavLink>
-            </li>
+            {this.renderPasswordChange()}
           </ul>
         </nav>
         <Switch>
@@ -68,7 +80,8 @@ class Dashboard extends Component {
 function mapStateToProps(state) {
   return {
     isLoadingUserReleases: state.releases.isLoading,
-    userReleases: state.releases.userReleases
+    userReleases: state.releases.userReleases,
+    user: state.user
   };
 }
 

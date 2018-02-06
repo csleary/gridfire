@@ -21,10 +21,6 @@
   -webkit-appearance: none;
 }
 
-.disabled-textarea.form-control:focus {
-  box-shadow: none;
-}
-
 .disabled-textarea::placeholder {
   color: hsla(233, 10%, 50%, 1);
 }
