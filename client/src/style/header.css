@@ -12,11 +12,11 @@ header {
 }
 
 .header-logo:hover path.layer1 {
-  fill: hsla(233, 10%, 50%, 1);
+  fill: #18cdca;
 }
 
 .header-logo:hover path.layer3 {
-  fill: #18cdca;
+  fill: hsla(233, 10%, 50%, 1);
 }
 
 path.layer0 {

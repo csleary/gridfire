@@ -14,8 +14,6 @@ import UserReleases from './dashboard/UserReleases';
 import '../style/dashboard.css';
 
 class Dashboard extends Component {
-  state = { page: 'UserReleases' };
-
   componentDidMount() {
     window.scrollTo(0, 0);
     this.props.fetchUserReleases();

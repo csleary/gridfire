@@ -25,9 +25,9 @@ class SelectedRelease extends Component {
   componentDidMount() {
     const { releaseId } = this.props.match.params;
     this.props.fetchXemPrice();
-    this.props
-      .fetchRelease(releaseId)
-      .then(() => this.setState({ isLoading: false }));
+    this.props.fetchRelease(releaseId).then(() => {
+      this.setState({ isLoading: false });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
