@@ -24,7 +24,7 @@ const TransactionsList = props => {
       <h3 className="text-center">Thank you!</h3>
       <div className="d-flex justify-content-center">
         <button
-          className="btn btn-outline-success btn-lg download-button"
+          className="btn btn-outline-primary btn-lg download-button"
           download
           onClick={() => {
             window.location = `/api/download/${downloadToken}`;

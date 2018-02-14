@@ -50,7 +50,7 @@ class Login extends Component {
           required={required}
           type={type}
         />
-        <div className="invalid-feedback">{touched && error && error}</div>
+        {touched && error && <div className="invalid-feedback">{error}</div>}
         {hint && <small className="form-text text-muted">{hint}</small>}
       </div>
     );

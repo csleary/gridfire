@@ -40,19 +40,17 @@ ol.tx-list {
 }
 
 button.download-button {
-  background-color: #000;
-  border-color: #000;
-  color: #18cdca;
   margin: 0 auto 2rem;
   min-width: 100%;
-}
-
-button.download-button:focus {
-  color: #18cdca;
+  transition: transform 1s;
 }
 
 button.download-button:hover {
-  color: #292c44;
+  color: #000;
+}
+
+button.download-button:hover .fa {
+  animation: jump 0.3s;
 }
 
 @keyframes fadeIn {
@@ -62,6 +60,23 @@ button.download-button:hover {
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes jump {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+
+  50% {
+    transform: translateY(-0.3rem);
+    animation-timing-function: ease-in;
+  }
+
+  100% {
+    transform: translateY(0);
+    animation-timing-function: ease-in;
   }
 }
 
