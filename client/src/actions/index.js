@@ -139,8 +139,14 @@ export const fetchUserReleases = () => async dispatch => {
 };
 
 export const fetchXemPrice = () => async dispatch => {
-  const res = await axios.get('/api/nem/price');
-  dispatch({ type: FETCH_XEM_PRICE, payload: res.data.xemPriceUsd });
+  try {
+    const res = await axios.get('/api/nem/price');
+    dispatch({ type: FETCH_XEM_PRICE, payload: res.data });
+  } catch (error) {
+    throw new Error(
+      `We could not fetch the current XEM price. (${error.message})`
+    );
+  }
 };
 
 export const login = (values, callback) => async dispatch => {

@@ -84,14 +84,17 @@ a:focus {
   margin-top: 0;
 }
 
-.btn-outline-primary {
+.btn-outline-primary,
+.btn-outline-success {
   background-color: #000;
   border-color: #000;
   color: #18cdca;
 }
 
 .btn-outline-primary:hover,
-.btn-outline-primary:not(:disabled):not(.disabled):active {
+.btn-outline-primary:not(:disabled):not(.disabled):active,
+.btn-outline-success:hover,
+.btn-outline-success:not(:disabled):not(.disabled):active {
   background-color: #18cdca;
   border-color: #18cdca;
   color: #292c44;
@@ -99,7 +102,9 @@ a:focus {
 }
 
 .btn-outline-primary:disabled,
-.btn-outline-primary:disabled:hover {
+.btn-outline-primary:disabled:hover,
+.btn-outline-success:disabled,
+.btn-outline-success:disabled:hover {
   background-color: transparent;
   border: 2px solid transparent;
   color: #18cdca80;
@@ -124,20 +129,6 @@ a:focus {
   border: 2px solid transparent;
   color: hsla(233, 10%, 50%, 1);
   cursor: default;
-}
-
-.btn-outline-success {
-  background-color: #f0f0f1;
-  border-color: #18cdca;
-  color: #18cdca;
-}
-
-.btn-outline-success:hover,
-.btn-outline-success:not(:disabled):not(.disabled):active {
-  background-color: #18cdca;
-  border-color: #18cdca;
-  color: #292c44;
-  cursor: pointer;
 }
 
 .btn-outline-success:focus {

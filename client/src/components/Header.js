@@ -11,8 +11,6 @@ const Header = () => (
           <Link to="/">
             <svg
               className="header-logo"
-              width="500"
-              height="157.89"
               version="1.1"
               viewBox="0 0 500.00006 157.887"
               xmlns="http://www.w3.org/2000/svg"

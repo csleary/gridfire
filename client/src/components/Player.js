@@ -142,21 +142,17 @@ class Player extends Component {
   }
 
   renderTrackInfo() {
-    if (
-      this.props.history.location.pathname !==
-      `/release/${this.props.player.albumId}`
-    ) {
+    const { albumId, artistName, trackTitle } = this.props.player;
+    if (this.props.history.location.pathname !== `/release/${albumId}`) {
       return (
-        <Link to={`/release/${this.props.player.albumId}`}>
-          {this.props.player.artistName} &bull;{' '}
-          <em>{this.props.player.trackTitle}</em>
+        <Link to={`/release/${albumId}`}>
+          {artistName} &bull; <em>{trackTitle}</em>
         </Link>
       );
     }
     return (
       <span className="no-link">
-        {this.props.player.artistName} &bull;{' '}
-        <em>{this.props.player.trackTitle}</em>
+        {artistName} &bull; <em>{trackTitle}</em>
       </span>
     );
   }
