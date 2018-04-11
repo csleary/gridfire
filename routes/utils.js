@@ -1,6 +1,6 @@
 const nem = require('nem-sdk').default;
 
-module.exports.checkPayments = (transactions, paid = []) => {
+const checkPayments = (transactions, paid = []) => {
   transactions.forEach(tx => {
     'otherTrans' in tx.transaction
       ? paid.push(tx.transaction.otherTrans.amount)
@@ -12,7 +12,7 @@ module.exports.checkPayments = (transactions, paid = []) => {
   return sum;
 };
 
-module.exports.filterTransactions = (idHash, transactions, filtered = []) => {
+const filterTransactions = (idHash, transactions, filtered = []) => {
   transactions.forEach(tx => {
     const { hexMessage } = nem.utils.format;
 
@@ -31,11 +31,17 @@ module.exports.filterTransactions = (idHash, transactions, filtered = []) => {
   return filtered;
 };
 
-module.exports.getXemPrice = async () => {
+const getXemPrice = async () => {
   const xem = await nem.com.requests.market.xem();
   const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
   const btc = await nem.com.requests.market.btc();
   const btcPriceUsd = btc.USD.last;
   const xemPriceUsd = btcPriceUsd * xemPriceBtc;
   return xemPriceUsd;
+};
+
+module.exports = {
+  checkPayments,
+  filterTransactions,
+  getXemPrice
 };

@@ -31,6 +31,11 @@ const Support = () => (
             files uploaded by the artist. Audio is converted to aac for
             streaming.
           </p>
+          <p>
+            That&rsquo;s right, we&rsquo;re called NEMp3 and we don&rsquo;t sell
+            mp3s! The name is a holdover from the initial proof of concept,
+            which offered only mp3s.
+          </p>
         </details>
         <details>
           <summary>
