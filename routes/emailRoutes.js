@@ -30,7 +30,7 @@ module.exports = app => {
 
         const mailOptions = {
           from: req.body.email,
-          to: 'nemp3@ochremusic.com',
+          to: keys.nemp3EmailAddress,
           subject: 'NEMp3 Contact Form',
           text: req.body.message
         };
