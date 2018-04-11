@@ -301,6 +301,39 @@ export const register = (values, callback) => async dispatch => {
   }
 };
 
+export const sendEmail = (values, callback) => async dispatch => {
+  try {
+    const res = await axios.post('/api/contact', values);
+
+    if (res.status === 200) {
+      dispatch({
+        type: TOAST_MESSAGE,
+        payload: {
+          alertClass: 'alert-success',
+          message: res.data
+        }
+      });
+      callback();
+    } else {
+      dispatch({
+        type: TOAST_MESSAGE,
+        payload: {
+          alertClass: 'alert-error',
+          message: res.data
+        }
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: TOAST_MESSAGE,
+      payload: {
+        alertClass: 'alert-error',
+        message: `Error! Could not send email: ${error}`
+      }
+    });
+  }
+};
+
 export const toastMessage = toast => dispatch => {
   dispatch({ type: TOAST_MESSAGE, payload: toast });
 };

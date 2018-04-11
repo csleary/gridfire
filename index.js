@@ -26,6 +26,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 require('./routes/authRoutes')(app);
+require('./routes/emailRoutes')(app);
 require('./routes/nemRoutes')(app);
 require('./routes/musicRoutes')(app);
 require('./routes/playerRoutes')(app);
