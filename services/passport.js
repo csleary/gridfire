@@ -36,13 +36,21 @@ passport.use(
         const existingUser = await User.findOne({ 'auth.email': email });
 
         if (!existingUser) {
-          return done(null, false, req.flash('error', 'User not found.'));
+          return done(
+            null,
+            false,
+            req.flash('error', 'Login details incorrect.')
+          );
         }
 
         const isMatched = await existingUser.comparePassword(password);
 
         if (!isMatched) {
-          return done(null, false, req.flash('error', 'Password incorrect.'));
+          return done(
+            null,
+            false,
+            req.flash('error', 'Login details incorrect.')
+          );
         }
         done(
           null,

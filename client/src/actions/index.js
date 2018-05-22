@@ -1,6 +1,5 @@
 import axios from 'axios';
 import {
-  ADD_NEM_ADDRESS,
   ADD_RELEASE,
   ADD_TRACK,
   DELETE_ARTWORK,
@@ -10,29 +9,20 @@ import {
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_RELEASE,
-  FETCH_INCOMING_TRANSACTIONS,
-  FETCH_INCOMING_TRANSACTIONS_LOADING,
-  FETCH_INCOMING_TRANSACTIONS_UPDATING,
   FETCH_USER,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
-  FETCH_XEM_PRICE,
   MOVE_TRACK,
   PLAY_TRACK,
-  PLAYER_HIDE,
-  PLAYER_PAUSE,
-  PLAYER_PLAY,
-  PLAYER_STOP,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
   UPDATE_RELEASE
 } from './types';
 
-export const addNemAddress = values => async dispatch => {
-  const res = await axios.post('/api/nem/address', values);
-  dispatch({ type: ADD_NEM_ADDRESS, payload: res.data });
-};
+export { default as sendEmail } from './emailActions';
+export * from './playerActions';
+export * from './nemActions';
 
 export const addRelease = () => async dispatch => {
   const res = await axios.post('/api/release');
@@ -97,25 +87,6 @@ export const fetchRelease = releaseId => async dispatch => {
   });
 };
 
-export const fetchIncomingTxs = (
-  paymentParams,
-  isUpdating
-) => async dispatch => {
-  if (isUpdating) {
-    dispatch({ type: FETCH_INCOMING_TRANSACTIONS_UPDATING });
-  } else {
-    dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING });
-  }
-  const res = await axios.post('/api/nem/transactions', paymentParams);
-  dispatch({
-    type: FETCH_INCOMING_TRANSACTIONS,
-    isLoading: false,
-    isUpdating: false,
-    payload: res.data,
-    downloadToken: res.headers.authorization
-  });
-};
-
 export const fetchUser = () => async dispatch => {
   dispatch({ type: FETCH_USER, isLoading: true });
   const res = await axios.get('/api/user');
@@ -136,17 +107,6 @@ export const fetchUserReleases = () => async dispatch => {
   dispatch({ type: FETCH_USER_RELEASES, isLoading: true });
   const res = await axios.get('/api/user/releases');
   dispatch({ type: FETCH_USER_RELEASES, isLoading: false, payload: res.data });
-};
-
-export const fetchXemPrice = () => async dispatch => {
-  try {
-    const res = await axios.get('/api/nem/price');
-    dispatch({ type: FETCH_XEM_PRICE, payload: res.data });
-  } catch (error) {
-    throw new Error(
-      `We could not fetch the current XEM price. (${error.message})`
-    );
-  }
 };
 
 export const login = (values, callback) => async dispatch => {
@@ -233,35 +193,6 @@ export const playTrack = (
   });
 };
 
-export const playerHide = () => dispatch => {
-  dispatch({
-    type: PLAYER_HIDE,
-    payload: {
-      isPlaying: false,
-      isPaused: false,
-      showPlayer: false
-    }
-  });
-};
-
-export const playerPause = () => dispatch => {
-  dispatch({
-    type: PLAYER_PAUSE
-  });
-};
-
-export const playerPlay = () => dispatch => {
-  dispatch({
-    type: PLAYER_PLAY
-  });
-};
-
-export const playerStop = () => dispatch => {
-  dispatch({
-    type: PLAYER_STOP
-  });
-};
-
 export const publishStatus = releaseId => async dispatch => {
   const res = await axios.patch(`/api/release/${releaseId}`);
   dispatch({ type: PUBLISH_STATUS, payload: res.data });
@@ -296,39 +227,6 @@ export const register = (values, callback) => async dispatch => {
       payload: {
         alertClass: 'alert-danger',
         message: `We encountered an error, sorry. (${error})`
-      }
-    });
-  }
-};
-
-export const sendEmail = (values, callback) => async dispatch => {
-  try {
-    const res = await axios.post('/api/contact', values);
-
-    if (res.status === 200) {
-      dispatch({
-        type: TOAST_MESSAGE,
-        payload: {
-          alertClass: 'alert-success',
-          message: res.data
-        }
-      });
-      callback();
-    } else {
-      dispatch({
-        type: TOAST_MESSAGE,
-        payload: {
-          alertClass: 'alert-error',
-          message: res.data
-        }
-      });
-    }
-  } catch (error) {
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-error',
-        message: `Error! Could not send email: ${error}`
       }
     });
   }

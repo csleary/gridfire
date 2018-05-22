@@ -2,9 +2,9 @@ const nem = require('nem-sdk').default;
 
 const checkPayments = (transactions, paid = []) => {
   transactions.forEach(tx => {
-    'otherTrans' in tx.transaction
-      ? paid.push(tx.transaction.otherTrans.amount)
-      : paid.push(tx.transaction.amount);
+    const { amount, otherTrans } = tx.transaction;
+    const payment = amount || otherTrans.amount;
+    paid.push(payment);
   });
 
   let sum = paid.reduce((acc, cur) => acc + cur, 0);
@@ -13,20 +13,23 @@ const checkPayments = (transactions, paid = []) => {
 };
 
 const filterTransactions = (idHash, transactions, filtered = []) => {
-  transactions.forEach(tx => {
+  const transferTransactions = transactions.filter(tx => {
+    const { type, otherTrans } = tx.transaction;
+    if (type === 257) {
+      return true;
+    }
+    if (type === 4100 && otherTrans.type === 257) {
+      return true;
+    }
+    return false;
+  });
+
+  transferTransactions.forEach(tx => {
     const { hexMessage } = nem.utils.format;
-
-    const payload =
-      'otherTrans' in tx.transaction
-        ? tx.transaction.otherTrans.message.payload
-        : tx.transaction.message.payload;
-
-    const message = hexMessage({
-      type: 1,
-      payload
-    });
-
-    if (message === idHash) filtered.push(tx);
+    const { message, otherTrans } = tx.transaction;
+    const encodedMessage = message || (otherTrans && otherTrans.message);
+    const decoded = hexMessage(encodedMessage);
+    if (decoded === idHash) filtered.push(tx);
   });
   return filtered;
 };

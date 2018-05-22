@@ -165,6 +165,7 @@ class EditRelease extends Component {
             ) + 1}.`
           });
           const { audioUploadUrl } = this.props;
+
           const config = {
             headers: {
               'Content-Type': audioFile.type
@@ -179,6 +180,7 @@ class EditRelease extends Component {
               });
             }
           };
+
           axios
             .put(audioUploadUrl, audioFile, config)
             .then(() => {

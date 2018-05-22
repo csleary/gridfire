@@ -12,37 +12,33 @@ module.exports = (paymentAddress, idHash) =>
 
     const nemNode = endpoint.host;
     let txId;
-    let incomingTxs = [];
+    let total = [];
     let paidToDate = 0;
 
     const fetchTransactions = async () => {
-      const tx = await nem.com.requests.account.transactions.incoming(
+      const incoming = await nem.com.requests.account.transactions.incoming(
         endpoint,
         paymentAddress,
         null,
         txId
       );
 
-      if (tx.data.length === 0 && incomingTxs.length === 0) {
-        resolve({ incomingTxs, nemNode, paidToDate });
-      }
-
-      txId = tx.data[tx.data.length - 1].meta.id;
-      const filteredTxs = utils.filterTransactions(idHash, tx.data);
+      const currentBatch = incoming.data || [];
+      const filteredTxs = utils.filterTransactions(idHash, currentBatch);
       const payments = utils.checkPayments(filteredTxs);
       paidToDate += payments;
-      incomingTxs = [...incomingTxs, ...filteredTxs];
+      total = [...total, ...filteredTxs];
 
-      if (tx.data.length === 25) {
+      if (currentBatch.length === 25) {
+        txId = currentBatch[currentBatch.length - 1].meta.id;
         fetchTransactions();
       } else {
         resolve({
-          incomingTxs,
+          incomingTxs: total,
           nemNode,
           paidToDate
         });
       }
     };
-
     fetchTransactions();
   });
