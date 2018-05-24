@@ -52,7 +52,7 @@ const Footer = props => (
         <small>
           <p className="text-center">
             &copy; {year !== 2017 && <span>2017&ndash;</span>}
-            {year} <a href="http://ochremusic.com">Christopher Leary</a>
+            {year} <a href="https://ochremusic.com">Christopher Leary</a>
           </p>
           <p className="text-center">
             {networkLinks()} | <a href="https://nem.io/">NEM</a>

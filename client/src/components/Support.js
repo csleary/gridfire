@@ -10,6 +10,7 @@ const Support = () => (
           <summary>Where can I buy some XEM?</summary>
           <p>
             The larger exchanges such as{' '}
+            <a href="https://www.binance.com">Binance</a>,{' '}
             <a href="https://bittrex.com/">Bittrex</a> or{' '}
             <a href="https://www.poloniex.com/">Poloniex</a> would be the most
             cost effective, though XEM is usually traded against Bitcoin, so you
@@ -32,8 +33,8 @@ const Support = () => (
             streaming.
           </p>
           <p>
-            That&rsquo;s right, we&rsquo;re called NEMp3 and we don&rsquo;t sell
-            mp3s! The name is a holdover from the initial proof of concept,
+            That&rsquo;s right, we&rsquo;re called NEMp3 and yet we don&rsquo;t
+            sell mp3s. The name is a holdover from the initial proof of concept,
             which offered only mp3s.
           </p>
         </details>
