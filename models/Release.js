@@ -18,7 +18,6 @@ const releaseSchema = new Schema({
     }
   ],
   dateCreated: Date,
-  numSold: { type: Number, default: 0 },
   published: { type: Boolean, default: false }
 });
 

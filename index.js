@@ -7,6 +7,7 @@ const passport = require('passport');
 const path = require('path');
 const keys = require('./config/keys');
 require('./models/Release');
+require('./models/Sale');
 require('./models/User');
 require('./services/passport');
 

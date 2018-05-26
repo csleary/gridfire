@@ -6,6 +6,7 @@ const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 
 const Release = mongoose.model('releases');
+const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
 
 module.exports = app => {
@@ -36,9 +37,36 @@ module.exports = app => {
         });
         user.save();
 
-        // Increment sales.
-        release.numSold += 1;
-        release.save();
+        // Log sales.
+        const date = new Date(Date.now());
+
+        const statExists = await Sale.findOne({
+          releaseId,
+          'purchases.date': date.toISOString().split('T')[0]
+        });
+
+        const query = {
+          releaseId
+        };
+        const update = {
+          $addToSet: { purchases: { date: date.toISOString().split('T')[0] } }
+        };
+        const options = { upsert: true, setDefaultsOnInsert: true };
+
+        const incrementSale = () => {
+          const queryInc = {
+            releaseId,
+            'purchases.date': date.toISOString().split('T')[0]
+          };
+          const updateInc = { $inc: { 'purchases.$.numSold': 1 } };
+          Sale.findOneAndUpdate(queryInc, updateInc, {}, () => {});
+        };
+
+        if (!statExists) {
+          Sale.findOneAndUpdate(query, update, options, incrementSale);
+        } else {
+          incrementSale();
+        }
       }
 
       // Issue download token to user on successful payment.
