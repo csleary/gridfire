@@ -4,7 +4,10 @@ import { Field, reduxForm } from 'redux-form';
 import Recaptcha from 'react-google-recaptcha';
 import { sendEmail } from '../actions';
 
-const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+const sitekey =
+  process.env.NODE_ENV === 'production'
+    ? '6LeickAUAAAAAHTCcATYXRsubAk4Hag0tnNTVwwg'
+    : '6Lc2cUAUAAAAABRMSdyEIGF9WFccUzzlq7Bi7B5h';
 
 const validate = values => {
   const errors = {};

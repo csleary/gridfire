@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
 const request = require('request');
 const SHA256 = require('crypto-js/sha256');
+const sharp = require('sharp');
 const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
@@ -337,7 +338,7 @@ module.exports = app => {
     s3.listObjectsV2(listParams, async (err, inputAudio) => {
       const transcoder = new aws.ElasticTranscoder();
       const transcoderParams = {
-        PipelineId: '1513688795531-iszg5h' /* required */,
+        PipelineId: '1513688795531-iszg5h',
         Inputs: [
           {
             Key: inputAudio.Contents[0].Key,
@@ -347,7 +348,7 @@ module.exports = app => {
         Outputs: [
           {
             Key: `${releaseId}/${trackId}.m4a`,
-            PresetId: '1351620000001-100120'
+            PresetId: '1351620000001-100130'
           }
         ],
         OutputKeyPrefix: 'm4a/'

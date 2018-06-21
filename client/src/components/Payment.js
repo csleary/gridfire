@@ -99,8 +99,8 @@ class Payment extends Component {
         <div className="row">
           <div className="col">
             <h2 className="text-center">Payment</h2>
-            <h3 className="text-center">
-              {artistName} -{' '}
+            <h3 className="text-center red">
+              {artistName} &bull;{' '}
               <span className="ibm-type-italic">{releaseTitle}</span>
             </h3>
             <p>

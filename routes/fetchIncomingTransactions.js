@@ -4,7 +4,7 @@ const utils = require('./utils');
 module.exports = (paymentAddress, idHash) =>
   new Promise(resolve => {
     const endpoint = nem.model.objects.create('endpoint')(
-      process.env.REACT_APP_NEM_NETWORK === 'mainnet'
+      process.env.NEM_NETWORK === 'mainnet'
         ? nem.model.nodes.defaultMainnet
         : nem.model.nodes.defaultTestnet,
       nem.model.nodes.defaultPort

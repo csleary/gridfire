@@ -10,9 +10,12 @@ h3.transactions-searching {
   margin-top: 2rem;
 }
 
-.bold-red {
-  color: #ff5349;
+.bold {
   font-weight: 600;
+}
+
+.red {
+  color: #ff5349;
 }
 
 button.refresh-txs {

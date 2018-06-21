@@ -2,3 +2,4 @@ node_modules
 dev.js
 dbBackupReleases.json
 dbBackupUsers.json
+upload.sh
