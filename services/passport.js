@@ -171,12 +171,17 @@ passport.use(
   )
 );
 
+const callbackURL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://nemp3.ochremusic.com/auth/google/callback'
+    : '/auth/google/callback';
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: keys.googleClientId,
       clientSecret: keys.googleClientSecret,
-      callbackURL: '/auth/google/callback',
+      callbackURL,
       proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {

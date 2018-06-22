@@ -19,7 +19,7 @@ const handleConfirm = (title, callback) => {
 };
 
 const RenderTrack = props => {
-  const { fields, moveTrack, release, uploadingAudio } = props;
+  const { fields, moveTrack, release, audioUploading } = props;
   const { trackList } = release;
   const id = release._id;
 
@@ -30,12 +30,12 @@ const RenderTrack = props => {
           const trackId = trackList[index] && trackList[index]._id;
           const hasAudio =
             (release.trackList[index] && release.trackList[index].hasAudio) ||
-            uploadingAudio[trackId] === 100;
-          const isUploadingAudio = uploadingAudio[trackId] < 100;
+            audioUploading[trackId] === 100;
+          const isaudioUploading = audioUploading[trackId] < 100;
           const audioStatus = classNames({
             'audio-true': hasAudio,
-            'audio-uploading': isUploadingAudio,
-            'audio-false': !hasAudio && !isUploadingAudio
+            'audio-uploading': isaudioUploading,
+            'audio-false': !hasAudio && !isaudioUploading
           });
           const classTrack = classNames('list-group-item', audioStatus);
 
@@ -56,7 +56,7 @@ const RenderTrack = props => {
                 release={props.release}
                 type="text"
                 onDropAudio={props.onDropAudio}
-                uploadingAudio={uploadingAudio[trackId]}
+                audioUploading={audioUploading[trackId]}
               />
               <div className="d-flex mt-3">
                 {index < fields.length - 1 && (
@@ -108,9 +108,9 @@ const RenderTrack = props => {
                 </button>
               </div>
               <ProgressBar
-                percentComplete={uploadingAudio[trackId]}
+                percentComplete={audioUploading[trackId]}
                 willDisplay={
-                  uploadingAudio[trackId] && uploadingAudio[trackId] < 100
+                  audioUploading[trackId] && audioUploading[trackId] < 100
                 }
               />
             </li>

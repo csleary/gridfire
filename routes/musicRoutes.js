@@ -1,16 +1,21 @@
 const archiver = require('archiver');
 const aws = require('aws-sdk');
+const axios = require('axios');
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const multer = require('multer');
 const nem = require('nem-sdk').default;
 const request = require('request');
 const SHA256 = require('crypto-js/sha256');
+const sharp = require('sharp');
 const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
+const upload = multer({ dest: 'tmp/' });
 aws.config.region = 'us-east-1';
 
 module.exports = app => {
@@ -337,7 +342,7 @@ module.exports = app => {
     s3.listObjectsV2(listParams, async (err, inputAudio) => {
       const transcoder = new aws.ElasticTranscoder();
       const transcoderParams = {
-        PipelineId: '1513688795531-iszg5h' /* required */,
+        PipelineId: '1513688795531-iszg5h',
         Inputs: [
           {
             Key: inputAudio.Contents[0].Key,
@@ -347,7 +352,7 @@ module.exports = app => {
         Outputs: [
           {
             Key: `${releaseId}/${trackId}.m4a`,
-            PresetId: '1351620000001-100120'
+            PresetId: '1351620000001-100130'
           }
         ],
         OutputKeyPrefix: 'm4a/'
@@ -362,50 +367,76 @@ module.exports = app => {
   });
 
   // Upload Artwork
-  app.get('/api/upload/artwork', requireLogin, async (req, res) => {
-    const { releaseId, type } = req.query;
+  app.post(
+    '/api/upload/artwork',
+    upload.single('artwork'),
+    requireLogin,
+    async (req, res) => {
+      const { releaseId, type } = req.body;
 
-    // If replacing, delete from S3
-    const s3 = new aws.S3();
-    s3.listObjectsV2(
-      {
-        Bucket: 'nemp3-img',
-        Prefix: `${releaseId}`
-      },
-      async (err, data) => {
-        if (data.Contents.length) {
-          const deleteArt = await s3.deleteObject({
-            Bucket: 'nemp3-img',
-            Key: data.Contents[0].Key
-          });
-          deleteArt.send();
+      // If replacing, delete from S3
+      const s3 = new aws.S3();
+      s3.listObjectsV2(
+        {
+          Bucket: 'nemp3-img',
+          Prefix: `${releaseId}`
+        },
+        async (err, data) => {
+          if (data.Contents.length) {
+            const deleteArt = await s3.deleteObject({
+              Bucket: 'nemp3-img',
+              Key: data.Contents[0].Key
+            });
+            deleteArt.send();
+          }
         }
-      }
-    );
+      );
 
-    // Upload new artwork
-    let ext;
-    if (type === 'image/jpeg') {
-      ext = '.jpg';
-    } else if (type === 'image/png') {
-      ext = '.png';
+      sharp(req.file.path)
+        .resize(1000, 1000)
+        .crop()
+        .toFormat('jpeg')
+        .toBuffer()
+        .then(async optimised => {
+          // Upload new artwork
+          const ext = '.jpg';
+          const params = {
+            ContentType: `${type}`,
+            Bucket: 'nemp3-img',
+            Expires: 30,
+            Key: `${releaseId}${ext}`
+          };
+
+          const release = await Release.findById(releaseId);
+          release.artwork = `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`;
+          release.save();
+
+          const config = {
+            headers: {
+              'Content-Type': type
+            }
+          };
+
+          s3.getSignedUrl('putObject', params, async (error, url) => {
+            if (error) null;
+
+            axios
+              .put(url, optimised, config)
+              .then(() => {
+                fs.unlink(req.file.path, err => {
+                  if (err) {
+                    throw new Error('Error occurred while deleting artwork.');
+                  }
+                });
+                res.end();
+              })
+              .catch(err => {
+                res.status(500).send({ error: err });
+              });
+          });
+        });
     }
-
-    const params = {
-      ContentType: `${type}`,
-      Bucket: 'nemp3-img',
-      Expires: 30,
-      Key: `${releaseId}${ext}`
-    };
-
-    s3.getSignedUrl('putObject', params, async (error, url) => {
-      if (error) null;
-      const release = await Release.findById(releaseId);
-      release.artwork = `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`;
-      release.save();
-      res.send(url);
-    });
-  });
+  );
 
   // Upload Audio
   app.get('/api/upload/audio', requireLogin, async (req, res) => {

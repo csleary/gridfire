@@ -5,7 +5,6 @@ import {
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
-  FETCH_ARTWORK_UPLOAD_URL,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_RELEASE,
@@ -17,7 +16,9 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
-  UPDATE_RELEASE
+  UPDATE_RELEASE,
+  UPLOAD_ARTWORK,
+  UPLOAD_ARTWORK_PROGRESS
 } from './types';
 
 export { default as sendEmail } from './emailActions';
@@ -49,14 +50,45 @@ export const deleteTrack = (releaseId, trackId) => async dispatch => {
   dispatch({ type: DELETE_TRACK, payload: res.data });
 };
 
-export const fetchArtworkUploadUrl = (releaseId, type) => async dispatch => {
-  const res = await axios.get('/api/upload/artwork', {
-    params: {
-      releaseId,
-      type
+export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
+  const data = new FormData();
+  data.append('releaseId', releaseId);
+  data.append('artwork', imgData);
+  data.append('type', type);
+
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    onUploadProgress: event => {
+      const progress = event.loaded / event.total * 100;
+      dispatch({ type: UPLOAD_ARTWORK, payload: true });
+      dispatch({
+        type: UPLOAD_ARTWORK_PROGRESS,
+        payload: Math.floor(progress)
+      });
     }
-  });
-  dispatch({ type: FETCH_ARTWORK_UPLOAD_URL, payload: res.data });
+  };
+
+  const res = await axios.post('/api/upload/artwork', data, config);
+  if (res.error) {
+    dispatch({
+      type: TOAST_MESSAGE,
+      payload: {
+        alertClass: 'alert-danger',
+        message: res.error
+      }
+    });
+  } else {
+    dispatch({ type: UPLOAD_ARTWORK, payload: false });
+    dispatch({
+      type: TOAST_MESSAGE,
+      payload: {
+        alertClass: 'alert-success',
+        message: 'Artwork uploaded.'
+      }
+    });
+  }
 };
 
 export const fetchAudioUploadUrl = (

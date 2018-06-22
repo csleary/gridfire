@@ -87,9 +87,6 @@ class Home extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
-            <h2 className="text-center">
-              Sell Your Music with the NEM Blockchain
-            </h2>
             <div className="front-page">{this.renderReleases()}</div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
@@ -27,11 +27,11 @@ class Dashboard extends Component {
   checkNemAddress = address => {
     if (address && !nem.model.address.isValid(address)) {
       return (
-        <div>
+        <Fragment>
           <FontAwesome name="exclamation-circle" className="icon-left" />
           This doesn&rsquo;t appear to be a valid NEM address. Please
           double-check it!
-        </div>
+        </Fragment>
       );
     }
     return undefined;

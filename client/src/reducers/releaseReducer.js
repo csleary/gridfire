@@ -4,7 +4,6 @@ import {
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
-  FETCH_ARTWORK_UPLOAD_URL,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_RELEASE,
@@ -13,10 +12,14 @@ import {
   MOVE_TRACK,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
-  UPDATE_RELEASE
+  UPDATE_RELEASE,
+  UPLOAD_ARTWORK,
+  UPLOAD_ARTWORK_PROGRESS
 } from '../actions/types';
 
 const initialState = {
+  artworkUploading: false,
+  artworkUploadProgress: 0,
   isLoading: false,
   catalogue: [],
   paymentAddress: '',
@@ -50,11 +53,6 @@ export default (state = initialState, action) => {
         };
       }
       return { ...state };
-    case FETCH_ARTWORK_UPLOAD_URL:
-      return {
-        ...state,
-        artworkUploadUrl: payload
-      };
     case FETCH_AUDIO_UPLOAD_URL:
       return {
         ...state,
@@ -87,6 +85,16 @@ export default (state = initialState, action) => {
         paymentAddress: payload.paymentInfo.paymentAddress,
         paymentHash: payload.paymentInfo.paymentHash,
         priceInXem: payload.price
+      };
+    case UPLOAD_ARTWORK:
+      return {
+        ...state,
+        artworkUploading: payload
+      };
+    case UPLOAD_ARTWORK_PROGRESS:
+      return {
+        ...state,
+        artworkUploadProgress: payload
       };
     default:
       return state;

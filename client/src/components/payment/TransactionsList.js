@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
 import SingleTransaction from './SingleTransaction';
@@ -20,7 +20,7 @@ const TransactionsList = props => {
   } = props;
 
   const downloadButton = downloadToken && (
-    <div>
+    <Fragment>
       <h3 className="text-center">Thank you!</h3>
       <div className="d-flex justify-content-center">
         <button
@@ -34,7 +34,7 @@ const TransactionsList = props => {
           Download <span className="ibm-type-italic">{releaseTitle}</span>
         </button>
       </div>
-    </div>
+    </Fragment>
   );
 
   const txList = transactions.map(tx => (
@@ -53,7 +53,7 @@ const TransactionsList = props => {
       return (
         <p>
           Please pay a futher{' '}
-          <span className="bold-red">{roundUp(delta, 2).toFixed(2)} XEM</span>{' '}
+          <span className="bold red">{roundUp(delta, 2).toFixed(2)} XEM</span>{' '}
           to activate your download, then tap the refresh button below to check
           for confirmed payments.
         </p>
@@ -69,7 +69,7 @@ const TransactionsList = props => {
   ) : (
     <p>
       Paid to date:{' '}
-      <span className="bold-red">{paidToDate.toFixed(2)} XEM</span>
+      <span className="bold red">{paidToDate.toFixed(2)} XEM</span>
     </p>
   );
 
@@ -98,7 +98,7 @@ const TransactionsList = props => {
     <div className="transactions">
       <h3 className="text-center">Transactions</h3>
       <p>
-        <FontAwesome name="server" className="icon-left" />
+        <FontAwesome name="server" className="icon-left red" />
         Connected to NIS Node: <strong>{nemNode}</strong>
       </p>
       {transactionsPreamble}

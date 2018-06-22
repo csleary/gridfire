@@ -13,7 +13,6 @@ import {
   deleteArtwork,
   deleteRelease,
   deleteTrack,
-  fetchArtworkUploadUrl,
   fetchAudioUploadUrl,
   fetchRelease,
   fetchUserRelease,
@@ -22,7 +21,8 @@ import {
   publishStatus,
   toastMessage,
   transcodeAudio,
-  updateRelease
+  updateRelease,
+  uploadArtwork
 } from '../actions';
 import '../style/editRelease.css';
 
@@ -33,8 +33,7 @@ class EditRelease extends Component {
       isEditing: false,
       isLoading: false,
       coverArtPreview: '',
-      uploadingArt: '',
-      uploadingAudio: {}
+      audioUploading: {}
     };
     this.onDropArt = this.onDropArt.bind(this);
     this.onDropAudio = this.onDropAudio.bind(this);
@@ -97,45 +96,17 @@ class EditRelease extends Component {
       image.onload = () => {
         height = image.height;
         width = image.width;
-        if (height !== width) {
+        if (height < 1000 || width < 1000) {
           this.props.toastMessage({
             alertClass: 'alert-danger',
-            message: `Sorry, but your image must be square (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
+            message: `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
           });
         } else {
-          this.props
-            .fetchArtworkUploadUrl(releaseId, this.artworkFile.type)
-            .then(() => {
-              const { artworkUploadUrl } = this.props;
-              const config = {
-                headers: {
-                  'Content-Type': this.artworkFile.type
-                },
-                onUploadProgress: event => {
-                  const progress = event.loaded / event.total * 100;
-                  this.setState({
-                    uploadingArt: Math.floor(progress)
-                  });
-                }
-              };
-
-              axios
-                .put(artworkUploadUrl, this.artworkFile, config)
-                .then(() => {
-                  this.props.toastMessage({
-                    alertClass: 'alert-success',
-                    message: 'Artwork uploaded!'
-                  });
-                })
-                .catch(error =>
-                  this.props.toastMessage({
-                    alertClass: 'alert-danger',
-                    message: `Upload failed. Here's the message we received: ${
-                      error.message
-                    }`
-                  })
-                );
-            });
+          this.props.uploadArtwork(
+            releaseId,
+            this.artworkFile,
+            this.artworkFile.type
+          );
           this.setState({
             coverArtPreview: this.artworkFile.preview
           });
@@ -173,8 +144,8 @@ class EditRelease extends Component {
             onUploadProgress: event => {
               const progress = event.loaded / event.total * 100;
               this.setState({
-                uploadingAudio: {
-                  ...this.state.uploadingAudio,
+                audioUploading: {
+                  ...this.state.audioUploading,
                   [trackId]: Math.floor(progress)
                 }
               });
@@ -307,6 +278,8 @@ class EditRelease extends Component {
                 </div>
                 <RenderArtwork
                   artworkFile={this.artworkFile}
+                  artworkUploading={this.props.artworkUploading}
+                  artworkUploadProgress={this.props.artworkUploadProgress}
                   coverArtPreview={this.state.coverArtPreview}
                   deleteArtwork={this.props.deleteArtwork}
                   handleDeletePreview={this.handleDeletePreview}
@@ -314,7 +287,6 @@ class EditRelease extends Component {
                   publishStatus={this.props.publishStatus}
                   release={this.props.release}
                   toastMessage={this.props.toastMessage}
-                  uploadingArt={this.state.uploadingArt}
                 />
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
@@ -326,7 +298,7 @@ class EditRelease extends Component {
                 moveTrack={this.props.moveTrack}
                 onDropAudio={this.onDropAudio}
                 release={this.props.release}
-                uploadingAudio={this.state.uploadingAudio}
+                audioUploading={this.state.audioUploading}
               />
               <div className="d-flex justify-content-end">
                 <button
@@ -388,6 +360,8 @@ const validate = ({
 const fieldSelector = formValueSelector('releaseForm');
 
 const mapStateToProps = state => ({
+  artworkUploading: state.releases.artworkUploading,
+  artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,
   audioUploadUrl: state.releases.audioUploadUrl,
   price: fieldSelector(state, 'price'),
@@ -406,7 +380,6 @@ export default reduxForm({
     deleteArtwork,
     deleteRelease,
     deleteTrack,
-    fetchArtworkUploadUrl,
     fetchAudioUploadUrl,
     fetchRelease,
     fetchUserRelease,
@@ -415,6 +388,7 @@ export default reduxForm({
     publishStatus,
     toastMessage,
     transcodeAudio,
-    updateRelease
+    updateRelease,
+    uploadArtwork
   })(withRouter(EditRelease))
 );

@@ -50,17 +50,19 @@ const RenderArtwork = props => (
       accept=".png, .jpg, .jpeg"
       activeClassName="dropzone-art-active"
       className="dropzone-art"
-      maxSize={1024 * 1024 * 2}
+      maxSize={1024 * 1024 * 10}
       multiple={false}
       onDrop={props.onDropArt}
     >
       <FontAwesome name="upload" className="icon-left" />
-      {props.uploadingArt && props.uploadingArt < 100
-        ? `Uploading: ${props.uploadingArt}%`
-        : 'Drop artwork here, or click to select. Must be square and under 2MB in size.'}
+      {props.artworkUploading
+        ? `Uploading: ${props.artworkUploadProgress}%`
+        : 'Drop artwork here, or click to select. Must be under 10MB in size and have a minimum dimension of 1000px (will be resized and cropped square).'}
       <ProgressBar
-        percentComplete={props.uploadingArt}
-        willDisplay={props.uploadingArt && props.uploadingArt < 100}
+        percentComplete={props.artworkUploadProgress}
+        willDisplay={
+          props.artworkUploadProgress && props.artworkUploadProgress < 100
+        }
       />
     </Dropzone>
   </div>

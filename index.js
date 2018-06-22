@@ -6,7 +6,9 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const path = require('path');
 const keys = require('./config/keys');
+
 require('./models/Release');
+require('./models/Sale');
 require('./models/User');
 require('./services/passport');
 
@@ -39,5 +41,5 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8083;
 app.listen(PORT);
