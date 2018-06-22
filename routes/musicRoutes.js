@@ -425,9 +425,7 @@ module.exports = app => {
               .then(() => {
                 fs.unlink(req.file.path, err => {
                   if (err) {
-                    res.status(500).send({
-                      error: 'Error occurred while deleting artwork.'
-                    });
+                    throw new Error('Error occurred while deleting artwork.');
                   }
                 });
                 res.end();
