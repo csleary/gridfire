@@ -172,7 +172,7 @@ passport.use(
 );
 
 const callbackURL =
-  process.env.NODE_ENV === 'production'
+  process.env.NODE_ENV === 'production' && process.env.NEM_NETWORK === 'mainnet'
     ? 'https://nemp3.ochremusic.com/auth/google/callback'
     : '/auth/google/callback';
 
