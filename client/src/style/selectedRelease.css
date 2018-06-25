@@ -7,12 +7,11 @@
 }
 
 .selected-release .buy-button {
-  margin: 2rem auto 1rem auto;
+  margin: 2rem auto;
 }
 
 .selected-release .tracklist-wrapper {
   columns: 1;
-  margin: 3rem 0;
   padding-left: 2rem;
 }
 
@@ -90,6 +89,7 @@
   display: flex;
   align-items: center;
   color: #ff5349;
+  margin-bottom: 2rem;
 }
 
 .release-info .release-price::before,
@@ -105,6 +105,15 @@
 
 .release-info .release-price::after {
   margin-left: 0.25rem;
+}
+
+.release-info p.credits,
+.release-info p.info {
+  white-space: pre-line;
+}
+
+.release-info p:last-child {
+  margin-bottom: 0;
 }
 
 @media (min-width: 768px) {

@@ -12,7 +12,11 @@ const RenderReleaseField = ({
   return (
     <div className={className}>
       <label htmlFor={name}>{label}</label>
-      <input className="form-control" id={name} type={type} {...input} />
+      {type === 'textarea' ? (
+        <textarea className="form-control" id={name} rows="3" {...input} />
+      ) : (
+        <input className="form-control" id={name} type={type} {...input} />
+      )}
       {formText && <small className="form-text text-muted">{formText}</small>}
       {error && <div className="invalid-feedback">{touched && error}</div>}
     </div>

@@ -476,6 +476,8 @@ module.exports = app => {
     const {
       artistName,
       catNumber,
+      credits,
+      info,
       price,
       recordLabel,
       releaseDate,
@@ -484,6 +486,8 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
     release.artistName = artistName;
     release.catNumber = catNumber;
+    release.credits = credits;
+    release.info = info;
     release.price = price;
     release.recordLabel = recordLabel;
     release.releaseDate = releaseDate;

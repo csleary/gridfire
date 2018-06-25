@@ -11,6 +11,8 @@ const releaseSchema = new Schema({
   price: Number,
   recordLabel: { type: String, trim: true },
   catNumber: { type: String, trim: true },
+  credits: { type: String, trim: true },
+  info: { type: String, trim: true },
   trackList: [
     {
       trackTitle: { type: String, trim: true },

@@ -275,6 +275,20 @@ class EditRelease extends Component {
                     name="catNumber"
                     type="text"
                   />
+                  <Field
+                    component={RenderReleaseField}
+                    formText="Notable release information, e.g. press release copy, review pull quotes, notable equipment or concepts."
+                    label="Release Info"
+                    name="info"
+                    type="textarea"
+                  />
+                  <Field
+                    component={RenderReleaseField}
+                    formText="Please credit any writers, performers, producers, designers and engineers involved."
+                    label="Credits"
+                    name="credits"
+                    type="textarea"
+                  />
                 </div>
                 <RenderArtwork
                   artworkFile={this.artworkFile}
