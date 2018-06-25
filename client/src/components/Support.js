@@ -18,11 +18,18 @@ const Support = () => (
             then trade it for XEM.
           </p>
           <p>
-            If you would rather just buy a small amount of XEM quickly with USD
-            using your credit/debit card, you could try a service like
-            Changelly, though this may come at the price of larger fees. In all
-            cases, it will be more cost effective exchanging a larger single sum
-            than multiple smaller sums.
+            If you would rather just quickly buy a small amount of XEM using
+            your credit/debit card, you could try a service like Changelly or
+            Shapeshift (which I believe you can do inside the main NEM Wallet),
+            though this may come at the price of larger fees. In all cases, it
+            will be more cost effective exchanging a larger single sum than
+            multiple smaller sums.
+          </p>
+          <p>
+            To turn your XEM earnings back into your native currency, you would
+            need to use an exhange with the necessary fiat pairing and
+            withdrawal ability, e.g. Kraken for USD (via BTC), Bitstamp for EUR
+            (via BTC), Zaif for JPY (direct XEM/JPY pair).
           </p>
         </details>
         <details>

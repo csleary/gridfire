@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -123,6 +123,8 @@ class SelectedRelease extends Component {
       artistName,
       artwork,
       catNumber,
+      credits,
+      info,
       price,
       recordLabel,
       releaseTitle,
@@ -169,12 +171,6 @@ class SelectedRelease extends Component {
             <div className="tracklist-wrapper">
               <ol className="tracklist">{this.renderTrackList()}</ol>
             </div>
-            <h6>
-              <FontAwesome name="calendar-o" className="icon-left red" />
-              {this.formatDate(releaseDate)}
-            </h6>
-            {recordLabel && <h6>{recordLabel && `Label: ${recordLabel}`}</h6>}
-            {catNumber && <h6>{catNumber && `Cat.: ${catNumber}`}</h6>}
             <div className="d-flex justify-content-center">
               <Link
                 to={`/payment/${this.props.release._id}`}
@@ -183,6 +179,32 @@ class SelectedRelease extends Component {
                 Purchase
               </Link>
             </div>
+            <h6>
+              <FontAwesome name="calendar-o" className="icon-left red" />
+              {this.formatDate(releaseDate)}
+            </h6>
+            {recordLabel && (
+              <h6>
+                <span className="red">Label:</span> {recordLabel}
+              </h6>
+            )}
+            {catNumber && (
+              <h6>
+                <span className="red">Cat.:</span> {catNumber}
+              </h6>
+            )}
+            {info && (
+              <Fragment>
+                <h6 className="red">{info && 'Info'}</h6>
+                <p className="info">{info}</p>
+              </Fragment>
+            )}
+            {credits && (
+              <Fragment>
+                <h6 className="red">{credits && 'Credits'}</h6>
+                <p className="credits">{credits}</p>
+              </Fragment>
+            )}
           </div>
         </div>
       </main>
