@@ -14,6 +14,7 @@ const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 
 const Release = mongoose.model('releases');
+const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
 const upload = multer({ dest: 'tmp/' });
 aws.config.region = 'us-east-1';
@@ -280,6 +281,16 @@ module.exports = app => {
   app.get('/api/user/release/:releaseId', requireLogin, async (req, res) => {
     const release = await Release.findById(req.params.releaseId);
     res.send(release);
+  });
+
+  // Fetch Release Sales Figures
+  app.get('/api/sales', requireLogin, async (req, res) => {
+    const releases = await Release.find({ _user: req.user.id });
+    const data = await Promise.all(
+      releases.map(async release => Sale.find({ releaseId: release._id }))
+    );
+    const sales = data.reduce((acc, val) => acc.concat(val), []);
+    res.send(sales);
   });
 
   // Fetch User Releases
