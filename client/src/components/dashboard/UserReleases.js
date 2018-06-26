@@ -50,13 +50,23 @@ const renderTitle = release => {
   return <h6>Untitled Release</h6>;
 };
 
-const copiesSold = numSold => {
-  if (numSold === 1) {
-    return <h6>{numSold} copy sold.</h6>;
-  } else if (numSold > 1) {
-    return <h6>{numSold} copies sold.</h6>;
+const copiesSold = (releaseId, salesData) => {
+  const releaseSales =
+    salesData &&
+    salesData.filter(release => release.releaseId === releaseId)[0];
+  const salesArray =
+    releaseSales && releaseSales.purchases.map(sale => sale.numSold);
+  const numSold = salesArray && salesArray.reduce((acc, el) => acc + el);
+  if (numSold) {
+    return (
+      <h6>
+        <span className="red">Sold:</span> {numSold}
+      </h6>
+    );
   }
 };
+
+// chart line
 
 const UserReleases = props => {
   const renderUserReleases = () => {
@@ -94,7 +104,7 @@ const UserReleases = props => {
               <FontAwesome name="file-audio-o" className="icon-left red" />
               {release.trackList.length} Tracks
             </h6>
-            {copiesSold(release.numSold)}
+            {copiesSold(release._id, props.salesData)}
           </div>
           <div className="d-flex align-items-end ml-auto mt-auto">
             <button

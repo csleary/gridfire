@@ -8,6 +8,7 @@ import {
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_RELEASE,
+  FETCH_SALES,
   FETCH_USER,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
@@ -117,6 +118,11 @@ export const fetchRelease = releaseId => async dispatch => {
     type: FETCH_RELEASE,
     payload: res.data.release
   });
+};
+
+export const fetchSales = () => async dispatch => {
+  const res = await axios.get('/api/sales');
+  dispatch({ type: FETCH_SALES, payload: res.data });
 };
 
 export const fetchUser = () => async dispatch => {

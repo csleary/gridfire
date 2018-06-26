@@ -4,6 +4,7 @@ import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import {
   deleteRelease,
+  fetchSales,
   fetchUserReleases,
   publishStatus,
   toastMessage
@@ -16,7 +17,7 @@ import '../style/dashboard.css';
 class Dashboard extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
-    this.props.fetchUserReleases();
+    this.props.fetchUserReleases().then(this.props.fetchSales());
   }
 
   renderPasswordChange() {
@@ -64,6 +65,7 @@ class Dashboard extends Component {
                 history={this.props.history}
                 isLoadingUserReleases={this.props.isLoadingUserReleases}
                 publishStatus={this.props.publishStatus}
+                salesData={this.props.salesData}
                 toastMessage={this.props.toastMessage}
                 userReleases={this.props.userReleases}
               />
@@ -78,6 +80,7 @@ class Dashboard extends Component {
 function mapStateToProps(state) {
   return {
     isLoadingUserReleases: state.releases.isLoading,
+    salesData: state.salesData.releaseSales,
     userReleases: state.releases.userReleases,
     user: state.user
   };
@@ -88,6 +91,7 @@ export default reduxForm({
 })(
   connect(mapStateToProps, {
     deleteRelease,
+    fetchSales,
     fetchUserReleases,
     publishStatus,
     toastMessage
