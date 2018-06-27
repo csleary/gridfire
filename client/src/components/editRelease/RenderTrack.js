@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import RenderTrackField from './RenderTrackField';
 import ProgressBar from './ProgressBar';
 
+let draggable;
+
 const handleMoveTrack = (moveTrack, swap, id, index, direction) => {
   moveTrack(id, index, index + direction, () => {
     swap(index, index + direction);
@@ -16,6 +18,43 @@ const handleConfirm = (title, callback) => {
     `Are you sure you want to delete ${title || 'this track'}?`
   );
   if (confirmation) callback();
+};
+
+const handleDragStart = (event, indexFrom) => {
+  event.target.style.opacity = '0.4';
+  event.dataTransfer.setData('text/plain', indexFrom);
+};
+
+const handleDragEnter = event => {
+  draggable = event.target;
+};
+
+const handleDragOver = event => {
+  if (event.target === draggable) {
+    event.target.style.borderColor = 'yellow';
+  }
+};
+
+const handleDragLeave = event => {
+  if (event.target === draggable) {
+    event.target.style.borderColor = '';
+    draggable = undefined;
+  }
+};
+
+const handleDrop = (event, moveTrack, moveField, releaseId, indexTo) => {
+  console.log(event.target);
+  event.dataTransfer.dropEffect = 'move';
+  const indexFrom = parseInt(event.dataTransfer.getData('text'), 10);
+  moveTrack(releaseId, indexFrom, indexTo, () => {
+    moveField(indexFrom, indexTo);
+  });
+  const list = document.querySelectorAll('li.list-group-item');
+  list[indexTo].style.borderColor = '';
+};
+
+const handleDragEnd = event => {
+  event.currentTarget.style.opacity = '';
 };
 
 const RenderTrack = props => {
@@ -42,7 +81,16 @@ const RenderTrack = props => {
           return (
             <li
               className={classTrack}
+              draggable="true"
               key={`${track}._id`}
+              onDragStart={event => handleDragStart(event, index)}
+              onDragEnter={event => handleDragEnter(event)}
+              onDragOver={event => handleDragOver(event)}
+              onDragLeave={event => handleDragLeave(event)}
+              onDrop={event =>
+                handleDrop(event, moveTrack, fields.move, id, index)
+              }
+              onDragEnd={event => handleDragEnd(event)}
               onTouchStart={() => {}}
             >
               <Field

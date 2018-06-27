@@ -62,7 +62,7 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
       'Content-Type': 'multipart/form-data'
     },
     onUploadProgress: event => {
-      const progress = event.loaded / event.total * 100;
+      const progress = (event.loaded / event.total) * 100;
       dispatch({ type: UPLOAD_ARTWORK, payload: true });
       dispatch({
         type: UPLOAD_ARTWORK_PROGRESS,
@@ -175,11 +175,11 @@ export const login = (values, callback) => async dispatch => {
 
 export const moveTrack = (
   releaseId,
-  index,
-  direction,
+  fromIndex,
+  toIndex,
   callback
 ) => async dispatch => {
-  const res = await axios.patch(`/api/${releaseId}/${index}/${direction}`);
+  const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
   dispatch({ type: MOVE_TRACK, payload: res.data });
   callback();
 };
