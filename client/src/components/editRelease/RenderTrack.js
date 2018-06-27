@@ -31,7 +31,7 @@ const handleDragEnter = event => {
 
 const handleDragOver = event => {
   if (event.target === draggable) {
-    event.target.style.borderColor = 'yellow';
+    event.target.style.borderColor = '#ffd24d';
   }
 };
 
@@ -43,12 +43,12 @@ const handleDragLeave = event => {
 };
 
 const handleDrop = (event, moveTrack, moveField, releaseId, indexTo) => {
-  console.log(event.target);
   event.dataTransfer.dropEffect = 'move';
   const indexFrom = parseInt(event.dataTransfer.getData('text'), 10);
   moveTrack(releaseId, indexFrom, indexTo, () => {
     moveField(indexFrom, indexTo);
   });
+  event.target.style.borderColor = '';
   const list = document.querySelectorAll('li.list-group-item');
   list[indexTo].style.borderColor = '';
 };
