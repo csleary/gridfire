@@ -125,15 +125,15 @@ class EditRelease extends Component {
     } else {
       const audioFile = accepted[0];
       const releaseId = this.props.release._id;
+      const { trackTitle } = this.props.release.trackList[index];
       const trackName =
-        this.props.release.trackList[index].trackTitle ||
-        `track ${parseInt(index, 10) + 1}`;
+        (trackTitle && `'${trackTitle}'`) || `track ${parseInt(index, 10) + 1}`;
       this.props
         .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
         .then(() => {
           this.props.toastMessage({
             alertClass: 'alert-info',
-            message: `Uploading file '${audioFile.name}' for '${trackName}'.`
+            message: `Uploading file '${audioFile.name}' for ${trackName}.`
           });
           const { audioUploadUrl } = this.props;
 
@@ -159,7 +159,7 @@ class EditRelease extends Component {
               this.props.fetchUserRelease(releaseId);
               this.props.toastMessage({
                 alertClass: 'alert-success',
-                message: `Upload complete for '${trackName}'!`
+                message: `Upload complete for ${trackName}!`
               });
             })
             .catch(error =>

@@ -26,7 +26,11 @@ class SelectedRelease extends Component {
     const { releaseId } = this.props.match.params;
     this.props.fetchXemPrice();
     this.props.fetchRelease(releaseId).then(() => {
-      this.setState({ isLoading: false });
+      if (!this.props.release) {
+        this.props.history.push('/');
+      } else {
+        this.setState({ isLoading: false });
+      }
     });
   }
 
@@ -220,11 +224,14 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, {
-  fetchRelease,
-  fetchXemPrice,
-  playerPause,
-  playerPlay,
-  playTrack,
-  toastMessage
-})(SelectedRelease);
+export default connect(
+  mapStateToProps,
+  {
+    fetchRelease,
+    fetchXemPrice,
+    playerPause,
+    playerPlay,
+    playTrack,
+    toastMessage
+  }
+)(SelectedRelease);
