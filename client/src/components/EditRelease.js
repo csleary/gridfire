@@ -67,7 +67,7 @@ class EditRelease extends Component {
   }
 
   componentWillUnmount() {
-    if (!this.props.valid) {
+    if (!this.props.valid && !this.props.release.trackList.length) {
       this.props.deleteRelease(this.props.release._id).then(() => {
         this.props.toastMessage({
           alertClass: 'alert-warning',
@@ -125,15 +125,15 @@ class EditRelease extends Component {
     } else {
       const audioFile = accepted[0];
       const releaseId = this.props.release._id;
+      const trackName =
+        this.props.release.trackList[index].trackTitle ||
+        `track ${parseInt(index, 10) + 1}`;
       this.props
         .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
         .then(() => {
           this.props.toastMessage({
             alertClass: 'alert-info',
-            message: `Uploading '${audioFile.name}' for track ${parseInt(
-              index,
-              10
-            ) + 1}.`
+            message: `Uploading file '${audioFile.name}' for '${trackName}'.`
           });
           const { audioUploadUrl } = this.props;
 
@@ -142,7 +142,7 @@ class EditRelease extends Component {
               'Content-Type': audioFile.type
             },
             onUploadProgress: event => {
-              const progress = event.loaded / event.total * 100;
+              const progress = (event.loaded / event.total) * 100;
               this.setState({
                 audioUploading: {
                   ...this.state.audioUploading,
@@ -159,7 +159,7 @@ class EditRelease extends Component {
               this.props.fetchUserRelease(releaseId);
               this.props.toastMessage({
                 alertClass: 'alert-success',
-                message: `Track ${parseInt(index, 10) + 1} uploaded!`
+                message: `Upload complete for '${trackName}'!`
               });
             })
             .catch(error =>
@@ -388,21 +388,24 @@ export default reduxForm({
   validate,
   form: 'releaseForm'
 })(
-  connect(mapStateToProps, {
-    addRelease,
-    addTrack,
-    deleteArtwork,
-    deleteRelease,
-    deleteTrack,
-    fetchAudioUploadUrl,
-    fetchRelease,
-    fetchUserRelease,
-    fetchXemPrice,
-    moveTrack,
-    publishStatus,
-    toastMessage,
-    transcodeAudio,
-    updateRelease,
-    uploadArtwork
-  })(withRouter(EditRelease))
+  connect(
+    mapStateToProps,
+    {
+      addRelease,
+      addTrack,
+      deleteArtwork,
+      deleteRelease,
+      deleteTrack,
+      fetchAudioUploadUrl,
+      fetchRelease,
+      fetchUserRelease,
+      fetchXemPrice,
+      moveTrack,
+      publishStatus,
+      toastMessage,
+      transcodeAudio,
+      updateRelease,
+      uploadArtwork
+    }
+  )(withRouter(EditRelease))
 );
