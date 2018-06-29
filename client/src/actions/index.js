@@ -72,12 +72,12 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   };
 
   const res = await axios.post('/api/upload/artwork', data, config);
-  if (res.error) {
+  if (res.data.error) {
     dispatch({
       type: TOAST_MESSAGE,
       payload: {
         alertClass: 'alert-danger',
-        message: res.error
+        message: res.data.error
       }
     });
   } else {
@@ -114,10 +114,20 @@ export const fetchCatalogue = () => async dispatch => {
 
 export const fetchRelease = releaseId => async dispatch => {
   const res = await axios.get(`/api/release/${releaseId}`);
-  dispatch({
-    type: FETCH_RELEASE,
-    payload: res.data.release
-  });
+  if (res.data.error) {
+    dispatch({
+      type: TOAST_MESSAGE,
+      payload: {
+        alertClass: 'alert-danger',
+        message: res.data.error
+      }
+    });
+  } else {
+    dispatch({
+      type: FETCH_RELEASE,
+      payload: res.data.release
+    });
+  }
 };
 
 export const fetchSales = () => async dispatch => {

@@ -18,6 +18,11 @@ const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
 const upload = multer({ dest: 'tmp/' });
 aws.config.region = 'us-east-1';
+const BUCKET_IMG = 'nemp3-img';
+const BUCKET_SRC =
+  process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-src' : 'nemp3-src-testnet';
+const BUCKET_OPT =
+  process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-opt' : 'nemp3-opt-testnet';
 
 module.exports = app => {
   // Add New Release
@@ -47,13 +52,13 @@ module.exports = app => {
     const s3 = new aws.S3();
     s3.listObjectsV2(
       {
-        Bucket: 'nemp3-img',
+        Bucket: BUCKET_IMG,
         Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
           const deleteArt = await s3.deleteObject({
-            Bucket: 'nemp3-img',
+            Bucket: BUCKET_IMG,
             Key: data.Contents[0].Key
           });
           deleteArt.send();
@@ -82,13 +87,13 @@ module.exports = app => {
     // Delete source audio
     s3.listObjectsV2(
       {
-        Bucket: 'nemp3-src',
+        Bucket: BUCKET_SRC,
         Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
           const deleteAudio = await s3.deleteObjects({
-            Bucket: 'nemp3-src',
+            Bucket: BUCKET_SRC,
             Delete: {
               Objects: data.Contents.map(track => ({
                 Key: track.Key
@@ -103,13 +108,13 @@ module.exports = app => {
     // Delete streaming audio
     s3.listObjectsV2(
       {
-        Bucket: 'nemp3-opt',
+        Bucket: BUCKET_OPT,
         Prefix: `m4a/${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
           const deleteAudio = await s3.deleteObjects({
-            Bucket: 'nemp3-opt',
+            Bucket: BUCKET_OPT,
             Delete: {
               Objects: data.Contents.map(track => ({
                 Key: track.Key
@@ -124,13 +129,13 @@ module.exports = app => {
     // Delete art from S3
     s3.listObjectsV2(
       {
-        Bucket: 'nemp3-img',
+        Bucket: BUCKET_IMG,
         Prefix: `${releaseId}`
       },
       async (err, data) => {
         if (data.Contents.length) {
           const deleteArt = await s3.deleteObject({
-            Bucket: 'nemp3-img',
+            Bucket: BUCKET_IMG,
             Key: data.Contents[0].Key
           });
           deleteArt.send();
@@ -148,14 +153,14 @@ module.exports = app => {
     const s3 = new aws.S3();
     // Delete source audio
     const sourceParams = {
-      Bucket: 'nemp3-src',
+      Bucket: BUCKET_SRC,
       Prefix: `${releaseId}/${trackId}`
     };
 
     s3.listObjectsV2(sourceParams, async (err, data) => {
       if (data.Contents.length) {
         const deleteAudio = await s3.deleteObject({
-          Bucket: 'nemp3-src',
+          Bucket: BUCKET_SRC,
           Key: data.Contents[0].Key
         });
         deleteAudio.send();
@@ -164,14 +169,14 @@ module.exports = app => {
 
     // Delete streaming audio
     const optParams = {
-      Bucket: 'nemp3-opt',
+      Bucket: BUCKET_OPT,
       Prefix: `m4a/${releaseId}/${trackId}`
     };
 
     s3.listObjectsV2(optParams, async (err, data) => {
       if (data.Contents.length) {
         const deleteAudio = await s3.deleteObject({
-          Bucket: 'nemp3-opt',
+          Bucket: BUCKET_OPT,
           Key: data.Contents[0].Key
         });
         deleteAudio.send();
@@ -201,7 +206,7 @@ module.exports = app => {
 
     s3.listObjectsV2(
       {
-        Bucket: 'nemp3-src',
+        Bucket: BUCKET_SRC,
         Prefix: prefix
       },
       async (err, data) => {
@@ -219,7 +224,7 @@ module.exports = app => {
             const ext = track.Key.substring(track.Key.lastIndexOf('.'));
 
             const params = {
-              Bucket: 'nemp3-src',
+              Bucket: BUCKET_SRC,
               Expires: 60 * 5,
               Key: track.Key
             };
@@ -270,11 +275,15 @@ module.exports = app => {
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
     const release = await Release.findOne({ _id: req.params.releaseId });
-    const artist = await User.findOne({ _id: release._user });
-    const paymentInfo = {
-      paymentAddress: nem.utils.format.address(artist.nemAddress)
-    };
-    res.send({ release, paymentInfo });
+    if (!release.published) {
+      res.send({ error: 'Release currently unavailable.' });
+    } else {
+      const artist = await User.findOne({ _id: release._user });
+      const paymentInfo = {
+        paymentAddress: nem.utils.format.address(artist.nemAddress)
+      };
+      res.send({ release, paymentInfo });
+    }
   });
 
   // Fetch Single User Release
@@ -346,7 +355,7 @@ module.exports = app => {
     const s3 = new aws.S3();
     const key = `${releaseId}/${trackId}`;
     const listParams = {
-      Bucket: 'nemp3-src',
+      Bucket: BUCKET_SRC,
       Prefix: key
     };
 
@@ -389,13 +398,13 @@ module.exports = app => {
       const s3 = new aws.S3();
       s3.listObjectsV2(
         {
-          Bucket: 'nemp3-img',
+          Bucket: BUCKET_IMG,
           Prefix: `${releaseId}`
         },
         async (err, data) => {
           if (data.Contents.length) {
             const deleteArt = await s3.deleteObject({
-              Bucket: 'nemp3-img',
+              Bucket: BUCKET_IMG,
               Key: data.Contents[0].Key
             });
             deleteArt.send();
@@ -413,7 +422,7 @@ module.exports = app => {
           const ext = '.jpg';
           const params = {
             ContentType: `${type}`,
-            Bucket: 'nemp3-img',
+            Bucket: BUCKET_IMG,
             Expires: 30,
             Key: `${releaseId}${ext}`
           };
@@ -466,7 +475,7 @@ module.exports = app => {
     const key = `${releaseId}/${trackId}${ext}`;
     const params = {
       ContentType: `${type}`,
-      Bucket: 'nemp3-src',
+      Bucket: BUCKET_SRC,
       Expires: 30,
       Key: key
     };

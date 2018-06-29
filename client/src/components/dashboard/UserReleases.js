@@ -66,8 +66,6 @@ const copiesSold = (releaseId, salesData) => {
   }
 };
 
-// chart line
-
 const UserReleases = props => {
   const renderUserReleases = () => {
     if (props.isLoadingUserReleases) {
@@ -123,14 +121,17 @@ const UserReleases = props => {
             </button>
             <button
               onClick={() =>
-                pleaseConfirm(release.releaseTitle, () =>
+                pleaseConfirm(release.releaseTitle, () => {
+                  const releaseName =
+                    (release.releaseTitle && `'${release.releaseTitle}'`) ||
+                    'Untitled release';
                   props.deleteRelease(release._id).then(
                     props.toastMessage({
                       alertClass: 'alert-success',
-                      message: `'${release.releaseTitle}' deleted.`
+                      message: `${releaseName} deleted.`
                     })
-                  )
-                )
+                  );
+                })
               }
               className="btn btn-outline-danger btn-sm"
             >

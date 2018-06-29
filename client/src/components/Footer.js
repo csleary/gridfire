@@ -7,7 +7,10 @@ const today = new Date();
 const year = today.getFullYear();
 
 const networkLinks = () => {
-  if (process.env.REACT_APP_NEM_NETWORK === 'testnet') {
+  if (
+    process.env.REACT_APP_NEM_NETWORK === 'testnet' ||
+    process.env.NODE_ENV === 'development'
+  ) {
     return <a href="https://nemp3.ochremusic.com/">Mainnet version</a>;
   }
   return <a href="https://nemp3v2-testnet.herokuapp.com/">Testnet version</a>;
