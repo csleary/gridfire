@@ -125,12 +125,13 @@ const UserReleases = props => {
                   const releaseName =
                     (release.releaseTitle && `'${release.releaseTitle}'`) ||
                     'Untitled release';
-                  props.deleteRelease(release._id).then(
+                  props.deleteRelease(release._id, error => {
+                    if (error) return;
                     props.toastMessage({
                       alertClass: 'alert-success',
                       message: `${releaseName} deleted.`
-                    })
-                  );
+                    });
+                  });
                 })
               }
               className="btn btn-outline-danger btn-sm"

@@ -16,7 +16,8 @@ class RenderTrack extends Component {
   }
 
   handleMoveTrack = (swap, id, index, direction) => {
-    this.props.moveTrack(id, index, index + direction, () => {
+    this.props.moveTrack(id, index, index + direction, error => {
+      if (error) return;
       swap(index, index + direction);
     });
   };
@@ -43,7 +44,8 @@ class RenderTrack extends Component {
   handleDrop = (fieldsMove, indexTo) => {
     const releaseId = this.props.release._id;
     const indexFrom = this.state.dragOrigin;
-    this.props.moveTrack(releaseId, indexFrom, indexTo, () => {
+    this.props.moveTrack(releaseId, indexFrom, indexTo, error => {
+      if (error) return;
       fieldsMove(indexFrom, indexTo);
     });
   };

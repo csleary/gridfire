@@ -1,4 +1,4 @@
-import { TOAST_MESSAGE } from '../actions/types';
+import { TOAST_MESSAGE, TOAST_ERROR } from '../actions/types';
 
 const initialState = {
   alertClass: '',
@@ -14,9 +14,13 @@ export default (state = initialState, action) => {
         alertClass: action.payload.alertClass,
         message: action.payload.message
       };
+    case TOAST_ERROR:
+      return {
+        ...state,
+        alertClass: 'alert-danger',
+        message: action.payload.error
+      };
     default:
       return state;
   }
 };
-
-// for now just have one message. In future add to message/alert class array once we've sorted fades.

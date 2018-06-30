@@ -3,8 +3,8 @@ import Dropzone from 'react-dropzone';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 
-const renderDropzoneIcon = (hasAudio, uploadingAudio) => {
-  if (uploadingAudio && uploadingAudio < 100) {
+const renderDropzoneIcon = (hasAudio, audioUploading) => {
+  if (audioUploading && audioUploading < 100) {
     return <FontAwesome name="cog" spin className="icon-left" />;
   } else if (hasAudio) {
     return <FontAwesome name="refresh" className="icon-left" />;
@@ -12,9 +12,9 @@ const renderDropzoneIcon = (hasAudio, uploadingAudio) => {
   return <FontAwesome name="plus-circle" className="icon-left" />;
 };
 
-const renderDropzoneLabel = (hasAudio, uploadingAudio) => {
-  if (uploadingAudio < 100 && uploadingAudio > 0) {
-    return `${uploadingAudio.toString(10).padStart(2, '0')}%`;
+const renderDropzoneLabel = (hasAudio, audioUploading) => {
+  if (audioUploading < 100 && audioUploading > 0) {
+    return `${audioUploading.toString(10).padStart(2, '0')}%`;
   } else if (hasAudio) {
     return 'Replace Audio';
   }
@@ -32,7 +32,7 @@ const RenderTrackField = props => {
     name,
     trackId,
     type,
-    uploadingAudio
+    audioUploading
   } = props;
   const classInvalid = classNames('form-control', {
     invalid: touched && error
@@ -62,8 +62,8 @@ const RenderTrackField = props => {
             props.onDropAudio(accepted, rejected, index, trackId)
           }
         >
-          {renderDropzoneIcon(hasAudio, uploadingAudio)}
-          {renderDropzoneLabel(hasAudio, uploadingAudio)}
+          {renderDropzoneIcon(hasAudio, audioUploading)}
+          {renderDropzoneLabel(hasAudio, audioUploading)}
         </Dropzone>
       </div>
       {error && <div className="invalid-feedback">{touched && error}</div>}
