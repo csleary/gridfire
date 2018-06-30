@@ -68,7 +68,8 @@ class EditRelease extends Component {
 
   componentWillUnmount() {
     if (!this.props.valid && !this.props.release.trackList.length) {
-      this.props.deleteRelease(this.props.release._id).then(() => {
+      this.props.deleteRelease(this.props.release._id, error => {
+        if (error) return;
         this.props.toastMessage({
           alertClass: 'alert-warning',
           message: 'Invalid or incomplete release discarded.'

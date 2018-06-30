@@ -17,6 +17,7 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   TOAST_MESSAGE,
+  TOAST_ERROR,
   UPDATE_RELEASE,
   UPLOAD_ARTWORK,
   UPLOAD_ARTWORK_PROGRESS
@@ -36,19 +37,35 @@ export const addTrack = releaseId => async dispatch => {
   dispatch({ type: ADD_TRACK, payload: res.data });
 };
 
-export const deleteArtwork = releaseId => async dispatch => {
+export const deleteArtwork = (releaseId, callback) => async dispatch => {
   const res = await axios.delete(`/api/artwork/${releaseId}`);
-  dispatch({ type: DELETE_ARTWORK, payload: res.data });
+  if (res.data.error) {
+    dispatch({ type: TOAST_ERROR, payload: res.data });
+    callback(res.data.error);
+  } else {
+    dispatch({ type: DELETE_ARTWORK, payload: res.data });
+    callback();
+  }
 };
 
-export const deleteRelease = releaseId => async dispatch => {
+export const deleteRelease = (releaseId, callback) => async dispatch => {
   const res = await axios.delete(`/api/release/${releaseId}`);
-  dispatch({ type: DELETE_RELEASE, payload: res.data });
+  if (res.data.error) {
+    dispatch({ type: TOAST_ERROR, payload: res.data });
+    callback(res.data.error);
+  } else {
+    dispatch({ type: DELETE_RELEASE, payload: res.data });
+    callback();
+  }
 };
 
 export const deleteTrack = (releaseId, trackId) => async dispatch => {
   const res = await axios.delete(`/api/${releaseId}/${trackId}`);
-  dispatch({ type: DELETE_TRACK, payload: res.data });
+  if (res.data.error) {
+    dispatch({ type: TOAST_ERROR, payload: res.data });
+  } else {
+    dispatch({ type: DELETE_TRACK, payload: res.data });
+  }
 };
 
 export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
@@ -73,13 +90,7 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
 
   const res = await axios.post('/api/upload/artwork', data, config);
   if (res.data.error) {
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-danger',
-        message: res.data.error
-      }
-    });
+    dispatch({ type: TOAST_ERROR, payload: res.data });
   } else {
     dispatch({ type: UPLOAD_ARTWORK, payload: false });
     dispatch({
@@ -98,11 +109,7 @@ export const fetchAudioUploadUrl = (
   type
 ) => async dispatch => {
   const res = await axios.get('/api/upload/audio', {
-    params: {
-      releaseId,
-      trackId,
-      type
-    }
+    params: { releaseId, trackId, type }
   });
   dispatch({ type: FETCH_AUDIO_UPLOAD_URL, payload: res.data });
 };
@@ -115,18 +122,9 @@ export const fetchCatalogue = () => async dispatch => {
 export const fetchRelease = releaseId => async dispatch => {
   const res = await axios.get(`/api/release/${releaseId}`);
   if (res.data.error) {
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-danger',
-        message: res.data.error
-      }
-    });
+    dispatch({ type: TOAST_ERROR, payload: res.data });
   } else {
-    dispatch({
-      type: FETCH_RELEASE,
-      payload: res.data.release
-    });
+    dispatch({ type: FETCH_RELEASE, payload: res.data.release });
   }
 };
 
@@ -190,8 +188,13 @@ export const moveTrack = (
   callback
 ) => async dispatch => {
   const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
-  dispatch({ type: MOVE_TRACK, payload: res.data });
-  callback();
+  if (res.data.error) {
+    dispatch({ type: TOAST_ERROR, payload: res.data });
+    callback(res.data.error);
+  } else {
+    dispatch({ type: MOVE_TRACK, payload: res.data });
+    callback();
+  }
 };
 
 export const passwordUpdate = values => async dispatch => {
@@ -243,7 +246,11 @@ export const playTrack = (
 
 export const publishStatus = releaseId => async dispatch => {
   const res = await axios.patch(`/api/release/${releaseId}`);
-  dispatch({ type: PUBLISH_STATUS, payload: res.data });
+  if (res.data.error) {
+    dispatch({ type: TOAST_ERROR, payload: res.data });
+  } else {
+    dispatch({ type: PUBLISH_STATUS, payload: res.data });
+  }
 };
 
 export const purchaseRelease = releaseId => async dispatch => {
@@ -271,11 +278,8 @@ export const register = (values, callback) => async dispatch => {
     }
   } catch (error) {
     dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-danger',
-        message: `We encountered an error, sorry. (${error})`
-      }
+      type: TOAST_ERROR,
+      payload: { error: `We encountered an error: ${error}` }
     });
   }
 };

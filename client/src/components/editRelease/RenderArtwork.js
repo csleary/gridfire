@@ -27,7 +27,8 @@ const RenderArtwork = props => (
                 if (release.published) {
                   props.publishStatus(release._id);
                 }
-                props.deleteArtwork(release._id).then(() => {
+                props.deleteArtwork(release._id, error => {
+                  if (error) return;
                   if (props.artworkFile) {
                     window.URL.revokeObjectURL(props.artworkFile.preview);
                   }
