@@ -57,7 +57,7 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
 
     if (!userOwnsRelease(req.user, release)) {
-      res.send({ error: 'Not authorised.' });
+      res.status(401).send({ error: 'Not authorised.' });
     } else {
       // Delete from S3
       const s3 = new aws.S3();
@@ -89,7 +89,7 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
 
     if (!userOwnsRelease(req.user, release)) {
-      res.send({ error: 'Not authorised.' });
+      res.status(401).send({ error: 'Not authorised.' });
     } else {
       // Delete from db
       const result = await Release.findByIdAndRemove(releaseId);
@@ -164,7 +164,7 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
 
     if (!userOwnsRelease(req.user, release)) {
-      res.send({ error: 'Not authorised.' });
+      res.status(401).send({ error: 'Not authorised.' });
     } else {
       // Delete from S3
       const s3 = new aws.S3();
@@ -337,7 +337,7 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
 
     if (!userOwnsRelease(req.user, release)) {
-      res.send({ error: 'Not authorised.' });
+      res.status(401).send({ error: 'Not authorised.' });
     } else {
       release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
       release.save();
@@ -372,7 +372,7 @@ module.exports = app => {
     const release = await Release.findById(req.params.releaseId);
 
     if (!userOwnsRelease(req.user, release)) {
-      res.send({ error: 'Not authorised.' });
+      res.status(401).send({ error: 'Not authorised.' });
     } else {
       release.published = !release.published;
       release.save();

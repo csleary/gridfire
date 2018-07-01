@@ -25,7 +25,7 @@ module.exports = app => {
       },
       async (error, response, body) => {
         if (!JSON.parse(body).success) {
-          res.status(500).send(`Error: ${error}`);
+          res.status(500).send({ error: `Error: ${error}` });
         }
 
         const mailOptions = {
@@ -37,9 +37,11 @@ module.exports = app => {
 
         transporter.sendMail(mailOptions, err => {
           if (err) {
-            res.status(500).send(`Error! Could not send message: ${err}`);
+            res
+              .status(500)
+              .send({ error: `Error! Could not send message: ${err}` });
           } else {
-            res.status(200).send('Thanks! Message sent.');
+            res.status(200).send({ message: 'Thanks! Message sent.' });
           }
         });
       }
