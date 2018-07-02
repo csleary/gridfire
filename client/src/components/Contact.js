@@ -9,6 +9,8 @@ const sitekey =
     ? '6LeickAUAAAAAHTCcATYXRsubAk4Hag0tnNTVwwg'
     : '6Lc2cUAUAAAAABRMSdyEIGF9WFccUzzlq7Bi7B5h';
 
+let captcha;
+
 const validate = values => {
   const errors = {};
   if (!values.email) {
@@ -70,6 +72,9 @@ const renderRecaptcha = field => {
     <div className="form-group d-flex flex-wrap justify-content-end py-2">
       <Recaptcha
         onChange={response => input.onChange(response)}
+        ref={el => {
+          captcha = el;
+        }}
         sitekey={sitekey}
       />
       {touched &&
@@ -81,7 +86,7 @@ const renderRecaptcha = field => {
 };
 
 const Contact = props => {
-  const { handleSubmit, invalid, pristine, submitting } = props;
+  const { handleSubmit, invalid, pristine, submitSucceeded } = props;
   return (
     <main className="container">
       <div className="row">
@@ -91,6 +96,7 @@ const Contact = props => {
             onSubmit={handleSubmit(values => {
               props.sendEmail(values, () => {
                 props.reset();
+                captcha.reset();
               });
             })}
           >
@@ -118,7 +124,7 @@ const Contact = props => {
             <div className="d-flex justify-content-end">
               <button
                 className="btn btn-outline-primary mt-3"
-                disabled={invalid || pristine || submitting}
+                disabled={invalid || pristine || submitSucceeded}
                 type="submit"
               >
                 Send Message
@@ -134,4 +140,9 @@ const Contact = props => {
 export default reduxForm({
   form: 'contactForm',
   validate
-})(connect(null, { sendEmail })(Contact));
+})(
+  connect(
+    null,
+    { sendEmail }
+  )(Contact)
+);

@@ -32,7 +32,7 @@ module.exports = app => {
   });
 
   app.get('/auth/failure', (req, res) => {
-    res.send({ error: req.flash('error')[0] });
+    res.status(401).send({ error: req.flash('error')[0] });
   });
 
   app.get(

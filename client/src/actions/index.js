@@ -38,33 +38,33 @@ export const addTrack = releaseId => async dispatch => {
 };
 
 export const deleteArtwork = (releaseId, callback) => async dispatch => {
-  const res = await axios.delete(`/api/artwork/${releaseId}`);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-    callback(res.data.error);
-  } else {
+  try {
+    const res = await axios.delete(`/api/artwork/${releaseId}`);
     dispatch({ type: DELETE_ARTWORK, payload: res.data });
     callback();
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    callback(e.response.data.error);
   }
 };
 
 export const deleteRelease = (releaseId, callback) => async dispatch => {
-  const res = await axios.delete(`/api/release/${releaseId}`);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-    callback(res.data.error);
-  } else {
+  try {
+    const res = await axios.delete(`/api/release/${releaseId}`);
     dispatch({ type: DELETE_RELEASE, payload: res.data });
     callback();
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    callback(e.response.data.error);
   }
 };
 
 export const deleteTrack = (releaseId, trackId) => async dispatch => {
-  const res = await axios.delete(`/api/${releaseId}/${trackId}`);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-  } else {
+  try {
+    const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
@@ -88,10 +88,8 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
     }
   };
 
-  const res = await axios.post('/api/upload/artwork', data, config);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-  } else {
+  try {
+    await axios.post('/api/upload/artwork', data, config);
     dispatch({ type: UPLOAD_ARTWORK, payload: false });
     dispatch({
       type: TOAST_MESSAGE,
@@ -100,6 +98,8 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
         message: 'Artwork uploaded.'
       }
     });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
@@ -120,11 +120,11 @@ export const fetchCatalogue = () => async dispatch => {
 };
 
 export const fetchRelease = releaseId => async dispatch => {
-  const res = await axios.get(`/api/release/${releaseId}`);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-  } else {
+  try {
+    const res = await axios.get(`/api/release/${releaseId}`);
     dispatch({ type: FETCH_RELEASE, payload: res.data.release });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
@@ -158,26 +158,17 @@ export const fetchUserReleases = () => async dispatch => {
 export const login = (values, callback) => async dispatch => {
   try {
     const res = await axios.post('/auth/login', values);
-    const { success, error } = res.data;
-    if (success || error) {
-      success && dispatch(fetchUser());
-      dispatch({
-        type: TOAST_MESSAGE,
-        payload: {
-          alertClass: success ? 'alert-success' : 'alert-danger',
-          message: success || error
-        }
-      });
-      callback();
-    }
-  } catch (error) {
+    dispatch(fetchUser());
     dispatch({
       type: TOAST_MESSAGE,
       payload: {
-        alertClass: 'alert-danger',
-        message: `Username either not found, or password incorrect. (${error})`
+        alertClass: 'alert-success',
+        message: res.data.success
       }
     });
+    callback();
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
@@ -187,37 +178,28 @@ export const moveTrack = (
   toIndex,
   callback
 ) => async dispatch => {
-  const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-    callback(res.data.error);
-  } else {
+  try {
+    const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
     dispatch({ type: MOVE_TRACK, payload: res.data });
     callback();
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    callback(e.response.data.error);
   }
 };
 
 export const passwordUpdate = values => async dispatch => {
   try {
     const res = await axios.post('/auth/update', values);
-    const { success, error } = res.data;
-    if (success || error) {
-      dispatch({
-        type: TOAST_MESSAGE,
-        payload: {
-          alertClass: success ? 'alert-success' : 'alert-danger',
-          message: success || error
-        }
-      });
-    }
-  } catch (error) {
     dispatch({
       type: TOAST_MESSAGE,
       payload: {
-        alertClass: 'alert-danger',
-        message: `Sorry, the password update failed. (${error})`
+        alertClass: 'alert-success',
+        message: res.data.success
       }
     });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
@@ -245,11 +227,11 @@ export const playTrack = (
 };
 
 export const publishStatus = releaseId => async dispatch => {
-  const res = await axios.patch(`/api/release/${releaseId}`);
-  if (res.data.error) {
-    dispatch({ type: TOAST_ERROR, payload: res.data });
-  } else {
+  try {
+    const res = await axios.patch(`/api/release/${releaseId}`);
     dispatch({ type: PUBLISH_STATUS, payload: res.data });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
@@ -264,23 +246,17 @@ export const purchaseRelease = releaseId => async dispatch => {
 export const register = (values, callback) => async dispatch => {
   try {
     const res = await axios.post('/auth/register', values);
-    const { success, error } = res.data;
-    if (success || error) {
-      success && dispatch(fetchUser());
-      dispatch({
-        type: TOAST_MESSAGE,
-        payload: {
-          alertClass: success ? 'alert-success' : 'alert-danger',
-          message: success || error
-        }
-      });
-      callback();
-    }
-  } catch (error) {
+    dispatch(fetchUser());
     dispatch({
-      type: TOAST_ERROR,
-      payload: { error: `We encountered an error: ${error}` }
+      type: TOAST_MESSAGE,
+      payload: {
+        alertClass: 'alert-success',
+        message: res.data.success
+      }
     });
+    callback();
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
