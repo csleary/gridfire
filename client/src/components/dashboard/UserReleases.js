@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
@@ -39,15 +39,15 @@ const pleaseConfirm = (title, callback) => {
 const renderTitle = release => {
   if (release.artistName) {
     return (
-      <h6>
+      <Fragment>
         {release.artistName} &bull;{' '}
         <Link to={`/release/${release._id}`}>
           <span className="ibm-type-italic">{release.releaseTitle}</span>
         </Link>
-      </h6>
+      </Fragment>
     );
   }
-  return <h6>Untitled Release</h6>;
+  return <Fragment>Untitled Release</Fragment>;
 };
 
 const copiesSold = (releaseId, salesData) => {
@@ -73,7 +73,7 @@ const UserReleases = props => {
     }
     return props.userReleases.map(release => (
       <li
-        className={`row no-gutters release ${
+        className={`no-gutters d-flex flex-column release ${
           release.published ? 'published' : 'unpublished'
         }`}
         key={release._id}
@@ -87,9 +87,9 @@ const UserReleases = props => {
             />
           </Link>
         </div>
-        <div className="col d-flex flex-column">
+        <div className="d-flex flex-column flex-grow-1">
           <div>
-            {renderTitle(release)}
+            <h6>{renderTitle(release)}</h6>
             <h6>
               <FontAwesome name="tag" className="icon-left red" />
               ${release.price} USD
@@ -104,17 +104,17 @@ const UserReleases = props => {
             </h6>
             {copiesSold(release._id, props.salesData)}
           </div>
-          <div className="d-flex align-items-end ml-auto mt-auto">
+          <div className="d-flex mt-auto">
             <button
               onClick={() => props.history.push(`/release/edit/${release._id}`)}
-              className="btn btn-outline-primary btn-sm"
+              className="btn btn-outline-primary btn-sm flex-grow-1"
             >
               <FontAwesome name="pencil" className="icon-left" />
               Edit
             </button>
             <button
               onClick={() => handlePublishStatus(props, release)}
-              className="btn btn-outline-warning btn-sm"
+              className="btn btn-outline-warning btn-sm flex-grow-1"
             >
               <FontAwesome name="eye-slash" className="icon-left" />
               {release.published ? 'Unpublish' : 'Publish'}
@@ -134,7 +134,7 @@ const UserReleases = props => {
                   });
                 })
               }
-              className="btn btn-outline-danger btn-sm"
+              className="btn btn-outline-danger btn-sm flex-grow-1"
             >
               <FontAwesome name="trash" className="icon-left" />
               Delete

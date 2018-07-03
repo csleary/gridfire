@@ -423,7 +423,7 @@ module.exports = app => {
     upload.single('artwork'),
     requireLogin,
     async (req, res) => {
-      const { releaseId, type } = req.body;
+      const { releaseId } = req.body;
 
       // If replacing, delete from S3
       const s3 = new aws.S3();
@@ -451,6 +451,7 @@ module.exports = app => {
         .then(async optimised => {
           // Upload new artwork
           const ext = '.jpg';
+          const type = 'image/jpeg';
           const params = {
             ContentType: `${type}`,
             Bucket: BUCKET_IMG,
@@ -493,7 +494,6 @@ module.exports = app => {
   app.get('/api/upload/audio', requireLogin, async (req, res) => {
     const { releaseId, trackId, type } = req.query;
     const release = await Release.findById(releaseId);
-    // const trackId = release.trackList[index]._id;
 
     let ext;
     if (type === 'audio/wav') {
