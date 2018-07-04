@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
@@ -9,6 +9,7 @@ import {
   publishStatus,
   toastMessage
 } from '../actions';
+import Collection from './dashboard/Collection';
 import NemAddress from './dashboard/NemAddress';
 import PasswordUpdate from './dashboard/PasswordUpdate';
 import UserReleases from './dashboard/UserReleases';
@@ -38,12 +39,17 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <div>
+      <Fragment>
         <nav className="navbar navbar-expand-lg sub-menu">
           <ul className="navbar-nav mx-auto">
             <li className="nav-item">
               <NavLink exact to={'/dashboard'} className="nav-link">
                 Releases
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink exact to={'/dashboard/collection'} className="nav-link">
+                My Collection
               </NavLink>
             </li>
             <li className="nav-item">
@@ -55,6 +61,7 @@ class Dashboard extends Component {
           </ul>
         </nav>
         <Switch>
+          <Route path="/dashboard/collection" component={Collection} />
           <Route path="/dashboard/nem-address" component={NemAddress} />
           <Route path="/dashboard/password-update" component={PasswordUpdate} />
           <Route
@@ -72,7 +79,7 @@ class Dashboard extends Component {
             )}
           />
         </Switch>
-      </div>
+      </Fragment>
     );
   }
 }
@@ -89,11 +96,14 @@ function mapStateToProps(state) {
 export default reduxForm({
   form: 'DashboardForm'
 })(
-  connect(mapStateToProps, {
-    deleteRelease,
-    fetchSales,
-    fetchUserReleases,
-    publishStatus,
-    toastMessage
-  })(withRouter(Dashboard))
+  connect(
+    mapStateToProps,
+    {
+      deleteRelease,
+      fetchSales,
+      fetchUserReleases,
+      publishStatus,
+      toastMessage
+    }
+  )(withRouter(Dashboard))
 );
