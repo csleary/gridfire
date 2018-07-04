@@ -7,6 +7,7 @@ import '../../style/transactionsList.css';
 
 const TransactionsList = props => {
   const {
+    artistName,
     downloadToken,
     handleFetchIncomingTxs,
     isLoadingTxs,
@@ -16,6 +17,7 @@ const TransactionsList = props => {
     price,
     releaseTitle,
     roundUp,
+    toastMessage,
     transactions
   } = props;
 
@@ -27,6 +29,10 @@ const TransactionsList = props => {
           className="btn btn-outline-primary btn-lg download-button"
           download
           onClick={() => {
+            toastMessage({
+              alertClass: 'alert-info',
+              message: `Fetching download: ${artistName} - '${releaseTitle}'`
+            });
             window.location = `/api/download/${downloadToken}`;
           }}
         >

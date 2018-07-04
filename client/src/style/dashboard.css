@@ -74,9 +74,7 @@ a.btn.add-release {
 
 .user-releases .artwork {
   background: hsla(233, 10%, 10%, 1);
-  display: inline-block;
   margin-bottom: 0.5rem;
-  height: auto;
   width: 100%;
 }
 
