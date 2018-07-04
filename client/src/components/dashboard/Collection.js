@@ -106,6 +106,22 @@ class Collection extends Component {
       );
     }
 
+    if (!this.props.collection.length) {
+      return (
+        <main className="container">
+          <div className="row">
+            <div className="col">
+              <h3>The shelves are bare!</h3>
+              <p>
+                Once you&rsquo;ve purchased a release it will be added here,
+                where you&rsquo;ll have easy access to your downloads.
+              </p>
+            </div>
+          </div>
+        </main>
+      );
+    }
+
     return (
       <main className="container-fluid">
         <div className="row">

@@ -284,14 +284,11 @@ module.exports = app => {
 
   // Fetch Collection
   app.get('/api/collection/', requireLogin, async (req, res) => {
-    // console.log(req.user.purchases);
     const { purchases } = req.user;
-    const collection = purchases.map(release => release.releaseId);
-
-    const releases = await Release.find({ _id: { $in: collection } }).sort(
+    const releaseIds = purchases.map(release => release.releaseId);
+    const releases = await Release.find({ _id: { $in: releaseIds } }).sort(
       '-releaseDate'
     );
-
     res.send(releases);
   });
 
@@ -346,10 +343,8 @@ module.exports = app => {
   // Fetch Release Sales Figures
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ _user: req.user.id });
-    const data = await Promise.all(
-      releases.map(async release => Sale.find({ releaseId: release._id }))
-    );
-    const sales = data.reduce((acc, val) => acc.concat(val), []);
+    const releaseIds = releases.map(release => release._id);
+    const sales = await Sale.find({ releaseId: { $in: releaseIds } });
     res.send(sales);
   });
 

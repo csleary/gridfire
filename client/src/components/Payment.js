@@ -129,6 +129,7 @@ class Payment extends Component {
             )}
             {paymentInfo}
             <TransactionsList
+              artistName={release.artistName}
               downloadToken={downloadToken}
               handleFetchIncomingTxs={this.handleFetchIncomingTxs}
               isLoadingTxs={isLoadingTxs}

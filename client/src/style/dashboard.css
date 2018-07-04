@@ -67,6 +67,10 @@ a.btn.add-release {
   border-left: 4px solid #ff5349;
 }
 
+.user-releases .release-details {
+  margin-bottom: 1rem;
+}
+
 .user-releases .release-price {
   margin: 0 0.5rem;
   vertical-align: text-top;
@@ -74,9 +78,7 @@ a.btn.add-release {
 
 .user-releases .artwork {
   background: hsla(233, 10%, 10%, 1);
-  display: inline-block;
   margin-bottom: 0.5rem;
-  height: auto;
   width: 100%;
 }
 

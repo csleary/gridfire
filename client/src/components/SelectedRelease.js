@@ -18,7 +18,8 @@ class SelectedRelease extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isLoading: true,
+      inCollection: false
     };
   }
 
@@ -31,6 +32,12 @@ class SelectedRelease extends Component {
       } else {
         this.setState({ isLoading: false });
       }
+
+      const { purchases } = this.props.user;
+      const inCollection = purchases.some(
+        release => releaseId === release.releaseId
+      );
+      if (inCollection) this.setState({ inCollection: true });
     });
   }
 
@@ -78,13 +85,6 @@ class SelectedRelease extends Component {
       );
       this.nowPlayingToast(trackList[0].trackTitle);
     }
-  }
-
-  hasPreviouslyPurchased() {
-    const releaseId = this.props.release._id;
-    return this.props.user.purchases.some(
-      purchase => releaseId === purchase.releaseId
-    );
   }
 
   renderTrackList = () =>
@@ -170,6 +170,15 @@ class SelectedRelease extends Component {
           <div className="col-md-6 release-info">
             <h2 className="release-title text-center ibm-type-italic">
               {releaseTitle}
+              {this.state.inCollection && (
+                <Link to={'/dashboard/collection'}>
+                  <FontAwesome
+                    className="in-collection icon-right yellow"
+                    name="certificate"
+                    title="This release is in your collection."
+                  />
+                </Link>
+              )}
             </h2>
             <h4 className="artist-name text-center">{artistName}</h4>
             <h6 className="release-price text-center">
@@ -187,7 +196,7 @@ class SelectedRelease extends Component {
                 to={`/payment/${this.props.release._id}`}
                 className="btn btn-outline-primary buy-button"
               >
-                {this.hasPreviouslyPurchased() ? 'Transactions' : 'Purchase'}
+                {this.state.inCollection ? 'Transactions' : 'Purchase'}
               </Link>
             </div>
             <h6>
