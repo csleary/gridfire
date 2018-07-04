@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
@@ -103,6 +103,22 @@ class Collection extends Component {
         <Spinner>
           <h2>Loading collection&hellip;</h2>
         </Spinner>
+      );
+    }
+
+    if (!this.props.collection.length) {
+      return (
+        <main className="container">
+          <div className="row">
+            <div className="col">
+              <h3>The shelves are bare!</h3>
+              <p>
+                Once you&rsquo;ve purchased a release it will be added here,
+                where you&rsquo;ll have easy access to your downloads.
+              </p>
+            </div>
+          </div>
+        </main>
       );
     }
 
