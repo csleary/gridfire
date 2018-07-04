@@ -85,6 +85,11 @@
   margin-bottom: 0.5rem;
 }
 
+.release-info .in-collection {
+  font-size: 1rem;
+  vertical-align: top;
+}
+
 .release-info .release-price {
   display: flex;
   align-items: center;

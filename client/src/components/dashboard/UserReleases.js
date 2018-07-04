@@ -60,7 +60,12 @@ const copiesSold = (releaseId, salesData) => {
   if (numSold) {
     return (
       <h6>
-        <span className="red">Sold:</span> {numSold}
+        <FontAwesome
+          name="line-chart"
+          className="icon-left red"
+          title="Number of copies sold."
+        />
+        {numSold}
       </h6>
     );
   }
@@ -85,7 +90,7 @@ const UserReleases = props => {
           </Link>
         </div>
         <div className="d-flex flex-column flex-grow-1">
-          <div>
+          <div className="release-details">
             <h6>{renderTitle(release)}</h6>
             <h6>
               <FontAwesome name="tag" className="icon-left red" />
