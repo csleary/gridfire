@@ -282,12 +282,48 @@ module.exports = app => {
     );
   });
 
+  // Fetch Collection
+  app.get('/api/collection/', requireLogin, async (req, res) => {
+    // console.log(req.user.purchases);
+    const { purchases } = req.user;
+    const collection = purchases.map(release => release.releaseId);
+
+    const releases = await Release.find({ _id: { $in: collection } }).sort(
+      '-releaseDate'
+    );
+
+    res.send(releases);
+  });
+
   // Fetch Catalogue
   app.get('/api/catalogue', async (req, res) => {
     const releases = await Release.find({ published: true })
       .limit(30)
       .sort('-releaseDate');
     res.send(releases);
+  });
+
+  // Fetch Download token
+  app.post('/api/download', requireLogin, async (req, res) => {
+    const { releaseId } = req.body;
+    const user = await User.findById(req.user._id);
+    const hasPreviouslyPurchased = user.purchases.some(
+      purchase => releaseId === purchase.releaseId
+    );
+
+    if (hasPreviouslyPurchased) {
+      const token = jwt.sign(
+        {
+          releaseId,
+          expiresIn: '10m'
+        },
+        keys.nemp3Secret
+      );
+      res.append('Authorization', `Bearer ${token}`);
+      res.send({ success: 'Success.' });
+    } else {
+      res.status(401).send({ error: 'Not authorised.' });
+    }
   });
 
   // Fetch Release
@@ -307,12 +343,6 @@ module.exports = app => {
     }
   });
 
-  // Fetch Single User Release
-  app.get('/api/user/release/:releaseId', requireLogin, async (req, res) => {
-    const release = await Release.findById(req.params.releaseId);
-    res.send(release);
-  });
-
   // Fetch Release Sales Figures
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ _user: req.user.id });
@@ -321,6 +351,12 @@ module.exports = app => {
     );
     const sales = data.reduce((acc, val) => acc.concat(val), []);
     res.send(sales);
+  });
+
+  // Fetch Single User Release
+  app.get('/api/user/release/:releaseId', requireLogin, async (req, res) => {
+    const release = await Release.findById(req.params.releaseId);
+    res.send(release);
   });
 
   // Fetch User Releases

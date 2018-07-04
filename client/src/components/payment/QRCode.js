@@ -3,7 +3,7 @@ import QRCode from 'qrcode.react';
 import '../../style/qrcode.css';
 
 const QrCode = props => {
-  const v = process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? 2 : 1;
+  const v = process.env.REACT_APP_NEM_NETWORK === 'testnet' ? 1 : 2;
   const paymentData = {
     v,
     type: 2,

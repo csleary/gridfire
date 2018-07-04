@@ -67,60 +67,56 @@ const copiesSold = (releaseId, salesData) => {
 };
 
 const UserReleases = props => {
-  const renderUserReleases = () => {
-    if (props.isLoadingUserReleases) {
-      return <Spinner />;
-    }
-    return props.userReleases.map(release => (
-      <li
-        className={`no-gutters d-flex flex-column release ${
+  const renderUserReleases = () => props.userReleases.map(release => (
+    <li
+      className={`no-gutters d-flex flex-column release ${
           release.published ? 'published' : 'unpublished'
         }`}
-        key={release._id}
-      >
-        <div className="artwork">
-          <Link to={`/release/${release._id}`}>
-            <img
-              className="lazyload img-fluid"
-              data-src={release.artwork ? release.artwork : null}
-              alt={release.artwork && `'${release.releaseTitle}' Artwork`}
-            />
-          </Link>
-        </div>
-        <div className="d-flex flex-column flex-grow-1">
-          <div>
-            <h6>{renderTitle(release)}</h6>
-            <h6>
-              <FontAwesome name="tag" className="icon-left red" />
+      key={release._id}
+    >
+      <div className="artwork">
+        <Link to={`/release/${release._id}`}>
+          <img
+            className="lazyload img-fluid"
+            data-src={release.artwork ? release.artwork : null}
+            alt={release.artwork && `'${release.releaseTitle}' Artwork`}
+          />
+        </Link>
+      </div>
+      <div className="d-flex flex-column flex-grow-1">
+        <div>
+          <h6>{renderTitle(release)}</h6>
+          <h6>
+            <FontAwesome name="tag" className="icon-left red" />
               ${release.price} USD
             </h6>
-            <h6>
-              <FontAwesome name="calendar-o" className="icon-left red" />
-              {moment(new Date(release.releaseDate)).format('Do of MMM, YYYY')}
+          <h6>
+            <FontAwesome name="calendar-o" className="icon-left red" />
+            {moment(new Date(release.releaseDate)).format('Do of MMM, YYYY')}
+          </h6>
+          <h6>
+            <FontAwesome name="file-audio-o" className="icon-left red" />
+            {release.trackList.length} Tracks
             </h6>
-            <h6>
-              <FontAwesome name="file-audio-o" className="icon-left red" />
-              {release.trackList.length} Tracks
-            </h6>
-            {copiesSold(release._id, props.salesData)}
-          </div>
-          <div className="d-flex mt-auto">
-            <button
-              onClick={() => props.history.push(`/release/edit/${release._id}`)}
-              className="btn btn-outline-primary btn-sm flex-grow-1"
-            >
-              <FontAwesome name="pencil" className="icon-left" />
+          {copiesSold(release._id, props.salesData)}
+        </div>
+        <div className="d-flex mt-auto">
+          <button
+            onClick={() => props.history.push(`/release/edit/${release._id}`)}
+            className="btn btn-outline-primary btn-sm flex-grow-1"
+          >
+            <FontAwesome name="pencil" className="icon-left" />
               Edit
             </button>
-            <button
-              onClick={() => handlePublishStatus(props, release)}
-              className="btn btn-outline-warning btn-sm flex-grow-1"
-            >
-              <FontAwesome name="eye-slash" className="icon-left" />
-              {release.published ? 'Unpublish' : 'Publish'}
-            </button>
-            <button
-              onClick={() =>
+          <button
+            onClick={() => handlePublishStatus(props, release)}
+            className="btn btn-outline-warning btn-sm flex-grow-1"
+          >
+            <FontAwesome name="eye-slash" className="icon-left" />
+            {release.published ? 'Unpublish' : 'Publish'}
+          </button>
+          <button
+            onClick={() =>
                 pleaseConfirm(release.releaseTitle, () => {
                   const releaseName =
                     (release.releaseTitle && `'${release.releaseTitle}'`) ||
@@ -134,16 +130,19 @@ const UserReleases = props => {
                   });
                 })
               }
-              className="btn btn-outline-danger btn-sm flex-grow-1"
-            >
-              <FontAwesome name="trash" className="icon-left" />
+            className="btn btn-outline-danger btn-sm flex-grow-1"
+          >
+            <FontAwesome name="trash" className="icon-left" />
               Delete
             </button>
-          </div>
         </div>
-      </li>
+      </div>
+    </li>
     ));
-  };
+
+  if (props.isLoadingUserReleases) {
+    return <Spinner />;
+  }
 
   return (
     <main className="container-fluid">

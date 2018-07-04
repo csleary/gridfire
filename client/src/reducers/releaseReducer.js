@@ -6,6 +6,7 @@ import {
   DELETE_TRACK,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
+  FETCH_COLLECTION,
   FETCH_RELEASE,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
@@ -22,6 +23,7 @@ const initialState = {
   artworkUploadProgress: 0,
   isLoading: false,
   catalogue: [],
+  collection: [],
   paymentAddress: '',
   priceInXem: '',
   selectedRelease: false,
@@ -62,6 +64,11 @@ export default (state = initialState, action) => {
       return {
         ...state,
         catalogue: payload
+      };
+    case FETCH_COLLECTION:
+      return {
+        ...state,
+        collection: payload
       };
     case FETCH_USER_RELEASES:
       return {

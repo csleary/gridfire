@@ -80,6 +80,13 @@ class SelectedRelease extends Component {
     }
   }
 
+  hasPreviouslyPurchased() {
+    const releaseId = this.props.release._id;
+    return this.props.user.purchases.some(
+      purchase => releaseId === purchase.releaseId
+    );
+  }
+
   renderTrackList = () =>
     this.props.release.trackList.map(track => {
       const nowPlaying = () => {
@@ -180,7 +187,7 @@ class SelectedRelease extends Component {
                 to={`/payment/${this.props.release._id}`}
                 className="btn btn-outline-primary buy-button"
               >
-                Purchase
+                {this.hasPreviouslyPurchased() ? 'Transactions' : 'Purchase'}
               </Link>
             </div>
             <h6>
@@ -220,6 +227,7 @@ function mapStateToProps(state) {
   return {
     player: state.player,
     release: state.releases.selectedRelease,
+    user: state.user,
     xemPriceUsd: state.nem.xemPriceUsd
   };
 }

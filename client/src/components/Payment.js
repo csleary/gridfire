@@ -63,6 +63,7 @@ class Payment extends Component {
       transactions
     } = this.props;
     const { artistName, releaseTitle } = release;
+    const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
     const manualPaymentButton = (
@@ -76,11 +77,12 @@ class Payment extends Component {
       </div>
     );
 
-    const paymentInfo = this.state.showPaymentInfo ? (
+    const paymentInfo = showPaymentInfo ? (
       <ManualPayment
         paymentAddress={paymentAddress}
         paymentHash={paymentHash}
         priceInXem={priceInXem}
+        handleShowPaymentInfo={this.handleShowPaymentInfo}
       />
     ) : (
       manualPaymentButton
@@ -103,20 +105,22 @@ class Payment extends Component {
               {artistName} &bull;{' '}
               <span className="ibm-type-italic">{releaseTitle}</span>
             </h3>
-            <p>
-              Please scan the QR code below with the NEM Wallet app to make your
-              payment. If you&rsquo;re on a mobile device, or otherwise cannot
-              scan the QR code, you can also{' '}
-              <a
-                onClick={this.handleShowPaymentInfo}
-                role="button"
-                style={{ cursor: 'pointer' }}
-                tabIndex="-1"
-              >
-                pay manually
-              </a>.
-            </p>
-            {!this.state.showPaymentInfo && (
+            {!showPaymentInfo && (
+              <p>
+                Please scan the QR code below with the NEM Wallet app to make
+                your payment. If you&rsquo;re on a mobile device, or otherwise
+                cannot scan the QR code, you can also{' '}
+                <a
+                  onClick={this.handleShowPaymentInfo}
+                  role="button"
+                  style={{ cursor: 'pointer' }}
+                  tabIndex="-1"
+                >
+                  pay manually
+                </a>.
+              </p>
+            )}
+            {!showPaymentInfo && (
               <QRCode
                 paymentAddress={paymentAddress.replace(/-/g, '')}
                 price={priceInXem}
@@ -160,4 +164,7 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, actions)(Payment);
+export default connect(
+  mapStateToProps,
+  actions
+)(Payment);

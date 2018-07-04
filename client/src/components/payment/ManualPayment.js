@@ -3,13 +3,25 @@ import FontAwesome from 'react-fontawesome';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
 
 const ManualPayment = props => {
-  const { paymentAddress, paymentHash, priceInXem } = props;
+  const {
+    paymentAddress,
+    paymentHash,
+    priceInXem,
+    handleShowPaymentInfo
+  } = props;
   return (
     <div className="manual-payment">
       <h3 className="text-center">Manual Payment</h3>
       <p>
-        If you can&rsquo;t scan a QR code, you can still make a payment manually
-        as follows:
+        If you can&rsquo;t{' '}
+        <a
+          onClick={() => handleShowPaymentInfo()}
+          role="button"
+          style={{ cursor: 'pointer' }}
+          tabIndex="-1"
+        >
+          scan a QR code
+        </a>, you can still make a payment manually as follows:
       </p>
       <h4>1. Enter Your Payment ID as Message</h4>
       <p>

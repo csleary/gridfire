@@ -7,6 +7,8 @@ import {
   DELETE_TRACK,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
+  FETCH_COLLECTION,
+  FETCH_DOWNLOAD_TOKEN,
   FETCH_RELEASE,
   FETCH_SALES,
   FETCH_USER,
@@ -117,6 +119,26 @@ export const fetchAudioUploadUrl = (
 export const fetchCatalogue = () => async dispatch => {
   const res = await axios.get('/api/catalogue');
   dispatch({ type: FETCH_CATALOGUE, payload: res.data });
+  return res;
+};
+
+export const fetchCollection = () => async dispatch => {
+  try {
+    const res = await axios.get('/api/collection/');
+    dispatch({ type: FETCH_COLLECTION, payload: res.data });
+    return res;
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
+};
+
+export const fetchDownloadToken = (releaseId, callback) => async dispatch => {
+  try {
+    const res = await axios.post('/api/download', { releaseId });
+    callback(res.headers.authorization);
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
 };
 
 export const fetchRelease = releaseId => async dispatch => {
