@@ -40,11 +40,11 @@ const ManualPayment = props => {
         text={paymentHash}
         placeholder="Please log in to see your payment ID"
       />
-      <h4>2. Enter the Address and Payment Amount</h4>
+      <h4>2. Enter the Address and Payment Amount ({priceInXem} XEM)</h4>
       <p>
         With your payment ID safely pasted into the message field, all
         that&rsquo;s left is to enter the payment amount of{' '}
-        <span className="bold-red">{priceInXem} XEM</span>, and copy-paste the
+        <span className="bold red">{priceInXem} XEM</span>, and copy-paste the
         payment address:
       </p>
       <ReadOnlyTextarea
