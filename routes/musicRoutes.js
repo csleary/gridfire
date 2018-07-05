@@ -285,7 +285,7 @@ module.exports = app => {
   // Fetch Collection
   app.get('/api/collection/', requireLogin, async (req, res) => {
     const { purchases } = req.user;
-    const releaseIds = purchases.map(release => release.releaseId);
+    const releaseIds = purchases.map(release => release._release);
     const releases = await Release.find({ _id: { $in: releaseIds } }).sort(
       '-releaseDate'
     );
@@ -315,7 +315,7 @@ module.exports = app => {
     const { releaseId } = req.body;
     const user = await User.findById(req.user._id);
     const hasPreviouslyPurchased = user.purchases.some(
-      purchase => releaseId === purchase.releaseId
+      purchase => releaseId === purchase._release.toString()
     );
 
     if (hasPreviouslyPurchased) {
@@ -354,7 +354,7 @@ module.exports = app => {
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ _user: req.user.id });
     const releaseIds = releases.map(release => release._id);
-    const sales = await Sale.find({ releaseId: { $in: releaseIds } });
+    const sales = await Sale.find({ _release: { $in: releaseIds } });
     res.send(sales);
   });
 

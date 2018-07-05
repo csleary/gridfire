@@ -18,7 +18,7 @@ module.exports = app => {
     const artist = await User.findById(release._user);
     const paymentAddress = artist.nemAddress;
     const hasPreviouslyPurchased = user.purchases.some(
-      purchase => releaseId === purchase.releaseId
+      purchase => releaseId === purchase._release.toString()
     );
 
     const transactions = await fetchIncomingTransactions(
@@ -33,7 +33,7 @@ module.exports = app => {
       if (!hasPreviouslyPurchased) {
         user.purchases.push({
           purchaseDate: Date.now(),
-          releaseId
+          _release: releaseId
         });
         user.save();
 
@@ -41,12 +41,12 @@ module.exports = app => {
         const date = new Date(Date.now());
 
         const statExists = await Sale.findOne({
-          releaseId,
+          _release: releaseId,
           'purchases.date': date.toISOString().split('T')[0]
         });
 
         const query = {
-          releaseId
+          _release: releaseId
         };
         const update = {
           $addToSet: { purchases: { date: date.toISOString().split('T')[0] } }
@@ -55,7 +55,7 @@ module.exports = app => {
 
         const incrementSale = () => {
           const queryInc = {
-            releaseId,
+            _release: releaseId,
             'purchases.date': date.toISOString().split('T')[0]
           };
           const updateInc = { $inc: { 'purchases.$.numSold': 1 } };

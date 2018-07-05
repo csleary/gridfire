@@ -34,9 +34,8 @@ class SelectedRelease extends Component {
       }
 
       const { purchases } = this.props.user;
-      const inCollection = purchases.some(
-        release => releaseId === release.releaseId
-      );
+      const inCollection =
+        purchases && purchases.some(release => releaseId === release._release);
       if (inCollection) this.setState({ inCollection: true });
     });
   }
