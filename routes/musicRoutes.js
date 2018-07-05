@@ -292,6 +292,16 @@ module.exports = app => {
     res.send(releases);
   });
 
+  // Fetch Artist Catalogue
+  app.get('/api/catalogue/:artistId', async (req, res) => {
+    const { artistId } = req.params;
+    const releases = await Release.find({
+      _user: artistId,
+      published: true
+    }).sort('-releaseDate');
+    res.send(releases);
+  });
+
   // Fetch Catalogue
   app.get('/api/catalogue', async (req, res) => {
     const releases = await Release.find({ published: true })

@@ -4,6 +4,7 @@ import {
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
+  FETCH_ARTIST_CATALOGUE,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
@@ -55,6 +56,11 @@ export default (state = initialState, action) => {
         };
       }
       return { ...state };
+    case FETCH_ARTIST_CATALOGUE:
+      return {
+        ...state,
+        catalogue: payload
+      };
     case FETCH_AUDIO_UPLOAD_URL:
       return {
         ...state,

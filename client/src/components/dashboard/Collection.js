@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import FontAwesome from 'react-fontawesome';
+import RenderRelease from '../RenderRelease';
 import Spinner from '../Spinner';
 import {
   fetchCollection,
@@ -31,73 +30,20 @@ class Collection extends Component {
     this.setState({ isLoading: true });
   }
 
-  renderReleases() {
-    const { collection } = this.props;
-
-    return collection.map(release => (
-      <div className="cover-artwork" key={release._id} onTouchStart={() => {}}>
-        <img
-          alt={`${release.artistName} - ${release.releaseTitle}`}
-          className="lazyload artwork"
-          data-src={release.artwork ? release.artwork : null}
-        />
-        <div
-          className="cover-artwork-overlay"
-          title={`${release.artistName} - ${release.releaseTitle}`}
-        >
-          <div className="artist-name">{release.artistName}</div>
-          <div className="buttons">
-            <FontAwesome
-              className="play"
-              name="play"
-              onClick={() => {
-                this.props.playTrack(
-                  release._id,
-                  release.trackList[0]._id,
-                  release.artistName,
-                  release.trackList[0].trackTitle
-                );
-                this.props.fetchRelease(release._id);
-                this.props.toastMessage({
-                  alertClass: 'alert-info',
-                  message: `Loading ${release.artistName} - '${
-                    release.trackList[0].trackTitle
-                  }'`
-                });
-              }}
-            />
-            <Link to={`/release/${release._id}`}>
-              <FontAwesome className="info" name="info-circle" />
-            </Link>
-          </div>
-          <div className="buttons">
-            <FontAwesome
-              className="download"
-              name="download"
-              onClick={() => {
-                this.props.fetchDownloadToken(release._id, downloadToken => {
-                  if (downloadToken) {
-                    this.props.toastMessage({
-                      alertClass: 'alert-info',
-                      message: `Fetching download: ${release.artistName} - '${
-                        release.releaseTitle
-                      }'`
-                    });
-                    window.location = `/api/download/${downloadToken}`;
-                  }
-                });
-              }}
-            />
-          </div>
-          <div className="release-title">
-            <Link to={`/release/${release._id}`}>{release.releaseTitle}</Link>
-          </div>
-        </div>
-      </div>
-    ));
-  }
-
   render() {
+    const { collection } = this.props;
+    const renderReleases = collection.map(release => (
+      <RenderRelease
+        fetchDownloadToken={this.props.fetchDownloadToken}
+        fetchRelease={this.props.fetchRelease}
+        key={release._id}
+        playTrack={this.props.playTrack}
+        release={release}
+        toastMessage={this.props.toastMessage}
+        variation="collection"
+      />
+    ));
+
     if (this.state.isLoading) {
       return (
         <Spinner>
@@ -126,7 +72,7 @@ class Collection extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
-            <div className="front-page">{this.renderReleases()}</div>
+            <div className="front-page">{renderReleases}</div>
           </div>
         </div>
       </main>

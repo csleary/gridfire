@@ -5,6 +5,7 @@ import {
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
+  FETCH_ARTIST_CATALOGUE,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
@@ -102,6 +103,12 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
+};
+
+export const fetchArtistCatalogue = artistId => async dispatch => {
+  const res = await axios.get(`/api/catalogue/${artistId}`);
+  dispatch({ type: FETCH_ARTIST_CATALOGUE, payload: res.data });
+  return res;
 };
 
 export const fetchAudioUploadUrl = (

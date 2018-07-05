@@ -85,6 +85,10 @@
   margin-bottom: 0.5rem;
 }
 
+.release-info .artist-name a {
+  font-weight: 400;
+}
+
 .release-info .in-collection {
   font-size: 1rem;
   vertical-align: top;

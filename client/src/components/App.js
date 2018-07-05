@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import 'lazysizes';
 import { fetchUser } from '../actions';
 import About from './About';
+import ArtistPage from './ArtistPage';
 import Contact from './Contact';
 import Dashboard from './Dashboard';
 import EditRelease from './EditRelease';
@@ -68,6 +69,7 @@ class App extends Component {
             <Route path="/contact" component={Contact} />
             <Route path="/register" component={Register} />
             <Route path="/support" component={Support} />
+            <Route path="/artist/:artistId" component={ArtistPage} />
             <Route
               exact
               strict
@@ -97,4 +99,7 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { fetchUser })(App);
+export default connect(
+  mapStateToProps,
+  { fetchUser }
+)(App);

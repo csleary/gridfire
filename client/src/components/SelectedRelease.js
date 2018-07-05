@@ -131,6 +131,7 @@ class SelectedRelease extends Component {
     }
 
     const {
+      _user,
       artistName,
       artwork,
       catNumber,
@@ -180,7 +181,9 @@ class SelectedRelease extends Component {
                 </Link>
               )}
             </h2>
-            <h4 className="artist-name text-center">{artistName}</h4>
+            <h4 className="artist-name text-center">
+              <Link to={`/artist/${_user}`}>{artistName}</Link>
+            </h4>
             <h6 className="release-price text-center">
               ${price} USD{' '}
               {this.props.xemPriceUsd &&
