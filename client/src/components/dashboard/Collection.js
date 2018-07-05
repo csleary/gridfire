@@ -57,7 +57,7 @@ class Collection extends Component {
         <main className="container">
           <div className="row">
             <div className="col">
-              <h3>No releases found.</h3>
+              <h3>No releases found</h3>
               <p>
                 Once you&rsquo;ve purchased a release it will be added here,
                 where you&rsquo;ll have easy access to your downloads.
