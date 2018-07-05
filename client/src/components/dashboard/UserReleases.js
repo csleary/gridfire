@@ -52,8 +52,7 @@ const renderTitle = ({ _id, _user, artistName, releaseTitle }) => {
 
 const copiesSold = (releaseId, salesData) => {
   const releaseSales =
-    salesData &&
-    salesData.filter(release => release.releaseId === releaseId)[0];
+    salesData && salesData.filter(release => release._release === releaseId)[0];
   const salesArray =
     releaseSales && releaseSales.purchases.map(sale => sale.numSold);
   const numSold = salesArray && salesArray.reduce((acc, el) => acc + el);

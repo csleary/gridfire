@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import moment from 'moment';
 import {
   fetchRelease,
+  fetchUser,
   fetchXemPrice,
   playerPause,
   playerPlay,
@@ -25,6 +26,7 @@ class SelectedRelease extends Component {
 
   componentDidMount() {
     const { releaseId } = this.props.match.params;
+    this.props.fetchUser();
     this.props.fetchXemPrice();
     this.props.fetchRelease(releaseId).then(() => {
       if (!this.props.release) {
@@ -247,6 +249,7 @@ export default connect(
   mapStateToProps,
   {
     fetchRelease,
+    fetchUser,
     fetchXemPrice,
     playerPause,
     playerPlay,
