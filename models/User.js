@@ -14,8 +14,9 @@ const UserSchema = new Schema({
   nemAddress: String,
   purchases: [
     {
-      purchaseDate: Date,
-      releaseId: String
+      _id: false,
+      _release: { type: Schema.Types.ObjectId, ref: 'Release' },
+      purchaseDate: Date
     }
   ]
 });

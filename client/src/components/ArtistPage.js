@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import {
-  fetchCatalogue,
+  fetchArtistCatalogue,
   fetchRelease,
   playTrack,
   toastMessage
 } from '../actions';
 import '../style/home.css';
 
-class Home extends Component {
+class ArtistPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,8 +19,11 @@ class Home extends Component {
   }
 
   componentDidMount() {
+    const { artistId } = this.props.match.params;
     this.setLoading();
-    this.props.fetchCatalogue().then(() => this.setState({ isLoading: false }));
+    this.props
+      .fetchArtistCatalogue(artistId)
+      .then(() => this.setState({ isLoading: false }));
   }
 
   setLoading() {
@@ -42,7 +45,7 @@ class Home extends Component {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading catalogue&hellip;</h2>
+          <h2>Loading artist catalogue&hellip;</h2>
         </Spinner>
       );
     }
@@ -50,6 +53,7 @@ class Home extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
+            {/* <h2 className="text-center">Artist Name</h2> */}
             <div className="front-page">{renderReleases}</div>
           </div>
         </div>
@@ -67,9 +71,9 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {
-    fetchCatalogue,
     fetchRelease,
+    fetchArtistCatalogue,
     playTrack,
     toastMessage
   }
-)(Home);
+)(ArtistPage);
