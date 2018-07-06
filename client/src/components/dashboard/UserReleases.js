@@ -164,6 +164,12 @@ const UserReleases = props => {
                 </p>
               </Fragment>
             )}
+          <h3>
+            You have {props.userReleases.length} release{props.userReleases
+              .length > 1
+              ? 's'
+              : ''}.
+          </h3>
           <ul className="user-releases">{renderUserReleases()}</ul>
           <Link
             className="btn btn-outline-primary btn-sm add-release"

@@ -5,7 +5,7 @@ const Support = () => (
   <main className="container">
     <div className="row">
       <div className="col">
-        <h2 className="text-center">FAQ</h2>
+        <h2 className="text-center red">FAQ</h2>
         <details>
           <summary>Where can I buy some XEM?</summary>
           <p>

@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
 import SingleTransaction from './SingleTransaction';
@@ -40,6 +41,10 @@ const TransactionsList = props => {
           Download <span className="ibm-type-italic">{releaseTitle}</span>
         </button>
       </div>
+      <p className="text-center">
+        <span className="ibm-type-italic">{releaseTitle}</span> has been added
+        to <Link to={'/dashboard/collection'}>your collection</Link>!
+      </p>
     </Fragment>
   );
 
