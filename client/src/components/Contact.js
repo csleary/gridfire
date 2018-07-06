@@ -91,8 +91,9 @@ const Contact = props => {
     <main className="container">
       <div className="row">
         <div className="col-6 mx-auto">
-          <h2 className="text-center">Contact Us</h2>
+          <h2 className="text-center red">Contact Us</h2>
           <form
+            className="mb-0"
             onSubmit={handleSubmit(values => {
               props.sendEmail(values, () => {
                 props.reset();

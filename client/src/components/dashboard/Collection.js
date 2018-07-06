@@ -52,7 +52,7 @@ class Collection extends Component {
       );
     }
 
-    if (!this.props.collection.length) {
+    if (!collection.length) {
       return (
         <main className="container">
           <div className="row">
@@ -72,6 +72,10 @@ class Collection extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
+            <h3>
+              {collection.length} release{collection.length > 1 ? 's' : ''} are
+              currently in your collection.
+            </h3>
             <div className="front-page">{renderReleases}</div>
           </div>
         </div>

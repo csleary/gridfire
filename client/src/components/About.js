@@ -4,7 +4,7 @@ const About = () => (
   <main className="container">
     <div className="row">
       <div className="col">
-        <h2 className="text-center">About NEMp3</h2>
+        <h2 className="text-center red">About NEMp3</h2>
       </div>
     </div>
     <div className="row">
@@ -19,7 +19,7 @@ const About = () => (
         <p>
           Artists set a price for their releases in USD, and we convert this to
           the equivalent market value in XEM automatically. Fans may purchase
-          using one of the NEM wallets, either via a QR code with the mobile
+          using one of the NEM wallets, either via a QR code with a mobile
           wallet, or manually entering payment using the Nanowallet desktop
           wallet.
         </p>
@@ -27,9 +27,10 @@ const About = () => (
       <div className="col">
         <p>
           At present, NEMp3 is entirely free to use, with artists receiving 100%
-          of payments, paid directly from fan to artist. In the future, we
-          anticipate charging a small cut of payments received, in order to
-          support the site&rsquo;s running expenses.
+          of payments, paid directly from fan to artist. Of course, there are
+          data hosting and server costs to pay, so we are currently exploring
+          ways of supporting the platform without either compromising on artist
+          or fan privacy, or the direct link between fan and artist.
         </p>
       </div>
     </div>
