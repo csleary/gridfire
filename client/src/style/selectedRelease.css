@@ -121,6 +121,10 @@
   white-space: pre-line;
 }
 
+.release-info p.copyright {
+  font-size: 80%;
+}
+
 .release-info p:last-child {
   margin-bottom: 0;
 }

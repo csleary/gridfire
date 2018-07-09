@@ -137,7 +137,9 @@ class SelectedRelease extends Component {
       artwork,
       catNumber,
       credits,
+      cLine,
       info,
+      pLine,
       price,
       recordLabel,
       releaseTitle,
@@ -228,6 +230,21 @@ class SelectedRelease extends Component {
                 <h6 className="red">{credits && 'Credits'}</h6>
                 <p className="credits">{credits}</p>
               </Fragment>
+            )}
+            {(cLine || pLine) && (
+              <p className="copyright red">
+                {cLine && (
+                  <Fragment>
+                    &copy; {cLine.year} {cLine.owner}
+                  </Fragment>
+                )}
+                {pLine && (
+                  <Fragment>
+                    <br />
+                    &#8471; {pLine.year} {pLine.owner}
+                  </Fragment>
+                )}
+              </p>
             )}
           </div>
         </div>

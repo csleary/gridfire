@@ -568,8 +568,10 @@ module.exports = app => {
     const {
       artistName,
       catNumber,
+      cLine,
       credits,
       info,
+      pLine,
       price,
       recordLabel,
       releaseDate,
@@ -584,6 +586,10 @@ module.exports = app => {
     release.recordLabel = recordLabel;
     release.releaseDate = releaseDate;
     release.releaseTitle = releaseTitle;
+    release.pLine.year = pLine.year;
+    release.pLine.owner = pLine.owner;
+    release.cLine.year = cLine.year;
+    release.cLine.owner = cLine.owner;
     release.trackList.forEach((track, index) => {
       track.trackTitle = req.body.trackList[index].trackTitle;
     });

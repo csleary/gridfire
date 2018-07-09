@@ -283,13 +283,46 @@ class EditRelease extends Component {
                     name="info"
                     type="textarea"
                   />
-                  <Field
-                    component={RenderReleaseField}
-                    formText="Please credit any writers, performers, producers, designers and engineers involved."
-                    label="Credits"
-                    name="credits"
-                    type="textarea"
-                  />
+                  <div className="row p-0">
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Year the track was written."
+                        label="Composition Copyright Year"
+                        name="cLine.year"
+                        type="number"
+                      />
+                    </div>
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Name of the label, publisher or artist/individual."
+                        label="Composition Copyright Owner"
+                        name="cLine.owner"
+                        type="text"
+                      />
+                    </div>
+                  </div>
+                  <div className="row p-0">
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Year first released as a recording."
+                        label="Recording Copyright Year"
+                        name="pLine.year"
+                        type="number"
+                      />
+                    </div>
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Name of the label or artist/individual."
+                        label="Recording Copyright Owner"
+                        name="pLine.owner"
+                        type="text"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <RenderArtwork
                   artworkFile={this.artworkFile}

@@ -13,6 +13,14 @@ const releaseSchema = new Schema({
   catNumber: { type: String, trim: true },
   credits: { type: String, trim: true },
   info: { type: String, trim: true },
+  cLine: {
+    year: Number,
+    owner: { type: String, trim: true }
+  },
+  pLine: {
+    year: Number,
+    owner: { type: String, trim: true }
+  },
   trackList: [
     {
       trackTitle: { type: String, trim: true },
