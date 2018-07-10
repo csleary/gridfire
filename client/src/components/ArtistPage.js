@@ -19,10 +19,10 @@ class ArtistPage extends Component {
   }
 
   componentDidMount() {
-    const { artistId } = this.props.match.params;
+    const { userId, artistName } = this.props.match.params;
     this.setLoading();
     this.props
-      .fetchArtistCatalogue(artistId)
+      .fetchArtistCatalogue(userId, artistName)
       .then(() => this.setState({ isLoading: false }));
   }
 
@@ -31,7 +31,7 @@ class ArtistPage extends Component {
   }
 
   render() {
-    const { catalogue } = this.props;
+    const { catalogue, artistName } = this.props;
     const renderReleases = catalogue.map(release => (
       <RenderRelease
         fetchRelease={this.props.fetchRelease}
@@ -53,7 +53,8 @@ class ArtistPage extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
-            {/* <h2 className="text-center">Artist Name</h2> */}
+            <h2 className="text-center">{artistName}</h2>
+            <h3>Releases</h3>
             <div className="front-page">{renderReleases}</div>
           </div>
         </div>
@@ -64,6 +65,7 @@ class ArtistPage extends Component {
 
 function mapStateToProps(state) {
   return {
+    artistName: state.releases.artistName,
     catalogue: state.releases.catalogue
   };
 }

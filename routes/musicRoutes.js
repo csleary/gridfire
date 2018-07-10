@@ -293,13 +293,14 @@ module.exports = app => {
   });
 
   // Fetch Artist Catalogue
-  app.get('/api/catalogue/:artistId', async (req, res) => {
-    const { artistId } = req.params;
+  app.get('/api/catalogue/:userId/:artistName', async (req, res) => {
+    const { userId, artistName } = req.params;
     const releases = await Release.find({
-      _user: artistId,
+      _user: userId,
+      artistName,
       published: true
     }).sort('-releaseDate');
-    res.send(releases);
+    res.send({ artistName, releases });
   });
 
   // Fetch Catalogue
@@ -586,10 +587,10 @@ module.exports = app => {
     release.recordLabel = recordLabel;
     release.releaseDate = releaseDate;
     release.releaseTitle = releaseTitle;
-    release.pLine.year = pLine.year;
-    release.pLine.owner = pLine.owner;
-    release.cLine.year = cLine.year;
-    release.cLine.owner = cLine.owner;
+    release.pLine.year = pLine && pLine.year;
+    release.pLine.owner = pLine && pLine.owner;
+    release.cLine.year = cLine && cLine.year;
+    release.cLine.owner = cLine && cLine.owner;
     release.trackList.forEach((track, index) => {
       track.trackTitle = req.body.trackList[index].trackTitle;
     });

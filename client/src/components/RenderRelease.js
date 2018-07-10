@@ -4,20 +4,21 @@ import FontAwesome from 'react-fontawesome';
 
 const RenderRelease = props => {
   const { release, variation } = props;
+  const { artistName, _id, releaseTitle, artwork, trackList, _user } = release;
 
   return (
     <div className="cover-artwork" key={release._id} onTouchStart={() => {}}>
       <img
-        alt={`${release.artistName} - ${release.releaseTitle}`}
+        alt={`${artistName} - ${releaseTitle}`}
         className="lazyload artwork"
-        data-src={release.artwork ? release.artwork : null}
+        data-src={artwork || null}
       />
       <div
         className="cover-artwork-overlay"
-        title={`${release.artistName} - ${release.releaseTitle}`}
+        title={`${artistName} - ${releaseTitle}`}
       >
         <div className="artist-name">
-          <Link to={`/artist/${release._user}`}>{release.artistName}</Link>
+          <Link to={`/artist/${_user}/${artistName}`}>{artistName}</Link>
         </div>
         <div className="buttons">
           <FontAwesome
@@ -25,28 +26,24 @@ const RenderRelease = props => {
             name="play"
             onClick={() => {
               props.playTrack(
-                release._id,
-                release.trackList[0]._id,
-                release.artistName,
-                release.trackList[0].trackTitle
+                _id,
+                trackList[0]._id,
+                artistName,
+                trackList[0].trackTitle
               );
-              props.fetchRelease(release._id);
+              props.fetchRelease(_id);
               props.toastMessage({
                 alertClass: 'alert-info',
-                message: `Loading ${release.artistName} - '${
-                  release.trackList[0].trackTitle
-                }'`
+                message: `Loading ${artistName} - '${trackList[0].trackTitle}'`
               });
             }}
-            title={`Play '${release.releaseTitle}', by ${release.artistName}`}
+            title={`Play '${releaseTitle}', by ${artistName}`}
           />
-          <Link to={`/release/${release._id}`}>
+          <Link to={`/release/${_id}`}>
             <FontAwesome
               className="info"
               name="info-circle"
-              title={`More information on '${release.releaseTitle}', by ${
-                release.artistName
-              }`}
+              title={`More information on '${releaseTitle}', by ${artistName}`}
             />
           </Link>
         </div>
@@ -56,26 +53,22 @@ const RenderRelease = props => {
               className="download"
               name="download"
               onClick={() => {
-                props.fetchDownloadToken(release._id, downloadToken => {
+                props.fetchDownloadToken(_id, downloadToken => {
                   if (downloadToken) {
                     props.toastMessage({
                       alertClass: 'alert-info',
-                      message: `Fetching download: ${release.artistName} - '${
-                        release.releaseTitle
-                      }'`
+                      message: `Fetching download: ${artistName} - '${releaseTitle}'`
                     });
                     window.location = `/api/download/${downloadToken}`;
                   }
                 });
               }}
-              title={`Download '${release.releaseTitle}', by ${
-                release.artistName
-              }`}
+              title={`Download '${releaseTitle}', by ${artistName}`}
             />
           </div>
         )}
         <div className="release-title">
-          <Link to={`/release/${release._id}`}>{release.releaseTitle}</Link>
+          <Link to={`/release/${_id}`}>{releaseTitle}</Link>
         </div>
       </div>
     </div>

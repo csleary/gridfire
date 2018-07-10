@@ -287,8 +287,8 @@ class EditRelease extends Component {
                     <div className="col">
                       <Field
                         component={RenderReleaseField}
-                        formText="Year the track was written."
-                        label="Composition Copyright Year"
+                        // formText=""
+                        label="Copyright Year"
                         name="cLine.year"
                         type="number"
                       />
@@ -296,8 +296,8 @@ class EditRelease extends Component {
                     <div className="col">
                       <Field
                         component={RenderReleaseField}
-                        formText="Name of the label, publisher or artist/individual."
-                        label="Composition Copyright Owner"
+                        formText="i.e. Label, publisher or artist/individual."
+                        label="Copyright Owner"
                         name="cLine.owner"
                         type="text"
                       />
@@ -316,7 +316,7 @@ class EditRelease extends Component {
                     <div className="col">
                       <Field
                         component={RenderReleaseField}
-                        formText="Name of the label or artist/individual."
+                        formText="i.e. Label or artist/individual."
                         label="Recording Copyright Owner"
                         name="pLine.owner"
                         type="text"
@@ -367,6 +367,8 @@ class EditRelease extends Component {
 
 const validate = ({
   artistName,
+  // cLine,
+  // pLine,
   price,
   releaseDate,
   releaseTitle,
@@ -388,6 +390,14 @@ const validate = ({
   if (price && price < 0) {
     errors.price = 'Price must be a positive number.';
   }
+  // if (
+  //   (cLine && (!cLine.year && cLine.owner)) ||
+  //   (cLine && (cLine.year && !cLine.owner))
+  // ) {
+  //   errors.cLine = {};
+  //   errors.cLine.year = !cLine.year && 'Please fill both year and owner.';
+  //   errors.cLine.owner = !cLine.owner && 'Please fill both year and owner.';
+  // }
   if (trackList) {
     const trackListErrors = [];
     trackList.forEach((track, trackIndex) => {

@@ -185,7 +185,7 @@ class SelectedRelease extends Component {
               )}
             </h2>
             <h4 className="artist-name text-center">
-              <Link to={`/artist/${_user}`}>{artistName}</Link>
+              <Link to={`/artist/${_user}/${artistName}`}>{artistName}</Link>
             </h4>
             <h6 className="release-price text-center">
               ${price} USD{' '}
@@ -238,9 +238,9 @@ class SelectedRelease extends Component {
                     &copy; {cLine.year} {cLine.owner}
                   </Fragment>
                 )}
+                {cLine && pLine && <br />}
                 {pLine && (
                   <Fragment>
-                    <br />
                     &#8471; {pLine.year} {pLine.owner}
                   </Fragment>
                 )}

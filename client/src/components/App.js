@@ -69,7 +69,7 @@ class App extends Component {
             <Route path="/contact" component={Contact} />
             <Route path="/register" component={Register} />
             <Route path="/support" component={Support} />
-            <Route path="/artist/:artistId" component={ArtistPage} />
+            <Route path="/artist/:userId/:artistName" component={ArtistPage} />
             <Route
               exact
               strict
