@@ -15,18 +15,32 @@ class RenderTrack extends Component {
     };
   }
 
-  handleMoveTrack = (swap, id, index, direction) => {
-    this.props.moveTrack(id, index, index + direction, error => {
-      if (error) return;
-      swap(index, index + direction);
-    });
-  };
-
   handleConfirm = (title, callback) => {
     const confirmation = window.confirm(
       `Are you sure you want to delete ${title || 'this track'}?`
     );
     if (confirmation) callback();
+  };
+
+  handleAddTrack = push => {
+    this.props.addTrack(this.props.release._id, () => push());
+  };
+
+  handleDeleteTrack = (remove, index) => {
+    this.handleConfirm(this.props.release.trackList[index].trackTitle, () => {
+      this.props.deleteTrack(
+        this.props.release._id,
+        this.props.release.trackList[index]._id,
+        () => remove(index)
+      );
+    });
+  };
+
+  handleMoveTrack = (swap, id, index, direction) => {
+    this.props.moveTrack(id, index, index + direction, error => {
+      if (error) return;
+      swap(index, index + direction);
+    });
   };
 
   handleDragStart = index => {
@@ -55,7 +69,13 @@ class RenderTrack extends Component {
   };
 
   render() {
-    const { fields, release, audioUploading } = this.props;
+    const {
+      isAddingTrack,
+      isDeletingTrack,
+      fields,
+      release,
+      audioUploading
+    } = this.props;
     const { trackList } = release;
     const id = release._id;
 
@@ -133,24 +153,21 @@ class RenderTrack extends Component {
                   )}
                   <button
                     className="btn btn-outline-danger btn-sm ml-auto"
-                    onClick={() =>
-                      this.handleConfirm(
-                        this.props.release.trackList[index].trackTitle,
-                        () => {
-                          this.props
-                            .deleteTrack(
-                              this.props.release._id,
-                              this.props.release.trackList[index]._id
-                            )
-                            .then(fields.remove(index));
-                        }
-                      )
-                    }
+                    disabled={isDeletingTrack}
+                    onClick={() => this.handleDeleteTrack(fields.remove, index)}
                     title="Delete Track"
                     type="button"
                   >
-                    <FontAwesome name="trash" className="icon-left" />
-                    Delete
+                    {isDeletingTrack ? (
+                      <FontAwesome
+                        name="circle-o-notch"
+                        spin
+                        className="icon-left"
+                      />
+                    ) : (
+                      <FontAwesome name="trash" className="icon-left" />
+                    )}
+                    {isDeletingTrack ? 'Deleting…' : 'Delete'}
                   </button>
                 </div>
                 <ProgressBar
@@ -165,14 +182,17 @@ class RenderTrack extends Component {
         </ul>
         <button
           className="btn btn-outline-primary btn-sm add-track"
-          onClick={() => {
-            this.props.addTrack(this.props.release._id).then(fields.push());
-          }}
+          disabled={isAddingTrack}
+          onClick={() => this.handleAddTrack(fields.push)}
           title="Add Track"
           type="button"
         >
-          <FontAwesome name="plus-circle" className="icon-left" />
-          Add
+          {isAddingTrack ? (
+            <FontAwesome name="circle-o-notch" spin className="icon-left" />
+          ) : (
+            <FontAwesome name="plus-circle" className="icon-left" />
+          )}
+          {isAddingTrack ? 'Adding…' : 'Add'}
         </button>
       </div>
     );

@@ -343,6 +343,8 @@ class EditRelease extends Component {
                 component={RenderTrack}
                 addTrack={this.props.addTrack}
                 deleteTrack={this.props.deleteTrack}
+                isAddingTrack={this.props.isAddingTrack}
+                isDeletingTrack={this.props.isDeletingTrack}
                 moveTrack={this.props.moveTrack}
                 onDropAudio={this.onDropAudio}
                 release={this.props.release}
@@ -422,6 +424,8 @@ const mapStateToProps = state => ({
   artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,
   audioUploadUrl: state.releases.audioUploadUrl,
+  isAddingTrack: state.releases.isAddingTrack,
+  isDeletingTrack: state.releases.isDeletingTrack,
   price: fieldSelector(state, 'price'),
   release: state.releases.selectedRelease,
   transcoding: state.releases.transcoding,
