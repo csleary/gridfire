@@ -48,11 +48,7 @@ export const addTrack = (releaseId, callback) => async dispatch => {
     callback();
   } catch (e) {
     dispatch({ type: ADD_TRACK_LOADING, isAddingTrack: false });
-    dispatch({
-      type: TOAST_ERROR,
-      isAddingTrack: false,
-      payload: e.response.data
-    });
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
