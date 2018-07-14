@@ -37,7 +37,7 @@ class SelectedRelease extends Component {
 
       const { purchases } = this.props.user;
       const inCollection =
-        purchases && purchases.some(release => releaseId === release._release);
+        purchases && purchases.some(release => releaseId === release.releaseId);
       if (inCollection) this.setState({ inCollection: true });
     });
   }
@@ -132,7 +132,7 @@ class SelectedRelease extends Component {
     }
 
     const {
-      _user,
+      user,
       artistName,
       artwork,
       catNumber,
@@ -185,7 +185,7 @@ class SelectedRelease extends Component {
               )}
             </h2>
             <h4 className="artist-name text-center">
-              <Link to={`/artist/${_user}/${artistName}`}>{artistName}</Link>
+              <Link to={`/artist/${user}/${artistName}`}>{artistName}</Link>
             </h4>
             <h6 className="release-price text-center">
               ${price} USD{' '}

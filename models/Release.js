@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const releaseSchema = new Schema(
   {
-    _user: { type: Schema.Types.ObjectId, ref: 'User' },
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
     artistName: { type: String, trim: true },
     releaseTitle: { type: String, trim: true },
     artwork: String,
