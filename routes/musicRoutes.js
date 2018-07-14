@@ -13,6 +13,7 @@ const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 
+const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
@@ -25,7 +26,7 @@ const BUCKET_OPT =
   process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-opt' : 'nemp3-opt-testnet';
 
 const userOwnsRelease = (user, release) => {
-  if (user._id.toString() === release._user.toString()) {
+  if (user._id.toString() === release.user.toString()) {
     return true;
   }
   return false;
@@ -36,12 +37,12 @@ module.exports = app => {
   // Possibly check for upload tokens/credit.
   app.post('/api/release', requireLogin, async (req, res) => {
     const release = await new Release({
-      _user: req.user.id,
+      user: req.user.id,
       dateCreated: Date.now()
     });
     release
       .save()
-      .then(updated => res.send(updated))
+      .then(newRelease => res.send(newRelease))
       .catch(error => res.status(500).send({ error }));
   });
 
@@ -295,7 +296,7 @@ module.exports = app => {
   // Fetch Collection
   app.get('/api/collection/', requireLogin, async (req, res) => {
     const { purchases } = req.user;
-    const releaseIds = purchases.map(release => release._release);
+    const releaseIds = purchases.map(release => release.releaseId);
     const releases = await Release.find({ _id: { $in: releaseIds } }).sort(
       '-releaseDate'
     );
@@ -306,7 +307,7 @@ module.exports = app => {
   app.get('/api/catalogue/:userId/:artistName', async (req, res) => {
     const { userId, artistName } = req.params;
     const releases = await Release.find({
-      _user: userId,
+      user: userId,
       artistName,
       published: true
     }).sort('-releaseDate');
@@ -325,8 +326,8 @@ module.exports = app => {
   app.post('/api/download', requireLogin, async (req, res) => {
     const { releaseId } = req.body;
     const user = await User.findById(req.user._id);
-    const hasPreviouslyPurchased = user.purchases.some(
-      purchase => releaseId === purchase._release.toString()
+    const hasPreviouslyPurchased = user.purchases.some(purchase =>
+      purchase.releaseId.equals(releaseId)
     );
 
     if (hasPreviouslyPurchased) {
@@ -349,11 +350,11 @@ module.exports = app => {
     const release = await Release.findOne({ _id: req.params.releaseId });
     if (
       !release.published &&
-      release._user.toString() !== req.user._id.toString()
+      release.user.toString() !== req.user._id.toString()
     ) {
       res.send({ error: 'Release currently unavailable.' });
     } else {
-      const artist = await User.findOne({ _id: release._user });
+      const artist = await User.findOne({ _id: release.user });
       const paymentInfo = {
         paymentAddress: nem.utils.format.address(artist.nemAddress)
       };
@@ -363,9 +364,9 @@ module.exports = app => {
 
   // Fetch Release Sales Figures
   app.get('/api/sales', requireLogin, async (req, res) => {
-    const releases = await Release.find({ _user: req.user.id });
+    const releases = await Release.find({ user: req.user.id });
     const releaseIds = releases.map(release => release._id);
-    const sales = await Sale.find({ _release: { $in: releaseIds } });
+    const sales = await Sale.find({ releaseId: { $in: releaseIds } });
     res.send(sales);
   });
 
@@ -377,7 +378,7 @@ module.exports = app => {
 
   // Fetch User Releases
   app.get('/api/user/releases/', requireLogin, async (req, res) => {
-    const releases = await Release.find({ _user: req.user.id }).sort(
+    const releases = await Release.find({ user: req.user.id }).sort(
       '-releaseDate'
     );
     res.send(releases);
@@ -402,7 +403,7 @@ module.exports = app => {
     req.session.price = null;
     const { releaseId } = req.params;
     const release = await Release.findById(releaseId);
-    const artist = await User.findById(release._user);
+    const artist = await User.findById(release.user);
     const customerIdHash = req.user.auth.idHash;
     const xemPriceUsd = await utils.getXemPrice();
     const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
@@ -592,6 +593,7 @@ module.exports = app => {
       releaseDate,
       releaseTitle
     } = req.body;
+
     const release = await Release.findById(releaseId);
     release.artistName = artistName;
     release.catNumber = catNumber;
@@ -608,7 +610,36 @@ module.exports = app => {
     release.trackList.forEach((track, index) => {
       track.trackTitle = req.body.trackList[index].trackTitle;
     });
-    release.save();
-    res.send(release);
+    release
+      .save()
+      .then(async updatedRelease => {
+        const artist = await Artist.findOneAndUpdate(
+          {
+            user: req.user._id,
+            name: artistName
+          },
+          {},
+          { new: true, upsert: true }
+        );
+
+        if (!artist.releases.some(id => id.equals(updatedRelease._id))) {
+          artist.update({ $push: { releases: updatedRelease._id } }).exec();
+        }
+        return artist;
+      })
+      .then(async updatedArtist =>
+        User.findOneAndUpdate(
+          {
+            _id: req.user._id,
+            artists: { $ne: updatedArtist._id }
+          },
+          {
+            $push: { artists: updatedArtist._id }
+          },
+          { new: true }
+        )
+      )
+      .then(() => res.send(release))
+      .catch(error => res.status(500).send({ error }));
   });
 };

@@ -36,12 +36,12 @@ const pleaseConfirm = (title, callback) => {
   if (confirmation) callback();
 };
 
-const renderTitle = ({ _id, _user, artistName, releaseTitle }) => {
+const renderTitle = ({ releaseId, user, artistName, releaseTitle }) => {
   if (artistName) {
     return (
       <Fragment>
-        <Link to={`/artist/${_user}/${artistName}`}>{artistName}</Link> &bull;{' '}
-        <Link to={`/release/${_id}`}>
+        <Link to={`/artist/${user}/${artistName}`}>{artistName}</Link> &bull;{' '}
+        <Link to={`/release/${releaseId}`}>
           <span className="ibm-type-italic">{releaseTitle}</span>
         </Link>
       </Fragment>
@@ -52,7 +52,8 @@ const renderTitle = ({ _id, _user, artistName, releaseTitle }) => {
 
 const copiesSold = (releaseId, salesData) => {
   const releaseSales =
-    salesData && salesData.filter(release => release._release === releaseId)[0];
+    salesData &&
+    salesData.filter(release => release.releaseId === releaseId)[0];
   const salesArray =
     releaseSales && releaseSales.purchases.map(sale => sale.numSold);
   const numSold = salesArray && salesArray.reduce((acc, el) => acc + el);

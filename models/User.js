@@ -15,10 +15,11 @@ const UserSchema = new Schema({
   purchases: [
     {
       _id: false,
-      _release: { type: Schema.Types.ObjectId, ref: 'Release' },
+      releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
       purchaseDate: Date
     }
-  ]
+  ],
+  artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
 });
 
 UserSchema.pre('save', async function(next) {
