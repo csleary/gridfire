@@ -55,7 +55,10 @@ module.exports = app => {
       return;
     }
     release.trackList.push({});
-    release.save().then(updated => res.send(updated));
+    release
+      .save()
+      .then(updated => res.send(updated))
+      .catch(error => res.status(500).send({ error }));
   });
 
   // Delete Artwork
