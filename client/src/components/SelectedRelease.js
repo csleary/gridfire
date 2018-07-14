@@ -137,7 +137,9 @@ class SelectedRelease extends Component {
       artwork,
       catNumber,
       credits,
+      cLine,
       info,
+      pLine,
       price,
       recordLabel,
       releaseTitle,
@@ -183,7 +185,7 @@ class SelectedRelease extends Component {
               )}
             </h2>
             <h4 className="artist-name text-center">
-              <Link to={`/artist/${_user}`}>{artistName}</Link>
+              <Link to={`/artist/${_user}/${artistName}`}>{artistName}</Link>
             </h4>
             <h6 className="release-price text-center">
               ${price} USD{' '}
@@ -228,6 +230,21 @@ class SelectedRelease extends Component {
                 <h6 className="red">{credits && 'Credits'}</h6>
                 <p className="credits">{credits}</p>
               </Fragment>
+            )}
+            {(cLine || pLine) && (
+              <p className="copyright red">
+                {cLine && (
+                  <Fragment>
+                    &copy; {cLine.year} {cLine.owner}
+                  </Fragment>
+                )}
+                {cLine && pLine && <br />}
+                {pLine && (
+                  <Fragment>
+                    &#8471; {pLine.year} {pLine.owner}
+                  </Fragment>
+                )}
+              </p>
             )}
           </div>
         </div>

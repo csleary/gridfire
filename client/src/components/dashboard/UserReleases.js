@@ -40,7 +40,7 @@ const renderTitle = ({ _id, _user, artistName, releaseTitle }) => {
   if (artistName) {
     return (
       <Fragment>
-        <Link to={`/artist/${_user}`}>{artistName}</Link> &bull;{' '}
+        <Link to={`/artist/${_user}/${artistName}`}>{artistName}</Link> &bull;{' '}
         <Link to={`/release/${_id}`}>
           <span className="ibm-type-italic">{releaseTitle}</span>
         </Link>

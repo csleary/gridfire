@@ -283,13 +283,46 @@ class EditRelease extends Component {
                     name="info"
                     type="textarea"
                   />
-                  <Field
-                    component={RenderReleaseField}
-                    formText="Please credit any writers, performers, producers, designers and engineers involved."
-                    label="Credits"
-                    name="credits"
-                    type="textarea"
-                  />
+                  <div className="row p-0">
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        // formText=""
+                        label="Copyright Year"
+                        name="cLine.year"
+                        type="number"
+                      />
+                    </div>
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="i.e. Label, publisher or artist/individual."
+                        label="Copyright Owner"
+                        name="cLine.owner"
+                        type="text"
+                      />
+                    </div>
+                  </div>
+                  <div className="row p-0">
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Year first released as a recording."
+                        label="Recording Copyright Year"
+                        name="pLine.year"
+                        type="number"
+                      />
+                    </div>
+                    <div className="col">
+                      <Field
+                        component={RenderReleaseField}
+                        formText="i.e. Label or artist/individual."
+                        label="Recording Copyright Owner"
+                        name="pLine.owner"
+                        type="text"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <RenderArtwork
                   artworkFile={this.artworkFile}
@@ -310,6 +343,8 @@ class EditRelease extends Component {
                 component={RenderTrack}
                 addTrack={this.props.addTrack}
                 deleteTrack={this.props.deleteTrack}
+                isAddingTrack={this.props.isAddingTrack}
+                isDeletingTrack={this.props.isDeletingTrack}
                 moveTrack={this.props.moveTrack}
                 onDropAudio={this.onDropAudio}
                 release={this.props.release}
@@ -334,6 +369,8 @@ class EditRelease extends Component {
 
 const validate = ({
   artistName,
+  // cLine,
+  // pLine,
   price,
   releaseDate,
   releaseTitle,
@@ -355,6 +392,14 @@ const validate = ({
   if (price && price < 0) {
     errors.price = 'Price must be a positive number.';
   }
+  // if (
+  //   (cLine && (!cLine.year && cLine.owner)) ||
+  //   (cLine && (cLine.year && !cLine.owner))
+  // ) {
+  //   errors.cLine = {};
+  //   errors.cLine.year = !cLine.year && 'Please fill both year and owner.';
+  //   errors.cLine.owner = !cLine.owner && 'Please fill both year and owner.';
+  // }
   if (trackList) {
     const trackListErrors = [];
     trackList.forEach((track, trackIndex) => {
@@ -379,6 +424,8 @@ const mapStateToProps = state => ({
   artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,
   audioUploadUrl: state.releases.audioUploadUrl,
+  isAddingTrack: state.releases.isAddingTrack,
+  isDeletingTrack: state.releases.isDeletingTrack,
   price: fieldSelector(state, 'price'),
   release: state.releases.selectedRelease,
   transcoding: state.releases.transcoding,

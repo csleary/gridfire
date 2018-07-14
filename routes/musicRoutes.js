@@ -33,22 +33,29 @@ const userOwnsRelease = (user, release) => {
 
 module.exports = app => {
   // Add New Release
+  // Possibly check for upload tokens/credit.
   app.post('/api/release', requireLogin, async (req, res) => {
     const release = await new Release({
       _user: req.user.id,
       dateCreated: Date.now()
-    }).save();
-    res.send(release);
+    });
+    release
+      .save()
+      .then(updated => res.send(updated))
+      .catch(error => res.status(500).send({ error }));
   });
 
   // Add Track
   app.put('/api/:releaseId/add', requireLogin, async (req, res) => {
-    const release = await Release.findByIdAndUpdate(
-      req.params.releaseId,
-      { $push: { trackList: {} } },
-      { new: true }
-    );
-    res.send(release);
+    const { releaseId } = req.params;
+    const release = await Release.findById(releaseId);
+
+    if (!userOwnsRelease(req.user, release)) {
+      res.status(401).send({ error: 'Not authorised.' });
+      return;
+    }
+    release.trackList.push({});
+    release.save().then(updated => res.send(updated));
   });
 
   // Delete Artwork
@@ -58,29 +65,29 @@ module.exports = app => {
 
     if (!userOwnsRelease(req.user, release)) {
       res.status(401).send({ error: 'Not authorised.' });
-    } else {
-      // Delete from S3
-      const s3 = new aws.S3();
-      s3.listObjectsV2(
-        {
-          Bucket: BUCKET_IMG,
-          Prefix: `${releaseId}`
-        },
-        async (err, data) => {
-          if (data.Contents.length) {
-            const deleteArt = await s3.deleteObject({
-              Bucket: BUCKET_IMG,
-              Key: data.Contents[0].Key
-            });
-            deleteArt.send();
-          }
-        }
-      );
-
-      release.artwork = undefined;
-      release.save();
-      res.send(release);
+      return;
     }
+    // Delete from S3
+    const s3 = new aws.S3();
+    s3.listObjectsV2(
+      {
+        Bucket: BUCKET_IMG,
+        Prefix: `${releaseId}`
+      },
+      async (err, data) => {
+        if (data.Contents.length) {
+          const deleteArt = await s3.deleteObject({
+            Bucket: BUCKET_IMG,
+            Key: data.Contents[0].Key
+          });
+          deleteArt.send();
+        }
+      }
+    );
+
+    release.artwork = undefined;
+    release.save();
+    res.send(release);
   });
 
   // Delete Release
@@ -90,72 +97,72 @@ module.exports = app => {
 
     if (!userOwnsRelease(req.user, release)) {
       res.status(401).send({ error: 'Not authorised.' });
-    } else {
-      // Delete from db
-      const result = await Release.findByIdAndRemove(releaseId);
-
-      // Delete audio from S3
-      const s3 = new aws.S3();
-      // Delete source audio
-      s3.listObjectsV2(
-        {
-          Bucket: BUCKET_SRC,
-          Prefix: `${releaseId}`
-        },
-        async (err, data) => {
-          if (data.Contents.length) {
-            const deleteAudio = await s3.deleteObjects({
-              Bucket: BUCKET_SRC,
-              Delete: {
-                Objects: data.Contents.map(track => ({
-                  Key: track.Key
-                }))
-              }
-            });
-            deleteAudio.send();
-          }
-        }
-      );
-
-      // Delete streaming audio
-      s3.listObjectsV2(
-        {
-          Bucket: BUCKET_OPT,
-          Prefix: `m4a/${releaseId}`
-        },
-        async (err, data) => {
-          if (data.Contents.length) {
-            const deleteAudio = await s3.deleteObjects({
-              Bucket: BUCKET_OPT,
-              Delete: {
-                Objects: data.Contents.map(track => ({
-                  Key: track.Key
-                }))
-              }
-            });
-            deleteAudio.send();
-          }
-        }
-      );
-
-      // Delete art from S3
-      s3.listObjectsV2(
-        {
-          Bucket: BUCKET_IMG,
-          Prefix: `${releaseId}`
-        },
-        async (err, data) => {
-          if (data.Contents.length) {
-            const deleteArt = await s3.deleteObject({
-              Bucket: BUCKET_IMG,
-              Key: data.Contents[0].Key
-            });
-            deleteArt.send();
-          }
-        }
-      );
-      res.send(result._id);
+      return;
     }
+    // Delete from db
+    const result = await Release.findByIdAndRemove(releaseId);
+
+    // Delete audio from S3
+    const s3 = new aws.S3();
+    // Delete source audio
+    s3.listObjectsV2(
+      {
+        Bucket: BUCKET_SRC,
+        Prefix: `${releaseId}`
+      },
+      async (err, data) => {
+        if (data.Contents.length) {
+          const deleteAudio = await s3.deleteObjects({
+            Bucket: BUCKET_SRC,
+            Delete: {
+              Objects: data.Contents.map(track => ({
+                Key: track.Key
+              }))
+            }
+          });
+          deleteAudio.send();
+        }
+      }
+    );
+
+    // Delete streaming audio
+    s3.listObjectsV2(
+      {
+        Bucket: BUCKET_OPT,
+        Prefix: `m4a/${releaseId}`
+      },
+      async (err, data) => {
+        if (data.Contents.length) {
+          const deleteAudio = await s3.deleteObjects({
+            Bucket: BUCKET_OPT,
+            Delete: {
+              Objects: data.Contents.map(track => ({
+                Key: track.Key
+              }))
+            }
+          });
+          deleteAudio.send();
+        }
+      }
+    );
+
+    // Delete art from S3
+    s3.listObjectsV2(
+      {
+        Bucket: BUCKET_IMG,
+        Prefix: `${releaseId}`
+      },
+      async (err, data) => {
+        if (data.Contents.length) {
+          const deleteArt = await s3.deleteObject({
+            Bucket: BUCKET_IMG,
+            Key: data.Contents[0].Key
+          });
+          deleteArt.send();
+        }
+      }
+    );
+    res.send(result._id);
   });
 
   // Delete Track
@@ -165,49 +172,49 @@ module.exports = app => {
 
     if (!userOwnsRelease(req.user, release)) {
       res.status(401).send({ error: 'Not authorised.' });
-    } else {
-      // Delete from S3
-      const s3 = new aws.S3();
-      // Delete source audio
-      const sourceParams = {
-        Bucket: BUCKET_SRC,
-        Prefix: `${releaseId}/${trackId}`
-      };
-
-      s3.listObjectsV2(sourceParams, async (err, data) => {
-        if (data.Contents.length) {
-          const deleteAudio = await s3.deleteObject({
-            Bucket: BUCKET_SRC,
-            Key: data.Contents[0].Key
-          });
-          deleteAudio.send();
-        }
-      });
-
-      // Delete streaming audio
-      const optParams = {
-        Bucket: BUCKET_OPT,
-        Prefix: `m4a/${releaseId}/${trackId}`
-      };
-
-      s3.listObjectsV2(optParams, async (err, data) => {
-        if (data.Contents.length) {
-          const deleteAudio = await s3.deleteObject({
-            Bucket: BUCKET_OPT,
-            Key: data.Contents[0].Key
-          });
-          deleteAudio.send();
-        }
-      });
-
-      // Delete from db
-      const releaseDeleted = await Release.findByIdAndUpdate(
-        releaseId,
-        { $pull: { trackList: { _id: trackId } } },
-        { new: true }
-      );
-      res.send(releaseDeleted);
+      return;
     }
+    // Delete from S3
+    const s3 = new aws.S3();
+    // Delete source audio
+    const sourceParams = {
+      Bucket: BUCKET_SRC,
+      Prefix: `${releaseId}/${trackId}`
+    };
+
+    s3.listObjectsV2(sourceParams, async (err, data) => {
+      if (data.Contents.length) {
+        const deleteAudio = await s3.deleteObject({
+          Bucket: BUCKET_SRC,
+          Key: data.Contents[0].Key
+        });
+        deleteAudio.send();
+      }
+    });
+
+    // Delete streaming audio
+    const optParams = {
+      Bucket: BUCKET_OPT,
+      Prefix: `m4a/${releaseId}/${trackId}`
+    };
+
+    s3.listObjectsV2(optParams, async (err, data) => {
+      if (data.Contents.length) {
+        const deleteAudio = await s3.deleteObject({
+          Bucket: BUCKET_OPT,
+          Key: data.Contents[0].Key
+        });
+        deleteAudio.send();
+      }
+    });
+
+    // Delete from db
+    const releaseDeleted = await Release.findByIdAndUpdate(
+      releaseId,
+      { $pull: { trackList: { _id: trackId } } },
+      { new: true }
+    );
+    res.send(releaseDeleted);
   });
 
   // Download Release
@@ -293,13 +300,14 @@ module.exports = app => {
   });
 
   // Fetch Artist Catalogue
-  app.get('/api/catalogue/:artistId', async (req, res) => {
-    const { artistId } = req.params;
+  app.get('/api/catalogue/:userId/:artistName', async (req, res) => {
+    const { userId, artistName } = req.params;
     const releases = await Release.find({
-      _user: artistId,
+      _user: userId,
+      artistName,
       published: true
     }).sort('-releaseDate');
-    res.send(releases);
+    res.send({ artistName, releases });
   });
 
   // Fetch Catalogue
@@ -379,11 +387,11 @@ module.exports = app => {
 
     if (!userOwnsRelease(req.user, release)) {
       res.status(401).send({ error: 'Not authorised.' });
-    } else {
-      release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
-      release.save();
-      res.send(release);
+      return;
     }
+    release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
+    release.save();
+    res.send(release);
   });
 
   // Purchase Release
@@ -414,11 +422,11 @@ module.exports = app => {
 
     if (!userOwnsRelease(req.user, release)) {
       res.status(401).send({ error: 'Not authorised.' });
-    } else {
-      release.published = !release.published;
-      release.save();
-      res.send(release);
+      return;
     }
+    release.published = !release.published;
+    release.save();
+    res.send(release);
   });
 
   // Transcode Audio
@@ -553,12 +561,16 @@ module.exports = app => {
     };
 
     s3.getSignedUrl('putObject', params, (error, url) => {
-      const index = release.trackList.findIndex(
-        track => track._id.toString() === trackId
-      );
-      release.trackList[index].hasAudio = true;
-      release.save();
-      res.send(url);
+      if (error) {
+        res.status(500).send({ error });
+      } else {
+        const index = release.trackList.findIndex(
+          track => track._id.toString() === trackId
+        );
+        release.trackList[index].hasAudio = true;
+        release.save();
+        res.send(url);
+      }
     });
   });
 
@@ -568,8 +580,10 @@ module.exports = app => {
     const {
       artistName,
       catNumber,
+      cLine,
       credits,
       info,
+      pLine,
       price,
       recordLabel,
       releaseDate,
@@ -584,6 +598,10 @@ module.exports = app => {
     release.recordLabel = recordLabel;
     release.releaseDate = releaseDate;
     release.releaseTitle = releaseTitle;
+    release.pLine.year = pLine && pLine.year;
+    release.pLine.owner = pLine && pLine.owner;
+    release.cLine.year = cLine && cLine.year;
+    release.cLine.owner = cLine && cLine.owner;
     release.trackList.forEach((track, index) => {
       track.trackTitle = req.body.trackList[index].trackTitle;
     });

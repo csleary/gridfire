@@ -1,9 +1,11 @@
 import {
   ADD_RELEASE,
   ADD_TRACK,
+  ADD_TRACK_LOADING,
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
+  DELETE_TRACK_LOADING,
   FETCH_ARTIST_CATALOGUE,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
@@ -20,8 +22,11 @@ import {
 } from '../actions/types';
 
 const initialState = {
+  artistName: '',
   artworkUploading: false,
   artworkUploadProgress: 0,
+  isAddingTrack: false,
+  isDeletingTrack: false,
   isLoading: false,
   catalogue: [],
   collection: [],
@@ -35,9 +40,7 @@ export default (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
     case ADD_RELEASE:
-    case ADD_TRACK:
     case DELETE_ARTWORK:
-    case DELETE_TRACK:
     case FETCH_RELEASE:
     case FETCH_USER_RELEASE:
     case MOVE_TRACK:
@@ -45,6 +48,28 @@ export default (state = initialState, action) => {
       return {
         ...state,
         selectedRelease: payload
+      };
+    case ADD_TRACK:
+      return {
+        ...state,
+        isAddingTrack: false,
+        selectedRelease: payload
+      };
+    case ADD_TRACK_LOADING:
+      return {
+        ...state,
+        isAddingTrack: true
+      };
+    case DELETE_TRACK:
+      return {
+        ...state,
+        isDeletingTrack: false,
+        selectedRelease: payload
+      };
+    case DELETE_TRACK_LOADING:
+      return {
+        ...state,
+        isDeletingTrack: true
       };
     case DELETE_RELEASE:
       if (state.userReleases) {
@@ -59,7 +84,8 @@ export default (state = initialState, action) => {
     case FETCH_ARTIST_CATALOGUE:
       return {
         ...state,
-        catalogue: payload
+        artistName: payload.artistName,
+        catalogue: payload.releases
       };
     case FETCH_AUDIO_UPLOAD_URL:
       return {

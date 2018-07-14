@@ -2,9 +2,11 @@ import axios from 'axios';
 import {
   ADD_RELEASE,
   ADD_TRACK,
+  ADD_TRACK_LOADING,
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
+  DELETE_TRACK_LOADING,
   FETCH_ARTIST_CATALOGUE,
   FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
@@ -30,13 +32,27 @@ export * from './playerActions';
 export * from './nemActions';
 
 export const addRelease = () => async dispatch => {
-  const res = await axios.post('/api/release');
-  dispatch({ type: ADD_RELEASE, payload: res.data });
+  try {
+    const res = await axios.post('/api/release');
+    dispatch({ type: ADD_RELEASE, payload: res.data });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
 };
 
-export const addTrack = releaseId => async dispatch => {
-  const res = await axios.put(`/api/${releaseId}/add`);
-  dispatch({ type: ADD_TRACK, payload: res.data });
+export const addTrack = (releaseId, callback) => async dispatch => {
+  try {
+    dispatch({ type: ADD_TRACK_LOADING });
+    const res = await axios.put(`/api/${releaseId}/add`);
+    dispatch({ type: ADD_TRACK, isAddingTrack: false, payload: res.data });
+    callback();
+  } catch (e) {
+    dispatch({
+      type: TOAST_ERROR,
+      isAddingTrack: false,
+      payload: e.response.data
+    });
+  }
 };
 
 export const deleteArtwork = (releaseId, callback) => async dispatch => {
@@ -61,10 +77,12 @@ export const deleteRelease = (releaseId, callback) => async dispatch => {
   }
 };
 
-export const deleteTrack = (releaseId, trackId) => async dispatch => {
+export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
   try {
+    dispatch({ type: DELETE_TRACK_LOADING });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
+    callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
@@ -105,9 +123,12 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   }
 };
 
-export const fetchArtistCatalogue = artistId => async dispatch => {
-  const res = await axios.get(`/api/catalogue/${artistId}`);
-  dispatch({ type: FETCH_ARTIST_CATALOGUE, payload: res.data });
+export const fetchArtistCatalogue = (userId, artistName) => async dispatch => {
+  const res = await axios.get(`/api/catalogue/${userId}/${artistName}`);
+  dispatch({
+    type: FETCH_ARTIST_CATALOGUE,
+    payload: { artistName: res.data.artistName, releases: res.data.releases }
+  });
   return res;
 };
 
@@ -116,10 +137,14 @@ export const fetchAudioUploadUrl = (
   trackId,
   type
 ) => async dispatch => {
-  const res = await axios.get('/api/upload/audio', {
-    params: { releaseId, trackId, type }
-  });
-  dispatch({ type: FETCH_AUDIO_UPLOAD_URL, payload: res.data });
+  try {
+    const res = await axios.get('/api/upload/audio', {
+      params: { releaseId, trackId, type }
+    });
+    dispatch({ type: FETCH_AUDIO_UPLOAD_URL, payload: res.data });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
 };
 
 export const fetchCatalogue = () => async dispatch => {
@@ -162,14 +187,18 @@ export const fetchSales = () => async dispatch => {
 };
 
 export const fetchUser = () => async dispatch => {
-  dispatch({ type: FETCH_USER, isLoading: true });
-  const res = await axios.get('/api/user');
-  dispatch({
-    type: FETCH_USER,
-    isLoading: false,
-    isLoggedIn: !!res.data,
-    payload: res.data
-  });
+  try {
+    dispatch({ type: FETCH_USER, isLoading: true });
+    const res = await axios.get('/api/user');
+    dispatch({
+      type: FETCH_USER,
+      isLoading: false,
+      isLoggedIn: !!res.data,
+      payload: res.data
+    });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
 };
 
 export const fetchUserRelease = releaseId => async dispatch => {
@@ -302,7 +331,11 @@ export const transcodeAudio = (releaseId, trackId) => async () => {
 };
 
 export const updateRelease = (values, callback) => async dispatch => {
-  const res = await axios.put('/api/release', values);
-  callback();
-  dispatch({ type: UPDATE_RELEASE, payload: res.data });
+  try {
+    const res = await axios.put('/api/release', values);
+    dispatch({ type: UPDATE_RELEASE, payload: res.data });
+    callback();
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
 };
