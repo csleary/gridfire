@@ -42,11 +42,12 @@ export const addRelease = () => async dispatch => {
 
 export const addTrack = (releaseId, callback) => async dispatch => {
   try {
-    dispatch({ type: ADD_TRACK_LOADING });
+    dispatch({ type: ADD_TRACK_LOADING, isAddingTrack: true });
     const res = await axios.put(`/api/${releaseId}/add`);
     dispatch({ type: ADD_TRACK, isAddingTrack: false, payload: res.data });
     callback();
   } catch (e) {
+    dispatch({ type: ADD_TRACK_LOADING, isAddingTrack: false });
     dispatch({
       type: TOAST_ERROR,
       isAddingTrack: false,
@@ -79,11 +80,12 @@ export const deleteRelease = (releaseId, callback) => async dispatch => {
 
 export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
   try {
-    dispatch({ type: DELETE_TRACK_LOADING });
+    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: true });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
     callback();
   } catch (e) {
+    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };

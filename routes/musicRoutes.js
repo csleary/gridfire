@@ -50,7 +50,7 @@ module.exports = app => {
     const { releaseId } = req.params;
     const release = await Release.findById(releaseId);
 
-    if (!userOwnsRelease(req.user, release)) {
+    if (userOwnsRelease(req.user, release)) {
       res.status(401).send({ error: 'Not authorised.' });
       return;
     }

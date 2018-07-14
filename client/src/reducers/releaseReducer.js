@@ -58,7 +58,7 @@ export default (state = initialState, action) => {
     case ADD_TRACK_LOADING:
       return {
         ...state,
-        isAddingTrack: true
+        isAddingTrack: action.isAddingTrack
       };
     case DELETE_TRACK:
       return {
@@ -69,7 +69,7 @@ export default (state = initialState, action) => {
     case DELETE_TRACK_LOADING:
       return {
         ...state,
-        isDeletingTrack: true
+        isDeletingTrack: action.isDeletingTrack
       };
     case DELETE_RELEASE:
       if (state.userReleases) {
