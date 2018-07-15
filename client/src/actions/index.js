@@ -121,11 +121,11 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   }
 };
 
-export const fetchArtistCatalogue = (userId, artistName) => async dispatch => {
-  const res = await axios.get(`/api/catalogue/${userId}/${artistName}`);
+export const fetchArtistCatalogue = artist => async dispatch => {
+  const res = await axios.get(`/api/catalogue/${artist}`);
   dispatch({
     type: FETCH_ARTIST_CATALOGUE,
-    payload: { artistName: res.data.artistName, releases: res.data.releases }
+    payload: res.data
   });
   return res;
 };

@@ -132,7 +132,7 @@ class SelectedRelease extends Component {
     }
 
     const {
-      user,
+      artist,
       artistName,
       artwork,
       catNumber,
@@ -185,7 +185,7 @@ class SelectedRelease extends Component {
               )}
             </h2>
             <h4 className="artist-name text-center">
-              <Link to={`/artist/${user}/${artistName}`}>{artistName}</Link>
+              <Link to={`/artist/${artist}`}>{artistName}</Link>
             </h4>
             <h6 className="release-price text-center">
               ${price} USD{' '}

@@ -304,14 +304,17 @@ module.exports = app => {
   });
 
   // Fetch Artist Catalogue
-  app.get('/api/catalogue/:userId/:artistName', async (req, res) => {
-    const { userId, artistName } = req.params;
-    const releases = await Release.find({
-      user: userId,
-      artistName,
-      published: true
-    }).sort('-releaseDate');
-    res.send({ artistName, releases });
+  app.get('/api/catalogue/:artist', async (req, res) => {
+    const { artist } = req.params;
+
+    const catalogue = await Artist.findById(artist).populate({
+      path: 'releases',
+      model: Release,
+      options: {
+        sort: { releaseDate: -1 }
+      }
+    });
+    res.send(catalogue);
   });
 
   // Fetch Catalogue
@@ -621,6 +624,8 @@ module.exports = app => {
           {},
           { new: true, upsert: true }
         );
+
+        release.update({ artist: artist._id }).exec();
 
         if (!artist.releases.some(id => id.equals(updatedRelease._id))) {
           artist.update({ $push: { releases: updatedRelease._id } }).exec();
