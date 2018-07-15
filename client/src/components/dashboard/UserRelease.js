@@ -73,6 +73,7 @@ class UserRelease extends Component {
       `Are you sure you want to delete ${title || 'this release'}?`
     );
     if (confirmation) callback();
+    this.setState({ isDeletingRelease: false });
   };
 
   renderTitle = ({ _id, artist, artistName, releaseTitle }) => {
