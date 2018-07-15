@@ -4,7 +4,7 @@ import FontAwesome from 'react-fontawesome';
 
 const RenderRelease = props => {
   const { release, variation } = props;
-  const { artistName, _id, releaseTitle, artwork, trackList, user } = release;
+  const { artist, artistName, _id, releaseTitle, artwork, trackList } = release;
 
   return (
     <div className="cover-artwork" key={release._id} onTouchStart={() => {}}>
@@ -18,7 +18,7 @@ const RenderRelease = props => {
         title={`${artistName} - ${releaseTitle}`}
       >
         <div className="artist-name">
-          <Link to={`/artist/${user}/${artistName}`}>{artistName}</Link>
+          <Link to={`/artist/${artist}`}>{artistName}</Link>
         </div>
         <div className="buttons">
           <FontAwesome

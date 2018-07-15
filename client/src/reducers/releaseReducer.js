@@ -22,7 +22,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  artistName: '',
+  artist: {},
   artworkUploading: false,
   artworkUploadProgress: 0,
   isAddingTrack: false,
@@ -84,8 +84,7 @@ export default (state = initialState, action) => {
     case FETCH_ARTIST_CATALOGUE:
       return {
         ...state,
-        artistName: payload.artistName,
-        catalogue: payload.releases
+        artist: payload
       };
     case FETCH_AUDIO_UPLOAD_URL:
       return {

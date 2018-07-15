@@ -283,11 +283,17 @@ class EditRelease extends Component {
                     name="info"
                     type="textarea"
                   />
+                  <Field
+                    component={RenderReleaseField}
+                    formText="Please credit any writers, performers, producers, designers and engineers involved."
+                    label="Credits"
+                    name="credits"
+                    type="textarea"
+                  />
                   <div className="row p-0">
                     <div className="col">
                       <Field
                         component={RenderReleaseField}
-                        // formText=""
                         label="Copyright Year"
                         name="cLine.year"
                         type="number"
@@ -369,8 +375,6 @@ class EditRelease extends Component {
 
 const validate = ({
   artistName,
-  // cLine,
-  // pLine,
   price,
   releaseDate,
   releaseTitle,
@@ -392,14 +396,6 @@ const validate = ({
   if (price && price < 0) {
     errors.price = 'Price must be a positive number.';
   }
-  // if (
-  //   (cLine && (!cLine.year && cLine.owner)) ||
-  //   (cLine && (cLine.year && !cLine.owner))
-  // ) {
-  //   errors.cLine = {};
-  //   errors.cLine.year = !cLine.year && 'Please fill both year and owner.';
-  //   errors.cLine.owner = !cLine.owner && 'Please fill both year and owner.';
-  // }
   if (trackList) {
     const trackListErrors = [];
     trackList.forEach((track, trackIndex) => {

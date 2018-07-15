@@ -59,7 +59,6 @@ export const deleteArtwork = (releaseId, callback) => async dispatch => {
     callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
-    callback(e.response.data.error);
   }
 };
 
@@ -70,7 +69,6 @@ export const deleteRelease = (releaseId, callback) => async dispatch => {
     callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
-    callback(e.response.data.error);
   }
 };
 
@@ -79,6 +77,7 @@ export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
     dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: true });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
+    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
     callback();
   } catch (e) {
     dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
@@ -107,25 +106,27 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   };
 
   try {
-    await axios.post('/api/upload/artwork', data, config);
-    dispatch({ type: UPLOAD_ARTWORK, payload: false });
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-success',
-        message: 'Artwork uploaded.'
-      }
+    const imgUpload = axios.post('/api/upload/artwork', data, config);
+    imgUpload.then(() => {
+      dispatch({ type: UPLOAD_ARTWORK, payload: false });
+      dispatch({
+        type: TOAST_MESSAGE,
+        payload: {
+          alertClass: 'alert-success',
+          message: 'Artwork uploaded.'
+        }
+      });
     });
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
 
-export const fetchArtistCatalogue = (userId, artistName) => async dispatch => {
-  const res = await axios.get(`/api/catalogue/${userId}/${artistName}`);
+export const fetchArtistCatalogue = artist => async dispatch => {
+  const res = await axios.get(`/api/catalogue/${artist}`);
   dispatch({
     type: FETCH_ARTIST_CATALOGUE,
-    payload: { artistName: res.data.artistName, releases: res.data.releases }
+    payload: res.data
   });
   return res;
 };
@@ -281,12 +282,14 @@ export const playTrack = (
   });
 };
 
-export const publishStatus = releaseId => async dispatch => {
+export const publishStatus = (releaseId, callback) => async dispatch => {
   try {
     const res = await axios.patch(`/api/release/${releaseId}`);
     dispatch({ type: PUBLISH_STATUS, payload: res.data });
+    callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    callback();
   }
 };
 

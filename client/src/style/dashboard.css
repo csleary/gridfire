@@ -25,6 +25,15 @@
   border-bottom-right-radius: 0.5rem;
 }
 
+.user-releases .btn.btn-outline-danger:disabled,
+.user-releases .btn.btn-outline-danger:disabled:hover,
+.user-releases .btn.btn-outline-warning:disabled,
+.user-releases .btn.btn-outline-warning:disabled:hover {
+  background-color: transparent;
+  color: hsla(233, 10%, 75%, 1);
+  cursor: default;
+}
+
 a.btn.add-release {
   display: inline-block;
   padding: 0.5rem 1rem;
