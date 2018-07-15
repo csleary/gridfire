@@ -80,15 +80,22 @@ const UserReleases = props => {
         }`}
         key={release._id}
       >
-        <div className="artwork">
-          <Link to={`/release/${release._id}`}>
-            <img
-              className="lazyload img-fluid"
-              data-src={release.artwork ? release.artwork : null}
-              alt={release.artwork && `'${release.releaseTitle}' Artwork`}
-            />
-          </Link>
-        </div>
+        {release.artwork ? (
+          <div className="artwork">
+            <Link to={`/release/${release._id}`}>
+              <img
+                className="lazyload img-fluid"
+                data-src={release.artwork ? release.artwork : null}
+                alt={release.artwork && `'${release.releaseTitle}' Artwork`}
+              />
+            </Link>
+          </div>
+        ) : (
+          <h6>
+            <FontAwesome name="file-image-o" className="icon-left red" />
+            No artwork uploaded.
+          </h6>
+        )}
         <div className="d-flex flex-column flex-grow-1">
           <div className="release-details">
             <h6>{renderTitle(release)}</h6>
@@ -122,13 +129,14 @@ const UserReleases = props => {
               {release.published ? 'Unpublish' : 'Publish'}
             </button>
             <button
+              className="btn btn-outline-danger btn-sm flex-grow-1"
+              disabled={props.isDeletingRelease}
               onClick={() =>
                 pleaseConfirm(release.releaseTitle, () => {
                   const releaseName =
                     (release.releaseTitle && `'${release.releaseTitle}'`) ||
                     'Untitled release';
-                  props.deleteRelease(release._id, error => {
-                    if (error) return;
+                  props.deleteRelease(release._id, () => {
                     props.toastMessage({
                       alertClass: 'alert-success',
                       message: `${releaseName} deleted.`
@@ -136,7 +144,6 @@ const UserReleases = props => {
                   });
                 })
               }
-              className="btn btn-outline-danger btn-sm flex-grow-1"
             >
               <FontAwesome name="trash" className="icon-left" />
               Delete

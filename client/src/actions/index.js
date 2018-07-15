@@ -5,6 +5,7 @@ import {
   ADD_TRACK_LOADING,
   DELETE_ARTWORK,
   DELETE_RELEASE,
+  DELETE_RELEASE_LOADING,
   DELETE_TRACK,
   DELETE_TRACK_LOADING,
   FETCH_ARTIST_CATALOGUE,
@@ -59,18 +60,19 @@ export const deleteArtwork = (releaseId, callback) => async dispatch => {
     callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
-    callback(e.response.data.error);
   }
 };
 
 export const deleteRelease = (releaseId, callback) => async dispatch => {
   try {
+    dispatch({ type: DELETE_RELEASE_LOADING, isDeletingRelease: true });
     const res = await axios.delete(`/api/release/${releaseId}`);
     dispatch({ type: DELETE_RELEASE, payload: res.data });
+    dispatch({ type: DELETE_RELEASE_LOADING, isDeletingRelease: false });
     callback();
   } catch (e) {
+    dispatch({ type: DELETE_RELEASE_LOADING, isDeletingRelease: false });
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
-    callback(e.response.data.error);
   }
 };
 
@@ -79,6 +81,7 @@ export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
     dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: true });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
+    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
     callback();
   } catch (e) {
     dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
