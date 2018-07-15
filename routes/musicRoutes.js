@@ -25,6 +25,10 @@ const BUCKET_SRC =
   process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-src' : 'nemp3-src-testnet';
 const BUCKET_OPT =
   process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-opt' : 'nemp3-opt-testnet';
+const TRANSCODER_PIPELINE_ID =
+  process.env.NEM_NETWORK === 'mainnet'
+    ? '1513688795531-iszg5h'
+    : '1531674273682-xv3ewm';
 
 module.exports = app => {
   // Add New Release
@@ -49,6 +53,7 @@ module.exports = app => {
       res.status(401).send({ error: 'Not authorised.' });
       return;
     }
+
     release.trackList.push({});
     release
       .save()
@@ -100,6 +105,7 @@ module.exports = app => {
       res.status(401).send({ error: 'Not authorised.' });
       return;
     }
+
     // Delete from db
     const deleteRelease = await Release.findByIdAndRemove(releaseId);
     const deleteFromArtist = await Artist.findByIdAndUpdate(release.artist, {
@@ -119,7 +125,7 @@ module.exports = app => {
 
     let deleteS3Src;
     if (s3SrcData.Contents.length) {
-      const deleteImgParams = {
+      const deleteSrcParams = {
         Bucket: BUCKET_SRC,
         Delete: {
           Objects: s3SrcData.Contents.map(track => ({
@@ -127,8 +133,7 @@ module.exports = app => {
           }))
         }
       };
-
-      deleteS3Src = s3.deleteObject(deleteImgParams).promise();
+      deleteS3Src = s3.deleteObjects(deleteSrcParams).promise();
       deleteS3Src;
     }
 
@@ -150,8 +155,7 @@ module.exports = app => {
           }))
         }
       };
-
-      deleteS3Opt = s3.deleteObject(deleteImgParams).promise();
+      deleteS3Opt = s3.deleteObjects(deleteImgParams).promise();
       deleteS3Opt;
     }
 
@@ -239,15 +243,21 @@ module.exports = app => {
     }
 
     // Delete from db
-    const deleteTrack = await Release.findByIdAndUpdate(
+    const updatedRelease = await Release.findByIdAndUpdate(
       releaseId,
       { $pull: { trackList: { _id: trackId } } },
       { new: true }
     );
 
-    Promise.all([deleteTrack, listS3Src, deleteS3Src, listS3Opt, deleteS3Opt])
-      .then(values => {
-        res.send(values[0]._id);
+    Promise.all([
+      updatedRelease,
+      listS3Src,
+      deleteS3Src,
+      listS3Opt,
+      deleteS3Opt
+    ])
+      .then(() => {
+        res.send(updatedRelease);
       })
       .catch(error => res.status(500).send({ error }));
   });
@@ -340,6 +350,7 @@ module.exports = app => {
 
     const catalogue = await Artist.findById(artist).populate({
       path: 'releases',
+      match: { published: true },
       model: Release,
       options: {
         sort: { releaseDate: -1 }
@@ -471,36 +482,34 @@ module.exports = app => {
   app.get('/api/transcode/audio', requireLogin, async (req, res) => {
     const { releaseId, trackId } = req.query;
     const s3 = new aws.S3();
-    const key = `${releaseId}/${trackId}`;
     const listParams = {
       Bucket: BUCKET_SRC,
-      Prefix: key
+      Prefix: `${releaseId}/${trackId}`
     };
 
-    s3.listObjectsV2(listParams, async (err, inputAudio) => {
-      const transcoder = new aws.ElasticTranscoder();
-      const transcoderParams = {
-        PipelineId: '1513688795531-iszg5h',
-        Inputs: [
-          {
-            Key: inputAudio.Contents[0].Key,
-            Container: 'auto'
-          }
-        ],
-        Outputs: [
-          {
-            Key: `${releaseId}/${trackId}.m4a`,
-            PresetId: '1351620000001-100130'
-          }
-        ],
-        OutputKeyPrefix: 'm4a/'
-      };
+    const inputAudio = await s3.listObjectsV2(listParams).promise();
+    const transcoder = new aws.ElasticTranscoder();
+    const transcoderParams = {
+      PipelineId: TRANSCODER_PIPELINE_ID,
+      Inputs: [
+        {
+          Key: inputAudio.Contents[0].Key,
+          Container: 'auto'
+        }
+      ],
+      Outputs: [
+        {
+          Key: `${releaseId}/${trackId}.m4a`,
+          PresetId: '1351620000001-100130'
+        }
+      ],
+      OutputKeyPrefix: 'm4a/'
+    };
 
-      transcoder.createJob(transcoderParams, (error, data) => {
-        if (error) {
-          res.status(500).send({ error: error.stack });
-        } else res.send(data);
-      });
+    transcoder.createJob(transcoderParams, (error, data) => {
+      if (error) {
+        res.status(500).send({ error: error.stack });
+      } else res.send(data);
     });
   });
 
@@ -531,49 +540,46 @@ module.exports = app => {
         deleteS3Img;
       }
 
-      sharp(req.file.path)
+      // Upload new artwork
+      const ext = '.jpg';
+      const type = 'image/jpeg';
+      const axiosConfig = { headers: { 'Content-Type': type } };
+      const s3Params = {
+        ContentType: `${type}`,
+        Bucket: BUCKET_IMG,
+        Expires: 30,
+        Key: `${releaseId}${ext}`
+      };
+      const signedUrl = s3.getSignedUrl('putObject', s3Params);
+      const updateReleaseUrl = Release.findByIdAndUpdate(
+        releaseId,
+        {
+          artwork: `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`
+        },
+        { new: true }
+      );
+
+      const optimisedImg = await sharp(req.file.path)
         .resize(1000, 1000)
         .crop()
         .toFormat('jpeg')
-        .toBuffer()
-        .then(async optimised => {
-          // Upload new artwork
-          const ext = '.jpg';
-          const type = 'image/jpeg';
-          const params = {
-            ContentType: `${type}`,
-            Bucket: BUCKET_IMG,
-            Expires: 30,
-            Key: `${releaseId}${ext}`
-          };
+        .toBuffer();
 
-          const release = await Release.findById(releaseId);
-          release.artwork = `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`;
-          release.save();
-
-          const config = {
-            headers: {
-              'Content-Type': type
+      axios
+        .put(signedUrl, optimisedImg, axiosConfig)
+        .then(() => updateReleaseUrl)
+        .then(() => {
+          fs.unlink(req.file.path, err => {
+            if (err) {
+              throw new Error(
+                'Error occurred while deleting temporary artwork file.'
+              );
             }
-          };
-
-          s3.getSignedUrl('putObject', params, async (error, url) => {
-            if (error) null;
-
-            axios
-              .put(url, optimised, config)
-              .then(() => {
-                fs.unlink(req.file.path, err => {
-                  if (err) {
-                    throw new Error('Error occurred while deleting artwork.');
-                  }
-                });
-                res.end();
-              })
-              .catch(err => {
-                res.status(500).send({ error: err });
-              });
           });
+          res.end();
+        })
+        .catch(err => {
+          res.status(500).send({ error: err });
         });
     }
   );

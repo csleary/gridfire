@@ -107,14 +107,16 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   };
 
   try {
-    await axios.post('/api/upload/artwork', data, config);
-    dispatch({ type: UPLOAD_ARTWORK, payload: false });
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-success',
-        message: 'Artwork uploaded.'
-      }
+    const imgUpload = axios.post('/api/upload/artwork', data, config);
+    imgUpload.then(() => {
+      dispatch({ type: UPLOAD_ARTWORK, payload: false });
+      dispatch({
+        type: TOAST_MESSAGE,
+        payload: {
+          alertClass: 'alert-success',
+          message: 'Artwork uploaded.'
+        }
+      });
     });
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
