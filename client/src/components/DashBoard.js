@@ -70,7 +70,6 @@ class Dashboard extends Component {
               <UserReleases
                 deleteRelease={this.props.deleteRelease}
                 history={this.props.history}
-                isDeletingRelease={this.props.isDeletingRelease}
                 isLoadingUserReleases={this.props.isLoadingUserReleases}
                 publishStatus={this.props.publishStatus}
                 salesData={this.props.salesData}
@@ -87,7 +86,6 @@ class Dashboard extends Component {
 
 function mapStateToProps(state) {
   return {
-    isDeletingRelease: state.releases.isDeletingRelease,
     isLoadingUserReleases: state.releases.isLoading,
     salesData: state.salesData.releaseSales,
     userReleases: state.releases.userReleases,

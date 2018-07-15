@@ -4,7 +4,6 @@ import {
   ADD_TRACK_LOADING,
   DELETE_ARTWORK,
   DELETE_RELEASE,
-  DELETE_RELEASE_LOADING,
   DELETE_TRACK,
   DELETE_TRACK_LOADING,
   FETCH_ARTIST_CATALOGUE,
@@ -27,7 +26,6 @@ const initialState = {
   artworkUploading: false,
   artworkUploadProgress: 0,
   isAddingTrack: false,
-  isDeletingRelease: false,
   isDeletingTrack: false,
   isLoading: false,
   catalogue: [],
@@ -83,11 +81,6 @@ export default (state = initialState, action) => {
         };
       }
       return { ...state };
-    case DELETE_RELEASE_LOADING:
-      return {
-        ...state,
-        isDeletingRelease: action.isDeletingRelease
-      };
     case FETCH_ARTIST_CATALOGUE:
       return {
         ...state,
