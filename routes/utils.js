@@ -43,8 +43,16 @@ const getXemPrice = async () => {
   return xemPriceUsd;
 };
 
+const userOwnsRelease = (user, release) => {
+  if (user._id.toString() === release.user.toString()) {
+    return true;
+  }
+  return false;
+};
+
 module.exports = {
   checkPayments,
   filterTransactions,
-  getXemPrice
+  getXemPrice,
+  userOwnsRelease
 };

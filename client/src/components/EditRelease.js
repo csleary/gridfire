@@ -283,6 +283,13 @@ class EditRelease extends Component {
                     name="info"
                     type="textarea"
                   />
+                  <Field
+                    component={RenderReleaseField}
+                    formText="Please credit any writers, performers, producers, designers and engineers involved."
+                    label="Credits"
+                    name="credits"
+                    type="textarea"
+                  />
                   <div className="row p-0">
                     <div className="col">
                       <Field

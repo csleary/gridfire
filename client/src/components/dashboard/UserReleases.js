@@ -36,12 +36,12 @@ const pleaseConfirm = (title, callback) => {
   if (confirmation) callback();
 };
 
-const renderTitle = ({ releaseId, user, artistName, releaseTitle }) => {
+const renderTitle = ({ _id, artist, artistName, releaseTitle }) => {
   if (artistName) {
     return (
       <Fragment>
-        <Link to={`/artist/${user}/${artistName}`}>{artistName}</Link> &bull;{' '}
-        <Link to={`/release/${releaseId}`}>
+        <Link to={`/artist/${artist}`}>{artistName}</Link> &bull;{' '}
+        <Link to={`/release/${_id}`}>
           <span className="ibm-type-italic">{releaseTitle}</span>
         </Link>
       </Fragment>
