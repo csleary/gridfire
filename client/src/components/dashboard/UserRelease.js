@@ -39,6 +39,29 @@ class UserRelease extends Component {
     }
   };
 
+  handleDeleteRelease = () => {
+    const { deleteRelease, release, toastMessage } = this.props;
+    this.setState({ isDeletingRelease: true });
+
+    this.pleaseConfirm(release.releaseTitle, () => {
+      const releaseName =
+        (release.releaseTitle && `'${release.releaseTitle}'`) ||
+        'untitled release';
+
+      toastMessage({
+        alertClass: 'alert-warning',
+        message: `Deleting ${releaseName}…`
+      });
+
+      deleteRelease(release._id, () => {
+        toastMessage({
+          alertClass: 'alert-success',
+          message: `Successfully deleted ${releaseName}.`
+        });
+      });
+    });
+  };
+
   handlePublishStatus = () => {
     const { release, publishStatus, toastMessage } = this.props;
 
@@ -73,7 +96,7 @@ class UserRelease extends Component {
       `Are you sure you want to delete ${title || 'this release'}?`
     );
     if (confirmation) callback();
-    this.setState({ isDeletingRelease: false });
+    else this.setState({ isDeletingRelease: false });
   };
 
   renderTitle = ({ _id, artist, artistName, releaseTitle }) => {
@@ -91,7 +114,7 @@ class UserRelease extends Component {
   };
 
   render() {
-    const { deleteRelease, history, release, toastMessage } = this.props;
+    const { history, release } = this.props;
 
     return (
       <li
@@ -161,21 +184,7 @@ class UserRelease extends Component {
             <button
               className="btn btn-outline-danger btn-sm flex-grow-1"
               disabled={this.state.isDeletingRelease}
-              onClick={() => {
-                this.setState({ isDeletingRelease: true });
-                this.pleaseConfirm(release.releaseTitle, () => {
-                  const releaseName =
-                    (release.releaseTitle && `'${release.releaseTitle}'`) ||
-                    'Untitled release';
-                  deleteRelease(release._id, () => {
-                    this.setState({ isDeletingRelease: false });
-                    toastMessage({
-                      alertClass: 'alert-success',
-                      message: `${releaseName} deleted.`
-                    });
-                  });
-                });
-              }}
+              onClick={() => this.handleDeleteRelease()}
             >
               <FontAwesome name="trash" className="icon-left" />
               Delete
