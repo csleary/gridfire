@@ -48,23 +48,24 @@ class UserReleases extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col-lg">
-            {!isLoadingUserReleases &&
-              userReleases &&
-              !userReleases.length && (
-                <Fragment>
-                  <h3>Add your first release</h3>
-                  <p>
-                    You don&rsquo;t currently have any releases for sale. Please
-                    hit the button below to add your first release.
-                  </p>
-                </Fragment>
-              )}
-            <h3>
-              You have {userReleases.length} release{userReleases.length > 1
-                ? 's'
-                : ''}.
-            </h3>
-            <ul className="user-releases">{this.renderUserReleases()}</ul>
+            {userReleases && !userReleases.length ? (
+              <Fragment>
+                <h3>Add your first release</h3>
+                <p>
+                  You don&rsquo;t currently have any releases for sale. Please
+                  hit the button below to add your first release.
+                </p>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <h3>
+                  You have {userReleases.length} release{userReleases.length > 1
+                    ? 's'
+                    : ''}.
+                </h3>
+                <ul className="user-releases">{this.renderUserReleases()}</ul>
+              </Fragment>
+            )}
             <Link
               className="btn btn-outline-primary btn-sm add-release"
               title="Add Release"

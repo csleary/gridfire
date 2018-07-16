@@ -107,10 +107,24 @@ module.exports = app => {
     }
 
     // Delete from db
+    let deleteArtist;
+    let deleteArtistFromUser;
     const deleteRelease = await Release.findByIdAndRemove(releaseId);
-    const deleteFromArtist = await Artist.findByIdAndUpdate(release.artist, {
-      $pull: { releases: releaseId }
-    }).exec();
+    const deleteFromArtist = await Artist.findByIdAndUpdate(
+      release.artist,
+      {
+        $pull: { releases: releaseId }
+      },
+      { new: true }
+    ).then(async artist => {
+      if (!artist.releases.length) {
+        deleteArtistFromUser = await User.findByIdAndUpdate(req.user._id, {
+          $pull: { artists: artist._id }
+        }).then(async () => {
+          deleteArtist = await Artist.findByIdAndRemove(artist._id);
+        });
+      }
+    });
 
     // Delete audio from S3
     const s3 = new aws.S3();
@@ -180,6 +194,8 @@ module.exports = app => {
     Promise.all([
       deleteRelease,
       deleteFromArtist,
+      deleteArtist,
+      deleteArtistFromUser,
       listS3Src,
       deleteS3Src,
       listS3Opt,
@@ -187,9 +203,7 @@ module.exports = app => {
       listS3Img,
       deleteS3Img
     ])
-      .then(values => {
-        res.send(values[0]._id);
-      })
+      .then(values => res.send(values[0]._id))
       .catch(error => res.status(500).send({ error }));
   });
 
@@ -656,10 +670,7 @@ module.exports = app => {
       .save()
       .then(async updatedRelease => {
         const artist = await Artist.findOneAndUpdate(
-          {
-            user: req.user._id,
-            name: artistName
-          },
+          { user: req.user._id, name: artistName },
           {},
           { new: true, upsert: true }
         );
@@ -673,14 +684,8 @@ module.exports = app => {
       })
       .then(async updatedArtist =>
         User.findOneAndUpdate(
-          {
-            _id: req.user._id,
-            artists: { $ne: updatedArtist._id }
-          },
-          {
-            $push: { artists: updatedArtist._id }
-          },
-          { new: true }
+          { _id: req.user._id, artists: { $ne: updatedArtist._id } },
+          { $push: { artists: updatedArtist._id } }
         )
       )
       .then(() => res.send(release))

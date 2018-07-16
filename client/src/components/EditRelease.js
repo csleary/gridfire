@@ -175,15 +175,17 @@ class EditRelease extends Component {
     }
   }
 
-  onSubmit(values) {
-    this.props.updateRelease(values, () => {
-      this.props.history.push('/dashboard');
-      this.props.toastMessage({
-        alertClass: 'alert-success',
-        message: `${this.props.release.releaseTitle || 'Release'} saved!`
+  onSubmit = values =>
+    new Promise(resolve => {
+      this.props.updateRelease(values, () => {
+        this.props.history.push('/dashboard');
+        this.props.toastMessage({
+          alertClass: 'alert-success',
+          message: `${this.props.release.releaseTitle || 'Release'} saved!`
+        });
+        resolve();
       });
     });
-  }
 
   setLoading(boolean) {
     this.setState({
