@@ -24,8 +24,7 @@ class RenderTrackList extends Component {
   handleAddTrack = push => {
     this.setState({ isAddingTrack: true });
     this.props.addTrack(this.props.release._id, () => {
-      push();
-      this.setState({ isAddingTrack: false });
+      this.setState({ isAddingTrack: false }, () => push());
     });
   };
 

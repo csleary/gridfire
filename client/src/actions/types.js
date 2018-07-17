@@ -1,7 +1,6 @@
 export const ADD_NEM_ADDRESS = 'ADD_NEM_ADDRESS';
 export const ADD_RELEASE = 'ADD_RELEASE';
 export const ADD_TRACK = 'ADD_TRACK';
-export const ADD_TRACK_LOADING = 'ADD_TRACK_LOADING';
 export const DELETE_ARTWORK = 'DELETE_ARTWORK';
 export const DELETE_RELEASE = 'DELETE_RELEASE';
 export const DELETE_TRACK = 'DELETE_TRACK';

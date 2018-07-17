@@ -1,7 +1,6 @@
 import {
   ADD_RELEASE,
   ADD_TRACK,
-  ADD_TRACK_LOADING,
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
@@ -23,7 +22,6 @@ const initialState = {
   artist: {},
   artworkUploading: false,
   artworkUploadProgress: 0,
-  isAddingTrack: false,
   isLoading: false,
   catalogue: [],
   collection: [],
@@ -37,27 +35,13 @@ export default (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
     case ADD_RELEASE:
+    case ADD_TRACK:
     case DELETE_ARTWORK:
+    case DELETE_TRACK:
     case FETCH_RELEASE:
     case FETCH_USER_RELEASE:
     case MOVE_TRACK:
     case UPDATE_RELEASE:
-      return {
-        ...state,
-        selectedRelease: payload
-      };
-    case ADD_TRACK:
-      return {
-        ...state,
-        isAddingTrack: false,
-        selectedRelease: payload
-      };
-    case ADD_TRACK_LOADING:
-      return {
-        ...state,
-        isAddingTrack: action.isAddingTrack
-      };
-    case DELETE_TRACK:
       return {
         ...state,
         selectedRelease: payload

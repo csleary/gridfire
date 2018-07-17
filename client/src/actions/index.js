@@ -2,7 +2,6 @@ import axios from 'axios';
 import {
   ADD_RELEASE,
   ADD_TRACK,
-  ADD_TRACK_LOADING,
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
@@ -40,12 +39,10 @@ export const addRelease = () => async dispatch => {
 
 export const addTrack = (releaseId, callback) => async dispatch => {
   try {
-    dispatch({ type: ADD_TRACK_LOADING, isAddingTrack: true });
     const res = await axios.put(`/api/${releaseId}/add`);
-    dispatch({ type: ADD_TRACK, isAddingTrack: false, payload: res.data });
+    dispatch({ type: ADD_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: ADD_TRACK_LOADING, isAddingTrack: false });
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
