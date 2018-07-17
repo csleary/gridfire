@@ -595,25 +595,25 @@ module.exports = app => {
 
   // Upload Audio
   app.get('/api/upload/audio', requireLogin, async (req, res) => {
-    const { releaseId, trackId, type } = req.query;
-
-    let ext;
-    if (type === 'audio/wav') {
-      ext = '.wav';
-    } else if (type === 'audio/aiff') {
-      ext = '.aiff';
-    }
-
-    const s3 = new aws.S3();
-    const key = `${releaseId}/${trackId}${ext}`;
-    const params = {
-      ContentType: `${type}`,
-      Bucket: BUCKET_SRC,
-      Expires: 30,
-      Key: key
-    };
-
     try {
+      const { releaseId, trackId, type } = req.query;
+
+      let ext;
+      if (type === 'audio/wav') {
+        ext = '.wav';
+      } else if (type === 'audio/aiff') {
+        ext = '.aiff';
+      }
+
+      const s3 = new aws.S3();
+      const key = `${releaseId}/${trackId}${ext}`;
+      const params = {
+        ContentType: `${type}`,
+        Bucket: BUCKET_SRC,
+        Expires: 30,
+        Key: key
+      };
+
       const release = await Release.findById(releaseId);
       const audioUploadUrl = s3.getSignedUrl('putObject', params);
       const index = release.trackList.findIndex(
@@ -624,19 +624,6 @@ module.exports = app => {
     } catch (error) {
       res.status(500).send({ error });
     }
-
-    // s3.getSignedUrl('putObject', params, (error, url) => {
-    //   if (error) {
-    //     res.status(500).send({ error });
-    //   } else {
-    //     const index = release.trackList.findIndex(
-    //       track => track._id.toString() === trackId
-    //     );
-    //     release.trackList[index].hasAudio = true;
-    //     release.save();
-    //     res.send(url);
-    //   }
-    // });
   });
 
   // Update Release
