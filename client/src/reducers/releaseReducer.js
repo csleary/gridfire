@@ -5,9 +5,7 @@ import {
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
-  DELETE_TRACK_LOADING,
   FETCH_ARTIST_CATALOGUE,
-  FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
   FETCH_RELEASE,
@@ -26,7 +24,6 @@ const initialState = {
   artworkUploading: false,
   artworkUploadProgress: 0,
   isAddingTrack: false,
-  isDeletingTrack: false,
   isLoading: false,
   catalogue: [],
   collection: [],
@@ -63,13 +60,7 @@ export default (state = initialState, action) => {
     case DELETE_TRACK:
       return {
         ...state,
-        isDeletingTrack: false,
         selectedRelease: payload
-      };
-    case DELETE_TRACK_LOADING:
-      return {
-        ...state,
-        isDeletingTrack: action.isDeletingTrack
       };
     case DELETE_RELEASE:
       if (state.userReleases) {
@@ -85,11 +76,6 @@ export default (state = initialState, action) => {
       return {
         ...state,
         artist: payload
-      };
-    case FETCH_AUDIO_UPLOAD_URL:
-      return {
-        ...state,
-        audioUploadUrl: payload
       };
     case FETCH_CATALOGUE:
       return {

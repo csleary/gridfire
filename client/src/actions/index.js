@@ -6,9 +6,7 @@ import {
   DELETE_ARTWORK,
   DELETE_RELEASE,
   DELETE_TRACK,
-  DELETE_TRACK_LOADING,
   FETCH_ARTIST_CATALOGUE,
-  FETCH_AUDIO_UPLOAD_URL,
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
   FETCH_RELEASE,
@@ -74,13 +72,10 @@ export const deleteRelease = (releaseId, callback) => async dispatch => {
 
 export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
   try {
-    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: true });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
-    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
     callback();
   } catch (e) {
-    dispatch({ type: DELETE_TRACK_LOADING, isDeletingTrack: false });
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
 };
@@ -137,10 +132,10 @@ export const fetchAudioUploadUrl = (
   type
 ) => async dispatch => {
   try {
-    const res = await axios.get('/api/upload/audio', {
+    return await axios.get('/api/upload/audio', {
       params: { releaseId, trackId, type }
     });
-    dispatch({ type: FETCH_AUDIO_UPLOAD_URL, payload: res.data });
+    // dispatch({ type: FETCH_AUDIO_UPLOAD_URL, payload: res.data });
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }

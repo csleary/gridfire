@@ -117,7 +117,7 @@ module.exports = app => {
       },
       { new: true }
     ).then(async artist => {
-      if (!artist.releases.length) {
+      if (artist && !artist.releases.length) {
         deleteArtistFromUser = await User.findByIdAndUpdate(req.user._id, {
           $pull: { artists: artist._id }
         }).then(async () => {
@@ -488,8 +488,7 @@ module.exports = app => {
       return;
     }
     release.published = !release.published;
-    release.save();
-    res.send(release);
+    release.save().then(updatedRelease => res.send(updatedRelease));
   });
 
   // Transcode Audio
@@ -601,7 +600,6 @@ module.exports = app => {
   // Upload Audio
   app.get('/api/upload/audio', requireLogin, async (req, res) => {
     const { releaseId, trackId, type } = req.query;
-    const release = await Release.findById(releaseId);
 
     let ext;
     if (type === 'audio/wav') {
@@ -619,18 +617,30 @@ module.exports = app => {
       Key: key
     };
 
-    s3.getSignedUrl('putObject', params, (error, url) => {
-      if (error) {
-        res.status(500).send({ error });
-      } else {
-        const index = release.trackList.findIndex(
-          track => track._id.toString() === trackId
-        );
-        release.trackList[index].hasAudio = true;
-        release.save();
-        res.send(url);
-      }
-    });
+    try {
+      const release = await Release.findById(releaseId);
+      const audioUploadUrl = s3.getSignedUrl('putObject', params);
+      const index = release.trackList.findIndex(
+        track => track._id.toString() === trackId
+      );
+      release.trackList[index].hasAudio = true;
+      release.save().then(() => res.send(audioUploadUrl));
+    } catch (error) {
+      res.status(500).send({ error });
+    }
+
+    // s3.getSignedUrl('putObject', params, (error, url) => {
+    //   if (error) {
+    //     res.status(500).send({ error });
+    //   } else {
+    //     const index = release.trackList.findIndex(
+    //       track => track._id.toString() === trackId
+    //     );
+    //     release.trackList[index].hasAudio = true;
+    //     release.save();
+    //     res.send(url);
+    //   }
+    // });
   });
 
   // Update Release
@@ -668,6 +678,7 @@ module.exports = app => {
     });
     release
       .save()
+      // Add artist to Artist model.
       .then(async updatedRelease => {
         const artist = await Artist.findOneAndUpdate(
           { user: req.user._id, name: artistName },
@@ -675,6 +686,7 @@ module.exports = app => {
           { new: true, upsert: true }
         );
 
+        // Add release ID to artist if it doesn't already exist.
         if (!artist.releases.some(id => id.equals(updatedRelease._id))) {
           artist
             .update({ $push: { releases: updatedRelease._id } })
@@ -682,6 +694,8 @@ module.exports = app => {
         }
         return artist;
       })
+
+      // Add artist ID to user account.
       .then(async updatedArtist =>
         User.findOneAndUpdate(
           { _id: req.user._id, artists: { $ne: updatedArtist._id } },

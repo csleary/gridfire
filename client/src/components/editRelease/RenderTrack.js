@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { Field } from 'redux-form';
 import classNames from 'classnames';
@@ -11,7 +11,8 @@ class RenderTrack extends Component {
 
     this.state = {
       dragOrigin: null,
-      dragActive: false
+      dragActive: false,
+      isDeletingTrack: false
     };
   }
 
@@ -27,11 +28,15 @@ class RenderTrack extends Component {
   };
 
   handleDeleteTrack = (remove, index) => {
+    this.setState({ isDeletingTrack: true });
     this.handleConfirm(this.props.release.trackList[index].trackTitle, () => {
       this.props.deleteTrack(
         this.props.release._id,
         this.props.release.trackList[index]._id,
-        () => remove(index)
+        () => {
+          remove(index);
+          this.setState({ isDeletingTrack: false });
+        }
       );
     });
   };
@@ -69,18 +74,13 @@ class RenderTrack extends Component {
   };
 
   render() {
-    const {
-      isAddingTrack,
-      isDeletingTrack,
-      fields,
-      release,
-      audioUploading
-    } = this.props;
+    const { isDeletingTrack } = this.state;
+    const { isAddingTrack, fields, release, audioUploading } = this.props;
     const { trackList } = release;
     const id = release._id;
 
     return (
-      <div>
+      <Fragment>
         <ul className="list-group track-list">
           {fields.map((track, index) => {
             const trackId = trackList[index] && trackList[index]._id;
@@ -194,7 +194,7 @@ class RenderTrack extends Component {
           )}
           {isAddingTrack ? 'Adding…' : 'Add'}
         </button>
-      </div>
+      </Fragment>
     );
   }
 }
