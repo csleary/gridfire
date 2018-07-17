@@ -5,7 +5,7 @@ import { Field, FieldArray, formValueSelector, reduxForm } from 'redux-form';
 import axios from 'axios';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
-import RenderTrack from './editRelease/RenderTrack';
+import RenderTrackList from './editRelease/RenderTrackList';
 import Spinner from './Spinner';
 import {
   addRelease,
@@ -178,10 +178,12 @@ class EditRelease extends Component {
   onSubmit = values =>
     new Promise(resolve => {
       this.props.updateRelease(values, () => {
+        const { releaseTitle } = this.props.release;
         this.props.history.push('/dashboard');
         this.props.toastMessage({
           alertClass: 'alert-success',
-          message: `${this.props.release.releaseTitle || 'Release'} saved!`
+          message: `${(releaseTitle && `'${releaseTitle}'`) ||
+            'Release'} saved!`
         });
         resolve();
       });
@@ -345,15 +347,16 @@ class EditRelease extends Component {
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
               <FieldArray
-                name="trackList"
-                component={RenderTrack}
                 addTrack={this.props.addTrack}
+                audioUploading={this.state.audioUploading}
+                component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 isAddingTrack={this.props.isAddingTrack}
                 moveTrack={this.props.moveTrack}
+                name="trackList"
                 onDropAudio={this.onDropAudio}
                 release={this.props.release}
-                audioUploading={this.state.audioUploading}
+                toastMessage={this.props.toastMessage}
               />
               <div className="d-flex justify-content-end">
                 <button

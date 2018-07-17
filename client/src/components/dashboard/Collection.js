@@ -73,8 +73,8 @@ class Collection extends Component {
         <div className="row">
           <div className="col">
             <h3>
-              {collection.length} release{collection.length > 1 ? 's' : ''} are
-              currently in your collection.
+              {collection.length} release{collection.length > 1 ? 's' : ''}{' '}
+              currently in your collection
             </h3>
             <div className="front-page">{renderReleases}</div>
           </div>
