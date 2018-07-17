@@ -71,7 +71,8 @@ class EditRelease extends Component {
       this.props.deleteRelease(this.props.release._id, () => {
         this.props.toastMessage({
           alertClass: 'alert-warning',
-          message: 'Invalid or incomplete release discarded.'
+          message:
+            'Invalid or incomplete release discarded (automated housekeeping).'
         });
       });
     }

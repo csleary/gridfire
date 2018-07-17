@@ -288,64 +288,60 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
     const { trackList } = release;
 
-    s3.listObjectsV2(
-      {
-        Bucket: BUCKET_SRC,
-        Prefix: prefix
-      },
-      async (err, data) => {
-        const downloadUrlsList = async () => {
-          const urls = [];
-          const tracks = data.Contents;
+    const s3TrackList = await s3
+      .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: prefix })
+      .promise();
 
-          tracks.forEach(async track => {
-            const title =
-              process.env.NEM_NETWORK === 'mainnet'
-                ? trackList.filter(_track => track.Key.includes(_track._id))[0]
-                    .trackTitle
-                : 'Test Track';
+    const downloadUrlsList = async () => {
+      const urls = [];
+      const tracks = s3TrackList.Contents;
 
-            const ext = track.Key.substring(track.Key.lastIndexOf('.'));
+      tracks.forEach(async track => {
+        const title =
+          process.env.NEM_NETWORK === 'mainnet'
+            ? trackList.filter(_track => track.Key.includes(_track._id))[0]
+                .trackTitle
+            : 'Test Track';
 
-            const params = {
-              Bucket: BUCKET_SRC,
-              Expires: 60 * 5,
-              Key: track.Key
-            };
+        const ext = track.Key.substring(track.Key.lastIndexOf('.'));
 
-            const url = await s3.getSignedUrl('getObject', params);
-            urls.push({ ext, title, url });
-          });
-          return urls;
+        const params = {
+          Bucket: BUCKET_SRC,
+          Expires: 60 * 5,
+          Key: track.Key
         };
-        const downloadUrls = await downloadUrlsList();
 
-        archive.on('end', () => {});
+        const url = await s3.getSignedUrl('getObject', params);
+        urls.push({ ext, title, url });
+      });
+      return urls;
+    };
+    const downloadUrls = await downloadUrlsList();
 
-        archive.on('error', error => {
-          res.status(500).send({ error: error.message });
-        });
+    archive.on('end', () => {});
 
-        res.attachment(`${release.artistName} - ${release.releaseTitle}.zip`);
-        archive.pipe(res);
+    archive.on('error', error => {
+      res.status(500).send({ error: error.message });
+    });
 
-        downloadUrls.forEach((track, index) => {
-          const trackNumber =
-            process.env.NEM_NETWORK === 'mainnet'
-              ? release.trackList.findIndex(_track =>
-                  track.url.includes(_track._id)
-                ) + 1
-              : index + 1;
+    res.attachment(`${release.artistName} - ${release.releaseTitle}.zip`);
+    archive.pipe(res);
 
-          archive.append(request(track.url, { encoding: null }), {
-            name: `${trackNumber.toString(10).padStart(2, '0')} ${track.title}${
-              track.ext
-            }`
-          });
-        });
-        archive.finalize();
-      }
-    );
+    downloadUrls.forEach((track, index) => {
+      const trackNumber =
+        process.env.NEM_NETWORK === 'mainnet'
+          ? release.trackList.findIndex(_track =>
+              track.url.includes(_track._id)
+            ) + 1
+          : index + 1;
+
+      archive.append(request(track.url, { encoding: null }), {
+        name: `${trackNumber.toString(10).padStart(2, '0')} ${track.title}${
+          track.ext
+        }`
+      });
+    });
+    archive.finalize();
   });
 
   // Fetch Collection
