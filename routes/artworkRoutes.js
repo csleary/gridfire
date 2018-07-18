@@ -115,10 +115,7 @@ module.exports = app => {
         deleteS3Img
           .then(() => {
             release.artwork = undefined;
-            release.save((error, doc) => {
-              if (error) throw new Error(error);
-              res.send(doc);
-            });
+            release.save().then(doc => res.send(doc));
           })
           .catch(error => {
             throw new Error(error.message);

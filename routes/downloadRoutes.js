@@ -17,6 +17,7 @@ module.exports = app => {
   app.post('/api/download', requireLogin, async (req, res) => {
     const { releaseId } = req.body;
     const user = await User.findById(req.user._id);
+
     const hasPreviouslyPurchased = user.purchases.some(purchase =>
       purchase.releaseId.equals(releaseId)
     );
@@ -76,6 +77,7 @@ module.exports = app => {
       });
       return urls;
     };
+
     const downloadUrls = await downloadUrlsList();
 
     archive.on('end', () => {});
