@@ -4,12 +4,11 @@ const fs = require('fs');
 const sharp = require('sharp');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const utils = require('./utils');
 const { AWS_REGION } = require('./constants');
 const { BUCKET_IMG } = require('./constants');
 
-const { userOwnsRelease } = utils;
 const Release = mongoose.model('releases');
 const upload = multer({ dest: 'tmp/' });
 aws.config.update({ region: AWS_REGION });
@@ -86,43 +85,43 @@ module.exports = app => {
   );
 
   // Delete Artwork
-  app.delete('/api/artwork/:releaseId', requireLogin, async (req, res) => {
-    try {
-      const { releaseId } = req.params;
-      const release = await Release.findById(releaseId);
+  app.delete(
+    '/api/artwork/:releaseId',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      try {
+        const { releaseId } = req.params;
+        const release = res.locals.release;
 
-      if (!userOwnsRelease(req.user, release)) {
-        res.status(401).send({ error: 'Not authorised.' });
-        return;
-      }
-
-      // Delete from S3
-      const s3 = new aws.S3();
-      const listImgParams = {
-        Bucket: BUCKET_IMG,
-        Prefix: `${releaseId}`
-      };
-      const listS3Img = s3.listObjectsV2(listImgParams).promise();
-      const s3ImgData = await listS3Img;
-
-      let deleteS3Img;
-      if (s3ImgData.Contents.length) {
-        const deleteImgParams = {
+        // Delete from S3
+        const s3 = new aws.S3();
+        const listImgParams = {
           Bucket: BUCKET_IMG,
-          Key: s3ImgData.Contents[0].Key
+          Prefix: `${releaseId}`
         };
-        deleteS3Img = s3.deleteObject(deleteImgParams).promise();
-        deleteS3Img
-          .then(() => {
-            release.artwork = undefined;
-            release.save().then(doc => res.send(doc));
-          })
-          .catch(error => {
-            throw new Error(error.message);
-          });
+        const listS3Img = s3.listObjectsV2(listImgParams).promise();
+        const s3ImgData = await listS3Img;
+
+        let deleteS3Img;
+        if (s3ImgData.Contents.length) {
+          const deleteImgParams = {
+            Bucket: BUCKET_IMG,
+            Key: s3ImgData.Contents[0].Key
+          };
+          deleteS3Img = s3.deleteObject(deleteImgParams).promise();
+          deleteS3Img
+            .then(() => {
+              release.artwork = undefined;
+              release.save().then(doc => res.send(doc));
+            })
+            .catch(error => {
+              throw new Error(error.message);
+            });
+        }
+      } catch (error) {
+        res.status(500).send({ error });
       }
-    } catch (error) {
-      res.status(500).send({ error });
     }
-  });
+  );
 };

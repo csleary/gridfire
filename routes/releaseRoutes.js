@@ -2,6 +2,7 @@ const aws = require('aws-sdk');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
 const SHA256 = require('crypto-js/sha256');
+const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 const { AWS_REGION } = require('./constants');
@@ -9,7 +10,6 @@ const { BUCKET_IMG } = require('./constants');
 const { BUCKET_SRC } = require('./constants');
 const { BUCKET_OPT } = require('./constants');
 
-const { userOwnsRelease } = utils;
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
@@ -30,115 +30,115 @@ module.exports = app => {
   });
 
   // Delete Release
-  app.delete('/api/release/:releaseId', requireLogin, async (req, res) => {
-    const { releaseId } = req.params;
-    const release = await Release.findById(releaseId);
+  app.delete(
+    '/api/release/:releaseId',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      const { releaseId } = req.params;
+      const release = res.locals.release;
 
-    if (!userOwnsRelease(req.user, release)) {
-      res.status(401).send({ error: 'Not authorised.' });
-      return;
-    }
+      // Delete from db
+      let deleteArtist;
+      let deleteArtistFromUser;
+      const deleteRelease = await Release.findByIdAndRemove(releaseId);
+      const deleteFromArtist = await Artist.findByIdAndUpdate(
+        release.artist,
+        {
+          $pull: { releases: releaseId }
+        },
+        { new: true }
+      ).then(async artist => {
+        if (artist && !artist.releases.length) {
+          deleteArtistFromUser = await User.findByIdAndUpdate(req.user._id, {
+            $pull: { artists: artist._id }
+          }).then(async () => {
+            deleteArtist = await Artist.findByIdAndRemove(artist._id);
+          });
+        }
+      });
 
-    // Delete from db
-    let deleteArtist;
-    let deleteArtistFromUser;
-    const deleteRelease = await Release.findByIdAndRemove(releaseId);
-    const deleteFromArtist = await Artist.findByIdAndUpdate(
-      release.artist,
-      {
-        $pull: { releases: releaseId }
-      },
-      { new: true }
-    ).then(async artist => {
-      if (artist && !artist.releases.length) {
-        deleteArtistFromUser = await User.findByIdAndUpdate(req.user._id, {
-          $pull: { artists: artist._id }
-        }).then(async () => {
-          deleteArtist = await Artist.findByIdAndRemove(artist._id);
-        });
-      }
-    });
+      // Delete audio from S3
+      const s3 = new aws.S3();
 
-    // Delete audio from S3
-    const s3 = new aws.S3();
-
-    // Delete source audio
-    const listSrcParams = {
-      Bucket: BUCKET_SRC,
-      Prefix: `${releaseId}`
-    };
-    const listS3Src = s3.listObjectsV2(listSrcParams).promise();
-    const s3SrcData = await listS3Src;
-
-    let deleteS3Src;
-    if (s3SrcData.Contents.length) {
-      const deleteSrcParams = {
+      // Delete source audio
+      const listSrcParams = {
         Bucket: BUCKET_SRC,
-        Delete: {
-          Objects: s3SrcData.Contents.map(track => ({
-            Key: track.Key
-          }))
-        }
+        Prefix: `${releaseId}`
       };
-      deleteS3Src = s3.deleteObjects(deleteSrcParams).promise();
-      deleteS3Src;
-    }
+      const listS3Src = s3.listObjectsV2(listSrcParams).promise();
+      const s3SrcData = await listS3Src;
 
-    // Delete streaming audio
-    const listOptParams = {
-      Bucket: BUCKET_OPT,
-      Prefix: `m4a/${releaseId}`
-    };
-    const listS3Opt = s3.listObjectsV2(listOptParams).promise();
-    const s3OptData = await listS3Opt;
+      let deleteS3Src;
+      if (s3SrcData.Contents.length) {
+        const deleteSrcParams = {
+          Bucket: BUCKET_SRC,
+          Delete: {
+            Objects: s3SrcData.Contents.map(track => ({
+              Key: track.Key
+            }))
+          }
+        };
+        deleteS3Src = s3.deleteObjects(deleteSrcParams).promise();
+        deleteS3Src;
+      }
 
-    let deleteS3Opt;
-    if (s3OptData.Contents.length) {
-      const deleteImgParams = {
+      // Delete streaming audio
+      const listOptParams = {
         Bucket: BUCKET_OPT,
-        Delete: {
-          Objects: s3OptData.Contents.map(track => ({
-            Key: track.Key
-          }))
-        }
+        Prefix: `m4a/${releaseId}`
       };
-      deleteS3Opt = s3.deleteObjects(deleteImgParams).promise();
-      deleteS3Opt;
-    }
+      const listS3Opt = s3.listObjectsV2(listOptParams).promise();
+      const s3OptData = await listS3Opt;
 
-    // Delete art from S3
-    const listImgParams = {
-      Bucket: BUCKET_IMG,
-      Prefix: `${releaseId}`
-    };
-    const listS3Img = s3.listObjectsV2(listImgParams).promise();
-    const s3ImgData = await listS3Img;
+      let deleteS3Opt;
+      if (s3OptData.Contents.length) {
+        const deleteImgParams = {
+          Bucket: BUCKET_OPT,
+          Delete: {
+            Objects: s3OptData.Contents.map(track => ({
+              Key: track.Key
+            }))
+          }
+        };
+        deleteS3Opt = s3.deleteObjects(deleteImgParams).promise();
+        deleteS3Opt;
+      }
 
-    let deleteS3Img;
-    if (s3ImgData.Contents.length) {
-      const deleteImgParams = {
+      // Delete art from S3
+      const listImgParams = {
         Bucket: BUCKET_IMG,
-        Key: s3ImgData.Contents[0].Key
+        Prefix: `${releaseId}`
       };
-      deleteS3Img = s3.deleteObject(deleteImgParams).promise();
-      deleteS3Img;
-    }
+      const listS3Img = s3.listObjectsV2(listImgParams).promise();
+      const s3ImgData = await listS3Img;
 
-    Promise.all([
-      deleteRelease,
-      deleteFromArtist,
-      deleteArtist,
-      deleteArtistFromUser,
-      listS3Src,
-      deleteS3Src,
-      listS3Opt,
-      deleteS3Opt,
-      listS3Img,
-      deleteS3Img
-    ])
-      .then(values => res.send(values[0]._id))
-      .catch(error => res.status(500).send({ error }));
-  });
+      let deleteS3Img;
+      if (s3ImgData.Contents.length) {
+        const deleteImgParams = {
+          Bucket: BUCKET_IMG,
+          Key: s3ImgData.Contents[0].Key
+        };
+        deleteS3Img = s3.deleteObject(deleteImgParams).promise();
+        deleteS3Img;
+      }
+
+      Promise.all([
+        deleteRelease,
+        deleteFromArtist,
+        deleteArtist,
+        deleteArtistFromUser,
+        listS3Src,
+        deleteS3Src,
+        listS3Opt,
+        deleteS3Opt,
+        listS3Img,
+        deleteS3Img
+      ])
+        .then(values => res.send(values[0]._id))
+        .catch(error => res.status(500).send({ error }));
+    }
+  );
 
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
@@ -179,16 +179,16 @@ module.exports = app => {
   });
 
   // Toggle Release Status
-  app.patch('/api/release/:releaseId', requireLogin, async (req, res) => {
-    const release = await Release.findById(req.params.releaseId);
-
-    if (!userOwnsRelease(req.user, release)) {
-      res.status(401).send({ error: 'Not authorised.' });
-      return;
+  app.patch(
+    '/api/release/:releaseId',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      const release = res.locals.release;
+      release.published = !release.published;
+      release.save().then(updatedRelease => res.send(updatedRelease));
     }
-    release.published = !release.published;
-    release.save().then(updatedRelease => res.send(updatedRelease));
-  });
+  );
 
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {

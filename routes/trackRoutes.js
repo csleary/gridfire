@@ -1,5 +1,6 @@
 const aws = require('aws-sdk');
 const mongoose = require('mongoose');
+const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 const { AWS_REGION } = require('./constants');
@@ -13,21 +14,19 @@ aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
   // Add Track
-  app.put('/api/:releaseId/add', requireLogin, async (req, res) => {
-    const { releaseId } = req.params;
-    const release = await Release.findById(releaseId);
-
-    if (!userOwnsRelease(req.user, release)) {
-      res.status(401).send({ error: 'Not authorised.' });
-      return;
+  app.put(
+    '/api/:releaseId/add',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      const release = res.locals.release;
+      release.trackList.push({});
+      release
+        .save()
+        .then(updated => res.send(updated))
+        .catch(error => res.status(500).send({ error }));
     }
-
-    release.trackList.push({});
-    release
-      .save()
-      .then(updated => res.send(updated))
-      .catch(error => res.status(500).send({ error }));
-  });
+  );
 
   // Play Track
   app.get('/api/play-track', async (req, res) => {
@@ -56,73 +55,72 @@ module.exports = app => {
   });
 
   // Delete Track
-  app.delete('/api/:releaseId/:trackId', requireLogin, async (req, res) => {
-    const { releaseId, trackId } = req.params;
-    const release = await Release.findById(releaseId);
+  app.delete(
+    '/api/:releaseId/:trackId',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      const { releaseId, trackId } = req.params;
+      const release = res.locals.release;
 
-    if (!userOwnsRelease(req.user, release)) {
-      res.status(401).send({ error: 'Not authorised.' });
-      return;
-    }
-    // Delete from S3
-    const s3 = new aws.S3();
-    // Delete source audio
-    const listSrcParams = {
-      Bucket: BUCKET_SRC,
-      Prefix: `${releaseId}/${trackId}`
-    };
-    const listS3Src = s3.listObjectsV2(listSrcParams).promise();
-    const s3SrcData = await listS3Src;
-
-    let deleteS3Src;
-    if (s3SrcData.Contents.length) {
-      const deleteImgParams = {
+      // Delete from S3
+      const s3 = new aws.S3();
+      // Delete source audio
+      const listSrcParams = {
         Bucket: BUCKET_SRC,
-        Key: s3SrcData.Contents[0].Key
+        Prefix: `${releaseId}/${trackId}`
       };
+      const listS3Src = s3.listObjectsV2(listSrcParams).promise();
+      const s3SrcData = await listS3Src;
 
-      deleteS3Src = s3.deleteObject(deleteImgParams).promise();
-      deleteS3Src;
-    }
+      let deleteS3Src;
+      if (s3SrcData.Contents.length) {
+        const deleteImgParams = {
+          Bucket: BUCKET_SRC,
+          Key: s3SrcData.Contents[0].Key
+        };
 
-    // Delete streaming audio
-    const listOptParams = {
-      Bucket: BUCKET_OPT,
-      Prefix: `m4a/${releaseId}/${trackId}`
-    };
-    const listS3Opt = s3.listObjectsV2(listOptParams).promise();
-    const s3OptData = await listS3Opt;
+        deleteS3Src = s3.deleteObject(deleteImgParams).promise();
+        deleteS3Src;
+      }
 
-    let deleteS3Opt;
-    if (s3OptData.Contents.length) {
-      const deleteImgParams = {
+      // Delete streaming audio
+      const listOptParams = {
         Bucket: BUCKET_OPT,
-        Key: s3OptData.Contents[0].Key
+        Prefix: `m4a/${releaseId}/${trackId}`
       };
+      const listS3Opt = s3.listObjectsV2(listOptParams).promise();
+      const s3OptData = await listS3Opt;
 
-      deleteS3Opt = s3.deleteObject(deleteImgParams).promise();
-      deleteS3Opt;
+      let deleteS3Opt;
+      if (s3OptData.Contents.length) {
+        const deleteImgParams = {
+          Bucket: BUCKET_OPT,
+          Key: s3OptData.Contents[0].Key
+        };
+
+        deleteS3Opt = s3.deleteObject(deleteImgParams).promise();
+        deleteS3Opt;
+      }
+
+      // Delete from db
+      const updatedRelease = await release
+        .update({ $pull: { trackList: { _id: trackId } } })
+        .exec();
+
+      Promise.all([
+        updatedRelease,
+        listS3Src,
+        deleteS3Src,
+        listS3Opt,
+        deleteS3Opt
+      ])
+        .then(() => {
+          res.send(release);
+        })
+        .catch(error => res.status(500).send({ error: error.message }));
     }
-
-    // Delete from db
-    const updatedRelease = await Release.findByIdAndUpdate(
-      releaseId,
-      { $pull: { trackList: { _id: trackId } } },
-      { new: true }
-    );
-
-    Promise.all([
-      updatedRelease,
-      listS3Src,
-      deleteS3Src,
-      listS3Opt,
-      deleteS3Opt
-    ])
-      .then(() => {
-        res.send(updatedRelease);
-      })
-      .catch(error => res.status(500).send({ error: error.message }));
-  });
+  );
 
   // Move track position
   app.patch('/api/:releaseId/:from/:to', requireLogin, async (req, res) => {
