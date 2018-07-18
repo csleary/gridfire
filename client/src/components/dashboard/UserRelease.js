@@ -41,12 +41,12 @@ class UserRelease extends Component {
 
   handleDeleteRelease = () => {
     const { deleteRelease, release, toastMessage } = this.props;
+    const { releaseTitle } = release;
     this.setState({ isDeletingRelease: true });
 
-    this.pleaseConfirm(release.releaseTitle, () => {
+    this.pleaseConfirm(releaseTitle, () => {
       const releaseName =
-        (release.releaseTitle && `'${release.releaseTitle}'`) ||
-        'untitled release';
+        (releaseTitle && `'${releaseTitle}'`) || 'untitled release';
 
       toastMessage({
         alertClass: 'alert-warning',
@@ -93,7 +93,8 @@ class UserRelease extends Component {
 
   pleaseConfirm = (title, callback) => {
     const confirmation = window.confirm(
-      `Are you sure you want to delete ${title || 'this release'}?`
+      `Are you sure you want to delete ${(title && `'${title}'`) ||
+        'this release'}?`
     );
     if (confirmation) callback();
     else this.setState({ isDeletingRelease: false });

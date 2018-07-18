@@ -61,7 +61,7 @@ class UserReleases extends Component {
                 <h3>
                   You have {userReleases.length} release{userReleases.length > 1
                     ? 's'
-                    : ''}.
+                    : ''}
                 </h3>
                 <ul className="user-releases">{this.renderUserReleases()}</ul>
               </Fragment>

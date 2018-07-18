@@ -23,7 +23,7 @@ const renderDropzoneLabel = (hasAudio, audioUploading) => {
 
 const RenderTrackField = props => {
   const {
-    audioStatus,
+    audioClassNames,
     hasAudio,
     index,
     input,
@@ -37,7 +37,7 @@ const RenderTrackField = props => {
   const classInvalid = classNames('form-control', {
     invalid: touched && error
   });
-  const classDropzone = classNames('dropzone-audio', audioStatus);
+  const classDropzone = classNames('dropzone-audio', audioClassNames);
 
   return (
     <Fragment>

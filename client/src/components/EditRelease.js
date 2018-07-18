@@ -5,7 +5,7 @@ import { Field, FieldArray, formValueSelector, reduxForm } from 'redux-form';
 import axios from 'axios';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
-import RenderTrack from './editRelease/RenderTrack';
+import RenderTrackList from './editRelease/RenderTrackList';
 import Spinner from './Spinner';
 import {
   addRelease,
@@ -50,7 +50,7 @@ class EditRelease extends Component {
     if (releaseId) {
       this.setEditing();
       this.props.fetchRelease(releaseId).then(() => {
-        const release = this.props.release;
+        const { release } = this.props;
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
@@ -68,11 +68,11 @@ class EditRelease extends Component {
 
   componentWillUnmount() {
     if (!this.props.valid && !this.props.release.trackList.length) {
-      this.props.deleteRelease(this.props.release._id, error => {
-        if (error) return;
+      this.props.deleteRelease(this.props.release._id, () => {
         this.props.toastMessage({
           alertClass: 'alert-warning',
-          message: 'Invalid or incomplete release discarded.'
+          message:
+            'Invalid or incomplete release discarded (automated housekeeping).'
         });
       });
     }
@@ -131,12 +131,13 @@ class EditRelease extends Component {
         (trackTitle && `'${trackTitle}'`) || `track ${parseInt(index, 10) + 1}`;
       this.props
         .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
-        .then(() => {
+        .then(res => {
+          const audioUploadUrl = res.data;
+
           this.props.toastMessage({
             alertClass: 'alert-info',
             message: `Uploading file '${audioFile.name}' for ${trackName}.`
           });
-          const { audioUploadUrl } = this.props;
 
           const config = {
             headers: {
@@ -178,10 +179,12 @@ class EditRelease extends Component {
   onSubmit = values =>
     new Promise(resolve => {
       this.props.updateRelease(values, () => {
+        const { releaseTitle } = this.props.release;
         this.props.history.push('/dashboard');
         this.props.toastMessage({
           alertClass: 'alert-success',
-          message: `${this.props.release.releaseTitle || 'Release'} saved!`
+          message: `${(releaseTitle && `'${releaseTitle}'`) ||
+            'Release'} saved!`
         });
         resolve();
       });
@@ -211,9 +214,7 @@ class EditRelease extends Component {
   }
 
   render() {
-    if (this.state.isLoading) {
-      return <Spinner />;
-    }
+    if (this.state.isLoading) return <Spinner />;
 
     return (
       <main className="container">
@@ -347,22 +348,26 @@ class EditRelease extends Component {
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
               <FieldArray
-                name="trackList"
-                component={RenderTrack}
                 addTrack={this.props.addTrack}
+                audioUploading={this.state.audioUploading}
+                component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 isAddingTrack={this.props.isAddingTrack}
-                isDeletingTrack={this.props.isDeletingTrack}
                 moveTrack={this.props.moveTrack}
+                name="trackList"
                 onDropAudio={this.onDropAudio}
                 release={this.props.release}
-                audioUploading={this.state.audioUploading}
+                toastMessage={this.props.toastMessage}
               />
               <div className="d-flex justify-content-end">
                 <button
                   type="submit"
                   className="btn btn-outline-primary btn-lg"
-                  disabled={this.props.pristine || this.props.submitting}
+                  disabled={
+                    this.props.invalid ||
+                    this.props.pristine ||
+                    this.props.submitting
+                  }
                 >
                   {this.state.isEditing ? 'Update Release' : 'Add Release'}
                 </button>
