@@ -24,18 +24,30 @@ const RenderArtwork = props => (
               tabIndex={-1}
               onClick={() => {
                 const { release } = props;
+                let prevPublished = '';
+
                 if (release.published) {
-                  props.publishStatus(release._id);
+                  props.publishStatus(release._id, () => {
+                    prevPublished =
+                      ' As your release was previously published, it has also been taken offline.';
+                  });
                 }
+
+                props.toastMessage({
+                  alertClass: 'alert-warning',
+                  message: 'Deleting artwork…'
+                });
+
                 props.deleteArtwork(release._id, () => {
                   if (props.artworkFile) {
                     window.URL.revokeObjectURL(props.artworkFile.preview);
                   }
+
                   props.handleDeletePreview();
+
                   props.toastMessage({
                     alertClass: 'alert-success',
-                    message:
-                      'Artwork deleted. If your release was previously published, it has also been taken offline.'
+                    message: `Artwork deleted.${prevPublished}`
                   });
                 });
               }}
