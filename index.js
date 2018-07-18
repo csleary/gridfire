@@ -28,11 +28,14 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+require('./routes/artworkRoutes')(app);
 require('./routes/authRoutes')(app);
+require('./routes/downloadRoutes')(app);
 require('./routes/emailRoutes')(app);
-require('./routes/nemRoutes')(app);
 require('./routes/musicRoutes')(app);
-require('./routes/playerRoutes')(app);
+require('./routes/nemRoutes')(app);
+require('./routes/releaseRoutes')(app);
+require('./routes/trackRoutes')(app);
 
 // Ensure routing works correctly in production, using build files.
 if (process.env.NODE_ENV === 'production') {
