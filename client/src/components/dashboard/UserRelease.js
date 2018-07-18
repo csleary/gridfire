@@ -73,14 +73,16 @@ class UserRelease extends Component {
       this.setState({ isPublishingRelease: true });
       publishStatus(release._id, () => {
         this.setState({ isPublishingRelease: false });
-        let message;
-        release.published
-          ? (message = `'${release.releaseTitle}' has been taken offline.`)
-          : (message = `'${release.releaseTitle}' is now live and on sale.`);
-        toastMessage({
-          alertClass: 'alert-success',
-          message
-        });
+        const message = release.published
+          ? {
+              alertClass: 'alert-warning',
+              message: `'${release.releaseTitle}' has been taken offline.`
+            }
+          : {
+              alertClass: 'alert-success',
+              message: `'${release.releaseTitle}' is now live and on sale.`
+            };
+        toastMessage(message);
       });
     } else {
       toastMessage({
