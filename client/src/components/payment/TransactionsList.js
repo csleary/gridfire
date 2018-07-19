@@ -48,10 +48,11 @@ const TransactionsList = props => {
     </Fragment>
   );
 
-  const txList = transactions.map(tx => (
+  const txList = transactions.map((tx, index) => (
     <SingleTransaction
-      key={tx.meta.hash.data}
       hash={tx.meta.hash.data}
+      index={index}
+      key={tx.meta.hash.data}
       amount={tx.transaction.amount / 10 ** 6}
       date={nem.utils.format.nemDate(tx.transaction.timeStamp)}
     />
@@ -85,12 +86,35 @@ const TransactionsList = props => {
   );
 
   const confirmedTransactions = transactions.length > 0 && (
-    <div>
+    <div className="tx-list">
       <h5>
         {transactions.length} Confirmed Transaction{transactions.length > 1 &&
           's'}:
       </h5>
-      <ol className="list-group tx-list">{txList}</ol>
+      <table className="table table-sm table-striped table-dark">
+        <thead>
+          <tr>
+            <th scope="col" className="col-item">
+              #
+            </th>
+            <th scope="col" className="col-date">
+              Payment Date
+            </th>
+            <th scope="col" className="col-amount">
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody>{txList}</tbody>
+        <tfoot>
+          <tr>
+            <td colSpan="3">
+              Note: Very recent transactions may not yet be visible on the
+              explorer.
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 
@@ -98,7 +122,7 @@ const TransactionsList = props => {
     return (
       <Spinner>
         <h3 className="transactions-searching">
-          <FontAwesome name="search" className="icon-left" />
+          <FontAwesome name="search" className="red icon-left" />
           Searching for Transactions&hellip;
         </h3>
       </Spinner>
