@@ -7,12 +7,15 @@ const explorer =
     : 'http://chain.nem.ninja/#/transfer/';
 
 const SingleTransaction = props => (
-  <li className="list-item">
-    {props.date.substring(0, 16)} &bull;{' '}
-    <a href={`${explorer}${props.hash}`} title={props.date}>
-      {`${props.amount} XEM`}
-    </a>
-  </li>
+  <tr>
+    <th scope="row">{props.index + 1}</th>
+    <td>{props.date}</td>
+    <td>
+      <a href={`${explorer}${props.hash}`} title={props.date}>
+        {`${props.amount} XEM`}
+      </a>
+    </td>
+  </tr>
 );
 
 export default SingleTransaction;

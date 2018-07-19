@@ -21,21 +21,57 @@ button.refresh-txs {
   min-width: auto;
 }
 
-.tx-list {
+.transactions .tx-list {
+  margin-top: 3rem;
+}
+
+.transactions .table-dark {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
-  list-style-position: inside;
+  color: #f0f0f1;
   margin-bottom: 2rem;
   white-space: nowrap;
 }
 
-ol.tx-list {
-  color: hsla(233, 10%, 75%, 1);
+.transactions .table-dark .col-item {
+  width: 10%;
 }
 
-.tx-list li.list-item {
+.transactions .table-dark .col-date {
+  width: 70%;
+}
+
+.transactions .table-dark .col-price {
+  width: 20%;
+}
+
+.transactions .table-dark thead {
+  background-color: hsla(233, 10%, 10%, 1);
   color: #f0f0f1;
-  overflow: hidden;
+}
+
+.transactions .table-sm th,
+.transactions .table-sm td {
+  padding: 0.5rem;
+  border: 0;
+}
+
+.transactions .table-dark tbody {
+  background: hsla(233, 10%, 20%, 1);
+}
+
+.transactions .table-dark th {
+  text-transform: uppercase;
+}
+
+.transactions .table-dark td {
   text-overflow: ellipsis;
+}
+
+.table-dark.table-striped tbody tr:nth-of-type(odd) {
+  background-color: hsla(233, 10%, 15%, 1);
+}
+
+.transactions .table-dark tfoot {
 }
 
 button.download-button {
