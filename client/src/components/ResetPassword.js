@@ -1,18 +1,50 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { passwordUpdate } from '../../actions';
+import axios from 'axios';
+import { login } from '../actions';
+import Spinner from './Spinner';
 
-class PasswordUpdate extends Component {
+class ResetPassword extends Component {
+  state = {
+    isLoading: true,
+    response: null
+  };
+
+  componentDidMount() {
+    this.checkToken();
+  }
+
   onSubmit = values =>
-    this.props
-      .passwordUpdate({
-        email: this.props.user.auth.email,
-        ...values
-      })
-      .then(this.props.reset);
+    new Promise(async resolve => {
+      const { token } = this.props.match.params;
+      try {
+        axios.post(`/api/auth/reset/${token}`, values).then(res => {
+          const email = res.data;
+          this.props.login({ email, password: values.passwordNew }, () => {
+            this.props.reset();
+            this.props.history.push('/');
+          });
+        });
+      } catch (e) {
+        this.setState({ response: e.response.data });
+      }
+      this.props.reset();
+      resolve();
+    });
+
+  checkToken = () =>
+    new Promise(async resolve => {
+      const { token } = this.props.match.params;
+      try {
+        await axios.get(`/api/auth/reset/${token}`);
+        this.setState({ isLoading: false });
+      } catch (e) {
+        this.setState({ isLoading: false, response: e.response.data });
+      }
+      resolve();
+    });
 
   required = value => (value ? undefined : 'Please enter a value.');
 
@@ -25,6 +57,7 @@ class PasswordUpdate extends Component {
 
   renderField = field => {
     const {
+      hint,
       icon,
       id,
       input,
@@ -50,38 +83,37 @@ class PasswordUpdate extends Component {
           required={required}
           type={type}
         />
-        <div className="invalid-feedback">{touched && error && error}</div>
+        {error && (
+          <div className="invalid-feedback">{touched && error && error}</div>
+        )}
+        {hint && <small className="form-text text-muted">{hint}</small>}
       </div>
     );
   };
 
   render() {
+    const { isLoading, response } = this.state;
+    const className =
+      response && response.error ? 'alert-danger' : 'alert-success';
     const { handleSubmit, pristine, submitting, invalid } = this.props;
+
+    if (isLoading) {
+      return <Spinner />;
+    }
 
     return (
       <main className="container">
         <div className="row">
           <div className="col-6 mx-auto">
-            <h3>Update Password</h3>
+            <h2 className="text-center">Reset Password</h2>
             <p>
-              You can update your password using the form below (unless
-              you&rsquo;ve logged-in with a Google account).
+              Please enter your new password here. You&rsquo;ll be logged-in
+              afterwards automatically.
             </p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
               <Field
                 component={this.renderField}
                 icon="key"
-                id="password"
-                label="Current Password:"
-                name="password"
-                placeholder="Current Password"
-                required="true"
-                type="password"
-                validate={this.required}
-              />
-              <Field
-                component={this.renderField}
-                icon="check-circle-o"
                 id="passwordNew"
                 label="New Password:"
                 name="passwordNew"
@@ -93,7 +125,7 @@ class PasswordUpdate extends Component {
               <Field
                 component={this.renderField}
                 id="passwordConfirm"
-                icon="check-circle"
+                icon="check-circle-o"
                 label="Confirm New Password:"
                 name="passwordConfirm"
                 placeholder="New Password"
@@ -101,13 +133,23 @@ class PasswordUpdate extends Component {
                 type="password"
                 validate={[this.required, this.isMatched]}
               />
-              <div className="d-flex justify-content-end">
+              {response &&
+                response.error && (
+                  <div
+                    className={`alert ${className} text-center`}
+                    role="alert"
+                  >
+                    <FontAwesome name="bomb" className="icon-left" />
+                    {response.error}
+                  </div>
+                )}
+              <div className="d-flex justify-content-center">
                 <button
-                  className="btn btn-outline-primary btn-lg"
+                  className="btn btn-outline-primary"
                   disabled={invalid || pristine || submitting}
                   type="submit"
                 >
-                  Update
+                  Update Password
                 </button>
               </div>
             </form>
@@ -123,10 +165,10 @@ const mapStateToProps = state => ({
 });
 
 export default reduxForm({
-  form: 'loginForm'
+  form: 'resetPasswordForm'
 })(
   connect(
     mapStateToProps,
-    { passwordUpdate }
-  )(withRouter(PasswordUpdate))
+    { login }
+  )(ResetPassword)
 );

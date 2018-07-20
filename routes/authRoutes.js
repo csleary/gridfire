@@ -54,11 +54,6 @@ module.exports = app => {
     res.redirect('/');
   });
 
-  app.post('/api/auth/reset', (req, res) => {
-    // TODO: Add reset route, store hash, send via hashnodemailer etc.
-    res.send({ success: true });
-  });
-
   app.get('/api/user', (req, res) => {
     if (req.user) {
       const user = req.user;

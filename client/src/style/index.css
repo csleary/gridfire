@@ -62,13 +62,21 @@ a:focus {
 }
 
 .alert {
-  border-width: 2px;
+  border: 0;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  padding: 0.375rem 0.75rem;
 }
 
 .alert-danger {
-  background-color: #f0f0f1;
-  border-color: #ff5349;
-  color: #ff5349;
+  background-color: #ff5349;
+  color: #f0f0f1;
+}
+
+.alert-success {
+  background-color: #18cdca;
+  color: #000;
 }
 
 .btn {
