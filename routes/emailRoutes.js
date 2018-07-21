@@ -89,13 +89,17 @@ module.exports = app => {
         })
         .exec()
         .then(() => {
+          const siteUrl =
+            process.env.NODE_ENV === 'production'
+              ? 'https://nemp3.ochremusic.com/reset/'
+              : 'http://localhost:3000/reset/';
           const mailOptions = {
             from: req.body.email,
             to: keys.nemp3EmailAddress,
             subject: 'NEMp3 Password Reset Requested',
             text: `Hi!\n\n
                 A password reset was requested for this NEMp3 account. To reset and choose a new password, please visit the URL below.\n\n
-                http://localhost:3000/reset/${token}\n\n
+                ${siteUrl}${token}\n\n
                 If you did not request this, you can safely ignore this email.\n\n
                 Best wishes,\n
                 NEMp3`
