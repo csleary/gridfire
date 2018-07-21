@@ -31,7 +31,7 @@ module.exports = app => {
         keys.nemp3Secret
       );
       res.append('Authorization', `Bearer ${token}`);
-      res.send({ success: 'Success.' });
+      res.send();
     } else {
       res.status(401).send({ error: 'Not authorised.' });
     }

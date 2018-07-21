@@ -32,9 +32,9 @@ const Footer = props => (
           </li>
         </ul>
       </div>
-      <div className="col-sm-2">
-        {props.user &&
-          !props.user.auth && (
+      {props.user &&
+        !props.user.auth && (
+          <div className="col-sm-2">
             <ul>
               <li>
                 <Link to={'/login'}>Log In</Link>
@@ -46,10 +46,10 @@ const Footer = props => (
                 <Link to={'/reset'}>Forgot Password?</Link>
               </li>
             </ul>
-          )}
-      </div>
+          </div>
+        )}
     </div>
-    <div className="row">
+    <div className="row mt-5">
       <div className="col">
         <small>
           <p className="text-center">
