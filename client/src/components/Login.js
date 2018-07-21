@@ -39,7 +39,7 @@ class Login extends Component {
     return (
       <div className="form-group">
         <label htmlFor={id}>
-          <FontAwesome name={icon} className="icon-left" />
+          <FontAwesome name={icon} className="red icon-left" />
           {label}
         </label>
         <input
@@ -110,6 +110,10 @@ class Login extends Component {
               Don&rsquo;t have an account? Please{' '}
               <Link to={'/register'}>sign up here</Link>.
             </p>
+            <p>
+              If you&rsquo;ve forgotten your password, please{' '}
+              <Link to={'/reset'}>reset it here</Link>.
+            </p>
           </div>
           <div className="divider">Or</div>
           <div className="col-md d-flex align-items-center justify-content-center">
@@ -130,4 +134,9 @@ const mapStateToProps = state => ({
 
 export default reduxForm({
   form: 'loginForm'
-})(connect(mapStateToProps, { login })(withRouter(Login)));
+})(
+  connect(
+    mapStateToProps,
+    { login }
+  )(withRouter(Login))
+);

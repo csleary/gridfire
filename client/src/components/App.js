@@ -9,6 +9,7 @@ import Contact from './Contact';
 import Dashboard from './Dashboard';
 import EditRelease from './EditRelease';
 import Footer from './Footer';
+import ForgotPassword from './ForgotPassword';
 import Header from './Header';
 import Home from './Home';
 import Login from './Login';
@@ -16,6 +17,7 @@ import Navbar from './Navbar';
 import Payment from './Payment';
 import Player from './Player';
 import Register from './Register';
+import ResetPassword from './ResetPassword';
 import SelectedRelease from './SelectedRelease';
 import Spinner from './Spinner';
 import Support from './Support';
@@ -64,10 +66,17 @@ class App extends Component {
           <Navbar user={this.props.user} />
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route path="/register" component={Register} />
             <Route path="/about" component={About} />
             <Route path="/login" component={Login} />
+            <Route exact strict path="/reset" component={ForgotPassword} />
+            <Route
+              exact
+              strict
+              path="/reset/:token"
+              component={ResetPassword}
+            />
             <Route path="/contact" component={Contact} />
-            <Route path="/register" component={Register} />
             <Route path="/support" component={Support} />
             <Route path="/artist/:artist" component={ArtistPage} />
             <Route

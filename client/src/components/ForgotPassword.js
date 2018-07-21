@@ -1,20 +1,27 @@
 import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
 import { Field, reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import FontAwesome from 'react-fontawesome';
 import Recaptcha from 'react-google-recaptcha';
-import { register } from '../actions';
+import axios from 'axios';
 
 const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
-class Register extends Component {
-  onSubmit = values => {
-    this.props.register(values, () => {
-      this.props.reset();
-      this.props.history.push('/');
-    });
+class ForgotPassword extends Component {
+  state = {
+    response: null
   };
+
+  onSubmit = values =>
+    new Promise(async resolve => {
+      try {
+        const res = await axios.post('/api/auth/reset', values);
+        this.setState({ response: res.data });
+      } catch (e) {
+        this.setState({ response: e.response.data });
+      }
+      this.props.reset();
+      resolve();
+    });
 
   required = value => (value ? undefined : 'Please enter a value.');
 
@@ -72,13 +79,20 @@ class Register extends Component {
   };
 
   render() {
+    const { response } = this.state;
+    const className =
+      response && response.error ? 'alert-danger' : 'alert-success';
     const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
       <main className="container">
         <div className="row">
           <div className="col-6 mx-auto">
-            <h2 className="text-center">Register</h2>
+            <h2 className="text-center">Reset Password</h2>
+            <p>
+              Please enter your account email address below and submit to
+              receive a password reset via email.
+            </p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
               <Field
                 component={this.renderField}
@@ -91,19 +105,17 @@ class Register extends Component {
                 type="email"
                 validate={this.required}
               />
-              <Field
-                className="form-control"
-                component={this.renderField}
-                hint="A strong and unique alphanumeric password recommended."
-                icon="key"
-                id="password"
-                label="Password:"
-                name="password"
-                placeholder="Password"
-                required
-                type="password"
-                validate={this.required}
-              />
+              {response && (
+                <div className={`alert ${className} text-center`} role="alert">
+                  {response.success && (
+                    <FontAwesome name="thumbs-up" className="icon-left" />
+                  )}
+                  {response.error && (
+                    <FontAwesome name="bomb" className="icon-left" />
+                  )}
+                  {response.success || response.error}
+                </div>
+              )}
               <Field
                 component={this.renderRecaptcha}
                 name="recaptcha"
@@ -115,7 +127,7 @@ class Register extends Component {
                   disabled={invalid || pristine || submitting}
                   type="submit"
                 >
-                  Sign Up
+                  Send Reset Email
                 </button>
               </div>
             </form>
@@ -127,10 +139,5 @@ class Register extends Component {
 }
 
 export default reduxForm({
-  form: 'registerForm'
-})(
-  connect(
-    null,
-    { register }
-  )(withRouter(Register))
-);
+  form: 'forgotPasswordForm'
+})(ForgotPassword);

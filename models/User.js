@@ -9,7 +9,9 @@ const UserSchema = new Schema({
     googleId: String,
     idHash: String,
     name: String,
-    password: String
+    password: String,
+    resetToken: String,
+    resetExpire: Date
   },
   nemAddress: String,
   purchases: [
