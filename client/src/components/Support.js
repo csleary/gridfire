@@ -5,7 +5,7 @@ const Support = () => (
   <main className="container">
     <div className="row">
       <div className="col">
-        <h2 className="text-center red">FAQ</h2>
+        <h2 className="text-center red mt-4">FAQ</h2>
         <details>
           <summary>Where can I buy some XEM?</summary>
           <p>
@@ -33,35 +33,42 @@ const Support = () => (
           </p>
         </details>
         <details>
-          <summary>What format do you use for downloads?</summary>
-          <p>
-            All audio downloads are lossless wav or aif, depending on the source
-            files uploaded by the artist. Audio is converted to aac for
-            streaming.
-          </p>
-          <p>
-            That&rsquo;s right, we&rsquo;re called NEMp3 and yet we don&rsquo;t
-            sell mp3s. The name is a holdover from the initial proof of concept,
-            which offered only mp3s.
-          </p>
-        </details>
-        <details>
           <summary>
-            I&rsquo;ve not used NEM before &ndash; which wallet should I use?
+            I&rsquo;ve not used NEM before. Which wallet should I use?
           </summary>
           <p>
-            There are two official wallets, a browser-based desktop client
-            called Nano Wallet, and an Android/iOS Mobile Wallet. More
+            There are two official wallets, an Electron-based desktop client
+            called NanoWallet, and an Android/iOS Mobile Wallet. More
             information on both can be found on the{' '}
             <a href="https://www.nem.io/install.html">NEM site</a>.
           </p>
         </details>
         <details>
+          <summary>What format do you use for downloads?</summary>
+          <p>
+            All audio downloads are lossless wav or aif, depending on the source
+            files uploaded by the artist.
+          </p>
+        </details>
+        <details>
+          <summary>What format do you use for streaming?</summary>
+          <p>
+            All source audio is automatically converted to 128kbps aac for
+            streaming.
+          </p>
+        </details>
+        <details>
           <summary>What if I lose my download?</summary>
           <p>
-            All successful purchases are stored in your account, and can be
-            re-downloaded by revisiting the album page again. In the future, we
-            will add a dashboard component showing your purchase history.
+            All successful purchases are stored in your account, accessible in
+            your dashboard under the &lsquo;collection&rsquo; tab.
+          </p>
+        </details>
+        <details>
+          <summary>Why the name &lsquo;NEMp3&rsquo;?</summary>
+          <p>
+            The name is a holdover from the initial proof of concept, which
+            offered only mp3s. And so a terrible pun was born.
           </p>
         </details>
       </div>

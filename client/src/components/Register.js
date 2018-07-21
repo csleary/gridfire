@@ -77,46 +77,50 @@ class Register extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col-6 mx-auto">
-            <h2 className="text-center">Register</h2>
+          <div className="col">
+            <h2 className="text-center mt-4">Register</h2>
             <form onSubmit={handleSubmit(this.onSubmit)}>
-              <Field
-                component={this.renderField}
-                icon="envelope-o"
-                id="email"
-                label="Email Address:"
-                name="email"
-                placeholder="Email Address"
-                required
-                type="email"
-                validate={this.required}
-              />
-              <Field
-                className="form-control"
-                component={this.renderField}
-                hint="A strong and unique alphanumeric password recommended."
-                icon="key"
-                id="password"
-                label="Password:"
-                name="password"
-                placeholder="Password"
-                required
-                type="password"
-                validate={this.required}
-              />
-              <Field
-                component={this.renderRecaptcha}
-                name="recaptcha"
-                validate={this.required}
-              />
-              <div className="d-flex justify-content-center">
-                <button
-                  className="btn btn-outline-primary"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
-                  Sign Up
-                </button>
+              <div className="form-row mt-5">
+                <div className="col-md-6 mx-auto">
+                  <Field
+                    component={this.renderField}
+                    icon="envelope-o"
+                    id="email"
+                    label="Email Address:"
+                    name="email"
+                    placeholder="Email Address"
+                    required
+                    type="email"
+                    validate={this.required}
+                  />
+                  <Field
+                    className="form-control"
+                    component={this.renderField}
+                    hint="A strong and unique alphanumeric password recommended."
+                    icon="key"
+                    id="password"
+                    label="Password:"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    type="password"
+                    validate={this.required}
+                  />
+                  <Field
+                    component={this.renderRecaptcha}
+                    name="recaptcha"
+                    validate={this.required}
+                  />
+                  <div className="d-flex justify-content-center">
+                    <button
+                      className="btn btn-outline-primary"
+                      disabled={invalid || pristine || submitting}
+                      type="submit"
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

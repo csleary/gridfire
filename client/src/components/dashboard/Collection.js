@@ -57,8 +57,8 @@ class Collection extends Component {
         <main className="container">
           <div className="row">
             <div className="col">
-              <h3>No releases found</h3>
-              <p>
+              <h3 className="text-center mt-4">No releases found</h3>
+              <p className="text-center">
                 Once you&rsquo;ve purchased a release it will be added here,
                 where you&rsquo;ll have easy access to your downloads.
               </p>
@@ -72,7 +72,7 @@ class Collection extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
-            <h3>
+            <h3 className="text-center">
               {collection.length} release{collection.length > 1 ? 's' : ''}{' '}
               currently in your collection
             </h3>

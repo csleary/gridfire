@@ -73,29 +73,33 @@ class Dashboard extends Component {
       <main className="container">
         <div className="row">
           <div className="col-lg">
-            <h3 className="mt-4">Payment Address</h3>
-            <p>
+            <h3 className="text-center mt-4">NEM Payment Address</h3>
+            <p className="text-center">
               Please add your NEM address if you wish to sell music. This
               won&rsquo;t be necessary if you only plan on purchasing music.
             </p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
-              <Field
-                disabled={submitting}
-                id="nemAddress"
-                label="NEM Address"
-                name="nemAddress"
-                type="text"
-                component={this.renderNemAddressField}
-                validate={this.checkNemAddress}
-              />
-              <div className="d-flex justify-content-end">
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary btn-lg"
-                  disabled={invalid || pristine || submitting}
-                >
-                  Save Address
-                </button>
+              <div className="form-row mt-5">
+                <div className="col-md-9 mx-auto">
+                  <Field
+                    disabled={submitting}
+                    id="nemAddress"
+                    label="NEM Address"
+                    name="nemAddress"
+                    type="text"
+                    component={this.renderNemAddressField}
+                    validate={this.checkNemAddress}
+                  />
+                  <div className="d-flex justify-content-center">
+                    <button
+                      type="submit"
+                      className="btn btn-outline-primary btn-lg"
+                      disabled={invalid || pristine || submitting}
+                    >
+                      Save Address
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

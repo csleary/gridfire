@@ -42,6 +42,9 @@ const Footer = props => (
               <li>
                 <Link to={'/register'}>Register</Link>
               </li>
+              <li>
+                <Link to={'/reset'}>Forgot Password?</Link>
+              </li>
             </ul>
           )}
       </div>

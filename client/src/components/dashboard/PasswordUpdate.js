@@ -61,54 +61,58 @@ class PasswordUpdate extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col-6 mx-auto">
-            <h3 className="mt-4">Update Password</h3>
-            <p>
+          <div className="col">
+            <h3 className="text-center mt-4">Update Password</h3>
+            <p className="text-center">
               You can update your password using the form below (unless
               you&rsquo;ve logged-in with a Google account).
             </p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
-              <Field
-                component={this.renderField}
-                icon="key"
-                id="password"
-                label="Current Password:"
-                name="password"
-                placeholder="Current Password"
-                required="true"
-                type="password"
-                validate={this.required}
-              />
-              <Field
-                component={this.renderField}
-                icon="check-circle-o"
-                id="passwordNew"
-                label="New Password:"
-                name="passwordNew"
-                placeholder="New Password"
-                required
-                type="password"
-                validate={this.required}
-              />
-              <Field
-                component={this.renderField}
-                id="passwordConfirm"
-                icon="check-circle"
-                label="Confirm New Password:"
-                name="passwordConfirm"
-                placeholder="New Password"
-                required
-                type="password"
-                validate={[this.required, this.isMatched]}
-              />
-              <div className="d-flex justify-content-end">
-                <button
-                  className="btn btn-outline-primary btn-lg"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
-                  Update
-                </button>
+              <div className="form-row mt-5">
+                <div className="col-md-6 mx-auto">
+                  <Field
+                    component={this.renderField}
+                    icon="key"
+                    id="password"
+                    label="Current Password:"
+                    name="password"
+                    placeholder="Current Password"
+                    required="true"
+                    type="password"
+                    validate={this.required}
+                  />
+                  <Field
+                    component={this.renderField}
+                    icon="check-circle-o"
+                    id="passwordNew"
+                    label="New Password:"
+                    name="passwordNew"
+                    placeholder="New Password"
+                    required
+                    type="password"
+                    validate={this.required}
+                  />
+                  <Field
+                    component={this.renderField}
+                    id="passwordConfirm"
+                    icon="check-circle"
+                    label="Confirm New Password:"
+                    name="passwordConfirm"
+                    placeholder="New Password"
+                    required
+                    type="password"
+                    validate={[this.required, this.isMatched]}
+                  />
+                  <div className="d-flex justify-content-center">
+                    <button
+                      className="btn btn-outline-primary btn-lg"
+                      disabled={invalid || pristine || submitting}
+                      type="submit"
+                    >
+                      Update
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>
