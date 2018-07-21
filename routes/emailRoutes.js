@@ -97,11 +97,11 @@ module.exports = app => {
             from: req.body.email,
             to: keys.nemp3EmailAddress,
             subject: 'NEMp3 Password Reset Requested',
-            text: `Hi!\n\n
-                A password reset was requested for this NEMp3 account. To reset and choose a new password, please visit the URL below.\n\n
-                ${siteUrl}${token}\n\n
-                If you did not request this, you can safely ignore this email.\n\n
-                Best wishes,\n
+            text: `Hi!
+                A password reset was requested for this NEMp3 account. To reset and choose a new password, please visit the URL below.
+                ${siteUrl}${token}
+                If you did not request this, you can safely ignore this email.
+                Best wishes,
                 NEMp3`
           };
 
@@ -171,9 +171,9 @@ module.exports = app => {
           from: req.body.email,
           to: keys.nemp3EmailAddress,
           subject: 'Success! Your NEMp3 password has been reset.',
-          text: `Hi!\n\n
-            We can confirm that your NEMp3 password has successfully been reset.\n\n
-            Best wishes,\n
+          text: `Hi!
+            We can confirm that your NEMp3 password has successfully been reset.
+            Best wishes,
             NEMp3`
         };
 

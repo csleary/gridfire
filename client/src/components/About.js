@@ -4,7 +4,7 @@ const About = () => (
   <main className="container">
     <div className="row">
       <div className="col">
-        <h2 className="text-center red">About NEMp3</h2>
+        <h2 className="text-center red mt-4">About NEMp3</h2>
       </div>
     </div>
     <div className="row">

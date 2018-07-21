@@ -87,48 +87,55 @@ class ForgotPassword extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col-6 mx-auto">
-            <h2 className="text-center">Reset Password</h2>
-            <p>
+          <div className="col">
+            <h2 className="text-center mt-4">Reset Password</h2>
+            <p className="text-center">
               Please enter your account email address below and submit to
-              receive a password reset via email.
+              receive a password reset link, valid for an hour.
             </p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
-              <Field
-                component={this.renderField}
-                icon="envelope-o"
-                id="email"
-                label="Email Address:"
-                name="email"
-                placeholder="Email Address"
-                required
-                type="email"
-                validate={this.required}
-              />
-              {response && (
-                <div className={`alert ${className} text-center`} role="alert">
-                  {response.success && (
-                    <FontAwesome name="thumbs-up" className="icon-left" />
+              <div className="form-row mt-5">
+                <div className="col-md-6 mx-auto">
+                  <Field
+                    component={this.renderField}
+                    icon="envelope-o"
+                    id="email"
+                    label="Email Address:"
+                    name="email"
+                    placeholder="Email Address"
+                    required
+                    type="email"
+                    validate={this.required}
+                  />
+                  {response && (
+                    <div
+                      className={`alert ${className} text-center`}
+                      role="alert"
+                    >
+                      {response.success && (
+                        <FontAwesome name="thumbs-up" className="icon-left" />
+                      )}
+                      {response.error && (
+                        <FontAwesome name="bomb" className="icon-left" />
+                      )}
+                      {response.success || response.error}
+                    </div>
                   )}
-                  {response.error && (
-                    <FontAwesome name="bomb" className="icon-left" />
-                  )}
-                  {response.success || response.error}
+                  <Field
+                    component={this.renderRecaptcha}
+                    name="recaptcha"
+                    validate={this.required}
+                  />
+                  <div className="d-flex justify-content-center">
+                    <button
+                      className="btn btn-outline-primary"
+                      disabled={invalid || pristine || submitting}
+                      type="submit"
+                    >
+                      Send Reset Email
+                    </button>
+                  </div>
                 </div>
-              )}
-              <Field
-                component={this.renderRecaptcha}
-                name="recaptcha"
-                validate={this.required}
-              />
-              <div className="d-flex justify-content-center">
-                <button
-                  className="btn btn-outline-primary"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
-                  Send Reset Email
-                </button>
               </div>
             </form>
           </div>
