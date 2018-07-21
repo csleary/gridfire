@@ -62,7 +62,7 @@ class PasswordUpdate extends Component {
       <main className="container">
         <div className="row">
           <div className="col-6 mx-auto">
-            <h3>Update Password</h3>
+            <h3 className="mt-4">Update Password</h3>
             <p>
               You can update your password using the form below (unless
               you&rsquo;ve logged-in with a Google account).

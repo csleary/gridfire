@@ -73,7 +73,7 @@ class Dashboard extends Component {
       <main className="container">
         <div className="row">
           <div className="col-lg">
-            <h3>Payment Address</h3>
+            <h3 className="mt-4">Payment Address</h3>
             <p>
               Please add your NEM address if you wish to sell music. This
               won&rsquo;t be necessary if you only plan on purchasing music.
@@ -114,7 +114,8 @@ function mapStateToProps(state) {
 export default reduxForm({
   form: 'nemAddressForm'
 })(
-  connect(mapStateToProps, { addNemAddress, fetchUser, toastMessage })(
-    Dashboard
-  )
+  connect(
+    mapStateToProps,
+    { addNemAddress, fetchUser, toastMessage }
+  )(Dashboard)
 );

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
-const request = require('request');
+const rp = require('request-promise-native');
 const keys = require('../config/keys');
 
 const User = mongoose.model('users');
@@ -19,96 +19,100 @@ const transporter = nodemailer.createTransport(defaults);
 
 module.exports = app => {
   app.post('/api/contact', async (req, res) => {
-    request.post(
-      'https://www.google.com/recaptcha/api/siteverify',
-      {
+    try {
+      const options = {
+        method: 'POST',
+        uri: 'https://www.google.com/recaptcha/api/siteverify',
         form: {
           secret: keys.recaptchaSecretKey,
           response: req.body.recaptcha
-        }
-      },
-      async (error, response, body) => {
-        if (!JSON.parse(body).success) {
-          res.status(500).send({ error: `Error: ${error}` });
-        }
+        },
+        json: true
+      };
 
-        const mailOptions = {
-          from: req.body.email,
-          to: keys.nemp3EmailAddress,
-          subject: 'NEMp3 Contact Form',
-          text: req.body.message
-        };
+      const recaptchaBody = await rp(options);
 
-        transporter.sendMail(mailOptions, err => {
-          if (err) {
-            res
-              .status(500)
-              .send({ error: `Error! Could not send message: ${err}` });
-          } else {
-            res.status(200).send({ message: 'Thanks! Message sent.' });
-          }
-        });
+      if (recaptchaBody.error) {
+        throw new Error(recaptchaBody.error);
       }
-    );
+
+      const mailOptions = {
+        from: req.body.email,
+        to: keys.nemp3EmailAddress,
+        subject: 'NEMp3 Contact Form',
+        text: req.body.message
+      };
+
+      transporter.sendMail(mailOptions, err => {
+        if (err) {
+          throw new Error(`Error! Could not send message: ${err}`);
+        } else {
+          res.status(200).send({ message: 'Thanks! Message sent.' });
+        }
+      });
+    } catch (e) {
+      res.status(417).send({ error: e.message });
+    }
   });
 
   app.post('/api/auth/reset', async (req, res) => {
     try {
-      request.post(
-        'https://www.google.com/recaptcha/api/siteverify',
-        {
-          form: {
-            secret: keys.recaptchaSecretKey,
-            response: req.body.recaptcha
-          }
+      const options = {
+        method: 'POST',
+        uri: 'https://www.google.com/recaptcha/api/siteverify',
+        form: {
+          secret: keys.recaptchaSecretKey,
+          response: req.body.recaptcha
         },
-        async (error, response, body) => {
-          if (!JSON.parse(body).success) {
-            throw new Error(error);
-          }
+        json: true
+      };
 
-          const { email } = req.body;
-          const user = await User.findOne({ 'auth.email': email });
+      const recaptchaBody = await rp(options);
 
-          if (!user) {
-            throw new Error("Error! We can't find a user with that address.");
-          }
+      if (recaptchaBody.error) {
+        throw new Error(recaptchaBody.error);
+      }
 
-          const token = await crypto.randomBytes(20).toString('hex');
+      const { email } = req.body;
+      const user = await User.findOne({ 'auth.email': email });
 
-          user
-            .update({
-              'auth.resetToken': token,
-              'auth.resetExpire': Date.now() + 3600000
-            })
-            .exec()
-            .then(() => {
-              const mailOptions = {
-                from: req.body.email,
-                to: keys.nemp3EmailAddress,
-                subject: 'NEMp3 Password Reset Requested',
-                text: `Hi!\n\n
+      if (!user) {
+        throw new Error("Error! We can't find a user with that address.");
+      }
+
+      const token = await crypto.randomBytes(20).toString('hex');
+
+      user
+        .update({
+          'auth.resetToken': token,
+          'auth.resetExpire': Date.now() + 3600000
+        })
+        .exec()
+        .then(() => {
+          const mailOptions = {
+            from: req.body.email,
+            to: keys.nemp3EmailAddress,
+            subject: 'NEMp3 Password Reset Requested',
+            text: `Hi!\n\n
                 A password reset was requested for this NEMp3 account. To reset and choose a new password, please visit the URL below.\n\n
                 http://localhost:3000/reset/${token}\n\n
                 If you did not request this, you can safely ignore this email.\n\n
                 Best wishes,\n
                 NEMp3`
-              };
+          };
 
-              transporter.sendMail(mailOptions, err => {
-                if (err) {
-                  throw new Error(
-                    `Error! Could not send password reset email: ${err}`
-                  );
-                }
-              });
+          transporter.sendMail(mailOptions, err => {
+            if (err) {
+              throw new Error(
+                `Error! Could not send password reset email: ${err}`
+              );
+            }
+          });
 
-              res.send({
-                success: `Thank you. An email has been sent to ${email}.`
-              });
-            });
-        }
-      );
+          res.send({
+            success: `Thank you. An email has been sent to ${email}.`
+          });
+        });
     } catch (e) {
       res.status(417).send({ error: e.message });
     }
