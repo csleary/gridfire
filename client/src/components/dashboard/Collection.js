@@ -59,8 +59,9 @@ class Collection extends Component {
             <div className="col">
               <h3 className="text-center mt-4">No releases found</h3>
               <p className="text-center">
-                Once you&rsquo;ve purchased a release it will be added here,
-                where you&rsquo;ll have easy access to your downloads.
+                Once you&rsquo;ve purchased a release it will be added here to
+                your collection, where you&rsquo;ll have easy access to release
+                downloads.
               </p>
             </div>
           </div>

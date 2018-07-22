@@ -130,9 +130,11 @@ class UserRelease extends Component {
           <div className="artwork">
             <Link to={`/release/${release._id}`}>
               <img
-                className="lazyload img-fluid"
-                data-src={release.artwork ? release.artwork : null}
                 alt={release.artwork && `'${release.releaseTitle}' Artwork`}
+                className="lazyload img-fluid"
+                data-sizes="auto"
+                data-src={release.artwork ? release.artwork : null}
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
               />
             </Link>
           </div>

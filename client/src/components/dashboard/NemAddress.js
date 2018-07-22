@@ -74,9 +74,9 @@ class Dashboard extends Component {
         <div className="row">
           <div className="col-lg">
             <h3 className="text-center mt-4">NEM Payment Address</h3>
-            <p className="text-center">
-              Please add your NEM address if you wish to sell music. This
-              won&rsquo;t be necessary if you only plan on purchasing music.
+            <p>
+              Please add a NEM address if you wish to sell music, as fan
+              payments will be sent directly to this address.
             </p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
               <div className="form-row mt-5">
@@ -84,7 +84,7 @@ class Dashboard extends Component {
                   <Field
                     disabled={submitting}
                     id="nemAddress"
-                    label="NEM Address"
+                    label="Your NEM Address"
                     name="nemAddress"
                     type="text"
                     component={this.renderNemAddressField}

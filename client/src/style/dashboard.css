@@ -41,7 +41,9 @@ a.btn.add-release {
 }
 
 .payment-address {
-  font-size: 2rem;
+  font-size: 1.75rem;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 .user-releases .btn:hover {
