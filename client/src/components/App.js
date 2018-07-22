@@ -44,7 +44,7 @@ class App extends Component {
           if (this.state.isLoading) {
             return <Spinner />;
           }
-          if (this.props.user.isLoggedIn) {
+          if (typeof this.props.user.auth !== 'undefined') {
             return <PrivateComponent {...props} />;
           }
           return (

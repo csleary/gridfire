@@ -2,7 +2,6 @@ import { ADD_NEM_ADDRESS, FETCH_USER } from '../actions/types';
 
 const initialState = {
   isLoading: true,
-  isLoggedIn: false,
   nemAddress: ''
 };
 
@@ -15,7 +14,6 @@ export default (state = initialState, action) => {
       return {
         ...state,
         isLoading: action.isLoading,
-        isLoggedIn: state.isLoggedIn || action.isLoggedIn,
         ...payload
       };
     default:
