@@ -239,6 +239,11 @@ img {
   opacity: 1;
 }
 
+img[data-sizes='auto'] {
+  display: block;
+  width: 100%;
+}
+
 ::selection {
   background-color: #4f80e1;
   color: #f0f0f1;

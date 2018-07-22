@@ -11,7 +11,9 @@ const RenderRelease = props => {
       <img
         alt={`${artistName} - ${releaseTitle}`}
         className="lazyload artwork"
+        data-sizes="auto"
         data-src={artwork || null}
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
       />
       <div
         className="cover-artwork-overlay"
