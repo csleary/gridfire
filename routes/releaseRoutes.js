@@ -189,8 +189,8 @@ module.exports = app => {
         const { nemAddress } = req.user;
 
         if (
-          !release.artwork &&
-          !release.trackList.length &&
+          !release.artwork ||
+          !release.trackList.length ||
           release.trackList.some(track => !track.hasAudio)
         ) {
           release.update({ published: false }).exec();
