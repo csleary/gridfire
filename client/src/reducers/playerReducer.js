@@ -7,6 +7,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
+  albumId: '',
   audio: '',
   isPlaying: false,
   isPaused: false,

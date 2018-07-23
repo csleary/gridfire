@@ -202,7 +202,7 @@ module.exports = app => {
         if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
           release.update({ published: false }).exec();
           throw new Error(
-            'Please add a valid NEM address to your account before publishing this release.'
+            'Please add a valid NEM address to your account before publishing this release (payment tab).'
           );
         }
 
