@@ -3,6 +3,7 @@ import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import Recaptcha from 'react-google-recaptcha';
 import axios from 'axios';
+// import RenderRecaptcha from './RenderRecaptcha';
 
 const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
@@ -122,6 +123,7 @@ class ForgotPassword extends Component {
                     </div>
                   )}
                   <Field
+                    classNames="d-flex flex-wrap justify-content-center py-2"
                     component={this.renderRecaptcha}
                     name="recaptcha"
                     validate={this.required}
