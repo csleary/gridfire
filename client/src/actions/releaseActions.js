@@ -32,6 +32,7 @@ export const fetchRelease = releaseId => async dispatch => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
     dispatch({ type: FETCH_RELEASE, payload: res.data.release });
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
   }
@@ -49,11 +50,21 @@ export const publishStatus = (releaseId, callback) => async dispatch => {
 };
 
 export const purchaseRelease = releaseId => async dispatch => {
-  const res = await axios.get(`/api/purchase/${releaseId}`);
-  dispatch({
-    type: PURCHASE_RELEASE,
-    payload: res.data
-  });
+  try {
+    const res = await axios.get(`/api/purchase/${releaseId}`);
+
+    if (res.data.error) {
+      dispatch({ type: TOAST_ERROR, payload: res.data });
+    }
+
+    dispatch({
+      type: PURCHASE_RELEASE,
+      payload: res.data
+    });
+    return res;
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+  }
 };
 
 export const updateRelease = (values, callback) => async dispatch => {

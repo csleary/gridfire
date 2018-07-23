@@ -127,6 +127,26 @@ class SelectedRelease extends Component {
       );
     });
 
+  renderPrice() {
+    const { release, xemPriceUsd } = this.props;
+    const { price } = release;
+
+    if (!price) {
+      return 'Name Your Price';
+    }
+
+    if (xemPriceUsd) {
+      const priceInXem = price / xemPriceUsd;
+      return `${price} USD (~${priceInXem.toFixed(2)} XEM)`;
+    }
+  }
+
+  renderPurchaseButton() {
+    if (!this.props.release.price) return 'Name Your Price';
+    if (this.state.inCollection) return 'Transactions';
+    return 'Purchase';
+  }
+
   render() {
     if (this.state.isLoading) {
       return <Spinner />;
@@ -142,7 +162,6 @@ class SelectedRelease extends Component {
       cLine,
       info,
       pLine,
-      price,
       recordLabel,
       releaseTitle,
       releaseDate
@@ -190,13 +209,7 @@ class SelectedRelease extends Component {
             <h4 className="artist-name text-center">
               <Link to={`/artist/${artist}`}>{artistName}</Link>
             </h4>
-            <h6 className="release-price text-center">
-              ${price} USD{' '}
-              {this.props.xemPriceUsd &&
-                `(~${(
-                  this.props.release.price / this.props.xemPriceUsd
-                ).toFixed(2)} XEM)`}
-            </h6>
+            <h6 className="release-price text-center">{this.renderPrice()}</h6>
             <div className="tracklist-wrapper">
               <ol className="tracklist">{this.renderTrackList()}</ol>
             </div>
@@ -205,7 +218,7 @@ class SelectedRelease extends Component {
                 to={`/payment/${this.props.release._id}`}
                 className="btn btn-outline-primary buy-button"
               >
-                {this.state.inCollection ? 'Transactions' : 'Purchase'}
+                {this.renderPurchaseButton()}
               </Link>
             </div>
             <h6>
