@@ -184,9 +184,33 @@ module.exports = app => {
     requireLogin,
     releaseOwner,
     async (req, res) => {
-      const release = res.locals.release;
-      release.published = !release.published;
-      release.save().then(updatedRelease => res.send(updatedRelease));
+      try {
+        const release = res.locals.release;
+        const { nemAddress } = req.user;
+
+        if (
+          !release.artwork &&
+          !release.trackList.length &&
+          release.trackList.some(track => !track.hasAudio)
+        ) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            'Please ensure your release has artwork, and that all tracks have audio uploaded, before publishing.'
+          );
+        }
+
+        if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            'Please add a valid NEM address to your account before publishing this release.'
+          );
+        }
+
+        release.published = !release.published;
+        release.save().then(updatedRelease => res.send(updatedRelease));
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
     }
   );
 
