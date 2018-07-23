@@ -64,8 +64,8 @@ class RenderTrackList extends Component {
             <RenderTrack
               audioUploading={this.props.audioUploading}
               deleteTrack={this.props.deleteTrack}
-              dragActive={this.props.dragActive}
-              dragOrigin={this.props.dragOrigin}
+              dragActive={this.state.dragActive}
+              dragOrigin={this.state.dragOrigin}
               fields={fields}
               handleConfirm={this.handleConfirm}
               handleDragStart={this.handleDragStart}

@@ -2,13 +2,11 @@ const aws = require('aws-sdk');
 const mongoose = require('mongoose');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const utils = require('./utils');
 const { AWS_REGION } = require('./constants');
 const { BUCKET_SRC } = require('./constants');
 const { BUCKET_OPT } = require('./constants');
 const { TRANSCODER_PIPELINE_ID } = require('./constants');
 
-const { userOwnsRelease } = utils;
 const Release = mongoose.model('releases');
 aws.config.update({ region: AWS_REGION });
 
@@ -123,18 +121,17 @@ module.exports = app => {
   );
 
   // Move track position
-  app.patch('/api/:releaseId/:from/:to', requireLogin, async (req, res) => {
-    const { releaseId, from, to } = req.params;
-    const release = await Release.findById(releaseId);
-
-    if (!userOwnsRelease(req.user, release)) {
-      res.status(401).send({ error: 'Not authorised.' });
-      return;
+  app.patch(
+    '/api/:releaseId/:from/:to',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      const { from, to } = req.params;
+      const release = res.locals.release;
+      release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
+      release.save().then(updatedRelease => res.send(updatedRelease));
     }
-    release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
-    release.save();
-    res.send(release);
-  });
+  );
 
   // Transcode Audio
   app.get('/api/transcode/audio', requireLogin, async (req, res) => {
