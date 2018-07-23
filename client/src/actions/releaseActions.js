@@ -44,7 +44,7 @@ export const publishStatus = (releaseId, callback) => async dispatch => {
     callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, payload: e.response.data });
-    callback();
+    callback(e.response.data);
   }
 };
 

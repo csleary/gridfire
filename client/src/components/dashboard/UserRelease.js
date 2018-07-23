@@ -65,32 +65,21 @@ class UserRelease extends Component {
   handlePublishStatus = () => {
     const { release, publishStatus, toastMessage } = this.props;
 
-    if (
-      release.artwork &&
-      release.trackList.length &&
-      release.trackList.filter(track => track.hasAudio === false).length === 0
-    ) {
-      this.setState({ isPublishingRelease: true });
-      publishStatus(release._id, () => {
-        this.setState({ isPublishingRelease: false });
-        const message = release.published
-          ? {
-              alertClass: 'alert-warning',
-              message: `'${release.releaseTitle}' has been taken offline.`
-            }
-          : {
-              alertClass: 'alert-success',
-              message: `'${release.releaseTitle}' is now live and on sale.`
-            };
-        toastMessage(message);
-      });
-    } else {
-      toastMessage({
-        alertClass: 'alert-danger',
-        message:
-          'Please ensure your release has artwork, and that all tracks have audio uploaded, before publishing.'
-      });
-    }
+    this.setState({ isPublishingRelease: true });
+    publishStatus(release._id, error => {
+      this.setState({ isPublishingRelease: false });
+      if (error) return;
+      const message = release.published
+        ? {
+            alertClass: 'alert-warning',
+            message: `'${release.releaseTitle}' has been taken offline.`
+          }
+        : {
+            alertClass: 'alert-success',
+            message: `'${release.releaseTitle}' is now live and on sale.`
+          };
+      toastMessage(message);
+    });
   };
 
   pleaseConfirm = (title, callback) => {
