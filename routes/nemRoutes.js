@@ -17,6 +17,7 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
     const artist = await User.findById(release.user);
     const paymentAddress = artist.nemAddress;
+
     const hasPreviouslyPurchased = user.purchases.some(purchase =>
       purchase.releaseId.equals(releaseId)
     );
@@ -45,9 +46,7 @@ module.exports = app => {
           'purchases.date': date.toISOString().split('T')[0]
         });
 
-        const query = {
-          releaseId
-        };
+        const query = { releaseId };
         const update = {
           $addToSet: { purchases: { date: date.toISOString().split('T')[0] } }
         };

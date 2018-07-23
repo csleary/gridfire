@@ -3,26 +3,31 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-const UserSchema = new Schema({
-  auth: {
-    email: { type: String, trim: true },
-    googleId: String,
-    idHash: String,
-    name: String,
-    password: String,
-    resetToken: String,
-    resetExpire: Date
+const UserSchema = new Schema(
+  {
+    auth: {
+      email: { type: String, trim: true },
+      googleId: String,
+      idHash: String,
+      name: String,
+      password: String,
+      resetToken: String,
+      resetExpire: Date
+    },
+    nemAddress: String,
+    purchases: [
+      {
+        _id: false,
+        releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
+        purchaseDate: Date
+      }
+    ],
+    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
   },
-  nemAddress: String,
-  purchases: [
-    {
-      _id: false,
-      releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
-      purchaseDate: Date
-    }
-  ],
-  artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
-});
+  {
+    usePushEach: true
+  }
+);
 
 UserSchema.pre('save', async function(next) {
   try {

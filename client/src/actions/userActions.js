@@ -14,7 +14,6 @@ export const fetchUser = () => async dispatch => {
     dispatch({
       type: FETCH_USER,
       isLoading: false,
-      isLoggedIn: !!res.data,
       payload: res.data
     });
   } catch (e) {

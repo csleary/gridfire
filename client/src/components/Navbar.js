@@ -12,7 +12,6 @@ class Navbar extends Component {
     this.state = {
       showLogo: false
     };
-    this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
@@ -23,16 +22,13 @@ class Navbar extends Component {
     document.removeEventListener('scroll', this.handleScroll);
   }
 
-  handleScroll() {
+  handleScroll = () => {
     const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
     const scrollPos = window.pageYOffset;
 
-    if (scrollPos < navbarPos) {
-      this.setState({ showLogo: false });
-    } else {
-      this.setState({ showLogo: true });
-    }
-  }
+    if (scrollPos < navbarPos) this.setState({ showLogo: false });
+    else this.setState({ showLogo: true });
+  };
 
   authStatus() {
     if (this.props.user.isLoading) {

@@ -347,6 +347,7 @@ class EditRelease extends Component {
                 />
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
+              <p>You can drag and drop to reorder tracks.</p>
               <FieldArray
                 addTrack={this.props.addTrack}
                 audioUploading={this.state.audioUploading}
