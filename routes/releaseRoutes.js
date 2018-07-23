@@ -158,24 +158,35 @@ module.exports = app => {
   });
   // Purchase Release
   app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
-    req.session.price = null;
-    const { releaseId } = req.params;
-    const release = await Release.findById(releaseId);
-    const artist = await User.findById(release.user);
-    const customerIdHash = req.user.auth.idHash;
-    const xemPriceUsd = await utils.getXemPrice();
-    const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
-    req.session.price = price;
+    try {
+      req.session.price = null;
+      const { releaseId } = req.params;
+      const release = await Release.findById(releaseId);
+      const owner = await User.findById(release.user);
+      const customerIdHash = req.user.auth.idHash;
+      const xemPriceUsd = await utils.getXemPrice();
+      const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
+      req.session.price = price;
 
-    const paymentHash = SHA256(release._id + customerIdHash)
-      .toString()
-      .substring(0, 31);
+      if (!owner.nemAddress) {
+        const error = 'No NEM payment address found. 😞';
+        const paymentInfo = { paymentAddress: null, paymentHash: null };
+        res.send({ error, release, paymentInfo, price });
+        return;
+      }
 
-    const paymentInfo = {
-      paymentAddress: nem.utils.format.address(artist.nemAddress),
-      paymentHash
-    };
-    res.send({ release, paymentInfo, price });
+      const paymentHash = SHA256(release._id + customerIdHash)
+        .toString()
+        .substring(0, 31);
+
+      const paymentInfo = {
+        paymentAddress: nem.utils.format.address(owner.nemAddress),
+        paymentHash
+      };
+      res.send({ release, paymentInfo, price });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
   });
 
   // Toggle Release Status

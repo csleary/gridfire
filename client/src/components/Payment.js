@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import * as actions from '../actions';
 import ManualPayment from './payment/ManualPayment';
 import QRCode from './payment/QRCode';
@@ -14,35 +15,28 @@ class Payment extends Component {
       isLoading: true,
       showPaymentInfo: false
     };
-    this.handleFetchIncomingTxs = this.handleFetchIncomingTxs.bind(this);
-    this.handleShowPaymentInfo = this.handleShowPaymentInfo.bind(this);
   }
 
   componentDidMount() {
     const { releaseId } = this.props.match.params;
     this.props.purchaseRelease(releaseId).then(() => {
       this.setState({ isLoading: false });
+      if (!this.props.paymentAddress) return null;
       this.handleFetchIncomingTxs();
     });
   }
 
-  handleFetchIncomingTxs(isUpdating = false) {
-    const { paymentHash } = this.props;
+  handleFetchIncomingTxs = (isUpdating = false) => {
     const { releaseId } = this.props.match.params;
-    this.props.fetchIncomingTxs(
-      {
-        releaseId,
-        paymentHash
-      },
-      isUpdating
-    );
-  }
+    const { paymentHash } = this.props;
+    this.props.fetchIncomingTxs({ releaseId, paymentHash }, isUpdating);
+  };
 
-  handleShowPaymentInfo() {
+  handleShowPaymentInfo = () => {
     this.setState({
       showPaymentInfo: !this.state.showPaymentInfo
     });
-  }
+  };
 
   roundUp(value, precision) {
     const factor = 10 ** precision;
@@ -62,7 +56,7 @@ class Payment extends Component {
       toastMessage,
       transactions
     } = this.props;
-    const { artistName, releaseTitle } = release;
+    const { artist, artistName, releaseTitle } = release;
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
@@ -93,6 +87,30 @@ class Payment extends Component {
         <Spinner>
           <h2>Loading Payment Info&hellip;</h2>
         </Spinner>
+      );
+    }
+
+    if (!paymentAddress) {
+      return (
+        <main className="container">
+          <div className="row">
+            <div className="col">
+              <h2 className="text-center">Payment</h2>
+              <h3 className="text-center red">
+                {artistName} &bull;{' '}
+                <span className="ibm-type-italic">{releaseTitle}</span>
+              </h3>
+              <p className="text-center">
+                Oh no! <Link to={`/artist/${artist}`}>{artistName}</Link>{' '}
+                doesn&rsquo;t have a NEM payment address in their account, so we
+                are unable to process payments for them at the moment.
+              </p>
+              <p className="text-center">
+                Hopefully they&rsquo;ll have an address in place soon!
+              </p>
+            </div>
+          </div>
+        </main>
       );
     }
 
