@@ -3,6 +3,7 @@
 }
 
 .selected-release .col-artwork {
+  margin: 0;
   padding: 0;
 }
 
@@ -131,8 +132,7 @@
 
 @media (min-width: 768px) {
   .selected-release .col-artwork {
-    margin-bottom: 0;
-    padding-right: 15px;
+    padding: 0 15px;
   }
 }
 
