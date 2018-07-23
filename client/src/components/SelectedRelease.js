@@ -70,11 +70,12 @@ class SelectedRelease extends Component {
   handlePlayRelease() {
     const audioPlayer = document.getElementById('player');
     const { artistName, _id, trackList } = this.props.release;
+    const { albumId, isPlaying, isPaused } = this.props.player;
 
-    if (this.props.player.isPlaying) {
+    if (isPlaying && albumId === _id) {
       audioPlayer.pause();
       this.props.playerPause();
-    } else if (this.props.player.isPaused) {
+    } else if (isPaused && albumId === _id) {
       audioPlayer.play();
       this.props.playerPlay();
     } else {
@@ -132,6 +133,7 @@ class SelectedRelease extends Component {
     }
 
     const {
+      _id,
       artist,
       artistName,
       artwork,
@@ -145,6 +147,7 @@ class SelectedRelease extends Component {
       releaseTitle,
       releaseDate
     } = this.props.release;
+    const { albumId, isPlaying } = this.props.player;
 
     return (
       <main className="container d-flex align-items-center">
@@ -163,10 +166,10 @@ class SelectedRelease extends Component {
                 tabIndex="-1"
                 title={`${artistName} - ${releaseTitle}`}
               >
-                {!this.props.player.isPlaying ? (
-                  <FontAwesome className="play" name="play" />
-                ) : (
+                {isPlaying && _id === albumId ? (
                   <FontAwesome className="" name="pause" />
+                ) : (
+                  <FontAwesome className="play" name="play" />
                 )}
               </div>
             </div>
