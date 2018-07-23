@@ -75,14 +75,18 @@
   text-align: center;
 }
 
-@media (min-width: 1600px) {
-  .front-page .cover-artwork .cover-artwork-overlay {
-    font-size: 5rem;
-  }
-}
-
 @media (min-width: 1200px) {
   .front-page {
     grid-template-columns: repeat(auto-fit, minmax(18rem, 0.25fr));
+  }
+}
+
+@media (min-width: 1600px) {
+  .front-page {
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 0.25fr));
+  }
+
+  .front-page .cover-artwork .cover-artwork-overlay {
+    font-size: 5rem;
   }
 }
