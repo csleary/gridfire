@@ -11,7 +11,7 @@
   margin: 2rem auto;
 }
 
-.selected-release .tracklist-wrapper {
+.selected-release .tracklist-wrapper.columns {
   columns: 2 16rem;
 }
 
@@ -151,10 +151,6 @@
   }
 
   .release-info .release-price {
-    font-size: 1.2rem;
-  }
-
-  .selected-release .tracklist {
     font-size: 1.2rem;
   }
 }

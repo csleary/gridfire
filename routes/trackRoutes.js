@@ -29,13 +29,13 @@ module.exports = app => {
   // Play Track
   app.get('/api/play-track', async (req, res) => {
     try {
-      const { albumId, trackId } = req.query;
+      const { releaseId, trackId } = req.query;
       const s3 = new aws.S3();
 
       const list = await s3
         .listObjectsV2({
           Bucket: BUCKET_OPT,
-          Prefix: `m4a/${albumId}/${trackId}`
+          Prefix: `m4a/${releaseId}/${trackId}`
         })
         .promise();
 

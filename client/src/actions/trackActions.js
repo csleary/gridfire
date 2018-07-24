@@ -44,14 +44,14 @@ export const moveTrack = (
 };
 
 export const playTrack = (
-  albumId,
+  releaseId,
   trackId,
   artistName,
   trackTitle
 ) => async dispatch => {
   try {
     const res = await axios.get('/api/play-track', {
-      params: { albumId, trackId }
+      params: { releaseId, trackId }
     });
 
     dispatch({
@@ -59,7 +59,7 @@ export const playTrack = (
       payload: {
         audio: res.data,
         artistName,
-        albumId,
+        releaseId,
         trackTitle
       }
     });
