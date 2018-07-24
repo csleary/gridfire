@@ -37,8 +37,8 @@ module.exports = app => {
   // Fetch Site Catalogue
   app.get('/api/catalogue', async (req, res) => {
     const releases = await Release.find({ published: true })
-      .limit(30)
-      .sort('-releaseDate');
+      .limit(20)
+      .sort('-dateCreated');
     res.send(releases);
   });
 

@@ -12,8 +12,7 @@
 }
 
 .selected-release .tracklist-wrapper {
-  columns: 1;
-  padding-left: 2rem;
+  columns: 2 16rem;
 }
 
 .selected-release .tracklist {
@@ -137,16 +136,9 @@
 }
 
 @media (min-width: 992px) {
-  .selected-release .tracklist-wrapper {
-    columns: 2;
-    padding-left: 0;
-  }
 }
 
 @media (min-width: 1200px) {
-  .selected-release .tracklist-wrapper {
-    padding-left: 2rem;
-  }
 }
 
 @media (min-width: 1600px) {
