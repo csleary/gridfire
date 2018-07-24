@@ -74,7 +74,7 @@ class Dashboard extends Component {
         <div className="row">
           <div className="col-lg">
             <h3 className="text-center mt-4">NEM Payment Address</h3>
-            <p>
+            <p className="text-center">
               Please add a NEM address if you wish to sell music, as fan
               payments will be sent directly to this address.
             </p>
@@ -102,6 +102,37 @@ class Dashboard extends Component {
                 </div>
               </div>
             </form>
+            <h4>Getting Your First NEM Address</h4>
+            <p>
+              To receive payments from fans, as well as (eventually) utility
+              tokens or rewards from NEMp3, you will need to have your own NEM
+              address. The easiest way to do this is by setting up an account
+              with one of the mobile wallets, which are available from your
+              phone&rsquo;s respective download store, as linked from{' '}
+              <a href="https://nem.io/downloads/">the NEM site</a>. Of course,
+              there is a more fully-featured cross-platform desktop wallet also
+              available.
+            </p>
+            <p>
+              The mobile wallets are especially handy, as they are able to scan
+              the QR codes on the payment pages with their cameras, to fill in
+              payment details automatically (which you can confirm before
+              sending, naturally). This makes including the payment message code
+              with your payment amount foolproof.
+            </p>
+            <p>
+              Within any of the wallets, whether the desktop NanoWallet or the
+              mobile wallets, you can create any number of accounts, each with
+              their own individual address. You could easily dedicate an address
+              to NEMp3, for instance.
+            </p>
+            <p>
+              At present, only a single NEM address can be added to NEMp3
+              accounts, so for example, automatic royalty splits are not yet
+              possible (and would incur a network fee for royalties sent to each
+              band member). This may change with the next update of the NEM
+              infrastructure.
+            </p>
           </div>
         </div>
       </main>
