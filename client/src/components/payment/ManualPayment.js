@@ -23,7 +23,7 @@ const ManualPayment = props => {
           scan a QR code
         </a>, you can still make a payment manually as follows:
       </p>
-      <h4>1. Enter Your Payment ID as Message</h4>
+      <h4>1. Enter Your Payment ID as a Message</h4>
       <p>
         Please remember to include the payment ID below in the message field
         when making your payment, as it&rsquo;s your unique, personalised

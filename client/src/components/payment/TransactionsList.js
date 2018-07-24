@@ -133,8 +133,12 @@ const TransactionsList = props => {
     <div className="transactions">
       <h3 className="text-center">Transactions</h3>
       <p>
-        <FontAwesome name="server" className="icon-left red" />
-        Connected to NIS Node: <strong>{nemNode}</strong>
+        <FontAwesome
+          name="server"
+          className="icon-left red"
+          title="NEM Infrastructure Server"
+        />
+        NIS Node: <strong>{nemNode}</strong>
       </p>
       {transactionsPreamble}
       {underpaid()}

@@ -30,7 +30,7 @@ class Player extends Component {
       const mins = Math.floor(audioPlayer.currentTime / 60);
       const secs = Math.floor(audioPlayer.currentTime % 60);
       const percentComplete =
-        audioPlayer.currentTime / audioPlayer.duration * 100;
+        (audioPlayer.currentTime / audioPlayer.duration) * 100;
       const remainingTime = audioPlayer.duration - audioPlayer.currentTime || 0;
       const minsLeft = Math.floor(remainingTime / 60);
       const secsLeft = Math.floor(remainingTime % 60);
@@ -142,10 +142,10 @@ class Player extends Component {
   }
 
   renderTrackInfo() {
-    const { albumId, artistName, trackTitle } = this.props.player;
-    if (this.props.history.location.pathname !== `/release/${albumId}`) {
+    const { releaseId, artistName, trackTitle } = this.props.player;
+    if (this.props.history.location.pathname !== `/release/${releaseId}`) {
       return (
-        <Link to={`/release/${albumId}`}>
+        <Link to={`/release/${releaseId}`}>
           {artistName} &bull; <em>{trackTitle}</em>
         </Link>
       );
@@ -229,10 +229,13 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, {
-  playTrack,
-  playerHide,
-  playerPause,
-  playerPlay,
-  playerStop
-})(withRouter(Player));
+export default connect(
+  mapStateToProps,
+  {
+    playTrack,
+    playerHide,
+    playerPause,
+    playerPlay,
+    playerStop
+  }
+)(withRouter(Player));
