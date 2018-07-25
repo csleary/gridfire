@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import classNames from 'classnames';
 import moment from 'moment';
 import {
   fetchRelease,
@@ -10,7 +11,7 @@ import {
   playerPause,
   playerPlay,
   playTrack,
-  toastMessage
+  toastInfo
 } from '../actions';
 import Spinner from './Spinner';
 import '../style/selectedRelease.css';
@@ -26,19 +27,23 @@ class SelectedRelease extends Component {
 
   componentDidMount() {
     const { releaseId } = this.props.match.params;
+    const { purchases } = this.props.user;
     this.props.fetchUser();
     this.props.fetchXemPrice();
     this.props.fetchRelease(releaseId).then(() => {
       if (!this.props.release) {
         this.props.history.push('/');
-      } else {
-        this.setState({ isLoading: false });
+        return;
       }
 
-      const { purchases } = this.props.user;
       const inCollection =
-        purchases && purchases.some(release => releaseId === release.releaseId);
+        purchases &&
+        purchases.some(
+          currentRelease => releaseId === currentRelease.releaseId
+        );
+
       if (inCollection) this.setState({ inCollection: true });
+      this.setState({ isLoading: false });
     });
   }
 
@@ -61,26 +66,25 @@ class SelectedRelease extends Component {
   }
 
   nowPlayingToast(trackTitle) {
-    this.props.toastMessage({
-      alertClass: 'alert-info',
-      message: `Loading '${trackTitle}'`
-    });
+    this.props.toastInfo(`Loading '${trackTitle}'`);
   }
 
   handlePlayRelease() {
     const audioPlayer = document.getElementById('player');
-    const { artistName, _id, trackList } = this.props.release;
-    const { albumId, isPlaying, isPaused } = this.props.player;
+    const { artistName, trackList } = this.props.release;
+    const releaseId = this.props.release._id;
+    const { isPlaying, isPaused } = this.props.player;
+    const playerReleaseId = this.props.player.releaseId;
 
-    if (isPlaying && albumId === _id) {
+    if (isPlaying && playerReleaseId === releaseId) {
       audioPlayer.pause();
       this.props.playerPause();
-    } else if (isPaused && albumId === _id) {
+    } else if (isPaused && playerReleaseId === releaseId) {
       audioPlayer.play();
       this.props.playerPlay();
     } else {
       this.props.playTrack(
-        _id,
+        releaseId,
         trackList[0]._id,
         artistName,
         trackList[0].trackTitle
@@ -91,36 +95,33 @@ class SelectedRelease extends Component {
 
   renderTrackList = () =>
     this.props.release.trackList.map(track => {
+      const { trackTitle } = track;
+      const trackId = track._id;
+      const { isPlaying, isPaused } = this.props.player;
+      const playerTrackTitle = this.props.player.trackTitle;
+      const { _id, artistName } = this.props.release;
+      const releaseId = _id;
+
       const nowPlaying = () => {
-        if (
-          track.trackTitle === this.props.player.trackTitle &&
-          this.props.player.isPlaying
-        ) {
+        if (trackTitle !== playerTrackTitle) return;
+        if (isPlaying) {
           return <FontAwesome className="now-playing" name="play" />;
-        } else if (
-          track.trackTitle === this.props.player.trackTitle &&
-          this.props.player.isPaused
-        ) {
+        } else if (isPaused) {
           return <FontAwesome className="now-playing" name="pause" />;
         }
       };
 
       return (
-        <li key={track._id}>
+        <li key={trackId}>
           <a
             onClick={() => {
-              this.props.playTrack(
-                this.props.release._id,
-                track._id,
-                this.props.release.artistName,
-                track.trackTitle
-              );
-              this.nowPlayingToast(track.trackTitle);
+              this.props.playTrack(releaseId, trackId, artistName, trackTitle);
+              this.nowPlayingToast(trackTitle);
             }}
             role="link"
             tabIndex="-1"
           >
-            {track.trackTitle}
+            {trackTitle}
           </a>
           {nowPlaying()}
         </li>
@@ -131,9 +132,7 @@ class SelectedRelease extends Component {
     const { release, xemPriceUsd } = this.props;
     const { price } = release;
 
-    if (!price) {
-      return 'Name Your Price';
-    }
+    if (!price) return 'Name Your Price';
 
     if (xemPriceUsd) {
       const priceInXem = price / xemPriceUsd;
@@ -164,9 +163,16 @@ class SelectedRelease extends Component {
       pLine,
       recordLabel,
       releaseTitle,
-      releaseDate
+      releaseDate,
+      trackList
     } = this.props.release;
-    const { albumId, isPlaying } = this.props.player;
+    const releaseId = _id;
+    const { isPlaying } = this.props.player;
+    const playerReleaseId = this.props.player.releaseId;
+
+    const trackListColumns = classNames('tracklist-wrapper', {
+      columns: trackList.length > 10
+    });
 
     return (
       <main className="container d-flex align-items-center">
@@ -185,7 +191,7 @@ class SelectedRelease extends Component {
                 tabIndex="-1"
                 title={`${artistName} - ${releaseTitle}`}
               >
-                {isPlaying && _id === albumId ? (
+                {isPlaying && releaseId === playerReleaseId ? (
                   <FontAwesome className="" name="pause" />
                 ) : (
                   <FontAwesome className="play" name="play" />
@@ -210,12 +216,12 @@ class SelectedRelease extends Component {
               <Link to={`/artist/${artist}`}>{artistName}</Link>
             </h4>
             <h6 className="release-price text-center">{this.renderPrice()}</h6>
-            <div className="tracklist-wrapper">
+            <div className={trackListColumns}>
               <ol className="tracklist">{this.renderTrackList()}</ol>
             </div>
             <div className="d-flex justify-content-center">
               <Link
-                to={`/payment/${this.props.release._id}`}
+                to={`/payment/${releaseId}`}
                 className="btn btn-outline-primary buy-button"
               >
                 {this.renderPurchaseButton()}
@@ -287,6 +293,6 @@ export default connect(
     playerPause,
     playerPlay,
     playTrack,
-    toastMessage
+    toastInfo
   }
 )(SelectedRelease);

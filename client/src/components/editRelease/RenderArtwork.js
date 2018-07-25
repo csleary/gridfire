@@ -32,11 +32,7 @@ const RenderArtwork = props => (
                       ' As your release was previously published, it has also been taken offline.';
                   });
                 }
-
-                props.toastMessage({
-                  alertClass: 'alert-warning',
-                  message: 'Deleting artwork…'
-                });
+                props.toastWarning('Deleting artwork…');
 
                 props.deleteArtwork(release._id, () => {
                   if (props.artworkFile) {
@@ -44,11 +40,7 @@ const RenderArtwork = props => (
                   }
 
                   props.handleDeletePreview();
-
-                  props.toastMessage({
-                    alertClass: 'alert-success',
-                    message: `Artwork deleted.${prevPublished}`
-                  });
+                  props.toastSuccess(`Artwork deleted.${prevPublished}`);
                 });
               }}
             >

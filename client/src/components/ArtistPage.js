@@ -6,7 +6,7 @@ import {
   fetchArtistCatalogue,
   fetchRelease,
   playTrack,
-  toastMessage
+  toastInfo
 } from '../actions';
 import '../style/home.css';
 
@@ -40,7 +40,7 @@ class ArtistPage extends Component {
           key={release._id}
           playTrack={this.props.playTrack}
           release={release}
-          toastMessage={this.props.toastMessage}
+          toastInfo={this.props.toastInfo}
         />
       ));
 
@@ -77,6 +77,6 @@ export default connect(
     fetchRelease,
     fetchArtistCatalogue,
     playTrack,
-    toastMessage
+    toastInfo
   }
 )(ArtistPage);

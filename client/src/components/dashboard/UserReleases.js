@@ -19,7 +19,8 @@ class UserReleases extends Component {
       history,
       publishStatus,
       salesData,
-      toastMessage,
+      toastSuccess,
+      toastWarning,
       userReleases
     } = this.props;
 
@@ -31,7 +32,8 @@ class UserReleases extends Component {
         publishStatus={publishStatus}
         salesData={salesData}
         release={release}
-        toastMessage={toastMessage}
+        toastSuccess={toastSuccess}
+        toastWarning={toastWarning}
         userReleases={userReleases}
       />
     ));

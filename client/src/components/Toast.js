@@ -11,7 +11,7 @@ class Toast extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      message: ''
+      text: ''
     };
   }
 
@@ -19,7 +19,7 @@ class Toast extends Component {
     this.clearTimer();
     this.setState({
       isVisible: true,
-      message: nextProps.toast.message
+      text: nextProps.toast.text
     });
     this.setTimer();
   }
@@ -40,36 +40,36 @@ class Toast extends Component {
     clearTimeout(timer);
   }
 
-  toastIcon(alertClass) {
-    switch (alertClass) {
-      case 'alert-success':
-        return 'thumbs-o-up';
-      case 'alert-danger':
+  toastIcon(type) {
+    switch (type) {
+      case 'error':
         return 'exclamation-circle';
-      case 'alert-warning':
-        return 'exclamation-circle';
-      case 'alert-info':
+      case 'info':
         return 'info-circle';
+      case 'success':
+        return 'thumbs-o-up';
+      case 'warning':
+        return 'exclamation-circle';
       default:
-        return '';
+        return 'info-circle';
     }
   }
 
   render() {
-    const icon = this.toastIcon(this.props.toast.alertClass);
-    const className = classNames(
-      'toast',
-      'alert',
-      this.props.toast.alertClass,
-      {
-        'toast-show': this.state.isVisible,
-        'toast-fade': !this.state.isVisible
-      }
-    );
+    const { type } = this.props.toast;
+    const icon = this.toastIcon(type);
+    const classes = classNames('toast', 'alert', {
+      'alert-danger': type === 'error',
+      'alert-info': type === 'info',
+      'alert-success': type === 'success',
+      'alert-warning': type === 'warning',
+      'toast-show': this.state.isVisible,
+      'toast-fade': !this.state.isVisible
+    });
     return (
-      <div className={className}>
+      <div className={classes}>
         <FontAwesome name={icon} className="icon-left" />
-        {this.state.message}
+        {this.state.text}
       </div>
     );
   }

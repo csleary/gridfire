@@ -79,7 +79,7 @@ class RenderTrackList extends Component {
               moveTrack={this.props.moveTrack}
               onDropAudio={this.props.onDropAudio}
               release={release}
-              toastMessage={this.props.toastMessage}
+              toastSuccess={this.props.toastSuccess}
               track={track}
             />
           ))}

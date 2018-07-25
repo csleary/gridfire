@@ -13,7 +13,7 @@ export const addTrack = (releaseId, callback) => async dispatch => {
     dispatch({ type: ADD_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -23,7 +23,7 @@ export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
     dispatch({ type: DELETE_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -38,20 +38,20 @@ export const moveTrack = (
     dispatch({ type: MOVE_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
     callback(e.response.data.error);
   }
 };
 
 export const playTrack = (
-  albumId,
+  releaseId,
   trackId,
   artistName,
   trackTitle
 ) => async dispatch => {
   try {
     const res = await axios.get('/api/play-track', {
-      params: { albumId, trackId }
+      params: { releaseId, trackId }
     });
 
     dispatch({
@@ -59,12 +59,12 @@ export const playTrack = (
       payload: {
         audio: res.data,
         artistName,
-        albumId,
+        releaseId,
         trackTitle
       }
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 

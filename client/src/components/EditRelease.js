@@ -19,7 +19,10 @@ import {
   fetchXemPrice,
   moveTrack,
   publishStatus,
-  toastMessage,
+  toastError,
+  toastInfo,
+  toastSuccess,
+  toastWarning,
   transcodeAudio,
   updateRelease,
   uploadArtwork
@@ -69,11 +72,9 @@ class EditRelease extends Component {
   componentWillUnmount() {
     if (!this.props.valid && !this.props.release.trackList.length) {
       this.props.deleteRelease(this.props.release._id, () => {
-        this.props.toastMessage({
-          alertClass: 'alert-warning',
-          message:
-            'Invalid or incomplete release discarded (automated housekeeping).'
-        });
+        this.props.toastWarning(
+          'Invalid or incomplete release discarded (automated housekeeping).'
+        );
       });
     }
     if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
@@ -81,11 +82,9 @@ class EditRelease extends Component {
 
   onDropArt(accepted, rejected) {
     if (rejected.length > 0) {
-      this.props.toastMessage({
-        alertClass: 'alert-danger',
-        message:
-          'Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 10MB in size.'
-      });
+      this.props.toastError(
+        'Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 10MB in size.'
+      );
     } else {
       this.artworkFile = accepted[0];
       const releaseId = this.props.release._id;
@@ -98,10 +97,9 @@ class EditRelease extends Component {
         height = image.height;
         width = image.width;
         if (height < 1000 || width < 1000) {
-          this.props.toastMessage({
-            alertClass: 'alert-danger',
-            message: `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
-          });
+          this.props.toastError(
+            `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
+          );
         } else {
           this.props.uploadArtwork(
             releaseId,
@@ -118,11 +116,9 @@ class EditRelease extends Component {
 
   onDropAudio(accepted, rejected, index, trackId) {
     if (rejected.length > 0) {
-      this.props.toastMessage({
-        alertClass: 'alert-danger',
-        message:
-          'This does not seem to be an audio file. Please select a wav or aiff audio file.'
-      });
+      this.props.toastError(
+        'This does not seem to be an audio file. Please select a wav or aiff audio file.'
+      );
     } else {
       const audioFile = accepted[0];
       const releaseId = this.props.release._id;
@@ -134,10 +130,9 @@ class EditRelease extends Component {
         .then(res => {
           const audioUploadUrl = res.data;
 
-          this.props.toastMessage({
-            alertClass: 'alert-info',
-            message: `Uploading file '${audioFile.name}' for ${trackName}.`
-          });
+          this.props.toastInfo(
+            `Uploading file '${audioFile.name}' for ${trackName}.`
+          );
 
           const config = {
             headers: {
@@ -157,20 +152,16 @@ class EditRelease extends Component {
           axios
             .put(audioUploadUrl, audioFile, config)
             .then(() => {
-              this.props.transcodeAudio(releaseId, trackId);
+              this.transcodeAudio(releaseId, trackId);
               this.props.fetchUserRelease(releaseId);
-              this.props.toastMessage({
-                alertClass: 'alert-success',
-                message: `Upload complete for ${trackName}!`
-              });
+              this.props.toastSuccess(`Upload complete for ${trackName}!`);
             })
             .catch(error =>
-              this.props.toastMessage({
-                alertClass: 'alert-danger',
-                message: `Upload failed. Here's the message we received: ${
+              this.props.toastError(
+                `Upload failed. Here's the message we received: ${
                   error.message
                 }`
-              })
+              )
             );
         });
     }
@@ -181,11 +172,9 @@ class EditRelease extends Component {
       this.props.updateRelease(values, () => {
         const { releaseTitle } = this.props.release;
         this.props.history.push('/dashboard');
-        this.props.toastMessage({
-          alertClass: 'alert-success',
-          message: `${(releaseTitle && `'${releaseTitle}'`) ||
-            'Release'} saved!`
-        });
+        this.props.toastSuccess(
+          `${(releaseTitle && `'${releaseTitle}'`) || 'Release'} saved!`
+        );
         resolve();
       });
     });
@@ -205,12 +194,27 @@ class EditRelease extends Component {
   }
 
   renderHeader() {
-    if (this.state.isEditing && this.props.release.releaseTitle) {
-      return `Editing '${this.props.release.releaseTitle}'`;
-    } else if (this.state.isEditing) {
+    const { isEditing } = this.state;
+    const { releaseTitle } = this.props.release;
+
+    if (isEditing && releaseTitle) {
+      return `Editing '${releaseTitle}'`;
+    } else if (isEditing) {
       return 'Editing Untitled Release';
     }
     return 'Add Release';
+  }
+
+  renderPriceformText() {
+    const { price, xemPriceUsd } = this.props;
+    if (!xemPriceUsd) return;
+    const convertedPrice = (price / xemPriceUsd).toFixed(2);
+
+    if (price === '0') {
+      return "Name Your Price! Or 'free'. Fans will still be able to donate.";
+    }
+    if (price) return `Approximately ${convertedPrice} XEM.`;
+    return "Set your price in USD (enter '0' for a 'Name Your Price' release).";
   }
 
   render() {
@@ -254,13 +258,7 @@ class EditRelease extends Component {
                   />
                   <Field
                     component={RenderReleaseField}
-                    formText={
-                      this.props.price
-                        ? `Approximately ${(
-                            this.props.price / this.props.xemPriceUsd
-                          ).toFixed(2)} XEM. (Enter '0' for free.)`
-                        : "Set your price in USD (enter '0' for free)."
-                    }
+                    formText={this.renderPriceformText()}
                     label="Price (USD)"
                     name="price"
                     required
@@ -343,7 +341,8 @@ class EditRelease extends Component {
                   onDropArt={this.onDropArt}
                   publishStatus={this.props.publishStatus}
                   release={this.props.release}
-                  toastMessage={this.props.toastMessage}
+                  toastSuccess={this.props.toastSuccess}
+                  toastWarning={this.props.toastWarning}
                 />
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
@@ -358,7 +357,7 @@ class EditRelease extends Component {
                 name="trackList"
                 onDropAudio={this.onDropAudio}
                 release={this.props.release}
-                toastMessage={this.props.toastMessage}
+                toastSuccess={this.props.toastSuccess}
               />
               <div className="d-flex justify-content-end">
                 <button
@@ -454,7 +453,10 @@ export default reduxForm({
       fetchXemPrice,
       moveTrack,
       publishStatus,
-      toastMessage,
+      toastError,
+      toastInfo,
+      toastSuccess,
+      toastWarning,
       transcodeAudio,
       updateRelease,
       uploadArtwork

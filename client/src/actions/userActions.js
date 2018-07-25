@@ -3,8 +3,8 @@ import {
   FETCH_USER,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
-  TOAST_MESSAGE,
-  TOAST_ERROR
+  TOAST_ERROR,
+  TOAST_SUCCESS
 } from './types';
 
 export const fetchUser = () => async dispatch => {
@@ -17,7 +17,7 @@ export const fetchUser = () => async dispatch => {
       payload: res.data
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -32,51 +32,11 @@ export const fetchUserReleases = () => async dispatch => {
   dispatch({ type: FETCH_USER_RELEASES, isLoading: false, payload: res.data });
 };
 
-export const login = (values, callback) => async dispatch => {
-  try {
-    const res = await axios.post('/auth/login', values);
-    dispatch(fetchUser());
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-success',
-        message: res.data.success
-      }
-    });
-    callback();
-  } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
-  }
-};
-
 export const passwordUpdate = values => async dispatch => {
   try {
     const res = await axios.post('/auth/update', values);
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-success',
-        message: res.data.success
-      }
-    });
+    dispatch({ type: TOAST_SUCCESS, text: res.data.success });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
-  }
-};
-
-export const register = (values, callback) => async dispatch => {
-  try {
-    const res = await axios.post('/auth/register', values);
-    dispatch(fetchUser());
-    dispatch({
-      type: TOAST_MESSAGE,
-      payload: {
-        alertClass: 'alert-success',
-        message: res.data.success
-      }
-    });
-    callback();
-  } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };

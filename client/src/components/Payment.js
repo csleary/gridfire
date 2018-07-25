@@ -53,7 +53,7 @@ class Payment extends Component {
       paymentAddress,
       paymentHash,
       release,
-      toastMessage,
+      toastInfo,
       transactions
     } = this.props;
     const { artist, artistName, releaseTitle } = release;
@@ -157,7 +157,7 @@ class Payment extends Component {
               price={priceInXem}
               releaseTitle={release.releaseTitle}
               roundUp={this.roundUp}
-              toastMessage={toastMessage}
+              toastInfo={toastInfo}
               transactions={transactions}
             />
           </div>

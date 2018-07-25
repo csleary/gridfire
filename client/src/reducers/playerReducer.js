@@ -7,7 +7,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  albumId: '',
+  releaseId: '',
   audio: '',
   isPlaying: false,
   isPaused: false,
@@ -15,7 +15,7 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  const { type, payload } = action;
+  const { type } = action;
   switch (type) {
     case PLAY_TRACK:
       return {
@@ -24,13 +24,15 @@ export default (state = initialState, action) => {
         showPlayer: true,
         audio: action.payload.audio,
         artistName: action.payload.artistName,
-        albumId: action.payload.albumId,
+        releaseId: action.payload.releaseId,
         trackTitle: action.payload.trackTitle
       };
     case PLAYER_HIDE:
       return {
         ...state,
-        ...payload
+        isPlaying: false,
+        isPaused: false,
+        showPlayer: false
       };
     case PLAYER_PLAY:
       return {

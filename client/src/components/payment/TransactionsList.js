@@ -18,7 +18,7 @@ const TransactionsList = props => {
     price,
     releaseTitle,
     roundUp,
-    toastMessage,
+    toastInfo,
     transactions
   } = props;
 
@@ -30,10 +30,7 @@ const TransactionsList = props => {
           className="btn btn-outline-primary btn-lg download-button"
           download
           onClick={() => {
-            toastMessage({
-              alertClass: 'alert-info',
-              message: `Fetching download: ${artistName} - '${releaseTitle}'`
-            });
+            toastInfo(`Fetching download: ${artistName} - '${releaseTitle}'`);
             window.location = `/api/download/${downloadToken}`;
           }}
         >
@@ -133,8 +130,12 @@ const TransactionsList = props => {
     <div className="transactions">
       <h3 className="text-center">Transactions</h3>
       <p>
-        <FontAwesome name="server" className="icon-left red" />
-        Connected to NIS Node: <strong>{nemNode}</strong>
+        <FontAwesome
+          name="server"
+          className="icon-left red"
+          title="NEM Infrastructure Server"
+        />
+        NIS Node: <strong>{nemNode}</strong>
       </p>
       {transactionsPreamble}
       {underpaid()}
