@@ -68,7 +68,9 @@ const Support = () => (
           <summary>Why the name &lsquo;NEMp3&rsquo;?</summary>
           <p>
             The name is a holdover from the initial proof of concept, which
-            offered only mp3s. And so a terrible pun was born.
+            offered only mp3s. And so a terrible pun was born. It&rsquo;s also a
+            nod towards mp3.com, which was one of the earliest popular social
+            networking music sites on which I cut my teeth as an artist.
           </p>
         </details>
       </div>

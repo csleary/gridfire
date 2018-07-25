@@ -37,7 +37,8 @@ module.exports = app => {
   // Fetch Site Catalogue
   app.get('/api/catalogue', async (req, res) => {
     const releases = await Release.find({ published: true })
-      .limit(20)
+      // .skip(0) // TODO: Add param to fetch the next batch.
+      .limit(16)
       .sort('-dateCreated');
     res.send(releases);
   });

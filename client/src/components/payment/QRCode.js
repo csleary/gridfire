@@ -15,15 +15,13 @@ const QrCode = props => {
   };
 
   return (
-    <div className="text-center qrcode">
-      <QRCode
-        value={JSON.stringify(paymentData)}
-        size={256}
-        fgColor={'#f0f0f1'}
-        bgColor={'#22232a'}
-        level={'M'}
-      />
-    </div>
+    <QRCode
+      value={JSON.stringify(paymentData)}
+      size={256}
+      fgColor={'#f0f0f1'}
+      bgColor={'#22232a'}
+      level={'M'}
+    />
   );
 };
 

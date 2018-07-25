@@ -39,7 +39,7 @@ class ResetPassword extends Component {
       this.props.toastSuccess(res.data.success);
       callback();
     } catch (e) {
-      this.props.toastError(e.response.data);
+      this.props.toastError(e.response.data.error);
     }
   };
 
