@@ -57,7 +57,7 @@ class Payment extends Component {
       toastInfo,
       transactions
     } = this.props;
-    const { artist, artistName, artwork, releaseTitle } = release;
+    const { artist, artistName, releaseTitle } = release;
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
