@@ -7,7 +7,8 @@ import {
   fetchSales,
   fetchUserReleases,
   publishStatus,
-  toastMessage
+  toastSuccess,
+  toastWarning
 } from '../actions';
 import Collection from './dashboard/Collection';
 import NemAddress from './dashboard/NemAddress';
@@ -73,7 +74,8 @@ class Dashboard extends Component {
                 isLoadingUserReleases={this.props.isLoadingUserReleases}
                 publishStatus={this.props.publishStatus}
                 salesData={this.props.salesData}
-                toastMessage={this.props.toastMessage}
+                toastSuccess={this.props.toastSuccess}
+                toastWarning={this.props.toastWarning}
                 userReleases={this.props.userReleases}
               />
             )}
@@ -103,7 +105,8 @@ export default reduxForm({
       fetchSales,
       fetchUserReleases,
       publishStatus,
-      toastMessage
+      toastSuccess,
+      toastWarning
     }
   )(withRouter(Dashboard))
 );

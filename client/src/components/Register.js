@@ -1,19 +1,32 @@
+import axios from 'axios';
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import Recaptcha from 'react-google-recaptcha';
-import { register } from '../actions';
+import { fetchUser, toastError, toastSuccess } from '../actions';
 
 const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
 class Register extends Component {
   onSubmit = values => {
-    this.props.register(values, () => {
+    this.register(values, () => {
       this.props.reset();
       this.props.history.push('/');
     });
+  };
+
+  register = async (values, callback) => {
+    try {
+      const res = await axios.post('/auth/register', values).then(() => {
+        this.props.fetchUser();
+        toastSuccess(res.data.success);
+        callback();
+      });
+    } catch (e) {
+      toastError(e.response.data.error);
+    }
   };
 
   required = value => (value ? undefined : 'Please enter a value.');
@@ -135,6 +148,6 @@ export default reduxForm({
 })(
   connect(
     null,
-    { register }
+    { fetchUser, toastError, toastSuccess }
   )(withRouter(Register))
 );

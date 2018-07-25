@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
-import {
-  fetchCatalogue,
-  fetchRelease,
-  playTrack,
-  toastMessage
-} from '../actions';
+import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
 import '../style/home.css';
 
 class Home extends Component {
@@ -35,7 +30,7 @@ class Home extends Component {
         key={release._id}
         playTrack={this.props.playTrack}
         release={release}
-        toastMessage={this.props.toastMessage}
+        toastInfo={this.props.toastInfo}
       />
     ));
 
@@ -70,6 +65,6 @@ export default connect(
     fetchCatalogue,
     fetchRelease,
     playTrack,
-    toastMessage
+    toastInfo
   }
 )(Home);

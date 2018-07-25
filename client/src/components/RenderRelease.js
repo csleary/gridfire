@@ -34,10 +34,9 @@ const RenderRelease = props => {
                 trackList[0].trackTitle
               );
               props.fetchRelease(_id);
-              props.toastMessage({
-                alertClass: 'alert-info',
-                message: `Loading ${artistName} - '${trackList[0].trackTitle}'`
-              });
+              props.toastInfo(
+                `Loading ${artistName} - '${trackList[0].trackTitle}'`
+              );
             }}
             title={`Play '${releaseTitle}', by ${artistName}`}
           />
@@ -57,10 +56,9 @@ const RenderRelease = props => {
               onClick={() => {
                 props.fetchDownloadToken(_id, downloadToken => {
                   if (downloadToken) {
-                    props.toastMessage({
-                      alertClass: 'alert-info',
-                      message: `Fetching download: ${artistName} - '${releaseTitle}'`
-                    });
+                    props.toastInfo(
+                      `Fetching download: ${artistName} - '${releaseTitle}'`
+                    );
                     window.location = `/api/download/${downloadToken}`;
                   }
                 });

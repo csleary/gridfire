@@ -4,22 +4,22 @@ import {
   FETCH_INCOMING_TRANSACTIONS,
   FETCH_INCOMING_TRANSACTIONS_LOADING,
   FETCH_INCOMING_TRANSACTIONS_UPDATING,
-  FETCH_XEM_PRICE
+  FETCH_XEM_PRICE,
+  TOAST_ERROR
 } from './types';
 
 export const addNemAddress = values => async dispatch => {
   const res = await axios.post('/api/nem/address', values);
   dispatch({ type: ADD_NEM_ADDRESS, payload: res.data });
+  return res;
 };
 
 export const fetchXemPrice = () => async dispatch => {
   try {
     const res = await axios.get('/api/nem/price');
     dispatch({ type: FETCH_XEM_PRICE, payload: res.data });
-  } catch (error) {
-    throw new Error(
-      `We could not fetch the current XEM price. (${error.message})`
-    );
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 

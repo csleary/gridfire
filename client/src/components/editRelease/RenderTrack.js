@@ -22,10 +22,9 @@ class RenderTrack extends Component {
         this.props.release._id,
         this.props.release.trackList[index]._id,
         () => {
-          this.props.toastMessage({
-            alertClass: 'alert-success',
-            message: `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
-          });
+          this.props.toastSuccess(
+            `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
+          );
           this.setState({ isDeletingTrack: false }, () => remove(index));
         }
       );

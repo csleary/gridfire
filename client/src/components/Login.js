@@ -1,9 +1,10 @@
+import axios from 'axios';
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import { login } from '../actions';
+import { fetchUser, toastError, toastSuccess } from '../actions';
 import '../style/login.css';
 
 class Login extends Component {
@@ -14,10 +15,21 @@ class Login extends Component {
   }
 
   onSubmit = values => {
-    this.props.login(values, () => {
+    this.login(values, () => {
+      this.props.fetchUser();
       this.props.reset();
       this.props.history.push('/');
     });
+  };
+
+  login = async (values, callback) => {
+    try {
+      const res = await axios.post('/auth/login', values);
+      this.props.toastSuccess(res.data.success);
+      callback();
+    } catch (e) {
+      this.props.toastError(e.response.data.error);
+    }
   };
 
   required = value => (value ? undefined : 'Please enter a value.');
@@ -137,6 +149,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { login }
+    { fetchUser, toastError, toastSuccess }
   )(withRouter(Login))
 );

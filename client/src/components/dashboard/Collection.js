@@ -7,7 +7,7 @@ import {
   fetchDownloadToken,
   fetchRelease,
   playTrack,
-  toastMessage
+  toastInfo
 } from '../../actions';
 import '../../style/home.css';
 
@@ -39,7 +39,7 @@ class Collection extends Component {
         key={release._id}
         playTrack={this.props.playTrack}
         release={release}
-        toastMessage={this.props.toastMessage}
+        toastInfo={this.props.toastInfo}
         variation="collection"
       />
     ));
@@ -98,6 +98,6 @@ export default connect(
     fetchDownloadToken,
     fetchRelease,
     playTrack,
-    toastMessage
+    toastInfo
   }
 )(Collection);

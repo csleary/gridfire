@@ -14,7 +14,7 @@ export const addRelease = () => async dispatch => {
     const res = await axios.post('/api/release');
     dispatch({ type: ADD_RELEASE, payload: res.data });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -24,7 +24,7 @@ export const deleteRelease = (releaseId, callback) => async dispatch => {
     dispatch({ type: DELETE_RELEASE, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -34,7 +34,7 @@ export const fetchRelease = releaseId => async dispatch => {
     dispatch({ type: FETCH_RELEASE, payload: res.data.release });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -44,7 +44,7 @@ export const publishStatus = (releaseId, callback) => async dispatch => {
     dispatch({ type: PUBLISH_STATUS, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
     callback(e.response.data);
   }
 };
@@ -54,7 +54,7 @@ export const purchaseRelease = releaseId => async dispatch => {
     const res = await axios.get(`/api/purchase/${releaseId}`);
 
     if (res.data.error) {
-      dispatch({ type: TOAST_ERROR, payload: res.data });
+      dispatch({ type: TOAST_ERROR, text: res.data.error });
     }
 
     dispatch({
@@ -63,7 +63,7 @@ export const purchaseRelease = releaseId => async dispatch => {
     });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -73,6 +73,6 @@ export const updateRelease = (values, callback) => async dispatch => {
     dispatch({ type: UPDATE_RELEASE, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };

@@ -11,7 +11,7 @@ import {
   playerPause,
   playerPlay,
   playTrack,
-  toastMessage
+  toastInfo
 } from '../actions';
 import Spinner from './Spinner';
 import '../style/selectedRelease.css';
@@ -66,10 +66,7 @@ class SelectedRelease extends Component {
   }
 
   nowPlayingToast(trackTitle) {
-    this.props.toastMessage({
-      alertClass: 'alert-info',
-      message: `Loading '${trackTitle}'`
-    });
+    this.props.toastInfo(`Loading '${trackTitle}'`);
   }
 
   handlePlayRelease() {
@@ -296,6 +293,6 @@ export default connect(
     playerPause,
     playerPlay,
     playTrack,
-    toastMessage
+    toastInfo
   }
 )(SelectedRelease);

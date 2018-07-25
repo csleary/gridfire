@@ -1,9 +1,8 @@
+import axios from 'axios';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
-import axios from 'axios';
-import { login } from '../actions';
 import Spinner from './Spinner';
 
 class ResetPassword extends Component {
@@ -22,7 +21,7 @@ class ResetPassword extends Component {
       try {
         axios.post(`/api/auth/reset/${token}`, values).then(res => {
           const email = res.data;
-          this.props.login({ email, password: values.passwordNew }, () => {
+          this.login({ email, password: values.passwordNew }, () => {
             this.props.reset();
             this.props.history.push('/');
           });
@@ -33,6 +32,16 @@ class ResetPassword extends Component {
       this.props.reset();
       resolve();
     });
+
+  login = async (values, callback) => {
+    try {
+      const res = await axios.post('/auth/login', values);
+      this.props.toastSuccess(res.data.success);
+      callback();
+    } catch (e) {
+      this.props.toastError(e.response.data);
+    }
+  };
 
   checkToken = () =>
     new Promise(async resolve => {
@@ -169,6 +178,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { login }
+    null
   )(ResetPassword)
 );

@@ -47,7 +47,7 @@ module.exports = app => {
         if (err) {
           throw new Error(`Error! Could not send message: ${err}`);
         } else {
-          res.status(200).send({ message: 'Thanks! Message sent.' });
+          res.status(200).send({ success: 'Thanks! Message sent.' });
         }
       });
     } catch (e) {

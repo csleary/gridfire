@@ -13,7 +13,7 @@ export const addTrack = (releaseId, callback) => async dispatch => {
     dispatch({ type: ADD_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -23,7 +23,7 @@ export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
     dispatch({ type: DELETE_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -38,7 +38,7 @@ export const moveTrack = (
     dispatch({ type: MOVE_TRACK, payload: res.data });
     callback();
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
     callback(e.response.data.error);
   }
 };
@@ -64,7 +64,7 @@ export const playTrack = (
       }
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 

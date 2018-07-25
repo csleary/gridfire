@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
-import { addNemAddress, fetchUser, toastMessage } from '../../actions';
+import {
+  addNemAddress,
+  fetchUser,
+  toastSuccess,
+  toastWarning
+} from '../../actions';
 
 const addressPrefix =
   process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
@@ -16,12 +21,13 @@ class Dashboard extends Component {
   }
 
   onSubmit = values => {
-    this.props.addNemAddress(values).then(() =>
-      this.props.toastMessage({
-        alertClass: 'alert-success',
-        message: 'NEM payment address updated.'
-      })
-    );
+    this.props.addNemAddress(values).then(() => {
+      if (!values.nemAddress) {
+        this.props.toastWarning('NEM payment address removed.');
+      } else {
+        this.props.toastSuccess('NEM payment address saved.');
+      }
+    });
   };
 
   checkNemAddress = address => {
@@ -151,6 +157,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { addNemAddress, fetchUser, toastMessage }
+    { addNemAddress, fetchUser, toastSuccess, toastWarning }
   )(Dashboard)
 );

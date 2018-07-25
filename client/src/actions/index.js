@@ -4,8 +4,10 @@ import {
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
   FETCH_SALES,
-  TOAST_MESSAGE,
-  TOAST_ERROR
+  TOAST_ERROR,
+  TOAST_INFO,
+  TOAST_SUCCESS,
+  TOAST_WARNING
 } from './types';
 
 export { default as sendEmail } from './emailActions';
@@ -35,7 +37,7 @@ export const fetchAudioUploadUrl = (
       params: { releaseId, trackId, type }
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -51,7 +53,7 @@ export const fetchCollection = () => async dispatch => {
     dispatch({ type: FETCH_COLLECTION, payload: res.data });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -60,7 +62,7 @@ export const fetchDownloadToken = (releaseId, callback) => async dispatch => {
     const res = await axios.post('/api/download', { releaseId });
     callback(res.headers.authorization);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, payload: e.response.data });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
@@ -69,6 +71,18 @@ export const fetchSales = () => async dispatch => {
   dispatch({ type: FETCH_SALES, payload: res.data });
 };
 
-export const toastMessage = toast => dispatch => {
-  dispatch({ type: TOAST_MESSAGE, payload: toast });
+export const toastInfo = text => dispatch => {
+  dispatch({ type: TOAST_INFO, text });
+};
+
+export const toastError = text => dispatch => {
+  dispatch({ type: TOAST_ERROR, text });
+};
+
+export const toastSuccess = text => dispatch => {
+  dispatch({ type: TOAST_SUCCESS, text });
+};
+
+export const toastWarning = text => dispatch => {
+  dispatch({ type: TOAST_WARNING, text });
 };

@@ -40,7 +40,7 @@ class UserRelease extends Component {
   };
 
   handleDeleteRelease = () => {
-    const { deleteRelease, release, toastMessage } = this.props;
+    const { deleteRelease, release, toastWarning, toastSuccess } = this.props;
     const { releaseTitle } = release;
     this.setState({ isDeletingRelease: true });
 
@@ -48,37 +48,24 @@ class UserRelease extends Component {
       const releaseName =
         (releaseTitle && `'${releaseTitle}'`) || 'untitled release';
 
-      toastMessage({
-        alertClass: 'alert-warning',
-        message: `Deleting ${releaseName}…`
-      });
+      toastWarning(`Deleting ${releaseName}…`);
 
       deleteRelease(release._id, () => {
-        toastMessage({
-          alertClass: 'alert-success',
-          message: `Successfully deleted ${releaseName}.`
-        });
+        toastSuccess(`Successfully deleted ${releaseName}.`);
       });
     });
   };
 
   handlePublishStatus = () => {
-    const { release, publishStatus, toastMessage } = this.props;
+    const { release, publishStatus, toastSuccess, toastWarning } = this.props;
 
     this.setState({ isPublishingRelease: true });
     publishStatus(release._id, error => {
       this.setState({ isPublishingRelease: false });
       if (error) return;
-      const message = release.published
-        ? {
-            alertClass: 'alert-warning',
-            message: `'${release.releaseTitle}' has been taken offline.`
-          }
-        : {
-            alertClass: 'alert-success',
-            message: `'${release.releaseTitle}' is now live and on sale.`
-          };
-      toastMessage(message);
+      release.published
+        ? toastWarning(`'${release.releaseTitle}' has been taken offline.`)
+        : toastSuccess(`'${release.releaseTitle}' is now live and on sale.`);
     });
   };
 
