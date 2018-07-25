@@ -1,7 +1,6 @@
 .qrcode {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   margin-bottom: 2rem;
-  margin-top: 2rem;
 }
 
 @keyframes fadeIn {

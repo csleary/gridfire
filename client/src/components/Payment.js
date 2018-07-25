@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import classNames from 'classnames';
 import * as actions from '../actions';
 import ManualPayment from './payment/ManualPayment';
 import QRCode from './payment/QRCode';
@@ -56,31 +57,17 @@ class Payment extends Component {
       toastInfo,
       transactions
     } = this.props;
-    const { artist, artistName, releaseTitle } = release;
+    const { artist, artistName, artwork, releaseTitle } = release;
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
-    const manualPaymentButton = (
-      <div className="d-flex justify-content-center">
-        <button
-          className="btn btn-outline-primary btn-sm show-payment-info"
-          onClick={this.handleShowPaymentInfo}
-        >
-          Manual Payment Info
-        </button>
-      </div>
-    );
+    const paymentButtonQR = classNames('btn', 'btn-outline-primary', {
+      'method-active': !showPaymentInfo
+    });
 
-    const paymentInfo = showPaymentInfo ? (
-      <ManualPayment
-        paymentAddress={paymentAddress}
-        paymentHash={paymentHash}
-        priceInXem={priceInXem}
-        handleShowPaymentInfo={this.handleShowPaymentInfo}
-      />
-    ) : (
-      manualPaymentButton
-    );
+    const paymentButtonManual = classNames('btn', 'btn-outline-primary', {
+      'method-active': showPaymentInfo
+    });
 
     if (this.state.isLoading) {
       return (
@@ -123,29 +110,49 @@ class Payment extends Component {
               {artistName} &bull;{' '}
               <span className="ibm-type-italic">{releaseTitle}</span>
             </h3>
-            {!showPaymentInfo && (
-              <p>
-                Please scan the QR code below with the NEM Wallet app to make
-                your payment. If you&rsquo;re on a mobile device, or otherwise
-                cannot scan the QR code, you can also{' '}
-                <a
-                  onClick={this.handleShowPaymentInfo}
-                  role="button"
-                  style={{ cursor: 'pointer' }}
-                  tabIndex="-1"
+            <div className="payment-methods">
+              <div
+                className="btn-group payment-method d-flex justify-content-center"
+                role="group"
+                aria-label="Payment Method"
+              >
+                <button
+                  type="button"
+                  className={paymentButtonQR}
+                  onClick={() => this.handleShowPaymentInfo()}
                 >
-                  pay manually
-                </a>.
-              </p>
-            )}
-            {!showPaymentInfo && (
-              <QRCode
-                paymentAddress={paymentAddress.replace(/-/g, '')}
-                price={priceInXem}
-                idHash={paymentHash}
-              />
-            )}
-            {paymentInfo}
+                  QR Scan
+                </button>
+                <button
+                  type="button"
+                  className={paymentButtonManual}
+                  onClick={() => this.handleShowPaymentInfo()}
+                >
+                  Manual Payment
+                </button>
+              </div>
+              {showPaymentInfo ? (
+                <ManualPayment
+                  paymentAddress={paymentAddress}
+                  paymentHash={paymentHash}
+                  priceInXem={priceInXem}
+                />
+              ) : (
+                <Fragment>
+                  <div className="qrcode text-center">
+                    <QRCode
+                      paymentAddress={paymentAddress.replace(/-/g, '')}
+                      price={priceInXem}
+                      idHash={paymentHash}
+                    />
+                  </div>
+                  <p className="text-center">
+                    Please scan the QR code with a NEM mobile wallet app to make
+                    your payment.
+                  </p>
+                </Fragment>
+              )}
+            </div>
             <TransactionsList
               artistName={release.artistName}
               downloadToken={downloadToken}

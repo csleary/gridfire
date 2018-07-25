@@ -139,6 +139,7 @@ a:focus {
   cursor: default;
 }
 
+.btn-outline-primary:focus,
 .btn-outline-success:focus {
   box-shadow: 0 0 0 3px #18cdca80;
 }
@@ -193,11 +194,11 @@ a:focus {
   color: #ffd24d;
 }
 
-.form-control,
-.form-control:focus {
+.form-control {
   border: none;
   border-radius: 0.5rem;
   color: hsla(233, 10%, 30%, 1);
+  transition: 0.2s;
 }
 
 .form-control {
@@ -207,7 +208,6 @@ a:focus {
 
 .form-control:focus {
   background: #fff;
-  border-color: #18cdca;
 }
 
 .form-control:disabled {

@@ -1,16 +1,38 @@
-.btn.show-payment-info {
+.btn-group.payment-method {
+  margin-bottom: 3rem;
+}
+
+.btn-group.payment-method .btn {
+  color: hsla(233, 10%, 75%, 1);
   padding: 0.5rem 1rem;
   min-width: auto;
 }
 
-.manual-payment {
+.btn-group.payment-method .btn.method-active {
+  color: #18cdca;
+}
+
+.btn-group.payment-method .btn:hover {
+  background-color: #000;
+  border-color: #000;
+}
+
+.btn-group.payment-method .btn:focus {
+  box-shadow: none;
+}
+
+.payment-methods {
   background: hsla(233, 10%, 20%, 1);
   border-radius: 0;
   margin: 2rem -1rem;
   padding: 2rem 1rem;
 }
 
-.manual-payment p:last-of-type {
+.payment-methods .artwork img {
+  max-width: 256px;
+}
+
+.payment-methods p:last-of-type {
   margin-bottom: 0;
 }
 
@@ -20,7 +42,7 @@
 }
 
 @media (min-width: 576px) {
-  .manual-payment {
+  .payment-methods {
     border-radius: 0.5rem;
     margin: 2rem;
     padding: 2rem;

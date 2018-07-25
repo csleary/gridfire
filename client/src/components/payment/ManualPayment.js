@@ -1,29 +1,14 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
 
 const ManualPayment = props => {
-  const {
-    paymentAddress,
-    paymentHash,
-    priceInXem,
-    handleShowPaymentInfo
-  } = props;
+  const { paymentAddress, paymentHash, priceInXem } = props;
   return (
-    <div className="manual-payment">
-      <h3 className="text-center">Manual Payment</h3>
-      <p>
-        If you can&rsquo;t{' '}
-        <a
-          onClick={() => handleShowPaymentInfo()}
-          role="button"
-          style={{ cursor: 'pointer' }}
-          tabIndex="-1"
-        >
-          scan a QR code
-        </a>, you can still make a payment manually as follows:
-      </p>
-      <h4>1. Enter Your Payment ID as a Message</h4>
+    <Fragment>
+      <h4 className="text-center">
+        <span className="red">1.</span> Enter Your Payment ID as a Message
+      </h4>
       <p>
         Please remember to include the payment ID below in the message field
         when making your payment, as it&rsquo;s your unique, personalised
@@ -40,7 +25,9 @@ const ManualPayment = props => {
         text={paymentHash}
         placeholder="Please log in to see your payment ID"
       />
-      <h4>2. Enter the Address and Payment Amount ({priceInXem} XEM)</h4>
+      <h4 className="text-center">
+        <span className="red">2.</span> Enter the Address and Payment Amount
+      </h4>
       <p>
         With your payment ID safely pasted into the message field, all
         that&rsquo;s left is to enter the payment amount of{' '}
@@ -52,13 +39,15 @@ const ManualPayment = props => {
         text={paymentAddress}
         placeholder="Payment Address"
       />
-      <h4>3. Send It!</h4>
+      <h4 className="text-center">
+        <span className="red">3.</span> Send It!
+      </h4>
       <p>
         Once you have paid, and your payments has been confirmed by the NEM
         network, they will be totalled before presenting you with a download
         button (assuming your payments have met the price!).
       </p>
-    </div>
+    </Fragment>
   );
 };
 
