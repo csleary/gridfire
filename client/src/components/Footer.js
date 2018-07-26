@@ -11,7 +11,7 @@ const networkLinks = () => {
     process.env.REACT_APP_NEM_NETWORK === 'testnet' ||
     process.env.NODE_ENV === 'development'
   ) {
-    return <a href="https://nemp3.ochremusic.com/">Mainnet version</a>;
+    return <a href="https://nemp3.app/">Mainnet version</a>;
   }
   return <a href="https://nemp3v2-testnet.herokuapp.com/">Testnet version</a>;
 };

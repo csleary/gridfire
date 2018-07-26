@@ -152,7 +152,7 @@ class EditRelease extends Component {
           axios
             .put(audioUploadUrl, audioFile, config)
             .then(() => {
-              this.transcodeAudio(releaseId, trackId);
+              this.props.transcodeAudio(releaseId, trackId);
               this.props.fetchUserRelease(releaseId);
               this.props.toastSuccess(`Upload complete for ${trackName}!`);
             })
