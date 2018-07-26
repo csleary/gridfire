@@ -17,13 +17,9 @@ h3.transactions-searching {
 
 button.refresh-txs {
   display: inline-block;
-  margin-bottom: 1.5rem;
   padding: 0.5rem 1rem;
+  margin-bottom: 2rem;
   min-width: auto;
-}
-
-.transactions .tx-list {
-  margin-top: 3rem;
 }
 
 .transactions .table-dark {

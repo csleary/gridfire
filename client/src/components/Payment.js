@@ -55,7 +55,8 @@ class Payment extends Component {
       paymentHash,
       release,
       toastInfo,
-      transactions
+      transactions,
+      transactionsError
     } = this.props;
     const { artist, artistName, releaseTitle } = release;
     const { showPaymentInfo } = this.state;
@@ -170,6 +171,7 @@ class Payment extends Component {
               roundUp={this.roundUp}
               toastInfo={toastInfo}
               transactions={transactions}
+              transactionsError={transactionsError}
             />
           </div>
         </div>
@@ -190,7 +192,8 @@ function mapStateToProps(state) {
     paymentHash: state.releases.paymentHash,
     priceInXem: state.releases.priceInXem,
     release: state.releases.selectedRelease,
-    transactions: state.transactions.incomingTxs
+    transactions: state.transactions.incomingTxs,
+    transactionsError: state.transactions.error
   };
 }
 

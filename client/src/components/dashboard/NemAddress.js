@@ -77,7 +77,7 @@ class Dashboard extends Component {
 
     return (
       <main className="container">
-        <div className="row">
+        <div className="row mb-5">
           <div className="col-lg">
             <h3 className="text-center mt-4">NEM Payment Address</h3>
             <p className="text-center">
