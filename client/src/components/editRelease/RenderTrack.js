@@ -29,6 +29,7 @@ class RenderTrack extends Component {
         }
       );
     });
+    this.setState({ isDeletingTrack: false });
   };
 
   handleMoveTrack = (swap, id, index, direction) => {

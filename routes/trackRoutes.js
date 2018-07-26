@@ -134,39 +134,45 @@ module.exports = app => {
   );
 
   // Transcode Audio
-  app.get('/api/transcode/audio', requireLogin, async (req, res) => {
-    const { releaseId, trackId } = req.query;
-    const s3 = new aws.S3();
-    const listParams = {
-      Bucket: BUCKET_SRC,
-      Prefix: `${releaseId}/${trackId}`
-    };
+  app.get(
+    '/api/transcode/audio',
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      const { releaseId, trackId } = req.query;
+      const s3 = new aws.S3();
 
-    const inputAudio = await s3.listObjectsV2(listParams).promise();
-    const transcoder = new aws.ElasticTranscoder();
-    const transcoderParams = {
-      PipelineId: TRANSCODER_PIPELINE_ID,
-      Inputs: [
-        {
-          Key: inputAudio.Contents[0].Key,
-          Container: 'auto'
-        }
-      ],
-      Outputs: [
-        {
-          Key: `${releaseId}/${trackId}.m4a`,
-          PresetId: '1351620000001-100130'
-        }
-      ],
-      OutputKeyPrefix: 'm4a/'
-    };
+      const listParams = {
+        Bucket: BUCKET_SRC,
+        Prefix: `${releaseId}/${trackId}`
+      };
 
-    transcoder.createJob(transcoderParams, (error, data) => {
-      if (error) {
-        res.status(500).send({ error: error.message });
-      } else res.send(data);
-    });
-  });
+      const inputAudio = await s3.listObjectsV2(listParams).promise();
+      const transcoder = new aws.ElasticTranscoder();
+
+      const transcoderParams = {
+        PipelineId: TRANSCODER_PIPELINE_ID,
+        Inputs: [
+          {
+            Key: inputAudio.Contents[0].Key,
+            Container: 'auto'
+          }
+        ],
+        Outputs: [
+          {
+            Key: `${releaseId}/${trackId}.m4a`,
+            PresetId: '1351620000001-100130'
+          }
+        ],
+        OutputKeyPrefix: 'm4a/'
+      };
+
+      transcoder.createJob(transcoderParams, (error, data) => {
+        if (error) res.status(500).send({ error: error.message });
+        else res.send(data);
+      });
+    }
+  );
 
   // Upload Audio
   app.get('/api/upload/audio', requireLogin, async (req, res) => {
