@@ -16,8 +16,9 @@ class RenderTrack extends Component {
 
   handleDeleteTrack = (remove, index) => {
     const { trackTitle } = this.props.release.trackList[index];
-    this.setState({ isDeletingTrack: true });
-    this.props.handleConfirm(trackTitle, () => {
+    this.props.handleConfirm(trackTitle, hasConfirmed => {
+      if (!hasConfirmed) return;
+      this.setState({ isDeletingTrack: true });
       this.props.deleteTrack(
         this.props.release._id,
         this.props.release.trackList[index]._id,
@@ -29,7 +30,6 @@ class RenderTrack extends Component {
         }
       );
     });
-    this.setState({ isDeletingTrack: false });
   };
 
   handleMoveTrack = (swap, id, index, direction) => {
