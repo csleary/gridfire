@@ -18,6 +18,17 @@ const initialState = {
 export default (state = initialState, action) => {
   const { type } = action;
   switch (type) {
+    case FETCH_INCOMING_TRANSACTIONS:
+      return {
+        ...state,
+        isLoading: false,
+        isUpdating: false,
+        error: false,
+        downloadToken: action.downloadToken,
+        incomingTxs: action.payload.incomingTxs,
+        nemNode: action.payload.nemNode,
+        paidToDate: action.payload.paidToDate
+      };
     case FETCH_INCOMING_TRANSACTIONS_ERROR:
       return {
         ...state,
@@ -30,17 +41,6 @@ export default (state = initialState, action) => {
         ...state,
         isLoading: action.isLoading,
         error: action.error
-      };
-    case FETCH_INCOMING_TRANSACTIONS:
-      return {
-        ...state,
-        isLoading: false,
-        isUpdating: false,
-        error: false,
-        downloadToken: action.downloadToken,
-        incomingTxs: action.payload.incomingTxs,
-        nemNode: action.payload.nemNode,
-        paidToDate: action.payload.paidToDate
       };
     case FETCH_INCOMING_TRANSACTIONS_UPDATING:
       return {
