@@ -148,7 +148,11 @@ class SelectedRelease extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <Spinner />;
+      return (
+        <Spinner>
+          <h2>Loading release&hellip;</h2>
+        </Spinner>
+      );
     }
 
     const {

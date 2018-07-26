@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
-import Recaptcha from 'react-google-recaptcha';
 import axios from 'axios';
-// import RenderRecaptcha from './RenderRecaptcha';
-
-const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+import RenderRecaptcha from './RenderRecaptcha';
 
 class ForgotPassword extends Component {
   state = {
@@ -20,28 +17,13 @@ class ForgotPassword extends Component {
       } catch (e) {
         this.setState({ response: e.response.data });
       }
+      const captcha = this.captcha;
       this.props.reset();
+      captcha.getRenderedComponent().reset();
       resolve();
     });
 
   required = value => (value ? undefined : 'Please enter a value.');
-
-  renderRecaptcha = field => {
-    const { error, input, touched } = field;
-
-    return (
-      <div className="form-group d-flex flex-wrap justify-content-center py-2">
-        <Recaptcha
-          onChange={response => input.onChange(response)}
-          sitekey={sitekey}
-        />
-        {touched &&
-          error && (
-            <div className="invalid-feedback">{touched && error && error}</div>
-          )}
-      </div>
-    );
-  };
 
   renderField = field => {
     const {
@@ -89,54 +71,59 @@ class ForgotPassword extends Component {
       <main className="container">
         <div className="row">
           <div className="col">
-            <h2 className="text-center mt-4">Reset Password</h2>
+            <h2 className="text-center red mt-4">Reset Password</h2>
             <p className="text-center">
               Please enter your account email address below and submit to
               receive a password reset link, valid for an hour.
             </p>
-            <form onSubmit={handleSubmit(this.onSubmit)}>
-              <div className="form-row mt-5">
-                <div className="col-md-6 mx-auto">
-                  <Field
-                    component={this.renderField}
-                    icon="envelope-o"
-                    id="email"
-                    label="Email Address:"
-                    name="email"
-                    placeholder="Email Address"
-                    required
-                    type="email"
-                    validate={this.required}
-                  />
-                  {response && (
-                    <div
-                      className={`alert ${className} text-center`}
-                      role="alert"
-                    >
-                      {response.success && (
-                        <FontAwesome name="thumbs-up" className="icon-left" />
-                      )}
-                      {response.error && (
-                        <FontAwesome name="bomb" className="icon-left" />
-                      )}
-                      {response.success || response.error}
-                    </div>
-                  )}
-                  <Field
-                    classNames="d-flex flex-wrap justify-content-center py-2"
-                    component={this.renderRecaptcha}
-                    name="recaptcha"
-                    validate={this.required}
-                  />
-                  <div className="d-flex justify-content-center">
-                    <button
-                      className="btn btn-outline-primary"
-                      disabled={invalid || pristine || submitting}
-                      type="submit"
-                    >
-                      Send Reset Email
-                    </button>
+            <form
+              className="form-row mt-5"
+              onSubmit={handleSubmit(this.onSubmit)}
+            >
+              <div className="col-md-6 mx-auto">
+                <Field
+                  component={this.renderField}
+                  icon="envelope-o"
+                  id="email"
+                  label="Email Address:"
+                  name="email"
+                  placeholder="Email Address"
+                  required
+                  type="email"
+                  validate={this.required}
+                />
+                {response && (
+                  <div
+                    className={`alert ${className} text-center`}
+                    role="alert"
+                  >
+                    {response.success && (
+                      <FontAwesome name="thumbs-up" className="icon-left" />
+                    )}
+                    {response.error && (
+                      <FontAwesome name="bomb" className="icon-left" />
+                    )}
+                    {response.success || response.error}
                   </div>
+                )}
+                <Field
+                  classNames="justify-content-end"
+                  component={RenderRecaptcha}
+                  name="recaptcha"
+                  ref={el => {
+                    this.captcha = el;
+                  }}
+                  validate={this.required}
+                  withRef
+                />
+                <div className="d-flex justify-content-end">
+                  <button
+                    className="btn btn-outline-primary my-3"
+                    disabled={invalid || pristine || submitting}
+                    type="submit"
+                  >
+                    Send Reset Email
+                  </button>
                 </div>
               </div>
             </form>

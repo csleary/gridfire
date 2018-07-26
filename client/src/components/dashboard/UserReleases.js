@@ -43,7 +43,11 @@ class UserReleases extends Component {
     const { isLoadingUserReleases, userReleases } = this.props;
 
     if (isLoadingUserReleases) {
-      return <Spinner />;
+      return (
+        <Spinner>
+          <h2>Loading releases&hellip;</h2>
+        </Spinner>
+      );
     }
 
     if (!userReleases.length) {

@@ -3,7 +3,7 @@ import '../style/support.css';
 
 const Support = () => (
   <main className="container">
-    <div className="row">
+    <div className="row mb-5">
       <div className="col">
         <h2 className="text-center red mt-4">FAQ</h2>
         <details>

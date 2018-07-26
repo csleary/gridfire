@@ -2,13 +2,9 @@ import React from 'react';
 
 const About = () => (
   <main className="container">
-    <div className="row">
+    <div className="row mb-5">
       <div className="col">
         <h2 className="text-center red mt-4">About NEMp3</h2>
-      </div>
-    </div>
-    <div className="row">
-      <div className="col">
         <p>
           NEMp3 is a music download store that uses the{' '}
           <a href="https://nem.io/">NEM blockchain</a> and cryptocurrency (XEM)
@@ -23,8 +19,6 @@ const About = () => (
           wallet, or manually entering payment using the Nanowallet desktop
           wallet.
         </p>
-      </div>
-      <div className="col">
         <p>
           At present, NEMp3 is entirely free to use, with artists receiving 100%
           of payments, paid directly from fan to artist. Of course, there are
