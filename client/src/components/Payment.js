@@ -69,6 +69,10 @@ class Payment extends Component {
       'method-active': showPaymentInfo
     });
 
+    const paymentMethods = classNames('payment-methods', {
+      manual: showPaymentInfo
+    });
+
     if (this.state.isLoading) {
       return (
         <Spinner>
@@ -110,7 +114,7 @@ class Payment extends Component {
               {artistName} &bull;{' '}
               <span className="ibm-type-italic">{releaseTitle}</span>
             </h3>
-            <div className="payment-methods">
+            <div className={paymentMethods}>
               <div
                 className="btn-group payment-method d-flex justify-content-center"
                 role="group"
