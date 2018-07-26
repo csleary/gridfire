@@ -18,7 +18,8 @@ class RenderTrackList extends Component {
       `Are you sure you want to delete ${(title && `'${title}'`) ||
         'this track'}?`
     );
-    if (confirmation) callback();
+    if (confirmation) callback(true);
+    else callback(false);
   };
 
   handleAddTrack = push => {

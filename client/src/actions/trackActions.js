@@ -68,11 +68,15 @@ export const playTrack = (
   }
 };
 
-export const transcodeAudio = (releaseId, trackId) => async () => {
-  await axios.get('/api/transcode/audio', {
-    params: {
-      releaseId,
-      trackId
-    }
-  });
+export const transcodeAudio = (releaseId, trackId) => async dispatch => {
+  try {
+    axios.get('/api/transcode/audio', {
+      params: {
+        releaseId,
+        trackId
+      }
+    });
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+  }
 };

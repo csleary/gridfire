@@ -38,10 +38,6 @@ class EditRelease extends Component {
       coverArtPreview: '',
       audioUploading: {}
     };
-    this.onDropArt = this.onDropArt.bind(this);
-    this.onDropAudio = this.onDropAudio.bind(this);
-    this.handleDeletePreview = this.handleDeletePreview.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
     this.artworkFile = null;
   }
 
@@ -50,10 +46,12 @@ class EditRelease extends Component {
     window.scrollTo(0, 0);
     this.props.fetchXemPrice();
     const { releaseId } = this.props.match.params;
+
     if (releaseId) {
       this.setEditing();
       this.props.fetchRelease(releaseId).then(() => {
         const { release } = this.props;
+
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
@@ -80,92 +78,91 @@ class EditRelease extends Component {
     if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
   }
 
-  onDropArt(accepted, rejected) {
-    if (rejected.length > 0) {
+  onDropArt = (accepted, rejected) => {
+    if (rejected.length) {
       this.props.toastError(
         'Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 10MB in size.'
       );
-    } else {
-      this.artworkFile = accepted[0];
-      const releaseId = this.props.release._id;
-      const image = new Image();
-      image.src = window.URL.createObjectURL(this.artworkFile);
-      let height;
-      let width;
-
-      image.onload = () => {
-        height = image.height;
-        width = image.width;
-        if (height < 1000 || width < 1000) {
-          this.props.toastError(
-            `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
-          );
-        } else {
-          this.props.uploadArtwork(
-            releaseId,
-            this.artworkFile,
-            this.artworkFile.type
-          );
-          this.setState({
-            coverArtPreview: this.artworkFile.preview
-          });
-        }
-      };
+      return;
     }
-  }
+    this.artworkFile = accepted[0];
+    const releaseId = this.props.release._id;
+    const image = new Image();
+    image.src = window.URL.createObjectURL(this.artworkFile);
+    let height;
+    let width;
 
-  onDropAudio(accepted, rejected, index, trackId) {
-    if (rejected.length > 0) {
+    image.onload = () => {
+      height = image.height;
+      width = image.width;
+
+      if (height < 1000 || width < 1000) {
+        this.props.toastError(
+          `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
+        );
+        return;
+      }
+      this.props.uploadArtwork(
+        releaseId,
+        this.artworkFile,
+        this.artworkFile.type
+      );
+      this.setState({
+        coverArtPreview: this.artworkFile.preview
+      });
+    };
+  };
+
+  onDropAudio = (accepted, rejected, index, trackId) => {
+    if (rejected.length) {
       this.props.toastError(
         'This does not seem to be an audio file. Please select a wav or aiff audio file.'
       );
-    } else {
-      const audioFile = accepted[0];
-      const releaseId = this.props.release._id;
-      const { trackTitle } = this.props.release.trackList[index];
-      const trackName =
-        (trackTitle && `'${trackTitle}'`) || `track ${parseInt(index, 10) + 1}`;
-      this.props
-        .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
-        .then(res => {
-          const audioUploadUrl = res.data;
-
-          this.props.toastInfo(
-            `Uploading file '${audioFile.name}' for ${trackName}.`
-          );
-
-          const config = {
-            headers: {
-              'Content-Type': audioFile.type
-            },
-            onUploadProgress: event => {
-              const progress = (event.loaded / event.total) * 100;
-              this.setState({
-                audioUploading: {
-                  ...this.state.audioUploading,
-                  [trackId]: Math.floor(progress)
-                }
-              });
-            }
-          };
-
-          axios
-            .put(audioUploadUrl, audioFile, config)
-            .then(() => {
-              this.props.transcodeAudio(releaseId, trackId);
-              this.props.fetchUserRelease(releaseId);
-              this.props.toastSuccess(`Upload complete for ${trackName}!`);
-            })
-            .catch(error =>
-              this.props.toastError(
-                `Upload failed. Here's the message we received: ${
-                  error.message
-                }`
-              )
-            );
-        });
+      return;
     }
-  }
+    const audioFile = accepted[0];
+    const releaseId = this.props.release._id;
+    const { trackTitle } = this.props.release.trackList[index];
+    const trackName =
+      (trackTitle && `'${trackTitle}'`) || `track ${parseInt(index, 10) + 1}`;
+    this.props
+      .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
+      .then(res => {
+        const audioUploadUrl = res.data;
+
+        this.props.toastInfo(
+          `Uploading file '${audioFile.name}' for ${trackName}.`
+        );
+
+        const config = {
+          headers: {
+            'Content-Type': audioFile.type
+          },
+          onUploadProgress: event => {
+            const progress = (event.loaded / event.total) * 100;
+            this.setState({
+              audioUploading: {
+                ...this.state.audioUploading,
+                [trackId]: Math.floor(progress)
+              }
+            });
+          }
+        };
+
+        axios
+          .put(audioUploadUrl, audioFile, config)
+          .then(() => {
+            this.props.transcodeAudio(releaseId, trackId);
+            this.props.fetchUserRelease(releaseId);
+            this.props.toastSuccess(`Upload complete for ${trackName}!`);
+          })
+          .catch(error =>
+            this.props.toastError(
+              `Upload failed. Here's the message we received: ${error.message}`
+            )
+          );
+      });
+  };
 
   onSubmit = values =>
     new Promise(resolve => {
@@ -189,9 +186,9 @@ class EditRelease extends Component {
     this.setState({ isEditing: true });
   }
 
-  handleDeletePreview() {
+  handleDeletePreview = () => {
     this.setState({ coverArtPreview: '' });
-  }
+  };
 
   renderHeader() {
     const { isEditing } = this.state;

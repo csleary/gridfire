@@ -13,6 +13,7 @@ export const addRelease = () => async dispatch => {
   try {
     const res = await axios.post('/api/release');
     dispatch({ type: ADD_RELEASE, payload: res.data });
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
