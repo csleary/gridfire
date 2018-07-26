@@ -19,7 +19,8 @@ const TransactionsList = props => {
     releaseTitle,
     roundUp,
     toastInfo,
-    transactions
+    transactions,
+    transactionsError
   } = props;
 
   const downloadButton = downloadToken && (
@@ -82,8 +83,16 @@ const TransactionsList = props => {
     </p>
   );
 
+  const renderError = (
+    <div className="alert alert-danger text-center" role="alert">
+      <FontAwesome name="bomb" className="icon-left" />
+      Oh no! We encountered an error while checking for transactions:{' '}
+      {transactionsError}
+    </div>
+  );
+
   const confirmedTransactions = transactions.length > 0 && (
-    <div className="tx-list">
+    <div className="tx-list mt-3">
       <h5>
         {transactions.length} Confirmed Transaction{transactions.length > 1 &&
           's'}:
@@ -148,7 +157,7 @@ const TransactionsList = props => {
         Refresh
       </button>
       {downloadButton}
-      {confirmedTransactions}
+      {transactionsError ? renderError : confirmedTransactions}
     </div>
   );
 };

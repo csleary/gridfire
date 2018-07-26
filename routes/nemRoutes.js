@@ -11,74 +11,84 @@ const User = mongoose.model('users');
 
 module.exports = app => {
   app.post('/api/nem/transactions', requireLogin, async (req, res) => {
-    const { releaseId, paymentHash } = req.body;
-    const { price } = req.session;
-    const user = await User.findById(req.user._id);
-    const release = await Release.findById(releaseId);
-    const artist = await User.findById(release.user);
-    const paymentAddress = artist.nemAddress;
+    try {
+      const { releaseId, paymentHash } = req.body;
+      const { price } = req.session;
+      const user = await User.findById(req.user._id);
+      const release = await Release.findById(releaseId);
+      const artist = await User.findById(release.user);
+      const paymentAddress = artist.nemAddress;
 
-    const hasPreviouslyPurchased = user.purchases.some(purchase =>
-      purchase.releaseId.equals(releaseId)
-    );
+      const hasPreviouslyPurchased = user.purchases.some(purchase =>
+        purchase.releaseId.equals(releaseId)
+      );
 
-    const transactions = await fetchIncomingTransactions(
-      paymentAddress,
-      paymentHash
-    );
+      const transactions = await fetchIncomingTransactions(
+        paymentAddress,
+        paymentHash
+      );
 
-    transactions.hasPreviouslyPurchased = hasPreviouslyPurchased;
+      transactions.hasPreviouslyPurchased = hasPreviouslyPurchased;
 
-    if (transactions.paidToDate >= price || hasPreviouslyPurchased) {
-      // Add purchase to user account, if not already added.
-      if (!hasPreviouslyPurchased) {
-        user.purchases.push({
-          purchaseDate: Date.now(),
-          releaseId
-        });
-        user.save();
+      if (transactions.paidToDate >= price || hasPreviouslyPurchased) {
+        // Add purchase to user account, if not already added.
+        if (!hasPreviouslyPurchased) {
+          user.purchases.push({
+            purchaseDate: Date.now(),
+            releaseId
+          });
+          user.save();
 
-        // Log sales.
-        const date = new Date(Date.now());
+          // Log sales.
+          const date = new Date(Date.now());
 
-        const statExists = await Sale.findOne({
-          releaseId,
-          'purchases.date': date.toISOString().split('T')[0]
-        });
-
-        const query = { releaseId };
-        const update = {
-          $addToSet: { purchases: { date: date.toISOString().split('T')[0] } }
-        };
-        const options = { upsert: true, setDefaultsOnInsert: true };
-
-        const incrementSale = () => {
-          const queryInc = {
+          const statExists = await Sale.findOne({
             releaseId,
             'purchases.date': date.toISOString().split('T')[0]
+          });
+
+          const query = { releaseId };
+          const update = {
+            $addToSet: { purchases: { date: date.toISOString().split('T')[0] } }
           };
-          const updateInc = { $inc: { 'purchases.$.numSold': 1 } };
-          Sale.findOneAndUpdate(queryInc, updateInc, {}, () => {});
-        };
+          const options = { upsert: true, setDefaultsOnInsert: true };
 
-        if (!statExists) {
-          Sale.findOneAndUpdate(query, update, options, incrementSale);
-        } else {
-          incrementSale();
+          const incrementSale = () => {
+            const queryInc = {
+              releaseId,
+              'purchases.date': date.toISOString().split('T')[0]
+            };
+            const updateInc = { $inc: { 'purchases.$.numSold': 1 } };
+            Sale.findOneAndUpdate(queryInc, updateInc, {}, () => {});
+          };
+
+          if (!statExists) {
+            Sale.findOneAndUpdate(query, update, options, incrementSale);
+          } else {
+            incrementSale();
+          }
         }
-      }
 
-      // Issue download token to user on successful payment.
-      const token = jwt.sign(
-        {
-          releaseId,
-          expiresIn: '10m'
-        },
-        keys.nemp3Secret
-      );
-      res.append('Authorization', `Bearer ${token}`);
+        // Issue download token to user on successful payment.
+        const token = jwt.sign(
+          {
+            releaseId,
+            expiresIn: '10m'
+          },
+          keys.nemp3Secret
+        );
+        res.append('Authorization', `Bearer ${token}`);
+      }
+      res.send(transactions);
+    } catch (error) {
+      if (error.data) {
+        res.status(500).send({
+          error: error.data.message
+        });
+        return;
+      }
+      res.status(500).send({ error: error.message });
     }
-    res.send(transactions);
   });
 
   app.get('/api/nem/price', async (req, res) => {

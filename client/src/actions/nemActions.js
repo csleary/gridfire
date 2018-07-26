@@ -2,6 +2,7 @@ import axios from 'axios';
 import {
   ADD_NEM_ADDRESS,
   FETCH_INCOMING_TRANSACTIONS,
+  FETCH_INCOMING_TRANSACTIONS_ERROR,
   FETCH_INCOMING_TRANSACTIONS_LOADING,
   FETCH_INCOMING_TRANSACTIONS_UPDATING,
   FETCH_XEM_PRICE,
@@ -27,17 +28,30 @@ export const fetchIncomingTxs = (
   paymentParams,
   isUpdating
 ) => async dispatch => {
-  if (isUpdating) {
-    dispatch({ type: FETCH_INCOMING_TRANSACTIONS_UPDATING });
-  } else {
-    dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING });
+  try {
+    if (isUpdating) {
+      dispatch({
+        type: FETCH_INCOMING_TRANSACTIONS_UPDATING,
+        isUpdating: true
+      });
+    } else {
+      dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING, isLoading: true });
+    }
+    const res = await axios.post('/api/nem/transactions', paymentParams);
+    dispatch({
+      type: FETCH_INCOMING_TRANSACTIONS,
+      isLoading: false,
+      isUpdating: false,
+      payload: res.data,
+      downloadToken: res.headers.authorization
+    });
+  } catch (e) {
+    dispatch({
+      type: FETCH_INCOMING_TRANSACTIONS_ERROR,
+      isLoading: false,
+      isUpdating: false,
+      error: e.response.data.error
+    });
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
-  const res = await axios.post('/api/nem/transactions', paymentParams);
-  dispatch({
-    type: FETCH_INCOMING_TRANSACTIONS,
-    isLoading: false,
-    isUpdating: false,
-    payload: res.data,
-    downloadToken: res.headers.authorization
-  });
 };

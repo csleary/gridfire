@@ -2,7 +2,7 @@ const nem = require('nem-sdk').default;
 const utils = require('./utils');
 
 module.exports = (paymentAddress, idHash) =>
-  new Promise(async resolve => {
+  new Promise((resolve, reject) => {
     let nodeHost;
     let nodeName;
 
@@ -47,5 +47,7 @@ module.exports = (paymentAddress, idHash) =>
         });
       }
     };
-    fetchTransactions();
+    fetchTransactions().catch(error => {
+      reject(error);
+    });
   });
