@@ -98,7 +98,7 @@ class RenderTrack extends Component {
         />
         <div className="d-flex mt-3">
           {transcoding && (
-            <span className="ml-2 yellow">
+            <span className="mr-2 yellow">
               <FontAwesome name="cog" spin className="mr-2" />
               <strong>Transcoding</strong>
             </span>
