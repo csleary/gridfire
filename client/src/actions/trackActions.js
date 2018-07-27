@@ -77,6 +77,9 @@ export const transcodeAudio = (releaseId, trackId) => async dispatch => {
       }
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    dispatch({
+      type: TOAST_ERROR,
+      text: `Transcoding error: ${e.response.data.error}`
+    });
   }
 };
