@@ -1,5 +1,6 @@
 const aws = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
+const fs = require('fs');
 const mongoose = require('mongoose');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
@@ -41,7 +42,7 @@ module.exports = app => {
 
       const params = {
         Bucket: BUCKET_OPT,
-        Expires: 60 * 5,
+        Expires: 30,
         Key: list.Contents[0].Key
       };
 
@@ -149,34 +150,47 @@ module.exports = app => {
         };
 
         const inputAudio = await s3.listObjectsV2(listParams).promise();
+        const { Key } = inputAudio.Contents[0];
+        const savePath = `tmp/${trackId}`;
 
         const downloadSrc = s3
-          .getObject({ Bucket: BUCKET_SRC, Key: inputAudio.Contents[0].Key })
+          .getObject({ Bucket: BUCKET_SRC, Key })
           .createReadStream();
 
-        const transcode = ffmpeg(downloadSrc)
-          .audioCodec('aac')
+        ffmpeg(downloadSrc)
+          .audioCodec('libfdk_aac')
           .audioBitrate(128)
           .audioChannels(2)
           .toFormat('mp4')
-          .outputOptions('-movflags frag_keyframe+faststart')
+          .outputOptions('-movflags +faststart')
           .on('error', error => {
             throw new Error(`Transcoding error: ${error.message}`);
-          });
+          })
+          .on('end', () => {
+            fs.readFile(savePath, (readError, optData) => {
+              if (readError) throw new Error(readError);
 
-        const uploadOpt = transcode.pipe();
+              const uploadParams = {
+                Bucket: BUCKET_OPT,
+                ContentType: 'audio/mp4',
+                Key: `m4a/${releaseId}/${trackId}.m4a`,
+                Body: optData
+              };
 
-        const uploadParams = {
-          Bucket: BUCKET_OPT,
-          ContentType: 'audio/m4a',
-          Key: `m4a/${releaseId}/${trackId}.m4a`,
-          Body: uploadOpt
-        };
-        s3.upload(uploadParams)
-          .promise()
-          .then(() =>
-            res.send({ success: `Transcoding ${trackName} to aac complete.` })
-          );
+              s3.putObject(uploadParams, putError => {
+                if (putError) throw new Error(putError);
+
+                fs.unlink(savePath, deleteError => {
+                  if (deleteError) throw new Error(deleteError);
+                });
+
+                res.send({
+                  success: `Transcoding ${trackName} to aac complete.`
+                });
+              });
+            });
+          })
+          .save(savePath);
       } catch (error) {
         res.status(500).send({ error: error.message });
       }
