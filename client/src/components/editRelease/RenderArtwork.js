@@ -58,7 +58,7 @@ const RenderArtwork = props => (
       multiple={false}
       onDrop={props.onDropArt}
     >
-      <FontAwesome name="upload" className="icon-left" />
+      <FontAwesome name="upload" className="mr-2" />
       {props.artworkUploading
         ? `Uploading: ${props.artworkUploadProgress}%`
         : 'Drop artwork here, or click to select. Must be under 10MB in size and have a minimum dimension of 1000px (will be resized and cropped square).'}

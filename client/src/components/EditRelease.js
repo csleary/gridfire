@@ -152,13 +152,13 @@ class EditRelease extends Component {
         axios
           .put(audioUploadUrl, audioFile, config)
           .then(() => {
-            this.props.transcodeAudio(releaseId, trackId);
-            this.props.fetchUserRelease(releaseId);
             this.props.toastSuccess(`Upload complete for ${trackName}!`);
+            return this.props.transcodeAudio(releaseId, trackId, trackName);
           })
+          .then(this.props.fetchUserRelease(releaseId))
           .catch(error =>
             this.props.toastError(
-              `Upload failed. Here's the message we received: ${error.message}`
+              `Upload failed! Here's the message we received: ${error.message}`
             )
           );
       });
@@ -350,6 +350,7 @@ class EditRelease extends Component {
                 component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 isAddingTrack={this.props.isAddingTrack}
+                isTranscoding={this.props.isTranscoding}
                 moveTrack={this.props.moveTrack}
                 name="trackList"
                 onDropAudio={this.onDropAudio}
@@ -426,9 +427,9 @@ const mapStateToProps = state => ({
   audioUploadUrl: state.releases.audioUploadUrl,
   isAddingTrack: state.releases.isAddingTrack,
   isDeletingTrack: state.releases.isDeletingTrack,
+  isTranscoding: state.releases.isTranscoding,
   price: fieldSelector(state, 'price'),
   release: state.releases.selectedRelease,
-  transcoding: state.releases.transcoding,
   xemPriceUsd: state.nem.xemPriceUsd
 });
 

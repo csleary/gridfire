@@ -54,10 +54,6 @@ a.btn.add-release {
   color: #292c44;
 }
 
-.user-releases .icon-right {
-  margin-left: 1rem;
-}
-
 .user-releases .release {
   background: hsla(233, 10%, 10%, 1);
   border: none;

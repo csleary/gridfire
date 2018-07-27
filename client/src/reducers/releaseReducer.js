@@ -13,6 +13,8 @@ import {
   MOVE_TRACK,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
+  TRANSCODING_START,
+  TRANSCODING_STOP,
   UPDATE_RELEASE,
   UPLOAD_ARTWORK,
   UPLOAD_ARTWORK_PROGRESS
@@ -23,6 +25,7 @@ const initialState = {
   artworkUploading: false,
   artworkUploadProgress: 0,
   isLoading: false,
+  isTranscoding: [],
   catalogue: [],
   collection: [],
   paymentAddress: '',
@@ -93,6 +96,16 @@ export default (state = initialState, action) => {
         paymentAddress: payload.paymentInfo.paymentAddress,
         paymentHash: payload.paymentInfo.paymentHash,
         priceInXem: payload.price
+      };
+    case TRANSCODING_START:
+      return {
+        ...state,
+        isTranscoding: [...state.isTranscoding, action.trackId]
+      };
+    case TRANSCODING_STOP:
+      return {
+        ...state,
+        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId)
       };
     case UPLOAD_ARTWORK:
       return {

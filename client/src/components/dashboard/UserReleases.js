@@ -67,7 +67,7 @@ class UserReleases extends Component {
                   role="button"
                   to={'/release/add/'}
                 >
-                  <FontAwesome name="plus-circle" className="icon-left" />
+                  <FontAwesome name="plus-circle" className="mr-2" />
                   Add Release
                 </Link>
               </div>
@@ -93,7 +93,7 @@ class UserReleases extends Component {
               role="button"
               to={'/release/add/'}
             >
-              <FontAwesome name="plus-circle" className="icon-left" />
+              <FontAwesome name="plus-circle" className="mr-2" />
               Add Release
             </Link>
           </div>

@@ -68,7 +68,7 @@ class Toast extends Component {
     });
     return (
       <div className={classes}>
-        <FontAwesome name={icon} className="icon-left" />
+        <FontAwesome name={icon} className="mr-2" />
         {this.state.text}
       </div>
     );

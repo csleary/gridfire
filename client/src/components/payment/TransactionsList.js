@@ -35,7 +35,7 @@ const TransactionsList = props => {
             window.location = `/api/download/${downloadToken}`;
           }}
         >
-          <FontAwesome name="download" className="icon-left" />
+          <FontAwesome name="download" className="mr-2" />
           Download <span className="ibm-type-italic">{releaseTitle}</span>
         </button>
       </div>
@@ -85,7 +85,7 @@ const TransactionsList = props => {
 
   const renderError = (
     <div className="alert alert-danger text-center" role="alert">
-      <FontAwesome name="bomb" className="icon-left" />
+      <FontAwesome name="bomb" className="mr-2" />
       Oh no! We encountered an error while checking for transactions:{' '}
       {transactionsError}
     </div>
@@ -128,7 +128,7 @@ const TransactionsList = props => {
     return (
       <Spinner>
         <h3 className="transactions-searching">
-          <FontAwesome name="search" className="red icon-left" />
+          <FontAwesome name="search" className="red mr-2" />
           Searching for Transactions&hellip;
         </h3>
       </Spinner>
@@ -141,7 +141,7 @@ const TransactionsList = props => {
       <p>
         <FontAwesome
           name="server"
-          className="icon-left red"
+          className="mr-2 red"
           title="NEM Infrastructure Server"
         />
         NIS Node: <strong>{nemNode}</strong>
@@ -153,7 +153,7 @@ const TransactionsList = props => {
         disabled={isUpdating}
         onClick={() => handleFetchIncomingTxs(true)}
       >
-        <FontAwesome name="refresh" className="icon-left" spin={isUpdating} />
+        <FontAwesome name="refresh" className="mr-2" spin={isUpdating} />
         Refresh
       </button>
       {downloadButton}

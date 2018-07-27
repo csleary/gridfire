@@ -209,7 +209,7 @@ class SelectedRelease extends Component {
               {this.state.inCollection && (
                 <Link to={'/dashboard/collection'}>
                   <FontAwesome
-                    className="in-collection icon-right yellow"
+                    className="in-collection ml-2 yellow"
                     name="certificate"
                     title="This release is in your collection."
                   />
@@ -232,7 +232,7 @@ class SelectedRelease extends Component {
               </Link>
             </div>
             <h6>
-              <FontAwesome name="calendar-o" className="icon-left red" />
+              <FontAwesome name="calendar-o" className="mr-2 red" />
               {this.formatDate(releaseDate)}
             </h6>
             {recordLabel && (

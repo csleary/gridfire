@@ -1,11 +1,11 @@
 const aws = require('aws-sdk');
+const ffmpeg = require('fluent-ffmpeg');
 const mongoose = require('mongoose');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const { AWS_REGION } = require('./constants');
 const { BUCKET_SRC } = require('./constants');
 const { BUCKET_OPT } = require('./constants');
-const { TRANSCODER_PIPELINE_ID } = require('./constants');
 
 const Release = mongoose.model('releases');
 aws.config.update({ region: AWS_REGION });
@@ -139,38 +139,46 @@ module.exports = app => {
     requireLogin,
     releaseOwner,
     async (req, res) => {
-      const { releaseId, trackId } = req.query;
-      const s3 = new aws.S3();
+      try {
+        const { releaseId, trackId, trackName } = req.query;
+        const s3 = new aws.S3();
 
-      const listParams = {
-        Bucket: BUCKET_SRC,
-        Prefix: `${releaseId}/${trackId}`
-      };
+        const listParams = {
+          Bucket: BUCKET_SRC,
+          Prefix: `${releaseId}/${trackId}`
+        };
 
-      const inputAudio = await s3.listObjectsV2(listParams).promise();
-      const transcoder = new aws.ElasticTranscoder();
+        const inputAudio = await s3.listObjectsV2(listParams).promise();
 
-      const transcoderParams = {
-        PipelineId: TRANSCODER_PIPELINE_ID,
-        Inputs: [
-          {
-            Key: inputAudio.Contents[0].Key,
-            Container: 'auto'
-          }
-        ],
-        Outputs: [
-          {
-            Key: `${releaseId}/${trackId}.m4a`,
-            PresetId: '1351620000001-100130'
-          }
-        ],
-        OutputKeyPrefix: 'm4a/'
-      };
+        const downloadSrc = s3
+          .getObject({ Bucket: BUCKET_SRC, Key: inputAudio.Contents[0].Key })
+          .createReadStream();
 
-      transcoder.createJob(transcoderParams, (error, data) => {
-        if (error) res.status(500).send({ error: error.message });
-        else res.send(data);
-      });
+        const transcode = ffmpeg(downloadSrc)
+          .audioCodec('aac')
+          .audioBitrate(128)
+          .audioChannels(2)
+          .toFormat('mp4')
+          .outputOptions('-movflags frag_keyframe+empty_moov')
+          .on('error', error => {
+            throw new Error(`Transcoding error: ${error.message}`);
+          });
+
+        const uploadOpt = transcode.pipe();
+
+        const uploadParams = {
+          Bucket: BUCKET_OPT,
+          Key: `m4a/${releaseId}/${trackId}.m4a`,
+          Body: uploadOpt
+        };
+        s3.upload(uploadParams)
+          .promise()
+          .then(() =>
+            res.send({ success: `Transcoding ${trackName} to aac complete.` })
+          );
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
     }
   );
 

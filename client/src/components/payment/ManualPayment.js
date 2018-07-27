@@ -16,7 +16,7 @@ const ManualPayment = props => {
         been made.
       </p>
       <p className="text-center please-note" role="alert">
-        <FontAwesome name="exclamation-circle" className="icon-left" />
+        <FontAwesome name="exclamation-circle" className="mr-2" />
         Your payment ID is essential to your purchase. Please don&rsquo;t forget
         to include this.
       </p>

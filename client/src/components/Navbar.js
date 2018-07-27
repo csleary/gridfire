@@ -43,7 +43,7 @@ class Navbar extends Component {
           <ul className="navbar-nav ml-auto">
             <li className="nav-item">
               <NavLink to={'/login'} className="nav-link">
-                <FontAwesome name="sign-in" className="icon-left" />
+                <FontAwesome name="sign-in" className="mr-1" />
                 <span className="nav-label">Log In</span>
               </NavLink>
             </li>
@@ -54,19 +54,19 @@ class Navbar extends Component {
           <ul className="navbar-nav ml-auto">
             <li className="nav-item">
               <NavLink to={'/release/add/'} className="nav-link">
-                <FontAwesome name="plus-square" className="icon-left" />
+                <FontAwesome name="plus-square" className="mr-1" />
                 <span className="nav-label">Add Release</span>
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink to={'/dashboard'} className="nav-link">
-                <FontAwesome name="user-circle" className="icon-left" />
+                <FontAwesome name="user-circle" className="mr-1" />
                 <span className="nav-label">Dashboard</span>
               </NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/api/logout">
-                <FontAwesome name="sign-out" className="icon-left" />
+                <FontAwesome name="sign-out" className="mr-1" />
                 <span className="nav-label">Log out</span>
               </a>
             </li>

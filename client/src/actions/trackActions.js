@@ -4,42 +4,40 @@ import {
   DELETE_TRACK,
   MOVE_TRACK,
   PLAY_TRACK,
-  TOAST_ERROR
+  TOAST_ERROR,
+  TOAST_SUCCESS,
+  TRANSCODING_START,
+  TRANSCODING_STOP
 } from './types';
 
-export const addTrack = (releaseId, callback) => async dispatch => {
+export const addTrack = releaseId => async dispatch => {
   try {
     const res = await axios.put(`/api/${releaseId}/add`);
     dispatch({ type: ADD_TRACK, payload: res.data });
-    callback();
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
-export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
+export const deleteTrack = (releaseId, trackId) => async dispatch => {
   try {
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
-    callback();
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
-export const moveTrack = (
-  releaseId,
-  fromIndex,
-  toIndex,
-  callback
-) => async dispatch => {
+export const moveTrack = (releaseId, fromIndex, toIndex) => async dispatch => {
   try {
     const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
     dispatch({ type: MOVE_TRACK, payload: res.data });
-    callback();
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
-    callback(e.response.data.error);
+    return { error: e.response.data.error };
   }
 };
 
@@ -68,18 +66,28 @@ export const playTrack = (
   }
 };
 
-export const transcodeAudio = (releaseId, trackId) => async dispatch => {
+export const transcodeAudio = (
+  releaseId,
+  trackId,
+  trackName
+) => async dispatch => {
   try {
-    axios.get('/api/transcode/audio', {
+    dispatch({ type: TRANSCODING_START, trackId });
+    const res = await axios.get('/api/transcode/audio', {
       params: {
         releaseId,
-        trackId
+        trackId,
+        trackName
       }
     });
+    dispatch({ type: TOAST_SUCCESS, text: res.data.success });
+    dispatch({ type: TRANSCODING_STOP, trackId });
+    return res;
   } catch (e) {
     dispatch({
       type: TOAST_ERROR,
       text: `Transcoding error: ${e.response.data.error}`
     });
+    dispatch({ type: TRANSCODING_STOP, trackId });
   }
 };
