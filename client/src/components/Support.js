@@ -73,6 +73,16 @@ const Support = () => (
             networking music sites on which I cut my teeth as an artist.
           </p>
         </details>
+        <details>
+          <summary>I&rsquo;ve found a bug! How can I report it?</summary>
+          <p>
+            Excellent! The best way would be to log an issue on{' '}
+            <a href="https://github.com/csleary/nemp3v2/issues">Github</a>, to
+            keep everything organised with a history of all issues that have
+            either been addressed or remain outstanding. But you can also ping
+            me on Twitter, or drop a note through the contact form. Thanks!
+          </p>
+        </details>
       </div>
     </div>
   </main>

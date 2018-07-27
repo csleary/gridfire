@@ -159,7 +159,7 @@ module.exports = app => {
           .audioBitrate(128)
           .audioChannels(2)
           .toFormat('mp4')
-          .outputOptions('-movflags frag_keyframe+empty_moov')
+          .outputOptions('-movflags frag_keyframe+faststart')
           .on('error', error => {
             throw new Error(`Transcoding error: ${error.message}`);
           });
@@ -168,6 +168,7 @@ module.exports = app => {
 
         const uploadParams = {
           Bucket: BUCKET_OPT,
+          ContentType: 'audio/m4a',
           Key: `m4a/${releaseId}/${trackId}.m4a`,
           Body: uploadOpt
         };
