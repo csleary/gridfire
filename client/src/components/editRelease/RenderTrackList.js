@@ -24,7 +24,7 @@ class RenderTrackList extends Component {
 
   handleAddTrack = push => {
     this.setState({ isAddingTrack: true });
-    this.props.addTrack(this.props.release._id, () => {
+    this.props.addTrack(this.props.release._id).then(() => {
       this.setState({ isAddingTrack: false }, () => push());
     });
   };
@@ -44,8 +44,8 @@ class RenderTrackList extends Component {
   handleDrop = (fieldsMove, indexTo) => {
     const releaseId = this.props.release._id;
     const indexFrom = this.state.dragOrigin;
-    this.props.moveTrack(releaseId, indexFrom, indexTo, error => {
-      if (error) return;
+    this.props.moveTrack(releaseId, indexFrom, indexTo).then(res => {
+      if (res.error) return;
       fieldsMove(indexFrom, indexTo);
     });
   };
@@ -75,6 +75,7 @@ class RenderTrackList extends Component {
               handleDragLeave={this.handleDragLeave}
               handleDrop={this.handleDrop}
               handleDragEnd={this.handleDragEnd}
+              isTranscoding={this.props.isTranscoding}
               index={index}
               key={`${track}._id`}
               moveTrack={this.props.moveTrack}
@@ -93,9 +94,9 @@ class RenderTrackList extends Component {
           type="button"
         >
           {isAddingTrack ? (
-            <FontAwesome name="circle-o-notch" spin className="icon-left" />
+            <FontAwesome name="circle-o-notch" spin className="mr-2" />
           ) : (
-            <FontAwesome name="plus-circle" className="icon-left" />
+            <FontAwesome name="plus-circle" className="mr-2" />
           )}
           {isAddingTrack ? 'Adding…' : 'Add'}
         </button>

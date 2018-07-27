@@ -34,7 +34,7 @@ class Dashboard extends Component {
     if (address && !nem.model.address.isValid(address)) {
       return (
         <Fragment>
-          <FontAwesome name="exclamation-circle" className="icon-left" />
+          <FontAwesome name="exclamation-circle" className="mr-2" />
           This doesn&rsquo;t appear to be a valid NEM address. Please
           double-check it!
         </Fragment>

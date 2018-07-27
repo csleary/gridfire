@@ -42,7 +42,7 @@ class ForgotPassword extends Component {
     return (
       <div className="form-group">
         <label htmlFor={id}>
-          <FontAwesome name={icon} className="red icon-left" />
+          <FontAwesome name={icon} className="red mr-2" />
           {label}
         </label>
         <input
@@ -98,10 +98,10 @@ class ForgotPassword extends Component {
                     role="alert"
                   >
                     {response.success && (
-                      <FontAwesome name="thumbs-up" className="icon-left" />
+                      <FontAwesome name="thumbs-up" className="mr-2" />
                     )}
                     {response.error && (
-                      <FontAwesome name="bomb" className="icon-left" />
+                      <FontAwesome name="bomb" className="mr-2" />
                     )}
                     {response.success || response.error}
                   </div>

@@ -81,7 +81,7 @@ class ResetPassword extends Component {
     return (
       <div className="form-group">
         <label htmlFor={id}>
-          <FontAwesome name={icon} className="red icon-left" />
+          <FontAwesome name={icon} className="red mr-2" />
           {label}
         </label>
         <input
@@ -148,7 +148,7 @@ class ResetPassword extends Component {
                     className={`alert ${className} text-center`}
                     role="alert"
                   >
-                    <FontAwesome name="bomb" className="icon-left" />
+                    <FontAwesome name="bomb" className="mr-2" />
                     {response.error}
                   </div>
                 )}

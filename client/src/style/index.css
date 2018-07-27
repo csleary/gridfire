@@ -178,14 +178,6 @@ a:focus {
   box-shadow: 0 0 0 3px #ff534980;
 }
 
-.icon-left {
-  margin-right: 0.5rem;
-}
-
-.icon-right {
-  margin-left: 0.5rem;
-}
-
 .red {
   color: #ff5349;
 }

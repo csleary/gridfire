@@ -62,10 +62,10 @@ const Footer = props => (
         </small>
         <div className="text-center social">
           <a href="https://twitter.com/ochremusic">
-            <FontAwesome name="twitter" className="icon-left" />
+            <FontAwesome name="twitter" className="mr-2" />
           </a>
           <a href="https://github.com/csleary/nemp3v2">
-            <FontAwesome name="github" className="icon-left" />
+            <FontAwesome name="github" className="mr-2" />
           </a>
         </div>
       </div>

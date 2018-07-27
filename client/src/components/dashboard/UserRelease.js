@@ -30,7 +30,7 @@ class UserRelease extends Component {
         <h6>
           <FontAwesome
             name="line-chart"
-            className="icon-left red"
+            className="mr-2 red"
             title="Number of copies sold."
           />
           {numSold}
@@ -116,7 +116,7 @@ class UserRelease extends Component {
           </div>
         ) : (
           <h6>
-            <FontAwesome name="file-image-o" className="icon-left red" />
+            <FontAwesome name="file-image-o" className="mr-2 red" />
             No artwork uploaded.
           </h6>
         )}
@@ -124,15 +124,15 @@ class UserRelease extends Component {
           <div className="release-details">
             <h6>{this.renderTitle(release)}</h6>
             <h6>
-              <FontAwesome name="tag" className="icon-left red" />
+              <FontAwesome name="tag" className="mr-2 red" />
               ${release.price} USD
             </h6>
             <h6>
-              <FontAwesome name="calendar-o" className="icon-left red" />
+              <FontAwesome name="calendar-o" className="mr-2 red" />
               {moment(new Date(release.releaseDate)).format('Do of MMM, YYYY')}
             </h6>
             <h6>
-              <FontAwesome name="file-audio-o" className="icon-left red" />
+              <FontAwesome name="file-audio-o" className="mr-2 red" />
               {release.trackList.length} Tracks
             </h6>
             {this.copiesSold()}
@@ -142,7 +142,7 @@ class UserRelease extends Component {
               onClick={() => history.push(`/release/edit/${release._id}`)}
               className="btn btn-outline-primary btn-sm flex-grow-1"
             >
-              <FontAwesome name="pencil" className="icon-left" />
+              <FontAwesome name="pencil" className="mr-2" />
               Edit
             </button>
             <button
@@ -152,12 +152,12 @@ class UserRelease extends Component {
             >
               {release.published ? (
                 <Fragment>
-                  <FontAwesome name="eye-slash" className="icon-left" />
+                  <FontAwesome name="eye-slash" className="mr-2" />
                   Unpublish
                 </Fragment>
               ) : (
                 <Fragment>
-                  <FontAwesome name="eye" className="icon-left" />
+                  <FontAwesome name="eye" className="mr-2" />
                   Publish
                 </Fragment>
               )}
@@ -167,7 +167,7 @@ class UserRelease extends Component {
               disabled={this.state.isDeletingRelease}
               onClick={() => this.handleDeleteRelease()}
             >
-              <FontAwesome name="trash" className="icon-left" />
+              <FontAwesome name="trash" className="mr-2" />
               Delete
             </button>
           </div>

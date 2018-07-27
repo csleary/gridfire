@@ -51,7 +51,7 @@ class Login extends Component {
     return (
       <div className="form-group">
         <label htmlFor={id}>
-          <FontAwesome name={icon} className="red icon-left" />
+          <FontAwesome name={icon} className="red mr-2" />
           {label}
         </label>
         <input
@@ -130,7 +130,7 @@ class Login extends Component {
           <div className="divider">Or</div>
           <div className="col-md d-flex align-items-center justify-content-center">
             <p>
-              <FontAwesome name="google" className="icon-left" />
+              <FontAwesome name="google" className="mr-2" />
               <a href="auth/google/">Log in with your Google credentials</a>.
             </p>
           </div>

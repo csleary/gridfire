@@ -19,37 +19,45 @@ class RenderTrack extends Component {
     this.props.handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
       this.setState({ isDeletingTrack: true });
-      this.props.deleteTrack(
-        this.props.release._id,
-        this.props.release.trackList[index]._id,
-        () => {
+      this.props
+        .deleteTrack(
+          this.props.release._id,
+          this.props.release.trackList[index]._id
+        )
+        .then(() => {
           this.props.toastSuccess(
             `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
           );
           this.setState({ isDeletingTrack: false }, () => remove(index));
-        }
-      );
+        });
     });
   };
 
   handleMoveTrack = (swap, id, index, direction) => {
-    this.props.moveTrack(id, index, index + direction, error => {
-      if (error) return;
+    this.props.moveTrack(id, index, index + direction).then(res => {
+      if (res.error) return;
       swap(index, index + direction);
     });
   };
 
   render() {
-    const { audioUploading, index, fields, release, track } = this.props;
+    const {
+      audioUploading,
+      index,
+      isTranscoding,
+      fields,
+      release,
+      track
+    } = this.props;
     const { isDeletingTrack } = this.state;
     const releaseId = release._id;
     const trackId = release.trackList[index] && release.trackList[index]._id;
+    const isaudioUploading = audioUploading[trackId] < 100;
+    const transcoding = isTranscoding.some(id => id === trackId);
 
     const hasAudio =
       (release.trackList[index] && release.trackList[index].hasAudio) ||
       audioUploading[trackId] === 100;
-
-    const isaudioUploading = audioUploading[trackId] < 100;
 
     const audioClassNames = classNames({
       'audio-true': hasAudio,
@@ -89,6 +97,12 @@ class RenderTrack extends Component {
           audioUploading={audioUploading[trackId]}
         />
         <div className="d-flex mt-3">
+          {transcoding && (
+            <span className="mr-2 yellow">
+              <FontAwesome name="cog" spin className="mr-2" />
+              <strong>Transcoding</strong>
+            </span>
+          )}
           {index < fields.length - 1 && (
             <button
               className="btn btn-outline-secondary btn-sm"
@@ -98,7 +112,7 @@ class RenderTrack extends Component {
               title="Move Down"
               type="button"
             >
-              <FontAwesome name="arrow-down" className="icon-left" />
+              <FontAwesome name="arrow-down" className="mr-2" />
               Down
             </button>
           )}
@@ -111,7 +125,7 @@ class RenderTrack extends Component {
               title="Move Up"
               type="button"
             >
-              <FontAwesome name="arrow-up" className="icon-left" />
+              <FontAwesome name="arrow-up" className="mr-2" />
               Up
             </button>
           )}
@@ -123,9 +137,9 @@ class RenderTrack extends Component {
             type="button"
           >
             {isDeletingTrack ? (
-              <FontAwesome name="circle-o-notch" spin className="icon-left" />
+              <FontAwesome name="circle-o-notch" spin className="mr-2" />
             ) : (
-              <FontAwesome name="trash" className="icon-left" />
+              <FontAwesome name="trash" className="mr-2" />
             )}
             {isDeletingTrack ? 'Deleting…' : 'Delete'}
           </button>

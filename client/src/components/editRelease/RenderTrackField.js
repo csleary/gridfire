@@ -5,11 +5,11 @@ import classNames from 'classnames';
 
 const renderDropzoneIcon = (hasAudio, audioUploading) => {
   if (audioUploading && audioUploading < 100) {
-    return <FontAwesome name="cog" spin className="icon-left" />;
+    return <FontAwesome name="cog" spin className="mr-2" />;
   } else if (hasAudio) {
-    return <FontAwesome name="refresh" className="icon-left" />;
+    return <FontAwesome name="refresh" className="mr-2" />;
   }
-  return <FontAwesome name="plus-circle" className="icon-left" />;
+  return <FontAwesome name="plus-circle" className="mr-2" />;
 };
 
 const renderDropzoneLabel = (hasAudio, audioUploading) => {

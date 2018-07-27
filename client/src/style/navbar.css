@@ -61,10 +61,6 @@ nav.navbar a .navbar-brand:hover {
   fill: #18cdca;
 }
 
-nav .icon-left {
-  margin-right: 0.25rem;
-}
-
 span.nav-label {
   display: none;
 }

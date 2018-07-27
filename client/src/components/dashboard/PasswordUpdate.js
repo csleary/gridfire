@@ -39,7 +39,7 @@ class PasswordUpdate extends Component {
     return (
       <div className="form-group">
         <label htmlFor={id}>
-          <FontAwesome name={icon} className="red icon-left" />
+          <FontAwesome name={icon} className="red mr-2" />
           {label}
         </label>
         <input
