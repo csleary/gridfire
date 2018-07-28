@@ -66,8 +66,7 @@ module.exports = app => {
         Bucket: BUCKET_SRC,
         Prefix: `${releaseId}`
       };
-      const listS3Src = s3.listObjectsV2(listSrcParams).promise();
-      const s3SrcData = await listS3Src;
+      const s3SrcData = await s3.listObjectsV2(listSrcParams).promise();
 
       let deleteS3Src;
       if (s3SrcData.Contents.length) {
@@ -80,7 +79,6 @@ module.exports = app => {
           }
         };
         deleteS3Src = s3.deleteObjects(deleteSrcParams).promise();
-        deleteS3Src;
       }
 
       // Delete streaming audio
@@ -88,8 +86,7 @@ module.exports = app => {
         Bucket: BUCKET_OPT,
         Prefix: `m4a/${releaseId}`
       };
-      const listS3Opt = s3.listObjectsV2(listOptParams).promise();
-      const s3OptData = await listS3Opt;
+      const s3OptData = await s3.listObjectsV2(listOptParams).promise();
 
       let deleteS3Opt;
       if (s3OptData.Contents.length) {
@@ -102,7 +99,6 @@ module.exports = app => {
           }
         };
         deleteS3Opt = s3.deleteObjects(deleteImgParams).promise();
-        deleteS3Opt;
       }
 
       // Delete art from S3
@@ -110,8 +106,7 @@ module.exports = app => {
         Bucket: BUCKET_IMG,
         Prefix: `${releaseId}`
       };
-      const listS3Img = s3.listObjectsV2(listImgParams).promise();
-      const s3ImgData = await listS3Img;
+      const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
 
       let deleteS3Img;
       if (s3ImgData.Contents.length) {
@@ -120,7 +115,6 @@ module.exports = app => {
           Key: s3ImgData.Contents[0].Key
         };
         deleteS3Img = s3.deleteObject(deleteImgParams).promise();
-        deleteS3Img;
       }
 
       Promise.all([
@@ -128,11 +122,11 @@ module.exports = app => {
         deleteFromArtist,
         deleteArtist,
         deleteArtistFromUser,
-        listS3Src,
+        s3SrcData,
         deleteS3Src,
-        listS3Opt,
+        s3OptData,
         deleteS3Opt,
-        listS3Img,
+        s3ImgData,
         deleteS3Img
       ])
         .then(values => res.send(values[0]._id))
@@ -156,6 +150,7 @@ module.exports = app => {
       res.send({ release, paymentInfo });
     }
   });
+
   // Purchase Release
   app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
     try {
@@ -202,6 +197,13 @@ module.exports = app => {
         const release = res.locals.release;
         const { nemAddress } = req.user;
 
+        if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            "Please add a valid NEM address to your account before publishing this release ('Payment' tab)."
+          );
+        }
+
         if (
           !release.artwork ||
           !release.trackList.length ||
@@ -210,13 +212,6 @@ module.exports = app => {
           release.update({ published: false }).exec();
           throw new Error(
             'Please ensure your release has artwork, and that all tracks have audio uploaded, before publishing.'
-          );
-        }
-
-        if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
-          release.update({ published: false }).exec();
-          throw new Error(
-            'Please add a valid NEM address to your account before publishing this release (payment tab).'
           );
         }
 
@@ -230,65 +225,38 @@ module.exports = app => {
 
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {
-    const releaseId = req.body._id;
-    const {
-      artistName,
-      catNumber,
-      cLine,
-      credits,
-      info,
-      pLine,
-      price,
-      recordLabel,
-      releaseDate,
-      releaseTitle,
-      trackList
-    } = req.body;
+    const update = req.body;
+    const releaseId = update._id;
+    delete update.__v;
 
-    const release = await Release.findById(releaseId);
-    release.artistName = artistName;
-    release.catNumber = catNumber;
-    release.credits = credits;
-    release.info = info;
-    release.price = price;
-    release.recordLabel = recordLabel;
-    release.releaseDate = releaseDate;
-    release.releaseTitle = releaseTitle;
-    release.pLine.year = pLine && pLine.year;
-    release.pLine.owner = pLine && pLine.owner;
-    release.cLine.year = cLine && cLine.year;
-    release.cLine.owner = cLine && cLine.owner;
-    release.trackList.forEach((track, index) => {
-      track.trackTitle = trackList[index].trackTitle;
+    const release = await Release.findByIdAndUpdate(releaseId, update, {
+      upsert: true,
+      new: true
     });
 
-    release
-      .save()
-      // Add artist to Artist model.
-      .then(async updatedRelease => {
-        const artist = await Artist.findOneAndUpdate(
-          { user: req.user._id, name: artistName },
-          {},
-          { new: true, upsert: true }
-        );
+    // Add artist to Artist model.
+    const { artistName } = release;
 
-        // Add release ID to artist if it doesn't already exist.
-        if (!artist.releases.some(id => id.equals(updatedRelease._id))) {
-          artist
-            .update({ $push: { releases: updatedRelease._id } })
-            .exec(() => release.update({ artist: artist._id }).exec());
-        }
-        return artist;
-      })
+    const artist = await Artist.findOneAndUpdate(
+      { user: req.user._id, name: artistName },
+      {},
+      { new: true, upsert: true }
+    );
 
-      // Add artist ID to user account.
-      .then(async updatedArtist =>
-        User.findOneAndUpdate(
-          { _id: req.user._id, artists: { $ne: updatedArtist._id } },
-          { $push: { artists: updatedArtist._id } }
-        )
-      )
-      .then(() => res.send(release))
+    // Add release ID to artist if it doesn't already exist.
+    if (!artist.releases.some(id => id.equals(release._id))) {
+      artist
+        .update({ $push: { releases: release._id } })
+        .exec(() => release.update({ artist: artist._id }).exec());
+    }
+
+    // Add artist ID to user account.
+    User.findOneAndUpdate(
+      { _id: req.user._id, artists: { $ne: artist._id } },
+      { $push: { artists: artist._id } }
+    )
+      .exec()
+      .then(res.send(release))
       .catch(error => res.status(500).send({ error: error.message }));
   });
 };

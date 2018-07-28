@@ -157,9 +157,7 @@ class EditRelease extends Component {
           })
           .then(this.props.fetchUserRelease(releaseId))
           .catch(error =>
-            this.props.toastError(
-              `Upload failed! Here's the message we received: ${error.message}`
-            )
+            this.props.toastError(`Upload failed! ${error.message}`)
           );
       });
   };
@@ -167,11 +165,16 @@ class EditRelease extends Component {
   onSubmit = values =>
     new Promise(resolve => {
       this.props.updateRelease(values, () => {
-        const { releaseTitle } = this.props.release;
-        this.props.history.push('/dashboard');
+        const { release } = this.props;
+        const { releaseTitle } = release;
+        // this.props.history.push('/dashboard');
         this.props.toastSuccess(
           `${(releaseTitle && `'${releaseTitle}'`) || 'Release'} saved!`
         );
+        if (release.releaseDate) {
+          release.releaseDate = release.releaseDate.substring(0, 10);
+        }
+        this.props.initialize(this.props.release);
         resolve();
       });
     });
@@ -407,7 +410,7 @@ const validate = ({
       const trackErrors = {};
       if (!track || !track.trackTitle) {
         trackErrors.trackTitle =
-          'Please either enter a track title or remove it from the list.';
+          'Please either enter a track title, or remove it from the list.';
         trackListErrors[trackIndex] = trackErrors;
       }
     });

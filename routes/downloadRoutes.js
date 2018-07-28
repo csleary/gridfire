@@ -26,7 +26,7 @@ module.exports = app => {
       const token = jwt.sign(
         {
           releaseId,
-          expiresIn: '10m'
+          expiresIn: '1m'
         },
         keys.nemp3Secret
       );
