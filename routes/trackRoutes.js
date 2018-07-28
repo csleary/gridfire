@@ -1,14 +1,12 @@
 const aws = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
-const mongoose = require('mongoose');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const { AWS_REGION } = require('./constants');
 const { BUCKET_SRC } = require('./constants');
 const { BUCKET_OPT } = require('./constants');
 
-const Release = mongoose.model('releases');
 aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
@@ -64,6 +62,7 @@ module.exports = app => {
 
       // Delete from S3
       const s3 = new aws.S3();
+
       // Delete source audio
       const listSrcParams = {
         Bucket: BUCKET_SRC,
@@ -78,9 +77,7 @@ module.exports = app => {
           Bucket: BUCKET_SRC,
           Key: s3SrcData.Contents[0].Key
         };
-
         deleteS3Src = s3.deleteObject(deleteImgParams).promise();
-        deleteS3Src;
       }
 
       // Delete streaming audio
@@ -97,9 +94,7 @@ module.exports = app => {
           Bucket: BUCKET_OPT,
           Key: s3OptData.Contents[0].Key
         };
-
         deleteS3Opt = s3.deleteObject(deleteImgParams).promise();
-        deleteS3Opt;
       }
 
       // Delete from db
@@ -179,11 +174,16 @@ module.exports = app => {
             s3.putObject(uploadParams)
               .promise()
               .then(() => fsPromises.unlink(tempPath))
-              .then(
-                res.send({
-                  success: `Transcoding ${trackName} to aac complete.`
-                })
-              );
+              .then(() => {
+                const release = res.locals.release;
+                const trackDoc = release.trackList.id(trackId);
+                trackDoc.hasAudio = true;
+                release.save().then(
+                  res.send({
+                    success: `Transcoding ${trackName} to aac complete.`
+                  })
+                );
+              });
           })
           .save(tempPath);
       } catch (error) {
@@ -213,13 +213,9 @@ module.exports = app => {
         Key: key
       };
 
-      const release = await Release.findById(releaseId);
+      // const release = await Release.findById(releaseId);
       const audioUploadUrl = s3.getSignedUrl('putObject', params);
-      const index = release.trackList.findIndex(
-        track => track._id.toString() === trackId
-      );
-      release.trackList[index].hasAudio = true;
-      release.save().then(() => res.send(audioUploadUrl));
+      res.send(audioUploadUrl);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

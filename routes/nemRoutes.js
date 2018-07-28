@@ -33,36 +33,27 @@ module.exports = app => {
       if (transactions.paidToDate >= price || hasPreviouslyPurchased) {
         // Add purchase to user account, if not already added.
         if (!hasPreviouslyPurchased) {
-          user.purchases.push({
-            purchaseDate: Date.now(),
-            releaseId
-          });
+          user.purchases.push({ purchaseDate: Date.now(), releaseId });
           user.save();
 
           // Log sales.
-          const date = new Date(Date.now());
+          const date = new Date(Date.now()).toISOString().split('T')[0];
 
           const statExists = await Sale.findOne({
             releaseId,
-            'purchases.date': date.toISOString().split('T')[0]
+            'purchases.date': date
           });
 
-          const query = { releaseId };
-          const update = {
-            $addToSet: { purchases: { date: date.toISOString().split('T')[0] } }
-          };
-          const options = { upsert: true, setDefaultsOnInsert: true };
-
           const incrementSale = () => {
-            const queryInc = {
-              releaseId,
-              'purchases.date': date.toISOString().split('T')[0]
-            };
-            const updateInc = { $inc: { 'purchases.$.numSold': 1 } };
-            Sale.findOneAndUpdate(queryInc, updateInc, {}, () => {});
+            const query = { releaseId, 'purchases.date': date };
+            const update = { $inc: { 'purchases.$.numSold': 1 } };
+            Sale.findOneAndUpdate(query, update).exec();
           };
 
           if (!statExists) {
+            const query = { releaseId };
+            const update = { $addToSet: { purchases: { date } } };
+            const options = { upsert: true, setDefaultsOnInsert: true };
             Sale.findOneAndUpdate(query, update, options, incrementSale);
           } else {
             incrementSale();
@@ -71,10 +62,7 @@ module.exports = app => {
 
         // Issue download token to user on successful payment.
         const token = jwt.sign(
-          {
-            releaseId,
-            expiresIn: '10m'
-          },
+          { releaseId, expiresIn: '1m' },
           keys.nemp3Secret
         );
         res.append('Authorization', `Bearer ${token}`);
