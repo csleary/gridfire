@@ -1,12 +1,13 @@
+const crypto = require('crypto');
+const keys = require('../config/keys');
+const mongoose = require('mongoose');
 const passport = require('passport');
 const request = require('request');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
-const mongoose = require('mongoose');
-const SHA256 = require('crypto-js/sha256');
-const keys = require('../config/keys');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const User = mongoose.model('users');
+const hash = crypto.createHash('sha256');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -17,12 +18,12 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-function idHash(emailAddress) {
-  const hash = SHA256(emailAddress + keys.nemp3Secret)
-    .toString()
+const idHash = emailAddress =>
+  hash
+    .update(emailAddress)
+    .update(keys.nemp3Secret)
+    .digest('hex')
     .substring(0, 31);
-  return hash;
-}
 
 passport.use(
   'local-login',
@@ -92,7 +93,7 @@ passport.use(
               return done(
                 null,
                 false,
-                req.flash('error', 'User already exists.')
+                req.flash('error', 'Email already in use.')
               );
             }
 
