@@ -1,6 +1,6 @@
 const aws = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
-const fs = require('fs');
+const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
@@ -151,7 +151,7 @@ module.exports = app => {
 
         const inputAudio = await s3.listObjectsV2(listParams).promise();
         const { Key } = inputAudio.Contents[0];
-        const savePath = `tmp/${trackId}`;
+        const tempPath = `tmp/${trackId}`;
 
         const downloadSrc = s3
           .getObject({ Bucket: BUCKET_SRC, Key })
@@ -166,31 +166,26 @@ module.exports = app => {
           .on('error', error => {
             throw new Error(`Transcoding error: ${error.message}`);
           })
-          .on('end', () => {
-            fs.readFile(savePath, (readError, optData) => {
-              if (readError) throw new Error(readError);
+          .on('end', async () => {
+            const optData = await fsPromises.readFile(tempPath);
 
-              const uploadParams = {
-                Bucket: BUCKET_OPT,
-                ContentType: 'audio/mp4',
-                Key: `m4a/${releaseId}/${trackId}.m4a`,
-                Body: optData
-              };
+            const uploadParams = {
+              Bucket: BUCKET_OPT,
+              ContentType: 'audio/mp4',
+              Key: `m4a/${releaseId}/${trackId}.m4a`,
+              Body: optData
+            };
 
-              s3.putObject(uploadParams, putError => {
-                if (putError) throw new Error(putError);
-
-                fs.unlink(savePath, deleteError => {
-                  if (deleteError) throw new Error(deleteError);
-                });
-
+            s3.putObject(uploadParams)
+              .promise()
+              .then(() => fsPromises.unlink(tempPath))
+              .then(
                 res.send({
                   success: `Transcoding ${trackName} to aac complete.`
-                });
-              });
-            });
+                })
+              );
           })
-          .save(savePath);
+          .save(tempPath);
       } catch (error) {
         res.status(500).send({ error: error.message });
       }

@@ -13,19 +13,18 @@ class Register extends Component {
     this.register(values, () => {
       this.props.reset();
       captcha.getRenderedComponent().reset();
+      this.props.fetchUser();
       this.props.history.push('/');
     });
   };
 
   register = async (values, callback) => {
     try {
-      const res = await axios.post('/auth/register', values).then(() => {
-        this.props.fetchUser();
-        toastSuccess(res.data.success);
-        callback();
-      });
+      const res = await axios.post('/auth/register', values);
+      this.props.toastSuccess(res.data.success);
+      callback();
     } catch (e) {
-      toastError(e.response.data.error);
+      this.props.toastError(e.response.data.error || e.message);
     }
   };
 

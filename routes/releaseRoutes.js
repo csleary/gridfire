@@ -1,7 +1,7 @@
 const aws = require('aws-sdk');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
-const SHA256 = require('crypto-js/sha256');
+const crypto = require('crypto');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
@@ -14,6 +14,7 @@ const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });
+const hash = crypto.createHash('sha256');
 
 module.exports = app => {
   // Add New Release
@@ -175,8 +176,10 @@ module.exports = app => {
         return;
       }
 
-      const paymentHash = SHA256(release._id + customerIdHash)
-        .toString()
+      const paymentHash = hash
+        .update(release._id.toString())
+        .update(customerIdHash)
+        .digest('hex')
         .substring(0, 31);
 
       const paymentInfo = {
