@@ -7,7 +7,6 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const User = mongoose.model('users');
-const hash = crypto.createHash('sha256');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -18,12 +17,14 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-const idHash = emailAddress =>
-  hash
+const idHash = emailAddress => {
+  const hash = crypto.createHash('sha256');
+  return hash
     .update(emailAddress)
     .update(keys.nemp3Secret)
     .digest('hex')
     .substring(0, 31);
+};
 
 passport.use(
   'local-login',
