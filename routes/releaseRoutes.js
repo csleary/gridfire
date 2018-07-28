@@ -14,7 +14,6 @@ const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });
-const hash = crypto.createHash('sha256');
 
 module.exports = app => {
   // Add New Release
@@ -176,6 +175,7 @@ module.exports = app => {
         return;
       }
 
+      const hash = crypto.createHash('sha256');
       const paymentHash = hash
         .update(release._id.toString())
         .update(customerIdHash)
