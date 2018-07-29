@@ -50,8 +50,7 @@ class UserRelease extends Component {
 
       toastWarning(`Deleting ${releaseName}…`);
 
-      deleteRelease(release._id).then(success => {
-        if (!success) return;
+      deleteRelease(release._id, () => {
         toastSuccess(`Successfully deleted ${releaseName}.`);
       });
     });

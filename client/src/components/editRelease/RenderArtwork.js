@@ -31,7 +31,6 @@ const RenderArtwork = props => {
                 role="button"
                 tabIndex={-1}
                 onClick={() => {
-                  const { release } = props;
                   let prevPublished = '';
 
                   if (release.published) {
@@ -42,7 +41,7 @@ const RenderArtwork = props => {
                   }
                   props.toastWarning('Deleting artwork…');
 
-                  props.deleteArtwork(releaseId).then(() => {
+                  props.deleteArtwork(releaseId, () => {
                     props.handleDeletePreview();
                     props.toastSuccess(`Artwork deleted.${prevPublished}`);
                   });

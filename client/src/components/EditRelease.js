@@ -75,8 +75,7 @@ class EditRelease extends Component {
     const hasNoArtwork = !this.props.release.artwork;
 
     if (isInvalid && hasNoTracks && hasNoArtwork) {
-      this.props.deleteRelease(this.props.release._id).then(success => {
-        if (!success) return;
+      this.props.deleteRelease(this.props.release._id, () => {
         this.props.toastWarning(
           'Invalid or incomplete release discarded (automated housekeeping).'
         );

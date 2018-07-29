@@ -35,9 +35,13 @@ module.exports = app => {
         };
         const signedUrl = s3.getSignedUrl('putObject', s3Params);
 
-        const updateReleaseUrl = Release.findByIdAndUpdate(releaseId, {
-          artwork: `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`
-        });
+        const updateReleaseUrl = Release.findByIdAndUpdate(
+          releaseId,
+          {
+            artwork: `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`
+          },
+          { new: true }
+        ).select('-__v');
 
         const optimisedImg = await sharp(req.file.path)
           .resize(1000, 1000)
@@ -48,13 +52,13 @@ module.exports = app => {
         axios
           .put(signedUrl, optimisedImg, axiosConfig)
           .then(() => updateReleaseUrl)
-          .then(() => {
+          .then(updated => {
             fs.unlink(req.file.path, error => {
               if (error) {
                 throw new Error(error);
               }
             });
-            res.end();
+            res.send(updated);
           });
       } catch (error) {
         res.status(500).send({ error });
@@ -70,7 +74,7 @@ module.exports = app => {
     async (req, res) => {
       try {
         const { releaseId } = req.params;
-        const release = res.locals.release;
+        const { release } = res.locals;
         const s3 = new aws.S3();
         const listImgParams = {
           Bucket: BUCKET_IMG,

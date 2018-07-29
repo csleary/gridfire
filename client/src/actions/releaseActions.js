@@ -19,11 +19,11 @@ export const addRelease = () => async dispatch => {
   }
 };
 
-export const deleteRelease = releaseId => async dispatch => {
+export const deleteRelease = (releaseId, callback) => async dispatch => {
   try {
     const res = await axios.delete(`/api/release/${releaseId}`);
     dispatch({ type: DELETE_RELEASE, payload: res.data });
-    return res;
+    callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }

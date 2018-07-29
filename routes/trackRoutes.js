@@ -20,7 +20,7 @@ module.exports = app => {
       release.trackList.push({});
       release
         .save()
-        .then(updated => res.send(updated))
+        .then(updated => res.send(updated.toObject({ versionKey: false })))
         .catch(error => res.status(500).send({ error }));
     }
   );
@@ -114,10 +114,18 @@ module.exports = app => {
     requireLogin,
     releaseOwner,
     async (req, res) => {
-      const { from, to } = req.params;
-      const release = res.locals.release;
-      release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
-      release.save().then(updatedRelease => res.send(updatedRelease));
+      try {
+        const { from, to } = req.params;
+        const release = res.locals.release;
+        release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
+        release
+          .save()
+          .then(updatedRelease =>
+            res.send(updatedRelease.toObject({ versionKey: false }))
+          );
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
     }
   );
 
@@ -185,7 +193,7 @@ module.exports = app => {
   );
 
   // Upload Audio
-  app.get('/api/upload/audio', requireLogin, async (req, res) => {
+  app.get('/api/upload/audio', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId, trackId, type } = req.query;
 

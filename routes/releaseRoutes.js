@@ -136,22 +136,23 @@ module.exports = app => {
 
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
-    const release = await Release.findOne(
-      { _id: req.params.releaseId },
-      '-__v'
-    );
+    try {
+      const release = await Release.findOne(
+        { _id: req.params.releaseId },
+        '-__v'
+      );
 
-    if (
-      !release.published &&
-      release.user.toString() !== req.user._id.toString()
-    ) {
-      res.send({ error: 'Release currently unavailable.' });
-    } else {
+      if (!release.published && !release.user.equals(req.user._id)) {
+        throw new Error('This release is currently unavailable.');
+      }
+
       const artist = await User.findOne({ _id: release.user });
       const paymentInfo = {
         paymentAddress: nem.utils.format.address(artist.nemAddress)
       };
       res.send({ release, paymentInfo });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
     }
   });
 
@@ -245,7 +246,7 @@ module.exports = app => {
     const release = await Release.findByIdAndUpdate(releaseId, update, {
       upsert: true,
       new: true
-    });
+    }).select('-__v');
 
     // Add artist to Artist model.
     const { artistName } = release;

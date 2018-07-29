@@ -19,23 +19,21 @@ class RenderTrack extends Component {
     this.props.handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
       this.setState({ isDeletingTrack: true });
-      this.props
-        .deleteTrack(
-          this.props.release._id,
-          this.props.release.trackList[index]._id
-        )
-        .then(() => {
+      this.props.deleteTrack(
+        this.props.release._id,
+        this.props.release.trackList[index]._id,
+        () => {
           this.props.toastSuccess(
             `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
           );
           this.setState({ isDeletingTrack: false }, () => remove(index));
-        });
+        }
+      );
     });
   };
 
   handleMoveTrack = (swap, id, index, direction) => {
-    this.props.moveTrack(id, index, index + direction).then(res => {
-      if (res.error) return;
+    this.props.moveTrack(id, index, index + direction, () => {
       swap(index, index + direction);
     });
   };

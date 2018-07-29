@@ -24,7 +24,7 @@ class RenderTrackList extends Component {
 
   handleAddTrack = push => {
     this.setState({ isAddingTrack: true });
-    this.props.addTrack(this.props.release._id).then(() => {
+    this.props.addTrack(this.props.release._id, () => {
       this.setState({ isAddingTrack: false }, () => push());
     });
   };
@@ -44,8 +44,7 @@ class RenderTrackList extends Component {
   handleDrop = (fieldsMove, indexTo) => {
     const releaseId = this.props.release._id;
     const indexFrom = this.state.dragOrigin;
-    this.props.moveTrack(releaseId, indexFrom, indexTo).then(res => {
-      if (res.error) return;
+    this.props.moveTrack(releaseId, indexFrom, indexTo, () => {
       fieldsMove(indexFrom, indexTo);
     });
   };
