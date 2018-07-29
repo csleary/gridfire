@@ -19,10 +19,13 @@ module.exports = app => {
   // Add New Release
   // Possibly check for upload tokens/credit.
   app.post('/api/release', requireLogin, async (req, res) => {
-    const release = await new Release({
-      user: req.user.id,
-      dateCreated: Date.now()
-    });
+    const release = await new Release(
+      {
+        user: req.user.id,
+        dateCreated: Date.now()
+      },
+      '-__v'
+    );
     release
       .save()
       .then(newRelease => res.send(newRelease))
@@ -136,7 +139,11 @@ module.exports = app => {
 
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
-    const release = await Release.findOne({ _id: req.params.releaseId });
+    const release = await Release.findOne(
+      { _id: req.params.releaseId },
+      '-__v'
+    );
+
     if (
       !release.published &&
       release.user.toString() !== req.user._id.toString()
@@ -227,10 +234,10 @@ module.exports = app => {
   app.put('/api/release', requireLogin, async (req, res) => {
     const update = req.body;
     const releaseId = update._id;
-    delete update.__v;
 
     const release = await Release.findByIdAndUpdate(releaseId, update, {
       upsert: true,
+      select: '-__v',
       new: true
     });
 

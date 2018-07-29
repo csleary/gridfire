@@ -13,8 +13,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  user.auth.password = undefined;
+  const user = await User.findById(id, '-__v -auth.password');
   done(null, user);
 });
 
