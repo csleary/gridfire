@@ -14,6 +14,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   const user = await User.findById(id);
+  user.auth.password = undefined;
   done(null, user);
 });
 
@@ -35,9 +36,9 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        const existingUser = await User.findOne({ 'auth.email': email });
+        const user = await User.findOne({ 'auth.email': email });
 
-        if (!existingUser) {
+        if (!user) {
           return done(
             null,
             false,
@@ -45,7 +46,7 @@ passport.use(
           );
         }
 
-        const isMatched = await existingUser.comparePassword(password);
+        const isMatched = await user.comparePassword(password);
 
         if (!isMatched) {
           return done(
@@ -54,11 +55,8 @@ passport.use(
             req.flash('error', 'Login details incorrect.')
           );
         }
-        done(
-          null,
-          existingUser,
-          req.flash('success', 'Successfully logged in.')
-        );
+
+        done(null, user, req.flash('success', 'Successfully logged in.'));
       } catch (error) {
         return done(error);
       }
@@ -111,7 +109,7 @@ passport.use(
               newUser,
               req.flash(
                 'success',
-                'Thanks for registering. You are now logged in.'
+                'Thank you for registering. You are now logged in.'
               )
             );
           }
@@ -139,13 +137,13 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        const existingUser = await User.findOne({ 'auth.email': email });
+        const user = await User.findOne({ 'auth.email': email });
 
-        if (!existingUser) {
+        if (!user) {
           return done(null, false, req.flash('error', 'Incorrect username.'));
         }
 
-        const isMatched = await existingUser.comparePassword(password);
+        const isMatched = await user.comparePassword(password);
 
         if (!isMatched) {
           return done(null, false, req.flash('error', 'Incorrect password.'));
@@ -159,11 +157,11 @@ passport.use(
           );
         }
 
-        existingUser.auth.password = req.body.passwordNew;
-        existingUser.save();
+        user.auth.password = req.body.passwordNew;
+        user.save();
         done(
           null,
-          existingUser,
+          user,
           req.flash('success', 'Password updated successfully.')
         );
       } catch (error) {

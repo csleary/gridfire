@@ -3,12 +3,7 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
-import {
-  addNemAddress,
-  fetchUser,
-  toastSuccess,
-  toastWarning
-} from '../../actions';
+import { addNemAddress, toastSuccess, toastWarning } from '../../actions';
 
 const addressPrefix =
   process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
@@ -157,6 +152,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { addNemAddress, fetchUser, toastSuccess, toastWarning }
+    { addNemAddress, toastSuccess, toastWarning }
   )(Dashboard)
 );
