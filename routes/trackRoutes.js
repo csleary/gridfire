@@ -68,8 +68,7 @@ module.exports = app => {
         Bucket: BUCKET_SRC,
         Prefix: `${releaseId}/${trackId}`
       };
-      const listS3Src = s3.listObjectsV2(listSrcParams).promise();
-      const s3SrcData = await listS3Src;
+      const s3SrcData = await s3.listObjectsV2(listSrcParams).promise();
 
       let deleteS3Src;
       if (s3SrcData.Contents.length) {
@@ -77,7 +76,7 @@ module.exports = app => {
           Bucket: BUCKET_SRC,
           Key: s3SrcData.Contents[0].Key
         };
-        deleteS3Src = s3.deleteObject(deleteImgParams).promise();
+        deleteS3Src = await s3.deleteObject(deleteImgParams).promise();
       }
 
       // Delete streaming audio
@@ -85,8 +84,7 @@ module.exports = app => {
         Bucket: BUCKET_OPT,
         Prefix: `m4a/${releaseId}/${trackId}`
       };
-      const listS3Opt = s3.listObjectsV2(listOptParams).promise();
-      const s3OptData = await listS3Opt;
+      const s3OptData = await s3.listObjectsV2(listOptParams).promise();
 
       let deleteS3Opt;
       if (s3OptData.Contents.length) {
@@ -94,21 +92,15 @@ module.exports = app => {
           Bucket: BUCKET_OPT,
           Key: s3OptData.Contents[0].Key
         };
-        deleteS3Opt = s3.deleteObject(deleteImgParams).promise();
+        deleteS3Opt = await s3.deleteObject(deleteImgParams).promise();
       }
 
       // Delete from db
-      const updatedRelease = await release
+      const deleteTrackDb = await release
         .update({ $pull: { trackList: { _id: trackId } } })
         .exec();
 
-      Promise.all([
-        updatedRelease,
-        listS3Src,
-        deleteS3Src,
-        listS3Opt,
-        deleteS3Opt
-      ])
+      Promise.all([deleteS3Src, deleteS3Opt, deleteTrackDb])
         .then(() => {
           res.send(release);
         })

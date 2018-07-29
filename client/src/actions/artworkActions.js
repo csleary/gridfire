@@ -7,11 +7,11 @@ import {
   UPLOAD_ARTWORK_PROGRESS
 } from './types';
 
-export const deleteArtwork = (releaseId, callback) => async dispatch => {
+export const deleteArtwork = releaseId => async dispatch => {
   try {
     const res = await axios.delete(`/api/artwork/${releaseId}`);
     dispatch({ type: DELETE_ARTWORK, payload: res.data });
-    callback();
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }

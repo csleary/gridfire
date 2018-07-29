@@ -19,30 +19,11 @@ module.exports = app => {
     '/api/upload/artwork',
     upload.single('artwork'),
     requireLogin,
+    releaseOwner,
     async (req, res) => {
       try {
         const { releaseId } = req.body;
-
-        // If replacing, delete from S3
         const s3 = new aws.S3();
-        const listImgParams = {
-          Bucket: BUCKET_IMG,
-          Prefix: `${releaseId}`
-        };
-        const listS3Img = s3.listObjectsV2(listImgParams).promise();
-        const s3ImgData = await listS3Img;
-
-        let deleteS3Img;
-        if (s3ImgData.Contents.length) {
-          const deleteImgParams = {
-            Bucket: BUCKET_IMG,
-            Key: s3ImgData.Contents[0].Key
-          };
-          deleteS3Img = s3.deleteObject(deleteImgParams).promise();
-          deleteS3Img;
-        }
-
-        // Upload new artwork
         const ext = '.jpg';
         const type = 'image/jpeg';
         const axiosConfig = { headers: { 'Content-Type': type } };
@@ -53,13 +34,10 @@ module.exports = app => {
           Key: `${releaseId}${ext}`
         };
         const signedUrl = s3.getSignedUrl('putObject', s3Params);
-        const updateReleaseUrl = Release.findByIdAndUpdate(
-          releaseId,
-          {
-            artwork: `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`
-          },
-          { new: true }
-        );
+
+        const updateReleaseUrl = Release.findByIdAndUpdate(releaseId, {
+          artwork: `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`
+        });
 
         const optimisedImg = await sharp(req.file.path)
           .resize(1000, 1000)
@@ -93,24 +71,21 @@ module.exports = app => {
       try {
         const { releaseId } = req.params;
         const release = res.locals.release;
-
-        // Delete from S3
         const s3 = new aws.S3();
         const listImgParams = {
           Bucket: BUCKET_IMG,
           Prefix: `${releaseId}`
         };
-        const listS3Img = s3.listObjectsV2(listImgParams).promise();
-        const s3ImgData = await listS3Img;
+        const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
 
-        let deleteS3Img;
         if (s3ImgData.Contents.length) {
           const deleteImgParams = {
             Bucket: BUCKET_IMG,
             Key: s3ImgData.Contents[0].Key
           };
-          deleteS3Img = s3.deleteObject(deleteImgParams).promise();
-          deleteS3Img
+
+          s3.deleteObject(deleteImgParams)
+            .promise()
             .then(() => {
               release.artwork = undefined;
               release.save().then(doc => res.send(doc));
@@ -120,7 +95,7 @@ module.exports = app => {
             });
         }
       } catch (error) {
-        res.status(500).send({ error });
+        res.status(500).send({ error: error.message });
       }
     }
   );

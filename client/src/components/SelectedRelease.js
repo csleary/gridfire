@@ -189,6 +189,7 @@ class SelectedRelease extends Component {
                 alt={releaseTitle}
                 className="lazyload img-fluid"
                 data-src={artwork}
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
               />
               <div
                 className="cover-artwork-overlay"

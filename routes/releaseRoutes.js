@@ -28,8 +28,8 @@ module.exports = app => {
     );
     release
       .save()
-      .then(newRelease => res.send(newRelease))
-      .catch(error => res.status(500).send({ error }));
+      .then(res.send(release))
+      .catch(error => res.status(500).send({ error: error.message }));
   });
 
   // Delete Release
@@ -125,11 +125,8 @@ module.exports = app => {
         deleteFromArtist,
         deleteArtist,
         deleteArtistFromUser,
-        s3SrcData,
         deleteS3Src,
-        s3OptData,
         deleteS3Opt,
-        s3ImgData,
         deleteS3Img
       ])
         .then(values => res.send(values[0]._id))
@@ -237,7 +234,6 @@ module.exports = app => {
 
     const release = await Release.findByIdAndUpdate(releaseId, update, {
       upsert: true,
-      select: '-__v',
       new: true
     });
 

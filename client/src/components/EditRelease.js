@@ -35,7 +35,8 @@ class EditRelease extends Component {
     this.state = {
       isEditing: false,
       isLoading: false,
-      coverArtPreview: '',
+      coverArtLoaded: false,
+      coverArtPreview: false,
       audioUploading: {}
     };
     this.artworkFile = null;
@@ -56,6 +57,7 @@ class EditRelease extends Component {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
         this.props.initialize(release);
+        this.setArtwork();
         this.setLoading(false);
       });
     } else {
@@ -75,7 +77,9 @@ class EditRelease extends Component {
         );
       });
     }
-    if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
+    if (this.artworkFile) {
+      window.URL.revokeObjectURL(this.artworkFile.preview);
+    }
   }
 
   onDropArt = (accepted, rejected) => {
@@ -102,15 +106,18 @@ class EditRelease extends Component {
         );
         return;
       }
+
+      this.setState({ coverArtPreview: this.artworkFile.preview });
       this.props.uploadArtwork(
         releaseId,
         this.artworkFile,
         this.artworkFile.type
       );
-      this.setState({
-        coverArtPreview: this.artworkFile.preview
-      });
     };
+  };
+
+  onArtworkLoad = () => {
+    this.setState({ coverArtLoaded: true });
   };
 
   onDropAudio = (accepted, rejected, index, trackId) => {
@@ -189,8 +196,15 @@ class EditRelease extends Component {
     this.setState({ isEditing: true });
   }
 
+  setArtwork() {
+    const { artwork } = this.props.release;
+    if (artwork) {
+      this.setState({ coverArtPreview: this.props.release.artwork });
+    }
+  }
+
   handleDeletePreview = () => {
-    this.setState({ coverArtPreview: '' });
+    this.setState({ coverArtPreview: false });
   };
 
   renderHeader() {
@@ -335,6 +349,8 @@ class EditRelease extends Component {
                   artworkFile={this.artworkFile}
                   artworkUploading={this.props.artworkUploading}
                   artworkUploadProgress={this.props.artworkUploadProgress}
+                  onArtworkLoad={this.onArtworkLoad}
+                  coverArtLoaded={this.state.coverArtLoaded}
                   coverArtPreview={this.state.coverArtPreview}
                   deleteArtwork={this.props.deleteArtwork}
                   handleDeletePreview={this.handleDeletePreview}
