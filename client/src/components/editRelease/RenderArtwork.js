@@ -5,21 +5,25 @@ import FontAwesome from 'react-fontawesome';
 import ProgressBar from './ProgressBar';
 
 const RenderArtwork = props => {
-  const coverArtClasses = classNames('img-fluid', {
-    lazyloaded: props.coverArtLoaded,
-    lazyload: !props.coverArtLoaded
+  const { coverArtLoaded, coverArtPreview, release } = props;
+  const { _id, releaseTitle } = release;
+  const releaseId = _id;
+  const artworkClassNames = classNames('img-fluid', {
+    lazyloaded: coverArtLoaded,
+    lazyload: !coverArtLoaded
   });
 
   return (
     <div className="col-md">
       <h3 className="text-center">Artwork</h3>
-      {props.coverArtPreview && (
+      {coverArtPreview && (
         <div className="cover-art">
           <img
-            alt=""
-            className={coverArtClasses}
+            alt={`The cover art for ${(releaseTitle && `'${releaseTitle}'`) ||
+              'this release.'}`}
+            className={artworkClassNames}
             onLoad={() => props.onArtworkLoad()}
-            src={props.coverArtPreview}
+            src={coverArtPreview}
           />
           <div className="d-flex flex-row justify-content-end cover-art-overlay">
             <div className="delete">
@@ -31,14 +35,14 @@ const RenderArtwork = props => {
                   let prevPublished = '';
 
                   if (release.published) {
-                    props.publishStatus(release._id, () => {
+                    props.publishStatus(releaseId).then(() => {
                       prevPublished =
                         ' As your release was previously published, it has also been taken offline.';
                     });
                   }
                   props.toastWarning('Deleting artwork…');
 
-                  props.deleteArtwork(release._id).then(() => {
+                  props.deleteArtwork(releaseId).then(() => {
                     props.handleDeletePreview();
                     props.toastSuccess(`Artwork deleted.${prevPublished}`);
                   });

@@ -208,14 +208,24 @@ module.exports = app => {
           );
         }
 
-        if (
-          !release.artwork ||
-          !release.trackList.length ||
-          release.trackList.some(track => !track.hasAudio)
-        ) {
+        if (!release.artwork) {
           release.update({ published: false }).exec();
           throw new Error(
-            'Please ensure your release has artwork, and that all tracks have audio uploaded, before publishing.'
+            'Please ensure the release has artwork uploaded before publishing.'
+          );
+        }
+
+        if (!release.trackList.length) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            'Please add at least one track to the release (with audio), before publishing.'
+          );
+        }
+
+        if (release.trackList.some(track => !track.hasAudio)) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            'Please ensure that all tracks have audio uploaded before publishing.'
           );
         }
 

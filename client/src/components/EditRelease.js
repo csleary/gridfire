@@ -70,8 +70,13 @@ class EditRelease extends Component {
   }
 
   componentWillUnmount() {
-    if (!this.props.valid && !this.props.release.trackList.length) {
-      this.props.deleteRelease(this.props.release._id, () => {
+    const isInvalid = !this.props.valid;
+    const hasNoTracks = !this.props.release.trackList.length;
+    const hasNoArtwork = !this.props.release.artwork;
+
+    if (isInvalid && hasNoTracks && hasNoArtwork) {
+      this.props.deleteRelease(this.props.release._id).then(success => {
+        if (!success) return;
         this.props.toastWarning(
           'Invalid or incomplete release discarded (automated housekeeping).'
         );
@@ -171,7 +176,7 @@ class EditRelease extends Component {
 
   onSubmit = values =>
     new Promise(resolve => {
-      this.props.updateRelease(values, () => {
+      this.props.updateRelease(values).then(() => {
         const { release } = this.props;
         const { releaseTitle } = release;
         // this.props.history.push('/dashboard');
