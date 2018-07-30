@@ -88,6 +88,14 @@ input[type='date'] {
   cursor: pointer;
 }
 
+.track-list .list-group-item .dropzone-audio.audio-uploading,
+.track-list .list-group-item .dropzone-audio.audio-uploading:hover {
+  background-color: #000;
+  border-color: #ffd24d;
+  color: #ffd24d;
+  cursor: pointer;
+}
+
 .track-list .list-group-item .dropzone-audio-active,
 .track-list .list-group-item .dropzone-audio.audio-true {
   background-color: #000;
@@ -193,7 +201,7 @@ input[type='date'] {
 }
 
 .track-list .list-group-item.drag-origin {
-  opacity: 0.25;
+  opacity: 0.5;
 }
 
 .track-list .list-group-item.drag-active {

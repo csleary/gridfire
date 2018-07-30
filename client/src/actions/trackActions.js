@@ -7,7 +7,9 @@ import {
   TOAST_ERROR,
   TOAST_SUCCESS,
   TRANSCODING_START,
-  TRANSCODING_STOP
+  TRANSCODING_STOP,
+  UPDATE_RELEASE,
+  UPLOAD_AUDIO_PROGRESS
 } from './types';
 
 export const addTrack = (releaseId, callback) => async dispatch => {
@@ -87,6 +89,7 @@ export const transcodeAudio = (
     });
     dispatch({ type: TOAST_SUCCESS, text: res.data.success });
     dispatch({ type: TRANSCODING_STOP, trackId });
+    dispatch({ type: UPDATE_RELEASE, payload: res.data.updatedRelease });
     return res;
   } catch (e) {
     dispatch({
@@ -95,4 +98,12 @@ export const transcodeAudio = (
     });
     dispatch({ type: TRANSCODING_STOP, trackId });
   }
+};
+
+export const uploadAudioProgress = (trackId, percent) => dispatch => {
+  dispatch({
+    type: UPLOAD_AUDIO_PROGRESS,
+    trackId,
+    percent
+  });
 };

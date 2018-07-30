@@ -178,8 +178,9 @@ module.exports = app => {
                 const release = res.locals.release;
                 const trackDoc = release.trackList.id(trackId);
                 trackDoc.hasAudio = true;
-                release.save().then(
+                release.save().then(updatedRelease =>
                   res.send({
+                    updatedRelease,
                     success: `Transcoding ${trackName} to aac complete.`
                   })
                 );
@@ -213,7 +214,6 @@ module.exports = app => {
         Key: key
       };
 
-      // const release = await Release.findById(releaseId);
       const audioUploadUrl = s3.getSignedUrl('putObject', params);
       res.send(audioUploadUrl);
     } catch (error) {

@@ -9,9 +9,35 @@ class RenderTrackList extends Component {
     this.state = {
       dragOrigin: null,
       dragActive: false,
-      isAddingTrack: false
+      isAddingTrack: false,
+      deletingTracks: []
     };
   }
+
+  handleDeleteTrack = (remove, index) => {
+    const { trackTitle } = this.props.release.trackList[index];
+    this.handleConfirm(trackTitle, hasConfirmed => {
+      if (!hasConfirmed) return;
+      this.setState({
+        deletingTracks: [...this.state.deletingTracks, index]
+      });
+      this.props.deleteTrack(
+        this.props.release._id,
+        this.props.release.trackList[index]._id,
+        () => {
+          remove(index);
+          this.props.toastSuccess(
+            `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
+          );
+          this.setState({
+            deletingTracks: this.state.deletingTracks.filter(
+              track => track !== index
+            )
+          });
+        }
+      );
+    });
+  };
 
   handleConfirm = (title, callback) => {
     const confirmation = window.confirm(
@@ -53,6 +79,13 @@ class RenderTrackList extends Component {
     this.setState({ dragOrigin: null, dragActive: false });
   };
 
+  uploadProgress(index) {
+    const track = this.props.release.trackList[index];
+    const trackId = track && track._id;
+    const filtered = this.props.audioUploadProgress.filter(el => trackId in el);
+    if (filtered.length) return filtered[0][trackId];
+  }
+
   render() {
     const { isAddingTrack } = this.state;
     const { fields, release } = this.props;
@@ -60,30 +93,39 @@ class RenderTrackList extends Component {
     return (
       <Fragment>
         <ul className="list-group track-list">
-          {fields.map((track, index) => (
-            <RenderTrack
-              audioUploading={this.props.audioUploading}
-              deleteTrack={this.props.deleteTrack}
-              dragActive={this.state.dragActive}
-              dragOrigin={this.state.dragOrigin}
-              fields={fields}
-              handleConfirm={this.handleConfirm}
-              handleDragStart={this.handleDragStart}
-              handleDragEnter={this.handleDragEnter}
-              handleDragOver={this.handleDragOver}
-              handleDragLeave={this.handleDragLeave}
-              handleDrop={this.handleDrop}
-              handleDragEnd={this.handleDragEnd}
-              isTranscoding={this.props.isTranscoding}
-              index={index}
-              key={`${track}._id`}
-              moveTrack={this.props.moveTrack}
-              onDropAudio={this.props.onDropAudio}
-              release={release}
-              toastSuccess={this.props.toastSuccess}
-              track={track}
-            />
-          ))}
+          {fields.map((name, index) => {
+            const track = release.trackList[index];
+            if (!track) return null;
+            const trackId = track._id;
+
+            return (
+              <RenderTrack
+                audioUploadProgress={this.uploadProgress(index)}
+                deletingTracks={this.state.deletingTracks}
+                dragActive={this.state.dragActive}
+                dragOrigin={this.state.dragOrigin}
+                fields={fields}
+                handleConfirm={this.handleConfirm}
+                handleDeleteTrack={this.handleDeleteTrack}
+                handleDragStart={this.handleDragStart}
+                handleDragEnter={this.handleDragEnter}
+                handleDragOver={this.handleDragOver}
+                handleDragLeave={this.handleDragLeave}
+                handleDrop={this.handleDrop}
+                handleDragEnd={this.handleDragEnd}
+                index={index}
+                isTranscoding={this.props.isTranscoding.some(
+                  id => id === trackId
+                )}
+                key={trackId}
+                moveTrack={this.props.moveTrack}
+                name={name}
+                onDropAudio={this.props.onDropAudio}
+                release={release}
+                toastSuccess={this.props.toastSuccess}
+              />
+            );
+          })}
         </ul>
         <button
           className="btn btn-outline-primary btn-sm add-track"
