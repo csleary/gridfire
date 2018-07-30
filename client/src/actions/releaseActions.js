@@ -39,14 +39,13 @@ export const fetchRelease = releaseId => async dispatch => {
   }
 };
 
-export const publishStatus = (releaseId, callback) => async dispatch => {
+export const publishStatus = releaseId => async dispatch => {
   try {
     const res = await axios.patch(`/api/release/${releaseId}`);
     dispatch({ type: PUBLISH_STATUS, payload: res.data });
-    callback();
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
-    callback(e.response.data);
   }
 };
 
@@ -68,11 +67,11 @@ export const purchaseRelease = releaseId => async dispatch => {
   }
 };
 
-export const updateRelease = (values, callback) => async dispatch => {
+export const updateRelease = values => async dispatch => {
   try {
     const res = await axios.put('/api/release', values);
     dispatch({ type: UPDATE_RELEASE, payload: res.data });
-    callback();
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }

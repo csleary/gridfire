@@ -5,3 +5,11 @@
   transition: 0.25s;
   width: 0;
 }
+
+.dropzone-art .progress-bar {
+  background: #18cdca;
+}
+
+.track-list .progress-bar {
+  background: #ffd24d;
+}

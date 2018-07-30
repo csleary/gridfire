@@ -1,4 +1,3 @@
-const omit = require('lodash.omit');
 const passport = require('passport');
 
 module.exports = app => {
@@ -55,12 +54,6 @@ module.exports = app => {
   });
 
   app.get('/api/user', (req, res) => {
-    if (req.user) {
-      const user = req.user;
-      user.auth = omit(user.auth, 'password');
-      res.send(user);
-    } else {
-      res.send(req.user);
-    }
+    res.send(req.user);
   });
 };

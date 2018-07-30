@@ -25,7 +25,8 @@ import {
   toastWarning,
   transcodeAudio,
   updateRelease,
-  uploadArtwork
+  uploadArtwork,
+  uploadAudioProgress
 } from '../actions';
 import '../style/editRelease.css';
 
@@ -35,7 +36,8 @@ class EditRelease extends Component {
     this.state = {
       isEditing: false,
       isLoading: false,
-      coverArtPreview: '',
+      coverArtLoaded: false,
+      coverArtPreview: false,
       audioUploading: {}
     };
     this.artworkFile = null;
@@ -56,6 +58,7 @@ class EditRelease extends Component {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
         this.props.initialize(release);
+        this.setArtwork();
         this.setLoading(false);
       });
     } else {
@@ -68,14 +71,20 @@ class EditRelease extends Component {
   }
 
   componentWillUnmount() {
-    if (!this.props.valid && !this.props.release.trackList.length) {
+    const isInvalid = !this.props.valid;
+    const hasNoTracks = !this.props.release.trackList.length;
+    const hasNoArtwork = !this.props.release.artwork;
+
+    if (isInvalid && hasNoTracks && hasNoArtwork) {
       this.props.deleteRelease(this.props.release._id, () => {
         this.props.toastWarning(
           'Invalid or incomplete release discarded (automated housekeeping).'
         );
       });
     }
-    if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
+    if (this.artworkFile) {
+      window.URL.revokeObjectURL(this.artworkFile.preview);
+    }
   }
 
   onDropArt = (accepted, rejected) => {
@@ -102,15 +111,18 @@ class EditRelease extends Component {
         );
         return;
       }
+
+      this.setState({ coverArtPreview: this.artworkFile.preview });
       this.props.uploadArtwork(
         releaseId,
         this.artworkFile,
         this.artworkFile.type
       );
-      this.setState({
-        coverArtPreview: this.artworkFile.preview
-      });
     };
+  };
+
+  onArtworkLoad = () => {
+    this.setState({ coverArtLoaded: true });
   };
 
   onDropAudio = (accepted, rejected, index, trackId) => {
@@ -121,8 +133,9 @@ class EditRelease extends Component {
       return;
     }
     const audioFile = accepted[0];
-    const releaseId = this.props.release._id;
-    const { trackTitle } = this.props.release.trackList[index];
+    const { release } = this.props;
+    const releaseId = release._id;
+    const { trackTitle } = release.trackList[index];
     const trackName =
       (trackTitle && `'${trackTitle}'`) || `track ${parseInt(index, 10) + 1}`;
     this.props
@@ -140,12 +153,7 @@ class EditRelease extends Component {
           },
           onUploadProgress: event => {
             const progress = (event.loaded / event.total) * 100;
-            this.setState({
-              audioUploading: {
-                ...this.state.audioUploading,
-                [trackId]: Math.floor(progress)
-              }
-            });
+            this.props.uploadAudioProgress(trackId, Math.floor(progress));
           }
         };
 
@@ -155,7 +163,9 @@ class EditRelease extends Component {
             this.props.toastSuccess(`Upload complete for ${trackName}!`);
             return this.props.transcodeAudio(releaseId, trackId, trackName);
           })
-          .then(this.props.fetchUserRelease(releaseId))
+          .then(() => {
+            this.props.initialize(release);
+          })
           .catch(error =>
             this.props.toastError(`Upload failed! ${error.message}`)
           );
@@ -164,7 +174,7 @@ class EditRelease extends Component {
 
   onSubmit = values =>
     new Promise(resolve => {
-      this.props.updateRelease(values, () => {
+      this.props.updateRelease(values).then(() => {
         const { release } = this.props;
         const { releaseTitle } = release;
         // this.props.history.push('/dashboard');
@@ -174,7 +184,7 @@ class EditRelease extends Component {
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
-        this.props.initialize(this.props.release);
+        this.props.initialize(release);
         resolve();
       });
     });
@@ -189,8 +199,15 @@ class EditRelease extends Component {
     this.setState({ isEditing: true });
   }
 
+  setArtwork() {
+    const { artwork } = this.props.release;
+    if (artwork) {
+      this.setState({ coverArtPreview: this.props.release.artwork });
+    }
+  }
+
   handleDeletePreview = () => {
-    this.setState({ coverArtPreview: '' });
+    this.setState({ coverArtPreview: false });
   };
 
   renderHeader() {
@@ -219,7 +236,6 @@ class EditRelease extends Component {
 
   render() {
     if (this.state.isLoading) return <Spinner />;
-
     return (
       <main className="container">
         <div className="row">
@@ -335,6 +351,8 @@ class EditRelease extends Component {
                   artworkFile={this.artworkFile}
                   artworkUploading={this.props.artworkUploading}
                   artworkUploadProgress={this.props.artworkUploadProgress}
+                  onArtworkLoad={this.onArtworkLoad}
+                  coverArtLoaded={this.state.coverArtLoaded}
                   coverArtPreview={this.state.coverArtPreview}
                   deleteArtwork={this.props.deleteArtwork}
                   handleDeletePreview={this.handleDeletePreview}
@@ -349,9 +367,10 @@ class EditRelease extends Component {
               <p>You can drag and drop to reorder tracks.</p>
               <FieldArray
                 addTrack={this.props.addTrack}
-                audioUploading={this.state.audioUploading}
+                audioUploadProgress={this.props.audioUploadProgress}
                 component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
+                initialize={this.props.initialize}
                 isAddingTrack={this.props.isAddingTrack}
                 isTranscoding={this.props.isTranscoding}
                 moveTrack={this.props.moveTrack}
@@ -423,11 +442,13 @@ const validate = ({
 
 const fieldSelector = formValueSelector('releaseForm');
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state, ownProps) => ({
   artworkUploading: state.releases.artworkUploading,
   artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,
+  audioUploadProgress: state.releases.audioUploadProgress,
   audioUploadUrl: state.releases.audioUploadUrl,
+  initialValues: ownProps.release,
   isAddingTrack: state.releases.isAddingTrack,
   isDeletingTrack: state.releases.isDeletingTrack,
   isTranscoding: state.releases.isTranscoding,
@@ -438,7 +459,9 @@ const mapStateToProps = state => ({
 
 export default reduxForm({
   validate,
-  form: 'releaseForm'
+  form: 'releaseForm',
+  enableReinitialize: true,
+  keepDirtyOnReinitialize: true
 })(
   connect(
     mapStateToProps,
@@ -460,7 +483,8 @@ export default reduxForm({
       toastWarning,
       transcodeAudio,
       updateRelease,
-      uploadArtwork
+      uploadArtwork,
+      uploadAudioProgress
     }
   )(withRouter(EditRelease))
 );

@@ -7,34 +7,41 @@ import {
   TOAST_ERROR,
   TOAST_SUCCESS,
   TRANSCODING_START,
-  TRANSCODING_STOP
+  TRANSCODING_STOP,
+  UPDATE_RELEASE,
+  UPLOAD_AUDIO_PROGRESS
 } from './types';
 
-export const addTrack = releaseId => async dispatch => {
+export const addTrack = (releaseId, callback) => async dispatch => {
   try {
     const res = await axios.put(`/api/${releaseId}/add`);
     dispatch({ type: ADD_TRACK, payload: res.data });
-    return res;
+    callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
-export const deleteTrack = (releaseId, trackId) => async dispatch => {
+export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
   try {
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK, payload: res.data });
-    return res;
+    callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
 };
 
-export const moveTrack = (releaseId, fromIndex, toIndex) => async dispatch => {
+export const moveTrack = (
+  releaseId,
+  fromIndex,
+  toIndex,
+  callback
+) => async dispatch => {
   try {
     const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
     dispatch({ type: MOVE_TRACK, payload: res.data });
-    return res;
+    callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
     return { error: e.response.data.error };
@@ -82,6 +89,7 @@ export const transcodeAudio = (
     });
     dispatch({ type: TOAST_SUCCESS, text: res.data.success });
     dispatch({ type: TRANSCODING_STOP, trackId });
+    dispatch({ type: UPDATE_RELEASE, payload: res.data.updatedRelease });
     return res;
   } catch (e) {
     dispatch({
@@ -90,4 +98,12 @@ export const transcodeAudio = (
     });
     dispatch({ type: TRANSCODING_STOP, trackId });
   }
+};
+
+export const uploadAudioProgress = (trackId, percent) => dispatch => {
+  dispatch({
+    type: UPLOAD_AUDIO_PROGRESS,
+    trackId,
+    percent
+  });
 };

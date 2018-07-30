@@ -60,12 +60,13 @@ class UserRelease extends Component {
     const { release, publishStatus, toastSuccess, toastWarning } = this.props;
 
     this.setState({ isPublishingRelease: true });
-    publishStatus(release._id, error => {
+    publishStatus(release._id).then(success => {
+      if (success) {
+        release.published
+          ? toastWarning(`'${release.releaseTitle}' has been taken offline.`)
+          : toastSuccess(`'${release.releaseTitle}' is now live and on sale.`);
+      }
       this.setState({ isPublishingRelease: false });
-      if (error) return;
-      release.published
-        ? toastWarning(`'${release.releaseTitle}' has been taken offline.`)
-        : toastSuccess(`'${release.releaseTitle}' is now live and on sale.`);
     });
   };
 

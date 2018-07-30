@@ -19,14 +19,17 @@ module.exports = app => {
   // Add New Release
   // Possibly check for upload tokens/credit.
   app.post('/api/release', requireLogin, async (req, res) => {
-    const release = await new Release({
-      user: req.user.id,
-      dateCreated: Date.now()
-    });
+    const release = await new Release(
+      {
+        user: req.user.id,
+        dateCreated: Date.now()
+      },
+      '-__v'
+    );
     release
       .save()
-      .then(newRelease => res.send(newRelease))
-      .catch(error => res.status(500).send({ error }));
+      .then(res.send(release))
+      .catch(error => res.status(500).send({ error: error.message }));
   });
 
   // Delete Release
@@ -122,11 +125,8 @@ module.exports = app => {
         deleteFromArtist,
         deleteArtist,
         deleteArtistFromUser,
-        s3SrcData,
         deleteS3Src,
-        s3OptData,
         deleteS3Opt,
-        s3ImgData,
         deleteS3Img
       ])
         .then(values => res.send(values[0]._id))
@@ -136,18 +136,23 @@ module.exports = app => {
 
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
-    const release = await Release.findOne({ _id: req.params.releaseId });
-    if (
-      !release.published &&
-      release.user.toString() !== req.user._id.toString()
-    ) {
-      res.send({ error: 'Release currently unavailable.' });
-    } else {
+    try {
+      const release = await Release.findOne(
+        { _id: req.params.releaseId },
+        '-__v'
+      );
+
+      if (!release.published && !release.user.equals(req.user._id)) {
+        throw new Error('This release is currently unavailable.');
+      }
+
       const artist = await User.findOne({ _id: release.user });
       const paymentInfo = {
         paymentAddress: nem.utils.format.address(artist.nemAddress)
       };
       res.send({ release, paymentInfo });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
     }
   });
 
@@ -204,14 +209,24 @@ module.exports = app => {
           );
         }
 
-        if (
-          !release.artwork ||
-          !release.trackList.length ||
-          release.trackList.some(track => !track.hasAudio)
-        ) {
+        if (!release.artwork) {
           release.update({ published: false }).exec();
           throw new Error(
-            'Please ensure your release has artwork, and that all tracks have audio uploaded, before publishing.'
+            'Please ensure the release has artwork uploaded before publishing.'
+          );
+        }
+
+        if (!release.trackList.length) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            'Please add at least one track to the release (with audio), before publishing.'
+          );
+        }
+
+        if (release.trackList.some(track => !track.hasAudio)) {
+          release.update({ published: false }).exec();
+          throw new Error(
+            'Please ensure that all tracks have audio uploaded before publishing.'
           );
         }
 
@@ -227,12 +242,11 @@ module.exports = app => {
   app.put('/api/release', requireLogin, async (req, res) => {
     const update = req.body;
     const releaseId = update._id;
-    delete update.__v;
 
     const release = await Release.findByIdAndUpdate(releaseId, update, {
       upsert: true,
       new: true
-    });
+    }).select('-__v');
 
     // Add artist to Artist model.
     const { artistName } = release;

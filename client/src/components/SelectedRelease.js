@@ -48,7 +48,9 @@ class SelectedRelease extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.match.params !== this.props.match.params) {
+    if (
+      nextProps.match.params.releaseId !== this.props.match.params.releaseId
+    ) {
       this.setState({ isLoading: true });
       const { releaseId } = nextProps.match.params;
       this.props
@@ -187,6 +189,7 @@ class SelectedRelease extends Component {
                 alt={releaseTitle}
                 className="lazyload img-fluid"
                 data-src={artwork}
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
               />
               <div
                 className="cover-artwork-overlay"

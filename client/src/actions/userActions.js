@@ -16,6 +16,7 @@ export const fetchUser = () => async dispatch => {
       isLoading: false,
       payload: res.data
     });
+    return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }

@@ -16,9 +16,10 @@ class Login extends Component {
 
   onSubmit = values => {
     this.login(values, () => {
-      this.props.fetchUser();
-      this.props.reset();
-      this.props.history.push('/');
+      this.props.fetchUser().then(() => {
+        this.props.reset();
+        this.props.history.push('/');
+      });
     });
   };
 

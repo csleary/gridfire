@@ -17,13 +17,15 @@ import {
   TRANSCODING_STOP,
   UPDATE_RELEASE,
   UPLOAD_ARTWORK,
-  UPLOAD_ARTWORK_PROGRESS
+  UPLOAD_ARTWORK_PROGRESS,
+  UPLOAD_AUDIO_PROGRESS
 } from '../actions/types';
 
 const initialState = {
   artist: {},
   artworkUploading: false,
   artworkUploadProgress: 0,
+  audioUploadProgress: [],
   isLoading: false,
   isTranscoding: [],
   catalogue: [],
@@ -117,6 +119,17 @@ export default (state = initialState, action) => {
         ...state,
         artworkUploadProgress: payload
       };
+    case UPLOAD_AUDIO_PROGRESS:
+      return {
+        ...state,
+        audioUploadProgress: [
+          ...state.audioUploadProgress.filter(
+            track => !(action.trackId in track)
+          ),
+          { [action.trackId]: action.percent }
+        ]
+      };
+
     default:
       return state;
   }
