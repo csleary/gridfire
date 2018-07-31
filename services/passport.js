@@ -200,7 +200,9 @@ passport.use(
           }
         }).save();
 
-        done(null, user);
+        done(null, user, {
+          message: 'Thank you for registering. You are now logged in.'
+        });
       } catch (err) {
         done(err);
       }

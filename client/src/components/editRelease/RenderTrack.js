@@ -63,7 +63,6 @@ const RenderTrack = props => {
         trackId={trackId}
         type="text"
       />
-      {/* <Field component="input" name={`${name}.hasAudio`} type="checkbox" /> */}
       <div className="d-flex mt-3">
         {isTranscoding && (
           <span className="mr-2 yellow">

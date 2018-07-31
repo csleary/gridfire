@@ -31,11 +31,11 @@ class Navbar extends Component {
   };
 
   authStatus() {
-    if (this.props.user.isLoading) {
-      return null;
-    }
+    const { user } = this.props;
 
-    switch (this.props.user.auth) {
+    if (user.isLoading) return null;
+
+    switch (user.auth) {
       case null:
         return null;
       case undefined:
@@ -76,12 +76,10 @@ class Navbar extends Component {
   }
 
   render() {
-    const className = classNames(
-      {
-        show: this.state.showLogo
-      },
-      'navbar-brand-link'
-    );
+    const className = classNames('navbar-brand-link', {
+      show: this.state.showLogo
+    });
+
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
         <Link to={'/'} className={className}>
