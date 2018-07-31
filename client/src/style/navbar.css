@@ -1,3 +1,14 @@
+nav.navbar {
+  transform: translateY(-0.2rem);
+  opacity: 0;
+  transition: all 1s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+nav.navbar.loaded {
+  transform: translateY(0);
+  opacity: 1;
+}
+
 nav.navbar,
 nav.navbar.sub-menu {
   background-color: hsla(233, 10%, 20%, 1);

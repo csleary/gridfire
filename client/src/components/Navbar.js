@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
@@ -22,6 +22,14 @@ class Navbar extends Component {
     document.removeEventListener('scroll', this.handleScroll);
   }
 
+  handleLogout() {
+    this.props.logOut(res => {
+      this.props.toastSuccess(res.data.success);
+      this.props.fetchUser();
+      this.props.history.push('/login');
+    });
+  }
+
   handleScroll = () => {
     const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
     const scrollPos = window.pageYOffset;
@@ -30,14 +38,12 @@ class Navbar extends Component {
     else this.setState({ showLogo: true });
   };
 
-  authStatus() {
+  renderUserLinks() {
     const { user } = this.props;
 
     if (user.isLoading) return null;
 
     switch (user.auth) {
-      case null:
-        return null;
       case undefined:
         return (
           <ul className="navbar-nav ml-auto">
@@ -65,7 +71,13 @@ class Navbar extends Component {
               </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/api/logout">
+              <a
+                className="nav-link"
+                tabIndex="-1"
+                onClick={() => this.handleLogout()}
+                role="button"
+                style={{ cursor: 'pointer' }}
+              >
                 <FontAwesome name="sign-out" className="mr-1" />
                 <span className="nav-label">Log out</span>
               </a>
@@ -76,19 +88,23 @@ class Navbar extends Component {
   }
 
   render() {
-    const className = classNames('navbar-brand-link', {
+    const navbarClass = classNames('navbar', 'sticky-top', 'navbar-expand-lg', {
+      loaded: !this.props.user.isLoading
+    });
+
+    const brandClass = classNames('navbar-brand-link', {
       show: this.state.showLogo
     });
 
     return (
-      <nav className="navbar sticky-top navbar-expand-lg">
-        <Link to={'/'} className={className}>
+      <nav className={navbarClass}>
+        <Link to={'/'} className={brandClass}>
           <Logo class="navbar-brand" />
         </Link>
-        {this.authStatus()}
+        {this.renderUserLinks()}
       </nav>
     );
   }
 }
 
-export default Navbar;
+export default withRouter(Navbar);

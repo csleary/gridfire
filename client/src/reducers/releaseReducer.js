@@ -32,7 +32,7 @@ const initialState = {
   collection: [],
   paymentAddress: '',
   priceInXem: '',
-  selectedRelease: false,
+  selectedRelease: { trackList: [] },
   userReleases: []
 };
 

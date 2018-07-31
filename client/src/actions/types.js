@@ -20,6 +20,7 @@ export const FETCH_USER = 'FETCH_USER';
 export const FETCH_USER_RELEASE = 'FETCH_USER_RELEASE';
 export const FETCH_USER_RELEASES = 'FETCH_USER_RELEASES';
 export const FETCH_XEM_PRICE = 'FETCH_XEM_PRICE';
+export const LOG_OUT = 'LOG_OUT';
 export const MOVE_TRACK = 'MOVE_TRACK';
 export const PLAY_TRACK = 'PLAY_TRACK';
 export const PLAYER_HIDE = 'PLAYER_HIDE';

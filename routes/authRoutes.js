@@ -47,10 +47,10 @@ module.exports = app => {
     }
   );
 
-  app.get('/api/logout', (req, res) => {
+  app.get('/api/auth/logout', (req, res) => {
     req.logout();
     delete req.user;
-    res.redirect('/');
+    res.send({ success: 'Thanks for visiting. You are now logged out.' });
   });
 
   app.get('/api/user', (req, res) => {

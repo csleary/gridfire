@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import 'lazysizes';
-import { fetchUser } from '../actions';
+import { fetchUser, logOut, toastSuccess } from '../actions';
 import About from './About';
 import ArtistPage from './ArtistPage';
 import Contact from './Contact';
@@ -63,7 +63,12 @@ class App extends Component {
       <BrowserRouter>
         <div className="app-wrapper">
           <Header />
-          <Navbar user={this.props.user} />
+          <Navbar
+            user={this.props.user}
+            fetchUser={this.props.fetchUser}
+            logOut={this.props.logOut}
+            toastSuccess={this.props.toastSuccess}
+          />
           <Switch>
             <Route exact path="/" component={Home} />
             <Route path="/register" component={Register} />
@@ -110,5 +115,5 @@ function mapStateToProps(state) {
 
 export default connect(
   mapStateToProps,
-  { fetchUser }
+  { fetchUser, logOut, toastSuccess }
 )(App);

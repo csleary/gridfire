@@ -6,10 +6,10 @@ import reduxThunk from 'redux-thunk';
 import 'bootstrap/dist/css/bootstrap.css';
 import '@ibm/type/css/ibm-type.min.css';
 import App from './components/App';
-import reducers from './reducers';
+import rootReducer from './reducers';
 import './style/index.css';
 
-const store = createStore(reducers, {}, applyMiddleware(reduxThunk));
+const store = createStore(rootReducer, {}, applyMiddleware(reduxThunk));
 
 ReactDOM.render(
   <Provider store={store}>
