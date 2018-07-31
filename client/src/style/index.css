@@ -236,6 +236,7 @@ img {
 }
 
 .lazyloaded {
+  backface-visibility: hidden;
   opacity: 1;
 }
 
