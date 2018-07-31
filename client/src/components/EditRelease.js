@@ -57,8 +57,8 @@ class EditRelease extends Component {
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
-        this.props.initialize(release);
         this.setArtwork();
+        this.props.initialize(release);
         this.setLoading(false);
       });
     } else {
@@ -164,7 +164,8 @@ class EditRelease extends Component {
             return this.props.transcodeAudio(releaseId, trackId, trackName);
           })
           .then(() => {
-            this.props.initialize(release);
+            const { hasAudio } = this.props.release.trackList[index];
+            this.props.change(`trackList[${index}].hasAudio`, hasAudio);
           })
           .catch(error =>
             this.props.toastError(`Upload failed! ${error.message}`)
@@ -184,7 +185,6 @@ class EditRelease extends Component {
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
-        this.props.initialize(release);
         resolve();
       });
     });

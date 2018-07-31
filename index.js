@@ -21,7 +21,7 @@ app.use(
   cookieSession({
     name: 'NEMp3 session',
     keys: [keys.cookieKey],
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 7 * 24 * 60 * 60 * 1000
   })
 );
 app.use(flash());
@@ -37,7 +37,6 @@ require('./routes/nemRoutes')(app);
 require('./routes/releaseRoutes')(app);
 require('./routes/trackRoutes')(app);
 
-// Ensure routing works correctly in production, using build files.
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.resolve(__dirname, 'client', 'build')));
   app.get('*', (req, res) => {
