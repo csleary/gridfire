@@ -178,13 +178,14 @@ class EditRelease extends Component {
       this.props.updateRelease(values).then(() => {
         const { release } = this.props;
         const { releaseTitle } = release;
-        // this.props.history.push('/dashboard');
         this.props.toastSuccess(
           `${(releaseTitle && `'${releaseTitle}'`) || 'Release'} saved!`
         );
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
+        this.props.initialize(release);
+        // this.props.history.push('/dashboard');
         resolve();
       });
     });
