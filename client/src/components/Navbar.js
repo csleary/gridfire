@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link, NavLink, withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
@@ -46,18 +46,16 @@ class Navbar extends Component {
     switch (user.auth) {
       case undefined:
         return (
-          <ul className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <NavLink to={'/login'} className="nav-link">
-                <FontAwesome name="sign-in" className="mr-1" />
-                <span className="nav-label">Log In</span>
-              </NavLink>
-            </li>
-          </ul>
+          <li className="nav-item">
+            <NavLink to={'/login'} className="nav-link">
+              <FontAwesome name="sign-in" className="mr-1" />
+              <span className="nav-label">Log In</span>
+            </NavLink>
+          </li>
         );
       default:
         return (
-          <ul className="navbar-nav ml-auto">
+          <Fragment>
             <li className="nav-item">
               <NavLink to={'/release/add/'} className="nav-link">
                 <FontAwesome name="plus-square" className="mr-1" />
@@ -82,13 +80,13 @@ class Navbar extends Component {
                 <span className="nav-label">Log out</span>
               </a>
             </li>
-          </ul>
+          </Fragment>
         );
     }
   }
 
   render() {
-    const navbarClass = classNames('navbar', 'sticky-top', 'navbar-expand-lg', {
+    const navbarClass = classNames('navbar-nav', 'ml-auto', {
       loaded: !this.props.user.isLoading
     });
 
@@ -97,11 +95,11 @@ class Navbar extends Component {
     });
 
     return (
-      <nav className={navbarClass}>
+      <nav className="navbar sticky-top navbar-expand-lg">
         <Link to={'/'} className={brandClass}>
           <Logo class="navbar-brand" />
         </Link>
-        {this.renderUserLinks()}
+        <ul className={navbarClass}>{this.renderUserLinks()}</ul>
       </nav>
     );
   }
