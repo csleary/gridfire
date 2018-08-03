@@ -25,7 +25,7 @@ class Login extends Component {
 
   login = async (values, callback) => {
     try {
-      const res = await axios.post('/auth/login', values);
+      const res = await axios.post('/api/auth/login', values);
       this.props.toastSuccess(res.data.success);
       callback();
     } catch (e) {
@@ -132,7 +132,9 @@ class Login extends Component {
           <div className="col-md d-flex align-items-center justify-content-center">
             <p>
               <FontAwesome name="google" className="mr-2" />
-              <a href="auth/google/">Log in with your Google credentials</a>.
+              <a href="api/auth/google/">
+                Log in with your Google credentials
+              </a>.
             </p>
           </div>
         </div>

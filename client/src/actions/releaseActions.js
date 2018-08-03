@@ -5,6 +5,7 @@ import {
   FETCH_RELEASE,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
+  SEARCH_RELEASES,
   TOAST_ERROR,
   UPDATE_RELEASE
 } from './types';
@@ -65,6 +66,15 @@ export const purchaseRelease = releaseId => async dispatch => {
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
+};
+
+export const searchReleases = searchQuery => async dispatch => {
+  const res = await axios.get('/api/search', {
+    params: {
+      searchQuery
+    }
+  });
+  dispatch({ type: SEARCH_RELEASES, payload: res.data, searchQuery });
 };
 
 export const updateRelease = values => async dispatch => {

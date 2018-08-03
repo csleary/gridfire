@@ -29,33 +29,22 @@ const idHash = emailAddress => {
 passport.use(
   'local-login',
   new LocalStrategy(
-    {
-      usernameField: 'email',
-      passReqToCallback: true
-    },
-    async (req, email, password, done) => {
+    { usernameField: 'email' },
+    async (email, password, done) => {
       try {
         const user = await User.findOne({ 'auth.email': email });
 
         if (!user) {
-          return done(
-            null,
-            false,
-            req.flash('error', 'Login details incorrect.')
-          );
+          return done(null, false, 'Login details incorrect.');
         }
 
         const isMatched = await user.comparePassword(password);
 
         if (!isMatched) {
-          return done(
-            null,
-            false,
-            req.flash('error', 'Login details incorrect.')
-          );
+          return done(null, false, 'Login details incorrect.');
         }
 
-        done(null, user, req.flash('success', 'Successfully logged in.'));
+        done(null, user);
       } catch (error) {
         return done(error);
       }
@@ -82,17 +71,13 @@ passport.use(
           },
           async (error, response, body) => {
             if (!JSON.parse(body).success) {
-              return done(null, false, req.flash('error', body['error-codes']));
+              return done(null, false, body['error-codes']);
             }
 
             const user = await User.findOne({ 'auth.email': email });
 
             if (user) {
-              return done(
-                null,
-                false,
-                req.flash('error', 'Email already in use.')
-              );
+              return done(null, false, 'Email already in use.');
             }
 
             const newUser = await new User({
@@ -103,25 +88,11 @@ passport.use(
               }
             }).save();
 
-            done(
-              null,
-              newUser,
-              req.flash(
-                'success',
-                'Thank you for registering. You are now logged in.'
-              )
-            );
+            done(null, newUser);
           }
         );
-      } catch (err) {
-        return done(
-          err,
-          null,
-          req.flash(
-            'error',
-            `Sorry, there was an error completing your request. ${err}`
-          )
-        );
+      } catch (error) {
+        return done(error);
       }
     }
   )
@@ -139,30 +110,22 @@ passport.use(
         const user = await User.findOne({ 'auth.email': email });
 
         if (!user) {
-          return done(null, false, req.flash('error', 'Incorrect username.'));
+          return done(null, false, 'Incorrect username.');
         }
 
         const isMatched = await user.comparePassword(password);
 
         if (!isMatched) {
-          return done(null, false, req.flash('error', 'Incorrect password.'));
+          return done(null, false, 'Incorrect password.');
         }
 
         if (req.body.passwordNew !== req.body.passwordConfirm) {
-          return done(
-            null,
-            false,
-            req.flash('error', 'Passwords do not match.')
-          );
+          return done(null, false, 'Passwords do not match.');
         }
 
         user.auth.password = req.body.passwordNew;
         user.save();
-        done(
-          null,
-          user,
-          req.flash('success', 'Password updated successfully.')
-        );
+        done(null, user);
       } catch (error) {
         return done(error);
       }
@@ -172,8 +135,8 @@ passport.use(
 
 const callbackURL =
   process.env.NODE_ENV === 'production' && process.env.NEM_NETWORK === 'mainnet'
-    ? 'https://nemp3.app/auth/google/callback'
-    : '/auth/google/callback';
+    ? 'https://nemp3.app/api/auth/google/callback'
+    : '/api/auth/google/callback';
 
 passport.use(
   new GoogleStrategy(

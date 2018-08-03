@@ -45,7 +45,7 @@ export const logOut = callback => async dispatch => {
 
 export const passwordUpdate = values => async dispatch => {
   try {
-    const res = await axios.post('/auth/update', values);
+    const res = await axios.post('/api/auth/update', values);
     dispatch({ type: TOAST_SUCCESS, text: res.data.success });
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });

@@ -64,4 +64,13 @@ module.exports = app => {
     );
     res.send(releases);
   });
+
+  // Search releases
+  app.get('/api/search', async (req, res) => {
+    const { searchQuery } = req.query;
+    const results = await Release.find({
+      $text: { $search: searchQuery }
+    }).limit(50);
+    res.send(results);
+  });
 };

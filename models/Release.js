@@ -37,4 +37,10 @@ const releaseSchema = new Schema(
   }
 );
 
+releaseSchema.index({
+  artistName: 'text',
+  releaseTitle: 'text',
+  'trackList.trackTitle': 'text'
+});
+
 mongoose.model('releases', releaseSchema);

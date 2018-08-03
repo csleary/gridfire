@@ -13,6 +13,7 @@ import {
   MOVE_TRACK,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
+  SEARCH_RELEASES,
   TRANSCODING_START,
   TRANSCODING_STOP,
   UPDATE_RELEASE,
@@ -33,6 +34,8 @@ const initialState = {
   paymentAddress: '',
   priceInXem: '',
   selectedRelease: { trackList: [] },
+  searchQuery: '',
+  searchResults: [],
   userReleases: []
 };
 
@@ -98,6 +101,12 @@ export default (state = initialState, action) => {
         paymentAddress: payload.paymentInfo.paymentAddress,
         paymentHash: payload.paymentInfo.paymentHash,
         priceInXem: payload.price
+      };
+    case SEARCH_RELEASES:
+      return {
+        ...state,
+        searchResults: payload,
+        searchQuery: action.searchQuery
       };
     case TRANSCODING_START:
       return {

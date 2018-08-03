@@ -29,6 +29,7 @@ export const PLAYER_PLAY = 'PLAYER_PLAY';
 export const PLAYER_STOP = 'PLAYER_STOP';
 export const PUBLISH_STATUS = 'PUBLISH_STATUS';
 export const PURCHASE_RELEASE = 'PURCHASE_RELEASE';
+export const SEARCH_RELEASES = 'SEARCH_RELEASES';
 export const TOAST_ERROR = 'TOAST_ERROR';
 export const TOAST_INFO = 'TOAST_INFO';
 export const TOAST_SUCCESS = 'TOAST_SUCCESS';
