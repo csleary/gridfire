@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import RenderRelease from './RenderRelease';
-import Spinner from './Spinner';
 import { fetchRelease, playTrack, toastInfo } from '../actions';
 import '../style/home.css';
 

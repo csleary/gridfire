@@ -1,18 +1,12 @@
-import debounce from 'lodash.debounce';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link, NavLink, withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
-import {
-  fetchCatalogue,
-  fetchUser,
-  logOut,
-  searchReleases,
-  toastSuccess
-} from '../actions';
+import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
 import Logo from './Logo';
+import SearchBar from './SearchBar';
 import '../style/navbar.css';
 
 class Navbar extends Component {
@@ -33,41 +27,6 @@ class Navbar extends Component {
     document.removeEventListener('scroll', this.handleScroll);
   }
 
-  handleSearchInput = e => {
-    this.setState({ searchQuery: e.target.value }, () => {
-      this.handleSearch();
-    });
-  };
-
-  handleSearchBlur = () => {
-    this.setState({ searchQuery: '', expandSearch: false });
-  };
-
-  handleSearchFocus = () => {
-    this.searchBar.focus();
-    this.setState({ expandSearch: true });
-  };
-
-  handleClearSearch = () => {
-    this.searchBar.focus();
-    this.setState({ searchQuery: '' });
-    this.handleSearch();
-  };
-
-  handleSearch = debounce(
-    () => {
-      const { searchQuery } = this.state;
-      this.props.searchReleases(searchQuery);
-    },
-    250,
-    { leading: false, trailing: true }
-  );
-
-  handleSubmit = e => {
-    e.preventDefault();
-    this.props.history.push('/searchResults');
-  };
-
   handleLogout() {
     this.props.logOut(res => {
       this.props.toastSuccess(res.data.success);
@@ -82,46 +41,6 @@ class Navbar extends Component {
 
     if (scrollPos < navbarPos) this.setState({ showLogo: false });
     else this.setState({ showLogo: true });
-  };
-
-  renderSearchPreview = () => {
-    const { searchResults } = this.props;
-    const { expandSearch, searchQuery } = this.state;
-
-    const previewClassNames = classNames('search-preview', {
-      expanded: expandSearch && searchResults.length
-    });
-    const clearSearchClassNames = classNames('clear-search-icon', {
-      show: searchQuery
-    });
-
-    const resultsList = searchResults.map(release => (
-      <Link
-        className="list-group-item list-group-item-action"
-        key={release._id}
-        to={`/release/${release._id}`}
-      >
-        {release.artistName} &bull; {release.releaseTitle}
-      </Link>
-    ));
-
-    return (
-      <Fragment>
-        <div className={previewClassNames}>
-          <ul className="list-group">{resultsList}</ul>
-        </div>
-        <FontAwesome
-          className="search-icon"
-          onClick={this.handleSearchFocus}
-          name="search"
-        />
-        <FontAwesome
-          className={clearSearchClassNames}
-          onClick={this.handleClearSearch}
-          name="times"
-        />
-      </Fragment>
-    );
   };
 
   renderUserLinks() {
@@ -180,33 +99,12 @@ class Navbar extends Component {
       show: this.state.showLogo
     });
 
-    const searchBarClassNames = classNames('form-control', 'search', {
-      expanded: this.state.expandSearch
-    });
-
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
         <Link to={'/'} className={brandClass}>
           <Logo class="navbar-brand" />
         </Link>
-        <form className="ml-3" onSubmit={this.handleSubmit}>
-          <div className="form-group d-flex align-items-center">
-            {this.renderSearchPreview()}
-            <input
-              className={searchBarClassNames}
-              onBlur={this.handleSearchBlur}
-              onChange={this.handleSearchInput}
-              onFocus={this.handleSearchFocus}
-              placeholder={this.state.expandSearch && 'Search…'}
-              ref={el => {
-                this.searchBar = el;
-              }}
-              tabIndex="-1"
-              type="text"
-              value={this.state.searchQuery}
-            />
-          </div>
-        </form>
+        <SearchBar />
         <ul className={navbarClass}>{this.renderUserLinks()}</ul>
       </nav>
     );
@@ -215,12 +113,11 @@ class Navbar extends Component {
 
 function mapStateToProps(state) {
   return {
-    searchResults: state.releases.searchResults,
     user: state.user
   };
 }
 
 export default connect(
   mapStateToProps,
-  { fetchCatalogue, fetchUser, logOut, searchReleases, toastSuccess }
+  { fetchCatalogue, fetchUser, logOut, toastSuccess }
 )(withRouter(Navbar));
