@@ -15,10 +15,15 @@ class Login extends Component {
   }
 
   onSubmit = values => {
+    const { location } = this.props;
     this.login(values, () => {
       this.props.fetchUser().then(() => {
         this.props.reset();
-        this.props.history.push('/');
+        if (location.state && location.state.from) {
+          this.props.history.push(location.state.from);
+        } else {
+          this.props.history.push('/');
+        }
       });
     });
   };
@@ -71,6 +76,7 @@ class Login extends Component {
 
   render() {
     const { handleSubmit, pristine, submitting, invalid } = this.props;
+
     return (
       <main className="container">
         <div className="row">

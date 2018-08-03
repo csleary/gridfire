@@ -22,23 +22,11 @@ class Dashboard extends Component {
     this.props.fetchUserReleases().then(this.props.fetchSales());
   }
 
-  renderPasswordChange() {
-    if (
-      this.props.user &&
-      !this.props.user.auth.googleId &&
-      this.props.user.auth.email
-    ) {
-      return (
-        <li className="nav-item">
-          <NavLink to={'/dashboard/password-update'} className="nav-link">
-            Password
-          </NavLink>
-        </li>
-      );
-    }
-  }
-
   render() {
+    const { user } = this.props;
+    const showPasswordChange =
+      user.auth.isLocal || (user && !user.auth.googleId && user.auth.email);
+
     return (
       <Fragment>
         <nav className="navbar navbar-expand-lg sub-menu">
@@ -58,7 +46,13 @@ class Dashboard extends Component {
                 Payment
               </NavLink>
             </li>
-            {this.renderPasswordChange()}
+            {showPasswordChange && (
+              <li className="nav-item">
+                <NavLink to={'/dashboard/password-update'} className="nav-link">
+                  Password
+                </NavLink>
+              </li>
+            )}
           </ul>
         </nav>
         <Switch>

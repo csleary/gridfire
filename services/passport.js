@@ -84,6 +84,7 @@ passport.use(
               auth: {
                 email,
                 idHash: idHash(email),
+                isLocal: true,
                 password
               }
             }).save();
@@ -159,6 +160,7 @@ passport.use(
             googleId: profile.id,
             email: profile.emails[0].value,
             idHash: idHash(profile.emails[0].value),
+            isLocal: false,
             name: profile.displayName
           }
         }).save();

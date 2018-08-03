@@ -47,7 +47,6 @@ nav.navbar a.navbar-brand-link {
   border: 0;
   display: flex;
   flex-direction: column;
-  margin-left: 15px;
   opacity: 0;
   visibility: hidden;
 }

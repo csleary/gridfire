@@ -31,6 +31,7 @@ export const fetchUserReleases = () => async dispatch => {
   dispatch({ type: FETCH_USER_RELEASES, isLoading: true });
   const res = await axios.get('/api/user/releases');
   dispatch({ type: FETCH_USER_RELEASES, isLoading: false, payload: res.data });
+  return res;
 };
 
 export const logOut = callback => async dispatch => {

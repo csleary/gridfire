@@ -45,49 +45,47 @@ class Navbar extends Component {
 
   renderUserLinks() {
     const { user } = this.props;
-
     if (user.isLoading) return null;
 
-    switch (user.auth) {
-      case undefined:
-        return (
-          <li className="nav-item">
-            <NavLink to={'/login'} className="nav-link">
-              <FontAwesome name="sign-in" className="mr-1" />
-              <span className="nav-label">Log In</span>
-            </NavLink>
-          </li>
-        );
-      default:
-        return (
-          <Fragment>
-            <li className="nav-item">
-              <NavLink to={'/release/add/'} className="nav-link">
-                <FontAwesome name="plus-square" className="mr-1" />
-                <span className="nav-label">Add Release</span>
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to={'/dashboard'} className="nav-link">
-                <FontAwesome name="user-circle" className="mr-1" />
-                <span className="nav-label">Dashboard</span>
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link"
-                tabIndex="-1"
-                onClick={() => this.handleLogout()}
-                role="button"
-                style={{ cursor: 'pointer' }}
-              >
-                <FontAwesome name="sign-out" className="mr-1" />
-                <span className="nav-label">Log out</span>
-              </a>
-            </li>
-          </Fragment>
-        );
+    if (!user.auth) {
+      return (
+        <li className="nav-item">
+          <NavLink to={'/login'} className="nav-link">
+            <FontAwesome name="sign-in" className="mr-1" />
+            <span className="nav-label">Log In</span>
+          </NavLink>
+        </li>
+      );
     }
+
+    return (
+      <Fragment>
+        <li className="nav-item">
+          <NavLink to={'/release/add/'} className="nav-link">
+            <FontAwesome name="plus-square" className="mr-1" />
+            <span className="nav-label">Add Release</span>
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to={'/dashboard'} className="nav-link">
+            <FontAwesome name="user-circle" className="mr-1" />
+            <span className="nav-label">Dashboard</span>
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <a
+            className="nav-link"
+            tabIndex="-1"
+            onClick={() => this.handleLogout()}
+            role="button"
+            style={{ cursor: 'pointer' }}
+          >
+            <FontAwesome name="sign-out" className="mr-1" />
+            <span className="nav-label">Log out</span>
+          </a>
+        </li>
+      </Fragment>
+    );
   }
 
   render() {
@@ -95,16 +93,16 @@ class Navbar extends Component {
       loaded: !this.props.user.isLoading
     });
 
-    const brandClass = classNames('navbar-brand-link', {
+    const brandClass = classNames('navbar-brand-link', 'ml-3', {
       show: this.state.showLogo
     });
 
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
+        <SearchBar />
         <Link to={'/'} className={brandClass}>
           <Logo class="navbar-brand" />
         </Link>
-        <SearchBar />
         <ul className={navbarClass}>{this.renderUserLinks()}</ul>
       </nav>
     );

@@ -67,18 +67,10 @@ class App extends Component {
           <Navbar />
           <Switch>
             <Route exact path="/" component={Home} />
-            <Route path="/about" component={About} />
-            <Route path="/artist/:artist" component={ArtistPage} />
-            <Route path="/contact" component={Contact} />
-            <Route path="/login" component={Login} />
             <Route path="/oauth/:service" component={Home} />
             <Route path="/register" component={Register} />
-            <Route
-              exact
-              strict
-              path="/release/:releaseId"
-              component={SelectedRelease}
-            />
+            <Route path="/about" component={About} />
+            <Route path="/login" component={Login} />
             <Route exact strict path="/reset" component={ForgotPassword} />
             <Route
               exact
@@ -86,15 +78,23 @@ class App extends Component {
               path="/reset/:token"
               component={ResetPassword}
             />
-            <Route path="/searchResults" component={SearchResults} />
+            <Route path="/contact" component={Contact} />
             <Route path="/support" component={Support} />
-            <PrivateRoute path="/dashboard" component={Dashboard} />
-            <PrivateRoute path="/payment/:releaseId" component={Payment} />
+            <Route path="/artist/:artist" component={ArtistPage} />
+            <Route
+              exact
+              strict
+              path="/release/:releaseId"
+              component={SelectedRelease}
+            />
+            <Route path="/searchResults" component={SearchResults} />
             <PrivateRoute path="/release/add/" component={EditRelease} />
             <PrivateRoute
               path="/release/edit/:releaseId"
               component={EditRelease}
             />
+            <PrivateRoute path="/payment/:releaseId" component={Payment} />
+            <PrivateRoute path="/dashboard" component={Dashboard} />
           </Switch>
           <Footer user={this.props.user} />
           <Player />
