@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import classNames from 'classnames';
 import moment from 'moment';
 import {
@@ -11,6 +11,7 @@ import {
   playerPause,
   playerPlay,
   playTrack,
+  searchReleases,
   toastInfo
 } from '../actions';
 import Spinner from './Spinner';
@@ -95,6 +96,10 @@ class SelectedRelease extends Component {
     }
   }
 
+  handleTagSearch = tag => {
+    this.props.searchReleases(tag).then(this.props.history.push('/search'));
+  };
+
   renderTrackList = () =>
     this.props.release.trackList.map(track => {
       const { trackTitle } = track;
@@ -152,7 +157,7 @@ class SelectedRelease extends Component {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading release&hellip;</h2>
+          <h2 className="mt-4">Loading release&hellip;</h2>
         </Spinner>
       );
     }
@@ -170,7 +175,8 @@ class SelectedRelease extends Component {
       recordLabel,
       releaseTitle,
       releaseDate,
-      trackList
+      trackList,
+      tags
     } = this.props.release;
     const releaseId = _id;
     const { isPlaying } = this.props.player;
@@ -179,6 +185,20 @@ class SelectedRelease extends Component {
     const trackListColumns = classNames('tracklist-wrapper', {
       columns: trackList.length > 10
     });
+
+    const releaseTags =
+      tags.length &&
+      tags.map(tag => (
+        <div
+          className="tag mr-2"
+          onClick={() => this.handleTagSearch(tag)}
+          role="button"
+          tabIndex="-1"
+          title={`Click to see more releases tagged with '${tag}'.`}
+        >
+          {tag}
+        </div>
+      ));
 
     return (
       <main className="container d-flex align-items-center">
@@ -275,6 +295,12 @@ class SelectedRelease extends Component {
                 )}
               </p>
             )}
+            {releaseTags.length && (
+              <Fragment>
+                <h6 className="red mb-3">Tags</h6>
+                <div className="tags">{releaseTags}</div>
+              </Fragment>
+            )}
           </div>
         </div>
       </main>
@@ -300,6 +326,7 @@ export default connect(
     playerPause,
     playerPlay,
     playTrack,
+    searchReleases,
     toastInfo
   }
-)(SelectedRelease);
+)(withRouter(SelectedRelease));

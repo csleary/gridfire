@@ -14,6 +14,7 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   SEARCH_RELEASES,
+  SEARCH_RELEASES_LOADING,
   TRANSCODING_START,
   TRANSCODING_STOP,
   UPDATE_RELEASE,
@@ -28,6 +29,7 @@ const initialState = {
   artworkUploadProgress: 0,
   audioUploadProgress: [],
   isLoading: false,
+  isSearching: false,
   isTranscoding: [],
   catalogue: [],
   collection: [],
@@ -107,6 +109,12 @@ export default (state = initialState, action) => {
         ...state,
         searchResults: payload,
         searchQuery: action.searchQuery
+      };
+    case SEARCH_RELEASES_LOADING:
+      return {
+        ...state,
+        isSearching: action.isSearching,
+        searchQuery: action.searchQuery || state.searchQuery
       };
     case TRANSCODING_START:
       return {

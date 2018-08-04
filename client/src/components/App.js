@@ -87,7 +87,7 @@ class App extends Component {
               path="/release/:releaseId"
               component={SelectedRelease}
             />
-            <Route path="/searchResults" component={SearchResults} />
+            <Route path="/search" component={SearchResults} />
             <PrivateRoute path="/release/add/" component={EditRelease} />
             <PrivateRoute
               path="/release/edit/:releaseId"

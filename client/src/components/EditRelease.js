@@ -434,7 +434,7 @@ class EditRelease extends Component {
                     toastSuccess={this.props.toastSuccess}
                     toastWarning={this.props.toastWarning}
                   />
-                  <div className="tags mb-5">
+                  <div className="tags mb-4">
                     <div className="form-group">
                       <label htmlFor="tagsInput">
                         Tags [

@@ -215,6 +215,7 @@ div.tag {
   cursor: pointer;
   display: inline-block;
   padding: 0.375rem 0.75rem;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   user-select: none;
 }
 

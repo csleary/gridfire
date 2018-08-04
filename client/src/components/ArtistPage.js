@@ -47,7 +47,7 @@ class ArtistPage extends Component {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading artist catalogue&hellip;</h2>
+          <h2 className="mt-4">Loading artist catalogue&hellip;</h2>
         </Spinner>
       );
     }

@@ -46,7 +46,7 @@ class Home extends Component {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading catalogue&hellip;</h2>
+          <h2 className="mt-4">Loading catalogue&hellip;</h2>
         </Spinner>
       );
     }

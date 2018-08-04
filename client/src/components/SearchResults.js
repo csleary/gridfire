@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import RenderRelease from './RenderRelease';
+import Spinner from './Spinner';
 import { fetchRelease, playTrack, toastInfo } from '../actions';
 import '../style/home.css';
 
@@ -36,7 +37,7 @@ class SearchResults extends Component {
       return (
         <Fragment>
           <h3 className="text-center mt-4">
-            {number} result{number === 1 ? '' : 's'} for &lsquo;{searchQuery}&rsquo;
+            {number} result{number === 1 ? '' : 's'} for &lsquo;{searchQuery}&rsquo;.
           </h3>
           <div className="front-page">{renderReleases}</div>
         </Fragment>
@@ -52,6 +53,16 @@ class SearchResults extends Component {
   }
 
   render() {
+    const { searchQuery } = this.props;
+
+    if (this.props.isSearching) {
+      return (
+        <Spinner>
+          <h3 className="mt-4">Searching for &lsquo;{searchQuery}&rsquo;…</h3>
+        </Spinner>
+      );
+    }
+
     return (
       <main className="container-fluid">
         <div className="row">
@@ -64,6 +75,7 @@ class SearchResults extends Component {
 
 function mapStateToProps(state) {
   return {
+    isSearching: state.releases.isSearching,
     searchQuery: state.releases.searchQuery,
     searchResults: state.releases.searchResults
   };

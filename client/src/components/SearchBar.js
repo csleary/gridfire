@@ -48,7 +48,7 @@ class Navbar extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.props.history.push('/searchResults');
+    this.props.history.push('/search');
   };
 
   render() {
