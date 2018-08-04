@@ -48,6 +48,25 @@ const Footer = props => (
             </ul>
           </div>
         )}
+      {props.user &&
+        props.user.auth && (
+          <div className="col-sm-2">
+            <ul>
+              <li>
+                <Link to={'/release/add/'}>Add Release</Link>
+              </li>
+              <li>
+                <Link to={'/dashboard'}>Dashboard</Link>
+              </li>
+              <li>
+                <Link to={'/dashboard/collection'}>Collection</Link>
+              </li>
+              <li>
+                <Link to={'/dashboard/nem-address'}>Your NEM Address</Link>
+              </li>
+            </ul>
+          </div>
+        )}
     </div>
     <div className="row mt-5">
       <div className="col">

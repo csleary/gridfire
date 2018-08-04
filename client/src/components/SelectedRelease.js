@@ -153,9 +153,30 @@ class SelectedRelease extends Component {
   }
 
   renderPurchaseButton() {
-    if (!this.props.release.price) return 'Name Your Price';
-    if (this.state.inCollection) return 'Transactions';
-    return 'Purchase';
+    if (!this.props.release.price) {
+      return (
+        <Fragment>
+          <FontAwesome name="qrcode" className="mr-2" />
+          Name Your Price
+        </Fragment>
+      );
+    }
+
+    if (this.state.inCollection) {
+      return (
+        <Fragment>
+          <FontAwesome name="check-circle" className="mr-2" />
+          Transactions
+        </Fragment>
+      );
+    }
+
+    return (
+      <Fragment>
+        <FontAwesome name="qrcode" className="mr-2" />
+        Purchase
+      </Fragment>
+    );
   }
 
   render() {

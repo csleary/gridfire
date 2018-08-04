@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
+import FontAwesome from 'react-fontawesome';
 import {
   deleteRelease,
   fetchSales,
@@ -33,22 +34,26 @@ class Dashboard extends Component {
           <ul className="navbar-nav mx-auto">
             <li className="nav-item">
               <NavLink exact to={'/dashboard'} className="nav-link">
+                <FontAwesome name="headphones" className="mr-1" />
                 Releases
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink exact to={'/dashboard/collection'} className="nav-link">
+                <FontAwesome name="archive" className="mr-1" />
                 My Collection
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink to={'/dashboard/nem-address'} className="nav-link">
+                <FontAwesome name="check-circle" className="mr-1" />
                 Payment
               </NavLink>
             </li>
             {showPasswordChange && (
               <li className="nav-item">
                 <NavLink to={'/dashboard/password-update'} className="nav-link">
+                  <FontAwesome name="key" className="mr-1" />
                   Password
                 </NavLink>
               </li>
