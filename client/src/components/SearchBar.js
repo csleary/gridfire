@@ -79,7 +79,18 @@ class Navbar extends Component {
       <form className="ml-3" onSubmit={this.handleSubmit}>
         <div className="form-group d-flex align-items-center">
           <div className={previewClassNames}>
-            <ul className="list-group">{resultsList}</ul>
+            <ul className="list-group">
+              {searchResults.length && (
+                <p className="m-3">
+                  <small>
+                    {searchResults.length} result{searchResults.length === 1
+                      ? ''
+                      : 's'}: (Hit return for the full grid view.)
+                  </small>
+                </p>
+              )}
+              {resultsList}
+            </ul>
           </div>
           <FontAwesome
             className="search-icon"
