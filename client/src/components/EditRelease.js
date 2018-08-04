@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Field, FieldArray, formValueSelector, reduxForm } from 'redux-form';
+import FontAwesome from 'react-fontawesome';
+import {
+  Field,
+  FieldArray,
+  formValueSelector,
+  getFormValues,
+  reduxForm
+} from 'redux-form';
 import axios from 'axios';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
@@ -36,9 +43,11 @@ class EditRelease extends Component {
     this.state = {
       isEditing: false,
       isLoading: false,
+      audioUploading: {},
       coverArtLoaded: false,
       coverArtPreview: false,
-      audioUploading: {}
+      tagsInput: '',
+      tagsError: null
     };
     this.artworkFile = null;
   }
@@ -185,7 +194,7 @@ class EditRelease extends Component {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
         this.props.initialize(release);
-        // this.props.history.push('/dashboard');
+        this.props.history.push('/dashboard');
         resolve();
       });
     });
@@ -209,6 +218,48 @@ class EditRelease extends Component {
 
   handleDeletePreview = () => {
     this.setState({ coverArtPreview: false });
+  };
+
+  handleTagsInput = event => {
+    const { value } = event.target;
+    let { tagsError } = this.state;
+    const { tags } = this.props.formValues;
+    tagsError = null;
+
+    if (tags.length >= 20) {
+      tagsError = 'Tag limit reached!';
+      this.setState({ tagsError });
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      const tag = value
+        .replace(/[^0-9a-z\s]/gi, '')
+        .trim()
+        .toLowerCase();
+
+      if (!tag.length) return;
+      const update = [...tags, tag];
+      this.props.change('tags', update);
+      this.setState({ tagsInput: '' });
+      return;
+    }
+    this.setState({ tagsInput: value });
+  };
+
+  handleRemoveTag = indexToDelete => {
+    const { tags } = this.props.formValues;
+    const update = tags.filter((tag, index) => index !== indexToDelete);
+    this.props.change('tags', update);
+
+    if (tags.length <= 20) {
+      this.setState({ tagsError: '' });
+    }
+  };
+
+  handleClearTags = () => {
+    this.props.change('tags', []);
+    this.setState({ tagsError: '' });
   };
 
   renderHeader() {
@@ -236,12 +287,31 @@ class EditRelease extends Component {
   }
 
   render() {
-    if (this.state.isLoading) return <Spinner />;
+    const { formValues } = this.props;
+    const { isLoading, tagsError } = this.state;
+
+    if (isLoading) return <Spinner />;
+
+    const tags =
+      formValues &&
+      formValues.tags.map((tag, index) => (
+        <div
+          className="tag mr-2 mb-2"
+          onClick={() => this.handleRemoveTag(index)}
+          role="button"
+          tabIndex="-1"
+          title={`Click to delete '${tag}'.`}
+        >
+          {tag}
+          <FontAwesome className="ml-2 remove-tag" name="times" />
+        </div>
+      ));
+
     return (
       <main className="container">
         <div className="row">
           <div className="col">
-            <form onSubmit={this.props.handleSubmit(this.onSubmit)}>
+            <form>
               <h2 className="text-center">{this.renderHeader()}</h2>
               {!this.state.isEditing && (
                 <p>
@@ -348,21 +418,79 @@ class EditRelease extends Component {
                     </div>
                   </div>
                 </div>
-                <RenderArtwork
-                  artworkFile={this.artworkFile}
-                  artworkUploading={this.props.artworkUploading}
-                  artworkUploadProgress={this.props.artworkUploadProgress}
-                  onArtworkLoad={this.onArtworkLoad}
-                  coverArtLoaded={this.state.coverArtLoaded}
-                  coverArtPreview={this.state.coverArtPreview}
-                  deleteArtwork={this.props.deleteArtwork}
-                  handleDeletePreview={this.handleDeletePreview}
-                  onDropArt={this.onDropArt}
-                  publishStatus={this.props.publishStatus}
-                  release={this.props.release}
-                  toastSuccess={this.props.toastSuccess}
-                  toastWarning={this.props.toastWarning}
-                />
+                <div className="col-md">
+                  <RenderArtwork
+                    artworkFile={this.artworkFile}
+                    artworkUploading={this.props.artworkUploading}
+                    artworkUploadProgress={this.props.artworkUploadProgress}
+                    onArtworkLoad={this.onArtworkLoad}
+                    coverArtLoaded={this.state.coverArtLoaded}
+                    coverArtPreview={this.state.coverArtPreview}
+                    deleteArtwork={this.props.deleteArtwork}
+                    handleDeletePreview={this.handleDeletePreview}
+                    onDropArt={this.onDropArt}
+                    publishStatus={this.props.publishStatus}
+                    release={this.props.release}
+                    toastSuccess={this.props.toastSuccess}
+                    toastWarning={this.props.toastWarning}
+                  />
+                  <div className="tags mb-5">
+                    <div className="form-group">
+                      <label htmlFor="tagsInput">
+                        Tags [
+                        <a
+                          onClick={this.handleClearTags}
+                          role="button"
+                          style={{ cursor: 'pointer' }}
+                          tabIndex="-1"
+                        >
+                          clear
+                        </a>]
+                      </label>
+                      <input
+                        className="form-control"
+                        id="tagsInput"
+                        disabled={this.state.tagsError}
+                        onChange={this.handleTagsInput}
+                        onKeyPress={this.handleTagsInput}
+                        type="text"
+                        value={this.state.tagsInput}
+                      />
+                      <small className="form-text text-muted">
+                        e.g. Genres, styles, prominent instruments, or guest
+                        artists, remixers, conductors etc. 20 tag max.
+                      </small>
+                      <div className="invalid-feedback">
+                        {tagsError && tagsError}
+                      </div>
+                    </div>
+                    <Field component="input" name="tags" type="hidden" />
+                    {tags && tags.length ? (
+                      <p>Tags set so far…</p>
+                    ) : (
+                      <p>
+                        No tags currently set for this release. We strongly
+                        recommend setting some tags as they are indexed for the
+                        search engine.
+                      </p>
+                    )}
+                    {tags && tags.length ? tags : null}
+                  </div>
+                  <div className="d-flex justify-content-end">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-lg"
+                      disabled={
+                        this.props.invalid ||
+                        this.props.pristine ||
+                        this.props.submitting
+                      }
+                      onClick={this.props.handleSubmit(this.onSubmit)}
+                    >
+                      {this.state.isEditing ? 'Update Release' : 'Add Release'}
+                    </button>
+                  </div>
+                </div>
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
               <p>You can drag and drop to reorder tracks.</p>
@@ -382,13 +510,14 @@ class EditRelease extends Component {
               />
               <div className="d-flex justify-content-end">
                 <button
-                  type="submit"
+                  type="button"
                   className="btn btn-outline-primary btn-lg"
                   disabled={
                     this.props.invalid ||
                     this.props.pristine ||
                     this.props.submitting
                   }
+                  onClick={this.props.handleSubmit(this.onSubmit)}
                 >
                   {this.state.isEditing ? 'Update Release' : 'Add Release'}
                 </button>
@@ -444,6 +573,7 @@ const validate = ({
 const fieldSelector = formValueSelector('releaseForm');
 
 const mapStateToProps = (state, ownProps) => ({
+  formValues: getFormValues('releaseForm')(state),
   artworkUploading: state.releases.artworkUploading,
   artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,

@@ -9,6 +9,7 @@ const RenderReleaseField = ({
   type
 }) => {
   const className = `form-group ${touched && error ? 'invalid' : ''}`;
+
   return (
     <div className={className}>
       <label htmlFor={name}>{label}</label>

@@ -29,6 +29,7 @@ const releaseSchema = new Schema(
         hasAudio: { type: Boolean, default: false }
       }
     ],
+    tags: [String],
     dateCreated: Date,
     published: { type: Boolean, default: false }
   },
@@ -40,7 +41,8 @@ const releaseSchema = new Schema(
 releaseSchema.index({
   artistName: 'text',
   releaseTitle: 'text',
-  'trackList.trackTitle': 'text'
+  'trackList.trackTitle': 'text',
+  tags: 'text'
 });
 
 mongoose.model('releases', releaseSchema);

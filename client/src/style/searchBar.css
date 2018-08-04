@@ -55,8 +55,9 @@ nav.navbar form div.search-preview .list-group {
   border: 0;
   border-radius: 0;
   border-bottom-right-radius: 0.5rem;
-  margin: 0 -16px;
-  padding: 3rem 0 1rem 0;
+  max-height: 24rem;
+  margin: 2rem -16px 0;
+  overflow-y: scroll;
   position: absolute;
   top: 0;
   right: 0;
@@ -68,6 +69,7 @@ nav.navbar form div.search-preview .list-group-item:first-child {
 }
 
 nav.navbar form div.search-preview .list-group-item:last-child {
+  border-bottom-right-radius: 0.5rem;
 }
 
 nav.navbar form div.search-preview .list-group-item {
@@ -77,8 +79,7 @@ nav.navbar form div.search-preview .list-group-item {
   padding: 0.5rem 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden;
 }
 
 nav.navbar form div.search-preview .list-group-item-action:hover {
