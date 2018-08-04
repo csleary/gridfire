@@ -129,6 +129,10 @@
   margin-bottom: 0;
 }
 
+.release-info div.tags {
+  margin-bottom: -0.5rem;
+}
+
 .release-info div.tag:hover {
   color: #18cdca;
 }

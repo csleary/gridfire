@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
+import uuidv4 from 'uuid/v4';
 import {
   Field,
   FieldArray,
@@ -297,6 +298,7 @@ class EditRelease extends Component {
       formValues.tags.map((tag, index) => (
         <div
           className="tag mr-2 mb-2"
+          key={uuidv4()}
           onClick={() => this.handleRemoveTag(index)}
           role="button"
           tabIndex="-1"

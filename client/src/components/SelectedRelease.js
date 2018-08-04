@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import classNames from 'classnames';
 import moment from 'moment';
+import uuidv4 from 'uuid/v4';
 import {
   fetchRelease,
   fetchUser,
@@ -36,6 +37,10 @@ class SelectedRelease extends Component {
         this.props.history.push('/');
         return;
       }
+
+      const tagLength = this.props.release.tags.length;
+      const tagKeys = Array.from({ length: tagLength }, () => uuidv4());
+      this.setState({ tagKeys });
 
       const inCollection =
         purchases &&
@@ -188,9 +193,10 @@ class SelectedRelease extends Component {
 
     const releaseTags =
       tags.length &&
-      tags.map(tag => (
+      tags.map((tag, index) => (
         <div
-          className="tag mr-2"
+          className="tag mr-2 mb-2"
+          key={this.state.tagKeys[index]}
           onClick={() => this.handleTagSearch(tag)}
           role="button"
           tabIndex="-1"
@@ -270,13 +276,13 @@ class SelectedRelease extends Component {
             )}
             {info && (
               <Fragment>
-                <h6 className="red">{info && 'Info'}</h6>
+                <h6 className="red mt-4">{info && 'Info'}</h6>
                 <p className="info">{info}</p>
               </Fragment>
             )}
             {credits && (
               <Fragment>
-                <h6 className="red">{credits && 'Credits'}</h6>
+                <h6 className="red mt-4">{credits && 'Credits'}</h6>
                 <p className="credits">{credits}</p>
               </Fragment>
             )}
@@ -297,7 +303,7 @@ class SelectedRelease extends Component {
             )}
             {releaseTags.length && (
               <Fragment>
-                <h6 className="red mb-3">Tags</h6>
+                <h6 className="red mt-4 mb-3">Tags</h6>
                 <div className="tags">{releaseTags}</div>
               </Fragment>
             )}

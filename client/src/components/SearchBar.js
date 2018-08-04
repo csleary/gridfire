@@ -85,7 +85,8 @@ class Navbar extends Component {
                   <small>
                     {searchResults.length} result{searchResults.length === 1
                       ? ''
-                      : 's'}: (Hit return for the full grid view.)
+                      : 's'}: (Hit return for the{' '}
+                    <Link to={'/search'}>full grid view</Link>.)
                   </small>
                 </p>
               )}

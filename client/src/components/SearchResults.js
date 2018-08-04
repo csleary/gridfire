@@ -46,8 +46,7 @@ class SearchResults extends Component {
 
     return (
       <h3 className="text-center mt-4">
-        Click on the search icon above to search for artists, releases, tracks
-        and tags.
+        Search for releases by artist, titles and tags.
       </h3>
     );
   }
