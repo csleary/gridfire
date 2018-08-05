@@ -13,32 +13,6 @@ class UserRelease extends Component {
     };
   }
 
-  copiesSold = () => {
-    const { salesData } = this.props;
-    const releaseId = this.props.release._id;
-
-    const releaseSales =
-      salesData &&
-      salesData.filter(release => release.releaseId === releaseId)[0];
-
-    const salesArray =
-      releaseSales && releaseSales.purchases.map(sale => sale.numSold);
-
-    const numSold = salesArray && salesArray.reduce((acc, el) => acc + el);
-    if (numSold) {
-      return (
-        <h6>
-          <FontAwesome
-            name="line-chart"
-            className="mr-2 red"
-            title="Number of copies sold."
-          />
-          {numSold}
-        </h6>
-      );
-    }
-  };
-
   handleDeleteRelease = () => {
     const { deleteRelease, release, toastWarning, toastSuccess } = this.props;
     const { releaseTitle } = release;
@@ -96,13 +70,36 @@ class UserRelease extends Component {
   render() {
     const { history, release } = this.props;
 
+    const numSold = this.props.numSold ? (
+      <h6>
+        <FontAwesome
+          name="line-chart"
+          className="mr-2 red"
+          title="Number of copies sold."
+        />
+        {this.props.numSold}
+      </h6>
+    ) : null;
+
+    const statusIcon = release.published ? (
+      <FontAwesome
+        name="check-circle"
+        className="cyan status-icon"
+        title={`'${release.releaseTitle}' is live and available for purchase.`}
+      />
+    ) : (
+      <FontAwesome
+        name="exclamation-circle"
+        className="yellow status-icon"
+        title={`'${release.releaseTitle}' is currently offline.`}
+      />
+    );
+
     return (
-      <li
-        className={`no-gutters d-flex flex-column release ${
-          release.published ? 'published' : 'unpublished'
-        }`}
-        key={release._id}
-      >
+      <li className="no-gutters d-flex flex-column release" key={release._id}>
+        <div className="status-icon-bg d-flex align-items-center justify-content-center">
+          {statusIcon}
+        </div>
         {release.artwork ? (
           <div className="artwork">
             <Link to={`/release/${release._id}`}>
@@ -121,8 +118,8 @@ class UserRelease extends Component {
             No artwork uploaded.
           </h6>
         )}
-        <div className="d-flex flex-column flex-grow-1">
-          <div className="release-details">
+        <div className="d-flex flex-column flex-grow-1 p-3">
+          <div className="release-details mb-3">
             <h6>{this.renderTitle(release)}</h6>
             <h6>
               <FontAwesome name="tag" className="mr-2 red" />
@@ -136,7 +133,7 @@ class UserRelease extends Component {
               <FontAwesome name="file-audio-o" className="mr-2 red" />
               {release.trackList.length} Tracks
             </h6>
-            {this.copiesSold()}
+            {numSold}
           </div>
           <div className="d-flex mt-auto">
             <button
