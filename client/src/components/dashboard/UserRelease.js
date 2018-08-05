@@ -97,9 +97,6 @@ class UserRelease extends Component {
 
     return (
       <li className="no-gutters d-flex flex-column release" key={release._id}>
-        <div className="status-icon-bg d-flex align-items-center justify-content-center">
-          {statusIcon}
-        </div>
         {release.artwork ? (
           <div className="artwork">
             <Link to={`/release/${release._id}`}>
@@ -118,6 +115,9 @@ class UserRelease extends Component {
             No artwork uploaded.
           </h6>
         )}
+        <div className="status-icon-bg d-flex align-items-center justify-content-center">
+          {statusIcon}
+        </div>
         <div className="d-flex flex-column flex-grow-1 p-3">
           <div className="release-details mb-3">
             <h6>{this.renderTitle(release)}</h6>
