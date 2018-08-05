@@ -79,8 +79,11 @@ class Dashboard extends Component {
               Please add a NEM address if you wish to sell music, as fan
               payments will be sent directly to this address.
             </p>
-            <form onSubmit={handleSubmit(this.onSubmit)}>
-              <div className="form-row mt-5">
+            <form
+              className="nem-address my-5 py-5"
+              onSubmit={handleSubmit(this.onSubmit)}
+            >
+              <div className="form-row">
                 <div className="col-md-9 mx-auto">
                   <Field
                     disabled={submitting}
@@ -91,7 +94,7 @@ class Dashboard extends Component {
                     component={this.renderNemAddressField}
                     validate={this.checkNemAddress}
                   />
-                  <div className="d-flex justify-content-center">
+                  <div className="d-flex justify-content-end">
                     <button
                       type="submit"
                       className="btn btn-outline-primary btn-lg"
@@ -116,10 +119,10 @@ class Dashboard extends Component {
             </p>
             <p>
               The mobile wallets are especially handy, as they are able to scan
-              the QR codes on the payment pages with their cameras, to fill in
-              payment details automatically (which you can confirm before
-              sending, naturally). This makes including the payment message code
-              with your payment amount foolproof.
+              the QR codes on the payment pages using the device&rsquo;s camera,
+              to fill in payment details automatically (which you can confirm
+              before sending, naturally). This makes including the payment
+              message code with your payment amount foolproof.
             </p>
             <p>
               Within any of the wallets, whether the desktop NanoWallet or the
