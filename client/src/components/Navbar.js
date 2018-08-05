@@ -20,7 +20,7 @@ class Navbar extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('scroll', throttle(this.handleScroll, 100));
+    document.addEventListener('scroll', throttle(this.handleScroll, 200));
   }
 
   componentWillUnmount() {
