@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
+import classNames from 'classnames';
 import {
   playTrack,
   playerHide,
@@ -66,17 +67,10 @@ class Player extends Component {
     });
   }
 
-  showPlayer() {
-    if (this.props.player.showPlayer) {
-      return 'show';
-    }
-    return '';
-  }
-
-  hidePlayer() {
+  hidePlayer = () => {
     this.props.playerHide();
     this.stopAudio();
-  }
+  };
 
   handleSeek(event) {
     const audioPlayer = document.getElementById('player');
@@ -87,7 +81,7 @@ class Player extends Component {
     audioPlayer.currentTime = audioPlayer.duration * percentage;
   }
 
-  playAudio() {
+  playAudio = () => {
     const audioPlayer = document.getElementById('player');
     if (this.props.player.isPlaying) {
       audioPlayer.pause();
@@ -96,25 +90,25 @@ class Player extends Component {
       audioPlayer.play();
       this.props.playerPlay();
     }
-  }
+  };
 
-  nextTrack(index) {
+  nextTrack = index => {
     this.props.playTrack(
       this.props.release._id,
       this.props.release.trackList[index]._id,
       this.props.release.artistName,
       this.props.release.trackList[index].trackTitle
     );
-  }
+  };
 
-  stopAudio() {
+  stopAudio = () => {
     const audioPlayer = document.getElementById('player');
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     this.props.playerStop();
-  }
+  };
 
-  renderPlayButton() {
+  renderPlayButton = () => {
     if (!this.state.ready || this.state.isSeeking) {
       return (
         <FontAwesome
@@ -128,7 +122,7 @@ class Player extends Component {
         <FontAwesome
           name="pause"
           className="player-button"
-          onClick={() => this.playAudio()}
+          onClick={this.playAudio}
         />
       );
     }
@@ -136,12 +130,12 @@ class Player extends Component {
       <FontAwesome
         name="play"
         className="player-button"
-        onClick={() => this.playAudio()}
+        onClick={this.playAudio}
       />
     );
-  }
+  };
 
-  renderTrackInfo() {
+  renderTrackInfo = () => {
     const { releaseId, artistName, trackTitle } = this.props.player;
     if (this.props.history.location.pathname !== `/release/${releaseId}`) {
       return (
@@ -155,11 +149,16 @@ class Player extends Component {
         {artistName} &bull; <em>{trackTitle}</em>
       </span>
     );
-  }
+  };
 
   render() {
+    const { showPlayer } = this.props.player;
+    const playerClassNames = classNames('player', {
+      show: showPlayer
+    });
+
     return (
-      <div className={`player ${this.showPlayer()}`}>
+      <div className={playerClassNames}>
         <audio
           id="player"
           src={this.props.player.audio}
@@ -169,7 +168,7 @@ class Player extends Component {
         <div
           className="seek-bar"
           id="seek-bar"
-          onClick={event => this.handleSeek(event)}
+          onClick={this.handleSeek}
           role="button"
           tabIndex="-1"
         >
@@ -185,7 +184,7 @@ class Player extends Component {
               <FontAwesome
                 name="stop"
                 className="player-button"
-                onClick={() => this.stopAudio()}
+                onClick={this.stopAudio}
               />
               <div
                 className="player-current-time align-middle"
@@ -211,7 +210,7 @@ class Player extends Component {
               <FontAwesome
                 name="chevron-circle-down"
                 className="player-button hide-player"
-                onClick={() => this.hidePlayer()}
+                onClick={this.hidePlayer}
                 title="Hide player (will stop audio)"
               />
             </div>
