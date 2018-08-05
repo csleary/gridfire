@@ -17,8 +17,8 @@ class UserReleases extends Component {
     const {
       deleteRelease,
       history,
+      numSold,
       publishStatus,
-      salesData,
       toastSuccess,
       toastWarning,
       userReleases
@@ -30,7 +30,7 @@ class UserReleases extends Component {
         history={history}
         key={release._id}
         publishStatus={publishStatus}
-        salesData={salesData}
+        numSold={numSold[release._id]}
         release={release}
         toastSuccess={toastSuccess}
         toastWarning={toastWarning}

@@ -18,9 +18,38 @@ import UserReleases from './dashboard/UserReleases';
 import '../style/dashboard.css';
 
 class Dashboard extends Component {
+  state = {
+    salesData: null
+  };
   componentDidMount() {
     window.scrollTo(0, 0);
-    this.props.fetchUserReleases().then(this.props.fetchSales());
+    this.props.fetchUserReleases().then(
+      this.props.fetchSales().then(() => {
+        this.props.userReleases.forEach(release => {
+          const sales = this.props.salesData.filter(
+            data => data.releaseId === release._id
+          )[0];
+
+          if (!sales) {
+            this.setState({
+              salesData: {
+                ...this.state.salesData,
+                [release._id]: 0
+              }
+            });
+            return;
+          }
+          const total = sales.purchases.map(sale => sale.numSold);
+          const sum = total.reduce((acc, el) => acc + el);
+          this.setState({
+            salesData: {
+              ...this.state.salesData,
+              [release._id]: sum
+            }
+          });
+        });
+      })
+    );
   }
 
   render() {
@@ -82,7 +111,7 @@ class Dashboard extends Component {
                 history={this.props.history}
                 isLoadingUserReleases={this.props.isLoadingUserReleases}
                 publishStatus={this.props.publishStatus}
-                salesData={this.props.salesData}
+                numSold={this.state.salesData || 0}
                 toastSuccess={this.props.toastSuccess}
                 toastWarning={this.props.toastWarning}
                 userReleases={this.props.userReleases}

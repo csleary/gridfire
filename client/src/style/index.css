@@ -186,6 +186,10 @@ a:focus {
   color: #ffd24d;
 }
 
+.cyan {
+  color: #18cdca;
+}
+
 .form-control {
   border: none;
   border-radius: 0.5rem;
