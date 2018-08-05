@@ -40,6 +40,10 @@ a.btn.add-release {
   min-width: auto;
 }
 
+form.nem-address {
+  background-color: hsla(233, 10%, 10%, 1);
+}
+
 .payment-address {
   font-size: 1.75rem;
   text-overflow: ellipsis;
@@ -91,7 +95,6 @@ a.btn.add-release {
 
 .user-releases .artwork {
   background: hsla(233, 10%, 10%, 1);
-  /* margin-bottom: 0.5rem; */
   width: 100%;
 }
 
