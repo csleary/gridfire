@@ -9,12 +9,11 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false
+      isLoading: true
     };
   }
 
   componentDidMount() {
-    this.setLoading();
     this.props.fetchCatalogue().then(() => {
       let { service } = this.props.match.params;
       if (service) {
@@ -27,12 +26,9 @@ class Home extends Component {
     });
   }
 
-  setLoading() {
-    this.setState({ isLoading: true });
-  }
-
   render() {
     const { catalogue } = this.props;
+
     const renderReleases = catalogue.map(release => (
       <RenderRelease
         fetchRelease={this.props.fetchRelease}

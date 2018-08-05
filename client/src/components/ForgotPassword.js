@@ -62,10 +62,10 @@ class ForgotPassword extends Component {
   };
 
   render() {
+    const { handleSubmit, pristine, submitting, invalid } = this.props;
     const { response } = this.state;
     const className =
       response && response.error ? 'alert-danger' : 'alert-success';
-    const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     return (
       <main className="container">

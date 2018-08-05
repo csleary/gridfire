@@ -21,6 +21,7 @@ class Dashboard extends Component {
   state = {
     salesData: null
   };
+
   componentDidMount() {
     window.scrollTo(0, 0);
     this.props.fetchUserReleases().then(
@@ -41,6 +42,7 @@ class Dashboard extends Component {
           }
           const total = sales.purchases.map(sale => sale.numSold);
           const sum = total.reduce((acc, el) => acc + el);
+
           this.setState({
             salesData: {
               ...this.state.salesData,

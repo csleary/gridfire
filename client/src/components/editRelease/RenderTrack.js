@@ -43,10 +43,10 @@ const RenderTrack = props => {
       draggable="true"
       onDragStart={() => props.handleDragStart(index)}
       onDragEnter={() => props.handleDragEnter(index)}
-      onDragOver={() => props.handleDragOver()}
-      onDragLeave={() => props.handleDragLeave()}
+      onDragOver={props.handleDragOver}
+      onDragLeave={props.handleDragLeave}
       onDrop={() => props.handleDrop(fields.move, index)}
-      onDragEnd={() => props.handleDragEnd()}
+      onDragEnd={props.handleDragEnd}
       onTouchStart={() => {}}
     >
       <Field

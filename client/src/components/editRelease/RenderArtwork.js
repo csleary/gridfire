@@ -8,6 +8,7 @@ const RenderArtwork = props => {
   const { coverArtLoaded, coverArtPreview, release } = props;
   const { _id, releaseTitle } = release;
   const releaseId = _id;
+
   const artworkClassNames = classNames('img-fluid', {
     lazyloaded: coverArtLoaded,
     lazyload: !coverArtLoaded
@@ -29,7 +30,7 @@ const RenderArtwork = props => {
             <div className="delete">
               <a
                 role="button"
-                tabIndex={-1}
+                tabIndex="-1"
                 onClick={() => {
                   let prevPublished = '';
 

@@ -14,24 +14,20 @@ class ArtistPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false
+      isLoading: true
     };
   }
 
   componentDidMount() {
     const { artist } = this.props.match.params;
-    this.setLoading();
     this.props
       .fetchArtistCatalogue(artist)
       .then(() => this.setState({ isLoading: false }));
   }
 
-  setLoading() {
-    this.setState({ isLoading: true });
-  }
-
   render() {
     const { releases, name } = this.props.artist;
+
     const renderReleases =
       releases &&
       releases.map(release => (

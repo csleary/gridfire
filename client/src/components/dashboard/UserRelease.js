@@ -110,7 +110,7 @@ class UserRelease extends Component {
             </Link>
           </div>
         ) : (
-          <h6>
+          <h6 className="m-3">
             <FontAwesome name="file-image-o" className="mr-2 red" />
             No artwork uploaded.
           </h6>

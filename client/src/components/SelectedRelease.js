@@ -161,7 +161,6 @@ class SelectedRelease extends Component {
         </Fragment>
       );
     }
-
     if (this.state.inCollection) {
       return (
         <Fragment>
@@ -170,7 +169,6 @@ class SelectedRelease extends Component {
         </Fragment>
       );
     }
-
     return (
       <Fragment>
         <FontAwesome name="qrcode" className="mr-2" />

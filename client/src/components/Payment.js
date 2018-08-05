@@ -124,14 +124,14 @@ class Payment extends Component {
                 <button
                   type="button"
                   className={paymentButtonQR}
-                  onClick={() => this.handleShowPaymentInfo()}
+                  onClick={this.handleShowPaymentInfo}
                 >
                   QR Scan
                 </button>
                 <button
                   type="button"
                   className={paymentButtonManual}
-                  onClick={() => this.handleShowPaymentInfo()}
+                  onClick={this.handleShowPaymentInfo}
                 >
                   Manual Payment
                 </button>
