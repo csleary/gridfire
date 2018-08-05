@@ -85,7 +85,8 @@ class Navbar extends Component {
                   <small>
                     {searchResults.length} result{searchResults.length === 1
                       ? ''
-                      : 's'}: (Hit return for the{' '}
+                      : 's'}{' '}
+                    for &lsquo;{searchQuery}&rsquo;: (Hit return for the{' '}
                     <Link to={'/search'}>full grid view</Link>.)
                   </small>
                 </p>
@@ -101,7 +102,8 @@ class Navbar extends Component {
           <FontAwesome
             className={clearSearchClassNames}
             onClick={this.handleClearSearch}
-            name="times"
+            name={this.props.isSearching ? 'circle-o-notch' : 'times'}
+            spin={this.props.isSearching}
           />
           <input
             className={searchBarClassNames}
@@ -124,6 +126,7 @@ class Navbar extends Component {
 
 function mapStateToProps(state) {
   return {
+    isSearching: state.releases.isSearching,
     searchResults: state.releases.searchResults
   };
 }

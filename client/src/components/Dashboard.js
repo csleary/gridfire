@@ -44,9 +44,19 @@ class Dashboard extends Component {
                 My Collection
               </NavLink>
             </li>
-            <li className="nav-item">
+            <li
+              className="nav-item"
+              title={
+                user.nemAddress
+                  ? 'Your NEM payment address.'
+                  : "You don't currently have a NEM payment address saved."
+              }
+            >
               <NavLink to={'/dashboard/nem-address'} className="nav-link">
-                <FontAwesome name="check-circle" className="mr-1" />
+                <FontAwesome
+                  name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
+                  className={`mr-1 ${!user.nemAddress && 'yellow'}`}
+                />
                 Payment
               </NavLink>
             </li>
