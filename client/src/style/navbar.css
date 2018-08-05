@@ -7,6 +7,15 @@ nav.navbar.sub-menu {
 
 .navbar-nav {
   flex-direction: row;
+  opacity: 0;
+  transform: translateY(0.25rem);
+  transition: all 2s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.navbar-nav.loaded,
+.navbar.sub-menu .navbar-nav {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 nav.navbar a {
@@ -38,7 +47,6 @@ nav.navbar a.navbar-brand-link {
   border: 0;
   display: flex;
   flex-direction: column;
-  margin-left: 15px;
   opacity: 0;
   visibility: hidden;
 }

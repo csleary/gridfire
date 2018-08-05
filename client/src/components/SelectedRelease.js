@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import classNames from 'classnames';
 import moment from 'moment';
+import uuidv4 from 'uuid/v4';
 import {
   fetchRelease,
   fetchUser,
@@ -11,6 +12,7 @@ import {
   playerPause,
   playerPlay,
   playTrack,
+  searchReleases,
   toastInfo
 } from '../actions';
 import Spinner from './Spinner';
@@ -35,6 +37,10 @@ class SelectedRelease extends Component {
         this.props.history.push('/');
         return;
       }
+
+      const tagLength = this.props.release.tags.length;
+      const tagKeys = Array.from({ length: tagLength }, () => uuidv4());
+      this.setState({ tagKeys });
 
       const inCollection =
         purchases &&
@@ -95,6 +101,10 @@ class SelectedRelease extends Component {
     }
   }
 
+  handleTagSearch = tag => {
+    this.props.searchReleases(tag).then(this.props.history.push('/search'));
+  };
+
   renderTrackList = () =>
     this.props.release.trackList.map(track => {
       const { trackTitle } = track;
@@ -143,16 +153,37 @@ class SelectedRelease extends Component {
   }
 
   renderPurchaseButton() {
-    if (!this.props.release.price) return 'Name Your Price';
-    if (this.state.inCollection) return 'Transactions';
-    return 'Purchase';
+    if (!this.props.release.price) {
+      return (
+        <Fragment>
+          <FontAwesome name="qrcode" className="mr-2" />
+          Name Your Price
+        </Fragment>
+      );
+    }
+
+    if (this.state.inCollection) {
+      return (
+        <Fragment>
+          <FontAwesome name="check-circle" className="mr-2" />
+          Transactions
+        </Fragment>
+      );
+    }
+
+    return (
+      <Fragment>
+        <FontAwesome name="qrcode" className="mr-2" />
+        Purchase
+      </Fragment>
+    );
   }
 
   render() {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading release&hellip;</h2>
+          <h2 className="mt-4">Loading release&hellip;</h2>
         </Spinner>
       );
     }
@@ -170,7 +201,8 @@ class SelectedRelease extends Component {
       recordLabel,
       releaseTitle,
       releaseDate,
-      trackList
+      trackList,
+      tags
     } = this.props.release;
     const releaseId = _id;
     const { isPlaying } = this.props.player;
@@ -179,6 +211,21 @@ class SelectedRelease extends Component {
     const trackListColumns = classNames('tracklist-wrapper', {
       columns: trackList.length > 10
     });
+
+    const releaseTags =
+      tags.length &&
+      tags.map((tag, index) => (
+        <div
+          className="tag mr-2 mb-2"
+          key={this.state.tagKeys[index]}
+          onClick={() => this.handleTagSearch(tag)}
+          role="button"
+          tabIndex="-1"
+          title={`Click to see more releases tagged with '${tag}'.`}
+        >
+          {tag}
+        </div>
+      ));
 
     return (
       <main className="container d-flex align-items-center">
@@ -250,13 +297,13 @@ class SelectedRelease extends Component {
             )}
             {info && (
               <Fragment>
-                <h6 className="red">{info && 'Info'}</h6>
+                <h6 className="red mt-4">{info && 'Info'}</h6>
                 <p className="info">{info}</p>
               </Fragment>
             )}
             {credits && (
               <Fragment>
-                <h6 className="red">{credits && 'Credits'}</h6>
+                <h6 className="red mt-4">{credits && 'Credits'}</h6>
                 <p className="credits">{credits}</p>
               </Fragment>
             )}
@@ -274,6 +321,12 @@ class SelectedRelease extends Component {
                   </Fragment>
                 )}
               </p>
+            )}
+            {releaseTags.length && (
+              <Fragment>
+                <h6 className="red mt-4 mb-3">Tags</h6>
+                <div className="tags">{releaseTags}</div>
+              </Fragment>
             )}
           </div>
         </div>
@@ -300,6 +353,7 @@ export default connect(
     playerPause,
     playerPlay,
     playTrack,
+    searchReleases,
     toastInfo
   }
-)(SelectedRelease);
+)(withRouter(SelectedRelease));

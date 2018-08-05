@@ -3,13 +3,13 @@ import {
   FETCH_USER,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
+  LOG_OUT,
   TOAST_ERROR,
   TOAST_SUCCESS
 } from './types';
 
 export const fetchUser = () => async dispatch => {
   try {
-    dispatch({ type: FETCH_USER, isLoading: true });
     const res = await axios.get('/api/user');
     dispatch({
       type: FETCH_USER,
@@ -31,11 +31,22 @@ export const fetchUserReleases = () => async dispatch => {
   dispatch({ type: FETCH_USER_RELEASES, isLoading: true });
   const res = await axios.get('/api/user/releases');
   dispatch({ type: FETCH_USER_RELEASES, isLoading: false, payload: res.data });
+  return res;
+};
+
+export const logOut = callback => async dispatch => {
+  try {
+    const res = await axios.get('/api/auth/logout');
+    dispatch({ type: LOG_OUT });
+    callback(res);
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+  }
 };
 
 export const passwordUpdate = values => async dispatch => {
   try {
-    const res = await axios.post('/auth/update', values);
+    const res = await axios.post('/api/auth/update', values);
     dispatch({ type: TOAST_SUCCESS, text: res.data.success });
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });

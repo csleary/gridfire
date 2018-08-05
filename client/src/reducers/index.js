@@ -7,8 +7,9 @@ import releaseReducer from './releaseReducer';
 import salesReducer from './salesReducer';
 import toastReducer from './toastReducer';
 import txReducer from './txReducer';
+import { LOG_OUT } from '../actions/types';
 
-export default combineReducers({
+const appReducer = combineReducers({
   form: formReducer,
   nem: nemReducer,
   player: playerReducer,
@@ -18,3 +19,13 @@ export default combineReducers({
   transactions: txReducer,
   user: authReducer
 });
+
+const rootReducer = (state, action) => {
+  if (action.type === LOG_OUT) {
+    state = undefined;
+  }
+
+  return appReducer(state, action);
+};
+
+export default rootReducer;

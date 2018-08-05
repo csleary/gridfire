@@ -34,12 +34,12 @@
   border-radius: 0;
   margin: 2rem -1rem;
   padding: 2rem 1rem;
-  transition: 0.2s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .payment-methods.manual {
   background: hsla(233, 10%, 20%, 1);
-  transition: 0.2s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .payment-methods p:last-of-type {

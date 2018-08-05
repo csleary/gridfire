@@ -1,16 +1,21 @@
-import React, { Component } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { Link, NavLink, withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
+import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
 import Logo from './Logo';
+import SearchBar from './SearchBar';
 import '../style/navbar.css';
 
 class Navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showLogo: false
+      searchQuery: '',
+      showLogo: false,
+      expandSearch: false
     };
   }
 
@@ -22,6 +27,14 @@ class Navbar extends Component {
     document.removeEventListener('scroll', this.handleScroll);
   }
 
+  handleLogout() {
+    this.props.logOut(res => {
+      this.props.toastSuccess(res.data.success);
+      this.props.fetchUser();
+      this.props.history.push('/login');
+    });
+  }
+
   handleScroll = () => {
     const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
     const scrollPos = window.pageYOffset;
@@ -30,67 +43,79 @@ class Navbar extends Component {
     else this.setState({ showLogo: true });
   };
 
-  authStatus() {
-    if (this.props.user.isLoading) {
-      return null;
+  renderUserLinks() {
+    const { user } = this.props;
+    if (user.isLoading) return null;
+
+    if (!user.auth) {
+      return (
+        <li className="nav-item">
+          <NavLink to={'/login'} className="nav-link">
+            <FontAwesome name="sign-in" className="mr-1" />
+            <span className="nav-label">Log In</span>
+          </NavLink>
+        </li>
+      );
     }
 
-    switch (this.props.user.auth) {
-      case null:
-        return null;
-      case undefined:
-        return (
-          <ul className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <NavLink to={'/login'} className="nav-link">
-                <FontAwesome name="sign-in" className="mr-1" />
-                <span className="nav-label">Log In</span>
-              </NavLink>
-            </li>
-          </ul>
-        );
-      default:
-        return (
-          <ul className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <NavLink to={'/release/add/'} className="nav-link">
-                <FontAwesome name="plus-square" className="mr-1" />
-                <span className="nav-label">Add Release</span>
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to={'/dashboard'} className="nav-link">
-                <FontAwesome name="user-circle" className="mr-1" />
-                <span className="nav-label">Dashboard</span>
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/api/logout">
-                <FontAwesome name="sign-out" className="mr-1" />
-                <span className="nav-label">Log out</span>
-              </a>
-            </li>
-          </ul>
-        );
-    }
+    return (
+      <Fragment>
+        <li className="nav-item">
+          <NavLink to={'/release/add/'} className="nav-link">
+            <FontAwesome name="plus-square" className="mr-1" />
+            <span className="nav-label">Add Release</span>
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to={'/dashboard'} className="nav-link">
+            <FontAwesome name="user-circle" className="mr-1" />
+            <span className="nav-label">Dashboard</span>
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <a
+            className="nav-link"
+            tabIndex="-1"
+            onClick={() => this.handleLogout()}
+            role="button"
+            style={{ cursor: 'pointer' }}
+          >
+            <FontAwesome name="sign-out" className="mr-1" />
+            <span className="nav-label">Log out</span>
+          </a>
+        </li>
+      </Fragment>
+    );
   }
 
   render() {
-    const className = classNames(
-      {
-        show: this.state.showLogo
-      },
-      'navbar-brand-link'
-    );
+    const navbarClass = classNames('navbar-nav', 'ml-auto', {
+      loaded: !this.props.user.isLoading
+    });
+
+    const brandClass = classNames('navbar-brand-link', 'ml-3', {
+      show: this.state.showLogo
+    });
+
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
-        <Link to={'/'} className={className}>
+        <SearchBar />
+        <Link to={'/'} className={brandClass}>
           <Logo class="navbar-brand" />
         </Link>
-        {this.authStatus()}
+        <ul className={navbarClass}>{this.renderUserLinks()}</ul>
       </nav>
     );
   }
 }
 
-export default Navbar;
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  { fetchCatalogue, fetchUser, logOut, toastSuccess }
+)(withRouter(Navbar));

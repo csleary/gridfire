@@ -19,6 +19,7 @@ import Player from './Player';
 import Register from './Register';
 import ResetPassword from './ResetPassword';
 import SelectedRelease from './SelectedRelease';
+import SearchResults from './SearchResults';
 import Spinner from './Spinner';
 import Support from './Support';
 import Toast from './Toast';
@@ -63,9 +64,10 @@ class App extends Component {
       <BrowserRouter>
         <div className="app-wrapper">
           <Header />
-          <Navbar user={this.props.user} />
+          <Navbar />
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route path="/oauth/:service" component={Home} />
             <Route path="/register" component={Register} />
             <Route path="/about" component={About} />
             <Route path="/login" component={Login} />
@@ -85,6 +87,7 @@ class App extends Component {
               path="/release/:releaseId"
               component={SelectedRelease}
             />
+            <Route path="/search" component={SearchResults} />
             <PrivateRoute path="/release/add/" component={EditRelease} />
             <PrivateRoute
               path="/release/edit/:releaseId"

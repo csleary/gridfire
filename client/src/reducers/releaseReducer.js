@@ -13,6 +13,8 @@ import {
   MOVE_TRACK,
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
+  SEARCH_RELEASES,
+  SEARCH_RELEASES_LOADING,
   TRANSCODING_START,
   TRANSCODING_STOP,
   UPDATE_RELEASE,
@@ -27,12 +29,15 @@ const initialState = {
   artworkUploadProgress: 0,
   audioUploadProgress: [],
   isLoading: false,
+  isSearching: false,
   isTranscoding: [],
   catalogue: [],
   collection: [],
   paymentAddress: '',
   priceInXem: '',
-  selectedRelease: false,
+  selectedRelease: { trackList: [] },
+  searchQuery: '',
+  searchResults: [],
   userReleases: []
 };
 
@@ -98,6 +103,18 @@ export default (state = initialState, action) => {
         paymentAddress: payload.paymentInfo.paymentAddress,
         paymentHash: payload.paymentInfo.paymentHash,
         priceInXem: payload.price
+      };
+    case SEARCH_RELEASES:
+      return {
+        ...state,
+        searchResults: payload,
+        searchQuery: action.searchQuery
+      };
+    case SEARCH_RELEASES_LOADING:
+      return {
+        ...state,
+        isSearching: action.isSearching,
+        searchQuery: action.searchQuery || state.searchQuery
       };
     case TRANSCODING_START:
       return {

@@ -15,7 +15,16 @@ class Home extends Component {
 
   componentDidMount() {
     this.setLoading();
-    this.props.fetchCatalogue().then(() => this.setState({ isLoading: false }));
+    this.props.fetchCatalogue().then(() => {
+      let { service } = this.props.match.params;
+      if (service) {
+        service = service.charAt(0).toUpperCase() + service.substring(1);
+        this.props.toastInfo(
+          `Thank you. You are now logged in using your ${service} account.`
+        );
+      }
+      this.setState({ isLoading: false });
+    });
   }
 
   setLoading() {
@@ -37,7 +46,7 @@ class Home extends Component {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading catalogue&hellip;</h2>
+          <h2 className="mt-4">Loading catalogue&hellip;</h2>
         </Spinner>
       );
     }

@@ -1,7 +1,6 @@
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const express = require('express');
-const flash = require('connect-flash');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const path = require('path');
@@ -24,7 +23,6 @@ app.use(
     maxAge: 7 * 24 * 60 * 60 * 1000
   })
 );
-app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 

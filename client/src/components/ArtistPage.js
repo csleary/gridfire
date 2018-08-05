@@ -47,7 +47,7 @@ class ArtistPage extends Component {
     if (this.state.isLoading) {
       return (
         <Spinner>
-          <h2>Loading artist catalogue&hellip;</h2>
+          <h2 className="mt-4">Loading artist catalogue&hellip;</h2>
         </Spinner>
       );
     }
@@ -55,7 +55,7 @@ class ArtistPage extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col">
-            <h2 className="text-center">{name}</h2>
+            <h2 className="artist-name text-center mt-4">{name}</h2>
             <h3>Releases</h3>
             <div className="front-page">{renderReleases}</div>
           </div>

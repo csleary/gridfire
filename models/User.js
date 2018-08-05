@@ -9,6 +9,7 @@ const UserSchema = new Schema(
       email: { type: String, trim: true },
       googleId: String,
       idHash: String,
+      isLocal: Boolean,
       name: String,
       password: String,
       resetToken: String,

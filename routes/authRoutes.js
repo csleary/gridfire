@@ -1,56 +1,99 @@
 const passport = require('passport');
 
 module.exports = app => {
-  app.post(
-    '/auth/login',
-    passport.authenticate('local-login', {
-      successRedirect: '/auth/success',
-      failureRedirect: '/auth/failure'
-    })
-  );
+  app.post('/api/auth/login', (req, res, next) => {
+    passport.authenticate('local-login', (error, user, info) => {
+      try {
+        if (error) {
+          throw new Error(error.message);
+        }
 
-  app.post(
-    '/auth/register',
-    passport.authenticate('local-register', {
-      successRedirect: '/auth/success',
-      failureRedirect: '/auth/failure'
-    })
-  );
+        if (!user) {
+          res.status(401).send({ error: info });
+        }
 
-  app.post(
-    '/auth/update',
-    passport.authenticate('local-update', {
-      successRedirect: '/auth/success',
-      failureRedirect: '/auth/failure',
-      failureFlash: true
-    })
-  );
+        req.logIn(user, logInError => {
+          if (logInError) {
+            throw new Error(`Login error: ${logInError.message}`);
+          }
 
-  app.get('/auth/success', (req, res) => {
-    res.send({ success: req.flash('success')[0] });
+          res.send({ success: 'Thank you. You are now logged in.' });
+        });
+      } catch (e) {
+        res.status(500).send({ error: e.message });
+      }
+    })(req, res, next);
   });
 
-  app.get('/auth/failure', (req, res) => {
-    res.status(401).send({ error: req.flash('error')[0] });
+  app.post('/api/auth/register', (req, res, next) => {
+    passport.authenticate('local-register', (error, user, info) => {
+      try {
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (!user) {
+          res.status(401).send({ error: info });
+        }
+
+        req.logIn(user, logInError => {
+          if (logInError) {
+            throw new Error(`Login error: ${logInError.message}`);
+          }
+
+          res.send({
+            success: 'Thank you for registering. You are now logged in.'
+          });
+        });
+      } catch (e) {
+        res.status(500).send({ error: e.message });
+      }
+    })(req, res, next);
+  });
+
+  app.post('/api/auth/update', (req, res, next) => {
+    passport.authenticate('local-update', (error, user, info) => {
+      try {
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (!user) {
+          res.status(401).send({ error: info });
+        }
+
+        req.logIn(user, logInError => {
+          if (logInError) {
+            throw new Error(`Login error: ${logInError.message}`);
+          }
+
+          res.send({
+            success: 'Thank you. Password updated successfully!'
+          });
+        });
+      } catch (e) {
+        res.status(500).send({ error: e.message });
+      }
+    })(req, res, next);
   });
 
   app.get(
-    '/auth/google',
+    '/api/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
   );
 
   app.get(
-    '/auth/google/callback',
+    '/api/auth/google/callback',
     passport.authenticate('google'),
     (req, res) => {
-      res.redirect('/');
+      res.redirect('/oauth/google');
     }
   );
 
-  app.get('/api/logout', (req, res) => {
+  app.get('/api/auth/logout', (req, res) => {
     req.logout();
     delete req.user;
-    res.redirect('/');
+    res.send({ success: 'Thanks for visiting. You are now logged out.' });
   });
 
   app.get('/api/user', (req, res) => {

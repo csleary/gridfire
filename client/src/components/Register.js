@@ -20,7 +20,7 @@ class Register extends Component {
 
   register = async (values, callback) => {
     try {
-      const res = await axios.post('/auth/register', values);
+      const res = await axios.post('/api/auth/register', values);
       this.props.toastSuccess(res.data.success);
       callback();
     } catch (e) {

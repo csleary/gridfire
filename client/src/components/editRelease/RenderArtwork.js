@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { Fragment } from 'react';
 import Dropzone from 'react-dropzone';
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from './ProgressBar';
@@ -14,7 +14,7 @@ const RenderArtwork = props => {
   });
 
   return (
-    <div className="col-md">
+    <Fragment>
       <h3 className="text-center">Artwork</h3>
       {coverArtPreview && (
         <div className="cover-art">
@@ -72,7 +72,7 @@ const RenderArtwork = props => {
           }
         />
       </Dropzone>
-    </div>
+    </Fragment>
   );
 };
 export default RenderArtwork;
