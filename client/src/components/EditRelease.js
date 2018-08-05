@@ -43,8 +43,7 @@ class EditRelease extends Component {
     super(props);
     this.state = {
       isEditing: false,
-      isLoading: false,
-      audioUploading: {},
+      isLoading: true,
       coverArtLoaded: false,
       coverArtPreview: false,
       tagsInput: '',
@@ -54,7 +53,6 @@ class EditRelease extends Component {
   }
 
   componentDidMount() {
-    this.setLoading(true);
     window.scrollTo(0, 0);
     this.props.fetchXemPrice();
     const { releaseId } = this.props.match.params;
@@ -62,20 +60,20 @@ class EditRelease extends Component {
     if (releaseId) {
       this.setEditing();
       this.props.fetchRelease(releaseId).then(() => {
+        this.setArtwork();
         const { release } = this.props;
 
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
-        this.setArtwork();
         this.props.initialize(release);
-        this.setLoading(false);
+        this.setState({ isLoading: false });
       });
     } else {
       this.props.addRelease().then(() => {
-        const release = this.props.release;
+        const { release } = this.props;
         this.props.initialize(release);
-        this.setLoading(false);
+        this.setState({ isLoading: false });
       });
     }
   }
@@ -186,11 +184,15 @@ class EditRelease extends Component {
   onSubmit = values =>
     new Promise(resolve => {
       this.props.updateRelease(values).then(() => {
-        const { release } = this.props;
-        const { releaseTitle } = release;
+        const {
+          release,
+          release: { releaseTitle }
+        } = this.props;
+
         this.props.toastSuccess(
           `${(releaseTitle && `'${releaseTitle}'`) || 'Release'} saved!`
         );
+
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
@@ -199,12 +201,6 @@ class EditRelease extends Component {
         resolve();
       });
     });
-
-  setLoading(boolean) {
-    this.setState({
-      isLoading: boolean
-    });
-  }
 
   setEditing() {
     this.setState({ isEditing: true });
@@ -270,12 +266,12 @@ class EditRelease extends Component {
     if (isEditing && releaseTitle) {
       return `Editing '${releaseTitle}'`;
     } else if (isEditing) {
-      return 'Editing Untitled Release';
+      return 'Editing Release';
     }
     return 'Add Release';
   }
 
-  renderPriceformText() {
+  renderPriceFormText() {
     const { price, xemPriceUsd } = this.props;
     if (!xemPriceUsd) return;
     const convertedPrice = (price / xemPriceUsd).toFixed(2);
@@ -288,8 +284,21 @@ class EditRelease extends Component {
   }
 
   render() {
-    const { formValues } = this.props;
-    const { isLoading, tagsError } = this.state;
+    const { formValues, invalid, pristine, submitting } = this.props;
+    const { isEditing, isLoading, tagsError } = this.state;
+
+    const submitButton = (
+      <div className="d-flex justify-content-end">
+        <button
+          type="button"
+          className="btn btn-outline-primary btn-lg"
+          disabled={invalid || pristine || submitting}
+          onClick={this.props.handleSubmit(this.onSubmit)}
+        >
+          {isEditing ? 'Update Release' : 'Add Release'}
+        </button>
+      </div>
+    );
 
     if (isLoading) return <Spinner />;
 
@@ -314,8 +323,8 @@ class EditRelease extends Component {
         <div className="row">
           <div className="col">
             <form>
-              <h2 className="text-center">{this.renderHeader()}</h2>
-              {!this.state.isEditing && (
+              <h2 className="text-center mt-4">{this.renderHeader()}</h2>
+              {!isEditing && (
                 <p>
                   Please enter your release info below. Artwork and audio will
                   be saved instantly after uploading.
@@ -347,7 +356,7 @@ class EditRelease extends Component {
                   />
                   <Field
                     component={RenderReleaseField}
-                    formText={this.renderPriceformText()}
+                    formText={this.renderPriceFormText()}
                     label="Price (USD)"
                     name="price"
                     required
@@ -478,20 +487,7 @@ class EditRelease extends Component {
                     )}
                     {tags && tags.length ? tags : null}
                   </div>
-                  <div className="d-flex justify-content-end">
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary btn-lg"
-                      disabled={
-                        this.props.invalid ||
-                        this.props.pristine ||
-                        this.props.submitting
-                      }
-                      onClick={this.props.handleSubmit(this.onSubmit)}
-                    >
-                      {this.state.isEditing ? 'Update Release' : 'Add Release'}
-                    </button>
-                  </div>
+                  {submitButton}
                 </div>
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
@@ -510,20 +506,7 @@ class EditRelease extends Component {
                 release={this.props.release}
                 toastSuccess={this.props.toastSuccess}
               />
-              <div className="d-flex justify-content-end">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary btn-lg"
-                  disabled={
-                    this.props.invalid ||
-                    this.props.pristine ||
-                    this.props.submitting
-                  }
-                  onClick={this.props.handleSubmit(this.onSubmit)}
-                >
-                  {this.state.isEditing ? 'Update Release' : 'Add Release'}
-                </button>
-              </div>
+              {submitButton}
             </form>
           </div>
         </div>
@@ -575,12 +558,12 @@ const validate = ({
 const fieldSelector = formValueSelector('releaseForm');
 
 const mapStateToProps = (state, ownProps) => ({
-  formValues: getFormValues('releaseForm')(state),
   artworkUploading: state.releases.artworkUploading,
   artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,
   audioUploadProgress: state.releases.audioUploadProgress,
   audioUploadUrl: state.releases.audioUploadUrl,
+  formValues: getFormValues('releaseForm')(state),
   initialValues: ownProps.release,
   isAddingTrack: state.releases.isAddingTrack,
   isDeletingTrack: state.releases.isDeletingTrack,

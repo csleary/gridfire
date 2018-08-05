@@ -20,27 +20,30 @@ class Navbar extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('scroll', throttle(this.handleScroll, 100));
+    document.addEventListener('scroll', throttle(this.handleScroll, 200));
   }
 
   componentWillUnmount() {
     document.removeEventListener('scroll', this.handleScroll);
   }
 
-  handleLogout() {
+  handleLogout = () => {
     this.props.logOut(res => {
       this.props.toastSuccess(res.data.success);
       this.props.fetchUser();
       this.props.history.push('/login');
     });
-  }
+  };
 
   handleScroll = () => {
     const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
     const scrollPos = window.pageYOffset;
 
-    if (scrollPos < navbarPos) this.setState({ showLogo: false });
-    else this.setState({ showLogo: true });
+    if (scrollPos < navbarPos) {
+      this.setState({ showLogo: false });
+    } else {
+      this.setState({ showLogo: true });
+    }
   };
 
   renderUserLinks() {
@@ -76,7 +79,7 @@ class Navbar extends Component {
           <a
             className="nav-link"
             tabIndex="-1"
-            onClick={() => this.handleLogout()}
+            onClick={this.handleLogout}
             role="button"
             style={{ cursor: 'pointer' }}
           >

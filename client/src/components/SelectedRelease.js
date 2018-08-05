@@ -29,10 +29,10 @@ class SelectedRelease extends Component {
 
   componentDidMount() {
     const { releaseId } = this.props.match.params;
-    const { purchases } = this.props.user;
     this.props.fetchUser();
     this.props.fetchXemPrice();
     this.props.fetchRelease(releaseId).then(() => {
+      const { purchases } = this.props.user;
       if (!this.props.release) {
         this.props.history.push('/');
         return;
@@ -45,7 +45,7 @@ class SelectedRelease extends Component {
       const inCollection =
         purchases &&
         purchases.some(
-          currentRelease => releaseId === currentRelease.releaseId
+          currentRelease => currentRelease.releaseId === releaseId
         );
 
       if (inCollection) this.setState({ inCollection: true });
@@ -161,7 +161,6 @@ class SelectedRelease extends Component {
         </Fragment>
       );
     }
-
     if (this.state.inCollection) {
       return (
         <Fragment>
@@ -170,7 +169,6 @@ class SelectedRelease extends Component {
         </Fragment>
       );
     }
-
     return (
       <Fragment>
         <FontAwesome name="qrcode" className="mr-2" />
@@ -257,13 +255,25 @@ class SelectedRelease extends Component {
             <h2 className="release-title text-center ibm-type-italic">
               {releaseTitle}
               {this.state.inCollection && (
-                <Link to={'/dashboard/collection'}>
-                  <FontAwesome
-                    className="in-collection ml-2 yellow"
-                    name="certificate"
-                    title="This release is in your collection."
-                  />
-                </Link>
+                <Fragment>
+                  <div className="in-collection-corner" />
+                  <Link to={'/dashboard/collection'}>
+                    <div className="in-collection-rosette d-flex align-items-center justify-content-center">
+                      <FontAwesome
+                        className="rosette-outer"
+                        name="certificate"
+                        title="This release is in your collection."
+                      />
+                    </div>
+                    <div className="in-collection-rosette d-flex align-items-center justify-content-center">
+                      <FontAwesome
+                        className="rosette-inner"
+                        name="circle"
+                        title="This release is in your collection."
+                      />
+                    </div>
+                  </Link>
+                </Fragment>
               )}
             </h2>
             <h4 className="artist-name text-center">

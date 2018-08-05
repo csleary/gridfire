@@ -78,6 +78,40 @@
 .release-info {
   background: hsla(233, 10%, 10%, 1);
   padding: 1rem;
+  position: relative;
+}
+
+.release-info .in-collection-corner {
+  border-top: 4rem solid #ffd24d;
+  border-left: 4rem solid transparent;
+  height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+}
+
+.release-info .in-collection-rosette {
+  height: 2.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2.5rem;
+}
+
+.release-info .in-collection-rosette .rosette-outer {
+  color: hsla(233, 10%, 10%, 1);
+  font-size: 1.8rem;
+}
+
+.release-info .in-collection-rosette .rosette-inner {
+  color: #f0f0f1;
+  font-size: 0.9rem;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.release-info .in-collection-rosette .rosette-inner:hover {
+  color: #18cdca;
 }
 
 .release-info .release-title {
@@ -87,11 +121,6 @@
 
 .release-info .artist-name a {
   font-weight: 400;
-}
-
-.release-info .in-collection {
-  font-size: 1rem;
-  vertical-align: top;
 }
 
 .release-info .release-price {

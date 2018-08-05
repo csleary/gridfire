@@ -18,6 +18,7 @@ class RenderTrackList extends Component {
     const { trackTitle } = this.props.release.trackList[index];
     this.handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
+
       this.setState({
         deletingTracks: [...this.state.deletingTracks, index]
       });
@@ -26,6 +27,7 @@ class RenderTrackList extends Component {
         this.props.release.trackList[index]._id,
         () => {
           remove(index);
+
           this.props.toastSuccess(
             `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
           );
@@ -44,8 +46,7 @@ class RenderTrackList extends Component {
       `Are you sure you want to delete ${(title && `'${title}'`) ||
         'this track'}?`
     );
-    if (confirmation) callback(true);
-    else callback(false);
+    callback(confirmation);
   };
 
   handleAddTrack = push => {

@@ -6,15 +6,13 @@ import '../style/footer.css';
 const today = new Date();
 const year = today.getFullYear();
 
-const networkLinks = () => {
-  if (
-    process.env.REACT_APP_NEM_NETWORK === 'testnet' ||
-    process.env.NODE_ENV === 'development'
-  ) {
-    return <a href="https://nemp3.app/">Mainnet version</a>;
-  }
-  return <a href="https://nemp3v2-testnet.herokuapp.com/">Testnet version</a>;
-};
+const networkLinks =
+  process.env.REACT_APP_NEM_NETWORK === 'testnet' ||
+  process.env.NODE_ENV === 'development' ? (
+    <a href="https://nemp3.app/">Mainnet version</a>
+  ) : (
+    <a href="https://nemp3v2-testnet.herokuapp.com/">Testnet version</a>
+  );
 
 const Footer = props => (
   <footer className="container-fluid">
@@ -76,7 +74,7 @@ const Footer = props => (
             {year} <a href="https://ochremusic.com">Christopher Leary</a>
           </p>
           <p className="text-center">
-            {networkLinks()} | <a href="https://nem.io/">NEM</a>
+            {networkLinks} | <a href="https://nem.io/">NEM</a>
           </p>
         </small>
         <div className="text-center social">
