@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
-
-const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
+import CLOUD_URL from '../index';
 
 const RenderRelease = props => {
   const { release, variation } = props;

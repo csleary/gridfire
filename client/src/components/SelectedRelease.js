@@ -15,10 +15,9 @@ import {
   searchReleases,
   toastInfo
 } from '../actions';
+import CLOUD_URL from '../index';
 import Spinner from './Spinner';
 import '../style/selectedRelease.css';
-
-const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
 
 class SelectedRelease extends Component {
   constructor(props) {
