@@ -71,7 +71,7 @@ class ForgotPassword extends Component {
       <main className="container">
         <div className="row">
           <div className="col py-3 mb-4">
-            <h2 className="text-center red mt-4">Reset Password</h2>
+            <h2 className="text-center mt-4">Reset Password</h2>
             <p className="text-center">
               Please enter your account email address below and submit to
               receive a password reset link, valid for an hour.

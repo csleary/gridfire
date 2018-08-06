@@ -77,13 +77,13 @@
 
 @media (min-width: 1200px) {
   .front-page {
-    grid-template-columns: repeat(auto-fit, minmax(18rem, 0.25fr));
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 0.34fr));
   }
 }
 
 @media (min-width: 1600px) {
   .front-page {
-    grid-template-columns: repeat(auto-fit, minmax(22rem, 0.25fr));
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 0.34fr));
   }
 
   .front-page .cover-artwork .cover-artwork-overlay {
