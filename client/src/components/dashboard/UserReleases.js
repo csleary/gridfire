@@ -54,7 +54,7 @@ class UserReleases extends Component {
       return (
         <main className="container">
           <div className="row">
-            <div className="col py-3">
+            <div className="col p-3">
               <h3 className="text-center mt-4">Add your first release</h3>
               <p className="text-center">
                 You don&rsquo;t currently have any releases for sale. Please hit

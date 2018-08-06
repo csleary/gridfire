@@ -97,7 +97,7 @@ const TransactionsList = props => {
         {transactions.length} Confirmed Transaction{transactions.length > 1 &&
           's'}:
       </h5>
-      <table className="table table-sm table-striped table-dark">
+      <table className="table table-sm table-striped table-dark mb-5">
         <thead>
           <tr>
             <th scope="col" className="col-item">

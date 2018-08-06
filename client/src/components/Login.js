@@ -81,7 +81,7 @@ class Login extends Component {
       <main className="container">
         <div className="row">
           <div className="col py-3">
-            <h2 className="red text-center mt-4">Log In</h2>
+            <h2 className="text-center mt-4">Log In</h2>
           </div>
         </div>
         <div className="row">
