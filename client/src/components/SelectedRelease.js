@@ -18,6 +18,8 @@ import {
 import Spinner from './Spinner';
 import '../style/selectedRelease.css';
 
+const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
+
 class SelectedRelease extends Component {
   constructor(props) {
     super(props);
@@ -233,7 +235,7 @@ class SelectedRelease extends Component {
               <img
                 alt={releaseTitle}
                 className="lazyload img-fluid"
-                data-src={artwork}
+                data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
               />
               <div

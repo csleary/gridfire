@@ -2,17 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 
+const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
+
 const RenderRelease = props => {
   const { release, variation } = props;
-  const { artist, artistName, _id, releaseTitle, artwork, trackList } = release;
+  const { _id, artist, artistName, artwork, releaseTitle, trackList } = release;
+  const releaseId = _id;
 
   return (
-    <div className="cover-artwork" key={release._id} onTouchStart={() => {}}>
+    <div className="cover-artwork" key={releaseId} onTouchStart={() => {}}>
       <img
         alt={`${artistName} - ${releaseTitle}`}
         className="lazyload artwork"
         data-sizes="auto"
-        data-src={artwork || null}
+        data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
         src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
       />
       <div
@@ -28,19 +31,19 @@ const RenderRelease = props => {
             name="play"
             onClick={() => {
               props.playTrack(
-                _id,
+                releaseId,
                 trackList[0]._id,
                 artistName,
                 trackList[0].trackTitle
               );
-              props.fetchRelease(_id);
+              props.fetchRelease(releaseId);
               props.toastInfo(
                 `Loading ${artistName} - '${trackList[0].trackTitle}'`
               );
             }}
             title={`Play '${releaseTitle}', by ${artistName}`}
           />
-          <Link to={`/release/${_id}`}>
+          <Link to={`/release/${releaseId}`}>
             <FontAwesome
               className="info"
               name="info-circle"
@@ -54,7 +57,7 @@ const RenderRelease = props => {
               className="download"
               name="download"
               onClick={() => {
-                props.fetchDownloadToken(_id, downloadToken => {
+                props.fetchDownloadToken(releaseId, downloadToken => {
                   if (downloadToken) {
                     props.toastInfo(
                       `Fetching download: ${artistName} - '${releaseTitle}'`
@@ -68,7 +71,7 @@ const RenderRelease = props => {
           </div>
         )}
         <div className="release-title">
-          <Link to={`/release/${_id}`}>{releaseTitle}</Link>
+          <Link to={`/release/${releaseId}`}>{releaseTitle}</Link>
         </div>
       </div>
     </div>

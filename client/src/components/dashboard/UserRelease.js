@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
 
+const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
+
 class UserRelease extends Component {
   constructor(props) {
     super(props);
@@ -68,7 +70,20 @@ class UserRelease extends Component {
   };
 
   render() {
-    const { history, release } = this.props;
+    const {
+      history,
+      release,
+      release: {
+        _id,
+        artwork,
+        price,
+        published,
+        releaseDate,
+        releaseTitle,
+        trackList
+      }
+    } = this.props;
+    const releaseId = _id;
 
     const numSold = this.props.numSold ? (
       <h6>
@@ -81,30 +96,30 @@ class UserRelease extends Component {
       </h6>
     ) : null;
 
-    const statusIcon = release.published ? (
+    const statusIcon = published ? (
       <FontAwesome
         name="check-circle"
         className="cyan status-icon"
-        title={`'${release.releaseTitle}' is live and available for purchase.`}
+        title={`'${releaseTitle}' is live and available for purchase.`}
       />
     ) : (
       <FontAwesome
         name="exclamation-circle"
         className="yellow status-icon"
-        title={`'${release.releaseTitle}' is currently offline.`}
+        title={`'${releaseTitle}' is currently offline.`}
       />
     );
 
     return (
-      <li className="no-gutters d-flex flex-column release" key={release._id}>
-        {release.artwork ? (
+      <li className="no-gutters d-flex flex-column release" key={releaseId}>
+        {artwork ? (
           <div className="artwork">
-            <Link to={`/release/${release._id}`}>
+            <Link to={`/release/${releaseId}`}>
               <img
-                alt={release.artwork && `'${release.releaseTitle}' Artwork`}
+                alt={artwork && `'${releaseTitle}' Artwork`}
                 className="lazyload img-fluid"
                 data-sizes="auto"
-                data-src={release.artwork ? release.artwork : null}
+                data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
               />
             </Link>
@@ -123,21 +138,21 @@ class UserRelease extends Component {
             <h6>{this.renderTitle(release)}</h6>
             <h6>
               <FontAwesome name="tag" className="mr-2 red" />
-              ${release.price} USD
+              ${price} USD
             </h6>
             <h6>
               <FontAwesome name="calendar-o" className="mr-2 red" />
-              {moment(new Date(release.releaseDate)).format('Do of MMM, YYYY')}
+              {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
             </h6>
             <h6>
               <FontAwesome name="file-audio-o" className="mr-2 red" />
-              {release.trackList.length} Tracks
+              {trackList.length} Tracks
             </h6>
             {numSold}
           </div>
           <div className="d-flex mt-auto">
             <button
-              onClick={() => history.push(`/release/edit/${release._id}`)}
+              onClick={() => history.push(`/release/edit/${releaseId}`)}
               className="btn btn-outline-primary btn-sm flex-grow-1"
             >
               <FontAwesome name="pencil" className="mr-2" />
