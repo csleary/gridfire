@@ -35,11 +35,9 @@ module.exports = app => {
         };
         const signedUrl = s3.getSignedUrl('putObject', s3Params);
 
-        const updateReleaseUrl = Release.findByIdAndUpdate(
+        const updateReleaseArtwork = Release.findByIdAndUpdate(
           releaseId,
-          {
-            artwork: `https://s3.amazonaws.com/nemp3-img/${releaseId}${ext}`
-          },
+          { artwork: true },
           { new: true }
         ).select('-__v');
 
@@ -51,7 +49,7 @@ module.exports = app => {
 
         axios
           .put(signedUrl, optimisedImg, axiosConfig)
-          .then(() => updateReleaseUrl)
+          .then(() => updateReleaseArtwork)
           .then(updated => {
             fs.unlink(req.file.path, error => {
               if (error) {
