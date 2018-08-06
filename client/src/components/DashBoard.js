@@ -24,10 +24,12 @@ class Dashboard extends Component {
 
   componentDidMount() {
     window.scrollTo(0, 0);
-    this.props.fetchUserReleases().then(
-      this.props.fetchSales().then(() => {
+    this.props
+      .fetchUserReleases()
+      .then(() => this.props.fetchSales())
+      .then(salesData => {
         this.props.userReleases.forEach(release => {
-          const sales = this.props.salesData.filter(
+          const sales = salesData.filter(
             data => data.releaseId === release._id
           )[0];
 
@@ -50,8 +52,7 @@ class Dashboard extends Component {
             }
           });
         });
-      })
-    );
+      });
   }
 
   render() {
