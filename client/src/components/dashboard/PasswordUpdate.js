@@ -61,14 +61,14 @@ class PasswordUpdate extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col">
+          <div className="col mb-5 py-3">
             <h3 className="text-center mt-4">Update Password</h3>
             <p className="text-center">
               You can update your password using the form below (unless
               you&rsquo;ve logged-in with a Google account).
             </p>
-            <form onSubmit={handleSubmit(this.onSubmit)}>
-              <div className="form-row mt-5">
+            <form className="my-5" onSubmit={handleSubmit(this.onSubmit)}>
+              <div className="form-row">
                 <div className="col-md-6 mx-auto">
                   <Field
                     component={this.renderField}
@@ -103,7 +103,7 @@ class PasswordUpdate extends Component {
                     type="password"
                     validate={[this.required, this.isMatched]}
                   />
-                  <div className="d-flex justify-content-center">
+                  <div className="d-flex justify-content-end mt-4">
                     <button
                       className="btn btn-outline-primary btn-lg"
                       disabled={invalid || pristine || submitting}

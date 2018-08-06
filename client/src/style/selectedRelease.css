@@ -77,7 +77,7 @@
 
 .release-info {
   background: hsla(233, 10%, 10%, 1);
-  padding: 1rem;
+  margin: 0;
   position: relative;
 }
 
@@ -168,8 +168,8 @@
 }
 
 @media (min-width: 768px) {
-  .selected-release .col-artwork {
-    padding: 0 15px;
+  .selected-release .release-info {
+    margin: 1rem 0;
   }
 }
 

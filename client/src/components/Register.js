@@ -72,7 +72,7 @@ class Register extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col">
+          <div className="col py-3 mb-4">
             <h2 className="text-center red mt-4">Register</h2>
             <form
               className="form-row mt-5"

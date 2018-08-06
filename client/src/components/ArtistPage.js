@@ -50,7 +50,7 @@ class ArtistPage extends Component {
     return (
       <main className="container-fluid">
         <div className="row">
-          <div className="col">
+          <div className="col py-3">
             <h2 className="artist-name text-center mt-4">{name}</h2>
             <h3>Releases</h3>
             <div className="front-page">{renderReleases}</div>

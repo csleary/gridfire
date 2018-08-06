@@ -113,8 +113,8 @@ class ResetPassword extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col-6 mx-auto">
-            <h2 className="text-center">Reset Password</h2>
+          <div className="col-6 mx-auto mb-4 py-3">
+            <h2 className="text-center mt-4">Reset Password</h2>
             <p>
               Please enter your new password here. You&rsquo;ll be logged-in
               afterwards automatically.

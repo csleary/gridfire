@@ -1,14 +1,5 @@
 .transactions {
   animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
-  margin-top: 2rem;
-}
-
-.transactions h5 {
-  margin-bottom: 1rem;
-}
-
-h3.transactions-searching {
-  margin-top: 2rem;
 }
 
 .bold {
@@ -17,15 +8,12 @@ h3.transactions-searching {
 
 button.refresh-txs {
   display: inline-block;
-  padding: 0.5rem 1rem;
-  margin-bottom: 2rem;
   min-width: auto;
 }
 
 .transactions .table-dark {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   color: #f0f0f1;
-  margin-bottom: 2rem;
   white-space: nowrap;
 }
 

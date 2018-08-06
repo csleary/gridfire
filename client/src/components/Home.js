@@ -49,7 +49,7 @@ class Home extends Component {
     return (
       <main className="container-fluid">
         <div className="row">
-          <div className="col">
+          <div className="col p-3">
             <div className="front-page">{renderReleases}</div>
           </div>
         </div>

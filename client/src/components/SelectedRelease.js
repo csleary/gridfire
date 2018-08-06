@@ -228,7 +228,7 @@ class SelectedRelease extends Component {
     return (
       <main className="container d-flex align-items-center">
         <div className="row selected-release">
-          <div className="col-md-6 col-artwork">
+          <div className="col-md-6 col-artwork p-3">
             <div className="artwork" onTouchStart={() => {}}>
               <img
                 alt={releaseTitle}
@@ -251,7 +251,7 @@ class SelectedRelease extends Component {
               </div>
             </div>
           </div>
-          <div className="col-md-6 release-info">
+          <div className="col-md-6 release-info p-3">
             <h2 className="release-title text-center ibm-type-italic">
               {releaseTitle}
               {this.state.inCollection && (

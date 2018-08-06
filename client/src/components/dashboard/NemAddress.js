@@ -72,8 +72,8 @@ class Dashboard extends Component {
 
     return (
       <main className="container">
-        <div className="row mb-5">
-          <div className="col-lg">
+        <div className="row">
+          <div className="col-lg mb-5 py-3">
             <h3 className="text-center mt-4">NEM Payment Address</h3>
             <p className="text-center">
               Please add a NEM address if you wish to sell music, as fan

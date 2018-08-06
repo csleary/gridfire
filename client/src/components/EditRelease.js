@@ -321,7 +321,7 @@ class EditRelease extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col">
+          <div className="col mb-5">
             <form>
               <h2 className="text-center mt-4">{this.renderHeader()}</h2>
               {!isEditing && (
@@ -331,7 +331,7 @@ class EditRelease extends Component {
                 </p>
               )}
               <div className="row p-0">
-                <div className="col-md">
+                <div className="col-md mb-4">
                   <Field
                     component={RenderReleaseField}
                     label="Artist Name"
@@ -429,7 +429,7 @@ class EditRelease extends Component {
                     </div>
                   </div>
                 </div>
-                <div className="col-md">
+                <div className="col-md mb-4">
                   <RenderArtwork
                     artworkFile={this.artworkFile}
                     artworkUploading={this.props.artworkUploading}
@@ -448,15 +448,15 @@ class EditRelease extends Component {
                   <div className="tags mb-4">
                     <div className="form-group">
                       <label htmlFor="tagsInput">
-                        Tags [
-                        <a
+                        Tags
+                        <button
+                          className="btn btn-outline-primary btn-sm clear-tags px-1 ml-2"
                           onClick={this.handleClearTags}
-                          role="button"
-                          style={{ cursor: 'pointer' }}
-                          tabIndex="-1"
+                          title="Remove all currently set tags."
+                          type="button"
                         >
-                          clear
-                        </a>]
+                          Clear
+                        </button>
                       </label>
                       <input
                         className="form-control"

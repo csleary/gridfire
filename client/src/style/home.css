@@ -1,6 +1,6 @@
 .front-page {
   display: grid;
-  grid-gap: 15px;
+  grid-gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
 }
 

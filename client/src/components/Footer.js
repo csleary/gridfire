@@ -17,7 +17,7 @@ const networkLinks =
 const Footer = props => (
   <footer className="container-fluid">
     <div className="row justify-content-center">
-      <div className="col-sm-2">
+      <div className="col col-sm-2">
         <ul>
           <li>
             <Link to={'/about'}>About</Link>
@@ -32,7 +32,7 @@ const Footer = props => (
       </div>
       {props.user &&
         !props.user.auth && (
-          <div className="col-sm-2">
+          <div className="col col-sm-2">
             <ul>
               <li>
                 <Link to={'/login'}>Log In</Link>
@@ -48,7 +48,7 @@ const Footer = props => (
         )}
       {props.user &&
         props.user.auth && (
-          <div className="col-sm-2">
+          <div className="col col-sm-2">
             <ul>
               <li>
                 <Link to={'/release/add/'}>Add Release</Link>

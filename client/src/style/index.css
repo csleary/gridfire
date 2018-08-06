@@ -215,10 +215,6 @@ a:focus {
   color: hsla(233, 10%, 50%, 1);
 }
 
-form {
-  margin-bottom: 2rem;
-}
-
 img {
   transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
@@ -250,10 +246,4 @@ img[data-sizes='auto'] {
 ::selection {
   background-color: #4f80e1;
   color: #f0f0f1;
-}
-
-@media (min-width: 768px) {
-  main {
-    margin: 15px auto 15px auto;
-  }
 }

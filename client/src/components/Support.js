@@ -4,7 +4,7 @@ import '../style/support.css';
 const Support = () => (
   <main className="container">
     <div className="row mb-5">
-      <div className="col">
+      <div className="col py-3 mb-4">
         <h2 className="text-center red mt-4">FAQ</h2>
         <details>
           <summary>Where can I buy some XEM?</summary>
