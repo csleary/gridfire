@@ -72,7 +72,7 @@ class Collection extends Component {
     return (
       <main className="container-fluid">
         <div className="row">
-          <div className="col">
+          <div className="col py-3">
             <h3 className="text-center">
               {collection.length} release{collection.length > 1 ? 's' : ''}{' '}
               currently in your collection

@@ -129,7 +129,7 @@ class RenderTrackList extends Component {
           })}
         </ul>
         <button
-          className="btn btn-outline-primary btn-sm add-track"
+          className="btn btn-outline-primary btn-sm add-track mt-3 py-2 px-3"
           disabled={isAddingTrack}
           onClick={() => this.handleAddTrack(fields.push)}
           title="Add Track"
@@ -140,7 +140,7 @@ class RenderTrackList extends Component {
           ) : (
             <FontAwesome name="plus-circle" className="mr-2" />
           )}
-          {isAddingTrack ? 'Adding…' : 'Add'}
+          {isAddingTrack ? 'Adding Track…' : 'Add Track'}
         </button>
       </Fragment>
     );

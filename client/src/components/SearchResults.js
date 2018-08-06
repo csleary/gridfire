@@ -65,7 +65,7 @@ class SearchResults extends Component {
     return (
       <main className="container-fluid">
         <div className="row">
-          <div className="col">{this.renderSearchResults()}</div>
+          <div className="col py-3">{this.renderSearchResults()}</div>
         </div>
       </main>
     );

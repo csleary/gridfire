@@ -109,7 +109,7 @@ class Payment extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col">
+          <div className="col p-3">
             <h2 className="text-center">Payment</h2>
             <h3 className="text-center red">
               {artistName} &bull;{' '}

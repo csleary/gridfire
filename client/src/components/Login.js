@@ -80,17 +80,17 @@ class Login extends Component {
     return (
       <main className="container">
         <div className="row">
-          <div className="col">
+          <div className="col py-3">
             <h2 className="red text-center mt-4">Log In</h2>
           </div>
         </div>
         <div className="row">
-          <div className="col-md">
+          <div className="col-md mb-5">
             <p>
               If you already have an account with us, please log in with the
               form below.
             </p>
-            <form onSubmit={handleSubmit(this.onSubmit)}>
+            <form className="mb-5" onSubmit={handleSubmit(this.onSubmit)}>
               <Field
                 className="form-control"
                 component={this.renderField}
@@ -117,7 +117,7 @@ class Login extends Component {
               />
               <div className="d-flex justify-content-center">
                 <button
-                  className="btn btn-outline-primary mt-3"
+                  className="btn btn-outline-primary mt-4"
                   disabled={invalid || pristine || submitting}
                   type="submit"
                 >
@@ -134,8 +134,8 @@ class Login extends Component {
               <Link to={'/reset'}>reset it here</Link>.
             </p>
           </div>
-          <div className="divider">Or</div>
-          <div className="col-md d-flex align-items-center justify-content-center">
+          <div className="divider p-5 mb-5">Or</div>
+          <div className="col-md d-flex align-items-center justify-content-center mb-5">
             <p>
               <FontAwesome name="google" className="mr-2" />
               <a href="api/auth/google/">

@@ -93,7 +93,7 @@ const TransactionsList = props => {
 
   const confirmedTransactions = transactions.length > 0 && (
     <div className="tx-list mt-3">
-      <h5>
+      <h5 className="mb-4">
         {transactions.length} Confirmed Transaction{transactions.length > 1 &&
           's'}:
       </h5>
@@ -149,7 +149,7 @@ const TransactionsList = props => {
       {transactionsPreamble}
       {underpaid()}
       <button
-        className="btn btn-outline-primary btn-sm refresh-txs"
+        className="btn btn-outline-primary btn-sm refresh-txs mb-4 py-2 px-3"
         disabled={isUpdating}
         onClick={() => handleFetchIncomingTxs(true)}
       >
