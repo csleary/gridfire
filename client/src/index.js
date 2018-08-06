@@ -9,6 +9,8 @@ import App from './components/App';
 import rootReducer from './reducers';
 import './style/index.css';
 
+const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
+
 const store = createStore(rootReducer, {}, applyMiddleware(reduxThunk));
 
 ReactDOM.render(
@@ -17,3 +19,5 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root')
 );
+
+export { CLOUD_URL as default };

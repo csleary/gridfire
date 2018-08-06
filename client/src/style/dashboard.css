@@ -42,6 +42,7 @@ a.btn.add-release {
 
 form.nem-address {
   background-color: hsla(233, 10%, 10%, 1);
+  border-radius: 0.5rem;
 }
 
 .payment-address {
