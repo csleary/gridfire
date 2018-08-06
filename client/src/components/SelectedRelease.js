@@ -258,20 +258,11 @@ class SelectedRelease extends Component {
                 <Fragment>
                   <div className="in-collection-corner" />
                   <Link to={'/dashboard/collection'}>
-                    <div className="in-collection-rosette d-flex align-items-center justify-content-center">
-                      <FontAwesome
-                        className="rosette-outer"
-                        name="certificate"
-                        title="This release is in your collection."
-                      />
-                    </div>
-                    <div className="in-collection-rosette d-flex align-items-center justify-content-center">
-                      <FontAwesome
-                        className="rosette-inner"
-                        name="circle"
-                        title="This release is in your collection."
-                      />
-                    </div>
+                    <FontAwesome
+                      className="in-collection-check"
+                      name="check"
+                      title="This release is in your collection."
+                    />
                   </Link>
                 </Fragment>
               )}
