@@ -69,7 +69,7 @@ export const fetchDownloadToken = (releaseId, callback) => async dispatch => {
 export const fetchSales = () => async dispatch => {
   const res = await axios.get('/api/sales');
   dispatch({ type: FETCH_SALES, payload: res.data });
-  return res;
+  return res.data;
 };
 
 export const toastInfo = text => dispatch => {
