@@ -23,13 +23,20 @@ class Navbar extends Component {
     });
   };
 
-  handleSearchBlur = () => {
+  handleSearchBlur = () =>
     this.setState({ searchQuery: '', expandSearch: false });
-  };
 
   handleSearchFocus = () => {
     this.searchBar.focus();
     this.setState({ expandSearch: true });
+  };
+
+  handlePreviewClick = () => {
+    this.setState({ expandSearch: true });
+  };
+
+  handlePreviewBlur = () => {
+    this.setState({ searchQuery: '', expandSearch: false });
   };
 
   handleClearSearch = () => {
@@ -78,7 +85,15 @@ class Navbar extends Component {
     return (
       <form className="ml-3" onSubmit={this.handleSubmit}>
         <div className="form-group d-flex align-items-center">
-          <div className={previewClassNames}>
+          <div
+            className={previewClassNames}
+            onBlur={this.handlePreviewBlur}
+            onClick={this.handlePreviewClick}
+            onMouseDown={e => e.preventDefault()}
+            onMouseUp={this.handlePreviewClick}
+            role="button"
+            tabIndex="-1"
+          >
             <ul className="list-group">
               {searchResults.length && (
                 <p className="m-3">

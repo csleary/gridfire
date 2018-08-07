@@ -29,7 +29,8 @@ class RenderTrackList extends Component {
           remove(index);
 
           this.props.toastSuccess(
-            `${(trackTitle && `'${trackTitle}'`) || 'Track'} deleted.`
+            `${(trackTitle && `'${trackTitle}'`) ||
+              `Track ${index + 1}`} deleted.`
           );
           this.setState({
             deletingTracks: this.state.deletingTracks.filter(
