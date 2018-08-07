@@ -124,7 +124,21 @@ export default (state = initialState, action) => {
     case TRANSCODING_STOP:
       return {
         ...state,
-        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId)
+        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
+        selectedRelease: {
+          ...state.selectedRelease,
+          trackList: [
+            ...state.selectedRelease.trackList.map(previous => {
+              if (previous._id !== action.trackId) {
+                return previous;
+              }
+
+              return action.payload.trackList.filter(
+                updated => updated._id === action.trackId
+              )[0];
+            })
+          ]
+        }
       };
     case UPLOAD_ARTWORK:
       return {

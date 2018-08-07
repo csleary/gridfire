@@ -196,7 +196,7 @@ class EditRelease extends Component {
         if (release.releaseDate) {
           release.releaseDate = release.releaseDate.substring(0, 10);
         }
-        this.props.initialize(release);
+        this.props.initialize(release, { keepDirty: true });
         this.props.history.push('/dashboard');
         resolve();
       });
@@ -475,7 +475,6 @@ class EditRelease extends Component {
                         {tagsError && tagsError}
                       </div>
                     </div>
-                    <Field component="input" name="tags" type="hidden" />
                     {tags && tags.length ? (
                       <p>Tags set so far…</p>
                     ) : (
@@ -558,14 +557,14 @@ const validate = ({
 
 const fieldSelector = formValueSelector('releaseForm');
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   artworkUploading: state.releases.artworkUploading,
   artworkUploadProgress: state.releases.artworkUploadProgress,
   artworkUploadUrl: state.releases.artworkUploadUrl,
   audioUploadProgress: state.releases.audioUploadProgress,
   audioUploadUrl: state.releases.audioUploadUrl,
   formValues: getFormValues('releaseForm')(state),
-  initialValues: ownProps.release,
+  initialValues: state.releases.selectedRelease,
   isAddingTrack: state.releases.isAddingTrack,
   isDeletingTrack: state.releases.isDeletingTrack,
   isTranscoding: state.releases.isTranscoding,
