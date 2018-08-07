@@ -495,6 +495,7 @@ class EditRelease extends Component {
               <FieldArray
                 addTrack={this.props.addTrack}
                 audioUploadProgress={this.props.audioUploadProgress}
+                change={this.props.change}
                 component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 initialize={this.props.initialize}

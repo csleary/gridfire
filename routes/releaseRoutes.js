@@ -244,7 +244,6 @@ module.exports = app => {
     const releaseId = update._id;
 
     const release = await Release.findByIdAndUpdate(releaseId, update, {
-      upsert: true,
       new: true
     }).select('-__v');
 

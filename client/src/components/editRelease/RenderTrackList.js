@@ -52,7 +52,14 @@ class RenderTrackList extends Component {
   handleAddTrack = push => {
     this.setState({ isAddingTrack: true });
     this.props.addTrack(this.props.release._id, () => {
-      this.setState({ isAddingTrack: false }, () => push());
+      this.setState({ isAddingTrack: false }, () => {
+        const newIndex = this.props.release.trackList.length - 1;
+        push();
+        this.props.change(
+          `trackList[${newIndex}]._id`,
+          this.props.release.trackList[newIndex]._id
+        );
+      });
     });
   };
 
