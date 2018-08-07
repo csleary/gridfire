@@ -1,6 +1,7 @@
 const aws = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
+const mongoose = require('mongoose');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const { AWS_REGION } = require('./constants');
@@ -8,6 +9,7 @@ const { BUCKET_SRC } = require('./constants');
 const { BUCKET_OPT } = require('./constants');
 
 aws.config.update({ region: AWS_REGION });
+const Release = mongoose.model('releases');
 
 module.exports = app => {
   // Add Track
@@ -58,7 +60,6 @@ module.exports = app => {
     releaseOwner,
     async (req, res) => {
       const { releaseId, trackId } = req.params;
-      const release = res.locals.release;
 
       // Delete from S3
       const s3 = new aws.S3();
@@ -96,14 +97,14 @@ module.exports = app => {
       }
 
       // Delete from db
-      const deleteTrackDb = await release
-        .update({ $pull: { trackList: { _id: trackId } } })
-        .exec();
+      const deleteTrackDb = await Release.findByIdAndUpdate(
+        releaseId,
+        { $pull: { trackList: { _id: trackId } } },
+        { new: true }
+      );
 
       Promise.all([deleteS3Src, deleteS3Opt, deleteTrackDb])
-        .then(() => {
-          res.send(release);
-        })
+        .then(promised => res.send(promised[2]))
         .catch(error => res.status(500).send({ error: error.message }));
     }
   );

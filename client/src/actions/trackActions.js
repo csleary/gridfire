@@ -8,7 +8,6 @@ import {
   TOAST_SUCCESS,
   TRANSCODING_START,
   TRANSCODING_STOP,
-  UPDATE_RELEASE,
   UPLOAD_AUDIO_PROGRESS
 } from './types';
 
@@ -65,6 +64,7 @@ export const playTrack = (
         audio: res.data,
         artistName,
         releaseId,
+        trackId,
         trackTitle
       }
     });
@@ -88,8 +88,11 @@ export const transcodeAudio = (
       }
     });
     dispatch({ type: TOAST_SUCCESS, text: res.data.success });
-    dispatch({ type: TRANSCODING_STOP, trackId });
-    dispatch({ type: UPDATE_RELEASE, payload: res.data.updatedRelease });
+    dispatch({
+      type: TRANSCODING_STOP,
+      trackId,
+      payload: res.data.updatedRelease
+    });
     return res;
   } catch (e) {
     dispatch({

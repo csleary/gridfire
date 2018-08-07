@@ -7,10 +7,11 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  releaseId: '',
   audio: '',
   isPlaying: false,
   isPaused: false,
+  releaseId: '',
+  trackId: '',
   showPlayer: false
 };
 
@@ -25,6 +26,7 @@ export default (state = initialState, action) => {
         audio: action.payload.audio,
         artistName: action.payload.artistName,
         releaseId: action.payload.releaseId,
+        trackId: action.payload.trackId,
         trackTitle: action.payload.trackTitle
       };
     case PLAYER_HIDE:

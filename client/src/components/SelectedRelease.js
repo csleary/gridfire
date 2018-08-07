@@ -111,15 +111,16 @@ class SelectedRelease extends Component {
       const { trackTitle } = track;
       const trackId = track._id;
       const { isPlaying, isPaused } = this.props.player;
-      const playerTrackTitle = this.props.player.trackTitle;
+      const playerTrackId = this.props.player.trackId;
       const { _id, artistName } = this.props.release;
       const releaseId = _id;
 
       const nowPlaying = () => {
-        if (trackTitle !== playerTrackTitle) return;
+        if (trackId !== playerTrackId) return;
         if (isPlaying) {
           return <FontAwesome className="now-playing" name="play" />;
-        } else if (isPaused) {
+        }
+        if (isPaused) {
           return <FontAwesome className="now-playing" name="pause" />;
         }
       };
