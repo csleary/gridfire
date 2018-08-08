@@ -79,7 +79,7 @@ const TransactionsList = props => {
     }
   };
 
-  const confirmedTransactions = transactions.length && (
+  const confirmedTransactions = transactions.length > 0 && (
     <div className="tx-list mt-3">
       <h5 className="mb-4">
         <FontAwesome name="list-ol" className="red mr-3" />
