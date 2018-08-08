@@ -101,6 +101,12 @@ form.nem-address {
 
 @media (min-width: 1200px) {
   .user-releases {
-    grid-template-columns: repeat(auto-fit, minmax(18rem, 0.34fr));
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 0.25fr));
+  }
+}
+
+@media (min-width: 1600px) {
+  .user-releases {
+    grid-template-columns: repeat(auto-fit, minmax(24rem, 0.25fr));
   }
 }
