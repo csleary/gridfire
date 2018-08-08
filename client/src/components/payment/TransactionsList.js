@@ -25,7 +25,11 @@ const TransactionsList = props => {
 
   const downloadButton = downloadToken && (
     <Fragment>
-      <h3 className="text-center">Thank you!</h3>
+      <h3 className="text-center mt-5">Thank you!</h3>
+      <p className="text-center">
+        <span className="ibm-type-italic">{releaseTitle}</span> has been added
+        to <Link to={'/dashboard/collection'}>your collection</Link>.
+      </p>
       <div className="d-flex justify-content-center">
         <button
           className="btn btn-outline-primary btn-lg download-button"
@@ -39,10 +43,6 @@ const TransactionsList = props => {
           Download <span className="ibm-type-italic">{releaseTitle}</span>
         </button>
       </div>
-      <p className="text-center">
-        <span className="ibm-type-italic">{releaseTitle}</span> has been added
-        to <Link to={'/dashboard/collection'}>your collection</Link>!
-      </p>
     </Fragment>
   );
 
@@ -56,33 +56,6 @@ const TransactionsList = props => {
     />
   ));
 
-  const underpaid = () => {
-    const delta = price - paidToDate;
-
-    if (paidToDate > 0 && paidToDate < price && !downloadToken) {
-      return (
-        <p>
-          Please pay a futher{' '}
-          <span className="bold red">{roundUp(delta, 2).toFixed(2)} XEM</span>{' '}
-          to activate your download, then tap the refresh button below to check
-          for confirmed payments.
-        </p>
-      );
-    }
-  };
-
-  const transactionsPreamble = !transactions.length ? (
-    <p>
-      No transactions found just yet. Please hit the refresh button below to
-      check again for confirmed payments.
-    </p>
-  ) : (
-    <p>
-      Paid to date:{' '}
-      <span className="bold red">{paidToDate.toFixed(2)} XEM</span>
-    </p>
-  );
-
   const renderError = (
     <div className="alert alert-danger text-center" role="alert">
       <FontAwesome name="bomb" className="mr-2" />
@@ -91,9 +64,25 @@ const TransactionsList = props => {
     </div>
   );
 
-  const confirmedTransactions = transactions.length > 0 && (
+  const underpaid = () => {
+    const delta = price - paidToDate;
+
+    if (paidToDate > 0 && paidToDate < price && !downloadToken) {
+      return (
+        <p className="mb-4">
+          Please pay a futher{' '}
+          <span className="bold red">{roundUp(delta, 2).toFixed(2)} XEM</span>{' '}
+          to activate your download, then tap the refresh button to check for
+          confirmed payments.
+        </p>
+      );
+    }
+  };
+
+  const confirmedTransactions = transactions.length && (
     <div className="tx-list mt-3">
       <h5 className="mb-4">
+        <FontAwesome name="list-ol" className="red mr-3" />
         {transactions.length} Confirmed Transaction{transactions.length > 1 &&
           's'}:
       </h5>
@@ -136,29 +125,46 @@ const TransactionsList = props => {
   }
 
   return (
-    <div className="transactions">
-      <h3 className="text-center">Transactions</h3>
-      <p>
-        <FontAwesome
-          name="server"
-          className="mr-2 red"
-          title="NEM Infrastructure Server"
-        />
-        NIS Node: <strong>{nemNode}</strong>
-      </p>
-      {transactionsPreamble}
-      {underpaid()}
-      <button
-        className="btn btn-outline-primary btn-sm refresh-txs mb-4 py-2 px-3"
-        disabled={isUpdating}
-        onClick={() => handleFetchIncomingTxs(true)}
-      >
-        <FontAwesome name="refresh" className="mr-2" spin={isUpdating} />
-        Refresh
-      </button>
-      {downloadButton}
-      {transactionsError ? renderError : confirmedTransactions}
-    </div>
+    <Fragment>
+      <div className="row">
+        <div className="col">
+          <h3 className="text-center">Transactions</h3>
+        </div>
+      </div>
+      <div className="row transactions justify-content-center mb-5">
+        <div className="segment col-md-6 p-4">
+          {!transactions.length ? (
+            <p>
+              No transactions found just yet. Please hit the refresh button to
+              check again for confirmed payments.
+            </p>
+          ) : (
+            <p className="text-center">
+              Paid to date:{' '}
+              <span className="bold red">{paidToDate.toFixed(2)} XEM</span>
+            </p>
+          )}
+          {underpaid()}
+          <div className="d-flex justify-content-center">
+            <button
+              className="btn btn-outline-primary btn-sm refresh-txs py-2 px-3"
+              disabled={isUpdating}
+              onClick={() => handleFetchIncomingTxs(true)}
+              title={`Press to check again for recent payments (NIS Node: ${nemNode}).`}
+            >
+              <FontAwesome name="refresh" className="mr-2" spin={isUpdating} />
+              Refresh
+            </button>
+          </div>
+          {downloadButton}
+        </div>
+      </div>
+      <div className="row transactions">
+        <div className="col">
+          {transactionsError ? renderError : confirmedTransactions}
+        </div>
+      </div>
+    </Fragment>
   );
 };
 

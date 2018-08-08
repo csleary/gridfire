@@ -58,6 +58,7 @@ class Payment extends Component {
       transactions,
       transactionsError
     } = this.props;
+
     const { artist, artistName, releaseTitle } = release;
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
@@ -70,7 +71,7 @@ class Payment extends Component {
       'method-active': showPaymentInfo
     });
 
-    const paymentMethods = classNames('payment-methods', {
+    const paymentMethods = classNames('payment-methods', 'mb-5', {
       manual: showPaymentInfo
     });
 
@@ -110,7 +111,7 @@ class Payment extends Component {
       <main className="container">
         <div className="row">
           <div className="col p-3">
-            <h2 className="text-center">Payment</h2>
+            <h2 className="text-center mt-4">Payment</h2>
             <h3 className="text-center red">
               {artistName} &bull;{' '}
               <span className="ibm-type-italic">{releaseTitle}</span>
@@ -158,23 +159,23 @@ class Payment extends Component {
                 </Fragment>
               )}
             </div>
-            <TransactionsList
-              artistName={release.artistName}
-              downloadToken={downloadToken}
-              handleFetchIncomingTxs={this.handleFetchIncomingTxs}
-              isLoadingTxs={isLoadingTxs}
-              isUpdating={isUpdating}
-              nemNode={nemNode}
-              paidToDate={paidToDate}
-              price={priceInXem}
-              releaseTitle={release.releaseTitle}
-              roundUp={this.roundUp}
-              toastInfo={toastInfo}
-              transactions={transactions}
-              transactionsError={transactionsError}
-            />
           </div>
         </div>
+        <TransactionsList
+          artistName={release.artistName}
+          downloadToken={downloadToken}
+          handleFetchIncomingTxs={this.handleFetchIncomingTxs}
+          isLoadingTxs={isLoadingTxs}
+          isUpdating={isUpdating}
+          nemNode={nemNode}
+          paidToDate={paidToDate}
+          price={priceInXem}
+          releaseTitle={release.releaseTitle}
+          roundUp={this.roundUp}
+          toastInfo={toastInfo}
+          transactions={transactions}
+          transactionsError={transactionsError}
+        />
       </main>
     );
   }

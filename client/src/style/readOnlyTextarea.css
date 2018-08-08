@@ -12,12 +12,9 @@
   font-size: 1.3rem;
   height: 4rem;
   line-height: 1.5rem;
-  margin: 0 auto 3rem auto;
   overflow: hidden;
-  padding: 0.5rem;
   resize: none;
   text-align: center;
-  max-width: 38rem;
   -webkit-appearance: none;
 }
 
