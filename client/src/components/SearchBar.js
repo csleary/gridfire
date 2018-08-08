@@ -112,11 +112,16 @@ class Navbar extends Component {
           <FontAwesome
             className="search-icon"
             onClick={this.handleSearchFocus}
+            onMouseDown={e => e.preventDefault()}
+            onMouseUp={this.handleSearchFocus}
+            onTouchStart={this.handleSearchFocus}
             name="search"
           />
           <FontAwesome
             className={clearSearchClassNames}
             onClick={this.handleClearSearch}
+            onMouseDown={e => e.preventDefault()}
+            onMouseUp={this.handleClearSearch}
             name={this.props.isSearching ? 'circle-o-notch' : 'times'}
             spin={this.props.isSearching}
           />
