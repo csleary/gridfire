@@ -134,7 +134,7 @@ const TransactionsList = props => {
       <div className="row transactions justify-content-center mb-5">
         <div className="segment col-md-6 p-4">
           {!transactions.length ? (
-            <p>
+            <p className="mb-4">
               No transactions found just yet. Please hit the refresh button to
               check again for confirmed payments.
             </p>
