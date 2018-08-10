@@ -11,6 +11,7 @@ import {
   reduxForm
 } from 'redux-form';
 import axios from 'axios';
+import CLOUD_URL from '../index';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
 import RenderTrackList from './editRelease/RenderTrackList';
@@ -207,9 +208,11 @@ class EditRelease extends Component {
   }
 
   setArtwork() {
-    const { artwork } = this.props.release;
+    const { _id, artwork } = this.props.release;
+    const releaseId = _id;
+
     if (artwork) {
-      this.setState({ coverArtPreview: this.props.release.artwork });
+      this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });
     }
   }
 
