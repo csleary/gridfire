@@ -54,7 +54,11 @@ class Navbar extends Component {
       return (
         <li className="nav-item">
           <NavLink to={'/login'} className="nav-link">
-            <FontAwesome name="sign-in" className="mr-1" />
+            <FontAwesome
+              name="sign-in"
+              className="mr-1"
+              title="Click to log in."
+            />
             <span className="nav-label">Log In</span>
           </NavLink>
         </li>
@@ -64,13 +68,21 @@ class Navbar extends Component {
     return (
       <Fragment>
         <li className="nav-item">
-          <NavLink to={'/release/add/'} className="nav-link">
+          <NavLink
+            to={'/release/add/'}
+            className="nav-link"
+            title="Add a new release."
+          >
             <FontAwesome name="plus-square" className="mr-1" />
             <span className="nav-label">Add Release</span>
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to={'/dashboard'} className="nav-link">
+          <NavLink
+            to={'/dashboard'}
+            className="nav-link"
+            title="Visit your dashboard."
+          >
             <FontAwesome name="user-circle" className="mr-1" />
             <span className="nav-label">Dashboard</span>
           </NavLink>
@@ -83,7 +95,11 @@ class Navbar extends Component {
             role="button"
             style={{ cursor: 'pointer' }}
           >
-            <FontAwesome name="sign-out" className="mr-1" />
+            <FontAwesome
+              name="sign-out"
+              className="mr-1"
+              title="Log out of your account."
+            />
             <span className="nav-label">Log out</span>
           </a>
         </li>
@@ -103,7 +119,7 @@ class Navbar extends Component {
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
         <SearchBar />
-        <Link to={'/'} className={brandClass}>
+        <Link to={'/'} className={brandClass} title="Search all releases.">
           <Logo class="navbar-brand" />
         </Link>
         <ul className={navbarClass}>{this.renderUserLinks()}</ul>

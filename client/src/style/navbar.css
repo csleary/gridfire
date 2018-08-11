@@ -74,9 +74,6 @@ span.nav-label {
 }
 
 @media (min-width: 992px) {
-}
-
-@media (min-width: 576px) {
   .navbar-expand-lg .navbar-nav {
     flex-direction: row;
   }
@@ -84,4 +81,7 @@ span.nav-label {
   span.nav-label {
     display: inline;
   }
+}
+
+@media (min-width: 576px) {
 }

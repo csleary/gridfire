@@ -27,7 +27,7 @@ nav.navbar form input.search.expanded {
   cursor: auto;
   color: #f0f0f1;
   padding: 0.375rem 2.5rem;
-  width: 24rem;
+  width: 100%;
 }
 
 nav.navbar form input.search::placeholder {
@@ -118,4 +118,10 @@ nav.navbar form span.search-icon:hover {
 
 nav.navbar form span.clear-search-icon.show {
   opacity: 1;
+}
+
+@media (min-width: 992px) {
+  nav.navbar form input.search.expanded {
+    width: 24rem;
+  }
 }
