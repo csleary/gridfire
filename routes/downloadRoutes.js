@@ -74,9 +74,7 @@ module.exports = app => {
 
     archive.on('end', () => {});
 
-    archive.on('error', error => {
-      res.status(500).send({ error: error.message });
-    });
+    archive.on('error', () => {});
 
     res.attachment(`${artistName} - ${releaseTitle}.zip`);
     archive.pipe(res);
