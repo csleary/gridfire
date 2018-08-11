@@ -5,8 +5,8 @@ const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
 const utils = require('./utils');
 
+const { getXemPrice, recordSale } = utils;
 const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
 
 module.exports = app => {
@@ -35,29 +35,7 @@ module.exports = app => {
         if (!hasPreviouslyPurchased) {
           user.purchases.push({ purchaseDate: Date.now(), releaseId });
           user.save();
-
-          // Log sales.
-          const date = new Date(Date.now()).toISOString().split('T')[0];
-
-          const statExists = await Sale.findOne({
-            releaseId,
-            'purchases.date': date
-          });
-
-          const incrementSale = () => {
-            const query = { releaseId, 'purchases.date': date };
-            const update = { $inc: { 'purchases.$.numSold': 1 } };
-            Sale.findOneAndUpdate(query, update).exec();
-          };
-
-          if (!statExists) {
-            const query = { releaseId };
-            const update = { $addToSet: { purchases: { date } } };
-            const options = { upsert: true, setDefaultsOnInsert: true };
-            Sale.findOneAndUpdate(query, update, options, incrementSale);
-          } else {
-            incrementSale();
-          }
+          recordSale(releaseId);
         }
 
         // Issue download token to user on successful payment.
@@ -65,6 +43,7 @@ module.exports = app => {
           { releaseId, expiresIn: '1m' },
           keys.nemp3Secret
         );
+
         res.append('Authorization', `Bearer ${token}`);
       }
       res.send(transactions);
@@ -80,7 +59,7 @@ module.exports = app => {
   });
 
   app.get('/api/nem/price', async (req, res) => {
-    const xemPriceUsd = await utils.getXemPrice();
+    const xemPriceUsd = await getXemPrice();
     res.send({ xemPriceUsd });
   });
 
