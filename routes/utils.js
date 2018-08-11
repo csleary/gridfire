@@ -1,4 +1,7 @@
+const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
+
+const Sale = mongoose.model('sales');
 
 const checkPayments = (transactions, paid = []) => {
   transactions.forEach(tx => {
@@ -43,8 +46,33 @@ const getXemPrice = async () => {
   return xemPriceUsd;
 };
 
+const recordSale = async releaseId => {
+  const date = new Date(Date.now()).toISOString().split('T')[0];
+
+  const statExists = await Sale.findOne({
+    releaseId,
+    'purchases.date': date
+  });
+
+  const incrementSale = () => {
+    const query = { releaseId, 'purchases.date': date };
+    const update = { $inc: { 'purchases.$.numSold': 1 } };
+    Sale.findOneAndUpdate(query, update).exec();
+  };
+
+  if (!statExists) {
+    const query = { releaseId };
+    const update = { $addToSet: { purchases: { date } } };
+    const options = { upsert: true, setDefaultsOnInsert: true };
+    Sale.findOneAndUpdate(query, update, options, incrementSale);
+  } else {
+    incrementSale();
+  }
+};
+
 module.exports = {
   checkPayments,
   filterTransactions,
-  getXemPrice
+  getXemPrice,
+  recordSale
 };
