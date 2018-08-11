@@ -4,6 +4,14 @@ import ReadOnlyTextarea from './ReadOnlyTextarea';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
+  const copyPrice = parseInt(priceInXem, 10) ? (
+    <Fragment>
+      of <span className="bold red">{priceInXem} XEM</span>
+    </Fragment>
+  ) : (
+    '(name your price!)'
+  );
+
   return (
     <Fragment>
       <h4 className="text-center mb-4">
@@ -30,9 +38,8 @@ const ManualPayment = props => {
       </h4>
       <p className="mb-4">
         With your payment ID safely pasted into the message field, all
-        that&rsquo;s left is to enter the payment amount of{' '}
-        <span className="bold red">{priceInXem} XEM</span>, and copy-paste the
-        payment address:
+        that&rsquo;s left is to enter the payment amount {copyPrice}, and
+        copy-paste the payment address:
       </p>
       <ReadOnlyTextarea
         className="payment-info"

@@ -2,18 +2,17 @@ const archiver = require('archiver');
 const aws = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const request = require('request');
 const keys = require('../config/keys');
 const requireLogin = require('../middlewares/requireLogin');
-const { AWS_REGION } = require('./constants');
-const { BUCKET_SRC } = require('./constants');
+const { AWS_REGION, BUCKET_IMG, BUCKET_SRC } = require('./constants');
 
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });
+const { nemp3Secret } = keys;
 
 module.exports = app => {
-  // Fetch Download token
+  // Fetch Download Token
   app.post('/api/download', requireLogin, async (req, res) => {
     const { releaseId } = req.body;
     const user = await User.findById(req.user._id);
@@ -28,7 +27,7 @@ module.exports = app => {
           releaseId,
           expiresIn: '1m'
         },
-        keys.nemp3Secret
+        nemp3Secret
       );
       res.append('Authorization', `Bearer ${token}`);
       res.send();
@@ -42,67 +41,58 @@ module.exports = app => {
     const archive = archiver('zip');
     const s3 = new aws.S3();
     const token = req.params.token.substring(7);
-    const decoded = jwt.verify(token, keys.nemp3Secret);
+    const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
     const prefix =
       process.env.NEM_NETWORK === 'mainnet' ? `${releaseId}` : 'test/test';
     const release = await Release.findById(releaseId);
-    const { trackList } = release;
+    const { artistName, releaseTitle, trackList } = release;
 
-    const s3TrackList = await s3
+    const s3ListAudio = await s3
       .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: prefix })
       .promise();
 
-    const downloadUrlsList = async () => {
-      const urls = [];
-      const tracks = s3TrackList.Contents;
-
-      tracks.forEach(async track => {
-        const title =
-          process.env.NEM_NETWORK === 'mainnet'
-            ? trackList.filter(_track => track.Key.includes(_track._id))[0]
-                .trackTitle
-            : 'Test Track';
-
-        const ext = track.Key.substring(track.Key.lastIndexOf('.'));
-
-        const params = {
-          Bucket: BUCKET_SRC,
-          Expires: 60 * 5,
-          Key: track.Key
-        };
-
-        const url = await s3.getSignedUrl('getObject', params);
-        urls.push({ ext, title, url });
-      });
-      return urls;
-    };
-
-    const downloadUrls = await downloadUrlsList();
-
     archive.on('end', () => {});
+    archive.on('warning', () => {});
+    archive.on('error', () => {});
 
-    archive.on('error', error => {
-      res.status(500).send({ error: error.message });
-    });
-
-    res.attachment(`${release.artistName} - ${release.releaseTitle}.zip`);
+    res.attachment(`${artistName} - ${releaseTitle}.zip`);
     archive.pipe(res);
 
-    downloadUrls.forEach((track, index) => {
+    s3ListAudio.Contents.forEach((s3Track, index) => {
+      const { Key } = s3Track;
+      const ext = Key.substring(Key.lastIndexOf('.'));
+
       const trackNumber =
         process.env.NEM_NETWORK === 'mainnet'
-          ? release.trackList.findIndex(_track =>
-              track.url.includes(_track._id)
-            ) + 1
+          ? trackList.findIndex(track => Key.includes(track._id)) + 1
           : index + 1;
 
-      archive.append(request(track.url, { encoding: null }), {
-        name: `${trackNumber.toString(10).padStart(2, '0')} ${track.title}${
-          track.ext
-        }`
+      const title =
+        process.env.NEM_NETWORK === 'mainnet'
+          ? trackList.filter(track => Key.includes(track._id))[0].trackTitle
+          : 'Test Track';
+
+      const trackSrc = s3
+        .getObject({ Bucket: BUCKET_SRC, Key })
+        .createReadStream();
+
+      archive.append(trackSrc, {
+        name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
       });
     });
+
+    const s3ListArt = await s3
+      .listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId })
+      .promise();
+
+    const Key = s3ListArt.Contents[0].Key;
+    const artSrc = s3.getObject({ Bucket: BUCKET_IMG, Key }).createReadStream();
+
+    archive.append(artSrc, {
+      name: `${artistName} - ${releaseTitle}.jpg`
+    });
+
     archive.finalize();
   });
 };
