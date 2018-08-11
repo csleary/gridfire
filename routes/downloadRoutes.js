@@ -48,7 +48,7 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
     const { artistName, releaseTitle, trackList } = release;
 
-    const s3List = await s3
+    const s3ListAudio = await s3
       .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: prefix })
       .promise();
 
@@ -59,8 +59,9 @@ module.exports = app => {
     res.attachment(`${artistName} - ${releaseTitle}.zip`);
     archive.pipe(res);
 
-    s3List.Contents.forEach((s3Track, index) => {
+    s3ListAudio.Contents.forEach((s3Track, index) => {
       const { Key } = s3Track;
+      const ext = Key.substring(Key.lastIndexOf('.'));
 
       const trackNumber =
         process.env.NEM_NETWORK === 'mainnet'
@@ -72,8 +73,6 @@ module.exports = app => {
           ? trackList.filter(track => Key.includes(track._id))[0].trackTitle
           : 'Test Track';
 
-      const ext = Key.substring(Key.lastIndexOf('.'));
-
       const trackSrc = s3
         .getObject({ Bucket: BUCKET_SRC, Key })
         .createReadStream();
@@ -83,11 +82,11 @@ module.exports = app => {
       });
     });
 
-    const s3Art = await s3
+    const s3ListArt = await s3
       .listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId })
       .promise();
 
-    const Key = s3Art.Contents[0].Key;
+    const Key = s3ListArt.Contents[0].Key;
     const artSrc = s3.getObject({ Bucket: BUCKET_IMG, Key }).createReadStream();
 
     archive.append(artSrc, {
