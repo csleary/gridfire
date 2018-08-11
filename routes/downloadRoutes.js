@@ -96,15 +96,10 @@ module.exports = app => {
       .listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId })
       .promise();
 
-    const params = {
-      Bucket: BUCKET_IMG,
-      Expires: 60 * 60,
-      Key: s3Art.Contents[0].Key
-    };
+    const Key = s3Art.Contents[0].Key;
+    const artSrc = s3.getObject({ Bucket: BUCKET_IMG, Key }).createReadStream();
 
-    const artUrl = s3.getSignedUrl('getObject', params);
-
-    archive.append(request(artUrl, { encoding: null }), {
+    archive.append(artSrc, {
       name: `${artistName} - ${releaseTitle}.jpg`
     });
 
