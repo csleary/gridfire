@@ -6,14 +6,6 @@ import '../style/footer.css';
 const today = new Date();
 const year = today.getFullYear();
 
-const networkLinks =
-  process.env.REACT_APP_NEM_NETWORK === 'testnet' ||
-  process.env.NODE_ENV === 'development' ? (
-    <a href="https://nemp3.app/">Mainnet version</a>
-  ) : (
-    <a href="https://nemp3v2-testnet.herokuapp.com/">Testnet version</a>
-  );
-
 const Footer = props => (
   <footer className="container-fluid">
     <div className="row justify-content-center">
@@ -27,6 +19,15 @@ const Footer = props => (
           </li>
           <li>
             <Link to={'/support'}>Support</Link>
+          </li>
+          {/* <li>
+            <Link to={'/donate'}>Donate</Link>
+          </li> */}
+          <li>
+            <a href="https://nem.io/" title="Visit the official NEM site.">
+              NEM
+              <FontAwesome name="external-link" className="ml-1" />
+            </a>
           </li>
         </ul>
       </div>
@@ -72,9 +73,6 @@ const Footer = props => (
           <p className="text-center">
             &copy; {year !== 2017 && <span>2017&ndash;</span>}
             {year} <a href="https://ochremusic.com">Christopher Leary</a>
-          </p>
-          <p className="text-center">
-            {networkLinks} | <a href="https://nem.io/">NEM</a>
           </p>
         </small>
         <div className="text-center social">
