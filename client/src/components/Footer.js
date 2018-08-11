@@ -20,9 +20,6 @@ const Footer = props => (
           <li>
             <Link to={'/support'}>Support</Link>
           </li>
-          {/* <li>
-            <Link to={'/donate'}>Donate</Link>
-          </li> */}
           <li>
             <a href="https://nem.io/" title="Visit the official NEM site.">
               NEM
