@@ -1,11 +1,8 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const fetchIncomingTransactions = require('./fetchIncomingTransactions');
-const keys = require('../config/keys');
+const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
-const utils = require('./utils');
+const { generateToken, getXemPrice, recordSale } = require('./utils');
 
-const { getXemPrice, recordSale } = utils;
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 
@@ -39,10 +36,7 @@ module.exports = app => {
         }
 
         // Issue download token to user on successful payment.
-        const token = jwt.sign(
-          { releaseId, expiresIn: '1m' },
-          keys.nemp3Secret
-        );
+        const token = generateToken(releaseId);
 
         res.append('Authorization', `Bearer ${token}`);
       }

@@ -2,14 +2,14 @@ const archiver = require('archiver');
 const aws = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const keys = require('../config/keys');
-const requireLogin = require('../middlewares/requireLogin');
+const { nemp3Secret } = require('../config/keys');
 const { AWS_REGION, BUCKET_IMG, BUCKET_SRC } = require('./constants');
+const requireLogin = require('../middlewares/requireLogin');
+const { generateToken } = require('./utils');
 
+aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
-aws.config.update({ region: AWS_REGION });
-const { nemp3Secret } = keys;
 
 module.exports = app => {
   // Fetch Download Token
@@ -22,13 +22,7 @@ module.exports = app => {
     );
 
     if (hasPreviouslyPurchased) {
-      const token = jwt.sign(
-        {
-          releaseId,
-          expiresIn: '1m'
-        },
-        nemp3Secret
-      );
+      const token = generateToken(releaseId);
       res.append('Authorization', `Bearer ${token}`);
       res.send();
     } else {

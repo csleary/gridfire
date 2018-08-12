@@ -1,3 +1,8 @@
+details summary {
+  color: #18cdca;
+  font-weight: bold;
+}
+
 details p {
   margin-top: 1rem;
 }
