@@ -1,14 +1,16 @@
 const aws = require('aws-sdk');
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
-const crypto = require('crypto');
+const {
+  AWS_REGION,
+  BUCKET_IMG,
+  BUCKET_OPT,
+  BUCKET_SRC
+} = require('./constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const utils = require('./utils');
-const { AWS_REGION } = require('./constants');
-const { BUCKET_IMG } = require('./constants');
-const { BUCKET_SRC } = require('./constants');
-const { BUCKET_OPT } = require('./constants');
+const { getXemPrice } = require('./utils');
 
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
@@ -164,7 +166,7 @@ module.exports = app => {
       const release = await Release.findById(releaseId);
       const owner = await User.findById(release.user);
       const customerIdHash = req.user.auth.idHash;
-      const xemPriceUsd = await utils.getXemPrice();
+      const xemPriceUsd = await getXemPrice();
       const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
       req.session.price = price;
 

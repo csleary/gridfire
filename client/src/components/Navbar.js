@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { Link, NavLink, withRouter } from 'react-router-dom';
-import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
+import React, { Component, Fragment } from 'react';
+import FontAwesome from 'react-fontawesome';
+import { connect } from 'react-redux';
+import { Link, NavLink, withRouter } from 'react-router-dom';
 import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
 import Logo from './Logo';
 import SearchBar from './SearchBar';
@@ -119,7 +119,11 @@ class Navbar extends Component {
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
         <SearchBar />
-        <Link to={'/'} className={brandClass} title="Search all releases.">
+        <Link
+          to={'/'}
+          className={brandClass}
+          title="Search all available releases."
+        >
           <Logo class="navbar-brand" />
         </Link>
         <ul className={navbarClass}>{this.renderUserLinks()}</ul>

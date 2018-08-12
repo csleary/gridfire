@@ -1,5 +1,5 @@
 const nem = require('nem-sdk').default;
-const utils = require('./utils');
+const { checkPayments, filterTransactions } = require('./utils');
 
 module.exports = (paymentAddress, idHash) =>
   new Promise((resolve, reject) => {
@@ -31,8 +31,8 @@ module.exports = (paymentAddress, idHash) =>
       );
 
       const currentBatch = incoming.data || [];
-      const filteredTxs = utils.filterTransactions(idHash, currentBatch);
-      const payments = utils.checkPayments(filteredTxs);
+      const filteredTxs = filterTransactions(idHash, currentBatch);
+      const payments = checkPayments(filteredTxs);
       paidToDate += payments;
       total = [...total, ...filteredTxs];
 

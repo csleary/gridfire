@@ -2,11 +2,9 @@ const aws = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
+const { AWS_REGION, BUCKET_OPT, BUCKET_SRC } = require('./constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const { AWS_REGION } = require('./constants');
-const { BUCKET_SRC } = require('./constants');
-const { BUCKET_OPT } = require('./constants');
 
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
@@ -200,10 +198,17 @@ module.exports = app => {
       const { releaseId, trackId, type } = req.query;
 
       let ext;
-      if (type === 'audio/wav') {
-        ext = '.wav';
-      } else if (type === 'audio/aiff') {
-        ext = '.aiff';
+      switch (type) {
+        case 'audio/aiff':
+          ext = '.aiff';
+          break;
+        case 'audio/flac':
+          ext = '.flac';
+          break;
+        case 'audio/wav':
+          ext = '.wav';
+          break;
+        default:
       }
 
       const s3 = new aws.S3();

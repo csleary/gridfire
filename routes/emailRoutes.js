@@ -2,7 +2,11 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const rp = require('request-promise-native');
-const keys = require('../config/keys');
+const {
+  nemp3EmailAddress,
+  nemp3EmailPassword,
+  recaptchaSecretKey
+} = require('../config/keys');
 
 const User = mongoose.model('users');
 
@@ -11,8 +15,8 @@ const defaults = {
   port: 465,
   secure: true,
   auth: {
-    user: keys.nemp3EmailAddress,
-    pass: keys.nemp3EmailPassword
+    user: nemp3EmailAddress,
+    pass: nemp3EmailPassword
   }
 };
 const transporter = nodemailer.createTransport(defaults);
@@ -24,7 +28,7 @@ module.exports = app => {
         method: 'POST',
         uri: 'https://www.google.com/recaptcha/api/siteverify',
         form: {
-          secret: keys.recaptchaSecretKey,
+          secret: recaptchaSecretKey,
           response: req.body.recaptcha
         },
         json: true
@@ -38,7 +42,7 @@ module.exports = app => {
 
       const mailOptions = {
         from: req.body.email,
-        to: keys.nemp3EmailAddress,
+        to: nemp3EmailAddress,
         subject: 'NEMp3 Contact Form',
         text: req.body.message
       };
@@ -61,7 +65,7 @@ module.exports = app => {
         method: 'POST',
         uri: 'https://www.google.com/recaptcha/api/siteverify',
         form: {
-          secret: keys.recaptchaSecretKey,
+          secret: recaptchaSecretKey,
           response: req.body.recaptcha
         },
         json: true
@@ -94,7 +98,7 @@ module.exports = app => {
 
           const mailOptions = {
             from: req.body.email,
-            to: keys.nemp3EmailAddress,
+            to: nemp3EmailAddress,
             subject: 'NEMp3 Password Reset Requested',
             text: `Hi!
 
@@ -172,7 +176,7 @@ module.exports = app => {
       user.save().then(updatedUser => {
         const mailOptions = {
           from: req.body.email,
-          to: keys.nemp3EmailAddress,
+          to: nemp3EmailAddress,
           subject: 'Success! Your NEMp3 password has been reset.',
           text: `Hi!
 

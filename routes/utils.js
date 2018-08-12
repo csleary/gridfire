@@ -1,5 +1,7 @@
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
+const { nemp3Secret } = require('../config/keys');
 
 const Sale = mongoose.model('sales');
 
@@ -37,6 +39,9 @@ const filterTransactions = (idHash, transactions, filtered = []) => {
   return filtered;
 };
 
+const generateToken = releaseId =>
+  jwt.sign({ releaseId, expiresIn: '1m' }, nemp3Secret);
+
 const getXemPrice = async () => {
   const xem = await nem.com.requests.market.xem();
   const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
@@ -73,6 +78,7 @@ const recordSale = async releaseId => {
 module.exports = {
   checkPayments,
   filterTransactions,
+  generateToken,
   getXemPrice,
   recordSale
 };
