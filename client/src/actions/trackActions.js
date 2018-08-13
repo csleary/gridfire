@@ -103,10 +103,35 @@ export const transcodeAudio = (
   }
 };
 
+export const uploadAudio = (
+  releaseId,
+  trackId,
+  audioData,
+  type
+) => async dispatch => {
+  try {
+    const data = new FormData();
+    data.append('releaseId', releaseId);
+    data.append('trackId', trackId);
+    data.append('audio', audioData);
+    data.append('type', type);
+
+    const config = {
+      onUploadProgress: event => {
+        const percent = Math.floor((event.loaded / event.total) * 100);
+        dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent });
+      }
+    };
+
+    const res = await axios.post('/api/upload/audio', data, config);
+    dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
+    return res;
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
+  }
+};
+
 export const uploadAudioProgress = (trackId, percent) => dispatch => {
-  dispatch({
-    type: UPLOAD_AUDIO_PROGRESS,
-    trackId,
-    percent
-  });
+  dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent });
 };

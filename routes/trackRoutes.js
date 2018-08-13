@@ -2,12 +2,14 @@ const aws = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
+const multer = require('multer');
 const { AWS_REGION, BUCKET_OPT, BUCKET_SRC } = require('./constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
+const upload = multer();
 
 module.exports = app => {
   // Add Track
@@ -192,7 +194,7 @@ module.exports = app => {
     }
   );
 
-  // Upload Audio
+  // Get Upload Url
   app.get('/api/upload/audio', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId, trackId, type } = req.query;
@@ -226,4 +228,41 @@ module.exports = app => {
       res.status(500).send({ error: error.message });
     }
   });
+
+  // Upload Audio
+  app.post(
+    '/api/upload/audio',
+    upload.single('audio'),
+    requireLogin,
+    releaseOwner,
+    async (req, res) => {
+      try {
+        const { releaseId, trackId, type } = req.body;
+        if (!['audio/aiff', 'audio/flac', 'audio/wav'].includes(type)) {
+          throw new Error(
+            'File type not recognised. Needs to be flac/aiff/wav.'
+          );
+        }
+
+        const encoded = ffmpeg(req.file.stream)
+          .audioCodec('flac')
+          .audioChannels(2)
+          .toFormat('flac')
+          .outputOptions('-compression_level 12');
+
+        const s3 = new aws.S3();
+        const s3Stream = encoded.pipe();
+        const Key = `${releaseId}/${trackId}.flac`;
+        const params = { Bucket: BUCKET_SRC, Key, Body: s3Stream };
+
+        s3.upload(params)
+          .promise()
+          .then(() => {
+            res.end();
+          });
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
+    }
+  );
 };

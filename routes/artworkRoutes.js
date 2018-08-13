@@ -1,6 +1,4 @@
 const aws = require('aws-sdk');
-const axios = require('axios');
-const fs = require('fs');
 const sharp = require('sharp');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -9,7 +7,7 @@ const requireLogin = require('../middlewares/requireLogin');
 const { AWS_REGION, BUCKET_IMG } = require('./constants');
 
 const Release = mongoose.model('releases');
-const upload = multer({ dest: 'tmp/' });
+const upload = multer();
 aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
@@ -22,17 +20,20 @@ module.exports = app => {
     async (req, res) => {
       try {
         const { releaseId } = req.body;
-        const s3 = new aws.S3();
-        const ext = '.jpg';
-        const type = 'image/jpeg';
-        const axiosConfig = { headers: { 'Content-Type': type } };
-        const s3Params = {
-          ContentType: `${type}`,
+
+        const optimisedImg = sharp()
+          .resize(1000, 1000)
+          .crop()
+          .toFormat('jpeg');
+
+        const s3Stream = req.file.stream.pipe(optimisedImg);
+
+        const params = {
+          ContentType: 'image/jpeg',
+          Body: s3Stream,
           Bucket: BUCKET_IMG,
-          Expires: 30,
-          Key: `${releaseId}${ext}`
+          Key: `${releaseId}.jpg`
         };
-        const signedUrl = s3.getSignedUrl('putObject', s3Params);
 
         const updateReleaseArtwork = Release.findByIdAndUpdate(
           releaseId,
@@ -40,23 +41,11 @@ module.exports = app => {
           { new: true }
         ).select('-__v');
 
-        const optimisedImg = await sharp(req.file.path)
-          .resize(1000, 1000)
-          .crop()
-          .toFormat('jpeg')
-          .toBuffer();
-
-        axios
-          .put(signedUrl, optimisedImg, axiosConfig)
+        const s3 = new aws.S3();
+        s3.upload(params)
+          .promise()
           .then(() => updateReleaseArtwork)
-          .then(updated => {
-            fs.unlink(req.file.path, error => {
-              if (error) {
-                throw new Error(error);
-              }
-            });
-            res.send(updated);
-          });
+          .then(updated => res.send(updated));
       } catch (error) {
         res.status(500).send({ error });
       }

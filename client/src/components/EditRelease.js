@@ -10,7 +10,6 @@ import {
   getFormValues,
   reduxForm
 } from 'redux-form';
-import axios from 'axios';
 import CLOUD_URL from '../index';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
@@ -35,6 +34,7 @@ import {
   transcodeAudio,
   updateRelease,
   uploadArtwork,
+  uploadAudio,
   uploadAudioProgress
 } from '../actions';
 import '../style/editRelease.css';
@@ -145,41 +145,24 @@ class EditRelease extends Component {
     const { release } = this.props;
     const releaseId = release._id;
     const { trackTitle } = release.trackList[index];
+
     const trackName =
       (trackTitle && `'${trackTitle}'`) || `track ${parseInt(index, 10) + 1}`;
+
+    this.props.toastInfo(
+      `Uploading file '${audioFile.name}' for ${trackName}.`
+    );
     this.props
-      .fetchAudioUploadUrl(releaseId, trackId, audioFile.type)
-      .then(res => {
-        const audioUploadUrl = res.data;
-
-        this.props.toastInfo(
-          `Uploading file '${audioFile.name}' for ${trackName}.`
-        );
-
-        const config = {
-          headers: {
-            'Content-Type': audioFile.type
-          },
-          onUploadProgress: event => {
-            const progress = (event.loaded / event.total) * 100;
-            this.props.uploadAudioProgress(trackId, Math.floor(progress));
-          }
-        };
-
-        axios
-          .put(audioUploadUrl, audioFile, config)
-          .then(() => {
-            this.props.toastSuccess(`Upload complete for ${trackName}!`);
-            return this.props.transcodeAudio(releaseId, trackId, trackName);
-          })
-          .then(() => {
-            const { hasAudio } = this.props.release.trackList[index];
-            this.props.change(`trackList[${index}].hasAudio`, hasAudio);
-          })
-          .catch(error =>
-            this.props.toastError(`Upload failed! ${error.message}`)
-          );
-      });
+      .uploadAudio(releaseId, trackId, audioFile, audioFile.type)
+      .then(() => {
+        this.props.toastSuccess(`Upload complete for ${trackName}!`);
+        return this.props.transcodeAudio(releaseId, trackId, trackName);
+      })
+      .then(() => {
+        const { hasAudio } = this.props.release.trackList[index];
+        this.props.change(`trackList[${index}].hasAudio`, hasAudio);
+      })
+      .catch(error => this.props.toastError(`Upload failed! ${error.message}`));
   };
 
   onSubmit = values =>
@@ -493,6 +476,11 @@ class EditRelease extends Component {
                 </div>
               </div>
               <h3 className="track-list-title text-center">Track List</h3>
+              <p>
+                Upload formats supported: flac, aiff, wav (bit-depths greater
+                than 24 will be truncated to 24-bit). All formats will be stored
+                in flac format.
+              </p>
               <p>You can drag and drop to reorder tracks.</p>
               <FieldArray
                 addTrack={this.props.addTrack}
@@ -603,6 +591,7 @@ export default reduxForm({
       transcodeAudio,
       updateRelease,
       uploadArtwork,
+      uploadAudio,
       uploadAudioProgress
     }
   )(withRouter(EditRelease))

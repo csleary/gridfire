@@ -10,7 +10,6 @@ const UserSchema = new Schema(
       googleId: String,
       idHash: String,
       isLocal: Boolean,
-      name: String,
       password: String,
       resetToken: String,
       resetExpire: Date

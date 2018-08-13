@@ -18,7 +18,8 @@ const RenderTrack = props => {
   const releaseId = release._id;
   const trackId = release.trackList[index]._id;
   const hasAudio = release.trackList[index].hasAudio;
-  const isUploading = audioUploadProgress < 100;
+  const isUploading = audioUploadProgress > 0 && audioUploadProgress < 100;
+  const isEncoding = audioUploadProgress === 100 && !isTranscoding;
 
   const audioClassNames = classNames({
     'audio-true': hasAudio && !isTranscoding && !isUploading,
@@ -67,7 +68,13 @@ const RenderTrack = props => {
         {isTranscoding && (
           <span className="mr-2 yellow">
             <FontAwesome name="cog" spin className="mr-2" />
-            <strong>Transcoding</strong>
+            <strong>Transcoding…</strong>
+          </span>
+        )}
+        {isEncoding && (
+          <span className="mr-2 cyan">
+            <FontAwesome name="file-archive-o" className="mr-2" />
+            <strong>Encoding…</strong>
           </span>
         )}
         {index < fields.length - 1 && (
