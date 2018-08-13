@@ -172,7 +172,7 @@ module.exports = app => {
               Body: optData
             };
 
-            s3.putObject(uploadParams)
+            s3.upload(uploadParams)
               .promise()
               .then(() => fsPromises.unlink(tempPath))
               .then(() => {
@@ -238,28 +238,31 @@ module.exports = app => {
     async (req, res) => {
       try {
         const { releaseId, trackId, type } = req.body;
+        const s3 = new aws.S3();
+        const tempPath = `tmp/${trackId}`;
+
         if (!['audio/aiff', 'audio/flac', 'audio/wav'].includes(type)) {
           throw new Error(
             'File type not recognised. Needs to be flac/aiff/wav.'
           );
         }
 
-        const encoded = ffmpeg(req.file.stream)
+        ffmpeg(req.file.stream)
           .audioCodec('flac')
           .audioChannels(2)
           .toFormat('flac')
-          .outputOptions('-compression_level 12');
+          .outputOptions('-compression_level 12')
+          .on('end', async () => {
+            const s3Stream = await fsPromises.readFile(tempPath);
+            const Key = `${releaseId}/${trackId}.flac`;
+            const params = { Bucket: BUCKET_SRC, Key, Body: s3Stream };
 
-        const s3 = new aws.S3();
-        const s3Stream = encoded.pipe();
-        const Key = `${releaseId}/${trackId}.flac`;
-        const params = { Bucket: BUCKET_SRC, Key, Body: s3Stream };
-
-        s3.upload(params)
-          .promise()
-          .then(() => {
-            res.end();
-          });
+            s3.upload(params)
+              .promise()
+              .then(() => fsPromises.unlink(tempPath))
+              .then(() => res.end());
+          })
+          .save(tempPath);
       } catch (error) {
         res.status(500).send({ error: error.message });
       }

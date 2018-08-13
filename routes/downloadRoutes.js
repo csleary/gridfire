@@ -1,5 +1,6 @@
 const archiver = require('archiver');
 const aws = require('aws-sdk');
+const ffmpeg = require('fluent-ffmpeg');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { nemp3Secret } = require('../config/keys');
@@ -70,6 +71,19 @@ module.exports = app => {
       const trackSrc = s3
         .getObject({ Bucket: BUCKET_SRC, Key })
         .createReadStream();
+
+      // // Download Formats. TODO: Remember to add correct extension depending on format.
+      // const encode = ffmpeg(trackSrc)
+      //   .audioCodec('libmp3lame')
+      //   .toFormat('mp3')
+      //   .outputOptions('-q:a 0')
+      //   .on('error', error => {
+      //     throw new Error(`Transcoding error: ${error.message}`);
+      //   });
+      //
+      // archive.append(encode.pipe(), {
+      //   name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
+      // });
 
       archive.append(trackSrc, {
         name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
