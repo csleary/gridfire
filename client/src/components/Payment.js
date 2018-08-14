@@ -2,7 +2,12 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import * as actions from '../actions';
+import {
+  fetchDownloadToken,
+  fetchIncomingTxs,
+  purchaseRelease,
+  toastInfo
+} from '../actions';
 import ManualPayment from './payment/ManualPayment';
 import QRCode from './payment/QRCode';
 import Spinner from './Spinner';
@@ -46,15 +51,14 @@ class Payment extends Component {
 
   render() {
     const {
-      downloadToken,
       isLoadingTxs,
       isUpdating,
+      hasPurchased,
       nemNode,
       paidToDate,
       paymentAddress,
       paymentHash,
       release,
-      toastInfo,
       transactions,
       transactionsError
     } = this.props;
@@ -162,17 +166,17 @@ class Payment extends Component {
           </div>
         </div>
         <TransactionsList
-          artistName={release.artistName}
-          downloadToken={downloadToken}
+          fetchDownloadToken={this.props.fetchDownloadToken}
           handleFetchIncomingTxs={this.handleFetchIncomingTxs}
+          hasPurchased={hasPurchased}
           isLoadingTxs={isLoadingTxs}
           isUpdating={isUpdating}
           nemNode={nemNode}
           paidToDate={paidToDate}
           price={priceInXem}
-          releaseTitle={release.releaseTitle}
+          release={release}
           roundUp={this.roundUp}
-          toastInfo={toastInfo}
+          toastInfo={this.props.toastInfo}
           transactions={transactions}
           transactionsError={transactionsError}
         />
@@ -183,7 +187,7 @@ class Payment extends Component {
 
 function mapStateToProps(state) {
   return {
-    downloadToken: state.transactions.downloadToken,
+    hasPurchased: state.transactions.hasPurchased,
     isLoading: state.releases.isLoading,
     isLoadingTxs: state.transactions.isLoading,
     isUpdating: state.transactions.isUpdating,
@@ -200,5 +204,5 @@ function mapStateToProps(state) {
 
 export default connect(
   mapStateToProps,
-  actions
+  { fetchDownloadToken, fetchIncomingTxs, purchaseRelease, toastInfo }
 )(Payment);

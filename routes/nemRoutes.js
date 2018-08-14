@@ -16,7 +16,7 @@ module.exports = app => {
       const artist = await User.findById(release.user);
       const paymentAddress = artist.nemAddress;
 
-      const hasPreviouslyPurchased = user.purchases.some(purchase =>
+      const hasPurchased = user.purchases.some(purchase =>
         purchase.releaseId.equals(releaseId)
       );
 
@@ -25,20 +25,20 @@ module.exports = app => {
         paymentHash
       );
 
-      transactions.hasPreviouslyPurchased = hasPreviouslyPurchased;
+      transactions.hasPurchased = hasPurchased;
 
-      if (transactions.paidToDate >= price || hasPreviouslyPurchased) {
+      if (transactions.paidToDate >= price || hasPurchased) {
         // Add purchase to user account, if not already added.
-        if (!hasPreviouslyPurchased) {
+        if (!hasPurchased) {
           user.purchases.push({ purchaseDate: Date.now(), releaseId });
           user.save();
           recordSale(releaseId);
         }
-
-        // Issue download token to user on successful payment.
-        const token = generateToken(releaseId);
-
-        res.append('Authorization', `Bearer ${token}`);
+        //
+        // // Issue download token to user on successful payment.
+        // const token = generateToken({ releaseId });
+        //
+        // res.append('Authorization', `Bearer ${token}`);
       }
       res.send(transactions);
     } catch (error) {

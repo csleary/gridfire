@@ -1,9 +1,9 @@
-const archiver = require('archiver');
 const aws = require('aws-sdk');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const { nemp3Secret } = require('../config/keys');
-const { AWS_REGION, BUCKET_IMG, BUCKET_SRC } = require('./constants');
+const mongoose = require('mongoose');
+const { AWS_REGION, BUCKET_MP3 } = require('./constants');
+const { downloadArchive, generateMp3 } = require('./encoders');
 const requireLogin = require('../middlewares/requireLogin');
 const { generateToken } = require('./utils');
 
@@ -22,7 +22,7 @@ module.exports = app => {
     );
 
     if (hasPreviouslyPurchased) {
-      const token = generateToken(releaseId);
+      const token = generateToken({ releaseId });
       res.append('Authorization', `Bearer ${token}`);
       res.send();
     } else {
@@ -31,62 +31,31 @@ module.exports = app => {
   });
 
   // Download Release
-  app.get('/api/download/:token', async (req, res) => {
-    const archive = archiver('zip');
+  app.get('/api/download/:token/:format?', async (req, res) => {
     const s3 = new aws.S3();
+    const format = req.params.format;
     const token = req.params.token.substring(7);
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
-    const prefix =
-      process.env.NEM_NETWORK === 'mainnet' ? `${releaseId}` : 'test/test';
     const release = await Release.findById(releaseId);
-    const { artistName, releaseTitle, trackList } = release;
+    const { trackList } = release;
 
-    const s3ListAudio = await s3
-      .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: prefix })
+    const s3AudioMp3Query = await s3
+      .listObjectsV2({ Bucket: BUCKET_MP3, Prefix: releaseId })
       .promise();
 
-    archive.on('end', () => {});
-    archive.on('warning', () => {});
-    archive.on('error', () => {});
+    const audioMp3Available = s3AudioMp3Query.KeyCount === trackList.length;
 
-    res.attachment(`${artistName} - ${releaseTitle}.zip`);
-    archive.pipe(res);
-
-    s3ListAudio.Contents.forEach((s3Track, index) => {
-      const { Key } = s3Track;
-      const ext = Key.substring(Key.lastIndexOf('.'));
-
-      const trackNumber =
-        process.env.NEM_NETWORK === 'mainnet'
-          ? trackList.findIndex(track => Key.includes(track._id)) + 1
-          : index + 1;
-
-      const title =
-        process.env.NEM_NETWORK === 'mainnet'
-          ? trackList.filter(track => Key.includes(track._id))[0].trackTitle
-          : 'Test Track';
-
-      const trackSrc = s3
-        .getObject({ Bucket: BUCKET_SRC, Key })
-        .createReadStream();
-
-      archive.append(trackSrc, {
-        name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
-      });
-    });
-
-    const s3ListArt = await s3
-      .listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId })
-      .promise();
-
-    const Key = s3ListArt.Contents[0].Key;
-    const artSrc = s3.getObject({ Bucket: BUCKET_IMG, Key }).createReadStream();
-
-    archive.append(artSrc, {
-      name: `${artistName} - ${releaseTitle}.jpg`
-    });
-
-    archive.finalize();
+    if (audioMp3Available && !format) {
+      downloadArchive(res, release);
+    } else {
+      switch (format) {
+        case 'flac':
+          downloadArchive(res, release, 'flac');
+          break;
+        default:
+          generateMp3(res, release).then(() => downloadArchive(res, release));
+      }
+    }
   });
 };

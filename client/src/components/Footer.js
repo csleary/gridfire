@@ -74,10 +74,13 @@ const Footer = props => (
         </small>
         <div className="text-center social">
           <a href="https://twitter.com/ochremusic">
-            <FontAwesome name="twitter" className="mr-2" />
+            <FontAwesome name="twitter" className="mx-2" />
+          </a>
+          <a href="https://t.me/nemp3" title="The NEMp3 Telegram channel.">
+            <FontAwesome name="telegram" className="mx-2" />
           </a>
           <a href="https://github.com/csleary/nemp3v2">
-            <FontAwesome name="github" className="mr-2" />
+            <FontAwesome name="github" className="mx-2" />
           </a>
         </div>
       </div>

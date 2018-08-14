@@ -160,8 +160,7 @@ passport.use(
             googleId: profile.id,
             email: profile.emails[0].value,
             idHash: idHash(profile.emails[0].value),
-            isLocal: false,
-            name: profile.displayName
+            isLocal: false
           }
         }).save();
 

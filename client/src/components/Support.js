@@ -46,8 +46,11 @@ const Support = () => (
         <details>
           <summary>What format do you use for downloads?</summary>
           <p>
-            All audio downloads are lossless wav or aif, depending on the source
-            files uploaded by the artist.
+            All audio downloads are high-quality V0 VBR mp3s by default (created
+            using the LAME encoding library), with FLAC downloads also available
+            from your collection page (in 16 or 24-bit formats, depending on the
+            source files uploaded by the artist). More download format options
+            will follow.
           </p>
         </details>
         <details>
