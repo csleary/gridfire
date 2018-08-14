@@ -39,8 +39,8 @@ const filterTransactions = (idHash, transactions, filtered = []) => {
   return filtered;
 };
 
-const generateToken = releaseId =>
-  jwt.sign({ releaseId, expiresIn: '1m' }, nemp3Secret);
+const generateToken = payload =>
+  jwt.sign(payload, nemp3Secret, { expiresIn: '10m' });
 
 const getXemPrice = async () => {
   const xem = await nem.com.requests.market.xem();

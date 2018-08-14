@@ -9,7 +9,7 @@ const paymentData = {
   data: {
     addr: address.replace(/-/g, ''),
     amount: 0,
-    msg: 'nemp3 Donation'
+    msg: 'NEMp3 Donation'
   }
 };
 

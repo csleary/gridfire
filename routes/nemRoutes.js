@@ -36,7 +36,7 @@ module.exports = app => {
         }
 
         // Issue download token to user on successful payment.
-        const token = generateToken(releaseId);
+        const token = generateToken({ releaseId });
 
         res.append('Authorization', `Bearer ${token}`);
       }

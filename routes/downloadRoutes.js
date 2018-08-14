@@ -4,7 +4,12 @@ const ffmpeg = require('fluent-ffmpeg');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { nemp3Secret } = require('../config/keys');
-const { AWS_REGION, BUCKET_IMG, BUCKET_SRC } = require('./constants');
+const {
+  AWS_REGION,
+  BUCKET_IMG,
+  BUCKET_MP3,
+  BUCKET_SRC
+} = require('./constants');
 const requireLogin = require('../middlewares/requireLogin');
 const { generateToken } = require('./utils');
 
@@ -23,7 +28,7 @@ module.exports = app => {
     );
 
     if (hasPreviouslyPurchased) {
-      const token = generateToken(releaseId);
+      const token = generateToken({ releaseId });
       res.append('Authorization', `Bearer ${token}`);
       res.send();
     } else {
@@ -38,69 +43,109 @@ module.exports = app => {
     const token = req.params.token.substring(7);
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
-    const prefix =
-      process.env.NEM_NETWORK === 'mainnet' ? `${releaseId}` : 'test/test';
     const release = await Release.findById(releaseId);
     const { artistName, releaseTitle, trackList } = release;
 
-    const s3ListAudio = await s3
-      .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: prefix })
+    const s3AudioMp3Query = await s3
+      .listObjectsV2({ Bucket: BUCKET_MP3, Prefix: releaseId })
       .promise();
 
-    archive.on('end', () => {});
-    archive.on('warning', () => {});
-    archive.on('error', () => {});
+    const audioMp3Available = s3AudioMp3Query.KeyCount === trackList.length;
 
-    res.attachment(`${artistName} - ${releaseTitle}.zip`);
-    archive.pipe(res);
+    const downloadArchive = async () => {
+      const s3ListAudioMp3 = await s3
+        .listObjectsV2({ Bucket: BUCKET_MP3, Prefix: releaseId })
+        .promise();
 
-    s3ListAudio.Contents.forEach((s3Track, index) => {
-      const { Key } = s3Track;
-      const ext = Key.substring(Key.lastIndexOf('.'));
+      archive.on('end', () => {});
+      archive.on('warning', () => {});
+      archive.on('error', () => {});
 
-      const trackNumber =
-        process.env.NEM_NETWORK === 'mainnet'
-          ? trackList.findIndex(track => Key.includes(track._id)) + 1
-          : index + 1;
+      res.attachment(`${artistName} - ${releaseTitle}.zip`);
+      archive.pipe(res);
 
-      const title =
-        process.env.NEM_NETWORK === 'mainnet'
-          ? trackList.filter(track => Key.includes(track._id))[0].trackTitle
-          : 'Test Track';
+      s3ListAudioMp3.Contents.forEach(s3Track => {
+        const { Key } = s3Track;
+        const ext = Key.substring(Key.lastIndexOf('.'));
 
-      const trackSrc = s3
-        .getObject({ Bucket: BUCKET_SRC, Key })
+        const trackNumber =
+          trackList.findIndex(track => Key.includes(track._id)) + 1;
+
+        const title = trackList.filter(track => Key.includes(track._id))[0]
+          .trackTitle;
+
+        const trackSrc = s3
+          .getObject({ Bucket: BUCKET_MP3, Key })
+          .createReadStream();
+
+        archive.append(trackSrc, {
+          name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
+        });
+      });
+
+      const s3ListArt = await s3
+        .listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId })
+        .promise();
+
+      const Key = s3ListArt.Contents[0].Key;
+      const artSrc = s3
+        .getObject({ Bucket: BUCKET_IMG, Key })
         .createReadStream();
 
-      // // Download Formats. TODO: Remember to add correct extension depending on format.
-      // const encode = ffmpeg(trackSrc)
-      //   .audioCodec('libmp3lame')
-      //   .toFormat('mp3')
-      //   .outputOptions('-q:a 0')
-      //   .on('error', error => {
-      //     throw new Error(`Transcoding error: ${error.message}`);
-      //   });
-      //
-      // archive.append(encode.pipe(), {
-      //   name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
-      // });
-
-      archive.append(trackSrc, {
-        name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}`
+      archive.append(artSrc, {
+        name: `${artistName} - ${releaseTitle}.jpg`
       });
-    });
 
-    const s3ListArt = await s3
-      .listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId })
-      .promise();
+      archive.finalize();
+    };
 
-    const Key = s3ListArt.Contents[0].Key;
-    const artSrc = s3.getObject({ Bucket: BUCKET_IMG, Key }).createReadStream();
+    const generateMp3 = () =>
+      new Promise(async resolve => {
+        const s3ListAudioSrc = await s3
+          .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: releaseId })
+          .promise();
 
-    archive.append(artSrc, {
-      name: `${artistName} - ${releaseTitle}.jpg`
-    });
+        const encodeTracks = s3ListAudioSrc.Contents.map(
+          s3Track =>
+            new Promise(done => {
+              const { Key } = s3Track;
+              const trackId = trackList.filter(track =>
+                Key.includes(track._id)
+              )[0]._id;
 
-    archive.finalize();
+              const trackSrc = s3
+                .getObject({ Bucket: BUCKET_SRC, Key })
+                .createReadStream();
+
+              const encode = ffmpeg(trackSrc)
+                .audioCodec('libmp3lame')
+                .toFormat('mp3')
+                .outputOptions('-q:a 0')
+                .on('error', error => {
+                  throw new Error(`Transcoding error: ${error.message}`);
+                });
+
+              const uploadParams = {
+                Bucket: BUCKET_MP3,
+                ContentType: 'audio/mp3',
+                Key: `${releaseId}/${trackId}.mp3`,
+                Body: encode.pipe()
+              };
+
+              s3.upload(uploadParams)
+                .promise()
+                .then(() => {
+                  done();
+                });
+            })
+        );
+        Promise.all(encodeTracks).then(() => resolve());
+      });
+
+    if (audioMp3Available) {
+      downloadArchive();
+    } else {
+      generateMp3().then(() => downloadArchive());
+    }
   });
 };
