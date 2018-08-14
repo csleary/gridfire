@@ -26,10 +26,10 @@ const About = () => (
         </p>
         <p>
           Artists set a price for their releases in USD, and we convert this to
-          the equivalent market value in XEM automatically. Fans may purchase
-          using one of the NEM wallets, either via a QR code with a mobile
-          wallet, or manually entering payment using the Nanowallet desktop
-          wallet.
+          the equivalent market value in XEM automatically. Fans can make
+          purchases using one of the NEM wallets, either via a QR code with a
+          mobile wallet, or by manually entering payment details using the
+          Nanowallet desktop wallet.
         </p>
         <p>
           At present, NEMp3 is entirely free to use, with artists receiving 100%

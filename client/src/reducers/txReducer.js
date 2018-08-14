@@ -7,12 +7,12 @@ import {
 
 const initialState = {
   error: '',
+  hasPurchased: false,
+  incomingTxs: [],
   isLoading: false,
   isUpdating: false,
-  incomingTxs: [],
   nemNode: '',
-  paidToDate: null,
-  downloadToken: null
+  paidToDate: null
 };
 
 export default (state = initialState, action) => {
@@ -24,7 +24,7 @@ export default (state = initialState, action) => {
         isLoading: false,
         isUpdating: false,
         error: false,
-        downloadToken: action.downloadToken,
+        hasPurchased: action.payload.hasPurchased,
         incomingTxs: action.payload.incomingTxs,
         nemNode: action.payload.nemNode,
         paidToDate: action.payload.paidToDate

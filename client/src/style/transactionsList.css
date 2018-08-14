@@ -72,10 +72,6 @@ button.download-button:hover {
   color: #000;
 }
 
-button.download-button:hover .fa {
-  animation: jump 0.5s;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -83,22 +79,6 @@ button.download-button:hover .fa {
 
   to {
     opacity: 1;
-  }
-}
-
-@keyframes jump {
-  0% {
-    transform: translateY(0);
-    animation-timing-function: ease-out;
-  }
-
-  50% {
-    transform: translateY(-0.3rem);
-    animation-timing-function: ease-in;
-  }
-
-  100% {
-    transform: translateY(0);
   }
 }
 

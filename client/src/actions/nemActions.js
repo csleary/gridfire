@@ -42,8 +42,7 @@ export const fetchIncomingTxs = (
       type: FETCH_INCOMING_TRANSACTIONS,
       isLoading: false,
       isUpdating: false,
-      payload: res.data,
-      downloadToken: res.headers.authorization
+      payload: res.data
     });
   } catch (e) {
     dispatch({

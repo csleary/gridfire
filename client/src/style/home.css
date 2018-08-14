@@ -66,6 +66,12 @@
   transform: scale(1.1);
 }
 
+.front-page .cover-artwork .cover-artwork-overlay .format-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: -1.4rem;
+}
+
 .front-page .cover-artwork .artist-name,
 .front-page .cover-artwork .release-title {
   color: hsla(233, 10%, 75%, 1);

@@ -52,9 +52,8 @@ const RenderRelease = props => {
         </div>
         {variation === 'collection' && (
           <div className="buttons">
-            <FontAwesome
+            <div
               className="download"
-              name="download"
               onClick={() => {
                 props.fetchDownloadToken(releaseId, downloadToken => {
                   if (downloadToken) {
@@ -65,8 +64,32 @@ const RenderRelease = props => {
                   }
                 });
               }}
-              title={`Download '${releaseTitle}', by ${artistName}`}
-            />
+              role="button"
+              tabIndex="-1"
+              title={`Download ${artistName} - '${releaseTitle}' (MP3)`}
+            >
+              <FontAwesome className="download" name="download" />
+              <div className="format-label text-center">MP3</div>
+            </div>
+            <div
+              className="download"
+              onClick={() => {
+                props.fetchDownloadToken(releaseId, downloadToken => {
+                  if (downloadToken) {
+                    props.toastInfo(
+                      `Fetching download: ${artistName} - '${releaseTitle}'`
+                    );
+                    window.location = `/api/download/${downloadToken}/flac`;
+                  }
+                });
+              }}
+              role="button"
+              tabIndex="-1"
+              title={`Download ${artistName} - '${releaseTitle}' (FLAC)`}
+            >
+              <FontAwesome className="download" name="download" />
+              <div className="format-label text-center">FLAC</div>
+            </div>
           </div>
         )}
         <div className="release-title">
