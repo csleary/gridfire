@@ -74,7 +74,15 @@ export default (state = initialState, action) => {
     case FETCH_CATALOGUE:
       return {
         ...state,
-        catalogue: payload
+        catalogue: [
+          ...state.catalogue,
+          ...payload.filter(fetched => {
+            if (state.catalogue.some(release => release._id === fetched._id)) {
+              return false;
+            }
+            return true;
+          })
+        ]
       };
     case FETCH_COLLECTION:
       return {

@@ -37,7 +37,11 @@ export const fetchRelease = releaseId => async dispatch => {
     dispatch({ type: FETCH_RELEASE, payload: res.data.release });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    dispatch({
+      type: TOAST_ERROR,
+      text: 'Release currently unavailable. Heading home…'
+    });
+    return e.response.data;
   }
 };
 

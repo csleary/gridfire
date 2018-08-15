@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import FontAwesome from 'react-fontawesome';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
@@ -9,7 +10,10 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isFetching: false,
+      isLoading: true,
+      fetchInterval: 16,
+      skip: 0
     };
   }
 
@@ -25,6 +29,16 @@ class Home extends Component {
       this.setState({ isLoading: false });
     });
   }
+
+  handleClick = () => {
+    const { fetchInterval, skip } = this.state;
+    this.setState({ isFetching: true });
+    this.props
+      .fetchCatalogue(skip + fetchInterval)
+      .then(() =>
+        this.setState({ isFetching: false, skip: skip + fetchInterval })
+      );
+  };
 
   render() {
     const { catalogue } = this.props;
@@ -51,6 +65,20 @@ class Home extends Component {
         <div className="row">
           <div className="col p-3">
             <div className="front-page">{renderReleases}</div>
+            <div className="d-flex justify-content-center">
+              <button
+                className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
+                disabled={this.state.isFetching}
+                onClick={this.handleClick}
+              >
+                <FontAwesome
+                  name="refresh"
+                  spin={this.state.isFetching}
+                  className="mr-2"
+                />
+                More
+              </button>
+            </div>
           </div>
         </div>
       </main>
