@@ -12,7 +12,7 @@ class Home extends Component {
     this.state = {
       isFetching: false,
       isLoading: true,
-      fetchInterval: 16,
+      fetchInterval: 8,
       skip: 0
     };
   }
@@ -60,6 +60,7 @@ class Home extends Component {
         </Spinner>
       );
     }
+
     return (
       <main className="container-fluid">
         <div className="row">

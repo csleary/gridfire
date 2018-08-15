@@ -533,7 +533,7 @@ const validate = ({
     const trackListErrors = [];
     trackList.forEach((track, trackIndex) => {
       const trackErrors = {};
-      if (!track || !track.trackTitle) {
+      if (!track.trackTitle || !track.trackTitle.trim()) {
         trackErrors.trackTitle =
           'Please either enter a track title, or remove it from the list.';
         trackListErrors[trackIndex] = trackErrors;

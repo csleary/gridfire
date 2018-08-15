@@ -39,7 +39,7 @@ module.exports = app => {
     const skip = parseInt(req.query.skip || 0, 10);
     const releases = await Release.find({ published: true })
       .skip(skip)
-      .limit(16)
+      .limit(12)
       .sort('-dateCreated');
     res.send(releases);
   });
