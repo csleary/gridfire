@@ -42,8 +42,7 @@ class SelectedRelease extends Component {
         return;
       }
 
-      const tagLength =
-        this.props.release.tags && this.props.release.tags.length;
+      const tagLength = this.props.release.tags.length;
       const tagKeys = Array.from({ length: tagLength }, () => uuidv4());
       this.setState({ tagKeys });
 
@@ -217,21 +216,18 @@ class SelectedRelease extends Component {
       columns: trackList.length > 10
     });
 
-    const releaseTags =
-      tags &&
-      tags.length &&
-      tags.map((tag, index) => (
-        <div
-          className="tag mr-2 mb-2"
-          key={this.state.tagKeys[index]}
-          onClick={() => this.handleTagSearch(tag)}
-          role="button"
-          tabIndex="-1"
-          title={`Click to see more releases tagged with '${tag}'.`}
-        >
-          {tag}
-        </div>
-      ));
+    const releaseTags = tags.map((tag, index) => (
+      <div
+        className="tag mr-2 mb-2"
+        key={this.state.tagKeys[index]}
+        onClick={() => this.handleTagSearch(tag)}
+        role="button"
+        tabIndex="-1"
+        title={`Click to see more releases tagged with '${tag}'.`}
+      >
+        {tag}
+      </div>
+    ));
 
     return (
       <main className="container d-flex align-items-center">
@@ -331,13 +327,12 @@ class SelectedRelease extends Component {
                 )}
               </p>
             )}
-            {releaseTags &&
-              releaseTags.length && (
-                <Fragment>
-                  <h6 className="red mt-4 mb-3">Tags</h6>
-                  <div className="tags">{releaseTags}</div>
-                </Fragment>
-              )}
+            {releaseTags.length > 0 && (
+              <Fragment>
+                <h6 className="red mt-4 mb-3">Tags</h6>
+                <div className="tags">{releaseTags}</div>
+              </Fragment>
+            )}
           </div>
         </div>
       </main>
