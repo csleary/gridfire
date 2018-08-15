@@ -90,6 +90,7 @@ a:focus {
 .btn-sm {
   padding: 0 0.5rem;
   margin-top: 0;
+  min-width: auto;
 }
 
 .btn-outline-primary,

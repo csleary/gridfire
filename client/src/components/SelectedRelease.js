@@ -32,17 +32,22 @@ class SelectedRelease extends Component {
     const { releaseId } = this.props.match.params;
     this.props.fetchUser();
     this.props.fetchXemPrice();
-    this.props.fetchRelease(releaseId).then(() => {
-      const { purchases } = this.props.user;
+    this.props.fetchRelease(releaseId).then(res => {
+      if (res.error) {
+        this.props.history.push('/');
+        return;
+      }
       if (!this.props.release) {
         this.props.history.push('/');
         return;
       }
 
-      const tagLength = this.props.release.tags.length;
+      const tagLength =
+        this.props.release.tags && this.props.release.tags.length;
       const tagKeys = Array.from({ length: tagLength }, () => uuidv4());
       this.setState({ tagKeys });
 
+      const { purchases } = this.props.user;
       const inCollection =
         purchases &&
         purchases.some(
@@ -213,6 +218,7 @@ class SelectedRelease extends Component {
     });
 
     const releaseTags =
+      tags &&
       tags.length &&
       tags.map((tag, index) => (
         <div
@@ -325,12 +331,13 @@ class SelectedRelease extends Component {
                 )}
               </p>
             )}
-            {releaseTags.length && (
-              <Fragment>
-                <h6 className="red mt-4 mb-3">Tags</h6>
-                <div className="tags">{releaseTags}</div>
-              </Fragment>
-            )}
+            {releaseTags &&
+              releaseTags.length && (
+                <Fragment>
+                  <h6 className="red mt-4 mb-3">Tags</h6>
+                  <div className="tags">{releaseTags}</div>
+                </Fragment>
+              )}
           </div>
         </div>
       </main>

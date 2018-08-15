@@ -241,7 +241,16 @@ module.exports = app => {
         const s3 = new aws.S3();
         const tempPath = `tmp/${trackId}`;
 
-        if (!['audio/aiff', 'audio/flac', 'audio/wav'].includes(type)) {
+        if (
+          ![
+            'audio/aiff',
+            'audio/x-aiff',
+            'audio/flac',
+            'audio/vnd.wav',
+            'audio/wav',
+            'audio/x-wav'
+          ].includes(type)
+        ) {
           throw new Error(
             'File type not recognised. Needs to be flac/aiff/wav.'
           );

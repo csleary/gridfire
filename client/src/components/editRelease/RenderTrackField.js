@@ -66,7 +66,7 @@ const RenderTrackField = props => {
           {...input}
         />
         <Dropzone
-          accept=".aif, .aiff, .wav, .flac"
+          accept=".aif, .aifc, .aiff, .wav, .flac"
           activeClassName="dropzone-audio-active"
           className={dropzoneClasses}
           disabled={isUploading}

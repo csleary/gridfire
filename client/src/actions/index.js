@@ -41,8 +41,8 @@ export const fetchAudioUploadUrl = (
   }
 };
 
-export const fetchCatalogue = () => async dispatch => {
-  const res = await axios.get('/api/catalogue');
+export const fetchCatalogue = skip => async dispatch => {
+  const res = await axios.get('/api/catalogue/', { params: { skip } });
   dispatch({ type: FETCH_CATALOGUE, payload: res.data });
   return res;
 };

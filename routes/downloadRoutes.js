@@ -17,11 +17,11 @@ module.exports = app => {
     const { releaseId } = req.body;
     const user = await User.findById(req.user._id);
 
-    const hasPreviouslyPurchased = user.purchases.some(purchase =>
+    const hasPurchased = user.purchases.some(purchase =>
       purchase.releaseId.equals(releaseId)
     );
 
-    if (hasPreviouslyPurchased) {
+    if (hasPurchased) {
       const token = generateToken({ releaseId });
       res.append('Authorization', `Bearer ${token}`);
       res.send();
