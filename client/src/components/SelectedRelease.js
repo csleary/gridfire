@@ -111,8 +111,8 @@ class SelectedRelease extends Component {
   };
 
   renderTrackList = () =>
-    this.props.release.trackList.map(track => {
-      const { trackTitle } = track;
+    this.props.release.trackList.map((track, index) => {
+      const { trackTitle } = track || `Track ${index + 1}`;
       const trackId = track._id;
       const { isPlaying, isPaused } = this.props.player;
       const playerTrackId = this.props.player.trackId;
