@@ -10,7 +10,7 @@ import {
   getFormValues,
   reduxForm
 } from 'redux-form';
-import CLOUD_URL from '../index';
+import { CLOUD_URL } from '../index';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
 import RenderTrackList from './editRelease/RenderTrackList';

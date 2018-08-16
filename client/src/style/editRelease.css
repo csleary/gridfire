@@ -52,6 +52,11 @@ input[type='date'] {
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.dropzone-art.uploading {
+  border: 2px dashed #ffd24d;
+  color: #ffd24d;
+}
+
 .dropzone-art:hover {
   background-color: #000;
   border-color: #18cdca;

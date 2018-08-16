@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
-import CLOUD_URL from '../index';
+import { CLOUD_URL } from '../index';
 
 const RenderRelease = props => {
   const { release, variation } = props;

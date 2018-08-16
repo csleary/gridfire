@@ -15,7 +15,7 @@ import {
   searchReleases,
   toastInfo
 } from '../actions';
-import CLOUD_URL from '../index';
+import { CLOUD_URL } from '../index';
 import Spinner from './Spinner';
 import '../style/selectedRelease.css';
 

@@ -9,6 +9,13 @@ const RenderArtwork = props => {
   const { _id, releaseTitle } = release;
   const releaseId = _id;
 
+  const isUploading =
+    props.artworkUploadProgress && props.artworkUploadProgress < 100;
+
+  const dropzoneClassNames = classNames('dropzone-art', {
+    uploading: isUploading
+  });
+
   const artworkClassNames = classNames('img-fluid', {
     lazyloaded: coverArtLoaded,
     lazyload: !coverArtLoaded
@@ -57,7 +64,7 @@ const RenderArtwork = props => {
       <Dropzone
         accept=".png, .jpg, .jpeg"
         activeClassName="dropzone-art-active"
-        className="dropzone-art"
+        className={dropzoneClassNames}
         maxSize={1024 * 1024 * 10}
         multiple={false}
         onDrop={props.onDropArt}
@@ -68,9 +75,7 @@ const RenderArtwork = props => {
           : 'Drop artwork here, or click to select. Must be under 10MB in size and have a minimum dimension of 1000px (will be resized and cropped square).'}
         <ProgressBar
           percentComplete={props.artworkUploadProgress}
-          willDisplay={
-            props.artworkUploadProgress && props.artworkUploadProgress < 100
-          }
+          willDisplay={isUploading}
         />
       </Dropzone>
     </Fragment>
