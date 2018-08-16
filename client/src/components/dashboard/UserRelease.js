@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
-import CLOUD_URL from '../../index';
+import { CLOUD_URL } from '../../index';
 
 class UserRelease extends Component {
   constructor(props) {

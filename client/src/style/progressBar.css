@@ -1,5 +1,5 @@
 .progress-bar {
-  background: #18cdca;
+  background: #ffd24d;
   height: 4px;
   margin-top: 1rem;
   transition: 0.25s;
@@ -7,9 +7,7 @@
 }
 
 .dropzone-art .progress-bar {
-  background: #18cdca;
 }
 
 .track-list .progress-bar {
-  background: #ffd24d;
 }

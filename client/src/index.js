@@ -20,4 +20,4 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-export { CLOUD_URL as default };
+export { CLOUD_URL, CLOUD_URL as default };
