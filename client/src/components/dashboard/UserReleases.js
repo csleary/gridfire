@@ -80,7 +80,7 @@ class UserReleases extends Component {
     return (
       <main className="container-fluid">
         <div className="row">
-          <div className="col-lg py-3">
+          <div className="col py-3">
             <h3 className="text-center">
               You have {userReleases.length} release{userReleases.length > 1
                 ? 's'

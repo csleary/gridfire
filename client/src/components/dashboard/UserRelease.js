@@ -149,10 +149,10 @@ class UserRelease extends Component {
             </h6>
             {numSold}
           </div>
-          <div className="d-flex mt-auto">
+          <div className="release-button-group d-flex mt-auto">
             <button
               onClick={() => history.push(`/release/edit/${releaseId}`)}
-              className="btn btn-outline-primary btn-sm flex-grow-1"
+              className="btn btn-outline-primary btn-sm"
             >
               <FontAwesome name="pencil" className="mr-2" />
               Edit
@@ -160,7 +160,7 @@ class UserRelease extends Component {
             <button
               disabled={this.state.isPublishingRelease}
               onClick={() => this.handlePublishStatus()}
-              className="btn btn-outline-warning btn-sm flex-grow-1"
+              className="btn btn-outline-warning btn-sm"
             >
               {release.published ? (
                 <Fragment>
@@ -175,7 +175,7 @@ class UserRelease extends Component {
               )}
             </button>
             <button
-              className="btn btn-outline-danger btn-sm flex-grow-1"
+              className="btn btn-outline-danger btn-sm"
               disabled={this.state.isDeletingRelease}
               onClick={() => this.handleDeleteRelease()}
             >
