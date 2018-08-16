@@ -1,7 +1,7 @@
 .front-page {
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: 1, 1fr;
 }
 
 .front-page .cover-artwork {
@@ -12,8 +12,13 @@
   width: 100%;
 }
 
+.front-page .cover-artwork:hover .cover-artwork-overlay,
+.front-page .cover-artwork:active .cover-artwork-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
 .front-page .cover-artwork .cover-artwork-overlay {
-  align-items: stretch;
   background: rgba(0, 0, 0, 0.5);
   color: hsla(233, 10%, 75%, 1);
   display: flex;
@@ -30,66 +35,99 @@
   visibility: hidden;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay a {
-  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  color: hsla(233, 10%, 75%, 1);
-}
-
-.front-page .cover-artwork .cover-artwork-overlay a:hover {
-  color: #fff;
-}
-
-.front-page .cover-artwork:hover .cover-artwork-overlay,
-.front-page .cover-artwork:active .cover-artwork-overlay {
-  opacity: 1;
-  visibility: visible;
-}
-
 .front-page .cover-artwork .cover-artwork-overlay .buttons {
-  align-items: center;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+  align-content: stretch;
+  align-items: stretch;
   display: flex;
-  flex-direction: row;
   justify-content: space-evenly;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .info,
-.front-page .cover-artwork .cover-artwork-overlay .play,
-.front-page .cover-artwork .cover-artwork-overlay .download {
+.front-page .cover-artwork .cover-artwork-overlay .buttons a,
+.front-page .cover-artwork .cover-artwork-overlay .buttons button {
+  backface-visibility: hidden;
+  background: none;
+  border: none;
+  color: hsla(233, 10%, 75%, 1);
+  flex: 0 1 50%;
+  padding: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .info:hover,
-.front-page .cover-artwork .cover-artwork-overlay .play:hover,
-.front-page .cover-artwork .cover-artwork-overlay .download:hover {
-  color: #f0f0f1;
+.front-page .cover-artwork .cover-artwork-overlay .buttons a:hover,
+.front-page .cover-artwork .cover-artwork-overlay .buttons button:hover {
+  /* background: rgba(0, 0, 0, 0.5); */
   cursor: pointer;
-  transform: scale(1.1);
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .format-label {
+.front-page .cover-artwork .cover-artwork-overlay .buttons a .fa,
+.front-page .cover-artwork .cover-artwork-overlay .buttons button .fa {
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay .buttons a:hover .fa,
+.front-page .cover-artwork .cover-artwork-overlay .buttons button:hover .fa {
+  color: #fff;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transform: scale(1.2);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay .buttons button .label {
   font-size: 1.2rem;
   font-weight: bold;
-  margin-top: -1.4rem;
+  margin-top: -1.2rem;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .artist-name,
-.front-page .cover-artwork .release-title {
+.front-page .cover-artwork .cover-artwork-overlay .buttons button:hover .label {
+  color: #fff;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay a.artist-name,
+.front-page .cover-artwork .cover-artwork-overlay a.release-title {
   color: hsla(233, 10%, 75%, 1);
+  flex: 0 1 auto;
   font-size: 1.2rem;
   font-weight: bold;
   padding: 0.75rem 1.25rem;
   text-align: center;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.front-page .cover-artwork .cover-artwork-overlay a.artist-name:hover,
+.front-page .cover-artwork .cover-artwork-overlay a.release-title:hover {
+  /* background: rgba(0, 0, 0, 0.5); */
+  color: #fff;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+@media (min-width: 576px) {
+  .front-page {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .front-page {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
 }
 
 @media (min-width: 1200px) {
   .front-page {
-    grid-template-columns: repeat(auto-fit, minmax(18rem, 0.25fr));
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (min-width: 1600px) {
   .front-page {
-    grid-template-columns: repeat(auto-fit, minmax(22rem, 0.25fr));
+    grid-template-columns: repeat(6, 1fr);
   }
 
   .front-page .cover-artwork .cover-artwork-overlay {
