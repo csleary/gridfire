@@ -2,7 +2,7 @@
   display: grid;
   grid-column-gap: 1rem;
   grid-row-gap: 1rem;
-  grid-template-columns: 1, 1fr;
+  grid-template-columns: 1fr;
   padding: 0;
 }
 
@@ -11,18 +11,9 @@
   border: 0;
   border-radius: 0;
   color: hsla(233, 10%, 75%, 1);
+  flex: 1 0 10rem;
   min-width: auto;
   padding: 0.25rem 0.75rem;
-}
-
-.user-releases .btn.btn-outline-primary {
-  border-top-left-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
-}
-
-.user-releases .btn.btn-outline-danger {
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
 }
 
 .user-releases .btn.btn-outline-danger:disabled,
@@ -49,6 +40,12 @@ form.nem-address {
   font-size: 1.75rem;
   text-overflow: ellipsis;
   text-align: center;
+}
+
+.user-releases .release-button-group {
+  border-radius: 0.5rem;
+  flex-wrap: wrap;
+  overflow: hidden;
 }
 
 .user-releases .btn:hover {
@@ -107,20 +104,29 @@ form.nem-address {
 
 @media (min-width: 768px) {
   .user-releases {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 992px) {
+  .user-releases {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (min-width: 1200px) {
   .user-releases {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (min-width: 1600px) {
+  .user-releases {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1920px) {
   .user-releases {
     grid-template-columns: repeat(6, 1fr);
   }

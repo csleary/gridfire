@@ -1,7 +1,7 @@
 .front-page {
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1, 1fr;
+  grid-template-columns: 1fr;
 }
 
 .front-page .cover-artwork {
@@ -127,10 +127,16 @@
 
 @media (min-width: 1600px) {
   .front-page {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .front-page .cover-artwork .cover-artwork-overlay {
     font-size: 5rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .front-page {
+    grid-template-columns: repeat(6, 1fr);
   }
 }
