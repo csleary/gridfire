@@ -10,6 +10,7 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      fetchedAll: false,
       isFetching: false,
       isLoading: true,
       fetchInterval: 8,
@@ -33,11 +34,10 @@ class Home extends Component {
   handleClick = () => {
     const { fetchInterval, skip } = this.state;
     this.setState({ isFetching: true });
-    this.props
-      .fetchCatalogue(skip + fetchInterval)
-      .then(() =>
-        this.setState({ isFetching: false, skip: skip + fetchInterval })
-      );
+    this.props.fetchCatalogue(skip + fetchInterval).then(res => {
+      if (res.data.length < fetchInterval) this.setState({ fetchedAll: true });
+      this.setState({ isFetching: false, skip: skip + fetchInterval });
+    });
   };
 
   render() {
@@ -69,15 +69,17 @@ class Home extends Component {
             <div className="d-flex justify-content-center">
               <button
                 className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
-                disabled={this.state.isFetching}
+                disabled={this.state.isFetching || this.state.fetchedAll}
                 onClick={this.handleClick}
               >
-                <FontAwesome
-                  name="refresh"
-                  spin={this.state.isFetching}
-                  className="mr-2"
-                />
-                More
+                {this.state.fetchedAll ? null : (
+                  <FontAwesome
+                    name="refresh"
+                    spin={this.state.isFetching}
+                    className="mr-2"
+                  />
+                )}
+                {this.state.fetchedAll ? 'No More' : 'Load More'}
               </button>
             </div>
           </div>
