@@ -13,6 +13,14 @@ class UserReleases extends Component {
     };
   }
 
+  releasesOffline = () => {
+    const { userReleases } = this.props;
+    if (!userReleases) return;
+
+    const offline = userReleases.filter(release => release.published === false);
+    return offline.length;
+  };
+
   renderUserReleases = () => {
     const {
       deleteRelease,
@@ -41,6 +49,7 @@ class UserReleases extends Component {
 
   render() {
     const { isLoadingUserReleases, userReleases } = this.props;
+    const releasesOffline = this.releasesOffline();
 
     if (isLoadingUserReleases) {
       return (
@@ -84,7 +93,8 @@ class UserReleases extends Component {
             <h3 className="text-center">
               You have {userReleases.length} release{userReleases.length > 1
                 ? 's'
-                : ''}
+                : ''}{' '}
+              {releasesOffline ? ` (${releasesOffline} offline)` : null}
             </h3>
             <ul className="user-releases">{this.renderUserReleases()}</ul>
             <Link
