@@ -1,4 +1,5 @@
 const aws = require('aws-sdk');
+const { exec } = require('child_process');
 const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
@@ -42,11 +43,13 @@ module.exports = app => {
 
       const params = {
         Bucket: BUCKET_OPT,
-        Expires: 30,
+        Expires: 300,
         Key: list.Contents[0].Key
       };
 
       const playUrl = s3.getSignedUrl('getObject', params);
+      // const playUrl = `/tmp/${trackId}`;
+
       res.send(playUrl);
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -147,47 +150,95 @@ module.exports = app => {
 
         const inputAudio = await s3.listObjectsV2(listParams).promise();
         const { Key } = inputAudio.Contents[0];
-        const tempPath = `tmp/${trackId}`;
+        const outputPath = 'tmp/';
+        const outputAudio = `${outputPath}${trackId}.mp4`;
+        const outputMpd = `${outputPath}${trackId}.mpd`;
+        // const fragPath = `${tempPath}_frag`;
 
         const downloadSrc = s3
           .getObject({ Bucket: BUCKET_SRC, Key })
           .createReadStream();
 
+        // const downloadSrc = `tmp/${trackId}.flac`;
+
         ffmpeg(downloadSrc)
           .audioCodec('libfdk_aac')
           .audioBitrate(128)
-          .audioChannels(2)
           .toFormat('mp4')
-          .outputOptions('-movflags +faststart')
+          .on('codecData', e => {
+            const split = e.duration.split(':');
+            const durSeconds =
+              parseInt(split[0], 10) * 60 * 60 +
+              parseInt(split[1], 10) * 60 +
+              parseFloat(split[2], 10);
+            const release = res.locals.release;
+            const trackDoc = release.trackList.id(trackId);
+            trackDoc.duration = durSeconds;
+            release.save();
+          })
+          .on('stderr', e => {
+            console.log(e);
+          })
+          .output(outputAudio)
+          .outputOptions([
+            '-frag_duration 15000000',
+            '-movflags default_base_moof+empty_moov'
+          ])
           .on('error', error => {
             throw new Error(`Transcoding error: ${error.message}`);
           })
           .on('end', async () => {
-            const optData = await fsPromises.readFile(tempPath);
+            exec(
+              `mp4dash \
+                --exec-dir=/home/chris/bin/Bento4-SDK-1-5-1-624.x86_64-unknown-linux/bin \
+                -f \
+                --mpd-name=${trackId}.mpd \
+                --no-media \
+                --no-split \
+                -o ${outputPath} \
+                --use-segment-list \
+                ${outputAudio}`,
+              async error => {
+                if (error) {
+                  throw new Error(`mp4dash error: ${error.message}`);
+                }
 
-            const uploadParams = {
-              Bucket: BUCKET_OPT,
-              ContentType: 'audio/mp4',
-              Key: `m4a/${releaseId}/${trackId}.m4a`,
-              Body: optData
-            };
+                const mp4Audio = await fsPromises.readFile(outputAudio);
+                const mp4Params = {
+                  Bucket: BUCKET_OPT,
+                  ContentType: 'audio/mp4',
+                  Key: `m4a/${releaseId}/${trackId}.mp4`,
+                  Body: mp4Audio
+                };
+                const mp4Upload = s3.upload(mp4Params).promise();
 
-            s3.upload(uploadParams)
-              .promise()
-              .then(() => fsPromises.unlink(tempPath))
-              .then(() => {
-                const release = res.locals.release;
-                const trackDoc = release.trackList.id(trackId);
-                trackDoc.hasAudio = true;
-                release.save().then(updatedRelease =>
-                  res.send({
-                    updatedRelease,
-                    success: `Transcoding ${trackName} to aac complete.`
-                  })
-                );
-              });
+                const mpd = await fsPromises.readFile(outputMpd);
+                const mpdParams = {
+                  Bucket: BUCKET_OPT,
+                  ContentType: 'text/xml',
+                  Key: `mpd/${releaseId}/${trackId}.mpd`,
+                  Body: mpd
+                };
+                const mpdUpload = s3.upload(mpdParams).promise();
+
+                Promise.all([mp4Upload, mpdUpload])
+                  .then(() => fsPromises.unlink(outputAudio))
+                  .then(() => fsPromises.unlink(outputMpd))
+                  .then(() => {
+                    const release = res.locals.release;
+                    const trackDoc = release.trackList.id(trackId);
+                    trackDoc.hasAudio = true;
+                    release.save().then(updatedRelease =>
+                      res.send({
+                        updatedRelease,
+                        success: `Transcoding ${trackName} to aac complete.`
+                      })
+                    );
+                  });
+              }
+            );
           })
-          .save(tempPath);
+          .run();
       } catch (error) {
         res.status(500).send({ error: error.message });
       }
@@ -239,6 +290,7 @@ module.exports = app => {
       try {
         const { releaseId, trackId, type } = req.body;
         const s3 = new aws.S3();
+        // const tempPath = `tmp/${trackId}.flac`;
         const tempPath = `tmp/${trackId}`;
 
         if (
@@ -270,6 +322,7 @@ module.exports = app => {
               .promise()
               .then(() => fsPromises.unlink(tempPath))
               .then(() => res.end());
+            res.end();
           })
           .save(tempPath);
       } catch (error) {

@@ -10,7 +10,7 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fetchedAll: false,
+      fetchedAll: false, // TODO Put in separate catalogue reducer to track intervals/skip value.
       isFetching: false,
       isLoading: true,
       fetchInterval: 8,

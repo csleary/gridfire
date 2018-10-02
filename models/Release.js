@@ -26,7 +26,8 @@ const releaseSchema = new Schema(
     trackList: [
       {
         trackTitle: { type: String, trim: true },
-        hasAudio: { type: Boolean, default: false }
+        hasAudio: { type: Boolean, default: false },
+        duration: { type: Number, trim: true }
       }
     ],
     tags: [String],

@@ -21,7 +21,7 @@ export default (state = initialState, action) => {
     case PLAY_TRACK:
       return {
         ...state,
-        isPlaying: true,
+        isPlaying: false,
         showPlayer: true,
         audio: action.payload.audio,
         artistName: action.payload.artistName,
