@@ -79,7 +79,7 @@ class Home extends Component {
                     className="mr-2"
                   />
                 )}
-                {this.state.fetchedAll ? 'No More' : 'Load More'}
+                {this.state.fetchedAll ? 'No More Releases' : 'Load More'}
               </button>
             </div>
           </div>
