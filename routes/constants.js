@@ -1,4 +1,5 @@
 const AWS_REGION = 'us-east-1';
+const BENTO4_DIR = process.env.BENTO4_DIR;
 const BUCKET_IMG = 'nemp3-img';
 const BUCKET_MP3 = 'nemp3-mp3';
 const BUCKET_OPT =
@@ -8,6 +9,7 @@ const BUCKET_SRC =
 
 module.exports = {
   AWS_REGION,
+  BENTO4_DIR,
   BUCKET_IMG,
   BUCKET_MP3,
   BUCKET_OPT,
