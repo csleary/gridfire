@@ -72,9 +72,10 @@
 }
 
 .player:hover .seek-bar {
-  background: hsla(233, 10%, 20%, 1);
+  background: hsla(233, 10%, 50%, 1);
   cursor: pointer;
   height: 8px;
+  margin-top: 6px;
 }
 
 .player:hover #player-progress {
