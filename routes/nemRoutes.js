@@ -53,8 +53,12 @@ module.exports = app => {
   });
 
   app.get('/api/nem/price', async (req, res) => {
-    const xemPriceUsd = await getXemPrice();
-    res.send({ xemPriceUsd });
+    try {
+      const xemPriceUsd = await getXemPrice();
+      res.send({ xemPriceUsd });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
   });
 
   app.post('/api/nem/address', requireLogin, async (req, res) => {

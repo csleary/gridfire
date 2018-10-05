@@ -4,7 +4,13 @@ const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
 const multer = require('multer');
-const { AWS_REGION, BUCKET_OPT, BUCKET_SRC } = require('./constants');
+const sax = require('sax');
+const {
+  AWS_REGION,
+  BENTO4_DIR,
+  BUCKET_OPT,
+  BUCKET_SRC
+} = require('./constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 
@@ -27,6 +33,66 @@ module.exports = app => {
         .catch(error => res.status(500).send({ error }));
     }
   );
+
+  // Fetch Init Range and Segment List
+  app.get('/api/:releaseId/:trackId/init', async (req, res) => {
+    const { releaseId, trackId } = req.params;
+    const s3 = new aws.S3();
+
+    const mpdData = await s3
+      .getObject({ Bucket: BUCKET_OPT, Key: `mpd/${releaseId}/${trackId}.mpd` })
+      .promise();
+
+    const strict = true;
+    const parser = sax.parser(strict);
+    let initRange;
+    const segmentList = [];
+    parser.onopentag = node => {
+      if (node.name === 'Initialization') {
+        initRange = node.attributes.range;
+      }
+    };
+    parser.onattribute = attr => {
+      if (attr.name === 'mediaRange') {
+        segmentList.push(attr.value);
+      }
+    };
+    parser.write(mpdData.Body).close();
+
+    const mp4Params = {
+      Bucket: BUCKET_OPT,
+      Expires: 30,
+      Key: `m4a/${releaseId}/${trackId}.mp4`
+    };
+
+    const url = s3.getSignedUrl('getObject', mp4Params);
+
+    res.send({ url, initRange, segmentList });
+  });
+
+  // Fetch Segment
+  app.get('/api/:releaseId/:trackId/:Range', async (req, res) => {
+    const { releaseId, trackId, Range } = req.params;
+    const s3 = new aws.S3();
+
+    const mp4List = await s3
+      .listObjectsV2({
+        Bucket: BUCKET_OPT,
+        Prefix: `m4a/${releaseId}/${trackId}`
+      })
+      .promise();
+
+    const Key = mp4List.Contents[0].Key;
+    const mp4Params = {
+      Bucket: BUCKET_OPT,
+      Expires: 30,
+      Key,
+      Range: `bytes=${Range}`
+    };
+
+    const mp4Url = s3.getSignedUrl('getObject', mp4Params);
+    res.send(mp4Url);
+  });
 
   // Play Track
   app.get('/api/play-track', async (req, res) => {
@@ -92,11 +158,27 @@ module.exports = app => {
 
       let deleteS3Opt;
       if (s3OptData.Contents.length) {
-        const deleteImgParams = {
+        const deleteOptParams = {
           Bucket: BUCKET_OPT,
           Key: s3OptData.Contents[0].Key
         };
-        deleteS3Opt = await s3.deleteObject(deleteImgParams).promise();
+        deleteS3Opt = await s3.deleteObject(deleteOptParams).promise();
+      }
+
+      // Delete mpd
+      const listMpdParams = {
+        Bucket: BUCKET_OPT,
+        Prefix: `mpd/${releaseId}/${trackId}`
+      };
+      const s3MpdData = await s3.listObjectsV2(listMpdParams).promise();
+
+      let deleteS3Mpd;
+      if (s3MpdData.Contents.length) {
+        const deleteMpdParams = {
+          Bucket: BUCKET_OPT,
+          Key: s3MpdData.Contents[0].Key
+        };
+        deleteS3Mpd = await s3.deleteObject(deleteMpdParams).promise();
       }
 
       // Delete from db
@@ -106,8 +188,8 @@ module.exports = app => {
         { new: true }
       );
 
-      Promise.all([deleteS3Src, deleteS3Opt, deleteTrackDb])
-        .then(promised => res.send(promised[2]))
+      Promise.all([deleteS3Src, deleteS3Opt, deleteS3Mpd, deleteTrackDb])
+        .then(promised => res.send(promised[3]))
         .catch(error => res.status(500).send({ error: error.message }));
     }
   );
@@ -153,13 +235,10 @@ module.exports = app => {
         const outputPath = 'tmp/';
         const outputAudio = `${outputPath}${trackId}.mp4`;
         const outputMpd = `${outputPath}${trackId}.mpd`;
-        // const fragPath = `${tempPath}_frag`;
 
         const downloadSrc = s3
           .getObject({ Bucket: BUCKET_SRC, Key })
           .createReadStream();
-
-        // const downloadSrc = `tmp/${trackId}.flac`;
 
         ffmpeg(downloadSrc)
           .audioCodec('libfdk_aac')
@@ -176,9 +255,7 @@ module.exports = app => {
             trackDoc.duration = durSeconds;
             release.save();
           })
-          .on('stderr', e => {
-            console.log(e);
-          })
+          .on('stderr', () => {})
           .output(outputAudio)
           .outputOptions([
             '-frag_duration 15000000',
@@ -190,7 +267,7 @@ module.exports = app => {
           .on('end', async () => {
             exec(
               `mp4dash \
-                --exec-dir=/home/chris/bin/Bento4-SDK-1-5-1-624.x86_64-unknown-linux/bin \
+                --exec-dir=${BENTO4_DIR} \
                 -f \
                 --mpd-name=${trackId}.mpd \
                 --no-media \
@@ -215,7 +292,7 @@ module.exports = app => {
                 const mpd = await fsPromises.readFile(outputMpd);
                 const mpdParams = {
                   Bucket: BUCKET_OPT,
-                  ContentType: 'text/xml',
+                  ContentType: 'application/dash+xml',
                   Key: `mpd/${releaseId}/${trackId}.mpd`,
                   Body: mpd
                 };
@@ -290,7 +367,6 @@ module.exports = app => {
       try {
         const { releaseId, trackId, type } = req.body;
         const s3 = new aws.S3();
-        // const tempPath = `tmp/${trackId}.flac`;
         const tempPath = `tmp/${trackId}`;
 
         if (

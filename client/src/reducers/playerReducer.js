@@ -7,7 +7,6 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  audio: '',
   isPlaying: false,
   isPaused: false,
   releaseId: '',
@@ -23,7 +22,6 @@ export default (state = initialState, action) => {
         ...state,
         isPlaying: false,
         showPlayer: true,
-        audio: action.payload.audio,
         artistName: action.payload.artistName,
         releaseId: action.payload.releaseId,
         trackId: action.payload.trackId,

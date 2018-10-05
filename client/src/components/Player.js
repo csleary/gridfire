@@ -26,8 +26,6 @@ class Player extends Component {
     };
 
     this.newTrack = false;
-    this.rangeStart = 0;
-    this.rangeEnd = null;
     this.seekPercent = null;
   }
 
@@ -50,8 +48,14 @@ class Player extends Component {
           updating: false
         });
 
+        const duration = this.props.release.trackList.filter(
+          track => track._id === this.props.player.trackId
+        )[0].duration;
+
+        this.mediaSource.duration = duration;
+
         if (this.state.bufferEnd) {
-          this.mediaSource.endOfStream();
+          // this.mediaSource.endOfStream();
         }
       });
 
@@ -61,6 +65,14 @@ class Player extends Component {
     });
 
     audioPlayer.addEventListener('timeupdate', () => {
+      if (
+        Math.floor(audioPlayer.currentTime) ===
+        Math.floor(this.mediaSource.duration)
+      ) {
+        this.handleTrackEnded();
+        return;
+      }
+
       let needsBuffer = false;
       for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
         if (
@@ -87,8 +99,9 @@ class Player extends Component {
       const mins = Math.floor(audioPlayer.currentTime / 60);
       const secs = Math.floor(audioPlayer.currentTime % 60);
       const percentComplete =
-        (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      const remainingTime = audioPlayer.duration - audioPlayer.currentTime || 0;
+        (audioPlayer.currentTime / this.mediaSource.duration) * 100;
+      const remainingTime =
+        this.mediaSource.duration - audioPlayer.currentTime || 0;
       const minsLeft = Math.floor(remainingTime / 60);
       const secsLeft = Math.floor(remainingTime % 60);
 
@@ -100,15 +113,11 @@ class Player extends Component {
     });
 
     audioPlayer.addEventListener('loadstart', () => {
-      this.setState({
-        ready: false
-      });
+      this.setState({ ready: false });
     });
 
     audioPlayer.addEventListener('canplay', () => {
-      this.setState({
-        ready: true
-      });
+      this.setState({ ready: true });
     });
 
     audioPlayer.addEventListener('play', () => {
@@ -128,7 +137,9 @@ class Player extends Component {
         isBuffered = false;
       }
 
-      if (!isBuffered && audioPlayer.readyState < 4) {
+      if (!isBuffered && audioPlayer.readyState < 4 && !this.newTrack) {
+        this.setState({ bufferEnd: false });
+        this.sourceBuffer.abort();
         this.currentSegment = Math.floor(audioPlayer.currentTime / 15);
         this.setState(
           { ready: false, isSeeking: true, isBuffering: true },
@@ -141,99 +152,79 @@ class Player extends Component {
       }
     });
 
-    audioPlayer.addEventListener('ended', () => {
-      const trackIndex = this.props.release.trackList.findIndex(
-        track => track.trackTitle === this.props.player.trackTitle
-      );
-      if (trackIndex + 1 < this.props.release.trackList.length) {
-        this.nextTrack(trackIndex + 1);
-      } else {
-        this.stopAudio();
-      }
-    });
+    audioPlayer.addEventListener('ended', () => this.handleTrackEnded());
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.player.audio !== this.props.player.audio) {
-      this.sourceBuffer.abort();
-      this.newTrack = true;
-      this.rangeStart = 0;
+    if (prevProps.player.trackId !== this.props.player.trackId) {
       const audioPlayer = document.getElementById('player');
-      audioPlayer.currentTime = 0;
+      if (this.sourceBuffer.buffered.length) {
+        this.sourceBuffer.remove(0, Math.ceil(this.mediaSource.duration));
+      }
+      this.newTrack = true;
+      this.setReady();
       this.fetchAudioRange(buffer => {
         this.sourceBuffer.appendBuffer(buffer);
+        audioPlayer.currentTime = 0;
+        this.handlePlay();
       });
     }
   }
 
-  fetchAudioRange = async callback => {
-    // const src = this.props.player.audio;
-    const src = `/audio/${this.props.player.trackId}.mp4`;
-    if (!src) return;
+  setReady() {
+    this.setState({ ready: false });
+  }
 
+  handleTrackEnded() {
+    const trackIndex = this.props.release.trackList.findIndex(
+      track => track.trackTitle === this.props.player.trackTitle
+    );
+    if (trackIndex + 1 < this.props.release.trackList.length) {
+      this.nextTrack(trackIndex + 1);
+    } else {
+      this.stopAudio();
+    }
+  }
+
+  fetchAudioRange = async callback => {
     if (this.newTrack) {
       this.fetchInitSegment().then(() =>
-        this.handleSegmentRanges(src, buffer => callback(buffer))
+        this.handleSegmentRanges(buffer => callback(buffer))
       );
     } else {
-      this.handleSegmentRanges(src, buffer => callback(buffer));
+      this.handleSegmentRanges(buffer => callback(buffer));
     }
   };
 
   fetchInitSegment = () =>
     new Promise(async resolve => {
-      const request = await axios(`/audio/${this.props.player.trackId}.mpd`);
-      const xml = request.data;
-      const parser = new DOMParser();
-      const manifest = parser.parseFromString(xml, 'text/xml');
-      this.segmentList = manifest.getElementsByTagName('SegmentURL');
+      const { releaseId, trackId } = this.props.player;
+      const res = await axios.get(`/api/${releaseId}/${trackId}/init`);
+      this.segmentList = res.data.segmentList;
       this.currentSegment = 0;
 
-      const initRange = manifest.getElementsByTagName('Initialization')[0]
-        .attributes[0].nodeValue;
-
-      this.rangeStart = parseInt(initRange.split('-')[0], 10);
-      this.rangeEnd = parseInt(initRange.split('-')[1], 10);
-
-      const config = {
-        headers: { Range: `bytes=${this.rangeStart}-${this.rangeEnd}` },
+      const initConfig = {
+        headers: { Range: `bytes=${res.data.initRange}` },
         responseType: 'arraybuffer'
       };
-
-      const res = await axios(
-        `/audio/${this.props.player.trackId}.mp4`,
-        config
-      );
-      this.initSegment = new Uint8Array(res.data);
-
-      const duration = this.props.release.trackList.filter(
-        track => track._id === this.props.player.trackId
-      )[0].duration;
-
-      this.mediaSource.duration = duration;
+      const init = await axios.get(res.data.url, initConfig);
+      this.initSegment = new Uint8Array(init.data);
       this.newTrack = false;
       resolve();
     });
 
-  handleSegmentRanges = async (src, callback) => {
-    this.rangeStart = parseInt(
-      this.segmentList[this.currentSegment].attributes[1].nodeValue.split(
-        '-'
-      )[0],
-      10
-    );
-    this.rangeEnd = parseInt(
-      this.segmentList[this.currentSegment].attributes[1].nodeValue.split(
-        '-'
-      )[1],
-      10
-    );
+  handleSegmentRanges = async callback => {
+    const { releaseId, trackId } = this.props.player;
+    const range = this.segmentList[this.currentSegment];
+    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/${range}`);
+    const segmentUrl = resUrl.data;
 
     const segmentConfig = {
-      headers: { Range: `bytes=${this.rangeStart}-${this.rangeEnd}` },
+      headers: { Range: `bytes=${this.segmentList[this.currentSegment]}` },
       responseType: 'arraybuffer'
     };
-    const res = await axios(src, segmentConfig);
+
+    const res = await axios.get(segmentUrl, segmentConfig);
     const segment = new Uint8Array(res.data);
     const buffer = new Uint8Array([...this.initSegment, ...segment]);
 
@@ -263,7 +254,7 @@ class Player extends Component {
     const x = event.clientX;
     const width = seekBar.clientWidth;
     this.seekPercent = x / width;
-    audioPlayer.currentTime = audioPlayer.duration * this.seekPercent;
+    audioPlayer.currentTime = this.mediaSource.duration * this.seekPercent;
   };
 
   hidePlayer = () => {
@@ -292,19 +283,12 @@ class Player extends Component {
     const audioPlayer = document.getElementById('player');
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
-    this.rangeStart = 0;
     this.props.playerStop();
   };
 
   renderPlayButton = () => {
     if (!this.state.ready) {
-      return (
-        <FontAwesome
-          name="circle-o-notch"
-          spin
-          className="player-button waiting"
-        />
-      );
+      return <FontAwesome name="cog" spin className="player-button waiting" />;
     } else if (this.props.player.isPlaying) {
       return (
         <FontAwesome
@@ -347,7 +331,7 @@ class Player extends Component {
 
     return (
       <div className={playerClassNames}>
-        <audio id="player" preload="metadata" autoPlay />
+        <audio id="player" />
         <div
           className="seek-bar"
           id="seek-bar"

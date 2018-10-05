@@ -29,6 +29,7 @@
     "mongoose": "^4.13.14",
     "multer": "^2.0.0-alpha.6",
     "nem-sdk": "^1.6.7",
+    "node-expat": "^2.3.17",
     "nodemailer": "^4.6.7",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^1.0.0",
@@ -36,6 +37,7 @@
     "readable-stream": "^2.3.6",
     "request": "^2.87.0",
     "request-promise-native": "^1.0.5",
+    "sax": "^1.2.4",
     "sharp": "^0.20.5"
   },
   "devDependencies": {
