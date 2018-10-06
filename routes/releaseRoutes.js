@@ -89,7 +89,7 @@ module.exports = app => {
       // Delete streaming audio
       const listOptParams = {
         Bucket: BUCKET_OPT,
-        Prefix: `m4a/${releaseId}`
+        Prefix: `mp4/${releaseId}`
       };
       const s3OptData = await s3.listObjectsV2(listOptParams).promise();
 
