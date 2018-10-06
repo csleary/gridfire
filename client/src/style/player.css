@@ -29,7 +29,7 @@
 .player .player-button {
   font-size: 2rem;
   padding: 0.5rem;
-  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .player .player-button:hover,
@@ -72,7 +72,7 @@
 }
 
 .player:hover .seek-bar {
-  background: hsla(233, 10%, 50%, 1);
+  background: hsla(233, 10%, 20%, 1);
   cursor: pointer;
   height: 8px;
   margin-top: 6px;
