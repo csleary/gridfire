@@ -133,8 +133,19 @@ class SelectedRelease extends Component {
         <li key={trackId}>
           <a
             onClick={() => {
-              this.props.playTrack(releaseId, trackId, artistName, trackTitle);
-              this.nowPlayingToast(trackTitle);
+              if (trackId !== playerTrackId) {
+                this.props.playTrack(
+                  releaseId,
+                  trackId,
+                  artistName,
+                  trackTitle
+                );
+                this.nowPlayingToast(trackTitle);
+              } else if (!isPlaying) {
+                const audioPlayer = document.getElementById('player');
+                audioPlayer.play();
+                this.props.playerPlay();
+              }
             }}
             role="link"
             tabIndex="-1"
