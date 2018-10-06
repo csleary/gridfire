@@ -61,8 +61,8 @@ module.exports = app => {
 
     const mp4Params = {
       Bucket: BUCKET_OPT,
-      Expires: 30,
-      Key: `m4a/${releaseId}/${trackId}.mp4`
+      Expires: 15,
+      Key: `mp4/${releaseId}/${trackId}.mp4`
     };
 
     const url = s3.getSignedUrl('getObject', mp4Params);
@@ -71,23 +71,22 @@ module.exports = app => {
   });
 
   // Fetch Segment
-  app.get('/api/:releaseId/:trackId/:Range', async (req, res) => {
-    const { releaseId, trackId, Range } = req.params;
+  app.get('/api/:releaseId/:trackId/segment', async (req, res) => {
+    const { releaseId, trackId } = req.params;
     const s3 = new aws.S3();
 
     const mp4List = await s3
       .listObjectsV2({
         Bucket: BUCKET_OPT,
-        Prefix: `m4a/${releaseId}/${trackId}`
+        Prefix: `mp4/${releaseId}/${trackId}`
       })
       .promise();
 
     const Key = mp4List.Contents[0].Key;
     const mp4Params = {
       Bucket: BUCKET_OPT,
-      Expires: 30,
-      Key,
-      Range: `bytes=${Range}`
+      Expires: 15,
+      Key
     };
 
     const mp4Url = s3.getSignedUrl('getObject', mp4Params);
@@ -103,7 +102,7 @@ module.exports = app => {
       const list = await s3
         .listObjectsV2({
           Bucket: BUCKET_OPT,
-          Prefix: `m4a/${releaseId}/${trackId}`
+          Prefix: `mp4/${releaseId}/${trackId}`
         })
         .promise();
 
@@ -152,7 +151,7 @@ module.exports = app => {
       // Delete streaming audio
       const listOptParams = {
         Bucket: BUCKET_OPT,
-        Prefix: `m4a/${releaseId}/${trackId}`
+        Prefix: `mp4/${releaseId}/${trackId}`
       };
       const s3OptData = await s3.listObjectsV2(listOptParams).promise();
 
@@ -284,7 +283,7 @@ module.exports = app => {
                 const mp4Params = {
                   Bucket: BUCKET_OPT,
                   ContentType: 'audio/mp4',
-                  Key: `m4a/${releaseId}/${trackId}.mp4`,
+                  Key: `mp4/${releaseId}/${trackId}.mp4`,
                   Body: mp4Audio
                 };
                 const mp4Upload = s3.upload(mp4Params).promise();
