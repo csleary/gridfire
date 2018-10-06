@@ -185,7 +185,7 @@ class Player extends Component {
   }
 
   setReady() {
-    this.setState({ ready: false });
+    this.setState({ bufferEnd: false, ready: false });
   }
 
   handleTrackEnded() {
