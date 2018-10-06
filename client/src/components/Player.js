@@ -53,7 +53,7 @@ class Player extends Component {
           track => track._id === this.props.player.trackId
         )[0].duration;
 
-        this.mediaSource.duration = duration;
+        if (duration) this.mediaSource.duration = duration;
 
         if (this.state.bufferEnd) {
           // this.mediaSource.endOfStream();
