@@ -17,6 +17,7 @@ class Player extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      autoStartDisabled: false,
       bufferEnd: false,
       elapsedTime: '',
       expandSeekBar: false,
@@ -121,8 +122,20 @@ class Player extends Component {
     });
 
     audioPlayer.addEventListener('play', () => {
-      this.props.playerPlay();
+      this.handlePlay();
     });
+
+    // audioPlayer.addEventListener('stalled', e => {
+    //   console.log(e);
+    // });
+    //
+    // audioPlayer.addEventListener('waiting', e => {
+    //   console.log(e);
+    // });
+    //
+    // audioPlayer.addEventListener('error', e => {
+    //   console.log(e);
+    // });
 
     audioPlayer.addEventListener('seeking', () => {
       let isBuffered;
@@ -201,26 +214,27 @@ class Player extends Component {
       const { releaseId, trackId } = this.props.player;
       const res = await axios.get(`/api/${releaseId}/${trackId}/init`);
       this.segmentList = res.data.segmentList;
-      this.currentSegment = 0;
+      const range = res.data.initRange;
 
       const initConfig = {
-        headers: { Range: `bytes=${res.data.initRange}` },
+        headers: { Range: `bytes=${range}` },
         responseType: 'arraybuffer'
       };
       const init = await axios.get(res.data.url, initConfig);
       this.initSegment = new Uint8Array(init.data);
+      this.currentSegment = 0;
       this.newTrack = false;
       resolve();
     });
 
   handleSegmentRanges = async callback => {
     const { releaseId, trackId } = this.props.player;
-    const range = this.segmentList[this.currentSegment];
-    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/${range}`);
+    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/segment`);
     const segmentUrl = resUrl.data;
+    const range = this.segmentList[this.currentSegment];
 
     const segmentConfig = {
-      headers: { Range: `bytes=${this.segmentList[this.currentSegment]}` },
+      headers: { Range: `bytes=${range}` },
       responseType: 'arraybuffer'
     };
 
@@ -244,8 +258,19 @@ class Player extends Component {
 
   handlePlay = () => {
     const audioPlayer = document.getElementById('player');
-    audioPlayer.play();
-    this.props.playerPlay();
+    const promisePlay = audioPlayer.play();
+    if (promisePlay !== undefined) {
+      promisePlay
+        .catch(() => {
+          this.setState({ autoStartDisabled: true });
+        })
+        .then(() => {
+          if (!this.state.autoStartDisabled) {
+            audioPlayer.play();
+            this.props.playerPlay();
+          }
+        });
+    }
   };
 
   handleSeek = event => {
@@ -272,6 +297,7 @@ class Player extends Component {
   };
 
   playAudio = async () => {
+    this.setState({ autoStartDisabled: false });
     if (this.props.player.isPlaying) {
       this.handlePause();
     } else {
@@ -283,6 +309,8 @@ class Player extends Component {
     const audioPlayer = document.getElementById('player');
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
+    this.setState({ bufferEnd: false });
+    this.currentSegment = 0;
     this.props.playerStop();
   };
 
