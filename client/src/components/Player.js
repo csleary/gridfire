@@ -54,10 +54,6 @@ class Player extends Component {
         )[0].duration;
 
         if (duration) this.mediaSource.duration = duration;
-
-        if (this.state.bufferEnd) {
-          // this.mediaSource.endOfStream();
-        }
       });
 
       this.sourceBuffer.addEventListener('updateerror', () => {
@@ -66,9 +62,18 @@ class Player extends Component {
     });
 
     audioPlayer.addEventListener('timeupdate', () => {
+      const mins = Math.floor(audioPlayer.currentTime / 60);
+      const secs = Math.floor(audioPlayer.currentTime % 60);
+      const percentComplete =
+        (audioPlayer.currentTime / this.mediaSource.duration) * 100;
+      const remainingTime =
+        this.mediaSource.duration - audioPlayer.currentTime || 0;
+      const minsLeft = Math.floor(remainingTime / 60);
+      const secsLeft = Math.floor(remainingTime % 60);
+
       if (
-        Math.floor(audioPlayer.currentTime) ===
-        Math.floor(this.mediaSource.duration)
+        this.state.bufferEnd &&
+        this.state.percentComplete === percentComplete
       ) {
         this.handleTrackEnded();
         return;
@@ -97,15 +102,6 @@ class Player extends Component {
         });
       }
 
-      const mins = Math.floor(audioPlayer.currentTime / 60);
-      const secs = Math.floor(audioPlayer.currentTime % 60);
-      const percentComplete =
-        (audioPlayer.currentTime / this.mediaSource.duration) * 100;
-      const remainingTime =
-        this.mediaSource.duration - audioPlayer.currentTime || 0;
-      const minsLeft = Math.floor(remainingTime / 60);
-      const secsLeft = Math.floor(remainingTime % 60);
-
       this.setState({
         elapsedTime: `${mins}:${secs.toString(10).padStart(2, '0')}`,
         remainingTime: `-${minsLeft}:${secsLeft.toString(10).padStart(2, '0')}`,
@@ -124,18 +120,6 @@ class Player extends Component {
     audioPlayer.addEventListener('play', () => {
       this.handlePlay();
     });
-
-    // audioPlayer.addEventListener('stalled', e => {
-    //   console.log(e);
-    // });
-    //
-    // audioPlayer.addEventListener('waiting', e => {
-    //   console.log(e);
-    // });
-    //
-    // audioPlayer.addEventListener('error', e => {
-    //   console.log(e);
-    // });
 
     audioPlayer.addEventListener('seeking', () => {
       let isBuffered;
@@ -175,7 +159,7 @@ class Player extends Component {
         this.sourceBuffer.remove(0, Math.ceil(this.mediaSource.duration));
       }
       this.newTrack = true;
-      this.setReady();
+      this.setPlayerReady();
       this.fetchAudioRange(buffer => {
         this.sourceBuffer.appendBuffer(buffer);
         audioPlayer.currentTime = 0;
@@ -184,8 +168,8 @@ class Player extends Component {
     }
   }
 
-  setReady() {
-    this.setState({ bufferEnd: false, ready: false });
+  setPlayerReady() {
+    this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
   }
 
   handleTrackEnded() {
@@ -306,10 +290,10 @@ class Player extends Component {
   };
 
   stopAudio = () => {
+    this.setState({ bufferEnd: false });
     const audioPlayer = document.getElementById('player');
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
-    this.setState({ bufferEnd: false });
     this.currentSegment = 0;
     this.props.playerStop();
   };
