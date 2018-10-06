@@ -19,6 +19,7 @@ module.exports = {
     'no-alert': 0,
     'no-mixed-operators': 0,
     'no-param-reassign': 0,
+    'no-plusplus': 0,
     'no-underscore-dangle': 0,
     'no-unused-expressions': 0,
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],

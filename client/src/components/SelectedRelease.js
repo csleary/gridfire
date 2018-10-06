@@ -86,13 +86,13 @@ class SelectedRelease extends Component {
     const audioPlayer = document.getElementById('player');
     const { artistName, trackList } = this.props.release;
     const releaseId = this.props.release._id;
-    const { isPlaying, isPaused } = this.props.player;
+    const { isPlaying } = this.props.player;
     const playerReleaseId = this.props.player.releaseId;
 
     if (isPlaying && playerReleaseId === releaseId) {
       audioPlayer.pause();
       this.props.playerPause();
-    } else if (isPaused && playerReleaseId === releaseId) {
+    } else if (playerReleaseId === releaseId) {
       audioPlayer.play();
       this.props.playerPlay();
     } else {
@@ -133,8 +133,19 @@ class SelectedRelease extends Component {
         <li key={trackId}>
           <a
             onClick={() => {
-              this.props.playTrack(releaseId, trackId, artistName, trackTitle);
-              this.nowPlayingToast(trackTitle);
+              if (trackId !== playerTrackId) {
+                this.props.playTrack(
+                  releaseId,
+                  trackId,
+                  artistName,
+                  trackTitle
+                );
+                this.nowPlayingToast(trackTitle);
+              } else if (!isPlaying) {
+                const audioPlayer = document.getElementById('player');
+                audioPlayer.play();
+                this.props.playerPlay();
+              }
             }}
             role="link"
             tabIndex="-1"

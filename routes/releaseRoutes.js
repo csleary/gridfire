@@ -89,13 +89,13 @@ module.exports = app => {
       // Delete streaming audio
       const listOptParams = {
         Bucket: BUCKET_OPT,
-        Prefix: `m4a/${releaseId}`
+        Prefix: `mp4/${releaseId}`
       };
       const s3OptData = await s3.listObjectsV2(listOptParams).promise();
 
       let deleteS3Opt;
       if (s3OptData.Contents.length) {
-        const deleteImgParams = {
+        const deleteOptParams = {
           Bucket: BUCKET_OPT,
           Delete: {
             Objects: s3OptData.Contents.map(track => ({
@@ -103,7 +103,27 @@ module.exports = app => {
             }))
           }
         };
-        deleteS3Opt = s3.deleteObjects(deleteImgParams).promise();
+        deleteS3Opt = s3.deleteObjects(deleteOptParams).promise();
+      }
+
+      // Delete mpd
+      const listMpdParams = {
+        Bucket: BUCKET_OPT,
+        Prefix: `mpd/${releaseId}`
+      };
+      const s3MpdData = await s3.listObjectsV2(listMpdParams).promise();
+
+      let deleteS3Mpd;
+      if (s3MpdData.Contents.length) {
+        const deleteMpdParams = {
+          Bucket: BUCKET_OPT,
+          Delete: {
+            Objects: s3MpdData.Contents.map(track => ({
+              Key: track.Key
+            }))
+          }
+        };
+        deleteS3Mpd = await s3.deleteObject(deleteMpdParams).promise();
       }
 
       // Delete art from S3
@@ -129,6 +149,7 @@ module.exports = app => {
         deleteArtistFromUser,
         deleteS3Src,
         deleteS3Opt,
+        deleteS3Mpd,
         deleteS3Img
       ])
         .then(values => res.send(values[0]._id))
@@ -242,16 +263,44 @@ module.exports = app => {
 
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {
-    const update = req.body;
-    const releaseId = update._id;
+    const releaseId = req.body._id;
+    const {
+      artistName,
+      catNumber,
+      cLine,
+      credits,
+      info,
+      pLine,
+      price,
+      recordLabel,
+      releaseDate,
+      releaseTitle,
+      tags,
+      trackList
+    } = req.body;
 
-    const release = await Release.findByIdAndUpdate(releaseId, update, {
-      new: true
-    }).select('-__v');
+    const release = await Release.findById(releaseId).select('-__v');
+
+    release.artistName = artistName;
+    release.catNumber = catNumber;
+    release.credits = credits;
+    release.info = info;
+    release.price = price;
+    release.recordLabel = recordLabel;
+    release.releaseDate = releaseDate;
+    release.releaseTitle = releaseTitle;
+    release.tags = tags;
+    release.pLine.year = pLine && pLine.year ? pLine.year : undefined;
+    release.pLine.owner = pLine && pLine.owner ? pLine.owner : undefined;
+    release.cLine.year = cLine && cLine.year ? cLine.year : undefined;
+    release.cLine.owner = cLine && cLine.owner ? cLine.owner : undefined;
+    release.trackList.forEach((track, index) => {
+      track.trackTitle = trackList[index].trackTitle;
+      track.hasAudio = trackList[index].hasAudio;
+    });
+    release.save();
 
     // Add artist to Artist model.
-    const { artistName } = release;
-
     const artist = await Artist.findOneAndUpdate(
       { user: req.user._id, name: artistName },
       {},

@@ -10,7 +10,7 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fetchedAll: false,
+      fetchedAll: false, // TODO Put in separate catalogue reducer to track intervals/skip value.
       isFetching: false,
       isLoading: true,
       fetchInterval: 8,
@@ -79,7 +79,7 @@ class Home extends Component {
                     className="mr-2"
                   />
                 )}
-                {this.state.fetchedAll ? 'No More' : 'Load More'}
+                {this.state.fetchedAll ? 'No More Releases' : 'Load More'}
               </button>
             </div>
           </div>
