@@ -235,6 +235,20 @@ module.exports = app => {
         const outputAudio = `${outputPath}${trackId}.mp4`;
         const outputMpd = `${outputPath}${trackId}.mpd`;
 
+        const probeSrc = s3
+          .getObject({ Bucket: BUCKET_SRC, Key })
+          .createReadStream();
+
+        ffmpeg.ffprobe(probeSrc, (error, metadata) => {
+          if (error) {
+            throw new Error(`Probing error: ${error.message}`);
+          }
+          const release = res.locals.release;
+          const trackDoc = release.trackList.id(trackId);
+          trackDoc.duration = metadata.format.duration;
+          release.save();
+        });
+
         const downloadSrc = s3
           .getObject({ Bucket: BUCKET_SRC, Key })
           .createReadStream();
@@ -243,18 +257,7 @@ module.exports = app => {
           .audioCodec('libfdk_aac')
           .audioBitrate(128)
           .toFormat('mp4')
-          .on('codecData', e => {
-            const split = e.duration.split(':');
-            const durSeconds =
-              parseInt(split[0], 10) * 60 * 60 +
-              parseInt(split[1], 10) * 60 +
-              parseFloat(split[2], 10);
-            const release = res.locals.release;
-            const trackDoc = release.trackList.id(trackId);
-            trackDoc.duration = durSeconds;
-            release.save();
-          })
-          .on('stderr', () => {})
+          // .on('stderr', () => {})
           .output(outputAudio)
           .outputOptions([
             '-frag_duration 15000000',
@@ -397,7 +400,6 @@ module.exports = app => {
               .promise()
               .then(() => fsPromises.unlink(tempPath))
               .then(() => res.end());
-            res.end();
           })
           .save(tempPath);
       } catch (error) {
