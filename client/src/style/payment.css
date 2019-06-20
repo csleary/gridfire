@@ -4,6 +4,7 @@
 
 .btn-group.payment-method .btn {
   color: hsla(233, 10%, 75%, 1);
+  flex: 0 0 auto;
   padding: 0.5rem 1rem;
   min-width: auto;
 }
