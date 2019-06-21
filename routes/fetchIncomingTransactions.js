@@ -7,7 +7,8 @@ module.exports = (paymentAddress, idHash) =>
     let nodeName;
 
     if (process.env.NEM_NETWORK === 'mainnet') {
-      nodeHost = nem.model.nodes.defaultMainnet;
+      // nodeHost = nem.model.nodes.defaultMainnet;
+      nodeHost = 'http://209.126.98.204';
     } else {
       nodeHost = nem.model.nodes.defaultTestnet;
     }
