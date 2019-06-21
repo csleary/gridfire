@@ -7,7 +7,10 @@ import Spinner from './../Spinner';
 import '../../style/transactionsList.css';
 
 class TransactionsList extends Component {
-  state = { isPreparingDownload: false };
+  state = {
+    isPreparingDownload: false,
+    formatExists: false
+  };
 
   handleDownload = () => {
     this.setState({ isPreparingDownload: true });
@@ -16,10 +19,16 @@ class TransactionsList extends Component {
       toastInfo
     } = this.props;
     const releaseId = this.props.release._id;
+
     this.props.fetchDownloadToken(releaseId, downloadToken => {
       if (downloadToken) {
         toastInfo(`Fetching download: ${artistName} - '${releaseTitle}'`);
-        window.location = `/api/download/${downloadToken}`;
+        this.props.checkFormatMp3(downloadToken, () => {
+          this.setState({ formatExists: true, isPreparingDownload: false });
+          window.location = `/api/download/${downloadToken}`;
+        });
+      } else {
+        this.setState({ isPreparingDownload: false });
       }
     });
   };
@@ -64,6 +73,7 @@ class TransactionsList extends Component {
         <div className="d-flex justify-content-center">
           <button
             className="btn btn-outline-primary btn-lg download-button"
+            disabled={this.state.isPreparingDownload === true}
             download
             onClick={this.handleDownload}
           >
@@ -80,15 +90,18 @@ class TransactionsList extends Component {
             )}
           </button>
         </div>
-        {this.state.isPreparingDownload ? (
+        {this.state.isPreparingDownload && !this.state.formatExists ? (
           <Fragment>
-            <p className="mt-3 mb-0">
+            <p className="mt-3 mb-2">
               <FontAwesome name="info-circle" className="cyan mr-2" />
               This can take a little while if we don&rsquo;t have your chosen
               format cached, as we&rsquo;ll freshly transcode the release from
               source, before building your archive.
             </p>
-            <p>A download prompt will pop up when it&rsquo;s ready.</p>
+            <p>
+              A download prompt will pop up when it&rsquo;s ready. You&rsquo;re
+              free to continue browsing around the site while you wait.
+            </p>
           </Fragment>
         ) : null}
       </Fragment>
@@ -116,8 +129,8 @@ class TransactionsList extends Component {
       <div className="tx-list mt-3">
         <h5 className="mb-4">
           <FontAwesome name="list-ol" className="red mr-3" />
-          {transactions.length} Confirmed Transaction{transactions.length > 1 &&
-            's'}:
+          {transactions.length} Confirmed Transaction
+          {transactions.length > 1 && 's'}:
         </h5>
         <table className="table table-sm table-striped table-dark mb-5">
           <thead>

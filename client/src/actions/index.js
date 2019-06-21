@@ -57,6 +57,15 @@ export const fetchCollection = () => async dispatch => {
   }
 };
 
+export const checkFormatMp3 = (token, callback) => async dispatch => {
+  try {
+    const res = await axios.get(`/api/download/${token}/check`);
+    callback(res);
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+  }
+};
+
 export const fetchDownloadToken = (releaseId, callback) => async dispatch => {
   try {
     const res = await axios.post('/api/download', { releaseId });

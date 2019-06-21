@@ -1,7 +1,7 @@
 const aws = require('aws-sdk');
 const jwt = require('jsonwebtoken');
-const { nemp3Secret } = require('../config/keys');
 const mongoose = require('mongoose');
+const { nemp3Secret } = require('../config/keys');
 const { AWS_REGION, BUCKET_MP3 } = require('./constants');
 const { downloadArchive, generateMp3 } = require('./encoders');
 const requireLogin = require('../middlewares/requireLogin');
@@ -30,10 +30,9 @@ module.exports = app => {
     }
   });
 
-  // Download Release
-  app.get('/api/download/:token/:format?', async (req, res) => {
+  // Check if mp3s are cached or need building
+  app.get('/api/download/:token/check', async (req, res) => {
     const s3 = new aws.S3();
-    const format = req.params.format;
     const token = req.params.token.substring(7);
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
@@ -46,16 +45,29 @@ module.exports = app => {
 
     const audioMp3Available = s3AudioMp3Query.KeyCount === trackList.length;
 
-    if (audioMp3Available && !format) {
-      downloadArchive(res, release);
+    if (audioMp3Available) {
+      res.end();
     } else {
-      switch (format) {
-        case 'flac':
-          downloadArchive(res, release, 'flac');
-          break;
-        default:
-          generateMp3(res, release).then(() => downloadArchive(res, release));
-      }
+      generateMp3(res, release).then(() => {
+        res.end();
+      });
+    }
+  });
+
+  // Download Release
+  app.get('/api/download/:token/:format?', async (req, res) => {
+    const format = req.params.format;
+    const token = req.params.token.substring(7);
+    const decoded = jwt.verify(token, nemp3Secret);
+    const { releaseId } = decoded;
+    const release = await Release.findById(releaseId);
+
+    switch (format) {
+      case 'flac':
+        downloadArchive(res, release, 'flac');
+        break;
+      default:
+        downloadArchive(res, release);
     }
   });
 };

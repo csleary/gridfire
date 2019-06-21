@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import {
+  checkFormatMp3,
   fetchDownloadToken,
   fetchIncomingTxs,
   purchaseRelease,
@@ -166,6 +167,7 @@ class Payment extends Component {
           </div>
         </div>
         <TransactionsList
+          checkFormatMp3={this.props.checkFormatMp3}
           fetchDownloadToken={this.props.fetchDownloadToken}
           handleFetchIncomingTxs={this.handleFetchIncomingTxs}
           hasPurchased={hasPurchased}
@@ -204,5 +206,11 @@ function mapStateToProps(state) {
 
 export default connect(
   mapStateToProps,
-  { fetchDownloadToken, fetchIncomingTxs, purchaseRelease, toastInfo }
+  {
+    checkFormatMp3,
+    fetchDownloadToken,
+    fetchIncomingTxs,
+    purchaseRelease,
+    toastInfo
+  }
 )(Payment);
