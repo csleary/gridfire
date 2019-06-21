@@ -6,10 +6,35 @@ import SingleTransaction from './SingleTransaction';
 import Spinner from './../Spinner';
 import '../../style/transactionsList.css';
 
+let txTimeout;
+let txInterval;
+
 class TransactionsList extends Component {
-  state = {
-    isPreparingDownload: false,
-    formatExists: false
+  constructor(props) {
+    super(props);
+    this.state = {
+      isPreparingDownload: false,
+      formatExists: false
+    };
+  }
+
+  componentDidMount() {
+    txInterval = window.setInterval(this.updateTxs, 10000);
+    txTimeout = setTimeout(txInterval, 10000);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(txInterval);
+    clearTimeout(txTimeout);
+  }
+
+  updateTxs = () => {
+    if (!this.props.hasPurchased) {
+      this.props.handleFetchIncomingTxs(true);
+    } else {
+      window.clearInterval(txInterval);
+      clearTimeout(txTimeout);
+    }
   };
 
   handleDownload = () => {
