@@ -28,57 +28,49 @@ const Footer = props => (
           </li>
         </ul>
       </div>
-      {props.user &&
-        !props.user.auth && (
-          <div className="col col-sm-2">
-            <ul>
-              <li>
-                <Link to={'/login'}>Log In</Link>
-              </li>
-              <li>
-                <Link to={'/register'}>Register</Link>
-              </li>
-              <li>
-                <Link to={'/reset'}>Forgot Password?</Link>
-              </li>
-            </ul>
-          </div>
-        )}
-      {props.user &&
-        props.user.auth && (
-          <div className="col col-sm-2">
-            <ul>
-              <li>
-                <Link to={'/release/add/'}>Add Release</Link>
-              </li>
-              <li>
-                <Link to={'/dashboard'}>Dashboard</Link>
-              </li>
-              <li>
-                <Link to={'/dashboard/collection'}>Collection</Link>
-              </li>
-              <li>
-                <Link to={'/dashboard/nem-address'}>Your NEM Address</Link>
-              </li>
-            </ul>
-          </div>
-        )}
+      {props.user && !props.user.auth && (
+        <div className="col col-sm-2">
+          <ul>
+            <li>
+              <Link to={'/login'}>Log In</Link>
+            </li>
+            <li>
+              <Link to={'/register'}>Register</Link>
+            </li>
+            <li>
+              <Link to={'/reset'}>Forgot Password?</Link>
+            </li>
+          </ul>
+        </div>
+      )}
+      {props.user && props.user.auth && (
+        <div className="col col-sm-2">
+          <ul>
+            <li>
+              <Link to={'/release/add/'}>Add Release</Link>
+            </li>
+            <li>
+              <Link to={'/dashboard'}>Dashboard</Link>
+            </li>
+            <li>
+              <Link to={'/dashboard/collection'}>Collection</Link>
+            </li>
+            <li>
+              <Link to={'/dashboard/nem-address'}>Your NEM Address</Link>
+            </li>
+          </ul>
+        </div>
+      )}
     </div>
     <div className="row mt-5">
       <div className="col">
         <small>
           <p className="text-center">
-            &copy; {year !== 2017 && <span>2017&ndash;</span>}
+            &copy; <span>2017&ndash;</span>
             {year} <a href="https://ochremusic.com">Christopher Leary</a>
           </p>
         </small>
         <div className="text-center social">
-          <a href="https://twitter.com/ochremusic">
-            <FontAwesome name="twitter" className="mx-2" />
-          </a>
-          <a href="https://t.me/nemp3" title="The NEMp3 Telegram channel.">
-            <FontAwesome name="telegram" className="mx-2" />
-          </a>
           <a href="https://github.com/csleary/nemp3v2">
             <FontAwesome name="github" className="mx-2" />
           </a>

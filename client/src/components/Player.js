@@ -28,6 +28,7 @@ class Player extends Component {
 
     this.newTrack = false;
     this.seekPercent = null;
+    this.queue = [];
   }
 
   componentDidMount() {
@@ -38,22 +39,24 @@ class Player extends Component {
       const mime = 'audio/mp4; codecs="mp4a.40.2"';
       this.sourceBuffer = this.mediaSource.addSourceBuffer(mime);
 
+      this.sourceBuffer.addEventListener('update', () => {});
+
       this.sourceBuffer.addEventListener('updatestart', () => {
         this.setState({ updating: true });
       });
 
       this.sourceBuffer.addEventListener('updateend', () => {
+        this.handleSetDuration();
+
+        if (this.queue.length) {
+          this.sourceBuffer.appendBuffer(this.queue.shift());
+        }
+
         this.setState({
           isSeeking: false,
           isBuffering: false,
           updating: false
         });
-
-        const duration = this.props.release.trackList.filter(
-          track => track._id === this.props.player.trackId
-        )[0].duration;
-
-        if (duration) this.mediaSource.duration = duration;
       });
 
       this.sourceBuffer.addEventListener('updateerror', () => {
@@ -97,7 +100,7 @@ class Player extends Component {
       if (needsBuffer) {
         this.setState({ isBuffering: true }, () => {
           this.fetchAudioRange(buffer => {
-            this.sourceBuffer.appendBuffer(buffer);
+            this.handleBuffer(buffer);
           });
         });
       }
@@ -134,15 +137,15 @@ class Player extends Component {
         isBuffered = false;
       }
 
-      if (!isBuffered && audioPlayer.readyState < 4 && !this.newTrack) {
+      if (!isBuffered && !this.newTrack) {
         this.setState({ bufferEnd: false });
-        this.sourceBuffer.abort();
+        this.sourceBuffer.remove(0, this.mediaSource.duration);
         this.currentSegment = Math.floor(audioPlayer.currentTime / 15);
         this.setState(
           { ready: false, isSeeking: true, isBuffering: true },
           () => {
             this.fetchAudioRange(buffer => {
-              this.sourceBuffer.appendBuffer(buffer);
+              this.handleBuffer(buffer);
             });
           }
         );
@@ -155,8 +158,11 @@ class Player extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.player.trackId !== this.props.player.trackId) {
       const audioPlayer = document.getElementById('player');
-      if (this.sourceBuffer.buffered.length) {
-        this.sourceBuffer.remove(0, Math.ceil(this.mediaSource.duration));
+      audioPlayer.pause();
+      this.queue.length = 0;
+
+      if (this.mediaSource.duration && !this.sourceBuffer.updating) {
+        this.sourceBuffer.remove(0, this.mediaSource.duration);
       }
       this.newTrack = true;
       this.setPlayerReady();
@@ -172,6 +178,30 @@ class Player extends Component {
     this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
   }
 
+  handleSetDuration() {
+    const currentTrack = this.props.release.trackList.filter(
+      track => track._id === this.props.player.trackId
+    );
+    // const oldDuration = Number.isFinite(this.mediaSource.duration)
+    //   ? this.mediaSource.duration
+    //   : 0;
+    const newDuration = currentTrack.length && currentTrack[0].duration;
+
+    // if (newDuration < oldDuration) {
+    //   this.sourceBuffer.remove(newDuration, oldDuration);
+    // } else {
+    this.mediaSource.duration = newDuration;
+    // }
+  }
+
+  handleBuffer(buffer) {
+    if (!this.sourceBuffer.updating) {
+      this.sourceBuffer.appendBuffer(buffer);
+    } else {
+      this.queue.push(buffer);
+    }
+  }
+
   handleTrackEnded() {
     const trackIndex = this.props.release.trackList.findIndex(
       track => track.trackTitle === this.props.player.trackTitle
@@ -185,9 +215,9 @@ class Player extends Component {
 
   fetchAudioRange = async callback => {
     if (this.newTrack) {
-      this.fetchInitSegment().then(() =>
-        this.handleSegmentRanges(buffer => callback(buffer))
-      );
+      this.fetchInitSegment().then(() => {
+        this.handleSegmentRanges(buffer => callback(buffer));
+      });
     } else {
       this.handleSegmentRanges(buffer => callback(buffer));
     }
