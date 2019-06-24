@@ -10,16 +10,16 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fetchedAll: false, // TODO Put in separate catalogue reducer to track intervals/skip value.
+      fetchedAll: false,
       isFetching: false,
       isLoading: true,
-      fetchInterval: 8,
+      fetchInterval: 12,
       skip: 0
     };
   }
 
   componentDidMount() {
-    this.props.fetchCatalogue().then(() => {
+    this.handleFetchCatalogue().then(() => {
       let { service } = this.props.match.params;
       if (service) {
         service = service.charAt(0).toUpperCase() + service.substring(1);
@@ -31,14 +31,21 @@ class Home extends Component {
     });
   }
 
-  handleClick = () => {
-    const { fetchInterval, skip } = this.state;
-    this.setState({ isFetching: true });
-    this.props.fetchCatalogue(skip + fetchInterval).then(res => {
-      if (res.data.length < fetchInterval) this.setState({ fetchedAll: true });
-      this.setState({ isFetching: false, skip: skip + fetchInterval });
+  handleFetchCatalogue = isUpdate =>
+    new Promise(resolve => {
+      const { fetchInterval, skip } = this.state;
+      this.setState({ isFetching: true });
+      const newSkip = isUpdate ? skip + fetchInterval : null;
+      this.props.fetchCatalogue(newSkip).then(latest => {
+        if (latest.length < fetchInterval) {
+          this.setState({ fetchedAll: true });
+        }
+        this.setState({ isFetching: false, skip: newSkip });
+      });
+      resolve();
     });
-  };
+
+  handleClick = () => this.handleFetchCatalogue(true);
 
   render() {
     const { catalogue } = this.props;

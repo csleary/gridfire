@@ -207,7 +207,8 @@ class TransactionsList extends Component {
             {!transactions.length ? (
               <p className="mb-4">
                 No transactions found just yet. Please hit the refresh button to
-                check again for confirmed payments.
+                check again for confirmed payments (we&rsquo;ll automatically
+                check every ten seconds).
               </p>
             ) : (
               <p className="text-center">

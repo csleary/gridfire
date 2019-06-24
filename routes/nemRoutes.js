@@ -1,7 +1,7 @@
 const fetchIncomingTransactions = require('./fetchIncomingTransactions');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
-const { generateToken, getXemPrice, recordSale } = require('./utils');
+const { getXemPrice, recordSale } = require('./utils');
 
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
@@ -28,17 +28,11 @@ module.exports = app => {
       transactions.hasPurchased = hasPurchased;
 
       if (transactions.paidToDate >= price || hasPurchased) {
-        // Add purchase to user account, if not already added.
-        if (!hasPurchased) {
-          user.purchases.push({ purchaseDate: Date.now(), releaseId });
-          user.save();
-          recordSale(releaseId);
-        }
-        //
-        // // Issue download token to user on successful payment.
-        // const token = generateToken({ releaseId });
-        //
-        // res.append('Authorization', `Bearer ${token}`);
+        // Add purchase to user account, if not already added. If album price has changed, we check user order history, as price may no longer be met.
+        transactions.hasPurchased = true;
+        user.purchases.push({ purchaseDate: Date.now(), releaseId });
+        user.save();
+        recordSale(releaseId);
       }
       res.send(transactions);
     } catch (error) {

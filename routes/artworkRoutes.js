@@ -23,7 +23,6 @@ module.exports = app => {
 
         const optimisedImg = sharp()
           .resize(1000, 1000)
-          .crop()
           .toFormat('jpeg');
 
         const s3Stream = req.file.stream.pipe(optimisedImg);
@@ -42,6 +41,7 @@ module.exports = app => {
         ).select('-__v');
 
         const s3 = new aws.S3();
+
         s3.upload(params)
           .promise()
           .then(() => updateReleaseArtwork)

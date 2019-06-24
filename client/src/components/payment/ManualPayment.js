@@ -4,7 +4,7 @@ import ReadOnlyTextarea from './ReadOnlyTextarea';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
-  const copyPrice = parseInt(priceInXem, 10) ? (
+  const copyPrice = parseFloat(priceInXem) ? (
     <Fragment>
       of <span className="bold red">{priceInXem} XEM</span>
     </Fragment>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import { CLOUD_URL } from '../index';
@@ -54,40 +54,40 @@ const RenderRelease = props => {
             <FontAwesome className="info m-auto" name="info-circle" />
           </Link>
           {variation === 'collection' && (
-            // <Fragment>
-            // <button
-            //   onClick={() => {
-            //     props.fetchDownloadToken(releaseId, downloadToken => {
-            //       if (downloadToken) {
-            //         props.toastInfo(
-            //           `Fetching download: ${artistName} - '${releaseTitle}'`
-            //         );
-            //         window.location = `/api/download/${downloadToken}`;
-            //       }
-            //     });
-            //   }}
-            //   title={`Download ${artistName} - '${releaseTitle}' (MP3)`}
-            // >
-            //   <FontAwesome name="download" />
-            //   <div className="label text-center">MP3</div>
-            // </button>
-            <button
-              onClick={() => {
-                props.fetchDownloadToken(releaseId, downloadToken => {
-                  if (downloadToken) {
-                    props.toastInfo(
-                      `Fetching download: ${artistName} - '${releaseTitle}'`
-                    );
-                    window.location = `/api/download/${downloadToken}/flac`;
-                  }
-                });
-              }}
-              title={`Download ${artistName} - '${releaseTitle}' (FLAC)`}
-            >
-              <FontAwesome name="download" />
-              <div className="label text-center">FLAC</div>
-            </button>
-            // </Fragment>
+            <Fragment>
+              <button
+                onClick={() => {
+                  props.fetchDownloadToken(releaseId, downloadToken => {
+                    if (downloadToken) {
+                      props.toastInfo(
+                        `Fetching download: ${artistName} - '${releaseTitle}'`
+                      );
+                      window.location = `/api/download/${downloadToken}`;
+                    }
+                  });
+                }}
+                title={`Download ${artistName} - '${releaseTitle}' (MP3)`}
+              >
+                <FontAwesome name="download" />
+                <div className="label text-center">MP3</div>
+              </button>
+              <button
+                onClick={() => {
+                  props.fetchDownloadToken(releaseId, downloadToken => {
+                    if (downloadToken) {
+                      props.toastInfo(
+                        `Fetching download: ${artistName} - '${releaseTitle}'`
+                      );
+                      window.location = `/api/download/${downloadToken}/flac`;
+                    }
+                  });
+                }}
+                title={`Download ${artistName} - '${releaseTitle}' (FLAC)`}
+              >
+                <FontAwesome name="download" />
+                <div className="label text-center">FLAC</div>
+              </button>
+            </Fragment>
           )}
         </div>
         <Link
