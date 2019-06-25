@@ -14,6 +14,10 @@ import {
 export const addRelease = () => async dispatch => {
   try {
     const res = await axios.post('/api/release');
+
+    if (res.data.warning) {
+      return res.data;
+    }
     dispatch({ type: ADD_RELEASE, payload: res.data });
     return res;
   } catch (e) {

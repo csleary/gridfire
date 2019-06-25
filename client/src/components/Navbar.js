@@ -65,6 +65,12 @@ class Navbar extends Component {
       );
     }
 
+    const creditClass = classNames('credit', {
+      cyan: user.credit > 1,
+      yellow: user.credit === 1,
+      red: user.credit === 0
+    });
+
     return (
       <Fragment>
         <li className="nav-item">
@@ -75,6 +81,7 @@ class Navbar extends Component {
           >
             <FontAwesome name="plus-square" className="mr-1" />
             <span className="nav-label">Add Release</span>
+            <span className={creditClass}> ({user.credit})</span>
           </NavLink>
         </li>
         <li className="nav-item">

@@ -19,8 +19,17 @@ aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
   // Add New Release
-  // Possibly check for upload tokens/credit.
   app.post('/api/release', requireLogin, async (req, res) => {
+    const user = await User.findById(req.user.id);
+    const releases = await Release.find({ user: req.user.id });
+
+    if (user.credit <= releases.length) {
+      res.send({
+        warning: 'You do not have enough credits to add a new release.'
+      });
+      return;
+    }
+
     const release = await new Release(
       {
         user: req.user.id,

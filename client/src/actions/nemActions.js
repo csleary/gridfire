@@ -10,9 +10,14 @@ import {
 } from './types';
 
 export const addNemAddress = values => async dispatch => {
-  const res = await axios.post('/api/nem/address', values);
-  dispatch({ type: ADD_NEM_ADDRESS, payload: res.data });
-  return res;
+  try {
+    const res = await axios.post('/api/nem/address', values);
+    dispatch({ type: ADD_NEM_ADDRESS, payload: res.data });
+    return res.data;
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    return e.response.data;
+  }
 };
 
 export const fetchXemPrice = () => async dispatch => {

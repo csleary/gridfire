@@ -15,6 +15,8 @@ const UserSchema = new Schema(
       resetExpire: Date
     },
     nemAddress: String,
+    nemAddressVerified: { type: Boolean, default: false },
+    credit: { type: Number, default: 0 },
     purchases: [
       {
         _id: false,

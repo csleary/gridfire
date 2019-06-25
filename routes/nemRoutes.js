@@ -1,7 +1,8 @@
 const fetchIncomingTransactions = require('./fetchIncomingTransactions');
+const fetchOwnedMosaics = require('./fetchOwnedMosaics');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
-const { getXemPrice, recordSale } = require('./utils');
+const { getXemPrice, recordSale, checkSignedMessage } = require('./utils');
 
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
@@ -56,10 +57,35 @@ module.exports = app => {
   });
 
   app.post('/api/nem/address', requireLogin, async (req, res) => {
-    const { nemAddress } = req.body;
-    const user = await User.findById(req.user.id);
-    user.nemAddress = nemAddress.toUpperCase().replace(/-/g, '');
-    user.save();
-    res.send(user);
+    try {
+      const signedMessage =
+        req.body.signedMessage && JSON.parse(req.body.signedMessage);
+      const nemAddress = req.body.nemAddress.toUpperCase().replace(/-/g, '');
+      const user = await User.findById(req.user.id);
+      const existingNemAddress = user.nemAddress;
+      const addressChanged = nemAddress !== existingNemAddress;
+
+      if (addressChanged) {
+        user.nemAddress = nemAddress;
+        user.nemAddressVerified = false;
+        user.credit = 0;
+      }
+
+      if (nemAddress && signedMessage) {
+        user.nemAddressVerified = checkSignedMessage(nemAddress, signedMessage);
+      }
+
+      if (nemAddress && user.nemAddressVerified) {
+        const credit = await fetchOwnedMosaics(nemAddress);
+        user.credit = credit;
+      }
+
+      user.save();
+      res.send(user);
+    } catch (error) {
+      res
+        .status(500)
+        .send({ error: `We could not verify your address: ${error.message}` });
+    }
   });
 };

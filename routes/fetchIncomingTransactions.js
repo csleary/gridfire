@@ -1,24 +1,15 @@
 const nem = require('nem-sdk').default;
 const { checkPayments, filterTransactions } = require('./utils');
+const { NEM_NODE } = require('./constants');
 
 module.exports = (paymentAddress, idHash) =>
   new Promise((resolve, reject) => {
-    let nodeHost;
-    let nodeName;
-
-    if (process.env.NEM_NETWORK === 'mainnet') {
-      // nodeHost = nem.model.nodes.defaultMainnet;
-      nodeHost = 'http://209.126.98.204';
-    } else {
-      nodeHost = nem.model.nodes.defaultTestnet;
-    }
-
     const endpoint = nem.model.objects.create('endpoint')(
-      nodeHost,
+      NEM_NODE,
       nem.model.nodes.defaultPort
     );
 
-    const nemNode = nodeName || endpoint.host;
+    const nemNode = endpoint.host;
     let txId;
     let total = [];
     let paidToDate = 0;

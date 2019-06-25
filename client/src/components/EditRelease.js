@@ -71,7 +71,13 @@ class EditRelease extends Component {
         this.setState({ isLoading: false });
       });
     } else {
-      this.props.addRelease().then(() => {
+      this.props.addRelease().then(res => {
+        if (res.warning) {
+          this.props.toastWarning(res.warning);
+          this.props.history.push('/dashboard/nem-address');
+          return;
+        }
+
         const { release } = this.props;
         this.props.initialize(release);
         this.setState({ isLoading: false });

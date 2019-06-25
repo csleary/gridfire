@@ -75,10 +75,32 @@ const recordSale = async releaseId => {
   }
 };
 
+const checkSignedMessage = (address, signedMessage) => {
+  const { message, signer, signature } = signedMessage;
+
+  const verified = nem.crypto.verifySignature(
+    signer.toString(),
+    message,
+    signature.toString()
+  );
+
+  if (verified) {
+    const keyToAddress = nem.model.address.toAddress(
+      signer.toString(),
+      nem.model.network.data.testnet.id
+    );
+
+    return keyToAddress === address;
+  }
+
+  return false;
+};
+
 module.exports = {
   checkPayments,
   filterTransactions,
   generateToken,
   getXemPrice,
-  recordSale
+  recordSale,
+  checkSignedMessage
 };
