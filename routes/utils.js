@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
+const { NEM_NETWORK_ID } = require('./constants');
 const { nemp3Secret } = require('../config/keys');
 
 const Sale = mongoose.model('sales');
@@ -87,7 +88,7 @@ const checkSignedMessage = (address, signedMessage) => {
   if (verified) {
     const keyToAddress = nem.model.address.toAddress(
       signer.toString(),
-      nem.model.network.data.testnet.id
+      NEM_NETWORK_ID
     );
 
     return keyToAddress === address;

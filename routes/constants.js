@@ -12,6 +12,10 @@ const NEM_NODE =
   process.env.NEM_NETWORK === 'mainnet'
     ? 'http://209.126.98.204'
     : nem.model.nodes.defaultTestnet;
+const NEM_NETWORK_ID =
+  process.env.NEM_NETWORK === 'mainnet'
+    ? nem.model.network.data.mainnet.id
+    : nem.model.network.data.testnet.id;
 
 module.exports = {
   AWS_REGION,
@@ -20,5 +24,6 @@ module.exports = {
   BUCKET_MP3,
   BUCKET_OPT,
   BUCKET_SRC,
-  NEM_NODE
+  NEM_NODE,
+  NEM_NETWORK_ID
 };
