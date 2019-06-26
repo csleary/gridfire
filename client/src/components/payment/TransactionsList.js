@@ -19,8 +19,8 @@ class TransactionsList extends Component {
   }
 
   componentDidMount() {
-    txInterval = window.setInterval(this.updateTxs, 10000);
-    txTimeout = setTimeout(txInterval, 10000);
+    txInterval = window.setInterval(this.updateTxs, 30000);
+    txTimeout = setTimeout(txInterval, 30000);
   }
 
   componentWillUnmount() {

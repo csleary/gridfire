@@ -16,7 +16,9 @@ class Dashboard extends Component {
   }
 
   onSubmit = values => {
-    this.props.addNemAddress(values).then(() => {
+    this.props.addNemAddress(values).then(res => {
+      if (res.error) return;
+
       if (!values.nemAddress) {
         this.props.toastWarning('NEM payment address removed.');
       } else {
@@ -39,10 +41,12 @@ class Dashboard extends Component {
   };
 
   renderNemAddressField = ({
+    hint,
     id,
     input,
     label,
     name,
+    placeholder,
     type,
     meta: { active, error, touched }
   }) => {
@@ -52,19 +56,73 @@ class Dashboard extends Component {
     return (
       <div className={className}>
         <label htmlFor={id}>{label}</label>
+        {id === 'nemAddress' && this.renderAddressStatus()}
         <input
           {...input}
           className="form-control payment-address"
           name={name}
-          placeholder={`NEM Address (should start with ${addressPrefix})`}
+          placeholder={placeholder}
           type={type}
         />
-        <small className="form-text text-muted">
-          It doesn&rsquo;t matter whether you include dashes or not.
-        </small>
+        <small className="form-text text-muted">{hint}</small>
         <div className="invalid-feedback">{touched && error && error}</div>
       </div>
     );
+  };
+
+  renderAddressStatus = () => {
+    const { nemAddress, nemAddressVerified } = this.props;
+
+    if (nemAddress && !nemAddressVerified) {
+      return (
+        <span
+          className="status unconfirmed"
+          title="Thank you for verifying your address."
+        >
+          Unverified
+          <FontAwesome name="exclamation-circle" className="ml-2" />
+        </span>
+      );
+    }
+
+    if (nemAddress && nemAddressVerified) {
+      return (
+        <span className="status confirmed">
+          Verified
+          <FontAwesome name="check-circle" className="ml-2" />
+        </span>
+      );
+    }
+  };
+
+  renderConfirmAddressField = () => {
+    const { nemAddress, nemAddressVerified, submitting } = this.props;
+
+    if (nemAddress && !nemAddressVerified) {
+      return (
+        <Fragment>
+          <Field
+            disabled={submitting}
+            hint="This address has not yet been confirmed."
+            id="signedMessage"
+            label="Your Signed Message"
+            name="signedMessage"
+            type="text"
+            component={this.renderNemAddressField}
+          />
+          <p>
+            Please create a signed message in the desktop wallet app (Services
+            &#8594; Signed message &#8594; Create a signed message), and
+            copy/paste the results here to verify ownership of your account.
+          </p>
+          <p>It doesn&rsquo;t matter what you put in the message field.</p>
+          <p>
+            Once you have verified your account, you can add credit and start
+            selling your music!
+          </p>
+        </Fragment>
+      );
+    }
   };
 
   render() {
@@ -88,12 +146,15 @@ class Dashboard extends Component {
                   <Field
                     disabled={submitting}
                     id="nemAddress"
+                    hint="It doesn&rsquo;t matter whether you include dashes or not."
                     label="Your NEM Address"
                     name="nemAddress"
+                    placeholder={`NEM Address (should start with ${addressPrefix})`}
                     type="text"
                     component={this.renderNemAddressField}
                     validate={this.checkNemAddress}
                   />
+                  {this.renderConfirmAddressField()}
                   <div className="d-flex justify-content-end">
                     <button
                       type="submit"
@@ -146,7 +207,9 @@ class Dashboard extends Component {
 
 function mapStateToProps(state) {
   return {
-    nemAddress: state.user.nemAddress
+    credit: state.user.credit,
+    nemAddress: state.user.nemAddress,
+    nemAddressVerified: state.user.nemAddressVerified
   };
 }
 

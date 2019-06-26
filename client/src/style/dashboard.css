@@ -36,6 +36,26 @@ form.nem-address {
   border-radius: 0.5rem;
 }
 
+.nem-address .status {
+  border-radius: 0.5rem;
+  color: hsla(233, 10%, 10%, 1);
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  padding: 0.125rem 0.5rem;
+}
+
+.nem-address .status.confirmed {
+  background: #18cdca;
+}
+
+.nem-address .status.unconfirmed {
+  background: #ff5349;
+  color: #f0f0f1;
+}
+
 .payment-address {
   font-size: 1.75rem;
   text-overflow: ellipsis;

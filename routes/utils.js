@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
+const { NEM_NETWORK_ID } = require('./constants');
 const { nemp3Secret } = require('../config/keys');
 
 const Sale = mongoose.model('sales');
@@ -75,10 +76,32 @@ const recordSale = async releaseId => {
   }
 };
 
+const checkSignedMessage = (address, signedMessage) => {
+  const { message, signer, signature } = signedMessage;
+
+  const verified = nem.crypto.verifySignature(
+    signer.toString(),
+    message,
+    signature.toString()
+  );
+
+  if (verified) {
+    const keyToAddress = nem.model.address.toAddress(
+      signer.toString(),
+      NEM_NETWORK_ID
+    );
+
+    return keyToAddress === address;
+  }
+
+  return false;
+};
+
 module.exports = {
   checkPayments,
   filterTransactions,
   generateToken,
   getXemPrice,
-  recordSale
+  recordSale,
+  checkSignedMessage
 };
