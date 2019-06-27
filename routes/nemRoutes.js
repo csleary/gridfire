@@ -28,13 +28,13 @@ module.exports = app => {
 
       transactions.hasPurchased = hasPurchased;
 
-      if (transactions.paidToDate >= price || hasPurchased) {
-        // Add purchase to user account, if not already added. If album price has changed, we check user order history, as price may no longer be met.
+      if (transactions.paidToDate >= price && !hasPurchased) {
+        recordSale(releaseId);
         transactions.hasPurchased = true;
         user.purchases.push({ purchaseDate: Date.now(), releaseId });
         user.save();
-        recordSale(releaseId);
       }
+
       res.send(transactions);
     } catch (error) {
       if (error.data) {

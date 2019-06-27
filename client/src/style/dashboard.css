@@ -56,6 +56,11 @@ form.nem-address {
   color: #f0f0f1;
 }
 
+.nem-address .signed-message {
+  height: 6rem;
+  resize: none;
+}
+
 .payment-address {
   font-size: 1.75rem;
   text-overflow: ellipsis;
