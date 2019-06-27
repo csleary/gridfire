@@ -1,12 +1,20 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Field, reduxForm } from 'redux-form';
+import { Field, formValueSelector, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
+import classnames from 'classnames';
 import nem from 'nem-sdk';
 import { addNemAddress, toastSuccess, toastWarning } from '../../actions';
 
 const addressPrefix =
   process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
+
+const FormInputs = props => {
+  if (props.id === 'signedMessage') {
+    return <textarea row="4" {...props} />;
+  }
+  return <input {...props} />;
+};
 
 class Dashboard extends Component {
   componentDidMount() {
@@ -40,7 +48,7 @@ class Dashboard extends Component {
     return undefined;
   };
 
-  renderNemAddressField = ({
+  renderFormField = ({
     hint,
     id,
     input,
@@ -50,16 +58,23 @@ class Dashboard extends Component {
     type,
     meta: { active, error, touched }
   }) => {
-    const className = `form-group ${
-      !active && touched && error ? 'invalid' : ''
-    }`;
+    const formGroupClassNames = classnames('form-group', {
+      invalid: !active && touched && error
+    });
+
+    const inputClassNames = classnames('form-control', {
+      'payment-address': id === 'nemAddress',
+      'signed-message': id === 'signedMessage'
+    });
+
     return (
-      <div className={className}>
+      <div className={formGroupClassNames}>
         <label htmlFor={id}>{label}</label>
         {id === 'nemAddress' && this.renderAddressStatus()}
-        <input
+        <FormInputs
           {...input}
-          className="form-control payment-address"
+          className={inputClassNames}
+          id={id}
           name={name}
           placeholder={placeholder}
           type={type}
@@ -103,12 +118,15 @@ class Dashboard extends Component {
         <Fragment>
           <Field
             disabled={submitting}
-            hint="This address has not yet been confirmed."
+            hint="This address has not yet been verified."
             id="signedMessage"
             label="Your Signed Message"
             name="signedMessage"
+            placeholder={
+              '{"message":"YOUR_MESSAGE","signer":"YOUR_PUBLIC_KEY","signature":"YOUR_SIGNATURE"}'
+            }
             type="text"
-            component={this.renderNemAddressField}
+            component={this.renderFormField}
           />
           <p>
             Please create a signed message in the desktop wallet app (Services
@@ -123,6 +141,18 @@ class Dashboard extends Component {
         </Fragment>
       );
     }
+  };
+
+  renderButtonLabel = () => {
+    const { nemAddress, nemAddressField, nemAddressVerified } = this.props;
+
+    if (nemAddress && nemAddressField && !nemAddressVerified) {
+      return 'Verify Address';
+    }
+    if (nemAddress && !nemAddressField) {
+      return 'Remove Address';
+    }
+    return 'Save Address';
   };
 
   render() {
@@ -151,7 +181,7 @@ class Dashboard extends Component {
                     name="nemAddress"
                     placeholder={`NEM Address (should start with ${addressPrefix})`}
                     type="text"
-                    component={this.renderNemAddressField}
+                    component={this.renderFormField}
                     validate={this.checkNemAddress}
                   />
                   {this.renderConfirmAddressField()}
@@ -161,7 +191,7 @@ class Dashboard extends Component {
                       className="btn btn-outline-primary btn-lg"
                       disabled={invalid || pristine || submitting}
                     >
-                      Save Address
+                      {this.renderButtonLabel()}
                     </button>
                   </div>
                 </div>
@@ -205,10 +235,13 @@ class Dashboard extends Component {
   }
 }
 
+const fieldSelector = formValueSelector('nemAddressForm');
+
 function mapStateToProps(state) {
   return {
     credit: state.user.credit,
     nemAddress: state.user.nemAddress,
+    nemAddressField: fieldSelector(state, 'nemAddress'),
     nemAddressVerified: state.user.nemAddressVerified
   };
 }
