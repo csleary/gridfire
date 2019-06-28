@@ -4,7 +4,12 @@ import { Field, formValueSelector, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
 import nem from 'nem-sdk';
-import { addNemAddress, toastSuccess, toastWarning } from '../../actions';
+import {
+  addNemAddress,
+  fetchUserCredit,
+  toastSuccess,
+  toastWarning
+} from '../../actions';
 
 const addressPrefix =
   process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
@@ -16,7 +21,9 @@ const FormInputs = props => {
   return <input {...props} />;
 };
 
-class Dashboard extends Component {
+class NemAddress extends Component {
+  state = { isCheckingCredit: false };
+
   componentDidMount() {
     this.props.initialize({
       nemAddress: nem.utils.format.address(this.props.nemAddress)
@@ -33,6 +40,11 @@ class Dashboard extends Component {
         this.props.toastSuccess('NEM payment address saved.');
       }
     });
+  };
+
+  handleUpdateCredit = () => {
+    this.setState({ isCheckingCredit: true });
+    this.props.fetchUserCredit();
   };
 
   checkNemAddress = address => {
@@ -133,7 +145,10 @@ class Dashboard extends Component {
             &#8594; Signed message &#8594; Create a signed message), and
             copy/paste the results here to verify ownership of your account.
           </p>
-          <p>It doesn&rsquo;t matter what you put in the message field.</p>
+          <p>
+            It doesn&rsquo;t matter what you put in the message field, only that
+            it is cryptographically signed by your private key.
+          </p>
           <p>
             Once you have verified your account, you can add credit and start
             selling your music!
@@ -156,7 +171,9 @@ class Dashboard extends Component {
   };
 
   render() {
-    const { handleSubmit, pristine, submitting, invalid } = this.props;
+    const { credit, handleSubmit, pristine, submitting, invalid } = this.props;
+    const userReleaseCount =
+      (this.props.userReleases && this.props.userReleases.length) || 0;
 
     return (
       <main className="container">
@@ -165,11 +182,11 @@ class Dashboard extends Component {
             <h3 className="text-center mt-4">NEM Payment Address</h3>
             <p className="text-center">
               Please add a NEM address if you wish to sell music, as fan
-              payments will be sent directly to this address.
+              payments and nemp3 credit will be sent directly to this address.
             </p>
             <form
               className="nem-address my-5 py-5"
-              onSubmit={handleSubmit(this.onSubmit)}
+              onSubmit={() => handleSubmit(this.onSubmit)}
             >
               <div className="form-row">
                 <div className="col-md-9 mx-auto">
@@ -185,7 +202,7 @@ class Dashboard extends Component {
                     validate={this.checkNemAddress}
                   />
                   {this.renderConfirmAddressField()}
-                  <div className="d-flex justify-content-end">
+                  <div className="d-flex justify-content-end mb-5">
                     <button
                       type="submit"
                       className="btn btn-outline-primary btn-lg"
@@ -194,6 +211,31 @@ class Dashboard extends Component {
                       {this.renderButtonLabel()}
                     </button>
                   </div>
+                  <p>
+                    <span className="yellow">
+                      Your credit balance is {credit || 0}.
+                    </span>
+                    <button
+                      className="btn btn-outline-primary btn-sm mx-2"
+                      disabled={this.state.isCheckingCredit}
+                      onClick={this.handleUpdateCredit}
+                      style={{ verticalAlign: 'bottom' }}
+                      title={'Press to recheck your credit.'}
+                    >
+                      <FontAwesome
+                        name="refresh"
+                        className="mr-2"
+                        spin={this.state.isCheckingCredit}
+                      />
+                      Refresh
+                    </button>
+                  </p>
+                  <p>
+                    As you have {userReleaseCount} release
+                    {userReleaseCount === 1 ? '' : 's'}, you need to maintain a
+                    credit balance of at least {userReleaseCount + 1} to be able
+                    to add a new release.
+                  </p>
                 </div>
               </div>
             </form>
@@ -242,7 +284,8 @@ function mapStateToProps(state) {
     credit: state.user.credit,
     nemAddress: state.user.nemAddress,
     nemAddressField: fieldSelector(state, 'nemAddress'),
-    nemAddressVerified: state.user.nemAddressVerified
+    nemAddressVerified: state.user.nemAddressVerified,
+    userReleases: state.releases.userReleases
   };
 }
 
@@ -251,6 +294,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { addNemAddress, toastSuccess, toastWarning }
-  )(Dashboard)
+    { addNemAddress, fetchUserCredit, toastSuccess, toastWarning }
+  )(NemAddress)
 );

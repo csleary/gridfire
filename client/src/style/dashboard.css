@@ -44,7 +44,7 @@ form.nem-address {
   font-weight: 600;
   margin-left: 0.5rem;
   text-transform: uppercase;
-  padding: 0.125rem 0.5rem;
+  padding: 0 0.25rem 0 0.5rem;
 }
 
 .nem-address .status.confirmed {

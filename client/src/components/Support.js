@@ -7,6 +7,30 @@ const Support = () => (
       <div className="col py-3 mb-4">
         <h2 className="text-center mt-4">FAQ</h2>
         <details>
+          <summary>
+            What is this &lsquo;credit&rsquo; and how/where do I get some?
+          </summary>
+          <p>
+            nemp3 credit is the token used to regulate the addition of new
+            releases. To be able to add releases, your credit balance needs to
+            exceed the number of releases you have on the site. If you sell,
+            trade or transfer the credit token, you will not be able to add new
+            releases.
+          </p>
+          <p>
+            Your credit is a token on the NEM blockchain, accessed using the NEM
+            address/account you use with the site. In order for us to ensure you
+            have access to the NEM account you have linked to your profile, we
+            require that you verify your NEM address by cryptographically
+            &lsquo;signing&rsquo; a message. This is proof that you have full
+            control of the account.
+          </p>
+          <p>
+            We are currently working on an automated process to dispense credit,
+            while the site is in its testing phase.
+          </p>
+        </details>
+        <details>
           <summary>Where can I buy some XEM?</summary>
           <p>
             The larger exchanges such as{' '}

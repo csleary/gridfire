@@ -88,4 +88,21 @@ module.exports = app => {
         .send({ error: `We could not verify your address: ${error.message}` });
     }
   });
+
+  app.get('/api/nem/credit', requireLogin, async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+      const { nemAddress, nemAddressVerified } = user;
+
+      if (nemAddress && nemAddressVerified) {
+        user.credit = await fetchOwnedMosaics(nemAddress);
+        user.save();
+        res.send(user);
+        return;
+      }
+      res.end();
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  });
 };
