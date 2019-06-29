@@ -158,6 +158,11 @@ class NemAddress extends Component {
     const userReleaseCount =
       (this.props.userReleases && this.props.userReleases.length) || 0;
 
+    const creditClassName = classnames({
+      red: !credit,
+      yellow: credit
+    });
+
     return (
       <main className="container">
         <div className="row">
@@ -192,7 +197,8 @@ class NemAddress extends Component {
                     </button>
                   </div>
                   <p>
-                    <span className="yellow">
+                    <span className={creditClassName}>
+                      <FontAwesome name="certificate" className="mr-1" />
                       Your credit balance is {credit || 0}.
                     </span>
                     <button

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { passwordUpdate } from '../../actions';
 
 class PasswordUpdate extends Component {
@@ -132,5 +131,5 @@ export default reduxForm({
   connect(
     mapStateToProps,
     { passwordUpdate }
-  )(withRouter(PasswordUpdate))
+  )(PasswordUpdate)
 );

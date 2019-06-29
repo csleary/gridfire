@@ -44,7 +44,7 @@ function DashNavbar(props) {
           >
             <FontAwesome
               name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
-              className={`mr-1 ${!user.nemAddress && 'yellow'}`}
+              className={`mr-1 ${!user.nemAddress && 'no-address'}`}
             />
             Payment
           </NavLink>

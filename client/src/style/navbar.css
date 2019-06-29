@@ -29,6 +29,15 @@ nav.navbar.sub-menu a.active {
   color: #f0f0f1;
 }
 
+nav.navbar a.active .fa,
+nav.navbar.sub-menu a.active .fa {
+  color: #ffd24d;
+}
+
+nav.navbar.sub-menu .fa.no-address {
+  color: #ff5349;
+}
+
 .navbar-expand-lg .navbar-nav .nav-link {
   padding: 0.5rem 15px;
   text-transform: uppercase;

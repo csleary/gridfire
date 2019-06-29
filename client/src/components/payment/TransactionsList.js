@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import nem from 'nem-sdk';
 import SingleTransaction from './SingleTransaction';
@@ -245,4 +245,4 @@ class TransactionsList extends Component {
   }
 }
 
-export default withRouter(TransactionsList);
+export default TransactionsList;
