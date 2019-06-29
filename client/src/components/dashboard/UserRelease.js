@@ -136,8 +136,7 @@ class UserRelease extends Component {
           <div className="release-details mb-3">
             <h6>{this.renderTitle(release)}</h6>
             <h6>
-              <FontAwesome name="tag" className="mr-2 red" />
-              ${price} USD
+              <FontAwesome name="tag" className="mr-2 red" />${price} USD
             </h6>
             <h6>
               <FontAwesome name="calendar-o" className="mr-2 red" />

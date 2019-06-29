@@ -25,7 +25,7 @@ module.exports = app => {
 
     if (user.credit <= releases.length) {
       res.send({
-        warning: 'You do not have enough credits to add a new release.'
+        warning: 'You do not have enough nemp3 credit to add a new release.'
       });
       return;
     }

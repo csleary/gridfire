@@ -47,10 +47,13 @@ class Navbar extends Component {
   };
 
   renderUserLinks() {
-    const { user } = this.props;
-    if (user.isLoading) return null;
+    const {
+      user: { auth, credit, isLoading }
+    } = this.props;
 
-    if (!user.auth) {
+    if (isLoading) return null;
+
+    if (!auth) {
       return (
         <li className="nav-item">
           <NavLink to={'/login'} className="nav-link">
@@ -66,9 +69,9 @@ class Navbar extends Component {
     }
 
     const creditClass = classNames('credit', {
-      cyan: user.credit > 1,
-      yellow: user.credit === 1,
-      red: user.credit === 0
+      cyan: credit > 1,
+      yellow: credit === 1,
+      red: credit === 0
     });
 
     return (
@@ -81,7 +84,13 @@ class Navbar extends Component {
           >
             <FontAwesome name="plus-square" className="mr-1" />
             <span className="nav-label">Add Release</span>
-            <span className={creditClass}> ({user.credit})</span>
+            <span
+              className={creditClass}
+              title={`Your nemp3 credit balance is: ${credit}`}
+            >
+              {' '}
+              ({credit})
+            </span>
           </NavLink>
         </li>
         <li className="nav-item">
@@ -145,7 +154,9 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  { fetchCatalogue, fetchUser, logOut, toastSuccess }
-)(withRouter(Navbar));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    { fetchCatalogue, fetchUser, logOut, toastSuccess }
+  )(Navbar)
+);

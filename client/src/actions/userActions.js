@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {
   FETCH_USER,
+  FETCH_USER_CREDIT,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
   LOG_OUT,
@@ -16,6 +17,16 @@ export const fetchUser = () => async dispatch => {
       isLoading: false,
       payload: res.data
     });
+    return res;
+  } catch (e) {
+    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+  }
+};
+
+export const fetchUserCredit = () => async dispatch => {
+  try {
+    const res = await axios.get('/api/nem/credit');
+    dispatch({ type: FETCH_USER_CREDIT, payload: res.data.credit });
     return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });

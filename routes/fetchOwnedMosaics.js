@@ -16,7 +16,7 @@ module.exports = paymentAddress =>
     mosaics.data.forEach(mosaic => {
       if (
         mosaic.mosaicId.namespaceId === 'nemp3' &&
-        mosaic.mosaicId.name === 'release'
+        mosaic.mosaicId.name === 'credit'
       ) {
         resolve(mosaic.quantity);
       }
