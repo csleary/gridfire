@@ -4,12 +4,7 @@ import { Field, formValueSelector, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
 import nem from 'nem-sdk';
-import {
-  addNemAddress,
-  fetchUserCredit,
-  toastSuccess,
-  toastWarning
-} from '../../actions';
+import { fetchUserCredit, toastSuccess, toastWarning } from '../../actions';
 
 const addressPrefix =
   process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
@@ -29,18 +24,6 @@ class NemAddress extends Component {
       nemAddress: nem.utils.format.address(this.props.nemAddress)
     });
   }
-
-  onSubmit = values => {
-    this.props.addNemAddress(values).then(res => {
-      if (res.error) return;
-
-      if (!values.nemAddress) {
-        this.props.toastWarning('NEM payment address removed.');
-      } else {
-        this.props.toastSuccess('NEM payment address saved.');
-      }
-    });
-  };
 
   handleUpdateCredit = () => {
     this.setState({ isCheckingCredit: true });
@@ -184,10 +167,7 @@ class NemAddress extends Component {
               Please add a NEM address if you wish to sell music, as fan
               payments and nemp3 credit will be sent directly to this address.
             </p>
-            <form
-              className="nem-address my-5 py-5"
-              onSubmit={() => handleSubmit(this.onSubmit)}
-            >
+            <form className="nem-address my-5 py-5" onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="col-md-9 mx-auto">
                   <Field
@@ -294,6 +274,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { addNemAddress, fetchUserCredit, toastSuccess, toastWarning }
+    { fetchUserCredit, toastSuccess, toastWarning }
   )(NemAddress)
 );

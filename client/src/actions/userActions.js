@@ -26,7 +26,7 @@ export const fetchUser = () => async dispatch => {
 export const fetchUserCredit = () => async dispatch => {
   try {
     const res = await axios.get('/api/nem/credit');
-    dispatch({ type: FETCH_USER_CREDIT, payload: res.data });
+    dispatch({ type: FETCH_USER_CREDIT, payload: res.data.credit });
     return res;
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });

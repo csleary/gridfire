@@ -7,8 +7,7 @@ import {
 const initialState = {
   credit: 0,
   isLoading: true,
-  nemAddress: '',
-  somethingelse: 0
+  nemAddress: ''
 };
 
 export default (state = initialState, action) => {
@@ -23,7 +22,7 @@ export default (state = initialState, action) => {
         ...payload
       };
     case FETCH_USER_CREDIT:
-      return { ...state, ...payload };
+      return { ...state, credit: payload };
     default:
       return state;
   }

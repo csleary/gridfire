@@ -154,7 +154,9 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  { fetchCatalogue, fetchUser, logOut, toastSuccess }
-)(withRouter(Navbar));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    { fetchCatalogue, fetchUser, logOut, toastSuccess }
+  )(Navbar)
+);

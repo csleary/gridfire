@@ -1,16 +1,59 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import Spinner from './../Spinner';
 import UserRelease from './UserRelease';
+import {
+  deleteRelease,
+  fetchSales,
+  fetchUserReleases,
+  publishStatus,
+  toastSuccess,
+  toastWarning
+} from '../../actions';
 
 class UserReleases extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isDeletingRelease: false
+      isDeletingRelease: false,
+      salesData: null
     };
+  }
+
+  componentDidMount() {
+    window.scrollTo(0, 0);
+    this.props
+      .fetchUserReleases()
+      .then(() => this.props.fetchSales())
+      .then(salesData => {
+        this.props.userReleases.forEach(release => {
+          const sales = salesData.filter(
+            data => data.releaseId === release._id
+          )[0];
+
+          if (!sales) {
+            this.setState({
+              salesData: {
+                ...this.state.salesData,
+                [release._id]: 0
+              }
+            });
+            return;
+          }
+          const total = sales.purchases.map(sale => sale.numSold);
+          const sum = total.reduce((acc, el) => acc + el);
+
+          this.setState({
+            salesData: {
+              ...this.state.salesData,
+              [release._id]: sum
+            }
+          });
+        });
+      });
   }
 
   releasesOffline = () => {
@@ -22,27 +65,19 @@ class UserReleases extends Component {
   };
 
   renderUserReleases = () => {
-    const {
-      deleteRelease,
-      history,
-      numSold,
-      publishStatus,
-      toastSuccess,
-      toastWarning,
-      userReleases
-    } = this.props;
+    const { history, userReleases } = this.props;
 
     return userReleases.map(release => (
       <UserRelease
-        deleteRelease={deleteRelease}
+        deleteRelease={this.props.deleteRelease}
         history={history}
         key={release._id}
-        publishStatus={publishStatus}
-        numSold={numSold[release._id]}
+        publishStatus={this.props.publishStatus}
+        numSold={this.state.salesData && this.state.salesData[release._id]}
         release={release}
-        toastSuccess={toastSuccess}
-        toastWarning={toastWarning}
-        userReleases={userReleases}
+        toastSuccess={this.props.toastSuccess}
+        toastWarning={this.props.toastWarning}
+        userReleases={this.props.userReleases}
       />
     ));
   };
@@ -91,9 +126,8 @@ class UserReleases extends Component {
         <div className="row">
           <div className="col py-3">
             <h3 className="text-center">
-              You have {userReleases.length} release{userReleases.length > 1
-                ? 's'
-                : ''}{' '}
+              You have {userReleases.length} release
+              {userReleases.length > 1 ? 's' : ''}{' '}
               {releasesOffline ? ` (${releasesOffline} offline)` : null}
             </h3>
             <ul className="user-releases">{this.renderUserReleases()}</ul>
@@ -113,4 +147,22 @@ class UserReleases extends Component {
   }
 }
 
-export default UserReleases;
+function mapStateToProps(state) {
+  return {
+    isLoadingUserReleases: state.releases.isLoading,
+    salesData: state.salesData.releaseSales,
+    userReleases: state.releases.userReleases
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  {
+    deleteRelease,
+    fetchSales,
+    fetchUserReleases,
+    publishStatus,
+    toastSuccess,
+    toastWarning
+  }
+)(UserReleases);

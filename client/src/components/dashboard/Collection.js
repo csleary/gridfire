@@ -73,9 +73,8 @@ class Collection extends Component {
         <div className="row">
           <div className="col py-3">
             <h3 className="text-center">
-              Your Collection ({collection.length} release{collection.length > 1
-                ? 's'
-                : ''})
+              Your Collection ({collection.length} release
+              {collection.length > 1 ? 's' : ''})
             </h3>
             <div className="front-page">{renderReleases}</div>
           </div>

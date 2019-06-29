@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 import 'lazysizes';
 import { fetchUser } from '../actions';
 import About from './About';
@@ -65,37 +65,37 @@ class App extends Component {
         <div className="app-wrapper">
           <Header />
           <Navbar />
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/oauth/:service" component={Home} />
-            <Route path="/register" component={Register} />
-            <Route path="/about" component={About} />
-            <Route path="/login" component={Login} />
-            <Route exact strict path="/reset" component={ForgotPassword} />
-            <Route
-              exact
-              strict
-              path="/reset/:token"
-              component={ResetPassword}
-            />
-            <Route path="/contact" component={Contact} />
-            <Route path="/support" component={Support} />
-            <Route path="/artist/:artist" component={ArtistPage} />
-            <Route
-              exact
-              strict
-              path="/release/:releaseId"
-              component={SelectedRelease}
-            />
-            <Route path="/search" component={SearchResults} />
-            <PrivateRoute path="/release/add/" component={EditRelease} />
-            <PrivateRoute
-              path="/release/edit/:releaseId"
-              component={EditRelease}
-            />
-            <PrivateRoute path="/payment/:releaseId" component={Payment} />
-            <PrivateRoute path="/dashboard" component={Dashboard} />
-          </Switch>
+          <Route exact path="/" component={Home} />
+          <Route path="/oauth/:service" component={Home} />
+          <Route path="/register" component={Register} />
+          <Route path="/login" component={Login} />
+          <Route exact path="/reset" component={ForgotPassword} />
+          <Route exact path="/reset/:token" component={ResetPassword} />
+          <Route path="/search" component={SearchResults} />
+          <Route path="/about" component={About} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/support" component={Support} />
+          <PrivateRoute
+            strict
+            exact
+            path="/release/add/"
+            component={EditRelease}
+          />
+          <PrivateRoute
+            strict
+            exact
+            path="/release/edit/:releaseId"
+            component={EditRelease}
+          />
+          <Route
+            strict
+            exact
+            path="/release/:releaseId"
+            component={SelectedRelease}
+          />
+          <Route path="/artist/:artist" component={ArtistPage} />
+          <PrivateRoute path="/payment/:releaseId" component={Payment} />
+          <PrivateRoute path="/dashboard" component={Dashboard} />
           <Footer user={this.props.user} />
           <Player />
           <Toast />
