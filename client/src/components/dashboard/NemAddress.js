@@ -220,7 +220,7 @@ class NemAddress extends Component {
                     As you have {userReleaseCount} release
                     {userReleaseCount === 1 ? '' : 's'}, you need to maintain a
                     credit balance of at least {userReleaseCount + 1} to be able
-                    to add a new release.
+                    to add a new release or purchase perks.
                   </p>
                 </div>
               </div>
@@ -228,7 +228,7 @@ class NemAddress extends Component {
             <h4>Getting Your First NEM Address</h4>
             <p>
               To receive payments from fans, as well as (eventually) utility
-              tokens or rewards from NEMp3, you will need to have your own NEM
+              tokens or rewards from nemp3, you will need to have your own NEM
               address. The easiest way to do this is by setting up an account
               with one of the mobile wallets, which are available from your
               phone&rsquo;s respective download store, as linked from{' '}
@@ -247,10 +247,10 @@ class NemAddress extends Component {
               Within any of the wallets, whether the desktop NanoWallet or the
               mobile wallets, you can create any number of accounts, each with
               their own individual address. You could easily dedicate an address
-              to NEMp3, for instance.
+              to nemp3, for instance.
             </p>
             <p>
-              At present, only a single NEM address can be added to NEMp3
+              At present, only a single NEM address can be added to nemp3
               accounts, so for example, automatic royalty splits are not yet
               possible (and would incur a network fee for royalties sent to each
               band member). This may change with the next update of the NEM

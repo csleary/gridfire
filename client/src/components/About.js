@@ -9,7 +9,7 @@ const paymentData = {
   data: {
     addr: address.replace(/-/g, ''),
     amount: 0,
-    msg: 'NEMp3 Donation'
+    msg: 'nemp3 Donation'
   }
 };
 
@@ -17,9 +17,9 @@ const About = () => (
   <main className="container">
     <div className="row">
       <div className="col py-3 mb-4">
-        <h2 className="text-center mt-4">About NEMp3</h2>
+        <h2 className="text-center mt-4">About nemp3</h2>
         <p>
-          NEMp3 is a music download store that uses the{' '}
+          nemp3 is a music download store that uses the{' '}
           <a href="https://nem.io/">NEM</a> blockchain and cryptocurrency (XEM)
           for payment, allowing artists to receive direct payments from fans in
           a matter of seconds, without an intermediary payment processor.
@@ -32,7 +32,7 @@ const About = () => (
           Nanowallet desktop wallet.
         </p>
         <p>
-          At present, NEMp3 is entirely free to use, with artists receiving 100%
+          At present, nemp3 is entirely free to use, with artists receiving 100%
           of payments, paid directly from fan to artist. Of course, there are
           data hosting and server costs to pay, so we are currently exploring
           ways of supporting the platform without either compromising on artist
