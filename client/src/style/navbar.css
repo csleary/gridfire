@@ -32,6 +32,7 @@ nav.navbar.sub-menu a.active {
 nav.navbar a.active .fa,
 nav.navbar.sub-menu a.active .fa {
   color: #ffd24d;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 nav.navbar.sub-menu .fa.no-address {
@@ -43,7 +44,9 @@ nav.navbar.sub-menu .fa.no-address {
   text-transform: uppercase;
 }
 
-nav.navbar .nav-item a.nav-link:hover {
+nav.navbar .nav-item a.nav-link:hover,
+nav.navbar a.active:hover .fa,
+nav.navbar.sub-menu a.active:hover .fa {
   color: #18cdca;
 }
 
