@@ -14,7 +14,7 @@ function DashNavbar(props) {
         <li className="nav-item">
           <NavLink strict exact to={'/dashboard'} className="nav-link">
             <FontAwesome name="headphones" className="mr-1" />
-            Releases
+            <span className="nav-label">Releases</span>
           </NavLink>
         </li>
         <li className="nav-item">
@@ -25,7 +25,7 @@ function DashNavbar(props) {
             className="nav-link"
           >
             <FontAwesome name="archive" className="mr-1" />
-            My Collection
+            <span className="nav-label">My Collection</span>
           </NavLink>
         </li>
         <li
@@ -46,7 +46,7 @@ function DashNavbar(props) {
               name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
               className={`mr-1 ${!user.nemAddress && 'no-address'}`}
             />
-            Payment
+            <span className="nav-label">Payment</span>
           </NavLink>
         </li>
         {showPasswordChange && (
@@ -58,7 +58,7 @@ function DashNavbar(props) {
               className="nav-link"
             >
               <FontAwesome name="key" className="mr-1" />
-              Password
+              <span className="nav-label">Password</span>
             </NavLink>
           </li>
         )}

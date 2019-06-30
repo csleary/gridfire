@@ -25,7 +25,8 @@ class NemAddress extends Component {
     });
   }
 
-  handleUpdateCredit = () => {
+  handleUpdateCredit = e => {
+    e.preventDefault();
     this.setState({ isCheckingCredit: true });
     this.props.fetchUserCredit();
   };
@@ -174,7 +175,7 @@ class NemAddress extends Component {
             </p>
             <form className="nem-address my-5 py-5" onSubmit={handleSubmit}>
               <div className="form-row">
-                <div className="col-md-9 mx-auto">
+                <div className="col-md-9 mx-auto px-3">
                   <Field
                     disabled={submitting}
                     id="nemAddress"
@@ -220,7 +221,7 @@ class NemAddress extends Component {
                     As you have {userReleaseCount} release
                     {userReleaseCount === 1 ? '' : 's'}, you need to maintain a
                     credit balance of at least {userReleaseCount + 1} to be able
-                    to add a new release or purchase perks.
+                    to add a new release or activate perks and powerups.
                   </p>
                 </div>
               </div>

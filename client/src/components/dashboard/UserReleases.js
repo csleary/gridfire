@@ -34,15 +34,8 @@ class UserReleases extends Component {
             data => data.releaseId === release._id
           )[0];
 
-          if (!sales) {
-            this.setState({
-              salesData: {
-                ...this.state.salesData,
-                [release._id]: 0
-              }
-            });
-            return;
-          }
+          if (!sales) return;
+
           const total = sales.purchases.map(sale => sale.numSold);
           const sum = total.reduce((acc, el) => acc + el);
 
