@@ -23,6 +23,8 @@ class Player extends Component {
       expandSeekBar: false,
       isBuffering: false,
       isSeeking: false,
+      shouldUpdateBuffer: false,
+      shouldSetDuration: false,
       showRemaining: false
     };
 
@@ -36,6 +38,7 @@ class Player extends Component {
     const audioPlayer = document.getElementById('player');
     audioPlayer.src = URL.createObjectURL(this.mediaSource);
     this.mediaSource.addEventListener('sourceopen', () => {
+      URL.revokeObjectURL(audioPlayer.src);
       const mime = 'audio/mp4; codecs="mp4a.40.2"';
       this.sourceBuffer = this.mediaSource.addSourceBuffer(mime);
 
@@ -46,7 +49,13 @@ class Player extends Component {
       });
 
       this.sourceBuffer.addEventListener('updateend', () => {
-        this.handleSetDuration();
+        if (this.state.shouldUpdateBuffer) {
+          this.handleUpdateBuffer();
+        }
+
+        if (this.state.shouldSetDuration) {
+          this.handleUpdateDuration();
+        }
 
         if (this.queue.length) {
           this.sourceBuffer.appendBuffer(this.queue.shift());
@@ -100,7 +109,7 @@ class Player extends Component {
       if (needsBuffer) {
         this.setState({ isBuffering: true }, () => {
           this.fetchAudioRange(buffer => {
-            this.handleBuffer(buffer);
+            this.handleAppendBuffer(buffer);
           });
         });
       }
@@ -139,13 +148,12 @@ class Player extends Component {
 
       if (!isBuffered && !this.newTrack) {
         this.setState({ bufferEnd: false });
-        this.sourceBuffer.remove(0, this.mediaSource.duration);
         this.currentSegment = Math.floor(audioPlayer.currentTime / 15);
         this.setState(
           { ready: false, isSeeking: true, isBuffering: true },
           () => {
             this.fetchAudioRange(buffer => {
-              this.handleBuffer(buffer);
+              this.handleAppendBuffer(buffer);
             });
           }
         );
@@ -160,17 +168,21 @@ class Player extends Component {
       const audioPlayer = document.getElementById('player');
       audioPlayer.pause();
       this.queue.length = 0;
-
-      if (this.mediaSource.duration && !this.sourceBuffer.updating) {
-        this.sourceBuffer.remove(0, this.mediaSource.duration);
-      }
       this.newTrack = true;
+      this.emptySourceBuffer();
+      this.handleUpdateBuffer();
       this.setPlayerReady();
       this.fetchAudioRange(buffer => {
-        this.sourceBuffer.appendBuffer(buffer);
+        this.handleAppendBuffer(buffer);
         audioPlayer.currentTime = 0;
         this.handlePlay();
       });
+    }
+  }
+
+  componentWillUnmount() {
+    if (!this.sourceBuffer.updating && this.mediaSource.readyState === 'open') {
+      this.mediaSource.endOfStream();
     }
   }
 
@@ -178,23 +190,53 @@ class Player extends Component {
     this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
   }
 
-  handleSetDuration() {
+  emptySourceBuffer() {
+    if (this.mediaSource.duration && !this.sourceBuffer.updating) {
+      this.sourceBuffer.remove(0, this.mediaSource.duration);
+    }
+  }
+
+  handleUpdateBuffer() {
+    if (this.sourceBuffer.updating) {
+      this.setState({ shouldUpdateBuffer: true });
+      return;
+    }
+
+    const oldDuration = Number.isFinite(this.mediaSource.duration)
+      ? this.mediaSource.duration
+      : 0;
+
     const currentTrack = this.props.release.trackList.filter(
       track => track._id === this.props.player.trackId
     );
-    // const oldDuration = Number.isFinite(this.mediaSource.duration)
-    //   ? this.mediaSource.duration
-    //   : 0;
+
     const newDuration = currentTrack.length && currentTrack[0].duration;
 
-    // if (newDuration < oldDuration) {
-    //   this.sourceBuffer.remove(newDuration, oldDuration);
-    // } else {
-    this.mediaSource.duration = newDuration;
-    // }
+    if (newDuration < oldDuration) {
+      this.sourceBuffer.remove(newDuration, oldDuration);
+      this.setState({ shouldUpdateBuffer: false, shouldSetDuration: true });
+    } else {
+      this.mediaSource.duration = newDuration;
+      this.setState({ shouldUpdateBuffer: false, shouldSetDuration: false });
+    }
   }
 
-  handleBuffer(buffer) {
+  handleUpdateDuration() {
+    if (this.sourceBuffer.updating) {
+      return;
+    }
+
+    const currentTrack = this.props.release.trackList.filter(
+      track => track._id === this.props.player.trackId
+    );
+
+    const newDuration = currentTrack.length && currentTrack[0].duration;
+
+    this.mediaSource.duration = newDuration;
+    this.setState({ shouldSetDuration: false });
+  }
+
+  handleAppendBuffer(buffer) {
     if (!this.sourceBuffer.updating) {
       this.sourceBuffer.appendBuffer(buffer);
     } else {
@@ -273,6 +315,7 @@ class Player extends Component {
   handlePlay = () => {
     const audioPlayer = document.getElementById('player');
     const promisePlay = audioPlayer.play();
+
     if (promisePlay !== undefined) {
       promisePlay
         .catch(() => {
