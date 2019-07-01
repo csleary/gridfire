@@ -87,8 +87,8 @@ class Login extends Component {
         <div className="row">
           <div className="col-md mb-5">
             <p>
-              If you already have an account with us, please log in with the
-              form below.
+              If you already have a nemp3 account, please log in using the form
+              below.
             </p>
             <form className="mb-5" onSubmit={handleSubmit(this.onSubmit)}>
               <Field
@@ -138,9 +138,8 @@ class Login extends Component {
           <div className="col-md d-flex align-items-center justify-content-center mb-5">
             <p>
               <FontAwesome name="google" className="mr-2" />
-              <a href="api/auth/google/">
-                Log in with your Google credentials
-              </a>.
+              <a href="api/auth/google/">Log in with your Google credentials</a>
+              .
             </p>
           </div>
         </div>

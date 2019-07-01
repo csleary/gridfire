@@ -92,7 +92,7 @@ const Support = () => (
           </p>
         </details>
         <details>
-          <summary>Why the name &lsquo;NEMp3&rsquo;?</summary>
+          <summary>Why the name &lsquo;nemp3&rsquo;?</summary>
           <p>
             The name is a holdover from the initial proof of concept, which
             offered only mp3s. And so a terrible pun was born. It&rsquo;s also a

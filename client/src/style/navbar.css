@@ -81,7 +81,8 @@ nav.navbar a .navbar-brand:hover {
   fill: #18cdca;
 }
 
-span.nav-label {
+span.nav-label,
+nav span.credit {
   display: none;
 }
 
@@ -90,7 +91,8 @@ span.nav-label {
     flex-direction: row;
   }
 
-  span.nav-label {
+  span.nav-label,
+  nav span.credit {
     display: inline;
   }
 }
