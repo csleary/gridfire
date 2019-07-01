@@ -49,10 +49,22 @@ a,
 a:hover,
 a:active,
 a:visited,
-a:focus {
+a:focus,
+.btn.btn-link {
   color: #18cdca;
   font-weight: 600;
   text-decoration: none;
+}
+
+.btn.btn-link {
+  border: 0;
+  font-weight: 400;
+  text-transform: none;
+  margin: 0;
+  min-width: auto;
+  padding: 0;
+  text-align: left;
+  vertical-align: initial;
 }
 
 .app-wrapper {

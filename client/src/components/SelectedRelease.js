@@ -131,7 +131,8 @@ class SelectedRelease extends Component {
 
       return (
         <li key={trackId}>
-          <a
+          <button
+            className="btn btn-link"
             onClick={() => {
               if (trackId !== playerTrackId) {
                 this.props.playTrack(
@@ -147,11 +148,9 @@ class SelectedRelease extends Component {
                 this.props.playerPlay();
               }
             }}
-            role="link"
-            tabIndex="-1"
           >
             {trackTitle}
-          </a>
+          </button>
           {nowPlaying()}
         </li>
       );

@@ -4,10 +4,15 @@ import { Field, formValueSelector, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
 import nem from 'nem-sdk';
-import { fetchUserCredit, toastSuccess, toastWarning } from '../../actions';
+import {
+  addNemAddress,
+  fetchUserCredit,
+  toastSuccess,
+  toastWarning
+} from '../../actions';
 
 const addressPrefix =
-  process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? "an 'N'" : "a 'T'";
+  process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? 'an \'N\'' : 'a \'T\'';
 
 const FormInputs = props => {
   if (props.id === 'signedMessage') {
@@ -24,6 +29,18 @@ class NemAddress extends Component {
       nemAddress: nem.utils.format.address(this.props.nemAddress)
     });
   }
+
+  onSubmit = values => {
+    this.props.addNemAddress(values).then(res => {
+      if (res.error) return;
+
+      if (!values.nemAddress) {
+        this.props.toastWarning('NEM payment address removed.');
+      } else {
+        this.props.toastSuccess('NEM payment address saved.');
+      }
+    });
+  };
 
   handleUpdateCredit = e => {
     e.preventDefault();
@@ -173,7 +190,10 @@ class NemAddress extends Component {
               Please add a NEM address if you wish to sell music, as fan
               payments and nemp3 credit will be sent directly to this address.
             </p>
-            <form className="nem-address my-5 py-5" onSubmit={handleSubmit}>
+            <form
+              className="nem-address my-5 py-5"
+              onSubmit={handleSubmit(this.onSubmit)}
+            >
               <div className="form-row">
                 <div className="col-md-9 mx-auto px-3">
                   <Field
@@ -208,6 +228,7 @@ class NemAddress extends Component {
                       onClick={this.handleUpdateCredit}
                       style={{ verticalAlign: 'bottom' }}
                       title={'Press to recheck your credit.'}
+                      type="button"
                     >
                       <FontAwesome
                         name="refresh"
@@ -281,6 +302,6 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { fetchUserCredit, toastSuccess, toastWarning }
+    { addNemAddress, fetchUserCredit, toastSuccess, toastWarning }
   )(NemAddress)
 );
