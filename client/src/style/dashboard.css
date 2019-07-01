@@ -69,6 +69,7 @@ form.nem-address {
 
 .user-releases .release-button-group {
   border-radius: 0.5rem;
+  flex: 0 1 auto;
   flex-wrap: wrap;
   overflow: hidden;
 }
@@ -109,6 +110,10 @@ form.nem-address {
 }
 
 .user-releases .release-details {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .user-releases .release-price {

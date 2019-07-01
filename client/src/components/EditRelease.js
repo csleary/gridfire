@@ -127,7 +127,7 @@ class EditRelease extends Component {
         return;
       }
 
-      this.setState({ coverArtPreview: this.artworkFile.preview });
+      this.setState({ coverArtPreview: image.src });
       this.props.uploadArtwork(
         releaseId,
         this.artworkFile,
@@ -141,7 +141,7 @@ class EditRelease extends Component {
   };
 
   onDropAudio = (accepted, rejected, index, trackId) => {
-    if (rejected.length) {
+    if (rejected && rejected.length) {
       this.props.toastError(
         'This does not seem to be an audio file. Please select a wav or aiff audio file.'
       );
@@ -206,7 +206,7 @@ class EditRelease extends Component {
   }
 
   handleDeletePreview = () => {
-    this.setState({ coverArtPreview: false });
+    this.setState({ coverArtPreview: undefined });
   };
 
   handleTagsInput = event => {
@@ -269,10 +269,10 @@ class EditRelease extends Component {
     const convertedPrice = (price / xemPriceUsd).toFixed(2);
 
     if (price === '0') {
-      return "Name Your Price! Or 'free'. Fans will still be able to donate.";
+      return 'Name Your Price! Or \'free\'. Fans will still be able to donate.';
     }
     if (price) return `Approximately ${convertedPrice} XEM.`;
-    return "Set your price in USD (enter '0' for a 'Name Your Price' release).";
+    return 'Set your price in USD (enter \'0\' for a \'Name Your Price\' release).';
   }
 
   render() {

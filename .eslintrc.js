@@ -1,37 +1,26 @@
 module.exports = {
-  extends: 'airbnb',
-  parser: 'babel-eslint',
   env: {
     browser: true,
+    es6: true,
     node: true
   },
-  plugins: ['jsx-a11y'],
+  extends: ['eslint:recommended', 'plugin:react/recommended'],
+  parser: 'babel-eslint',
+  parserOptions: {
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true,
+      jsx: true
+    },
+    sourceType: 'module'
+  },
+  plugins: ['react', 'jsx-a11y'],
   rules: {
     'arrow-parens': ['error', 'as-needed'],
-    'class-methods-use-this': 0,
     'comma-dangle': ['error', 'never'],
-    'consistent-return': 0,
-    'func-names': 0,
-    'global-require': 0,
-    indent: ['off', 2],
-    'jsx-a11y/media-has-caption': 0,
-    'max-len': 0,
-    'no-alert': 0,
-    'no-mixed-operators': 0,
-    'no-param-reassign': 0,
-    'no-plusplus': 0,
-    'no-underscore-dangle': 0,
-    'no-unused-expressions': 0,
-    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
+    indent: ['error', 2],
+    'linebreak-style': ['error', 'unix'],
+    quotes: ['error', 'single'],
     'react/prop-types': 0,
-    'space-before-function-paren': [
-      'error',
-      {
-        anonymous: 'never',
-        named: 'never',
-        asyncArrow: 'always'
-      }
-    ],
-    strict: 0
+    semi: ['error', 'always']
   }
 };

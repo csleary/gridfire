@@ -19,11 +19,6 @@
   color: hsla(233, 10%, 75%, 1);
 }
 
-.selected-release .tracklist li a {
-  cursor: pointer;
-  font-weight: normal;
-}
-
 .selected-release .tracklist .now-playing {
   animation: now-playing 2s ease 1s infinite alternate;
   color: #18cdca;

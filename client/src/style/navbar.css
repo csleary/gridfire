@@ -18,18 +18,27 @@ nav.navbar.sub-menu {
   opacity: 1;
 }
 
-nav.navbar a {
+nav.navbar a,
+nav.navbar button {
   color: hsla(233, 10%, 75%, 1);
+  font-weight: 600;
   transition-duration: 0.25s;
 }
 
+nav.navbar button {
+  background-color: inherit;
+  border: inherit;
+}
+
 nav.navbar a.active,
+nav.navbar button.active,
 nav.navbar.sub-menu a.active {
   background: hsla(233, 10%, 15%, 1);
   color: #f0f0f1;
 }
 
 nav.navbar a.active .fa,
+nav.navbar button.active .fa,
 nav.navbar.sub-menu a.active .fa {
   color: #ffd24d;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
@@ -45,7 +54,9 @@ nav.navbar.sub-menu .fa.no-address {
 }
 
 nav.navbar .nav-item a.nav-link:hover,
+nav.navbar .nav-item button.nav-link:hover,
 nav.navbar a.active:hover .fa,
+nav.navbar button.active:hover .fa,
 nav.navbar.sub-menu a.active:hover .fa {
   color: #18cdca;
 }

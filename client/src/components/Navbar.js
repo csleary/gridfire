@@ -104,20 +104,14 @@ class Navbar extends Component {
           </NavLink>
         </li>
         <li className="nav-item">
-          <a
-            className="nav-link"
-            tabIndex="-1"
-            onClick={this.handleLogout}
-            role="button"
-            style={{ cursor: 'pointer' }}
-          >
+          <button className="nav-link" onClick={this.handleLogout}>
             <FontAwesome
               name="sign-out"
               className="mr-1"
               title="Log out of your account."
             />
             <span className="nav-label">Log out</span>
-          </a>
+          </button>
         </li>
       </Fragment>
     );

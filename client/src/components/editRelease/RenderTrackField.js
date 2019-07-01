@@ -1,36 +1,6 @@
 import React, { Fragment } from 'react';
-import Dropzone from 'react-dropzone';
-import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
-
-const renderDropzoneLabel = (
-  hasAudio,
-  isTranscoding,
-  isUploading,
-  audioUploadProgress
-) => {
-  if (isUploading) {
-    return (
-      <Fragment>
-        <FontAwesome name="cog" spin className="mr-2" />
-        {audioUploadProgress.toString(10).padStart(2, '0')}%
-      </Fragment>
-    );
-  } else if (hasAudio || isTranscoding) {
-    return (
-      <Fragment>
-        <FontAwesome name="refresh" className="mr-2" />
-        Replace Audio
-      </Fragment>
-    );
-  }
-  return (
-    <Fragment>
-      <FontAwesome name="plus-circle" className="mr-2" />
-      Add Audio
-    </Fragment>
-  );
-};
+import AudioDropzone from './AudioDropzone';
 
 const RenderTrackField = props => {
   const {
@@ -39,6 +9,7 @@ const RenderTrackField = props => {
     hasAudio,
     index,
     input,
+    isEncoding,
     isTranscoding,
     isUploading,
     label,
@@ -50,7 +21,6 @@ const RenderTrackField = props => {
   const inputClasses = classNames('form-control', {
     invalid: touched && error
   });
-  const dropzoneClasses = classNames('dropzone-audio', audioClassNames);
 
   return (
     <Fragment>
@@ -65,24 +35,18 @@ const RenderTrackField = props => {
           type={type}
           {...input}
         />
-        <Dropzone
-          accept=".aif, .aifc, .aiff, .wav, .flac"
-          activeClassName="dropzone-audio-active"
-          className={dropzoneClasses}
-          disabled={isUploading}
+        <AudioDropzone
+          audioClassNames={audioClassNames}
+          hasAudio={hasAudio}
+          isEncoding={isEncoding}
+          isTranscoding={isTranscoding}
+          isUploading={isUploading}
+          audioUploadProgress={audioUploadProgress}
           disablePreview
-          multiple={false}
           onDrop={(accepted, rejected) =>
             props.onDropAudio(accepted, rejected, index, trackId)
           }
-        >
-          {renderDropzoneLabel(
-            hasAudio,
-            isTranscoding,
-            isUploading,
-            audioUploadProgress
-          )}
-        </Dropzone>
+        />
       </div>
       {error && <div className="invalid-feedback">{touched && error}</div>}
     </Fragment>

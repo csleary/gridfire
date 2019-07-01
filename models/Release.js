@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
 const releaseSchema = new Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    artist: { type: Schema.Types.ObjectId, ref: 'Artist' },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    artist: { type: Schema.Types.ObjectId, ref: "Artist" },
     artistName: { type: String, trim: true },
     releaseTitle: { type: String, trim: true },
     artwork: String,
@@ -40,10 +40,10 @@ const releaseSchema = new Schema(
 );
 
 releaseSchema.index({
-  artistName: 'text',
-  releaseTitle: 'text',
-  'trackList.trackTitle': 'text',
-  tags: 'text'
+  artistName: "text",
+  releaseTitle: "text",
+  "trackList.trackTitle": "text",
+  tags: "text"
 });
 
-mongoose.model('releases', releaseSchema);
+mongoose.model("releases", releaseSchema);

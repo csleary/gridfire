@@ -23,7 +23,7 @@ const RenderTrack = props => {
 
   const audioClassNames = classNames({
     'audio-true': hasAudio && !isTranscoding && !isUploading,
-    'audio-uploading': isUploading || isTranscoding,
+    'audio-processing': isUploading || isTranscoding,
     'audio-false': !hasAudio
   });
 
@@ -31,6 +31,13 @@ const RenderTrack = props => {
     'drag-active': props.dragActive === index,
     'drag-origin': props.dragOrigin === index
   });
+
+  const deleteButtonClassNames = classNames(
+    'btn btn-outline-danger btn-sm ml-auto',
+    {
+      'delete-active': isDeletingTrack
+    }
+  );
 
   const handleMoveTrack = (swap, id, trackIndex, direction) => {
     props.moveTrack(id, trackIndex, trackIndex + direction, () => {
@@ -56,8 +63,9 @@ const RenderTrack = props => {
         component={RenderTrackField}
         hasAudio={hasAudio}
         index={index}
-        isUploading={isUploading}
+        isEncoding={isEncoding}
         isTranscoding={isTranscoding}
+        isUploading={isUploading}
         label={index + 1}
         name={`${name}.trackTitle`}
         onDropAudio={props.onDropAudio}
@@ -100,7 +108,7 @@ const RenderTrack = props => {
           </button>
         )}
         <button
-          className="btn btn-outline-danger btn-sm ml-auto"
+          className={deleteButtonClassNames}
           disabled={isDeletingTrack}
           onClick={() => props.handleDeleteTrack(fields.remove, index)}
           title="Delete Track"

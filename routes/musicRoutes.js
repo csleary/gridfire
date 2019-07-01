@@ -44,6 +44,12 @@ module.exports = app => {
     res.send(releases);
   });
 
+  // Fetch Site Catalogue Count
+  app.get('/api/catalogue/count', async (req, res) => {
+    const count = await Release.count();
+    res.send({ count });
+  });
+
   // Fetch Release Sales Figures
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ user: req.user.id });
