@@ -5,7 +5,6 @@ import AudioDropzoneLabel from './AudioDropzoneLabel';
 
 const AudioDropzone = props => {
   const {
-    audioClassNames,
     audioUploadProgress,
     hasAudio,
     isEncoding,
@@ -29,10 +28,11 @@ const AudioDropzone = props => {
     onDrop
   });
 
-  const dropzoneClassNames = classNames('dropzone-audio', audioClassNames, {
+  const dropzoneClassNames = classNames('dropzone-audio', {
     active: isDragActive && !isDragReject,
     uploading: isUploading || isTranscoding || isEncoding,
     disabled: isUploading || isTranscoding || isEncoding,
+    complete: hasAudio && !isUploading && !isTranscoding && !isEncoding,
     rejected: isDragReject
   });
 

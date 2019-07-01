@@ -105,7 +105,7 @@ input[type='date'] {
 }
 
 .dropzone-audio.active,
-.dropzone-audio.audio-processing {
+.dropzone-audio.uploading {
   background-color: #000;
   border-color: #ffd24d;
   color: #ffd24d;
@@ -116,13 +116,13 @@ input[type='date'] {
   cursor: wait;
 }
 
-.dropzone-audio.audio-true {
+.dropzone-audio.complete {
   background-color: #000;
   border-color: #18cdca;
   color: #18cdca;
 }
 
-.dropzone-audio.audio-true:hover {
+.dropzone-audio.complete:hover {
   background-color: #18cdca;
   color: #292c44;
 }
@@ -217,15 +217,15 @@ input[type='date'] {
   min-width: auto;
 }
 
-.track-list .list-group-item.audio-true {
-  border-left: 4px solid #18cdca;
-}
-
-.track-list .list-group-item.audio-false {
+.track-list .list-group-item.incomplete {
   border-left: 4px solid #ff5349;
 }
 
-.track-list .list-group-item.audio-processing {
+.track-list .list-group-item.complete {
+  border-left: 4px solid #18cdca;
+}
+
+.track-list .list-group-item.processing {
   border-left: 4px solid #ffd24d;
 }
 

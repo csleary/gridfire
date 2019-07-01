@@ -22,9 +22,9 @@ const RenderTrack = props => {
   const isEncoding = audioUploadProgress === 100 && !isTranscoding;
 
   const audioClassNames = classNames({
-    'audio-true': hasAudio && !isTranscoding && !isUploading,
-    'audio-processing': isUploading || isTranscoding,
-    'audio-false': !hasAudio
+    complete: hasAudio && !isTranscoding && !isUploading,
+    processing: isUploading || isTranscoding,
+    incomplete: !hasAudio
   });
 
   const trackClassNames = classNames('list-group-item', audioClassNames, {
@@ -58,7 +58,6 @@ const RenderTrack = props => {
       onTouchStart={() => {}}
     >
       <Field
-        audioClassNames={audioClassNames}
         audioUploadProgress={audioUploadProgress}
         component={RenderTrackField}
         hasAudio={hasAudio}
@@ -80,7 +79,7 @@ const RenderTrack = props => {
           </span>
         )}
         {isEncoding && (
-          <span className="mr-2 cyan">
+          <span className="mr-2 yellow">
             <FontAwesome name="file-archive-o" className="mr-2" />
             <strong>Encoding…</strong>
           </span>

@@ -4,7 +4,6 @@ import AudioDropzone from './AudioDropzone';
 
 const RenderTrackField = props => {
   const {
-    audioClassNames,
     audioUploadProgress,
     hasAudio,
     index,
@@ -36,7 +35,6 @@ const RenderTrackField = props => {
           {...input}
         />
         <AudioDropzone
-          audioClassNames={audioClassNames}
           hasAudio={hasAudio}
           isEncoding={isEncoding}
           isTranscoding={isTranscoding}
