@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
@@ -13,136 +13,133 @@ import {
   toastWarning
 } from '../../actions';
 
-class UserReleases extends Component {
-  constructor(props) {
-    super(props);
+function UserReleases(props) {
+  const {
+    deleteRelease,
+    fetchSales,
+    fetchUserReleases,
+    history,
+    publishStatus,
+    toastSuccess,
+    toastWarning,
+    userReleases
+  } = props;
 
-    this.state = {
-      isDeletingRelease: false,
-      salesData: null
-    };
-  }
+  const [salesData, setSalesData] = useState();
+  const [isLoading, setLoading] = useState(false);
 
-  componentDidMount() {
-    window.scrollTo(0, 0);
-    this.props
-      .fetchUserReleases()
-      .then(() => this.props.fetchSales())
-      .then(salesData => {
-        this.props.userReleases.forEach(release => {
-          const sales = salesData.filter(
-            data => data.releaseId === release._id
-          )[0];
-
-          if (!sales) return;
-
-          const total = sales.purchases.map(sale => sale.numSold);
-          const sum = total.reduce((acc, el) => acc + el);
-
-          this.setState({
-            salesData: {
-              ...this.state.salesData,
-              [release._id]: sum
-            }
-          });
+  useEffect(
+    () => {
+      window.scrollTo(0, 0);
+      if (!userReleases.length) {
+        setLoading(true);
+      }
+      fetchUserReleases()
+        .then(() => fetchSales())
+        .then(data => {
+          setSalesData(data);
+          setLoading(false);
         });
-      });
-  }
+    },
+    [fetchUserReleases, fetchSales, userReleases.length]
+  );
 
-  releasesOffline = () => {
-    const { userReleases } = this.props;
+  const releasesOffline = () => {
     if (!userReleases) return;
 
     const offline = userReleases.filter(release => release.published === false);
     return offline.length;
   };
 
-  renderUserReleases = () => {
-    const { history, userReleases } = this.props;
+  const renderUserReleases = () =>
+    userReleases.map(release => {
+      const sales =
+        salesData &&
+        salesData.filter(datum => datum.releaseId === release._id)[0];
 
-    return userReleases.map(release => (
-      <UserRelease
-        deleteRelease={this.props.deleteRelease}
-        history={history}
-        key={release._id}
-        publishStatus={this.props.publishStatus}
-        numSold={this.state.salesData && this.state.salesData[release._id]}
-        release={release}
-        toastSuccess={this.props.toastSuccess}
-        toastWarning={this.props.toastWarning}
-        userReleases={this.props.userReleases}
-      />
-    ));
-  };
+      let numSold;
+      if (sales) {
+        const total = sales.purchases.map(sale => sale.numSold);
+        numSold = total.reduce((acc, el) => acc + el);
+      }
 
-  render() {
-    const { isLoadingUserReleases, userReleases } = this.props;
-    const releasesOffline = this.releasesOffline();
-
-    if (isLoadingUserReleases) {
       return (
-        <Spinner>
-          <h2>Loading releases&hellip;</h2>
-        </Spinner>
+        <UserRelease
+          deleteRelease={deleteRelease}
+          history={history}
+          key={release._id}
+          publishStatus={publishStatus}
+          numSold={numSold}
+          release={release}
+          toastSuccess={toastSuccess}
+          toastWarning={toastWarning}
+          userReleases={userReleases}
+        />
       );
-    }
+    });
 
-    if (!userReleases.length) {
-      return (
-        <main className="container">
-          <div className="row">
-            <div className="col p-3">
-              <h3 className="text-center mt-4">Add your first release</h3>
-              <p className="text-center">
-                You don&rsquo;t currently have any releases for sale. Please hit
-                the button below to add your first release.
-              </p>
-              <div className="d-flex justify-content-center">
-                <Link
-                  className="btn btn-outline-primary btn-sm add-release mt-5 mb-4"
-                  title="Add Release"
-                  role="button"
-                  to={'/release/add/'}
-                >
-                  <FontAwesome name="plus-circle" className="mr-2" />
-                  Add Release
-                </Link>
-              </div>
-            </div>
-          </div>
-        </main>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <main className="container-fluid">
+      <Spinner>
+        <h2>Loading releases&hellip;</h2>
+      </Spinner>
+    );
+  }
+
+  if (!userReleases.length) {
+    return (
+      <main className="container">
         <div className="row">
-          <div className="col py-3">
-            <h3 className="text-center">
-              You have {userReleases.length} release
-              {userReleases.length > 1 ? 's' : ''}{' '}
-              {releasesOffline ? ` (${releasesOffline} offline)` : null}
-            </h3>
-            <ul className="user-releases">{this.renderUserReleases()}</ul>
-            <Link
-              className="btn btn-outline-primary btn-sm add-release"
-              title="Add Release"
-              role="button"
-              to={'/release/add/'}
-            >
-              <FontAwesome name="plus-circle" className="mr-2" />
-              Add Release
-            </Link>
+          <div className="col p-3">
+            <h3 className="text-center mt-4">Add your first release</h3>
+            <p className="text-center">
+              You don&rsquo;t currently have any releases for sale. Please hit
+              the button below to add your first release.
+            </p>
+            <div className="d-flex justify-content-center">
+              <Link
+                className="btn btn-outline-primary btn-sm add-release mt-5 mb-4"
+                title="Add Release"
+                role="button"
+                to={'/release/add/'}
+              >
+                <FontAwesome name="plus-circle" className="mr-2" />
+                Add Release
+              </Link>
+            </div>
           </div>
         </div>
       </main>
     );
   }
+
+  return (
+    <main className="container-fluid">
+      <div className="row">
+        <div className="col py-3">
+          <h3 className="text-center">
+            You have {userReleases.length} release
+            {userReleases.length > 1 ? 's' : ''}{' '}
+            {releasesOffline() ? ` (${releasesOffline()} offline)` : null}
+          </h3>
+          <ul className="user-releases">{renderUserReleases()}</ul>
+          <Link
+            className="btn btn-outline-primary btn-sm add-release"
+            title="Add Release"
+            role="button"
+            to={'/release/add/'}
+          >
+            <FontAwesome name="plus-circle" className="mr-2" />
+            Add Release
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
 }
 
 function mapStateToProps(state) {
   return {
-    isLoadingUserReleases: state.releases.isLoading,
     salesData: state.salesData.releaseSales,
     userReleases: state.releases.userReleases
   };
