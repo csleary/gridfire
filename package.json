@@ -2,6 +2,7 @@
   "name": "nemp3",
   "version": "2.0.0",
   "description": "A music download store using payment and token assets on the NEM blockchain.",
+  "repository": "https://github.com/csleary/nemp3v2",
   "main": "index.js",
   "engines": {
     "node": "8.2.1",
@@ -34,7 +35,6 @@
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "readable-stream": "^3.4.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "sax": "^1.2.4",
@@ -42,14 +42,6 @@
   },
   "devDependencies": {
     "concurrently": "^4.1.1",
-    "eslint": "^6.0.1",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.14.2",
-    "nodemon": "^1.19.1",
-    "prettier-eslint": "^9.0.0",
-    "remark-preset-lint-consistent": "^2.0.3",
-    "remark-preset-lint-markdown-style-guide": "^2.1.3",
-    "remark-preset-lint-recommended": "^3.0.3"
+    "nodemon": "^1.19.1"
   }
 }
