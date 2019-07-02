@@ -4,6 +4,7 @@ import { Field, formValueSelector, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
 import nem from 'nem-sdk';
+import NemAddressFormField from './NemAddressFormField';
 import {
   addNemAddress,
   fetchUserCredit,
@@ -11,21 +12,20 @@ import {
   toastWarning
 } from '../../actions';
 
-const addressPrefix =
-  process.env.REACT_APP_NEM_NETWORK === 'mainnet'
-    ? 'an \u2018N\u2019'
-    : 'a \u2018T\u2019';
-
-const FormInputs = props => {
-  if (props.id === 'signedMessage') {
-    return <textarea row="4" {...props} />;
-  }
-  return <input {...props} />;
-};
-
 function NemAddress(props) {
-  const { initialize, nemAddress } = props;
   const [isCheckingCredit, setCheckingCredit] = useState(false);
+
+  const {
+    credit,
+    handleSubmit,
+    initialize,
+    invalid,
+    nemAddress,
+    nemAddressField,
+    nemAddressVerified,
+    pristine,
+    submitting
+  } = props;
 
   useEffect(
     () => {
@@ -35,6 +35,11 @@ function NemAddress(props) {
     },
     [initialize, nemAddress]
   );
+
+  const addressPrefix =
+    process.env.REACT_APP_NEM_NETWORK === 'mainnet'
+      ? 'an \u2018N\u2019'
+      : 'a \u2018T\u2019';
 
   const onSubmit = values => {
     props.addNemAddress(values).then(res => {
@@ -53,84 +58,7 @@ function NemAddress(props) {
     props.fetchUserCredit();
   };
 
-  const checkNemAddress = address => {
-    if (address && !nem.model.address.isValid(address)) {
-      return (
-        <Fragment>
-          <FontAwesome name="exclamation-circle" className="mr-2" />
-          This doesn&rsquo;t appear to be a valid NEM address. Please
-          double-check it!
-        </Fragment>
-      );
-    }
-    return undefined;
-  };
-
-  const renderFormField = ({
-    hint,
-    id,
-    input,
-    label,
-    name,
-    placeholder,
-    type,
-    meta: { active, error, touched }
-  }) => {
-    const formGroupClassNames = classnames('form-group', {
-      invalid: !active && touched && error
-    });
-
-    const inputClassNames = classnames('form-control', {
-      'payment-address': id === 'nemAddress',
-      'signed-message': id === 'signedMessage'
-    });
-
-    return (
-      <div className={formGroupClassNames}>
-        <label htmlFor={id}>{label}</label>
-        {id === 'nemAddress' && renderAddressStatus()}
-        <FormInputs
-          {...input}
-          className={inputClassNames}
-          id={id}
-          name={name}
-          placeholder={placeholder}
-          type={type}
-        />
-        <small className="form-text text-muted">{hint}</small>
-        <div className="invalid-feedback">{touched && error && error}</div>
-      </div>
-    );
-  };
-
-  const renderAddressStatus = () => {
-    const { nemAddress, nemAddressVerified } = props;
-
-    if (nemAddress && !nemAddressVerified) {
-      return (
-        <span
-          className="status unconfirmed"
-          title="Thank you for verifying your address."
-        >
-          Unverified
-          <FontAwesome name="exclamation-circle" className="ml-2" />
-        </span>
-      );
-    }
-
-    if (nemAddress && nemAddressVerified) {
-      return (
-        <span className="status confirmed">
-          Verified
-          <FontAwesome name="check-circle" className="ml-2" />
-        </span>
-      );
-    }
-  };
-
-  const renderConfirmAddressField = () => {
-    const { nemAddress, nemAddressVerified, submitting } = props;
-
+  const renderVerifyAddressField = () => {
     if (nemAddress && !nemAddressVerified) {
       return (
         <Fragment>
@@ -140,11 +68,14 @@ function NemAddress(props) {
             id="signedMessage"
             label="Your Signed Message"
             name="signedMessage"
+            nemAddress={nemAddress}
+            nemAddressVerified={nemAddressVerified}
             placeholder={
               '{"message":"YOUR_MESSAGE","signer":"YOUR_PUBLIC_KEY","signature":"YOUR_SIGNATURE"}'
             }
             type="text"
-            component={renderFormField}
+            component={NemAddressFormField}
+            validate={checkNemMessage}
           />
           <p>
             Please create a signed message in the desktop wallet app (Services
@@ -165,8 +96,6 @@ function NemAddress(props) {
   };
 
   const renderButtonLabel = () => {
-    const { nemAddress, nemAddressField, nemAddressVerified } = props;
-
     if (nemAddress && nemAddressField && !nemAddressVerified) {
       return 'Verify Address';
     }
@@ -176,7 +105,6 @@ function NemAddress(props) {
     return 'Save Address';
   };
 
-  const { credit, handleSubmit, pristine, submitting, invalid } = props;
   const userReleaseCount =
     (props.userReleases && props.userReleases.length) || 0;
 
@@ -208,10 +136,10 @@ function NemAddress(props) {
                   name="nemAddress"
                   placeholder={`NEM Address (should start with ${addressPrefix})`}
                   type="text"
-                  component={renderFormField}
+                  component={NemAddressFormField}
                   validate={checkNemAddress}
                 />
-                {renderConfirmAddressField()}
+                {renderVerifyAddressField()}
                 <div className="d-flex justify-content-end mb-5">
                   <button
                     type="submit"
@@ -287,6 +215,20 @@ function NemAddress(props) {
     </main>
   );
 }
+
+const checkNemAddress = address => {
+  if (address && !nem.model.address.isValid(address)) {
+    return 'This doesn\u2019t appear to be a valid NEM address. Please double-check it!';
+  }
+  return undefined;
+};
+
+const checkNemMessage = message => {
+  if (!message) {
+    return 'Please paste your message in to verify your NEM address.';
+  }
+  return undefined;
+};
 
 const fieldSelector = formValueSelector('nemAddressForm');
 
