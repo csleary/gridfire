@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import RenderRelease from '../RenderRelease';
 import Spinner from '../Spinner';
@@ -11,77 +11,68 @@ import {
 } from '../../actions';
 import '../../style/home.css';
 
-class Collection extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: false
-    };
-  }
+function Collection(props) {
+  const [isLoading, setLoading] = useState(false);
+  const { fetchCollection } = props;
 
-  componentDidMount() {
-    this.setLoading();
-    this.props
-      .fetchCollection()
-      .then(() => this.setState({ isLoading: false }));
-  }
+  useEffect(
+    () => {
+      setLoading(true);
+      fetchCollection().then(() => setLoading(false));
+    },
+    [fetchCollection]
+  );
 
-  setLoading() {
-    this.setState({ isLoading: true });
-  }
+  const { collection } = props;
+  const renderReleases = collection.map(release => (
+    <RenderRelease
+      fetchDownloadToken={props.fetchDownloadToken}
+      fetchRelease={props.fetchRelease}
+      key={release._id}
+      playTrack={props.playTrack}
+      release={release}
+      toastInfo={props.toastInfo}
+      variation="collection"
+    />
+  ));
 
-  render() {
-    const { collection } = this.props;
-    const renderReleases = collection.map(release => (
-      <RenderRelease
-        fetchDownloadToken={this.props.fetchDownloadToken}
-        fetchRelease={this.props.fetchRelease}
-        key={release._id}
-        playTrack={this.props.playTrack}
-        release={release}
-        toastInfo={this.props.toastInfo}
-        variation="collection"
-      />
-    ));
-
-    if (this.state.isLoading) {
-      return (
-        <Spinner>
-          <h2>Loading collection&hellip;</h2>
-        </Spinner>
-      );
-    }
-
-    if (!collection.length) {
-      return (
-        <main className="container">
-          <div className="row">
-            <div className="col">
-              <h3 className="text-center mt-4">No releases found</h3>
-              <p className="text-center">
-                Once you&rsquo;ve purchased a release it will be added to your
-                collection, where you&rsquo;ll have easy access to downloads.
-              </p>
-            </div>
-          </div>
-        </main>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <main className="container-fluid">
+      <Spinner>
+        <h2>Loading collection&hellip;</h2>
+      </Spinner>
+    );
+  }
+
+  if (!collection.length) {
+    return (
+      <main className="container">
         <div className="row">
-          <div className="col py-3">
-            <h3 className="text-center">
-              Your Collection ({collection.length} release
-              {collection.length > 1 ? 's' : ''})
-            </h3>
-            <div className="front-page">{renderReleases}</div>
+          <div className="col">
+            <h3 className="text-center mt-4">No releases found</h3>
+            <p className="text-center">
+              Once you&rsquo;ve purchased a release it will be added to your
+              collection, where you&rsquo;ll have easy access to downloads.
+            </p>
           </div>
         </div>
       </main>
     );
   }
+
+  return (
+    <main className="container-fluid">
+      <div className="row">
+        <div className="col py-3">
+          <h3 className="text-center">
+            Your Collection ({collection.length} release
+            {collection.length > 1 ? 's' : ''})
+          </h3>
+          <div className="front-page">{renderReleases}</div>
+        </div>
+      </div>
+    </main>
+  );
 }
 
 function mapStateToProps(state) {

@@ -33,7 +33,7 @@ function DashNavbar(props) {
           title={
             user.nemAddress
               ? 'Your NEM payment address.'
-              : "You don't currently have a NEM payment address saved."
+              : 'You don\'t currently have a NEM payment address saved.'
           }
         >
           <NavLink

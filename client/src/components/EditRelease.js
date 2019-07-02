@@ -21,7 +21,6 @@ import {
   deleteArtwork,
   deleteRelease,
   deleteTrack,
-  fetchAudioUploadUrl,
   fetchRelease,
   fetchUserRelease,
   fetchXemPrice,
@@ -34,8 +33,7 @@ import {
   transcodeAudio,
   updateRelease,
   uploadArtwork,
-  uploadAudio,
-  uploadAudioProgress
+  uploadAudio
 } from '../actions';
 import '../style/editRelease.css';
 
@@ -269,10 +267,10 @@ class EditRelease extends Component {
     const convertedPrice = (price / xemPriceUsd).toFixed(2);
 
     if (price === '0') {
-      return 'Name Your Price! Or \'free\'. Fans will still be able to donate.';
+      return "Name Your Price! Or 'free'. Fans will still be able to donate.";
     }
     if (price) return `Approximately ${convertedPrice} XEM.`;
-    return 'Set your price in USD (enter \'0\' for a \'Name Your Price\' release).';
+    return "Set your price in USD (enter '0' for a 'Name Your Price' release).";
   }
 
   render() {
@@ -584,7 +582,7 @@ export default reduxForm({
       deleteArtwork,
       deleteRelease,
       deleteTrack,
-      fetchAudioUploadUrl,
+
       fetchRelease,
       fetchUserRelease,
       fetchXemPrice,
@@ -597,8 +595,7 @@ export default reduxForm({
       transcodeAudio,
       updateRelease,
       uploadArtwork,
-      uploadAudio,
-      uploadAudioProgress
+      uploadAudio
     }
   )(withRouter(EditRelease))
 );
