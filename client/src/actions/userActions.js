@@ -39,9 +39,8 @@ export const fetchUserRelease = releaseId => async dispatch => {
 };
 
 export const fetchUserReleases = () => async dispatch => {
-  dispatch({ type: FETCH_USER_RELEASES, isLoading: true });
   const res = await axios.get('/api/user/releases');
-  dispatch({ type: FETCH_USER_RELEASES, isLoading: false, payload: res.data });
+  dispatch({ type: FETCH_USER_RELEASES, payload: res.data });
   return res;
 };
 

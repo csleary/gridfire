@@ -13,17 +13,18 @@ import '../../style/home.css';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
-  const { fetchCollection } = props;
+  const { collection, fetchCollection } = props;
 
   useEffect(
     () => {
-      setLoading(true);
+      if (!collection.length) {
+        setLoading(true);
+      }
       fetchCollection().then(() => setLoading(false));
     },
-    [fetchCollection]
+    [fetchCollection, collection.length]
   );
 
-  const { collection } = props;
   const renderReleases = collection.map(release => (
     <RenderRelease
       fetchDownloadToken={props.fetchDownloadToken}
