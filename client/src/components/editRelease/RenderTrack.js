@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { Field } from 'redux-form';
 import classNames from 'classnames';
@@ -14,9 +14,12 @@ const RenderTrack = props => {
     release,
     name
   } = props;
-  const isDeletingTrack = props.deletingTracks.some(track => track === index);
+
+  const [isMoving, setMoving] = useState();
+
   const releaseId = release._id;
   const trackId = release.trackList[index]._id;
+  const isDeletingTrack = props.deletingTracks.some(el => el === trackId);
   const hasAudio = release.trackList[index].hasAudio;
   const isUploading = audioUploadProgress > 0 && audioUploadProgress < 100;
   const isEncoding = audioUploadProgress === 100 && !isTranscoding;
@@ -40,8 +43,10 @@ const RenderTrack = props => {
   );
 
   const handleMoveTrack = (swap, id, trackIndex, direction) => {
+    setMoving(trackId);
     props.moveTrack(id, trackIndex, trackIndex + direction, () => {
       swap(trackIndex, trackIndex + direction);
+      setMoving();
     });
   };
 
@@ -87,6 +92,7 @@ const RenderTrack = props => {
         {index < fields.length - 1 && (
           <button
             className="btn btn-outline-secondary btn-sm"
+            disabled={isMoving}
             onClick={() => handleMoveTrack(fields.swap, releaseId, index, 1)}
             title="Move Down"
             type="button"
@@ -98,6 +104,7 @@ const RenderTrack = props => {
         {index > 0 && (
           <button
             className="btn btn-outline-secondary btn-sm"
+            disabled={isMoving}
             onClick={() => handleMoveTrack(fields.swap, releaseId, index, -1)}
             title="Move Up"
             type="button"
@@ -109,7 +116,7 @@ const RenderTrack = props => {
         <button
           className={deleteButtonClassNames}
           disabled={isDeletingTrack}
-          onClick={() => props.handleDeleteTrack(fields.remove, index)}
+          onClick={() => props.handleDeleteTrack(fields.remove, trackId)}
           title="Delete Track"
           type="button"
         >
