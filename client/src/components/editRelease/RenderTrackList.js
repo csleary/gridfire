@@ -1,48 +1,51 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import FontAwesome from 'react-fontawesome';
 import RenderTrack from './RenderTrack';
 
-class RenderTrackList extends Component {
-  constructor(props) {
-    super(props);
+function RenderTrackList(props) {
+  const {
+    addTrack,
+    audioUploadProgress,
+    change,
+    deleteTrack,
+    fields,
+    isTranscoding,
+    moveTrack,
+    onDropAudio,
+    release,
+    release: { trackList },
+    toastSuccess
+  } = props;
 
-    this.state = {
-      dragOrigin: null,
-      dragActive: false,
-      isAddingTrack: false,
-      deletingTracks: []
-    };
-  }
+  const [dragOrigin, setDragOrigin] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [addingTrack, setAddingTrack] = useState({
+    active: false,
+    shouldUpdateForm: false
+  });
+  const [deletingTracks, setDeletingTracks] = useState([]);
 
-  handleDeleteTrack = (remove, index) => {
-    const { trackTitle } = this.props.release.trackList[index];
-    this.handleConfirm(trackTitle, hasConfirmed => {
+  const handleDeleteTrack = (remove, trackId) => {
+    const matchId = el => el._id === trackId;
+    const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
+    handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
+      setDeletingTracks([...deletingTracks, trackId]);
 
-      this.setState({
-        deletingTracks: [...this.state.deletingTracks, index]
+      deleteTrack(release._id, trackId, () => {
+        const index = trackList.findIndex(matchId);
+        remove(index);
+        const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
+        toastSuccess(
+          `${(trackTitle && `'${trackTitle}'`) ||
+            `Track ${index + 1}`} deleted.`
+        );
+        setDeletingTracks(deletingTracks.filter(el => el !== trackId));
       });
-      this.props.deleteTrack(
-        this.props.release._id,
-        this.props.release.trackList[index]._id,
-        () => {
-          remove(index);
-
-          this.props.toastSuccess(
-            `${(trackTitle && `'${trackTitle}'`) ||
-              `Track ${index + 1}`} deleted.`
-          );
-          this.setState({
-            deletingTracks: this.state.deletingTracks.filter(
-              track => track !== index
-            )
-          });
-        }
-      );
     });
   };
 
-  handleConfirm = (title, callback) => {
+  const handleConfirm = (title, callback) => {
     const confirmation = window.confirm(
       `Are you sure you want to delete ${(title && `'${title}'`) ||
         'this track'}?`
@@ -50,108 +53,108 @@ class RenderTrackList extends Component {
     callback(confirmation);
   };
 
-  handleAddTrack = () => {
-    this.setState({ isAddingTrack: true });
-    this.props.addTrack(this.props.release._id, () => {
-      this.setState({ isAddingTrack: false }, () => {
-        const newIndex = this.props.release.trackList.length - 1;
-        this.props.change(
-          `trackList[${newIndex}]._id`,
-          this.props.release.trackList[newIndex]._id
-        );
-      });
+  const handleAddTrack = () => {
+    setAddingTrack({ active: true, shouldUpdateForm: false });
+    addTrack(release._id, () => {
+      setAddingTrack({ active: false, shouldUpdateForm: true });
     });
   };
 
-  handleDragStart = index => {
-    this.setState({ dragOrigin: index });
+  useEffect(
+    () => {
+      if (addingTrack.shouldUpdateForm) {
+        const newIndex = release.trackList.length - 1;
+        change(`trackList[${newIndex}]._id`, release.trackList[newIndex]._id);
+        setAddingTrack({ active: false, shouldUpdateForm: false });
+      }
+    },
+    [change, addingTrack.shouldUpdateForm, release.trackList]
+  );
+
+  const handleDragStart = index => {
+    setDragOrigin(index);
   };
 
-  handleDragEnter = index => {
-    this.setState({ dragActive: index });
+  const handleDragEnter = index => {
+    setDragActive(index);
   };
 
-  handleDragOver = () => {};
+  const handleDragOver = () => {};
 
-  handleDragLeave = () => {};
+  const handleDragLeave = () => {};
 
-  handleDrop = (fieldsMove, indexTo) => {
-    const releaseId = this.props.release._id;
-    const indexFrom = this.state.dragOrigin;
-    this.props.moveTrack(releaseId, indexFrom, indexTo, () => {
+  const handleDrop = (fieldsMove, indexTo) => {
+    const releaseId = release._id;
+    const indexFrom = dragOrigin;
+    moveTrack(releaseId, indexFrom, indexTo, () => {
+      console.log(indexFrom, indexTo);
       fieldsMove(indexFrom, indexTo);
     });
   };
 
-  handleDragEnd = () => {
-    this.setState({ dragOrigin: null, dragActive: false });
+  const handleDragEnd = () => {
+    setDragOrigin(null);
+    setDragActive(false);
   };
 
-  uploadProgress(index) {
-    const track = this.props.release.trackList[index];
+  const uploadProgress = index => {
+    const track = release.trackList[index];
     const trackId = track && track._id;
-    const filtered = this.props.audioUploadProgress.filter(el => trackId in el);
+    const filtered = audioUploadProgress.filter(el => trackId in el);
     if (filtered.length) return filtered[0][trackId];
-  }
+  };
 
-  render() {
-    const { isAddingTrack } = this.state;
-    const { fields, release } = this.props;
+  return (
+    <Fragment>
+      <ul className="list-group track-list">
+        {fields.map((name, index) => {
+          const track = release.trackList[index];
+          if (!track) return null;
+          const trackId = track._id;
 
-    return (
-      <Fragment>
-        <ul className="list-group track-list">
-          {fields.map((name, index) => {
-            const track = release.trackList[index];
-            if (!track) return null;
-            const trackId = track._id;
-
-            return (
-              <RenderTrack
-                audioUploadProgress={this.uploadProgress(index)}
-                deletingTracks={this.state.deletingTracks}
-                dragActive={this.state.dragActive}
-                dragOrigin={this.state.dragOrigin}
-                fields={fields}
-                handleConfirm={this.handleConfirm}
-                handleDeleteTrack={this.handleDeleteTrack}
-                handleDragStart={this.handleDragStart}
-                handleDragEnter={this.handleDragEnter}
-                handleDragOver={this.handleDragOver}
-                handleDragLeave={this.handleDragLeave}
-                handleDrop={this.handleDrop}
-                handleDragEnd={this.handleDragEnd}
-                index={index}
-                isTranscoding={this.props.isTranscoding.some(
-                  id => id === trackId
-                )}
-                key={trackId}
-                moveTrack={this.props.moveTrack}
-                name={name}
-                onDropAudio={this.props.onDropAudio}
-                release={release}
-                toastSuccess={this.props.toastSuccess}
-              />
-            );
-          })}
-        </ul>
-        <button
-          className="btn btn-outline-primary btn-sm add-track mt-3 py-2 px-3"
-          disabled={isAddingTrack}
-          onClick={this.handleAddTrack}
-          title="Add Track"
-          type="button"
-        >
-          {isAddingTrack ? (
-            <FontAwesome name="circle-o-notch" spin className="mr-2" />
-          ) : (
-            <FontAwesome name="plus-circle" className="mr-2" />
-          )}
-          {isAddingTrack ? 'Adding Track…' : 'Add Track'}
-        </button>
-      </Fragment>
-    );
-  }
+          return (
+            <RenderTrack
+              audioUploadProgress={uploadProgress(index)}
+              deletingTracks={deletingTracks}
+              dragActive={dragActive}
+              dragOrigin={dragOrigin}
+              fields={fields}
+              handleConfirm={handleConfirm}
+              handleDeleteTrack={handleDeleteTrack}
+              handleDragStart={handleDragStart}
+              handleDragEnter={handleDragEnter}
+              handleDragOver={handleDragOver}
+              handleDragLeave={handleDragLeave}
+              handleDrop={handleDrop}
+              handleDragEnd={handleDragEnd}
+              index={index}
+              isTranscoding={isTranscoding.some(id => id === trackId)}
+              key={trackId}
+              moveTrack={moveTrack}
+              name={name}
+              onDropAudio={onDropAudio}
+              release={release}
+              toastSuccess={toastSuccess}
+            />
+          );
+        })}
+      </ul>
+      <button
+        className="btn btn-outline-primary btn-sm add-track mt-3 py-2 px-3"
+        disabled={addingTrack.active}
+        onClick={handleAddTrack}
+        title="Add Track"
+        type="button"
+      >
+        {addingTrack.active ? (
+          <FontAwesome name="circle-o-notch" spin className="mr-2" />
+        ) : (
+          <FontAwesome name="plus-circle" className="mr-2" />
+        )}
+        {addingTrack.active ? 'Adding Track…' : 'Add Track'}
+      </button>
+    </Fragment>
+  );
 }
 
 export default RenderTrackList;

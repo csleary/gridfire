@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import { CLOUD_URL } from '../index';
+import placeholder from '../placeholder.svg';
 
 const RenderRelease = props => {
   const { release, variation } = props;
@@ -15,7 +16,11 @@ const RenderRelease = props => {
         className="lazyload artwork"
         data-sizes="auto"
         data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
-        src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
+      />
+      <img
+        alt={`${artistName} - ${releaseTitle}`}
+        className="placeholder artwork"
+        src={placeholder}
       />
       <div
         className="cover-artwork-overlay"

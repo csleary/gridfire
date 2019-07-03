@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
 import { CLOUD_URL } from '../../index';
+import placeholder from '../../placeholder.svg';
 
 function UserRelease(props) {
   const {
@@ -117,10 +118,17 @@ function UserRelease(props) {
           </Link>
         </div>
       ) : (
-        <h6 className="m-3">
-          <FontAwesome name="file-image-o" className="mr-2 red" />
-          No artwork uploaded.
-        </h6>
+        <Link to={`/release/${releaseId}`}>
+          <h6 className="position-absolute m-3">
+            <FontAwesome name="file-image-o" className="mr-2 red" />
+            No artwork uploaded.
+          </h6>
+          <img
+            alt={artwork && `'${releaseTitle}' Artwork`}
+            className="img-fluid"
+            src={placeholder}
+          />
+        </Link>
       )}
       <div className="status-icon-bg d-flex align-items-center justify-content-center">
         {statusIcon}
