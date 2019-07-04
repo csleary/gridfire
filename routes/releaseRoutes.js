@@ -1,31 +1,40 @@
-const aws = require("aws-sdk");
-const crypto = require("crypto");
-const mongoose = require("mongoose");
-const nem = require("nem-sdk").default;
+const aws = require('aws-sdk');
+const crypto = require('crypto');
+const mongoose = require('mongoose');
+const nem = require('nem-sdk').default;
 const {
   AWS_REGION,
   BUCKET_IMG,
   BUCKET_OPT,
   BUCKET_SRC
-} = require("./constants");
-const releaseOwner = require("../middlewares/releaseOwner");
-const requireLogin = require("../middlewares/requireLogin");
-const { getXemPrice } = require("./utils");
+} = require('./constants');
+const releaseOwner = require('../middlewares/releaseOwner');
+const requireLogin = require('../middlewares/requireLogin');
+const { getXemPrice } = require('./utils');
 
-const Artist = mongoose.model("artists");
-const Release = mongoose.model("releases");
-const User = mongoose.model("users");
+const Artist = mongoose.model('artists');
+const Release = mongoose.model('releases');
+const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
   // Add New Release
-  app.post("/api/release", requireLogin, async (req, res) => {
+  app.post('/api/release', requireLogin, async (req, res) => {
     const user = await User.findById(req.user.id);
     const releases = await Release.find({ user: req.user.id });
 
+    if (!user.nemAddress || !user.nemAddressVerified) {
+      res.send({
+        warning:
+          'Please add and verify your NEM address first. You will need credit to add a release.'
+      });
+      return;
+    }
+
     if (user.credit <= releases.length) {
       res.send({
-        warning: "You do not have enough nemp3 credit to add a new release."
+        warning:
+          'Sorry, you don\u2019t have enough credit to add a new release. Please top up first.'
       });
       return;
     }
@@ -35,7 +44,7 @@ module.exports = app => {
         user: req.user.id,
         dateCreated: Date.now()
       },
-      "-__v"
+      '-__v'
     );
     release
       .save()
@@ -45,7 +54,7 @@ module.exports = app => {
 
   // Delete Release
   app.delete(
-    "/api/release/:releaseId",
+    '/api/release/:releaseId',
     requireLogin,
     releaseOwner,
     async (req, res) => {
@@ -167,15 +176,15 @@ module.exports = app => {
   );
 
   // Fetch Release
-  app.get("/api/release/:releaseId", async (req, res) => {
+  app.get('/api/release/:releaseId', async (req, res) => {
     try {
       const release = await Release.findOne(
         { _id: req.params.releaseId },
-        "-__v"
+        '-__v'
       );
 
       if (!release.published && !release.user.equals(req.user._id)) {
-        throw new Error("This release is currently unavailable.");
+        throw new Error('This release is currently unavailable.');
       }
 
       const artist = await User.findOne({ _id: release.user });
@@ -189,7 +198,7 @@ module.exports = app => {
   });
 
   // Purchase Release
-  app.get("/api/purchase/:releaseId", requireLogin, async (req, res) => {
+  app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
     try {
       req.session.price = null;
       const { releaseId } = req.params;
@@ -201,17 +210,17 @@ module.exports = app => {
       req.session.price = price;
 
       if (!owner.nemAddress) {
-        const error = "No NEM payment address found. 😞";
+        const error = 'No NEM payment address found. 😞';
         const paymentInfo = { paymentAddress: null, paymentHash: null };
         res.send({ error, release, paymentInfo, price });
         return;
       }
 
-      const hash = crypto.createHash("sha256");
+      const hash = crypto.createHash('sha256');
       const paymentHash = hash
         .update(release._id.toString())
         .update(customerIdHash)
-        .digest("hex")
+        .digest('hex')
         .substring(0, 31);
 
       const paymentInfo = {
@@ -226,7 +235,7 @@ module.exports = app => {
 
   // Toggle Release Status
   app.patch(
-    "/api/release/:releaseId",
+    '/api/release/:releaseId',
     requireLogin,
     releaseOwner,
     async (req, res) => {
@@ -237,28 +246,28 @@ module.exports = app => {
         if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
           release.updateOne({ published: false }).exec();
           throw new Error(
-            "Please add a valid NEM address to your account before publishing this release ('Payment' tab)."
+            'Please add a valid NEM address to your account before publishing this release (\'Payment\' tab).'
           );
         }
 
         if (!release.artwork) {
           release.updateOne({ published: false }).exec();
           throw new Error(
-            "Please ensure the release has artwork uploaded before publishing."
+            'Please ensure the release has artwork uploaded before publishing.'
           );
         }
 
         if (!release.trackList.length) {
           release.updateOne({ published: false }).exec();
           throw new Error(
-            "Please add at least one track to the release (with audio), before publishing."
+            'Please add at least one track to the release (with audio), before publishing.'
           );
         }
 
         if (release.trackList.some(track => !track.hasAudio)) {
           release.updateOne({ published: false }).exec();
           throw new Error(
-            "Please ensure that all tracks have audio uploaded before publishing."
+            'Please ensure that all tracks have audio uploaded before publishing.'
           );
         }
 
@@ -271,7 +280,7 @@ module.exports = app => {
   );
 
   // Update Release
-  app.put("/api/release", requireLogin, async (req, res) => {
+  app.put('/api/release', requireLogin, async (req, res) => {
     const releaseId = req.body._id;
     const {
       artistName,
@@ -288,7 +297,7 @@ module.exports = app => {
       trackList
     } = req.body;
 
-    const release = await Release.findById(releaseId).select("-__v");
+    const release = await Release.findById(releaseId).select('-__v');
 
     release.artistName = artistName;
     release.catNumber = catNumber;
