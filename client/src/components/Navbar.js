@@ -29,9 +29,9 @@ class Navbar extends Component {
 
   handleLogout = () => {
     this.props.logOut(res => {
-      this.props.toastSuccess(res.data.success);
-      this.props.fetchUser();
       this.props.history.push('/login');
+      this.props.fetchUser();
+      this.props.toastSuccess(res.data.success);
     });
   };
 

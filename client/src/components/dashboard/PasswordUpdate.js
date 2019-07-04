@@ -4,6 +4,38 @@ import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { passwordUpdate } from '../../actions';
 
+const renderField = field => {
+  const {
+    icon,
+    id,
+    input,
+    label,
+    meta: { touched, error },
+    name,
+    placeholder,
+    required,
+    type
+  } = field;
+
+  return (
+    <div className="form-group">
+      <label htmlFor={id}>
+        <FontAwesome name={icon} className="red mr-2" />
+        {label}
+      </label>
+      <input
+        {...input}
+        className="form-control"
+        name={name}
+        placeholder={placeholder}
+        required={required}
+        type={type}
+      />
+      <div className="invalid-feedback">{touched && error && error}</div>
+    </div>
+  );
+};
+
 function PasswordUpdate(props) {
   const {
     handleSubmit,
@@ -19,47 +51,6 @@ function PasswordUpdate(props) {
       email: props.user.auth.email,
       ...values
     }).then(reset);
-
-  const required = value => (value ? undefined : 'Please enter a value.');
-
-  const isMatched = (value, allValues) => {
-    if (value === allValues.passwordNew) {
-      return undefined;
-    }
-    return 'The passwords entered do not match. Please double-check them.';
-  };
-
-  const renderField = field => {
-    const {
-      icon,
-      id,
-      input,
-      label,
-      meta: { touched, error },
-      name,
-      placeholder,
-      required,
-      type
-    } = field;
-
-    return (
-      <div className="form-group">
-        <label htmlFor={id}>
-          <FontAwesome name={icon} className="red mr-2" />
-          {label}
-        </label>
-        <input
-          {...input}
-          className="form-control"
-          name={name}
-          placeholder={placeholder}
-          required={required}
-          type={type}
-        />
-        <div className="invalid-feedback">{touched && error && error}</div>
-      </div>
-    );
-  };
 
   return (
     <main className="container">
@@ -80,7 +71,7 @@ function PasswordUpdate(props) {
                   label="Current Password:"
                   name="password"
                   placeholder="Current Password"
-                  required="true"
+                  required
                   type="password"
                   validate={required}
                 />
@@ -123,6 +114,15 @@ function PasswordUpdate(props) {
     </main>
   );
 }
+
+const required = value => (value ? undefined : 'Please enter a value.');
+
+const isMatched = (value, allValues) => {
+  if (value === allValues.passwordNew) {
+    return undefined;
+  }
+  return 'The passwords entered do not match. Please double-check them.';
+};
 
 const mapStateToProps = state => ({
   user: state.user

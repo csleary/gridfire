@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
-import { CLOUD_URL } from '../../index';
-import placeholder from '../../placeholder.svg';
+import Artwork from './Artwork';
+import StatusIcon from './StatusIcon';
+import Title from './Title';
 
 function UserRelease(props) {
   const {
@@ -65,20 +65,6 @@ function UserRelease(props) {
     else this.setState({ isDeletingRelease: false });
   };
 
-  const renderTitle = () => {
-    if (artistName) {
-      return (
-        <Fragment>
-          <Link to={`/artist/${artist}`}>{artistName}</Link> &bull;{' '}
-          <Link to={`/release/${_id}`}>
-            <span className="ibm-type-italic">{releaseTitle}</span>
-          </Link>
-        </Fragment>
-      );
-    }
-    return <Fragment>Untitled Release</Fragment>;
-  };
-
   const numSold = props.numSold && (
     <h6>
       <FontAwesome
@@ -90,52 +76,22 @@ function UserRelease(props) {
     </h6>
   );
 
-  const statusIcon = published ? (
-    <FontAwesome
-      name="check-circle"
-      className="cyan status-icon"
-      title={`'${releaseTitle}' is live and available for purchase.`}
-    />
-  ) : (
-    <FontAwesome
-      name="exclamation-circle"
-      className="yellow status-icon"
-      title={`'${releaseTitle}' is currently offline.`}
-    />
-  );
-
   return (
     <li className="no-gutters d-flex flex-column release" key={releaseId}>
-      {artwork ? (
-        <div className="artwork">
-          <Link to={`/release/${releaseId}`}>
-            <img
-              alt={artwork && `'${releaseTitle}' Artwork`}
-              className="lazyload img-fluid"
-              data-sizes="auto"
-              data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
-            />
-          </Link>
-        </div>
-      ) : (
-        <Link to={`/release/${releaseId}`}>
-          <h6 className="position-absolute m-3">
-            <FontAwesome name="file-image-o" className="mr-2 red" />
-            No artwork uploaded.
-          </h6>
-          <img
-            alt={artwork && `'${releaseTitle}' Artwork`}
-            className="img-fluid"
-            src={placeholder}
-          />
-        </Link>
-      )}
-      <div className="status-icon-bg d-flex align-items-center justify-content-center">
-        {statusIcon}
-      </div>
+      <Artwork
+        artwork={artwork}
+        releaseId={releaseId}
+        releaseTitle={releaseTitle}
+      />
+      <StatusIcon published={published} releaseTitle={releaseTitle} />
       <div className="d-flex flex-column flex-grow-1 p-3">
         <div className="release-details mb-3">
-          <h6>{renderTitle()}</h6>
+          <Title
+            artist={artist}
+            artistName={artistName}
+            releaseId={releaseId}
+            releaseTitle={releaseTitle}
+          />
           <h6>
             <FontAwesome name="tag" className="mr-2 red" />${price} USD
           </h6>

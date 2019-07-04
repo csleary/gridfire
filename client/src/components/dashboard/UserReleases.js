@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
-import Spinner from './../Spinner';
+import Spinner from '../Spinner';
 import UserRelease from './UserRelease';
+
 import {
   deleteRelease,
   fetchSales,
@@ -25,8 +26,8 @@ function UserReleases(props) {
     userReleases
   } = props;
 
-  const [salesData, setSalesData] = useState();
   const [isLoading, setLoading] = useState(false);
+  const [salesData, setSalesData] = useState();
 
   useEffect(
     () => {
@@ -35,10 +36,12 @@ function UserReleases(props) {
         setLoading(true);
       }
       fetchUserReleases()
-        .then(() => fetchSales())
+        .then(() => {
+          fetchSales();
+          setLoading(false);
+        })
         .then(data => {
           setSalesData(data);
-          setLoading(false);
         });
     },
     [fetchUserReleases, fetchSales, userReleases.length]
