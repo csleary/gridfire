@@ -55,7 +55,7 @@ function NemAddress(props) {
 
   const handleUpdateCredit = () => {
     setCheckingCredit(true);
-    props.fetchUserCredit();
+    props.fetchUserCredit().then(() => setCheckingCredit(false));
   };
 
   const renderVerifyAddressField = () => {

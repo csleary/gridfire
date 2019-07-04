@@ -5,8 +5,26 @@ import FontAwesome from 'react-fontawesome';
 
 function DashNavbar(props) {
   const { user } = props;
-  const showPasswordChange =
-    user.auth.isLocal || (user && !user.auth.googleId && user.auth.email);
+
+  const showPasswordChange = () => {
+    if (!user.auth) return false;
+
+    if (user.auth.isLocal || !user.auth.googleId) {
+      return (
+        <li className="nav-item">
+          <NavLink
+            strict
+            exact
+            to={'/dashboard/password-update'}
+            className="nav-link"
+          >
+            <FontAwesome name="key" className="mr-1" />
+            <span className="nav-label">Password</span>
+          </NavLink>
+        </li>
+      );
+    }
+  };
 
   return (
     <nav className="navbar navbar-expand-lg sub-menu">
@@ -33,7 +51,7 @@ function DashNavbar(props) {
           title={
             user.nemAddress
               ? 'Your NEM payment address.'
-              : 'You don\'t currently have a NEM payment address saved.'
+              : "You don't currently have a NEM payment address saved."
           }
         >
           <NavLink
@@ -49,19 +67,7 @@ function DashNavbar(props) {
             <span className="nav-label">Payment</span>
           </NavLink>
         </li>
-        {showPasswordChange && (
-          <li className="nav-item">
-            <NavLink
-              strict
-              exact
-              to={'/dashboard/password-update'}
-              className="nav-link"
-            >
-              <FontAwesome name="key" className="mr-1" />
-              <span className="nav-label">Password</span>
-            </NavLink>
-          </li>
-        )}
+        {showPasswordChange()}
       </ul>
     </nav>
   );

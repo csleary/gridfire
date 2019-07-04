@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import 'lazysizes';
 import { fetchUser } from '../actions';
 import About from './About';
@@ -16,11 +16,11 @@ import Login from './Login';
 import Navbar from './Navbar';
 import Payment from './Payment';
 import Player from './Player';
+import PrivateRoute from './PrivateRoute';
 import Register from './Register';
 import ResetPassword from './ResetPassword';
 import SelectedRelease from './SelectedRelease';
 import SearchResults from './SearchResults';
-import Spinner from './Spinner';
 import Support from './Support';
 import Toast from './Toast';
 
@@ -38,27 +38,7 @@ class App extends Component {
   }
 
   render() {
-    const PrivateRoute = ({ component: PrivateComponent, ...rest }) => (
-      <Route
-        {...rest}
-        render={props => {
-          if (this.state.isLoading) {
-            return <Spinner />;
-          }
-          if (typeof this.props.user.auth !== 'undefined') {
-            return <PrivateComponent {...props} />;
-          }
-          return (
-            <Redirect
-              to={{
-                pathname: '/login',
-                state: { from: props.location }
-              }}
-            />
-          );
-        }}
-      />
-    );
+    const { user } = this.props;
 
     return (
       <BrowserRouter>
@@ -96,7 +76,7 @@ class App extends Component {
           <Route path="/artist/:artist" component={ArtistPage} />
           <PrivateRoute path="/payment/:releaseId" component={Payment} />
           <PrivateRoute path="/dashboard" component={Dashboard} />
-          <Footer user={this.props.user} />
+          <Footer user={user} />
           <Player />
           <Toast />
         </div>
