@@ -331,16 +331,16 @@ module.exports = app => {
 
       let ext;
       switch (type) {
-        case 'audio/aiff':
-          ext = '.aiff';
-          break;
-        case 'audio/flac':
-          ext = '.flac';
-          break;
-        case 'audio/wav':
-          ext = '.wav';
-          break;
-        default:
+      case 'audio/aiff':
+        ext = '.aiff';
+        break;
+      case 'audio/flac':
+        ext = '.flac';
+        break;
+      case 'audio/wav':
+        ext = '.wav';
+        break;
+      default:
       }
 
       const s3 = new aws.S3();

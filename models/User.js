@@ -19,9 +19,9 @@ const UserSchema = new Schema(
     credit: { type: Number, default: 0 },
     purchases: [
       {
-        _id: false,
         releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
-        purchaseDate: Date
+        purchaseDate: Date,
+        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase' }
       }
     ],
     artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]

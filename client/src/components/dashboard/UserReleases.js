@@ -36,12 +36,10 @@ function UserReleases(props) {
         setLoading(true);
       }
       fetchUserReleases()
-        .then(() => {
-          fetchSales();
-          setLoading(false);
-        })
+        .then(() => fetchSales())
         .then(data => {
           setSalesData(data);
+          setLoading(false);
         });
     },
     [fetchUserReleases, fetchSales, userReleases.length]
@@ -60,19 +58,13 @@ function UserReleases(props) {
         salesData &&
         salesData.filter(datum => datum.releaseId === release._id)[0];
 
-      let numSold;
-      if (sales) {
-        const total = sales.purchases.map(sale => sale.numSold);
-        numSold = total.reduce((acc, el) => acc + el);
-      }
-
       return (
         <UserRelease
           deleteRelease={deleteRelease}
           history={history}
           key={release._id}
           publishStatus={publishStatus}
-          numSold={numSold}
+          numSold={sales && sales.purchases.length}
           release={release}
           toastSuccess={toastSuccess}
           toastWarning={toastWarning}

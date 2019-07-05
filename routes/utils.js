@@ -52,30 +52,6 @@ const getXemPrice = async () => {
   return xemPriceUsd;
 };
 
-const recordSale = async releaseId => {
-  const date = new Date(Date.now()).toISOString().split('T')[0];
-
-  const statExists = await Sale.findOne({
-    releaseId,
-    'purchases.date': date
-  });
-
-  const incrementSale = () => {
-    const query = { releaseId, 'purchases.date': date };
-    const update = { $inc: { 'purchases.$.numSold': 1 } };
-    Sale.findOneAndUpdate(query, update).exec();
-  };
-
-  if (!statExists) {
-    const query = { releaseId };
-    const update = { $addToSet: { purchases: { date } } };
-    const options = { upsert: true, setDefaultsOnInsert: true };
-    Sale.findOneAndUpdate(query, update, options, incrementSale);
-  } else {
-    incrementSale();
-  }
-};
-
 const checkSignedMessage = (address, signedMessage) => {
   const { message, signer, signature } = signedMessage;
 
@@ -102,6 +78,5 @@ module.exports = {
   filterTransactions,
   generateToken,
   getXemPrice,
-  recordSale,
   checkSignedMessage
 };
