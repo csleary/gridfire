@@ -6,9 +6,10 @@ const saleSchema = new Schema({
   releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
   purchases: [
     {
-      _id: false,
-      date: String,
-      numSold: { type: Number, default: 0 }
+      purchaseDate: Date,
+      amountPaid: Number,
+      buyer: { type: Schema.Types.ObjectId, ref: 'User' },
+      buyerAddress: String
     }
   ]
 });

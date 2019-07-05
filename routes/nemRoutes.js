@@ -2,9 +2,10 @@ const fetchIncomingTransactions = require('./fetchIncomingTransactions');
 const fetchOwnedMosaics = require('./fetchOwnedMosaics');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
-const { getXemPrice, recordSale, checkSignedMessage } = require('./utils');
+const { getXemPrice, checkSignedMessage } = require('./utils');
 
 const Release = mongoose.model('releases');
+const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
 
 module.exports = app => {
@@ -29,10 +30,25 @@ module.exports = app => {
       transactions.hasPurchased = hasPurchased;
 
       if (transactions.paidToDate >= price && !hasPurchased) {
-        recordSale(releaseId);
+        const saleId = mongoose.Types.ObjectId();
+        const newSale = {
+          _id: saleId,
+          purchaseDate: Date.now(),
+          amountPaid: transactions.paidToDate,
+          buyer: req.user._id,
+          buyerAddress: req.user.nemAddress
+        };
+        const update = { $addToSet: { purchases: newSale } };
+        const options = { upsert: true };
+        await Sale.findOneAndUpdate({ releaseId }, update, options).exec();
+
         transactions.hasPurchased = true;
-        user.purchases.push({ purchaseDate: Date.now(), releaseId });
-        user.save();
+        user.purchases.push({
+          purchaseDate: Date.now(),
+          releaseId,
+          purchaseRef: saleId
+        });
+        await user.save();
       }
 
       res.send(transactions);

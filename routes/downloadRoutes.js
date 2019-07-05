@@ -63,11 +63,11 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
 
     switch (format) {
-      case 'flac':
-        downloadArchive(res, release, 'flac');
-        break;
-      default:
-        downloadArchive(res, release);
+    case 'flac':
+      downloadArchive(res, release, 'flac');
+      break;
+    default:
+      downloadArchive(res, release);
     }
   });
 };
