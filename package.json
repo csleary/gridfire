@@ -5,8 +5,8 @@
   "repository": "https://github.com/csleary/nemp3v2",
   "main": "index.js",
   "engines": {
-    "node": "8.2.1",
-    "npm": "5.3.0"
+    "node": "12.3.1",
+    "npm": "6.9.0"
   },
   "scripts": {
     "start": "node index.js",
