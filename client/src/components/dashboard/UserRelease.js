@@ -116,7 +116,9 @@ function UserRelease(props) {
           <button
             disabled={isPublishingRelease}
             onClick={handlePublishStatus}
-            className="btn btn-outline-warning btn-sm"
+            className={`btn btn-outline-warning btn-sm${
+              published ? '' : ' unpublished'
+            }`}
           >
             {published ? (
               <Fragment>

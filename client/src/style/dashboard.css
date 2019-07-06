@@ -16,6 +16,14 @@
   padding: 0.25rem 0.75rem;
 }
 
+.user-releases .btn.btn-outline-warning.unpublished {
+  color: #ffd24d;
+}
+
+.user-releases .btn.btn-outline-warning.unpublished:hover {
+  color: #000;
+}
+
 .user-releases .btn.btn-outline-danger:disabled,
 .user-releases .btn.btn-outline-danger:disabled:hover,
 .user-releases .btn.btn-outline-warning:disabled,
