@@ -135,11 +135,7 @@ module.exports = app => {
       if (s3MpdData.Contents.length) {
         const deleteMpdParams = {
           Bucket: BUCKET_OPT,
-          Delete: {
-            Objects: s3MpdData.Contents.map(track => ({
-              Key: track.Key
-            }))
-          }
+          Key: s3MpdData.Contents[0].Key
         };
         deleteS3Mpd = await s3.deleteObject(deleteMpdParams).promise();
       }
@@ -328,7 +324,7 @@ module.exports = app => {
     // Add release ID to artist if it doesn't already exist.
     if (!artist.releases.some(id => id.equals(release._id))) {
       artist
-        .update({ $push: { releases: release._id } })
+        .updateOne({ $push: { releases: release._id } })
         .exec(() => release.updateOne({ artist: artist._id }).exec());
     }
 
