@@ -81,7 +81,7 @@ module.exports = app => {
       const user = await User.findOne({ 'auth.email': email });
 
       if (!user) {
-        throw new Error("Error! We can't find a user with that address.");
+        throw new Error('Error! We can\'t find a user with that address.');
       }
 
       const token = await crypto.randomBytes(20).toString('hex');
@@ -166,7 +166,7 @@ module.exports = app => {
 
       if (!user) {
         throw new Error(
-          "Error! The reset token cannot be found (perhaps it's expired). Please request another reset."
+          'Error! The reset token cannot be found (perhaps it\'s expired). Please request another reset.'
         );
       }
 

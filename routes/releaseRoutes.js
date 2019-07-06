@@ -316,7 +316,7 @@ module.exports = app => {
       track.trackTitle = trackList[index].trackTitle;
       track.hasAudio = trackList[index].hasAudio;
     });
-    release.save();
+    const updateRelease = await release.save();
 
     // Add artist to Artist model.
     const artist = await Artist.findOneAndUpdate(
@@ -338,7 +338,7 @@ module.exports = app => {
       { $push: { artists: artist._id } }
     )
       .exec()
-      .then(res.send(release))
+      .then(res.send(updateRelease))
       .catch(error => res.status(500).send({ error: error.message }));
   });
 };

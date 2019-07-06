@@ -3,6 +3,6 @@
   "name": "nemp3",
   "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "hsla(233, 10%, 50%, 1)",
-  "background_color": "hsla(233, 10%, 10%, 1)"
+  "theme_color": "#292c44",
+  "background_color": "#292c44"
 }

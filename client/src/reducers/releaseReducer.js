@@ -23,6 +23,14 @@ import {
   UPLOAD_AUDIO_PROGRESS
 } from '../actions/types';
 
+const updateFromPayload = (stale, payload) =>
+  stale.filter(stale => {
+    if (payload.some(updated => updated._id === stale._id)) {
+      return false;
+    }
+    return true;
+  });
+
 const initialState = {
   artist: {},
   artworkUploading: false,
@@ -74,42 +82,22 @@ export default (state = initialState, action) => {
   case FETCH_CATALOGUE:
     return {
       ...state,
-      catalogue: [
-        ...state.catalogue,
-        ...payload.filter(fetched => {
-          if (state.catalogue.some(release => release._id === fetched._id)) {
-            return false;
-          }
-          return true;
-        })
-      ]
+      catalogue: [...updateFromPayload(state.catalogue, payload), ...payload]
     };
   case FETCH_COLLECTION:
     return {
       ...state,
       collection: [
-        ...state.collection,
-        ...payload.filter(fetched => {
-          if (state.collection.some(release => release._id === fetched._id)) {
-            return false;
-          }
-          return true;
-        })
+        ...updateFromPayload(state.collection, payload),
+        ...payload
       ]
     };
   case FETCH_USER_RELEASES:
     return {
       ...state,
       userReleases: [
-        ...state.userReleases,
-        ...payload.filter(fetched => {
-          if (
-            state.userReleases.some(release => release._id === fetched._id)
-          ) {
-            return false;
-          }
-          return true;
-        })
+        ...updateFromPayload(state.userReleases, payload),
+        ...payload
       ]
     };
   case PUBLISH_STATUS:
