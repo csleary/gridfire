@@ -32,15 +32,14 @@ const About = () => (
           Nanowallet desktop wallet.
         </p>
         <p>
-          At present, nemp3 is entirely free to use, with artists receiving 100%
-          of payments, paid directly from fan to artist. Of course, there are
-          data hosting and server costs to pay, so we are currently exploring
-          ways of supporting the platform without either compromising on artist
-          or fan privacy, or the direct link between fan and artist.
+          Artists receive 100% of fan payments, paid directly to their own
+          accounts. Of course, there are data hosting and server costs to pay,
+          so we ask artists to purchase credit to help cover the hosting and
+          bandwidth fees.
         </p>
         <p>
-          In the meantime, donations to help maintain the project and cover
-          expenses are very much appreciated. Thank you!
+          Donations to help maintain the project and cover expenses are also
+          very much appreciated. Thank you!
         </p>
         <div className="text-center mt-5">
           <QRCode

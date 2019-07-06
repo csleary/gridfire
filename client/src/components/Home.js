@@ -10,7 +10,6 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fetchedAll: false,
       isFetching: false,
       isLoading: true,
       fetchInterval: 12,
@@ -33,14 +32,11 @@ class Home extends Component {
 
   handleFetchCatalogue = isUpdate =>
     new Promise(resolve => {
-      const { fetchInterval, skip } = this.state;
+      const { fetchInterval } = this.state;
       this.setState({ isFetching: true });
-      const newSkip = isUpdate ? skip + fetchInterval : null;
-      this.props.fetchCatalogue(newSkip).then(latest => {
-        if (latest.length < fetchInterval) {
-          this.setState({ fetchedAll: true });
-        }
-        this.setState({ isFetching: false, skip: newSkip });
+      const skip = isUpdate ? this.state.skip + fetchInterval : null;
+      this.props.fetchCatalogue(skip, fetchInterval).then(latest => {
+        this.setState({ isFetching: false, skip });
       });
       resolve();
     });
@@ -76,17 +72,17 @@ class Home extends Component {
             <div className="d-flex justify-content-center">
               <button
                 className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
-                disabled={this.state.isFetching || this.state.fetchedAll}
+                disabled={this.state.isFetching || this.props.reachedEndOfCat}
                 onClick={this.handleClick}
               >
-                {this.state.fetchedAll ? null : (
+                {this.props.reachedEndOfCat ? null : (
                   <FontAwesome
                     name="refresh"
                     spin={this.state.isFetching}
                     className="mr-2"
                   />
                 )}
-                {this.state.fetchedAll ? 'No More Releases' : 'Load More'}
+                {this.props.reachedEndOfCat ? 'No More Releases' : 'Load More'}
               </button>
             </div>
           </div>
@@ -98,7 +94,8 @@ class Home extends Component {
 
 function mapStateToProps(state) {
   return {
-    catalogue: state.releases.catalogue
+    catalogue: state.releases.catalogue,
+    reachedEndOfCat: state.releases.reachedEndOfCat
   };
 }
 

@@ -43,6 +43,7 @@ const initialState = {
   collection: [],
   paymentAddress: '',
   priceInXem: '',
+  reachedEndOfCat: false,
   selectedRelease: { trackList: [] },
   searchQuery: '',
   searchResults: [],
@@ -82,7 +83,8 @@ export default (state = initialState, action) => {
   case FETCH_CATALOGUE:
     return {
       ...state,
-      catalogue: [...updateFromPayload(state.catalogue, payload), ...payload]
+      catalogue: [...updateFromPayload(state.catalogue, payload), ...payload],
+      reachedEndOfCat: action.reachedEndOfCat
     };
   case FETCH_COLLECTION:
     return {
