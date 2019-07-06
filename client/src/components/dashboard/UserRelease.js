@@ -34,19 +34,19 @@ function UserRelease(props) {
 
     pleaseConfirm(releaseTitle, () => {
       const releaseName =
-        (releaseTitle && `'${releaseTitle}'`) || 'untitled release';
+        (releaseTitle && `\u2018${releaseTitle}\u2019`) || 'untitled release';
 
-      toastWarning(`Deleting ${releaseName}…`);
+      toastWarning(`Deleting \u2018${releaseName}\u2019…`);
 
       deleteRelease(releaseId, () => {
-        toastSuccess(`Successfully deleted ${releaseName}.`);
+        toastSuccess(`Successfully deleted \u2018${releaseName}\u2019.`);
       });
     });
   };
 
   const pleaseConfirm = (title, callback) => {
     const confirmation = window.confirm(
-      `Are you sure you want to delete ${(title && `'${title}'`) ||
+      `Are you sure you want to delete ${(title && `\u2018${title}\u2019`) ||
         'this release'}?`
     );
     if (confirmation) callback();
@@ -58,8 +58,10 @@ function UserRelease(props) {
     publishStatus(releaseId).then(success => {
       if (success) {
         published
-          ? toastWarning(`'${releaseTitle}' has been taken offline.`)
-          : toastSuccess(`'${releaseTitle}' is now live and on sale.`);
+          ? toastWarning(`\u2018${releaseTitle}\u2019 has been taken offline.`)
+          : toastSuccess(
+            `\u2018${releaseTitle}\u2019 is now live and on sale.`
+          );
       }
       setPublishingRelease(false);
     });
