@@ -41,11 +41,30 @@ export const fetchAudioUploadUrl = (
   }
 };
 
-export const fetchCatalogue = (skip, fetchInterval) => async dispatch => {
-  const res = await axios.get('/api/catalogue/', { params: { skip } });
-  dispatch({ type: FETCH_CATALOGUE, payload: res.data });
-  if (res.data.length < fetchInterval) {
-    dispatch({ type: FETCH_CATALOGUE, payload: [], reachedEndOfCat: true });
+export const fetchCatalogue = (
+  catalogueLimit,
+  catalogueSkip
+) => async dispatch => {
+  const res = await axios.get('/api/catalogue/', {
+    params: { catalogueLimit, catalogueSkip }
+  });
+
+  if (res.data.length < catalogueLimit) {
+    dispatch({
+      type: FETCH_CATALOGUE,
+      payload: res.data,
+      catalogueLimit,
+      catalogueSkip,
+      reachedEndOfCat: true
+    });
+  } else {
+    dispatch({
+      type: FETCH_CATALOGUE,
+      payload: res.data,
+      catalogueLimit,
+      catalogueSkip: catalogueSkip + catalogueLimit,
+      reachedEndOfCat: false
+    });
   }
   return res.data;
 };

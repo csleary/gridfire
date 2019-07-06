@@ -11,9 +11,7 @@ class Home extends Component {
     super(props);
     this.state = {
       isFetching: false,
-      isLoading: true,
-      fetchInterval: 12,
-      skip: 0
+      isLoading: true
     };
   }
 
@@ -33,11 +31,13 @@ class Home extends Component {
   handleFetchCatalogue = isUpdate =>
     new Promise(resolve => {
       const { fetchInterval } = this.state;
+      const { catalogueLimit, catalogueSkip } = this.props;
       this.setState({ isFetching: true });
-      const skip = isUpdate ? this.state.skip + fetchInterval : null;
-      this.props.fetchCatalogue(skip, fetchInterval).then(latest => {
-        this.setState({ isFetching: false, skip });
-      });
+      this.props
+        .fetchCatalogue(catalogueLimit, catalogueSkip, fetchInterval)
+        .then(() => {
+          this.setState({ isFetching: false });
+        });
       resolve();
     });
 
@@ -95,6 +95,8 @@ class Home extends Component {
 function mapStateToProps(state) {
   return {
     catalogue: state.releases.catalogue,
+    catalogueSkip: state.releases.catalogueSkip,
+    catalogueLimit: state.releases.catalogueLimit,
     reachedEndOfCat: state.releases.reachedEndOfCat
   };
 }

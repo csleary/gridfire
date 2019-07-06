@@ -23,9 +23,9 @@ import {
   UPLOAD_AUDIO_PROGRESS
 } from '../actions/types';
 
-const updateFromPayload = (stale, payload) =>
-  stale.filter(stale => {
-    if (payload.some(updated => updated._id === stale._id)) {
+const updateFromPayload = (currentState, payload) =>
+  currentState.filter(existing => {
+    if (payload.some(updated => updated._id === existing._id)) {
       return false;
     }
     return true;
@@ -40,6 +40,8 @@ const initialState = {
   isSearching: false,
   isTranscoding: [],
   catalogue: [],
+  catalogueLimit: 12,
+  catalogueSkip: 0,
   collection: [],
   paymentAddress: '',
   priceInXem: '',
@@ -84,6 +86,7 @@ export default (state = initialState, action) => {
     return {
       ...state,
       catalogue: [...updateFromPayload(state.catalogue, payload), ...payload],
+      catalogueSkip: action.catalogueSkip,
       reachedEndOfCat: action.reachedEndOfCat
     };
   case FETCH_COLLECTION:
