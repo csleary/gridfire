@@ -1,6 +1,6 @@
 {
   "name": "nemp3",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A music download store using payment and token assets on the NEM blockchain.",
   "repository": "https://github.com/csleary/nemp3v2",
   "main": "index.js",

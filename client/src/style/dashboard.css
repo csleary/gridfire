@@ -25,6 +25,11 @@
   cursor: default;
 }
 
+.user-releases .btn.btn-outline-danger.deleting,
+.user-releases .btn.btn-outline-danger.deleting:hover {
+  color: #ff5349;
+}
+
 a.btn.add-release {
   display: inline-block;
   padding: 0.5rem 1rem;

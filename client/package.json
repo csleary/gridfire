@@ -1,9 +1,10 @@
 {
-  "name": "client",
-  "version": "0.1.0",
+  "name": "nemp3",
+  "version": "2.1.0",
   "private": true,
   "dependencies": {
     "@ibm/type": "^0.5.4",
+    "ajv": "^6.10.0",
     "axios": "^0.19.0",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
@@ -14,6 +15,7 @@
     "lodash.throttle": "^4.1.1",
     "moment": "^2.24.0",
     "nem-sdk": "^1.6.7",
+    "popper.js": "^1.15.0",
     "qrcode.react": "^0.9.3",
     "react": "^16.8.6",
     "react-async-script": "^1.0.1",
@@ -27,13 +29,35 @@
     "redux": "^4.0.1",
     "redux-form": "^8.2.4",
     "redux-thunk": "^2.3.0",
+    "typescript": "^3.5.2",
     "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app",
+    "rules": {
+      "indent": [
+        "error",
+        2
+      ],
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "always"
+      ]
+    }
   },
   "browserslist": {
     "production": [

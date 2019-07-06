@@ -44,6 +44,15 @@ function UserRelease(props) {
     });
   };
 
+  const pleaseConfirm = (title, callback) => {
+    const confirmation = window.confirm(
+      `Are you sure you want to delete ${(title && `'${title}'`) ||
+        'this release'}?`
+    );
+    if (confirmation) callback();
+    else setDeletingRelease(false);
+  };
+
   const handlePublishStatus = () => {
     setPublishingRelease(true);
     publishStatus(releaseId).then(success => {
@@ -54,15 +63,6 @@ function UserRelease(props) {
       }
       setPublishingRelease(false);
     });
-  };
-
-  const pleaseConfirm = (title, callback) => {
-    const confirmation = window.confirm(
-      `Are you sure you want to delete ${(title && `'${title}'`) ||
-        'this release'}?`
-    );
-    if (confirmation) callback();
-    else this.setState({ isDeletingRelease: false });
   };
 
   const numSold = props.numSold && (
@@ -131,12 +131,23 @@ function UserRelease(props) {
             )}
           </button>
           <button
-            className="btn btn-outline-danger btn-sm"
+            className={`btn btn-outline-danger btn-sm${
+              isDeletingRelease ? ' deleting' : ''
+            }`}
             disabled={isDeletingRelease}
             onClick={handleDeleteRelease}
           >
-            <FontAwesome name="trash" className="mr-2" />
-            Delete
+            {isDeletingRelease ? (
+              <>
+                <FontAwesome name="cog" spin className="mr-2" />
+                Deleting…
+              </>
+            ) : (
+              <>
+                <FontAwesome name="trash" className="mr-2" />
+                Delete
+              </>
+            )}
           </button>
         </div>
       </div>
