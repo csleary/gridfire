@@ -113,6 +113,12 @@ img.placeholder {
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.sort-btn {
+  width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (min-width: 576px) {
   .front-page {
     grid-template-columns: repeat(2, 1fr);

@@ -4,6 +4,7 @@ import FontAwesome from 'react-fontawesome';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
+import { sortNumbers, sortStrings } from '../functions';
 import '../style/home.css';
 
 class Home extends Component {
@@ -11,7 +12,17 @@ class Home extends Component {
     super(props);
     this.state = {
       isFetching: false,
-      isLoading: true
+      isLoading: true,
+      isSorting: false,
+      sortBy: [
+        'Release Date (new)',
+        'Release Date (old)',
+        'Artist Name',
+        'Release Title',
+        'Price (low)',
+        'Price (high)'
+      ],
+      sortCount: 0
     };
   }
 
@@ -41,12 +52,37 @@ class Home extends Component {
       resolve();
     });
 
+  handleSortCatalogue = () => {
+    const { catalogue } = this.props;
+    const sortIndex = this.state.sortCount % this.state.sortBy.length;
+
+    switch (this.state.sortBy[sortIndex]) {
+    case 'Release Date (new)':
+      return sortNumbers(catalogue, 'releaseDate').reverse();
+    case 'Release Date (old)':
+      return sortNumbers(catalogue, 'releaseDate');
+    case 'Artist Name':
+      return sortStrings(catalogue, 'artistName');
+    case 'Release Title':
+      return sortStrings(catalogue, 'releaseTitle');
+    case 'Price (low)':
+      return sortNumbers(catalogue, 'price');
+    case 'Price (high)':
+      return sortNumbers(catalogue, 'price').reverse();
+    default:
+      return sortNumbers(catalogue, 'releaseDate').reverse();
+    }
+  };
+
+  handleSortClick = () =>
+    this.setState({ sortCount: this.state.sortCount + 1 });
+
   handleClick = () => this.handleFetchCatalogue(true);
 
   render() {
-    const { catalogue } = this.props;
+    const sortIndex = this.state.sortCount % this.state.sortBy.length;
 
-    const renderReleases = catalogue.map(release => (
+    const renderReleases = this.handleSortCatalogue().map(release => (
       <RenderRelease
         fetchRelease={this.props.fetchRelease}
         key={release._id}
@@ -68,6 +104,14 @@ class Home extends Component {
       <main className="container-fluid">
         <div className="row">
           <div className="col p-3">
+            <button
+              className="btn btn-outline-primary btn-sm sort-btn mb-3"
+              disabled={this.state.isSorting}
+              onClick={this.handleSortClick}
+            >
+              <FontAwesome name="sort" className="mr-2" />
+              {this.state.sortBy[sortIndex]}
+            </button>
             <div className="front-page">{renderReleases}</div>
             <div className="d-flex justify-content-center">
               <button
