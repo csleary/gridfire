@@ -88,8 +88,7 @@ class Navbar extends Component {
               className={creditClass}
               title={`Your nemp3 credit balance is: ${credit}`}
             >
-              {' '}
-              ({credit})
+              <FontAwesome name="certificate" className="ml-1" />{' '}
             </span>
           </NavLink>
         </li>
