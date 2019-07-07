@@ -19,6 +19,7 @@ class Player extends Component {
     this.state = {
       autoStartDisabled: false,
       bufferEnd: false,
+      duration: null,
       elapsedTime: '',
       expandSeekBar: false,
       isBuffering: false,
@@ -41,9 +42,7 @@ class Player extends Component {
       URL.revokeObjectURL(audioPlayer.src);
       const mime = 'audio/mp4; codecs="mp4a.40.2"';
       this.sourceBuffer = this.mediaSource.addSourceBuffer(mime);
-
       this.sourceBuffer.addEventListener('update', () => {});
-
       this.sourceBuffer.addEventListener('updatestart', () => {
         this.setState({ updating: true });
       });
@@ -51,16 +50,11 @@ class Player extends Component {
       this.sourceBuffer.addEventListener('updateend', () => {
         if (this.state.shouldUpdateBuffer) {
           this.handleUpdateBuffer();
-        }
-
-        if (this.state.shouldSetDuration) {
+        } else if (this.state.shouldSetDuration) {
           this.handleUpdateDuration();
-        }
-
-        if (this.queue.length) {
+        } else if (this.queue.length) {
           this.sourceBuffer.appendBuffer(this.queue.shift());
         }
-
         this.setState({
           isSeeking: false,
           isBuffering: false,
@@ -159,7 +153,6 @@ class Player extends Component {
         );
       }
     });
-
     audioPlayer.addEventListener('ended', () => this.handleTrackEnded());
   }
 
@@ -170,11 +163,11 @@ class Player extends Component {
       this.queue.length = 0;
       this.newTrack = true;
       this.emptySourceBuffer();
-      this.handleUpdateBuffer();
-      this.setPlayerReady();
+      this.resetPlayer();
       this.fetchAudioRange(buffer => {
-        this.handleAppendBuffer(buffer);
         audioPlayer.currentTime = 0;
+        this.handleUpdateBuffer();
+        this.handleAppendBuffer(buffer);
         this.handlePlay();
       });
     }
@@ -186,12 +179,12 @@ class Player extends Component {
     }
   }
 
-  setPlayerReady() {
+  resetPlayer() {
     this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
   }
 
   emptySourceBuffer() {
-    if (this.mediaSource.duration && !this.sourceBuffer.updating) {
+    if (this.mediaSource.duration) {
       this.sourceBuffer.remove(0, this.mediaSource.duration);
     }
   }
@@ -206,11 +199,7 @@ class Player extends Component {
       ? this.mediaSource.duration
       : 0;
 
-    const currentTrack = this.props.release.trackList.filter(
-      track => track._id === this.props.player.trackId
-    );
-
-    const newDuration = currentTrack.length && currentTrack[0].duration;
+    const newDuration = this.state.duration;
 
     if (newDuration < oldDuration) {
       this.sourceBuffer.remove(newDuration, oldDuration);
@@ -222,17 +211,7 @@ class Player extends Component {
   }
 
   handleUpdateDuration() {
-    if (this.sourceBuffer.updating) {
-      return;
-    }
-
-    const currentTrack = this.props.release.trackList.filter(
-      track => track._id === this.props.player.trackId
-    );
-
-    const newDuration = currentTrack.length && currentTrack[0].duration;
-
-    this.mediaSource.duration = newDuration;
+    this.mediaSource.duration = this.state.duration;
     this.setState({ shouldSetDuration: false });
   }
 
@@ -279,6 +258,7 @@ class Player extends Component {
       const init = await axios.get(res.data.url, initConfig);
       this.initSegment = new Uint8Array(init.data);
       this.currentSegment = 0;
+      this.setState({ duration: res.data.duration });
       this.newTrack = false;
       resolve();
     });
@@ -374,7 +354,9 @@ class Player extends Component {
   renderPlayButton = () => {
     if (!this.state.ready) {
       return <FontAwesome name="cog" spin className="player-button waiting" />;
-    } else if (this.props.player.isPlaying) {
+    }
+
+    if (this.props.player.isPlaying) {
       return (
         <FontAwesome
           name="pause"
@@ -383,6 +365,7 @@ class Player extends Component {
         />
       );
     }
+
     return (
       <FontAwesome
         name="play"
@@ -394,6 +377,8 @@ class Player extends Component {
 
   renderTrackInfo = () => {
     const { releaseId, artistName, trackTitle } = this.props.player;
+    if (!this.state.ready) return <span>Loading&hellip;</span>;
+
     if (this.props.history.location.pathname !== `/release/${releaseId}`) {
       return (
         <Link to={`/release/${releaseId}`}>
@@ -401,6 +386,7 @@ class Player extends Component {
         </Link>
       );
     }
+
     return (
       <span className="no-link">
         {artistName} &bull; <em>{trackTitle}</em>
@@ -454,11 +440,7 @@ class Player extends Component {
               </div>
             </div>
             <div className="col-sm track-info">
-              {!this.state.ready ? (
-                <span>Loading&hellip;</span>
-              ) : (
-                this.renderTrackInfo()
-              )}
+              {this.renderTrackInfo()}
               <FontAwesome
                 name="chevron-circle-down"
                 className="player-button hide-player"
