@@ -113,10 +113,20 @@ img.placeholder {
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.sort-btn {
+.btn-outline-primary.sort-btn {
+  background: none;
+  border: none;
+  color: hsla(233, 10%, 50%, 1);
   width: 12rem;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: left;
+}
+
+.btn-outline-primary.sort-btn:hover {
+  background: none;
+  border: none;
+  color: #18cdca;
 }
 
 @media (min-width: 576px) {
