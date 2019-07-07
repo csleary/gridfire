@@ -27,6 +27,7 @@ module.exports = app => {
     async (req, res) => {
       const release = res.locals.release;
       release.trackList.push({});
+
       release
         .save()
         .then(updated => res.send(updated.toObject({ versionKey: false })))
@@ -39,6 +40,9 @@ module.exports = app => {
     const { releaseId, trackId } = req.params;
     const s3 = new aws.S3();
 
+    const release = await Release.findById(releaseId);
+    const duration = release.trackList.id(trackId).duration;
+
     const mpdData = await s3
       .getObject({ Bucket: BUCKET_OPT, Key: `mpd/${releaseId}/${trackId}.mpd` })
       .promise();
@@ -47,16 +51,19 @@ module.exports = app => {
     const parser = sax.parser(strict);
     let initRange;
     const segmentList = [];
+
     parser.onopentag = node => {
       if (node.name === 'Initialization') {
         initRange = node.attributes.range;
       }
     };
+
     parser.onattribute = attr => {
       if (attr.name === 'mediaRange') {
         segmentList.push(attr.value);
       }
     };
+
     parser.write(mpdData.Body).close();
 
     const mp4Params = {
@@ -66,8 +73,7 @@ module.exports = app => {
     };
 
     const url = s3.getSignedUrl('getObject', mp4Params);
-
-    res.send({ url, initRange, segmentList });
+    res.send({ duration, initRange, segmentList, url });
   });
 
   // Fetch Segment
@@ -91,34 +97,6 @@ module.exports = app => {
 
     const mp4Url = s3.getSignedUrl('getObject', mp4Params);
     res.send(mp4Url);
-  });
-
-  // Play Track
-  app.get('/api/play-track', async (req, res) => {
-    try {
-      const { releaseId, trackId } = req.query;
-      const s3 = new aws.S3();
-
-      const list = await s3
-        .listObjectsV2({
-          Bucket: BUCKET_OPT,
-          Prefix: `mp4/${releaseId}/${trackId}`
-        })
-        .promise();
-
-      const params = {
-        Bucket: BUCKET_OPT,
-        Expires: 300,
-        Key: list.Contents[0].Key
-      };
-
-      const playUrl = s3.getSignedUrl('getObject', params);
-      // const playUrl = `/tmp/${trackId}`;
-
-      res.send(playUrl);
-    } catch (error) {
-      res.status(500).send({ error: error.message });
-    }
   });
 
   // Delete Track

@@ -56,15 +56,14 @@ export const playTrack = (
   try {
     dispatch({
       type: PLAY_TRACK,
-      payload: {
-        artistName,
-        releaseId,
-        trackId,
-        trackTitle
-      }
+      artistName,
+      releaseId,
+      trackId,
+      trackTitle
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    console.log(e);
+    dispatch({ type: TOAST_ERROR, text: e });
   }
 };
 
