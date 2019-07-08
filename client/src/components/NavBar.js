@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
-import React, { Component, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, NavLink, withRouter } from 'react-router-dom';
@@ -11,48 +11,41 @@ import Logo from './Logo';
 import SearchBar from './SearchBar';
 import '../style/navbar.css';
 
-class NavBar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchQuery: '',
-      showLogo: false,
-      expandSearch: false
+const NavBar = props => {
+  const {
+    user: { auth, credit, isLoading }
+  } = props;
+
+  const [showLogo, setShowLogo] = useState(false);
+
+  useEffect(() => {
+    document.addEventListener('scroll', throttle(handleScroll, 200));
+
+    return () => {
+      document.removeEventListener('scroll', handleScroll);
     };
-  }
+  });
 
-  componentDidMount() {
-    document.addEventListener('scroll', throttle(this.handleScroll, 200));
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('scroll', this.handleScroll);
-  }
-
-  handleLogout = () => {
-    this.props.logOut(res => {
-      this.props.history.push('/login');
-      this.props.fetchUser();
-      this.props.toastSuccess(res.data.success);
+  const handleLogout = () => {
+    props.logOut(res => {
+      props.history.push('/login');
+      props.fetchUser();
+      props.toastSuccess(res.data.success);
     });
   };
 
-  handleScroll = () => {
+  const handleScroll = () => {
     const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
     const scrollPos = window.pageYOffset;
 
     if (scrollPos < navbarPos) {
-      this.setState({ showLogo: false });
+      setShowLogo(false);
     } else {
-      this.setState({ showLogo: true });
+      setShowLogo(true);
     }
   };
 
-  renderUserLinks() {
-    const {
-      user: { auth, credit, isLoading }
-    } = this.props;
-
+  const renderUserLinks = () => {
     if (isLoading) return null;
 
     if (!auth) {
@@ -77,7 +70,7 @@ class NavBar extends Component {
     });
 
     return (
-      <Fragment>
+      <>
         <li className="nav-item">
           <NavLink
             to={'/release/add/'}
@@ -105,7 +98,7 @@ class NavBar extends Component {
           </NavLink>
         </li>
         <li className="nav-item">
-          <button className="nav-link" onClick={this.handleLogout}>
+          <button className="nav-link" onClick={handleLogout}>
             <FontAwesome
               name="sign-out"
               className="mr-1"
@@ -114,31 +107,29 @@ class NavBar extends Component {
             <span className="nav-label">Log out</span>
           </button>
         </li>
-      </Fragment>
+      </>
     );
-  }
+  };
 
-  render() {
-    const navbarClass = classNames('navbar-nav', 'ml-auto', {
-      loaded: !this.props.user.isLoading
-    });
+  const navbarClass = classNames('navbar-nav', 'ml-auto', {
+    loaded: !props.user.isLoading
+  });
 
-    const brandClass = classNames('navbar-brand-link', 'ml-3', {
-      show: this.state.showLogo
-    });
+  const brandClass = classNames('navbar-brand-link', 'ml-3', {
+    show: showLogo
+  });
 
-    return (
-      <nav className="navbar sticky-top navbar-expand-lg">
-        <SearchBar />
-        <PrivateRoute path="/dashboard" component={DashNavbar} />
-        <Link to={'/'} className={brandClass}>
-          <Logo class="navbar-brand" />
-        </Link>
-        <ul className={navbarClass}>{this.renderUserLinks()}</ul>
-      </nav>
-    );
-  }
-}
+  return (
+    <nav className="navbar sticky-top navbar-expand-lg">
+      <SearchBar />
+      <PrivateRoute path="/dashboard" component={DashNavbar} />
+      <Link to={'/'} className={brandClass}>
+        <Logo class="navbar-brand" />
+      </Link>
+      <ul className={navbarClass}>{renderUserLinks()}</ul>
+    </nav>
+  );
+};
 
 function mapStateToProps(state) {
   return {
