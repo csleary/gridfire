@@ -13,7 +13,7 @@ import ForgotPassword from './ForgotPassword';
 import Header from './Header';
 import Home from './Home';
 import Login from './Login';
-import Navbar from './Navbar';
+import NavBar from './NavBar';
 import Payment from './Payment';
 import Player from './Player';
 import PrivateRoute from './PrivateRoute';
@@ -44,7 +44,7 @@ class App extends Component {
       <BrowserRouter>
         <div className="app-wrapper">
           <Header />
-          <Navbar />
+          <NavBar />
           <Route exact path="/" component={Home} />
           <Route path="/oauth/:service" component={Home} />
           <Route path="/register" component={Register} />

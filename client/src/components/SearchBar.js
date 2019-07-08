@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { searchReleases } from '../actions';
 import '../style/searchBar.css';
 
-class Navbar extends Component {
+class SearchBar extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -59,6 +59,8 @@ class Navbar extends Component {
   };
 
   render() {
+    if (this.props.history.location.pathname.includes('/dashboard'))
+      return null;
     const { searchResults } = this.props;
     const { expandSearch, searchQuery } = this.state;
 
@@ -98,10 +100,9 @@ class Navbar extends Component {
               {searchResults.length && (
                 <p className="m-3">
                   <small>
-                    {searchResults.length} result{searchResults.length === 1
-                      ? ''
-                      : 's'}{' '}
-                    for &lsquo;{searchQuery}&rsquo;: (Hit return for the{' '}
+                    {searchResults.length} result
+                    {searchResults.length === 1 ? '' : 's'} for &lsquo;
+                    {searchQuery}&rsquo;: (Hit return for the{' '}
                     <Link to={'/search'}>full grid view</Link>.)
                   </small>
                 </p>
@@ -116,6 +117,7 @@ class Navbar extends Component {
             onMouseUp={this.handleSearchFocus}
             onTouchStart={this.handleSearchFocus}
             name="search"
+            title="Search all available releases."
           />
           <FontAwesome
             className={clearSearchClassNames}
@@ -154,4 +156,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   { searchReleases }
-)(withRouter(Navbar));
+)(withRouter(SearchBar));
