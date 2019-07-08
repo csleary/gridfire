@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { searchReleases } from '../actions';
 import '../style/searchBar.css';
 
-class Navbar extends Component {
+class SearchBar extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -98,10 +98,9 @@ class Navbar extends Component {
               {searchResults.length && (
                 <p className="m-3">
                   <small>
-                    {searchResults.length} result{searchResults.length === 1
-                      ? ''
-                      : 's'}{' '}
-                    for &lsquo;{searchQuery}&rsquo;: (Hit return for the{' '}
+                    {searchResults.length} result
+                    {searchResults.length === 1 ? '' : 's'} for &lsquo;
+                    {searchQuery}&rsquo;: (Hit return for the{' '}
                     <Link to={'/search'}>full grid view</Link>.)
                   </small>
                 </p>
@@ -154,4 +153,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   { searchReleases }
-)(withRouter(Navbar));
+)(withRouter(SearchBar));
