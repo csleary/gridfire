@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { Route } from 'react-router-dom';
 import Collection from './dashboard/Collection';
-import DashNavbar from './dashboard/DashNavbar';
 import NemAddress from './dashboard/NemAddress';
 import PasswordUpdate from './dashboard/PasswordUpdate';
 import UserReleases from './dashboard/UserReleases';
@@ -10,7 +9,6 @@ import '../style/dashboard.css';
 function Dashboard(props) {
   return (
     <Fragment>
-      <DashNavbar />
       <Route
         exact
         path={`${props.match.path}/collection`}

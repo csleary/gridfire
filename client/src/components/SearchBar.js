@@ -59,6 +59,8 @@ class SearchBar extends Component {
   };
 
   render() {
+    if (this.props.history.location.pathname.includes('/dashboard'))
+      return null;
     const { searchResults } = this.props;
     const { expandSearch, searchQuery } = this.state;
 
@@ -115,6 +117,7 @@ class SearchBar extends Component {
             onMouseUp={this.handleSearchFocus}
             onTouchStart={this.handleSearchFocus}
             name="search"
+            title="Search all available releases."
           />
           <FontAwesome
             className={clearSearchClassNames}

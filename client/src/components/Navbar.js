@@ -4,6 +4,8 @@ import React, { Component, Fragment } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, NavLink, withRouter } from 'react-router-dom';
+import DashNavbar from './dashboard/DashNavbar';
+import PrivateRoute from './PrivateRoute';
 import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
 import Logo from './Logo';
 import SearchBar from './SearchBar';
@@ -128,11 +130,8 @@ class NavBar extends Component {
     return (
       <nav className="navbar sticky-top navbar-expand-lg">
         <SearchBar />
-        <Link
-          to={'/'}
-          className={brandClass}
-          title="Search all available releases."
-        >
+        <PrivateRoute path="/dashboard" component={DashNavbar} />
+        <Link to={'/'} className={brandClass}>
           <Logo class="navbar-brand" />
         </Link>
         <ul className={navbarClass}>{this.renderUserLinks()}</ul>
