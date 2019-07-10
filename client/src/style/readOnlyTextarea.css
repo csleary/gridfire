@@ -22,6 +22,45 @@
   color: hsla(233, 10%, 50%, 1);
 }
 
+.disabled-textarea:hover {
+  cursor: pointer;
+}
+
+.disabled-textarea::selection {
+  background-color: #18cdca;
+}
+
+.copy-icon {
+  color: #18cdca;
+  left: 0.75rem;
+  opacity: 0;
+  position: absolute;
+  top: 0.75rem;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+}
+
+.disabled-textarea:hover + .copy-icon {
+  opacity: 1;
+  visibility: visible;
+}
+
+.copy-success {
+  bottom: 1rem;
+  color: #18cdca;
+  opacity: 0;
+  padding: 0.25rem 0.5rem;
+  position: absolute;
+  right: 0.25rem;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+}
+
+.copy-success.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 @media (min-width: 768px) {
   .disabled-textarea,
   .disabled-textarea[readonly],
