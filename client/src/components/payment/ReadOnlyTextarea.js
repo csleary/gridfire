@@ -20,8 +20,6 @@ const ReadOnlyTextarea = props => {
 
   const handleClick = event => {
     if (event.keyCode && event.keyCode !== 13) return;
-    console.log(event.keyCode);
-    textArea.current.focus();
     textArea.current.select();
     document.execCommand('copy');
     setHasCopied(true);
