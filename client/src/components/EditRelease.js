@@ -267,10 +267,11 @@ class EditRelease extends Component {
     const convertedPrice = (price / xemPriceUsd).toFixed(2);
 
     if (price === '0') {
-      return "Name Your Price! Or 'free'. Fans will still be able to donate.";
+      return 'Name Your Price! Or \u2018free\u2019. Fans will still be able to donate.';
     }
+
     if (price) return `Approximately ${convertedPrice} XEM.`;
-    return "Set your price in USD (enter '0' for a 'Name Your Price' release).";
+    return 'Set your price in USD (enter \u20180\u2019 for a \u2018Name Your Price\u2019 release).';
   }
 
   render() {
