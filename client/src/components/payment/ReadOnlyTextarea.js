@@ -43,8 +43,8 @@ const ReadOnlyTextarea = props => {
         />
         <FontAwesome className="copy-icon" name="copy" />
         <div className={copySuccessClass}>
+          <FontAwesome className="mr-2" name="thumbs-up" />
           Copied to clipboard!
-          <FontAwesome className="ml-2" name="thumbs-up" />
         </div>
       </div>
     </div>
