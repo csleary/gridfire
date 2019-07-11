@@ -15,6 +15,7 @@ class Home extends Component {
       isLoading: true,
       isSorting: false,
       sortBy: [
+        'Unsorted',
         'Release Date (new)',
         'Release Date (old)',
         'Artist Name',
@@ -64,22 +65,23 @@ class Home extends Component {
   handleSortCatalogue = () => {
     const { catalogue } = this.props;
     const sortIndex = this.state.sortCount % this.state.sortBy.length;
+    const unsorted = [...catalogue];
 
     switch (this.state.sortBy[sortIndex]) {
     case 'Release Date (new)':
-      return sortNumbers(catalogue, 'releaseDate').reverse();
+      return sortNumbers(unsorted, 'releaseDate').reverse();
     case 'Release Date (old)':
-      return sortNumbers(catalogue, 'releaseDate');
+      return sortNumbers(unsorted, 'releaseDate');
     case 'Artist Name':
-      return sortStrings(catalogue, 'artistName');
+      return sortStrings(unsorted, 'artistName');
     case 'Release Title':
-      return sortStrings(catalogue, 'releaseTitle');
+      return sortStrings(unsorted, 'releaseTitle');
     case 'Price (low)':
-      return sortNumbers(catalogue, 'price');
+      return sortNumbers(unsorted, 'price');
     case 'Price (high)':
-      return sortNumbers(catalogue, 'price').reverse();
+      return sortNumbers(unsorted, 'price').reverse();
     default:
-      return sortNumbers(catalogue, 'releaseDate').reverse();
+      return catalogue;
     }
   };
 
