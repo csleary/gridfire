@@ -43,6 +43,7 @@ module.exports = app => {
         await Sale.findOneAndUpdate({ releaseId }, update, options).exec();
 
         transactions.hasPurchased = true;
+
         user.purchases.push({
           purchaseDate: Date.now(),
           releaseId,
@@ -77,7 +78,7 @@ module.exports = app => {
       const signedMessage =
         req.body.signedMessage && JSON.parse(req.body.signedMessage);
       const nemAddress = req.body.nemAddress.toUpperCase().replace(/-/g, '');
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user.id).select('-auth.password');
       const existingNemAddress = user.nemAddress;
       const addressChanged = nemAddress !== existingNemAddress;
 
@@ -107,7 +108,7 @@ module.exports = app => {
 
   app.get('/api/nem/credit', requireLogin, async (req, res) => {
     try {
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user.id).select('-auth.password');
       const { nemAddress, nemAddressVerified } = user;
 
       if (nemAddress && nemAddressVerified) {
