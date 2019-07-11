@@ -1,11 +1,12 @@
-nav.navbar,
-nav.navbar.sub-menu {
+.navbar {
   background-color: hsla(233, 10%, 20%, 1);
   height: 2.5rem;
   padding: 0;
 }
 
 .navbar-nav {
+  display: flex;
+  flex-grow: 1;
   flex-direction: row;
   opacity: 0;
   transform: translateY(0.25rem);
@@ -18,33 +19,40 @@ nav.navbar.sub-menu {
   opacity: 1;
 }
 
-nav.navbar a,
-nav.navbar button {
+.navbar a,
+.navbar a:active,
+.navbar a:visited,
+.navbar a:focus,
+.navbar button {
   color: hsla(233, 10%, 75%, 1);
   font-weight: 600;
   transition-duration: 0.25s;
 }
 
-nav.navbar button {
+.navbar button {
   background-color: inherit;
   border: inherit;
 }
 
-nav.navbar a.active,
-nav.navbar button.active,
-nav.navbar.sub-menu a.active {
+.navbar .nav-link:hover:not(.active),
+.navbar a.active:hover:not(.active) .fa,
+.navbar button.active:hover:not(.active) .fa {
+  color: #18cdca;
+}
+
+.navbar a.active,
+.navbar button.active {
   background: hsla(233, 10%, 15%, 1);
   color: #f0f0f1;
 }
 
-nav.navbar a.active .fa,
-nav.navbar button.active .fa,
-nav.navbar.sub-menu a.active .fa {
+.navbar a.active .fa:not(.credit),
+.navbar button.active .fa {
   color: #ffd24d;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-nav.navbar.sub-menu .fa.no-address {
+.navbar .fa.no-address {
   color: #ff5349;
 }
 
@@ -53,28 +61,17 @@ nav.navbar.sub-menu .fa.no-address {
   text-transform: uppercase;
 }
 
-nav.navbar .nav-item a.nav-link:hover,
-nav.navbar .nav-item button.nav-link:hover,
-nav.navbar a.active:hover .fa,
-nav.navbar button.active:hover .fa,
-nav.navbar.sub-menu a.active:hover .fa {
-  color: #18cdca;
-}
-
-nav.navbar .nav-item:last-of-type {
+.navbar .nav-item:last-of-type {
   margin-right: 0;
 }
 
-nav.navbar a.navbar-brand-link {
-  align-content: center;
-  border: 0;
-  display: flex;
-  flex-direction: column;
+.navbar .hide.nav-link {
   opacity: 0;
-  visibility: hidden;
+  pointer-events: none;
+  visibility: invisible;
 }
 
-nav.navbar a.show.navbar-brand-link {
+.navbar .show.nav-link {
   opacity: 1;
   visibility: visible;
 }
@@ -88,7 +85,7 @@ nav.navbar a.show.navbar-brand-link {
   width: 4rem;
 }
 
-nav.navbar a .navbar-brand:hover {
+.navbar-brand:hover {
   fill: #18cdca;
 }
 
@@ -98,10 +95,6 @@ nav span.credit {
 }
 
 @media (min-width: 992px) {
-  .navbar-expand-lg .navbar-nav {
-    flex-direction: row;
-  }
-
   span.nav-label,
   nav span.credit {
     display: inline;

@@ -99,9 +99,10 @@ class Payment extends Component {
                 <span className="ibm-type-italic">{releaseTitle}</span>
               </h3>
               <p className="text-center">
-                Oh no! <Link to={`/artist/${artist}`}>{artistName}</Link>{' '}
-                doesn&rsquo;t have a NEM payment address in their account, so we
-                are unable to process payments for them at the moment.
+                Unfortunately,{' '}
+                <Link to={`/artist/${artist}`}>{artistName}</Link> doesn&rsquo;t
+                have a NEM payment address in their account, so we are unable to
+                process payments for them at the moment.
               </p>
               <p className="text-center">
                 Hopefully they&rsquo;ll have an address in place soon!

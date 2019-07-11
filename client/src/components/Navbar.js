@@ -26,6 +26,12 @@ const NavBar = props => {
     };
   });
 
+  const creditClass = classNames('ml-1', 'credit', {
+    cyan: credit > 1,
+    yellow: credit === 1,
+    red: credit === 0
+  });
+
   const handleLogout = () => {
     props.logOut(res => {
       props.history.push('/login');
@@ -45,9 +51,35 @@ const NavBar = props => {
     }
   };
 
-  const renderUserLinks = () => {
-    if (isLoading) return null;
+  const navbarClass = classNames('navbar-nav', {
+    loaded: !isLoading
+  });
 
+  const brandClass = classNames('nav-link', {
+    hide: !showLogo,
+    show: showLogo
+  });
+
+  const renderDashNav = () => {
+    if (props.history.location.pathname.includes('/dashboard')) {
+      return <PrivateRoute path="/dashboard" component={DashNavbar} />;
+    }
+
+    return (
+      <li className="nav-item">
+        <NavLink
+          to={'/dashboard'}
+          className="nav-link"
+          title="Visit your dashboard."
+        >
+          <FontAwesome name="user-circle" className="mr-1" />
+          <span className="nav-label">Dashboard</span>
+        </NavLink>
+      </li>
+    );
+  };
+
+  const renderNav = () => {
     if (!auth) {
       return (
         <li className="nav-item">
@@ -63,12 +95,6 @@ const NavBar = props => {
       );
     }
 
-    const creditClass = classNames('credit', {
-      cyan: credit > 1,
-      yellow: credit === 1,
-      red: credit === 0
-    });
-
     return (
       <>
         <li className="nav-item">
@@ -79,24 +105,14 @@ const NavBar = props => {
           >
             <FontAwesome name="plus-square" className="mr-1" />
             <span className="nav-label">Add Release</span>
-            <span
+            <FontAwesome
+              name="certificate"
               className={creditClass}
               title={`Your nemp3 credit balance is: ${credit}`}
-            >
-              <FontAwesome name="certificate" className="ml-1" />{' '}
-            </span>
+            />{' '}
           </NavLink>
         </li>
-        <li className="nav-item">
-          <NavLink
-            to={'/dashboard'}
-            className="nav-link"
-            title="Visit your dashboard."
-          >
-            <FontAwesome name="user-circle" className="mr-1" />
-            <span className="nav-label">Dashboard</span>
-          </NavLink>
-        </li>
+        {renderDashNav()}
         <li className="nav-item">
           <button className="nav-link" onClick={handleLogout}>
             <FontAwesome
@@ -111,22 +127,19 @@ const NavBar = props => {
     );
   };
 
-  const navbarClass = classNames('navbar-nav', 'ml-auto', {
-    loaded: !props.user.isLoading
-  });
-
-  const brandClass = classNames('navbar-brand-link', 'ml-3', {
-    show: showLogo
-  });
+  if (isLoading) return null;
 
   return (
-    <nav className="navbar sticky-top navbar-expand-lg">
-      <SearchBar />
-      <PrivateRoute path="/dashboard" component={DashNavbar} />
-      <Link to={'/'} className={brandClass}>
-        <Logo class="navbar-brand" />
-      </Link>
-      <ul className={navbarClass}>{renderUserLinks()}</ul>
+    <nav className="navbar navbar-expand-lg sticky-top">
+      <ul className={navbarClass}>
+        <SearchBar />
+        <li className="nav-item mr-auto">
+          <Link to={'/'} className={brandClass}>
+            <Logo class="navbar-brand" />
+          </Link>
+        </li>
+        {renderNav()}
+      </ul>
     </nav>
   );
 };

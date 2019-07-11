@@ -27,17 +27,26 @@ class Home extends Component {
   }
 
   componentDidMount() {
-    this.handleFetchCatalogue().then(() => {
-      let { service } = this.props.match.params;
-      if (service) {
-        service = service.charAt(0).toUpperCase() + service.substring(1);
-        this.props.toastInfo(
-          `Thank you. You are now logged in using your ${service} account.`
-        );
-      }
+    if (!this.props.catalogue.length) {
+      this.handleFetchCatalogue().then(() => {
+        this.handleLogInService();
+        this.setState({ isLoading: false });
+      });
+    } else {
+      this.handleLogInService();
       this.setState({ isLoading: false });
-    });
+    }
   }
+
+  handleLogInService = () => {
+    let { service } = this.props.match.params;
+    if (service) {
+      service = service.charAt(0).toUpperCase() + service.substring(1);
+      this.props.toastInfo(
+        `Thank you. You are now logged in using your ${service} account.`
+      );
+    }
+  };
 
   handleFetchCatalogue = isUpdate =>
     new Promise(resolve => {

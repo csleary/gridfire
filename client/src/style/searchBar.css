@@ -1,13 +1,13 @@
-nav.navbar form {
+.navbar form {
   margin: 0 0 0 15px;
 }
 
-nav.navbar form .form-group {
+.navbar form .form-group {
   margin: 0;
   position: relative;
 }
 
-nav.navbar form input.search {
+.navbar form input.search {
   background-color: inherit;
   border-radius: 100rem;
   color: hsla(233, 10%, 75%, 1);
@@ -21,7 +21,7 @@ nav.navbar form input.search {
   z-index: 1020;
 }
 
-nav.navbar form input.search.expanded {
+.navbar form input.search.expanded {
   background-color: hsla(233, 10%, 50%, 1);
   box-shadow: none;
   cursor: auto;
@@ -30,27 +30,27 @@ nav.navbar form input.search.expanded {
   width: 100%;
 }
 
-nav.navbar form input.search::placeholder {
+.navbar form input.search::placeholder {
   color: hsla(233, 10%, 75%, 1);
 }
 
-nav.navbar form input.search:focus::placeholder {
+.navbar form input.search:focus::placeholder {
   color: #f0f0f1;
 }
 
-nav.navbar form div.search-preview {
+.navbar form div.search-preview {
   transition: all 0.1s cubic-bezier(0.2, 0.8, 0.4, 1) 0s;
   opacity: 0;
   visibility: hidden;
 }
 
-nav.navbar form div.search-preview.expanded {
+.navbar form div.search-preview.expanded {
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.4, 1) 0.3s;
   opacity: 1;
   visibility: visible;
 }
 
-nav.navbar form div.search-preview .list-group {
+.navbar form div.search-preview .list-group {
   background-color: hsla(233, 10%, 20%, 1);
   border: 0;
   border-radius: 0;
@@ -66,20 +66,20 @@ nav.navbar form div.search-preview .list-group {
   z-index: 1000;
 }
 
-nav.navbar form div.search-preview .list-group p {
+.navbar form div.search-preview .list-group p {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-nav.navbar form div.search-preview .list-group-item:first-child {
+.navbar form div.search-preview .list-group-item:first-child {
 }
 
-nav.navbar form div.search-preview .list-group-item:last-child {
+.navbar form div.search-preview .list-group-item:last-child {
   border-bottom-right-radius: 0.5rem;
 }
 
-nav.navbar form div.search-preview .list-group-item {
+.navbar form div.search-preview .list-group-item {
   background-color: inherit;
   border: 0;
   border-radius: 0;
@@ -89,12 +89,12 @@ nav.navbar form div.search-preview .list-group-item {
   white-space: nowrap;
 }
 
-nav.navbar form div.search-preview .list-group-item-action:hover {
+.navbar form div.search-preview .list-group-item-action:hover {
   background-color: hsla(233, 10%, 15%, 1);
   color: #18cdca;
 }
 
-nav.navbar form span.search-icon {
+.navbar form span.search-icon {
   color: hsla(233, 10%, 75%, 1);
   cursor: pointer;
   position: absolute;
@@ -102,7 +102,7 @@ nav.navbar form span.search-icon {
   z-index: 1040;
 }
 
-nav.navbar form span.clear-search-icon {
+.navbar form span.clear-search-icon {
   color: hsla(233, 10%, 75%, 1);
   cursor: pointer;
   opacity: 0;
@@ -111,17 +111,17 @@ nav.navbar form span.clear-search-icon {
   z-index: 1040;
 }
 
-nav.navbar form span.clear-search-icon:hover,
-nav.navbar form span.search-icon:hover {
+.navbar form span.clear-search-icon:hover,
+.navbar form span.search-icon:hover {
   color: #18cdca;
 }
 
-nav.navbar form span.clear-search-icon.show {
+.navbar form span.clear-search-icon.show {
   opacity: 1;
 }
 
 @media (min-width: 992px) {
-  nav.navbar form input.search.expanded {
+  .navbar form input.search.expanded {
     width: 24rem;
   }
 }
