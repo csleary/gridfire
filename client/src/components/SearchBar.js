@@ -17,6 +17,13 @@ class SearchBar extends Component {
     };
   }
 
+  handleKeyDown = e => {
+    if (e.keyCode === 27) {
+      this.searchBar.blur();
+      this.setState({ expandSearch: false });
+    }
+  };
+
   handleSearchInput = e => {
     this.setState({ searchQuery: e.target.value }, () => {
       this.handleSearch();
@@ -59,8 +66,6 @@ class SearchBar extends Component {
   };
 
   render() {
-    if (this.props.history.location.pathname.includes('/dashboard'))
-      return null;
     const { searchResults } = this.props;
     const { expandSearch, searchQuery } = this.state;
 
@@ -85,7 +90,7 @@ class SearchBar extends Component {
     ));
 
     return (
-      <form className="ml-3" onSubmit={this.handleSubmit}>
+      <form className="d-flex" onSubmit={this.handleSubmit}>
         <div className="form-group d-flex align-items-center">
           <div
             className={previewClassNames}
@@ -132,6 +137,7 @@ class SearchBar extends Component {
             onBlur={this.handleSearchBlur}
             onChange={this.handleSearchInput}
             onFocus={this.handleSearchFocus}
+            onKeyDown={this.handleKeyDown}
             placeholder={this.state.expandSearch ? 'Search…' : undefined}
             ref={el => {
               this.searchBar = el;
