@@ -27,49 +27,42 @@ function DashNavbar(props) {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg sub-menu">
-      <ul className="navbar-nav mx-auto">
-        <li className="nav-item">
-          <NavLink strict exact to={'/dashboard'} className="nav-link">
-            <FontAwesome name="headphones" className="mr-1" />
-            <span className="nav-label">Releases</span>
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink
-            strict
-            exact
-            to={'/dashboard/collection'}
-            className="nav-link"
-          >
-            <FontAwesome name="archive" className="mr-1" />
-            <span className="nav-label">My Collection</span>
-          </NavLink>
-        </li>
-        <li
-          className="nav-item"
-          title={
-            user.nemAddress
-              ? 'Your NEM payment address.'
-              : 'You don\u2019t currently have a NEM payment address saved.'
-          }
+    <>
+      <li className="nav-item">
+        <NavLink strict exact to={'/dashboard'} className="nav-link">
+          <FontAwesome name="headphones" className="mr-1" />
+          <span className="nav-label">Releases</span>
+        </NavLink>
+      </li>
+      <li className="nav-item">
+        <NavLink strict exact to={'/dashboard/collection'} className="nav-link">
+          <FontAwesome name="archive" className="mr-1" />
+          <span className="nav-label">Collection</span>
+        </NavLink>
+      </li>
+      <li
+        className="nav-item"
+        title={
+          user.nemAddress
+            ? 'Your NEM payment address.'
+            : 'You don\u2019t currently have a NEM payment address saved.'
+        }
+      >
+        <NavLink
+          strict
+          exact
+          to={'/dashboard/nem-address'}
+          className="nav-link"
         >
-          <NavLink
-            strict
-            exact
-            to={'/dashboard/nem-address'}
-            className="nav-link"
-          >
-            <FontAwesome
-              name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
-              className={`mr-1 ${!user.nemAddress && 'no-address'}`}
-            />
-            <span className="nav-label">Payment</span>
-          </NavLink>
-        </li>
-        {showPasswordChange()}
-      </ul>
-    </nav>
+          <FontAwesome
+            name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
+            className={`mr-1 ${!user.nemAddress && 'no-address'}`}
+          />
+          <span className="nav-label">Payment</span>
+        </NavLink>
+      </li>
+      {showPasswordChange()}
+    </>
   );
 }
 
