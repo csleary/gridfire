@@ -23,24 +23,27 @@ function RenderTrackList(props) {
     active: false,
     shouldUpdateForm: false
   });
-  const [deletingTracks, setDeletingTracks] = useState([]);
+  const [isDeleting, setDeleting] = useState([]);
 
   const handleDeleteTrack = (remove, trackId) => {
     const matchId = el => el._id === trackId;
     const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
+
     handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
-      setDeletingTracks([...deletingTracks, trackId]);
+
+      setDeleting([...isDeleting, trackId]);
 
       deleteTrack(release._id, trackId, () => {
         const index = trackList.findIndex(matchId);
         remove(index);
+        setDeleting(isDeleting.filter(el => el !== trackId));
         const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
+
         toastSuccess(
           `${(trackTitle && `'${trackTitle}'`) ||
             `Track ${index + 1}`} deleted.`
         );
-        setDeletingTracks(deletingTracks.filter(el => el !== trackId));
       });
     });
   };
@@ -115,7 +118,6 @@ function RenderTrackList(props) {
           return (
             <RenderTrack
               audioUploadProgress={uploadProgress(index)}
-              deletingTracks={deletingTracks}
               dragActive={dragActive}
               dragOrigin={dragOrigin}
               fields={fields}
@@ -128,6 +130,7 @@ function RenderTrackList(props) {
               handleDrop={handleDrop}
               handleDragEnd={handleDragEnd}
               index={index}
+              isDeleting={isDeleting.some(id => id === trackId)}
               isTranscoding={isTranscoding.some(id => id === trackId)}
               key={trackId}
               moveTrack={moveTrack}
@@ -135,6 +138,7 @@ function RenderTrackList(props) {
               onDropAudio={onDropAudio}
               release={release}
               toastSuccess={toastSuccess}
+              trackId={trackId}
             />
           );
         })}

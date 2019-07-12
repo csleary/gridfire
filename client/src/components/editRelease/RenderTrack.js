@@ -9,17 +9,17 @@ const RenderTrack = props => {
   const {
     audioUploadProgress,
     index,
+    isDeleting,
     isTranscoding,
     fields,
+    name,
     release,
-    name
+    trackId
   } = props;
 
   const [isMoving, setMoving] = useState();
 
   const releaseId = release._id;
-  const trackId = release.trackList[index]._id;
-  const isDeletingTrack = props.deletingTracks.some(el => el === trackId);
   const hasAudio = release.trackList[index].hasAudio;
   const isUploading = audioUploadProgress > 0 && audioUploadProgress < 100;
   const isEncoding = audioUploadProgress === 100 && !isTranscoding;
@@ -38,7 +38,7 @@ const RenderTrack = props => {
   const deleteButtonClassNames = classNames(
     'btn btn-outline-danger btn-sm ml-auto',
     {
-      'delete-active': isDeletingTrack
+      'delete-active': isDeleting
     }
   );
 
@@ -115,17 +115,17 @@ const RenderTrack = props => {
         )}
         <button
           className={deleteButtonClassNames}
-          disabled={isDeletingTrack}
+          disabled={isDeleting}
           onClick={() => props.handleDeleteTrack(fields.remove, trackId)}
           title="Delete Track"
           type="button"
         >
-          {isDeletingTrack ? (
+          {isDeleting ? (
             <FontAwesome name="circle-o-notch" spin className="mr-2" />
           ) : (
             <FontAwesome name="trash" className="mr-2" />
           )}
-          {isDeletingTrack ? 'Deleting…' : 'Delete'}
+          {isDeleting ? 'Deleting…' : 'Delete'}
         </button>
       </div>
       <ProgressBar

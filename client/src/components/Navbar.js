@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, NavLink, withRouter } from 'react-router-dom';
@@ -17,6 +17,7 @@ const NavBar = props => {
   } = props;
 
   const [showLogo, setShowLogo] = useState(false);
+  const navBar = useRef();
 
   useEffect(() => {
     document.addEventListener('scroll', throttle(handleScroll, 200));
@@ -41,7 +42,7 @@ const NavBar = props => {
   };
 
   const handleScroll = () => {
-    const navbarPos = document.getElementsByClassName('navbar')[0].offsetTop;
+    const navbarPos = navBar.current && navBar.current.offsetTop;
     const scrollPos = window.pageYOffset;
 
     if (scrollPos < navbarPos) {
@@ -130,7 +131,7 @@ const NavBar = props => {
   if (isLoading) return null;
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top">
+    <nav className="navbar navbar-expand-lg sticky-top" ref={navBar}>
       <ul className={navbarClass}>
         <SearchBar />
         <li className="nav-item mr-auto">
