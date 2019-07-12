@@ -1,13 +1,14 @@
 import axios from 'axios';
 import {
   ADD_TRACK,
-  DELETE_TRACK,
+  DELETE_TRACK_START,
+  DELETE_TRACK_COMPLETE,
   MOVE_TRACK,
   PLAY_TRACK,
   TOAST_ERROR,
   TOAST_SUCCESS,
   TRANSCODING_START,
-  TRANSCODING_STOP,
+  TRANSCODING_COMPLETE,
   UPLOAD_AUDIO_PROGRESS
 } from './types';
 
@@ -23,8 +24,9 @@ export const addTrack = (releaseId, callback) => async dispatch => {
 
 export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
   try {
+    dispatch({ type: DELETE_TRACK_START, trackId });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
-    dispatch({ type: DELETE_TRACK, payload: res.data });
+    dispatch({ type: DELETE_TRACK_COMPLETE, payload: res.data, trackId });
     callback();
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
@@ -83,7 +85,7 @@ export const transcodeAudio = (
     });
     dispatch({ type: TOAST_SUCCESS, text: res.data.success });
     dispatch({
-      type: TRANSCODING_STOP,
+      type: TRANSCODING_COMPLETE,
       trackId,
       payload: res.data.updatedRelease
     });
@@ -93,7 +95,7 @@ export const transcodeAudio = (
       type: TOAST_ERROR,
       text: `Transcoding error: ${e.response.data.error}`
     });
-    dispatch({ type: TRANSCODING_STOP, trackId });
+    dispatch({ type: TRANSCODING_COMPLETE, trackId });
   }
 };
 

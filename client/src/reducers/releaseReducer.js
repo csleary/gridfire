@@ -3,7 +3,8 @@ import {
   ADD_TRACK,
   DELETE_ARTWORK,
   DELETE_RELEASE,
-  DELETE_TRACK,
+  DELETE_TRACK_START,
+  DELETE_TRACK_COMPLETE,
   FETCH_ARTIST_CATALOGUE,
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
@@ -16,7 +17,7 @@ import {
   SEARCH_RELEASES,
   SEARCH_RELEASES_LOADING,
   TRANSCODING_START,
-  TRANSCODING_STOP,
+  TRANSCODING_COMPLETE,
   UPDATE_RELEASE,
   UPLOAD_ARTWORK,
   UPLOAD_ARTWORK_PROGRESS,
@@ -38,6 +39,7 @@ const initialState = {
   audioUploadProgress: [],
   isLoading: false,
   isSearching: false,
+  isDeleting: [],
   isTranscoding: [],
   catalogue: [],
   catalogueLimit: 12,
@@ -58,7 +60,6 @@ export default (state = initialState, action) => {
   case ADD_RELEASE:
   case ADD_TRACK:
   case DELETE_ARTWORK:
-  case DELETE_TRACK:
   case FETCH_RELEASE:
   case FETCH_USER_RELEASE:
   case MOVE_TRACK:
@@ -71,12 +72,22 @@ export default (state = initialState, action) => {
     if (state.userReleases) {
       return {
         ...state,
-        userReleases: state.userReleases.filter(
-          release => release._id !== payload
+        userReleases: state.userReleases.filter(release => release._id !== payload
         )
       };
     }
     return { ...state };
+  case DELETE_TRACK_START:
+    return {
+      ...state,
+      isDeleting: [...state.isDeleting, action.trackId]
+    };
+  case DELETE_TRACK_COMPLETE:
+    return {
+      ...state,
+      selectedRelease: payload,
+      isDeleting: state.isDeleting.filter(id => id !== action.trackId)
+    };
   case FETCH_ARTIST_CATALOGUE:
     return {
       ...state,
@@ -139,7 +150,7 @@ export default (state = initialState, action) => {
       ...state,
       isTranscoding: [...state.isTranscoding, action.trackId]
     };
-  case TRANSCODING_STOP:
+  case TRANSCODING_COMPLETE:
     return {
       ...state,
       isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),

@@ -494,7 +494,7 @@ class EditRelease extends Component {
                 component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 initialize={this.props.initialize}
-                isAddingTrack={this.props.isAddingTrack}
+                isDeleting={this.props.isDeleting}
                 isTranscoding={this.props.isTranscoding}
                 moveTrack={this.props.moveTrack}
                 name="trackList"
@@ -561,8 +561,7 @@ const mapStateToProps = state => ({
   audioUploadUrl: state.releases.audioUploadUrl,
   formValues: getFormValues('releaseForm')(state),
   initialValues: state.releases.selectedRelease,
-  isAddingTrack: state.releases.isAddingTrack,
-  isDeletingTrack: state.releases.isDeletingTrack,
+  isDeleting: state.releases.isDeleting,
   isTranscoding: state.releases.isTranscoding,
   price: fieldSelector(state, 'price'),
   release: state.releases.selectedRelease,
@@ -583,7 +582,6 @@ export default reduxForm({
       deleteArtwork,
       deleteRelease,
       deleteTrack,
-
       fetchRelease,
       fetchUserRelease,
       fetchXemPrice,

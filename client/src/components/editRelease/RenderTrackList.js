@@ -9,6 +9,7 @@ function RenderTrackList(props) {
     change,
     deleteTrack,
     fields,
+    isDeleting,
     isTranscoding,
     moveTrack,
     onDropAudio,
@@ -23,7 +24,7 @@ function RenderTrackList(props) {
     active: false,
     shouldUpdateForm: false
   });
-  const [isDeleting, setDeleting] = useState([]);
+  // const [isDeleting, setDeleting] = useState([]);
 
   const handleDeleteTrack = (remove, trackId) => {
     const matchId = el => el._id === trackId;
@@ -32,12 +33,12 @@ function RenderTrackList(props) {
     handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
 
-      setDeleting([...isDeleting, trackId]);
+      // setDeleting([...isDeleting, trackId]);
 
       deleteTrack(release._id, trackId, () => {
         const index = trackList.findIndex(matchId);
         remove(index);
-        setDeleting(isDeleting.filter(el => el !== trackId));
+        // setDeleting(isDeleting.filter(el => el !== trackId));
         const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
 
         toastSuccess(
