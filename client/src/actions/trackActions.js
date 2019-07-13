@@ -16,7 +16,7 @@ export const addTrack = (releaseId, callback) => async dispatch => {
   try {
     const res = await axios.put(`/api/${releaseId}/add`);
     dispatch({ type: ADD_TRACK, payload: res.data });
-    callback();
+    callback(res.data);
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
@@ -27,7 +27,7 @@ export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
     dispatch({ type: DELETE_TRACK_START, trackId });
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
     dispatch({ type: DELETE_TRACK_COMPLETE, payload: res.data, trackId });
-    callback();
+    callback(res.data);
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
   }
@@ -42,7 +42,7 @@ export const moveTrack = (
   try {
     const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
     dispatch({ type: MOVE_TRACK, payload: res.data });
-    callback();
+    callback(res.data);
   } catch (e) {
     dispatch({ type: TOAST_ERROR, text: e.response.data.error });
     return { error: e.response.data.error };
@@ -64,7 +64,6 @@ export const playTrack = (
       trackTitle
     });
   } catch (e) {
-    console.log(e);
     dispatch({ type: TOAST_ERROR, text: e });
   }
 };

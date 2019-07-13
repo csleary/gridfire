@@ -30,7 +30,9 @@ module.exports = app => {
 
       release
         .save()
-        .then(updated => res.send(updated.toObject({ versionKey: false })))
+        .then(updatedRelease =>
+          res.send(updatedRelease.toObject({ versionKey: false }))
+        )
         .catch(error => res.status(500).send({ error }));
     }
   );
@@ -159,11 +161,16 @@ module.exports = app => {
       }
 
       // Delete from db
-      const deleteTrackDb = await Release.findByIdAndUpdate(
-        releaseId,
-        { $pull: { trackList: { _id: trackId } } },
-        { new: true }
-      );
+      const deleteTrackDb = new Promise(async resolve => {
+        const release = await Release.findById(releaseId);
+        release.trackList.id(trackId).remove();
+
+        if (!release.trackList.length) {
+          release.published = false;
+        }
+
+        release.save().then(updatedRelease => resolve(updatedRelease));
+      });
 
       Promise.all([deleteS3Src, deleteS3Opt, deleteS3Mpd, deleteTrackDb])
         .then(promised => res.send(promised[3]))

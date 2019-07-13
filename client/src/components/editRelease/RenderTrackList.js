@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 import FontAwesome from 'react-fontawesome';
 import RenderTrack from './RenderTrack';
 
@@ -20,11 +20,16 @@ function RenderTrackList(props) {
 
   const [dragOrigin, setDragOrigin] = useState(null);
   const [dragActive, setDragActive] = useState(false);
-  const [addingTrack, setAddingTrack] = useState({
-    active: false,
-    shouldUpdateForm: false
-  });
-  // const [isDeleting, setDeleting] = useState([]);
+  const [addingTrack, setAddingTrack] = useState(false);
+
+  const usePrevious = value => {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  };
+  const prevAddingTrack = usePrevious(addingTrack);
 
   const handleDeleteTrack = (remove, trackId) => {
     const matchId = el => el._id === trackId;
@@ -33,12 +38,9 @@ function RenderTrackList(props) {
     handleConfirm(trackTitle, hasConfirmed => {
       if (!hasConfirmed) return;
 
-      // setDeleting([...isDeleting, trackId]);
-
       deleteTrack(release._id, trackId, () => {
         const index = trackList.findIndex(matchId);
         remove(index);
-        // setDeleting(isDeleting.filter(el => el !== trackId));
         const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
 
         toastSuccess(
@@ -58,21 +60,20 @@ function RenderTrackList(props) {
   };
 
   const handleAddTrack = () => {
-    setAddingTrack({ active: true, shouldUpdateForm: false });
+    setAddingTrack(true);
     addTrack(release._id, () => {
-      setAddingTrack({ active: false, shouldUpdateForm: true });
+      setAddingTrack(false);
     });
   };
 
   useEffect(
     () => {
-      if (addingTrack.shouldUpdateForm) {
+      if (prevAddingTrack && !addingTrack) {
         const newIndex = release.trackList.length - 1;
         change(`trackList[${newIndex}]._id`, release.trackList[newIndex]._id);
-        setAddingTrack({ active: false, shouldUpdateForm: false });
       }
     },
-    [change, addingTrack.shouldUpdateForm, release.trackList]
+    [addingTrack, change, prevAddingTrack, release.trackList]
   );
 
   const handleDragStart = index => {
@@ -91,7 +92,6 @@ function RenderTrackList(props) {
     const releaseId = release._id;
     const indexFrom = dragOrigin;
     moveTrack(releaseId, indexFrom, indexTo, () => {
-      console.log(indexFrom, indexTo);
       fieldsMove(indexFrom, indexTo);
     });
   };
@@ -146,17 +146,17 @@ function RenderTrackList(props) {
       </ul>
       <button
         className="btn btn-outline-primary btn-sm add-track mt-3 py-2 px-3"
-        disabled={addingTrack.active}
+        disabled={addingTrack}
         onClick={handleAddTrack}
         title="Add Track"
         type="button"
       >
-        {addingTrack.active ? (
+        {addingTrack ? (
           <FontAwesome name="circle-o-notch" spin className="mr-2" />
         ) : (
           <FontAwesome name="plus-circle" className="mr-2" />
         )}
-        {addingTrack.active ? 'Adding Track…' : 'Add Track'}
+        {addingTrack ? 'Adding Track…' : 'Add Track'}
       </button>
     </Fragment>
   );
