@@ -27,7 +27,8 @@ const Support = () => (
           </p>
           <p>
             We are currently working on an automated process to dispense credit,
-            while the site is in its testing phase.
+            while the site is in its testing phase. But in the mean time, please
+            drop us a message and we&rsquo;ll be happy to send you one.
           </p>
         </details>
         <details>

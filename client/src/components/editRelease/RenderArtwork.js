@@ -18,10 +18,8 @@ const RenderArtwork = props => {
     let prevPublished = '';
 
     if (release.published) {
-      props.publishStatus(releaseId).then(() => {
-        prevPublished =
-          ' As your release was previously published, it has also been taken offline.';
-      });
+      prevPublished =
+        ' As your release was previously published, it has also been taken offline.';
     }
     props.toastWarning('Deleting artwork…');
 

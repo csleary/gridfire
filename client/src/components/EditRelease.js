@@ -281,10 +281,9 @@ class EditRelease extends Component {
     const submitButton = (
       <div className="d-flex justify-content-end">
         <button
-          type="button"
+          type="submit"
           className="btn btn-outline-primary btn-lg"
           disabled={invalid || pristine || submitting}
-          onClick={this.props.handleSubmit(this.onSubmit)}
         >
           {isEditing ? 'Update Release' : 'Add Release'}
         </button>
@@ -313,7 +312,7 @@ class EditRelease extends Component {
       <main className="container">
         <div className="row">
           <div className="col mb-5">
-            <form>
+            <form onSubmit={this.props.handleSubmit(this.onSubmit)}>
               <h2 className="text-center mt-4">{this.renderHeader()}</h2>
               {!isEditing && (
                 <p>
@@ -494,7 +493,7 @@ class EditRelease extends Component {
                 component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 initialize={this.props.initialize}
-                isAddingTrack={this.props.isAddingTrack}
+                isDeleting={this.props.isDeleting}
                 isTranscoding={this.props.isTranscoding}
                 moveTrack={this.props.moveTrack}
                 name="trackList"
@@ -560,9 +559,7 @@ const mapStateToProps = state => ({
   audioUploadProgress: state.releases.audioUploadProgress,
   audioUploadUrl: state.releases.audioUploadUrl,
   formValues: getFormValues('releaseForm')(state),
-  initialValues: state.releases.selectedRelease,
-  isAddingTrack: state.releases.isAddingTrack,
-  isDeletingTrack: state.releases.isDeletingTrack,
+  isDeleting: state.releases.isDeleting,
   isTranscoding: state.releases.isTranscoding,
   price: fieldSelector(state, 'price'),
   release: state.releases.selectedRelease,
@@ -571,9 +568,7 @@ const mapStateToProps = state => ({
 
 export default reduxForm({
   validate,
-  form: 'releaseForm',
-  enableReinitialize: true,
-  keepDirtyOnReinitialize: true
+  form: 'releaseForm'
 })(
   connect(
     mapStateToProps,
@@ -583,7 +578,6 @@ export default reduxForm({
       deleteArtwork,
       deleteRelease,
       deleteTrack,
-
       fetchRelease,
       fetchUserRelease,
       fetchXemPrice,

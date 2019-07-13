@@ -78,6 +78,7 @@ module.exports = app => {
             .promise()
             .then(() => {
               release.artwork = undefined;
+              release.published = false;
               release.save().then(doc => res.send(doc));
             })
             .catch(error => {
