@@ -42,16 +42,16 @@ class Toast extends Component {
 
   toastIcon(type) {
     switch (type) {
-      case 'error':
-        return 'exclamation-circle';
-      case 'info':
-        return 'info-circle';
-      case 'success':
-        return 'thumbs-o-up';
-      case 'warning':
-        return 'exclamation-circle';
-      default:
-        return 'info-circle';
+    case 'error':
+      return 'exclamation-circle';
+    case 'info':
+      return 'info-circle';
+    case 'success':
+      return 'thumbs-o-up';
+    case 'warning':
+      return 'exclamation-circle';
+    default:
+      return 'info-circle';
     }
   }
 
@@ -66,6 +66,7 @@ class Toast extends Component {
       'toast-show': this.state.isVisible,
       'toast-fade': !this.state.isVisible
     });
+
     return (
       <div className={classes}>
         <FontAwesome name={icon} className="mr-2" />
