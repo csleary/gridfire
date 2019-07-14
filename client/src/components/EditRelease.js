@@ -173,7 +173,6 @@ class EditRelease extends Component {
     new Promise(resolve => {
       this.props.updateRelease(values).then(() => {
         const {
-          release,
           release: { releaseTitle }
         } = this.props;
 
@@ -181,10 +180,6 @@ class EditRelease extends Component {
           `${(releaseTitle && `'${releaseTitle}'`) || 'Release'} saved!`
         );
 
-        if (release.releaseDate) {
-          release.releaseDate = release.releaseDate.substring(0, 10);
-        }
-        this.props.initialize(release, { keepDirty: true });
         this.props.history.push('/dashboard');
         resolve();
       });
@@ -281,9 +276,10 @@ class EditRelease extends Component {
     const submitButton = (
       <div className="d-flex justify-content-end">
         <button
-          type="submit"
+          type="button"
           className="btn btn-outline-primary btn-lg"
           disabled={invalid || pristine || submitting}
+          onClick={this.props.handleSubmit(this.onSubmit)}
         >
           {isEditing ? 'Update Release' : 'Add Release'}
         </button>
@@ -312,7 +308,7 @@ class EditRelease extends Component {
       <main className="container">
         <div className="row">
           <div className="col mb-5">
-            <form onSubmit={this.props.handleSubmit(this.onSubmit)}>
+            <form>
               <h2 className="text-center mt-4">{this.renderHeader()}</h2>
               {!isEditing && (
                 <p>

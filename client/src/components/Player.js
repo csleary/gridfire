@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
@@ -21,7 +21,6 @@ class Player extends Component {
       bufferEnd: false,
       duration: null,
       elapsedTime: '',
-      expandSeekBar: false,
       isBuffering: false,
       isSeeking: false,
       shouldUpdateBuffer: false,
@@ -29,6 +28,8 @@ class Player extends Component {
       showRemaining: false
     };
 
+    this.audioPlayer = createRef();
+    this.seekBar = createRef();
     this.newTrack = false;
     this.seekPercent = null;
     this.queue = [];
@@ -36,16 +37,15 @@ class Player extends Component {
 
   componentDidMount() {
     this.mediaSource = new MediaSource();
-    const audioPlayer = document.getElementById('player');
+    const audioPlayer = this.audioPlayer.current;
     audioPlayer.src = URL.createObjectURL(this.mediaSource);
     this.mediaSource.addEventListener('sourceopen', () => {
       URL.revokeObjectURL(audioPlayer.src);
-      const mime = 'audio/mp4; codecs="mp4a.40.2"';
-      this.sourceBuffer = this.mediaSource.addSourceBuffer(mime);
-      this.sourceBuffer.addEventListener('update', () => {});
-      this.sourceBuffer.addEventListener('updatestart', () => {
-        this.setState({ updating: true });
-      });
+      const mimeType = 'audio/mp4; codecs="mp4a.40.2"';
+      // const support = MediaSource.isTypeSupported(mimeType);
+      this.sourceBuffer = this.mediaSource.addSourceBuffer(mimeType);
+      // this.sourceBuffer.addEventListener('update', () => {});
+      // this.sourceBuffer.addEventListener('updatestart', () => {});
 
       this.sourceBuffer.addEventListener('updateend', () => {
         if (this.state.shouldUpdateBuffer) {
@@ -57,23 +57,19 @@ class Player extends Component {
         }
         this.setState({
           isSeeking: false,
-          isBuffering: false,
-          updating: false
+          isBuffering: false
         });
       });
 
-      this.sourceBuffer.addEventListener('updateerror', () => {
-        this.setState({ updating: false });
-      });
+      // this.sourceBuffer.addEventListener('updateerror', () => {});
     });
 
     audioPlayer.addEventListener('timeupdate', () => {
-      const mins = Math.floor(audioPlayer.currentTime / 60);
-      const secs = Math.floor(audioPlayer.currentTime % 60);
-      const percentComplete =
-        (audioPlayer.currentTime / this.mediaSource.duration) * 100;
-      const remainingTime =
-        this.mediaSource.duration - audioPlayer.currentTime || 0;
+      const { currentTime } = audioPlayer;
+      const mins = Math.floor(currentTime / 60);
+      const secs = Math.floor(currentTime % 60);
+      const percentComplete = (currentTime / this.mediaSource.duration) * 100;
+      const remainingTime = this.mediaSource.duration - currentTime || 0;
       const minsLeft = Math.floor(remainingTime / 60);
       const secsLeft = Math.floor(remainingTime % 60);
 
@@ -88,9 +84,9 @@ class Player extends Component {
       let needsBuffer = false;
       for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
         if (
-          audioPlayer.currentTime > this.sourceBuffer.buffered.start(i) &&
-          audioPlayer.currentTime < this.sourceBuffer.buffered.end(i) &&
-          audioPlayer.currentTime > this.sourceBuffer.buffered.end(i) - 5 &&
+          currentTime > this.sourceBuffer.buffered.start(i) &&
+          currentTime < this.sourceBuffer.buffered.end(i) &&
+          currentTime > this.sourceBuffer.buffered.end(i) - 5 &&
           !this.state.bufferEnd &&
           !this.state.isBuffering &&
           !this.state.isSeeking
@@ -128,11 +124,12 @@ class Player extends Component {
     });
 
     audioPlayer.addEventListener('seeking', () => {
+      const { currentTime } = audioPlayer;
       let isBuffered;
       for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
         if (
-          audioPlayer.currentTime >= this.sourceBuffer.buffered.start(i) &&
-          audioPlayer.currentTime < this.sourceBuffer.buffered.end(i)
+          currentTime >= this.sourceBuffer.buffered.start(i) &&
+          currentTime < this.sourceBuffer.buffered.end(i)
         ) {
           isBuffered = true;
           break;
@@ -142,7 +139,7 @@ class Player extends Component {
 
       if (!isBuffered && !this.newTrack) {
         this.setState({ bufferEnd: false });
-        this.currentSegment = Math.floor(audioPlayer.currentTime / 15);
+        this.currentSegment = Math.floor(currentTime / 15);
         this.setState(
           { ready: false, isSeeking: true, isBuffering: true },
           () => {
@@ -158,14 +155,13 @@ class Player extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.player.trackId !== this.props.player.trackId) {
-      const audioPlayer = document.getElementById('player');
-      audioPlayer.pause();
+      this.audioPlayer.current.pause();
       this.queue.length = 0;
       this.newTrack = true;
       this.emptySourceBuffer();
-      this.resetPlayer();
+      this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
       this.fetchAudioRange(buffer => {
-        audioPlayer.currentTime = 0;
+        this.audioPlayer.current.currentTime = 0;
         this.handleUpdateBuffer();
         this.handleAppendBuffer(buffer);
         this.handlePlay();
@@ -177,10 +173,6 @@ class Player extends Component {
     if (!this.sourceBuffer.updating && this.mediaSource.readyState === 'open') {
       this.mediaSource.endOfStream();
     }
-  }
-
-  resetPlayer() {
-    this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
   }
 
   emptySourceBuffer() {
@@ -287,14 +279,12 @@ class Player extends Component {
   };
 
   handlePause = () => {
-    const audioPlayer = document.getElementById('player');
-    audioPlayer.pause();
+    this.audioPlayer.current.pause();
     this.props.playerPause();
   };
 
   handlePlay = () => {
-    const audioPlayer = document.getElementById('player');
-    const promisePlay = audioPlayer.play();
+    const promisePlay = this.audioPlayer.current.play();
 
     if (promisePlay !== undefined) {
       promisePlay
@@ -303,7 +293,7 @@ class Player extends Component {
         })
         .then(() => {
           if (!this.state.autoStartDisabled) {
-            audioPlayer.play();
+            this.audioPlayer.current.play();
             this.props.playerPlay();
           }
         });
@@ -311,12 +301,11 @@ class Player extends Component {
   };
 
   handleSeek = event => {
-    const audioPlayer = document.getElementById('player');
-    const seekBar = document.getElementById('seek-bar');
     const x = event.clientX;
-    const width = seekBar.clientWidth;
+    const width = this.seekBar.current.clientWidth;
     this.seekPercent = x / width;
-    audioPlayer.currentTime = this.mediaSource.duration * this.seekPercent;
+    this.audioPlayer.current.currentTime =
+      this.mediaSource.duration * this.seekPercent;
   };
 
   hidePlayer = () => {
@@ -344,9 +333,8 @@ class Player extends Component {
 
   stopAudio = () => {
     this.setState({ bufferEnd: false });
-    const audioPlayer = document.getElementById('player');
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    this.audioPlayer.current.pause();
+    this.audioPlayer.current.currentTime = 0;
     this.currentSegment = 0;
     this.props.playerStop();
   };
@@ -402,11 +390,12 @@ class Player extends Component {
 
     return (
       <div className={playerClassNames}>
-        <audio id="player" />
+        <audio id="player" ref={this.audioPlayer} />
         <div
           className="seek-bar"
           id="seek-bar"
           onClick={this.handleSeek}
+          ref={this.seekBar}
           role="button"
           tabIndex="-1"
         >
