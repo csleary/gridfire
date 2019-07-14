@@ -36,10 +36,10 @@ function UserRelease(props) {
       const releaseName =
         (releaseTitle && `\u2018${releaseTitle}\u2019`) || 'untitled release';
 
-      toastWarning(`Deleting \u2018${releaseName}\u2019…`);
+      toastWarning(`Deleting ${releaseName}…`);
 
       deleteRelease(releaseId, () => {
-        toastSuccess(`Successfully deleted \u2018${releaseName}\u2019.`);
+        toastSuccess(`Successfully deleted ${releaseName}.`);
       });
     });
   };

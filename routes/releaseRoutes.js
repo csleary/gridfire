@@ -312,7 +312,7 @@ module.exports = app => {
       track.trackTitle = trackList[index].trackTitle;
       track.hasAudio = trackList[index].hasAudio;
     });
-    const updateRelease = await release.save();
+    const updatedRelease = await release.save();
 
     // Add artist to Artist model.
     const artist = await Artist.findOneAndUpdate(
@@ -323,9 +323,9 @@ module.exports = app => {
 
     // Add release ID to artist if it doesn't already exist.
     if (!artist.releases.some(id => id.equals(release._id))) {
-      artist
-        .updateOne({ $push: { releases: release._id } })
-        .exec(() => release.updateOne({ artist: artist._id }).exec());
+      artist.releases.push(release._id);
+      artist.save();
+      release.updateOne({ artist: artist._id });
     }
 
     // Add artist ID to user account.
@@ -334,7 +334,7 @@ module.exports = app => {
       { $push: { artists: artist._id } }
     )
       .exec()
-      .then(res.send(updateRelease))
+      .then(res.send(updatedRelease))
       .catch(error => res.status(500).send({ error: error.message }));
   });
 };
