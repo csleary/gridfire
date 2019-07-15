@@ -1,12 +1,11 @@
 import axios from 'axios';
+import { toastError, toastSuccess } from './index';
 import {
   ADD_TRACK,
   DELETE_TRACK_START,
   DELETE_TRACK_COMPLETE,
   MOVE_TRACK,
   PLAY_TRACK,
-  TOAST_ERROR,
-  TOAST_SUCCESS,
   TRANSCODING_START,
   TRANSCODING_COMPLETE,
   UPLOAD_AUDIO_PROGRESS
@@ -18,7 +17,7 @@ export const addTrack = (releaseId, callback) => async dispatch => {
     dispatch({ type: ADD_TRACK, payload: res.data });
     callback(res.data);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -29,7 +28,7 @@ export const deleteTrack = (releaseId, trackId, callback) => async dispatch => {
     dispatch({ type: DELETE_TRACK_COMPLETE, payload: res.data, trackId });
     callback(res.data);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -44,7 +43,7 @@ export const moveTrack = (
     dispatch({ type: MOVE_TRACK, payload: res.data });
     callback(res.data);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
     return { error: e.response.data.error };
   }
 };
@@ -64,7 +63,7 @@ export const playTrack = (
       trackTitle
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e });
+    toastError(e)(dispatch);
   }
 };
 
@@ -82,7 +81,7 @@ export const transcodeAudio = (
         trackName
       }
     });
-    dispatch({ type: TOAST_SUCCESS, text: res.data.success });
+    toastSuccess(res.data.success)(dispatch);
     dispatch({
       type: TRANSCODING_COMPLETE,
       trackId,
@@ -90,10 +89,7 @@ export const transcodeAudio = (
     });
     return res;
   } catch (e) {
-    dispatch({
-      type: TOAST_ERROR,
-      text: `Transcoding error: ${e.response.data.error}`
-    });
+    toastError(`Transcoding error: ${e.response.data.error}`)(dispatch);
     dispatch({ type: TRANSCODING_COMPLETE, trackId });
   }
 };
@@ -122,7 +118,7 @@ export const uploadAudio = (
     dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error);
     dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
   }
 };

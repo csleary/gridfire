@@ -22,10 +22,9 @@ class RenderRecaptcha extends React.Component {
           }}
           sitekey={sitekey}
         />
-        {touched &&
-          error && (
-            <div className="invalid-feedback">{touched && error && error}</div>
-          )}
+        {touched && error && (
+          <div className="invalid-feedback">{touched && error && error}</div>
+        )}
       </div>
     );
   }

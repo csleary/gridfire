@@ -1,12 +1,12 @@
 import axios from 'axios';
+import { toastError } from './index';
 import {
   ADD_NEM_ADDRESS,
   FETCH_INCOMING_TRANSACTIONS,
   FETCH_INCOMING_TRANSACTIONS_ERROR,
   FETCH_INCOMING_TRANSACTIONS_LOADING,
   FETCH_INCOMING_TRANSACTIONS_UPDATING,
-  FETCH_XEM_PRICE,
-  TOAST_ERROR
+  FETCH_XEM_PRICE
 } from './types';
 
 export const addNemAddress = values => async dispatch => {
@@ -15,7 +15,7 @@ export const addNemAddress = values => async dispatch => {
     dispatch({ type: ADD_NEM_ADDRESS, payload: res.data });
     return res.data;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
     return e.response.data;
   }
 };
@@ -25,7 +25,7 @@ export const fetchXemPrice = () => async dispatch => {
     const res = await axios.get('/api/nem/price');
     dispatch({ type: FETCH_XEM_PRICE, payload: res.data });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -56,6 +56,6 @@ export const fetchIncomingTxs = (
       isUpdating: false,
       error: e.response.data.error
     });
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };

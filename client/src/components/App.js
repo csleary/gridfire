@@ -22,7 +22,7 @@ import ResetPassword from './ResetPassword';
 import SelectedRelease from './SelectedRelease';
 import SearchResults from './SearchResults';
 import Support from './Support';
-import Toast from './Toast';
+import ToastList from './ToastList';
 
 class App extends Component {
   constructor(props) {
@@ -78,7 +78,7 @@ class App extends Component {
           <PrivateRoute path="/dashboard" component={Dashboard} />
           <Footer user={user} />
           <Player />
-          <Toast />
+          <ToastList />
         </div>
       </BrowserRouter>
     );

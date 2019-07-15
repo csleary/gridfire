@@ -295,6 +295,8 @@ module.exports = app => {
 
     const release = await Release.findById(releaseId).select('-__v');
 
+    // Unfortunately we must be explicit with document updates as non-form items such as track times will be overwritten due to shallow object merging.
+
     release.artistName = artistName;
     release.catNumber = catNumber;
     release.credits = credits;

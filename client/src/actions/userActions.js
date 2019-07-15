@@ -1,12 +1,11 @@
 import axios from 'axios';
+import { toastError, toastSuccess } from './index';
 import {
   FETCH_USER,
   FETCH_USER_CREDIT,
   FETCH_USER_RELEASE,
   FETCH_USER_RELEASES,
-  LOG_OUT,
-  TOAST_ERROR,
-  TOAST_SUCCESS
+  LOG_OUT
 } from './types';
 
 export const fetchUser = () => async dispatch => {
@@ -19,7 +18,7 @@ export const fetchUser = () => async dispatch => {
     });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -29,7 +28,7 @@ export const fetchUserCredit = () => async dispatch => {
     dispatch({ type: FETCH_USER_CREDIT, payload: res.data.credit });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -50,15 +49,15 @@ export const logOut = callback => async dispatch => {
     dispatch({ type: LOG_OUT });
     callback(res);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
 export const passwordUpdate = values => async dispatch => {
   try {
     const res = await axios.post('/api/auth/update', values);
-    dispatch({ type: TOAST_SUCCESS, text: res.data.success });
+    toastSuccess(res.data.success)(dispatch);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
