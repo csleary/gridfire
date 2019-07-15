@@ -15,7 +15,7 @@ const appReducer = combineReducers({
   player: playerReducer,
   releases: releaseReducer,
   salesData: salesReducer,
-  toast: toastReducer,
+  toastList: toastReducer,
   transactions: txReducer,
   user: authReducer
 });

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import uuidv4 from 'uuid/v4';
 import {
   FETCH_ARTIST_CATALOGUE,
   FETCH_CATALOGUE,
@@ -37,7 +38,7 @@ export const fetchAudioUploadUrl = (
       params: { releaseId, trackId, type }
     });
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -75,7 +76,7 @@ export const fetchCollection = () => async dispatch => {
     dispatch({ type: FETCH_COLLECTION, payload: res.data });
     return res;
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -84,7 +85,7 @@ export const checkFormatMp3 = (token, callback) => async dispatch => {
     const res = await axios.get(`/api/download/${token}/check`);
     callback(res);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -93,7 +94,7 @@ export const fetchDownloadToken = (releaseId, callback) => async dispatch => {
     const res = await axios.post('/api/download', { releaseId });
     callback(res.headers.authorization);
   } catch (e) {
-    dispatch({ type: TOAST_ERROR, text: e.response.data.error });
+    toastError(e.response.data.error)(dispatch);
   }
 };
 
@@ -103,18 +104,18 @@ export const fetchSales = () => async dispatch => {
   return res.data;
 };
 
-export const toastInfo = text => dispatch => {
-  dispatch({ type: TOAST_INFO, text });
+export const toastInfo = message => dispatch => {
+  dispatch({ type: TOAST_INFO, key: uuidv4(), message });
 };
 
-export const toastError = text => dispatch => {
-  dispatch({ type: TOAST_ERROR, text });
+export const toastError = message => dispatch => {
+  dispatch({ type: TOAST_ERROR, key: uuidv4(), message });
 };
 
-export const toastSuccess = text => dispatch => {
-  dispatch({ type: TOAST_SUCCESS, text });
+export const toastSuccess = message => dispatch => {
+  dispatch({ type: TOAST_SUCCESS, key: uuidv4(), message });
 };
 
-export const toastWarning = text => dispatch => {
-  dispatch({ type: TOAST_WARNING, text });
+export const toastWarning = message => dispatch => {
+  dispatch({ type: TOAST_WARNING, key: uuidv4(), message });
 };

@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 const sortNumbers = (array, property) => {
   const sortFunction = (a, b) => {
     if (a[property] < b[property]) return -1;
@@ -16,4 +18,12 @@ const sortStrings = (array, property) => {
   return array.sort(sortFunction);
 };
 
-export { sortNumbers, sortStrings };
+const usePrevious = value => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+
+export { sortNumbers, sortStrings, usePrevious };

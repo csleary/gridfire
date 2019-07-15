@@ -5,39 +5,20 @@ import {
   TOAST_WARNING
 } from '../actions/types';
 
-const initialState = {
-  text: '',
-  type: ''
-};
+const initialState = [{ key: '', message: '', type: '' }];
 
 export default (state = initialState, action) => {
-  const { type, text } = action;
+  const { key, message, type } = action;
   switch (type) {
-    case TOAST_ERROR:
-      return {
-        ...state,
-        type: 'error',
-        text
-      };
-    case TOAST_INFO:
-      return {
-        ...state,
-        type: 'info',
-        text
-      };
-    case TOAST_SUCCESS:
-      return {
-        ...state,
-        type: 'success',
-        text
-      };
-    case TOAST_WARNING:
-      return {
-        ...state,
-        type: 'warning',
-        text
-      };
-    default:
-      return state;
+  case TOAST_ERROR:
+    return [{ key, message, type: 'error' }, ...state];
+  case TOAST_INFO:
+    return [{ key, message, type: 'info' }, ...state];
+  case TOAST_SUCCESS:
+    return [{ key, message, type: 'success' }, ...state];
+  case TOAST_WARNING:
+    return [{ key, message, type: 'warning' }, ...state];
+  default:
+    return state;
   }
 };

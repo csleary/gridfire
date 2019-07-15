@@ -1,46 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
-
 import '../style/toast.css';
 
-let timer = null;
+const Toast = props => {
+  const { isVisible, toast } = props;
+  const { message, type } = toast;
 
-class Toast extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: ''
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.clearTimer();
-    this.setState({
-      isVisible: true,
-      text: nextProps.toast.text
-    });
-    this.setTimer();
-  }
-
-  componentWillUnmount() {
-    clearTimeout(timer);
-  }
-
-  setTimer() {
-    timer = setTimeout(() => {
-      this.setState({
-        isVisible: false
-      });
-    }, 5000);
-  }
-
-  clearTimer() {
-    clearTimeout(timer);
-  }
-
-  toastIcon(type) {
+  const toastIcon = type => {
     switch (type) {
     case 'error':
       return 'exclamation-circle';
@@ -53,31 +21,27 @@ class Toast extends Component {
     default:
       return 'info-circle';
     }
-  }
+  };
 
-  render() {
-    const { type } = this.props.toast;
-    const icon = this.toastIcon(type);
-    const classes = classNames('toast', 'alert', {
-      'alert-danger': type === 'error',
-      'alert-info': type === 'info',
-      'alert-success': type === 'success',
-      'alert-warning': type === 'warning',
-      'toast-show': this.state.isVisible,
-      'toast-fade': !this.state.isVisible
-    });
+  const classes = classNames('toast', 'alert', {
+    'alert-danger': type === 'error',
+    'alert-info': type === 'info',
+    'alert-success': type === 'success',
+    'alert-warning': type === 'warning',
+    'toast-show': isVisible,
+    'toast-fade': !isVisible
+  });
 
-    return (
-      <div className={classes}>
-        <FontAwesome name={icon} className="mr-2" />
-        {this.state.text}
-      </div>
-    );
-  }
-}
+  return (
+    <div className={classes}>
+      <FontAwesome name={toastIcon()} className="mr-2" />
+      {message}
+    </div>
+  );
+};
 
 const mapStateToProps = state => ({
-  toast: state.toast
+  toastList: state.toastList
 });
 
 export default connect(mapStateToProps)(Toast);
