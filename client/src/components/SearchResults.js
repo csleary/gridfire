@@ -1,46 +1,34 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { fetchRelease, playTrack, toastInfo } from '../actions';
 import '../style/home.css';
 
-class SearchResults extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: false
-    };
-  }
+const SearchResults = props => {
+  const { searchQuery, searchResults } = this.props;
+  const number = searchResults.length;
 
-  componentDidMount() {}
+  const renderReleases = searchResults.map(release => (
+    <RenderRelease
+      fetchRelease={this.props.fetchRelease}
+      key={release._id}
+      playTrack={this.props.playTrack}
+      release={release}
+      toastInfo={this.props.toastInfo}
+    />
+  ));
 
-  setLoading() {
-    this.setState({ isLoading: true });
-  }
-
-  renderSearchResults() {
-    const { searchQuery, searchResults } = this.props;
-    const number = searchResults.length;
-
-    const renderReleases = searchResults.map(release => (
-      <RenderRelease
-        fetchRelease={this.props.fetchRelease}
-        key={release._id}
-        playTrack={this.props.playTrack}
-        release={release}
-        toastInfo={this.props.toastInfo}
-      />
-    ));
-
+  const renderSearchResults = () => {
     if (searchQuery.length) {
       return (
-        <Fragment>
+        <>
           <h3 className="text-center mt-4">
-            {number} result{number === 1 ? '' : 's'} for &lsquo;{searchQuery}&rsquo;.
+            {number} result{number === 1 ? '' : 's'} for &lsquo;{searchQuery}
+            &rsquo;.
           </h3>
           <div className="front-page">{renderReleases}</div>
-        </Fragment>
+        </>
       );
     }
 
@@ -49,28 +37,24 @@ class SearchResults extends Component {
         Search for releases by artist, titles and tags.
       </h3>
     );
-  }
+  };
 
-  render() {
-    const { searchQuery } = this.props;
-
-    if (this.props.isSearching) {
-      return (
-        <Spinner>
-          <h3 className="mt-4">Searching for &lsquo;{searchQuery}&rsquo;…</h3>
-        </Spinner>
-      );
-    }
-
+  if (props.isSearching) {
     return (
-      <main className="container-fluid">
-        <div className="row">
-          <div className="col py-3">{this.renderSearchResults()}</div>
-        </div>
-      </main>
+      <Spinner>
+        <h3 className="mt-4">Searching for &lsquo;{searchQuery}&rsquo;…</h3>
+      </Spinner>
     );
   }
-}
+
+  return (
+    <main className="container-fluid">
+      <div className="row">
+        <div className="col py-3">{renderSearchResults()}</div>
+      </div>
+    </main>
+  );
+};
 
 function mapStateToProps(state) {
   return {

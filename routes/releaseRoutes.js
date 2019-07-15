@@ -327,7 +327,7 @@ module.exports = app => {
     if (!artist.releases.some(id => id.equals(release._id))) {
       artist.releases.push(release._id);
       artist.save();
-      release.updateOne({ artist: artist._id });
+      release.updateOne({ artist: artist._id }).exec();
     }
 
     // Add artist ID to user account.

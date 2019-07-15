@@ -1,13 +1,13 @@
 import React from 'react';
 import '../../style/progressBar.css';
 
-const ProgressBar = props => {
-  if (props.willDisplay) {
+const ProgressBar = ({ percentComplete, willDisplay }) => {
+  if (willDisplay) {
     return (
       <div
         className="progress-bar"
         style={{
-          width: `${props.percentComplete}%`
+          width: `${percentComplete}%`
         }}
       />
     );

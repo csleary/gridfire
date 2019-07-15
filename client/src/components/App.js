@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { BrowserRouter, Route } from 'react-router-dom';
 import 'lazysizes';
@@ -24,66 +24,57 @@ import SearchResults from './SearchResults';
 import Support from './Support';
 import ToastList from './ToastList';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: true
-    };
-  }
+const App = ({ fetchUser, user }) => {
+  const [, setLoading] = useState(true);
 
-  componentDidMount() {
+  useEffect(() => {
     window.scrollTo(0, 0);
-    this.props.fetchUser().then(() => this.setState({ isLoading: false }));
-  }
+    fetchUser().then(() => setLoading(false));
+  }, [fetchUser]);
 
-  render() {
-    const { user } = this.props;
-
-    return (
-      <BrowserRouter>
-        <div className="app-wrapper">
-          <Header />
-          <NavBar />
-          <Route exact path="/" component={Home} />
-          <Route path="/oauth/:service" component={Home} />
-          <Route path="/register" component={Register} />
-          <Route path="/login" component={Login} />
-          <Route exact path="/reset" component={ForgotPassword} />
-          <Route exact path="/reset/:token" component={ResetPassword} />
-          <Route path="/search" component={SearchResults} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/support" component={Support} />
-          <PrivateRoute
-            strict
-            exact
-            path="/release/add/"
-            component={EditRelease}
-          />
-          <PrivateRoute
-            strict
-            exact
-            path="/release/edit/:releaseId"
-            component={EditRelease}
-          />
-          <Route
-            strict
-            exact
-            path="/release/:releaseId"
-            component={SelectedRelease}
-          />
-          <Route path="/artist/:artist" component={ArtistPage} />
-          <PrivateRoute path="/payment/:releaseId" component={Payment} />
-          <PrivateRoute path="/dashboard" component={Dashboard} />
-          <Footer user={user} />
-          <Player />
-          <ToastList />
-        </div>
-      </BrowserRouter>
-    );
-  }
-}
+  return (
+    <BrowserRouter>
+      <div className="app-wrapper">
+        <Header />
+        <NavBar />
+        <Route exact path="/" component={Home} />
+        <Route path="/oauth/:service" component={Home} />
+        <Route path="/register" component={Register} />
+        <Route path="/login" component={Login} />
+        <Route exact path="/reset" component={ForgotPassword} />
+        <Route exact path="/reset/:token" component={ResetPassword} />
+        <Route path="/search" component={SearchResults} />
+        <Route path="/about" component={About} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/support" component={Support} />
+        <PrivateRoute
+          strict
+          exact
+          path="/release/add/"
+          component={EditRelease}
+        />
+        <PrivateRoute
+          strict
+          exact
+          path="/release/edit/:releaseId"
+          component={EditRelease}
+        />
+        <Route
+          strict
+          exact
+          path="/release/:releaseId"
+          component={SelectedRelease}
+        />
+        <Route path="/artist/:artist" component={ArtistPage} />
+        <PrivateRoute path="/payment/:releaseId" component={Payment} />
+        <PrivateRoute path="/dashboard" component={Dashboard} />
+        <Footer user={user} />
+        <Player />
+        <ToastList />
+      </div>
+    </BrowserRouter>
+  );
+};
 
 function mapStateToProps(state) {
   return {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import '../style/toast.css';
@@ -40,8 +39,4 @@ const Toast = props => {
   );
 };
 
-const mapStateToProps = state => ({
-  toastList: state.toastList
-});
-
-export default connect(mapStateToProps)(Toast);
+export default Toast;

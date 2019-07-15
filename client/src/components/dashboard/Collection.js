@@ -15,15 +15,12 @@ function Collection(props) {
   const [isLoading, setLoading] = useState(false);
   const { collection, fetchCollection } = props;
 
-  useEffect(
-    () => {
-      if (!collection.length) {
-        setLoading(true);
-      }
-      fetchCollection().then(() => setLoading(false));
-    },
-    [fetchCollection, collection.length]
-  );
+  useEffect(() => {
+    if (!collection.length) {
+      setLoading(true);
+    }
+    fetchCollection().then(() => setLoading(false));
+  }, [fetchCollection, collection.length]);
 
   const renderReleases = collection.map(release => (
     <RenderRelease
