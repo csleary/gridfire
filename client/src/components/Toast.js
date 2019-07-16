@@ -3,9 +3,8 @@ import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import '../style/toast.css';
 
-const Toast = props => {
-  const { isVisible, toast } = props;
-  const { message, type } = toast;
+const Toast = ({ toast }) => {
+  const { message, type, visible } = toast;
 
   const toastIcon = type => {
     switch (type) {
@@ -27,8 +26,8 @@ const Toast = props => {
     'alert-info': type === 'info',
     'alert-success': type === 'success',
     'alert-warning': type === 'warning',
-    'toast-show': isVisible,
-    'toast-fade': !isVisible
+    'toast-show': visible,
+    'toast-fade': !visible
   });
 
   return (
