@@ -6,6 +6,7 @@ import {
   FETCH_COLLECTION,
   FETCH_SALES,
   TOAST_ERROR,
+  TOAST_HIDE,
   TOAST_INFO,
   TOAST_SUCCESS,
   TOAST_WARNING
@@ -105,17 +106,25 @@ export const fetchSales = () => async dispatch => {
 };
 
 export const toastInfo = message => dispatch => {
-  dispatch({ type: TOAST_INFO, key: uuidv4(), message });
+  const key = uuidv4();
+  dispatch({ type: TOAST_INFO, key, message });
+  setTimeout(() => dispatch({ type: TOAST_HIDE, key }), 5000);
 };
 
 export const toastError = message => dispatch => {
-  dispatch({ type: TOAST_ERROR, key: uuidv4(), message });
+  const key = uuidv4();
+  dispatch({ type: TOAST_ERROR, key, message });
+  setTimeout(() => dispatch({ type: TOAST_HIDE, key }), 5000);
 };
 
 export const toastSuccess = message => dispatch => {
-  dispatch({ type: TOAST_SUCCESS, key: uuidv4(), message });
+  const key = uuidv4();
+  dispatch({ type: TOAST_SUCCESS, key, message });
+  setTimeout(() => dispatch({ type: TOAST_HIDE, key }), 5000);
 };
 
 export const toastWarning = message => dispatch => {
-  dispatch({ type: TOAST_WARNING, key: uuidv4(), message });
+  const key = uuidv4();
+  dispatch({ type: TOAST_WARNING, key, message });
+  setTimeout(() => dispatch({ type: TOAST_HIDE, key }), 5000);
 };

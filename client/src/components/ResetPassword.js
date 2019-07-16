@@ -142,16 +142,12 @@ class ResetPassword extends Component {
                 type="password"
                 validate={[this.required, this.isMatched]}
               />
-              {response &&
-                response.error && (
-                  <div
-                    className={`alert ${className} text-center`}
-                    role="alert"
-                  >
-                    <FontAwesome name="bomb" className="mr-2" />
-                    {response.error}
-                  </div>
-                )}
+              {response && response.error && (
+                <div className={`alert ${className} text-center`} role="alert">
+                  <FontAwesome name="bomb" className="mr-2" />
+                  {response.error}
+                </div>
+              )}
               <div className="d-flex justify-content-center">
                 <button
                   className="btn btn-outline-primary"

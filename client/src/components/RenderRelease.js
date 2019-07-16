@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import { CLOUD_URL } from '../index';
@@ -59,7 +59,7 @@ const RenderRelease = props => {
             <FontAwesome className="info m-auto" name="info-circle" />
           </Link>
           {variation === 'collection' && (
-            <Fragment>
+            <>
               <button
                 onClick={() => {
                   props.fetchDownloadToken(releaseId, downloadToken => {
@@ -92,7 +92,7 @@ const RenderRelease = props => {
                 <FontAwesome name="download" />
                 <div className="label text-center">FLAC</div>
               </button>
-            </Fragment>
+            </>
           )}
         </div>
         <Link

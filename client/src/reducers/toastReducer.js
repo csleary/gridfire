@@ -1,23 +1,28 @@
 import {
   TOAST_ERROR,
+  TOAST_HIDE,
   TOAST_INFO,
   TOAST_SUCCESS,
   TOAST_WARNING
 } from '../actions/types';
 
-const initialState = [{ key: '', message: '', type: '' }];
+const initialState = [];
 
 export default (state = initialState, action) => {
-  const { key, message, type } = action;
-  switch (type) {
+  switch (action.type) {
+  case TOAST_HIDE:
+    return state.map(toast => {
+      if (toast.key !== action.key) return toast;
+      return { ...toast, visible: false };
+    });
   case TOAST_ERROR:
-    return [{ key, message, type: 'error' }, ...state];
+    return [...state, { ...action, type: 'error', visible: true }];
   case TOAST_INFO:
-    return [{ key, message, type: 'info' }, ...state];
+    return [...state, { ...action, type: 'info', visible: true }];
   case TOAST_SUCCESS:
-    return [{ key, message, type: 'success' }, ...state];
+    return [...state, { ...action, type: 'success', visible: true }];
   case TOAST_WARNING:
-    return [{ key, message, type: 'warning' }, ...state];
+    return [...state, { ...action, type: 'warning', visible: true }];
   default:
     return state;
   }
