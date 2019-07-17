@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { Fragment } from 'react';
+import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import ArtworkDropzone from './ArtworkDropzone';
 
@@ -30,7 +30,7 @@ const RenderArtwork = props => {
   };
 
   return (
-    <Fragment>
+    <>
       <h3 className="text-center">Artwork</h3>
       {coverArtPreview && (
         <div className="cover-art">
@@ -59,7 +59,7 @@ const RenderArtwork = props => {
         onDrop={props.onDropArt}
         percentComplete={props.artworkUploadProgress}
       />
-    </Fragment>
+    </>
   );
 };
 export default RenderArtwork;

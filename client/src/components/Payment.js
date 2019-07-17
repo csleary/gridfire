@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
@@ -150,7 +150,7 @@ class Payment extends Component {
                   priceInXem={priceInXem}
                 />
               ) : (
-                <Fragment>
+                <>
                   <div className="qrcode text-center">
                     <QRCode
                       paymentAddress={paymentAddress.replace(/-/g, '')}
@@ -162,7 +162,7 @@ class Payment extends Component {
                     Please scan the QR code with a NEM mobile wallet app to make
                     your payment.
                   </p>
-                </Fragment>
+                </>
               )}
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import AudioDropzone from './AudioDropzone';
 
@@ -22,7 +22,7 @@ const RenderTrackField = props => {
   });
 
   return (
-    <Fragment>
+    <>
       <div className="d-flex align-items-center">
         <label htmlFor={name}>{label}</label>
         <input
@@ -47,7 +47,7 @@ const RenderTrackField = props => {
         />
       </div>
       {error && <div className="invalid-feedback">{touched && error}</div>}
-    </Fragment>
+    </>
   );
 };
 

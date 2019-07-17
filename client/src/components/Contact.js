@@ -24,6 +24,7 @@ class Contact extends React.Component {
         {type !== 'textarea' ? (
           <input
             {...input}
+            autoFocus
             className="form-control"
             name={name}
             placeholder={placeholder}
@@ -87,11 +88,11 @@ class Contact extends React.Component {
                 <Field
                   component={RenderRecaptcha}
                   classNames="justify-content-end"
+                  forwardRef
                   name="recaptcha"
                   ref={el => {
                     this.captcha = el;
                   }}
-                  withRef
                 />
                 <div className="d-flex justify-content-end">
                   <button

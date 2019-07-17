@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import moment from 'moment';
 import Artwork from './Artwork';
@@ -123,15 +123,15 @@ function UserRelease(props) {
             }`}
           >
             {published ? (
-              <Fragment>
+              <>
                 <FontAwesome name="eye-slash" className="mr-2" />
                 Unpublish
-              </Fragment>
+              </>
             ) : (
-              <Fragment>
+              <>
                 <FontAwesome name="eye" className="mr-2" />
                 Publish
-              </Fragment>
+              </>
             )}
           </button>
           <button

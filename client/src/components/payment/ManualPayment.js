@@ -1,19 +1,20 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
+
   const copyPrice = parseFloat(priceInXem) ? (
-    <Fragment>
+    <>
       of <span className="bold red">{priceInXem} XEM</span>
-    </Fragment>
+    </>
   ) : (
     '(name your price!)'
   );
 
   return (
-    <Fragment>
+    <>
       <h4 className="text-center mb-4">
         <span className="red">1.</span> Enter Your Payment ID as a Message
       </h4>
@@ -54,7 +55,7 @@ const ManualPayment = props => {
         network, they will be totalled before presenting you with a download
         button (assuming your payments have met the price!).
       </p>
-    </Fragment>
+    </>
   );
 };
 

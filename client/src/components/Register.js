@@ -106,12 +106,12 @@ class Register extends Component {
                 <Field
                   classNames="justify-content-end"
                   component={RenderRecaptcha}
+                  forwardRef
                   name="recaptcha"
                   ref={el => {
                     this.captcha = el;
                   }}
                   validate={this.required}
-                  withRef
                 />
                 <div className="d-flex justify-content-end">
                   <button
