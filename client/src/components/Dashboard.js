@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Route } from 'react-router-dom';
 import Collection from './dashboard/Collection';
 import NemAddress from './dashboard/NemAddress';
@@ -8,7 +8,7 @@ import '../style/dashboard.css';
 
 function Dashboard(props) {
   return (
-    <Fragment>
+    <>
       <Route
         exact
         path={`${props.match.path}/collection`}
@@ -25,7 +25,7 @@ function Dashboard(props) {
         component={PasswordUpdate}
       />
       <Route exact path={props.match.path} component={UserReleases} />
-    </Fragment>
+    </>
   );
 }
 

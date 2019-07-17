@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
@@ -171,25 +171,25 @@ class SelectedRelease extends Component {
   renderPurchaseButton() {
     if (!this.props.release.price) {
       return (
-        <Fragment>
+        <>
           <FontAwesome name="qrcode" className="mr-2" />
           Name Your Price
-        </Fragment>
+        </>
       );
     }
     if (this.state.inCollection) {
       return (
-        <Fragment>
+        <>
           <FontAwesome name="check-circle" className="mr-2" />
           Transactions
-        </Fragment>
+        </>
       );
     }
     return (
-      <Fragment>
+      <>
         <FontAwesome name="qrcode" className="mr-2" />
         Purchase
-      </Fragment>
+      </>
     );
   }
 
@@ -269,7 +269,7 @@ class SelectedRelease extends Component {
             <h2 className="release-title text-center ibm-type-italic">
               {releaseTitle}
               {this.state.inCollection && (
-                <Fragment>
+                <>
                   <div className="in-collection-corner" />
                   <Link to={'/dashboard/collection'}>
                     <FontAwesome
@@ -278,7 +278,7 @@ class SelectedRelease extends Component {
                       title="This release is in your collection."
                     />
                   </Link>
-                </Fragment>
+                </>
               )}
             </h2>
             <h4 className="artist-name text-center">
@@ -311,37 +311,37 @@ class SelectedRelease extends Component {
               </h6>
             )}
             {info && (
-              <Fragment>
+              <>
                 <h6 className="red mt-4">{info && 'Info'}</h6>
                 <p className="info">{info}</p>
-              </Fragment>
+              </>
             )}
             {credits && (
-              <Fragment>
+              <>
                 <h6 className="red mt-4">{credits && 'Credits'}</h6>
                 <p className="credits">{credits}</p>
-              </Fragment>
+              </>
             )}
             {(cLine || pLine) && (
               <p className="copyright red">
                 {cLine && (
-                  <Fragment>
+                  <>
                     &copy; {cLine.year} {cLine.owner}
-                  </Fragment>
+                  </>
                 )}
                 {cLine && pLine && <br />}
                 {pLine && (
-                  <Fragment>
+                  <>
                     &#8471; {pLine.year} {pLine.owner}
-                  </Fragment>
+                  </>
                 )}
               </p>
             )}
             {releaseTags.length > 0 && (
-              <Fragment>
+              <>
                 <h6 className="red mt-4 mb-3">Tags</h6>
                 <div className="tags">{releaseTags}</div>
-              </Fragment>
+              </>
             )}
           </div>
         </div>

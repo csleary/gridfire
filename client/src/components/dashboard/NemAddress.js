@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Field, formValueSelector, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
@@ -27,14 +27,11 @@ function NemAddress(props) {
     submitting
   } = props;
 
-  useEffect(
-    () => {
-      initialize({
-        nemAddress: nem.utils.format.address(nemAddress)
-      });
-    },
-    [initialize, nemAddress]
-  );
+  useEffect(() => {
+    initialize({
+      nemAddress: nem.utils.format.address(nemAddress)
+    });
+  }, [initialize, nemAddress]);
 
   const addressPrefix =
     process.env.REACT_APP_NEM_NETWORK === 'mainnet'
@@ -61,7 +58,7 @@ function NemAddress(props) {
   const renderVerifyAddressField = () => {
     if (nemAddress && !nemAddressVerified) {
       return (
-        <Fragment>
+        <>
           <Field
             disabled={submitting}
             hint="This address has not yet been verified."
@@ -90,7 +87,7 @@ function NemAddress(props) {
             Once you have verified your account, you can add credit and start
             selling your music!
           </p>
-        </Fragment>
+        </>
       );
     }
   };

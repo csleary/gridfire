@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FontAwesome from 'react-fontawesome';
 import RenderTrack from './RenderTrack';
 
@@ -66,15 +66,12 @@ function RenderTrackList(props) {
     });
   };
 
-  useEffect(
-    () => {
-      if (prevAddingTrack && !addingTrack) {
-        const newIndex = release.trackList.length - 1;
-        change(`trackList[${newIndex}]._id`, release.trackList[newIndex]._id);
-      }
-    },
-    [addingTrack, change, prevAddingTrack, release.trackList]
-  );
+  useEffect(() => {
+    if (prevAddingTrack && !addingTrack) {
+      const newIndex = release.trackList.length - 1;
+      change(`trackList[${newIndex}]._id`, release.trackList[newIndex]._id);
+    }
+  }, [addingTrack, change, prevAddingTrack, release.trackList]);
 
   const handleDragStart = index => {
     setDragOrigin(index);
@@ -109,7 +106,7 @@ function RenderTrackList(props) {
   };
 
   return (
-    <Fragment>
+    <>
       <ul className="list-group track-list">
         {fields.map((name, index) => {
           const track = release.trackList[index];
@@ -158,7 +155,7 @@ function RenderTrackList(props) {
         )}
         {addingTrack ? 'Adding Track…' : 'Add Track'}
       </button>
-    </Fragment>
+    </>
   );
 }
 

@@ -72,7 +72,8 @@ export default (state = initialState, action) => {
     if (state.userReleases) {
       return {
         ...state,
-        userReleases: state.userReleases.filter(release => release._id !== payload
+        userReleases: state.userReleases.filter(
+          release => release._id !== payload
         )
       };
     }

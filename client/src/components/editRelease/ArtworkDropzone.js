@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
@@ -33,38 +33,38 @@ const ArtworkDropzone = props => {
   const Status = () => {
     if (artworkUploading) {
       return (
-        <Fragment>
+        <>
           <FontAwesome name="upload" className="mr-2" />
           Uploading &lsquo;{acceptedFiles[0].path}&rsquo;: {percentComplete}%
-        </Fragment>
+        </>
       );
     }
 
     if (isDragReject) {
       return (
-        <Fragment>
+        <>
           <FontAwesome name="times-circle" className="mr-2" />
           Sorry, we don&lsquo;t accept that file type. Please ensure it is a png
           or jpg image file.
-        </Fragment>
+        </>
       );
     }
 
     if (isDragActive) {
       return (
-        <Fragment>
+        <>
           <FontAwesome name="thumbs-o-up" className="mr-2" />
           Drop to upload!
-        </Fragment>
+        </>
       );
     }
 
     return (
-      <Fragment>
+      <>
         <FontAwesome name="upload" className="mr-2" />
         Drop artwork here, or click to select. Must be under 10MB in size and
         have a minimum dimension of 1000px (will be resized and cropped square).
-      </Fragment>
+      </>
     );
   };
 

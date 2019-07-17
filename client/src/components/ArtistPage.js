@@ -16,6 +16,7 @@ const ArtistPage = props => {
     fetchArtistCatalogue,
     match
   } = props;
+
   const { artist } = match.params;
 
   const [isLoading, setLoading] = useState(true);
