@@ -7,6 +7,7 @@ import {
 } from '../actions/types';
 
 const initialState = [];
+const max = 9;
 
 export default (state = initialState, action) => {
   switch (action.type) {
@@ -16,13 +17,22 @@ export default (state = initialState, action) => {
       return { ...toast, visible: false };
     });
   case TOAST_ERROR:
-    return [...state, { ...action, type: 'error', visible: true }];
+    return [
+      ...state.slice(-max),
+      { ...action, type: 'error', visible: true }
+    ];
   case TOAST_INFO:
-    return [...state, { ...action, type: 'info', visible: true }];
+    return [...state.slice(-max), { ...action, type: 'info', visible: true }];
   case TOAST_SUCCESS:
-    return [...state, { ...action, type: 'success', visible: true }];
+    return [
+      ...state.slice(-max),
+      { ...action, type: 'success', visible: true }
+    ];
   case TOAST_WARNING:
-    return [...state, { ...action, type: 'warning', visible: true }];
+    return [
+      ...state.slice(-max),
+      { ...action, type: 'warning', visible: true }
+    ];
   default:
     return state;
   }
