@@ -15,6 +15,7 @@ import {
   searchReleases,
   toastInfo
 } from '../actions';
+import placeholder from '../placeholder.svg';
 import { CLOUD_URL } from '../index';
 import Spinner from './Spinner';
 import '../style/selectedRelease.css';
@@ -248,7 +249,11 @@ class SelectedRelease extends Component {
                 alt={releaseTitle}
                 className="lazyload img-fluid"
                 data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
-                src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
+              />
+              <img
+                alt={`${artistName} - ${releaseTitle}`}
+                className="placeholder artwork"
+                src={placeholder}
               />
               <div
                 className="cover-artwork-overlay"
