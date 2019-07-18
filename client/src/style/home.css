@@ -9,6 +9,7 @@
 }
 
 img.placeholder {
+  max-width: 100%;
   position: absolute;
   top: 0;
   bottom: 0;
