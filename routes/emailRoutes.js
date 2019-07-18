@@ -5,6 +5,7 @@ const rp = require('request-promise-native');
 const {
   nemp3EmailContact,
   nemp3EmailSupport,
+  dkimKey,
   recaptchaSecretKey,
   smtpHostName,
   smtpPassword,
@@ -17,6 +18,11 @@ const defaults = {
   host: smtpHostName,
   port: 587,
   secure: false,
+  dkim: {
+    domainName: 'nemp3.app',
+    keySelector: 'nodemailer',
+    privateKey: dkimKey
+  },
   auth: {
     user: smtpUsername,
     pass: smtpPassword
@@ -44,8 +50,9 @@ module.exports = app => {
       }
 
       const mailOptions = {
-        from: req.body.email,
+        from: nemp3EmailContact,
         to: nemp3EmailContact,
+        replyTo: req.body.email,
         subject: 'nemp3 Contact Form',
         text: req.body.message
       };
