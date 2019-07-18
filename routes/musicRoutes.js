@@ -39,8 +39,8 @@ module.exports = app => {
     const { catalogueLimit, catalogueSkip } = req.query;
     const releases = await Release.find({ published: true })
       .skip(parseInt(catalogueSkip))
-      .limit(parseInt(catalogueLimit));
-    // .sort('-dateCreated');
+      .limit(parseInt(catalogueLimit))
+      .sort('-dateCreated');
     res.send(releases);
   });
 
