@@ -10,7 +10,8 @@ const {
   AWS_REGION,
   BENTO4_DIR,
   BUCKET_OPT,
-  BUCKET_SRC
+  BUCKET_SRC,
+  TEMP_PATH
 } = require('./constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
@@ -217,7 +218,7 @@ module.exports = app => {
 
         const inputAudio = await s3.listObjectsV2(listParams).promise();
         const { Key } = inputAudio.Contents[0];
-        const outputPath = path.join(__dirname, '/../tmp/');
+        const outputPath = TEMP_PATH;
         const outputAudio = `${outputPath}${trackId}.mp4`;
         const outputMpd = `${outputPath}${trackId}.mpd`;
 
@@ -355,7 +356,7 @@ module.exports = app => {
       try {
         const { releaseId, trackId, type } = req.body;
         const s3 = new aws.S3();
-        const tempPath = `tmp/${trackId}`;
+        const tempPath = path.join(TEMP_PATH, trackId);
 
         if (
           ![

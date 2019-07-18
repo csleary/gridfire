@@ -1,4 +1,5 @@
 const nem = require('nem-sdk').default;
+const path = require('path');
 
 const AWS_REGION = 'us-east-1';
 const BENTO4_DIR = process.env.BENTO4_DIR;
@@ -16,6 +17,7 @@ const NEM_NETWORK_ID =
   process.env.NEM_NETWORK === 'mainnet'
     ? nem.model.network.data.mainnet.id
     : nem.model.network.data.testnet.id;
+const TEMP_PATH = path.join(__dirname, '/../tmp/');
 
 module.exports = {
   AWS_REGION,
@@ -25,5 +27,6 @@ module.exports = {
   BUCKET_OPT,
   BUCKET_SRC,
   NEM_NODE,
-  NEM_NETWORK_ID
+  NEM_NETWORK_ID,
+  TEMP_PATH
 };
