@@ -4,6 +4,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
 const multer = require('multer');
+const path = require('path');
 const sax = require('sax');
 const {
   AWS_REGION,
@@ -216,7 +217,7 @@ module.exports = app => {
 
         const inputAudio = await s3.listObjectsV2(listParams).promise();
         const { Key } = inputAudio.Contents[0];
-        const outputPath = 'tmp/';
+        const outputPath = path.join(__dirname, '/../tmp/');
         const outputAudio = `${outputPath}${trackId}.mp4`;
         const outputMpd = `${outputPath}${trackId}.mpd`;
 
