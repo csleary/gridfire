@@ -9,6 +9,7 @@ function UserRelease(props) {
   const {
     deleteRelease,
     history,
+    numSold,
     publishStatus,
     release: {
       _id,
@@ -67,20 +68,10 @@ function UserRelease(props) {
     });
   };
 
-  const numSold = props.numSold && (
-    <h6>
-      <FontAwesome
-        name="line-chart"
-        className="mr-2 red"
-        title="Number of copies sold."
-      />
-      {props.numSold}
-    </h6>
-  );
-
   return (
     <li className="no-gutters d-flex flex-column release" key={releaseId}>
       <Artwork
+        artistName={artistName}
         artwork={artwork}
         releaseId={releaseId}
         releaseTitle={releaseTitle}
@@ -95,17 +86,34 @@ function UserRelease(props) {
             releaseTitle={releaseTitle}
           />
           <h6>
-            <FontAwesome name="tag" className="mr-2 red" />${price} USD
+            <FontAwesome
+              name="tag"
+              className={`mr-2 ${price ? 'cyan' : 'yellow'}`}
+            />
+            {price ? `$${price} USD` : 'Name your price'}
           </h6>
           <h6>
-            <FontAwesome name="calendar-o" className="mr-2 red" />
+            <FontAwesome name="calendar-o" className="mr-2 cyan" />
             {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
           </h6>
           <h6>
-            <FontAwesome name="file-audio-o" className="mr-2 red" />
+            <FontAwesome
+              name="file-audio-o"
+              className={`mr-2 ${trackList.length ? 'cyan' : 'red'}`}
+            />
             {trackList.length} Tracks
           </h6>
-          {numSold}
+          <h6>
+            <FontAwesome
+              name="line-chart"
+              className={`mr-2 ${numSold ? 'cyan' : 'red'}`}
+              title="Number of copies sold."
+            />
+            {numSold}{' '}
+            {numSold
+              ? `cop${numSold > 1 ? 'ies' : 'y'} sold`
+              : 'None sold just yet'}
+          </h6>
         </div>
         <div className="release-button-group d-flex mt-auto">
           <button

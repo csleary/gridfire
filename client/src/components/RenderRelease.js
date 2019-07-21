@@ -74,11 +74,11 @@ const RenderRelease = props => {
       />
       <img
         alt={`${artistName} - ${releaseTitle}`}
-        className="placeholder artwork"
+        className="placeholder"
         src={placeholder}
       />
       <div
-        className="cover-artwork-overlay"
+        className="artwork-overlay"
         title={`${artistName} - ${releaseTitle}`}
       >
         <Link

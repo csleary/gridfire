@@ -27,11 +27,13 @@
 
 .selected-release .artwork {
   align-self: flex-start;
-  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
 }
 
 .selected-release .artwork img {
   transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 100%;
 }
 
 .selected-release .artwork .lazyload,
@@ -44,12 +46,9 @@
 }
 
 .selected-release .artwork img.placeholder {
-  max-width: 100%;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex: none;
+  margin-left: -100%;
+  width: 100%;
   z-index: -1;
 }
 
@@ -58,16 +57,15 @@
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
   display: flex;
+  flex: none;
   font-size: 4rem;
   justify-content: space-evenly;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  margin-left: -100%;
   opacity: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: hidden;
+  width: 100%;
+  z-index: 1;
 }
 
 .artwork:hover .cover-artwork-overlay {

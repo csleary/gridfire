@@ -377,7 +377,7 @@ module.exports = app => {
           .audioCodec('flac')
           .audioChannels(2)
           .toFormat('flac')
-          .outputOptions('-compression_level 12')
+          .outputOptions('-compression_level 5')
           .on('end', async () => {
             const s3Stream = await fsPromises.readFile(tempPath);
             const Key = `${releaseId}/${trackId}.flac`;
