@@ -116,6 +116,7 @@ form.nem-address {
   right: 1rem;
   top: 1rem;
   width: 2.5rem;
+  z-index: 2;
 }
 
 .user-releases .status-icon {
@@ -134,9 +135,22 @@ form.nem-address {
   vertical-align: text-top;
 }
 
-.user-releases .artwork {
-  background: hsla(233, 10%, 10%, 1);
+.user-releases a.artwork {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.user-releases .artwork img {
+  flex: none;
   width: 100%;
+  z-index: 1;
+}
+
+.user-releases .artwork img.placeholder {
+  flex: none;
+  margin-left: -100%;
+  width: 100%;
+  z-index: 0;
 }
 
 @media (min-width: 576px) {

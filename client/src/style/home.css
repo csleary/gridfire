@@ -5,57 +5,55 @@
 }
 
 .front-page .cover-artwork {
-  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
 }
 
 img.placeholder {
-  max-width: 100%;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex: none;
+  margin-left: -100%;
+  width: 100%;
   z-index: -1;
 }
 
 .front-page .cover-artwork img.artwork {
+  flex: none;
   width: 100%;
 }
 
-.front-page .cover-artwork:hover .cover-artwork-overlay,
-.front-page .cover-artwork:active .cover-artwork-overlay {
+.front-page .cover-artwork:hover .artwork-overlay,
+.front-page .cover-artwork:active .artwork-overlay {
   opacity: 1;
   visibility: visible;
+  z-index: 1;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay {
+.front-page .cover-artwork .artwork-overlay {
   background: rgba(0, 0, 0, 0.5);
   color: hsla(233, 10%, 75%, 1);
   display: flex;
+  flex: none;
   flex-direction: column;
   font-size: 4rem;
   justify-content: space-between;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  margin-left: -100%;
   opacity: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: hidden;
+  width: 100%;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons {
-  flex: 1 0 auto;
-  flex-wrap: wrap;
+.front-page .cover-artwork .artwork-overlay .buttons {
   align-content: stretch;
   align-items: stretch;
   display: flex;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
   justify-content: space-evenly;
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons a,
-.front-page .cover-artwork .cover-artwork-overlay .buttons button {
+.front-page .cover-artwork .artwork-overlay .buttons a,
+.front-page .cover-artwork .artwork-overlay .buttons button {
   backface-visibility: hidden;
   background: none;
   border: none;
@@ -65,39 +63,39 @@ img.placeholder {
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons a:hover,
-.front-page .cover-artwork .cover-artwork-overlay .buttons button:hover {
+.front-page .cover-artwork .artwork-overlay .buttons a:hover,
+.front-page .cover-artwork .artwork-overlay .buttons button:hover {
   /* background: rgba(0, 0, 0, 0.5); */
   cursor: pointer;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons a .fa,
-.front-page .cover-artwork .cover-artwork-overlay .buttons button .fa {
+.front-page .cover-artwork .artwork-overlay .buttons a .fa,
+.front-page .cover-artwork .artwork-overlay .buttons button .fa {
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons a:hover .fa,
-.front-page .cover-artwork .cover-artwork-overlay .buttons button:hover .fa {
+.front-page .cover-artwork .artwork-overlay .buttons a:hover .fa,
+.front-page .cover-artwork .artwork-overlay .buttons button:hover .fa {
   color: #fff;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   transform: scale(1.2);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons button .label {
+.front-page .cover-artwork .artwork-overlay .buttons button .label {
   font-size: 1.2rem;
   font-weight: bold;
   margin-top: -1.2rem;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay .buttons button:hover .label {
+.front-page .cover-artwork .artwork-overlay .buttons button:hover .label {
   color: #fff;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay a.artist-name,
-.front-page .cover-artwork .cover-artwork-overlay a.release-title {
+.front-page .cover-artwork .artwork-overlay a.artist-name,
+.front-page .cover-artwork .artwork-overlay a.release-title {
   color: hsla(233, 10%, 75%, 1);
   flex: 0 1 auto;
   font-size: 1.2rem;
@@ -107,8 +105,8 @@ img.placeholder {
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.front-page .cover-artwork .cover-artwork-overlay a.artist-name:hover,
-.front-page .cover-artwork .cover-artwork-overlay a.release-title:hover {
+.front-page .cover-artwork .artwork-overlay a.artist-name:hover,
+.front-page .cover-artwork .artwork-overlay a.release-title:hover {
   /* background: rgba(0, 0, 0, 0.5); */
   color: #fff;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
@@ -156,7 +154,7 @@ img.placeholder {
     grid-template-columns: repeat(5, 1fr);
   }
 
-  .front-page .cover-artwork .cover-artwork-overlay {
+  .front-page .cover-artwork .artwork-overlay {
     font-size: 5rem;
   }
 }
