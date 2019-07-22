@@ -1,4 +1,3 @@
-import '../../style/home.css';
 import React, { useEffect, useState } from 'react';
 import {
   fetchCollection,
@@ -10,6 +9,7 @@ import {
 import RenderRelease from '../RenderRelease';
 import Spinner from '../Spinner';
 import { connect } from 'react-redux';
+import { frontPage } from '../../style/Home.module.css';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ function Collection(props) {
             Your Collection ({collection.length} release
             {collection.length > 1 ? 's' : ''})
           </h3>
-          <div className="front-page">{renderReleases}</div>
+          <div className={frontPage}>{renderReleases}</div>
         </div>
       </div>
     </main>

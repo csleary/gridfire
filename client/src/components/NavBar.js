@@ -27,12 +27,6 @@ const NavBar = props => {
     };
   });
 
-  const creditClass = classNames('ml-1', 'credit', {
-    cyan: credit > 1,
-    yellow: credit === 1,
-    red: credit === 0
-  });
-
   const handleLogout = () => {
     props.logOut(res => {
       props.history.push('/login');
@@ -59,6 +53,12 @@ const NavBar = props => {
   const brandClass = classNames('nav-link', {
     hide: !showLogo,
     show: showLogo
+  });
+
+  const creditClass = classNames('ml-1', 'credit', {
+    cyan: credit > 1,
+    yellow: credit === 1,
+    red: credit === 0
   });
 
   const renderDashNav = () => {

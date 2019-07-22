@@ -1,58 +1,49 @@
-.selected-release {
+.release {
   flex: 1;
 }
 
-.selected-release .col-artwork {
+.col {
   margin: 0;
   padding: 0;
 }
 
-.selected-release .buy-button {
+.buy {
   margin: 2rem auto;
 }
 
-.selected-release .tracklist-wrapper.columns {
+.columns {
   columns: 2 16rem;
 }
 
-.selected-release .tracklist {
+.trackList {
   color: hsla(233, 10%, 75%, 1);
 }
 
-.selected-release .tracklist .now-playing {
+.nowPlaying {
   animation: now-playing 2s ease 1s infinite alternate;
   color: #18cdca;
   padding-left: 0.5rem;
 }
 
-.selected-release .artwork {
+.artwork {
   align-self: flex-start;
   display: flex;
   flex-flow: row nowrap;
 }
 
-.selected-release .artwork img {
+.image {
   transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 100%;
 }
 
-.selected-release .artwork .lazyload,
-.selected-release .artwork .lazyloading {
-  opacity: 0;
-}
-
-.selected-release .artwork .lazyloaded {
-  opacity: 1;
-}
-
-.selected-release .artwork img.placeholder {
+.placeholder {
   flex: none;
   margin-left: -100%;
   width: 100%;
   z-index: -1;
 }
 
-.artwork .cover-artwork-overlay {
+.overlay {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
@@ -68,23 +59,23 @@
   z-index: 1;
 }
 
-.artwork:hover .cover-artwork-overlay {
+.artwork:hover .overlay {
   opacity: 1;
   cursor: pointer;
   visibility: visible;
 }
 
-.artwork .cover-artwork-overlay .play {
+.play {
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.release-info {
+.info {
   background: hsla(233, 10%, 10%, 1);
   margin: 0;
   position: relative;
 }
 
-.release-info .in-collection-corner {
+.collection {
   border-top: 3.4rem solid #ffd24d;
   border-left: 3.4rem solid transparent;
   height: 0;
@@ -94,7 +85,7 @@
   width: 0;
 }
 
-.release-info .in-collection-check {
+.check {
   color: hsla(233, 10%, 10%, 1);
   font-size: 1.5rem;
   position: absolute;
@@ -102,16 +93,16 @@
   top: 0.2rem;
 }
 
-.release-info .release-title {
+.title {
   font-size: 2.4rem;
   margin-bottom: 0.5rem;
 }
 
-.release-info .artist-name a {
+.name a {
   font-weight: 400;
 }
 
-.release-info .release-price {
+.price {
   display: flex;
   align-items: center;
   color: #ff5349;
@@ -119,44 +110,55 @@
   margin-bottom: 2rem;
 }
 
-.release-info .release-price::before,
-.release-info .release-price::after {
+.price::before,
+.price::after {
   background: #ff5349;
   content: '';
   flex: 1 0 auto;
   height: 1px;
 }
-.release-info .release-price::before {
+.price::before {
   margin-right: 0.25rem;
 }
 
-.release-info .release-price::after {
+.price::after {
   margin-left: 0.25rem;
 }
 
-.release-info p.credits,
-.release-info p.info {
+.credits,
+.info {
   white-space: pre-line;
 }
 
-.release-info p.copyright {
+.copyright {
   font-size: 80%;
 }
 
-.release-info p:last-child {
+.info p:last-child {
   margin-bottom: 0;
 }
 
-.release-info div.tags {
+.tag {
+  background-color: #000;
+  border-radius: 0.5rem;
+  color: hsla(233, 10%, 75%, 1);
+  cursor: pointer;
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  user-select: none;
+}
+
+.tags {
   margin-bottom: -0.5rem;
 }
 
-.release-info div.tag:hover {
+.tag:hover {
   color: #18cdca;
 }
 
 @media (min-width: 768px) {
-  .selected-release .release-info {
+  .info {
     margin: 1rem 0;
   }
 }
@@ -168,15 +170,15 @@
 }
 
 @media (min-width: 1600px) {
-  .release-info .release-title {
+  .title {
     font-size: 3rem;
   }
 
-  .release-info .artist-name {
+  .name {
     font-size: 2rem;
   }
 
-  .release-info .release-price {
+  .price {
     font-size: 1.2rem;
   }
 }

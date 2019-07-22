@@ -1,13 +1,7 @@
-.progress-bar {
+.progressBar {
   background: #ffd24d;
   height: 4px;
   margin-top: 1rem;
   transition: 0.25s;
   width: 0;
-}
-
-.dropzone-art .progress-bar {
-}
-
-.track-list .progress-bar {
 }

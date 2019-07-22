@@ -11,6 +11,7 @@ import NemAddressFormField from './NemAddressFormField';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import nem from 'nem-sdk';
+import styles from '../../style/NemAddress.module.css';
 
 function NemAddress(props) {
   const [isCheckingCredit, setCheckingCredit] = useState(false);
@@ -120,7 +121,7 @@ function NemAddress(props) {
             and nemp3 credit will be sent directly to this address.
           </p>
           <form
-            className="nem-address my-5 py-5"
+            className={`${styles.form} my-5 py-5`}
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="form-row">

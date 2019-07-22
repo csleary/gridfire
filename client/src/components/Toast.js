@@ -1,7 +1,7 @@
-import '../style/toast.css';
 import FontAwesome from 'react-fontawesome';
 import React from 'react';
 import classNames from 'classnames';
+import styles from '../style/Toast.module.css';
 
 const Toast = ({ toast }) => {
   const { message, type, visible } = toast;
@@ -21,13 +21,15 @@ const Toast = ({ toast }) => {
     }
   };
 
-  const classes = classNames('toast', 'alert', {
-    'alert-danger': type === 'error',
-    'alert-info': type === 'info',
+  const classes = classNames('toast', styles.alert, 'alert', {
     'alert-success': type === 'success',
+    'alert-info': type === 'info',
     'alert-warning': type === 'warning',
-    'toast-show': visible,
-    'toast-fade': !visible
+    [styles.warning]: type === 'warning',
+    'alert-danger': type === 'error',
+    [styles.danger]: type === 'error',
+    [styles.show]: visible,
+    [styles.fade]: !visible
   });
 
   return (

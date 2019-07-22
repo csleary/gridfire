@@ -1,4 +1,3 @@
-import '../style/artistPage.css';
 import React, { useEffect, useState } from 'react';
 import {
   fetchArtistCatalogue,
@@ -9,6 +8,7 @@ import {
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
+import styles from '../style/ArtistPage.module.css';
 
 const ArtistPage = props => {
   const {
@@ -51,7 +51,7 @@ const ArtistPage = props => {
     <main className="container-fluid">
       <div className="row">
         <div className="col py-3">
-          <h2 className="artist-name text-center mt-2 mb-2">{name}</h2>
+          <h2 className={`${styles.artist} text-center mt-2 mb-2`}>{name}</h2>
           <h3>Releases</h3>
           <div className="front-page">{renderReleases()}</div>
         </div>

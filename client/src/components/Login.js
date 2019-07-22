@@ -1,4 +1,3 @@
-import '../style/login.css';
 import { Field, reduxForm } from 'redux-form';
 import { Link, withRouter } from 'react-router-dom';
 import React, { useEffect } from 'react';
@@ -6,6 +5,7 @@ import { fetchUser, toastError, toastSuccess } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import styles from '../style/Login.module.css';
 
 const renderField = field => {
   const {
@@ -136,7 +136,7 @@ const Login = props => {
             <Link to={'/reset'}>reset it here</Link>.
           </p>
         </div>
-        <div className="divider p-5 mb-5">Or</div>
+        <div className={`${styles.divider} p-5 mb-5`}>Or</div>
         <div className="col-md d-flex align-items-center justify-content-center mb-5">
           <p>
             <FontAwesome name="google" className="mr-2" />

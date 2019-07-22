@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import Spinner from '../Spinner';
 import UserRelease from './UserRelease';
 import { connect } from 'react-redux';
+import styles from '../../style/UserReleases.module.css';
 
 function UserReleases(props) {
   const {
@@ -89,7 +90,7 @@ function UserReleases(props) {
             </p>
             <div className="d-flex justify-content-center">
               <Link
-                className="btn btn-outline-primary btn-sm add-release mt-5 mb-4"
+                className={`${styles.addRelease} btn btn-outline-primary btn-sm mt-5 mb-4`}
                 title="Add Release"
                 role="button"
                 to={'/release/add/'}
@@ -113,9 +114,9 @@ function UserReleases(props) {
             {userReleases.length > 1 ? 's' : ''}{' '}
             {releasesOffline() ? ` (${releasesOffline()} offline)` : null}
           </h3>
-          <ul className="user-releases">{renderUserReleases()}</ul>
+          <ul className={styles.releases}>{renderUserReleases()}</ul>
           <Link
-            className="btn btn-outline-primary btn-sm add-release"
+            className={`${styles.addRelease} btn btn-outline-primary btn-sm`}
             title="Add Release"
             role="button"
             to={'/release/add/'}

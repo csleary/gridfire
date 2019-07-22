@@ -4,6 +4,7 @@ import FontAwesome from 'react-fontawesome';
 import StatusIcon from './StatusIcon';
 import Title from './Title';
 import moment from 'moment';
+import styles from '../../style/UserRelease.module.css';
 
 function UserRelease(props) {
   const {
@@ -76,7 +77,10 @@ function UserRelease(props) {
   const hasAudio = audioCheck();
 
   return (
-    <li className="no-gutters d-flex flex-column release" key={releaseId}>
+    <li
+      className={`${styles.release} no-gutters d-flex flex-column`}
+      key={releaseId}
+    >
       <Artwork
         artistName={artistName}
         artwork={artwork}
@@ -85,7 +89,7 @@ function UserRelease(props) {
       />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
       <div className="d-flex flex-column flex-grow-1 p-3">
-        <div className="release-details mb-3">
+        <div className={`${styles.details} mb-3`}>
           <Title
             artist={artist}
             artistName={artistName}
@@ -123,10 +127,10 @@ function UserRelease(props) {
               : 'None sold just yet'}
           </h6>
         </div>
-        <div className="release-button-group d-flex mt-auto">
+        <div className={`${styles.buttons} d-flex mt-auto`}>
           <button
             onClick={() => history.push(`/release/edit/${releaseId}`)}
-            className="btn btn-outline-primary btn-sm"
+            className={`${styles.button} btn btn-outline-primary btn-sm`}
           >
             <FontAwesome name="pencil" className="mr-2" />
             Edit
@@ -134,8 +138,8 @@ function UserRelease(props) {
           <button
             disabled={isPublishingRelease}
             onClick={handlePublishStatus}
-            className={`btn btn-outline-warning btn-sm${
-              published ? '' : ' unpublished'
+            className={`${styles.button} btn btn-outline-warning btn-sm${
+              published ? '' : ` ${styles.unpublished}`
             }`}
           >
             {published ? (
@@ -151,8 +155,8 @@ function UserRelease(props) {
             )}
           </button>
           <button
-            className={`btn btn-outline-danger btn-sm${
-              isDeletingRelease ? ' deleting' : ''
+            className={`${styles.button} btn btn-outline-danger btn-sm${
+              isDeletingRelease ? ` ${styles.deleting}` : ''
             }`}
             disabled={isDeletingRelease}
             onClick={handleDeleteRelease}

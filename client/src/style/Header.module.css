@@ -1,0 +1,21 @@
+.gradient {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  background: linear-gradient(to right, #ff5349, #18cdca);
+  height: 4px;
+  width: 100%;
+}
+
+.header {
+  animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  background: hsla(233, 10%, 20%, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

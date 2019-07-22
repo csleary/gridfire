@@ -1,8 +1,8 @@
-details summary {
+.summary {
   color: #18cdca;
   font-weight: bold;
 }
 
-details p {
+.details p {
   margin-top: 1rem;
 }

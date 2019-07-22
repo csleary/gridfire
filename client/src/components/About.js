@@ -1,4 +1,3 @@
-import '../style/qrcode.css';
 import QRCode from 'qrcode.react';
 import React from 'react';
 

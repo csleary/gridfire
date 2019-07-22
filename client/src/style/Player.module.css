@@ -9,44 +9,47 @@
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: hidden;
   width: 100%;
+  z-index: 1030;
 }
 
-.player.show {
+.show {
   transform: translateY(0);
   visibility: visible;
 }
 
-.player .interface {
+.hide {
+  color: hsla(233, 10%, 50%, 1);
+  font-size: 1.5rem;
+}
+
+.interface {
   align-items: center;
 }
 
-.player .interface .controls {
+.controls {
   align-items: center;
   display: flex;
   justify-content: center;
 }
 
-.player .player-button {
+.playerButton {
   font-size: 2rem;
   padding: 0.5rem;
   transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.player .player-button:hover,
-.player .player-current-time:hover {
+.playerButton:hover,
+.currentTime:hover {
   color: #f0f0f1;
   cursor: pointer;
 }
 
-.player .player-button.waiting {
-}
-
-.player .player-button.waiting:hover {
+.waiting:hover {
   color: hsla(233, 10%, 50%, 1);
   cursor: unset;
 }
 
-.player-current-time {
+.currentTime {
   padding: 0 1rem;
   display: inline-block;
   text-align: right;
@@ -54,35 +57,35 @@
   width: 7rem;
 }
 
-.player-current-time:focus {
+.currentTime:focus {
   outline: none;
 }
 
-#player-progress {
+.progress {
   background: hsla(233, 10%, 50%, 1);
   height: 100%;
   transition: 0.125s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 0;
 }
 
-.player .seek-bar {
+.seek {
   height: 4px;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 100%;
 }
 
-.player:hover .seek-bar {
+.player:hover .seek {
   background: hsla(233, 10%, 20%, 1);
   cursor: pointer;
   height: 8px;
   margin-top: 6px;
 }
 
-.player:hover #player-progress {
+.player:hover .progress {
   background: #18cdca;
 }
 
-.player .track-info {
+.trackInfo {
   align-items: center;
   display: flex;
   font-size: 1.5rem;
@@ -93,18 +96,13 @@
   text-overflow: ellipsis;
 }
 
-.player .track-info .no-link {
+.noLink {
   color: #18cdca;
   font-weight: bold;
 }
 
-.player-button.hide-player {
-  color: hsla(233, 10%, 50%, 1);
-  font-size: 1.5rem;
-}
-
 @media (min-width: 576px) {
-  .player .interface .controls {
+  .controls {
     justify-content: flex-end;
   }
 }

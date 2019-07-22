@@ -1,4 +1,3 @@
-import '../style/selectedRelease.css';
 import { Link, withRouter } from 'react-router-dom';
 import React, { Component } from 'react';
 import {
@@ -18,6 +17,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import placeholder from '../placeholder.svg';
+import styles from '../style/SelectedRelease.module.css';
 import uuidv4 from 'uuid/v4';
 
 class SelectedRelease extends Component {
@@ -123,10 +123,10 @@ class SelectedRelease extends Component {
       const nowPlaying = () => {
         if (trackId !== playerTrackId) return;
         if (isPlaying) {
-          return <FontAwesome className="now-playing" name="play" />;
+          return <FontAwesome className={styles.nowPlaying} name="play" />;
         }
         if (isPaused) {
-          return <FontAwesome className="now-playing" name="pause" />;
+          return <FontAwesome className={styles.nowPlaying} name="pause" />;
         }
       };
 
@@ -223,13 +223,13 @@ class SelectedRelease extends Component {
     const { isPlaying } = this.props.player;
     const playerReleaseId = this.props.player.releaseId;
 
-    const trackListColumns = classNames('tracklist-wrapper', {
-      columns: trackList.length > 10
+    const trackListColumns = classNames({
+      [styles.columns]: trackList.length > 10
     });
 
     const releaseTags = tags.map((tag, index) => (
       <div
-        className="tag mr-2 mb-2"
+        className={`${styles.tag} mr-2 mb-2`}
         key={this.state.tagKeys[index]}
         onClick={() => this.handleTagSearch(tag)}
         role="button"
@@ -242,21 +242,21 @@ class SelectedRelease extends Component {
 
     return (
       <main className="container d-flex align-items-center">
-        <div className="row selected-release">
-          <div className="col-md-6 col-artwork p-3">
-            <div className="artwork" onTouchStart={() => {}}>
+        <div className={`${styles.release} row`}>
+          <div className={`${styles.col} col-md-6 p-3`}>
+            <div className={styles.artwork} onTouchStart={() => {}}>
               <img
                 alt={releaseTitle}
-                className="lazyload img-fluid"
+                className={`${styles.image} lazyload img-fluid`}
                 data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
               />
               <img
                 alt={`${artistName} - ${releaseTitle}`}
-                className="placeholder artwork"
+                className={styles.placeholder}
                 src={placeholder}
               />
               <div
-                className="cover-artwork-overlay"
+                className={styles.overlay}
                 onClick={() => this.handlePlayRelease()}
                 role="button"
                 tabIndex="-1"
@@ -265,20 +265,20 @@ class SelectedRelease extends Component {
                 {isPlaying && releaseId === playerReleaseId ? (
                   <FontAwesome className="" name="pause" />
                 ) : (
-                  <FontAwesome className="play" name="play" />
+                  <FontAwesome className={styles.play} name="play" />
                 )}
               </div>
             </div>
           </div>
-          <div className="col-md-6 release-info p-3">
-            <h2 className="release-title text-center ibm-type-italic">
+          <div className={`${styles.info} col-md-6 p-3`}>
+            <h2 className={`${styles.title} text-center ibm-type-italic`}>
               {releaseTitle}
               {this.state.inCollection && (
                 <>
-                  <div className="in-collection-corner" />
+                  <div className={styles.collection} />
                   <Link to={'/dashboard/collection'}>
                     <FontAwesome
-                      className="in-collection-check"
+                      className={styles.check}
                       name="check"
                       title="This release is in your collection."
                     />
@@ -286,17 +286,19 @@ class SelectedRelease extends Component {
                 </>
               )}
             </h2>
-            <h4 className="artist-name text-center">
+            <h4 className={`${styles.name} text-center`}>
               <Link to={`/artist/${artist}`}>{artistName}</Link>
             </h4>
-            <h6 className="release-price text-center">{this.renderPrice()}</h6>
+            <h6 className={`${styles.price} text-center`}>
+              {this.renderPrice()}
+            </h6>
             <div className={trackListColumns}>
-              <ol className="tracklist">{this.renderTrackList()}</ol>
+              <ol className={styles.trackList}>{this.renderTrackList()}</ol>
             </div>
             <div className="d-flex justify-content-center">
               <Link
                 to={`/payment/${releaseId}`}
-                className="btn btn-outline-primary buy-button"
+                className={`${styles.buy} btn btn-outline-primary`}
               >
                 {this.renderPurchaseButton()}
               </Link>
@@ -324,11 +326,11 @@ class SelectedRelease extends Component {
             {credits && (
               <>
                 <h6 className="red mt-4">{credits && 'Credits'}</h6>
-                <p className="credits">{credits}</p>
+                <p className={styles.credits}>{credits}</p>
               </>
             )}
             {(cLine || pLine) && (
-              <p className="copyright red">
+              <p className={`${styles.copyright} red`}>
                 {cLine && (
                   <>
                     &copy; {cLine.year} {cLine.owner}
@@ -345,7 +347,7 @@ class SelectedRelease extends Component {
             {releaseTags.length > 0 && (
               <>
                 <h6 className="red mt-4 mb-3">Tags</h6>
-                <div className="tags">{releaseTags}</div>
+                <div className={styles.tags}>{releaseTags}</div>
               </>
             )}
           </div>

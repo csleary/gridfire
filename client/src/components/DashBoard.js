@@ -1,4 +1,3 @@
-import '../style/dashboard.css';
 import Collection from './dashboard/Collection';
 import NemAddress from './dashboard/NemAddress';
 import PasswordUpdate from './dashboard/PasswordUpdate';
