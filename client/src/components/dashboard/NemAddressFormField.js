@@ -1,6 +1,7 @@
 import FontAwesome from 'react-fontawesome';
 import React from 'react';
 import classnames from 'classnames';
+import styles from '../../style/NemAddress.module.css';
 
 const FormInputs = props => {
   if (props.id === 'signedMessage') {
@@ -26,15 +27,15 @@ const NemAddressFormField = ({
   });
 
   const inputClassNames = classnames('form-control', {
-    'payment-address': id === 'nemAddress',
-    'signed-message': id === 'signedMessage'
+    [styles.address]: id === 'nemAddress',
+    [styles.message]: id === 'signedMessage'
   });
 
   const renderAddressStatus = () => {
     if (nemAddress && !nemAddressVerified) {
       return (
         <span
-          className="status unconfirmed"
+          className={styles.unconfirmed}
           title="Thank you for verifying your address."
         >
           Unverified
@@ -45,7 +46,7 @@ const NemAddressFormField = ({
 
     if (nemAddress && nemAddressVerified) {
       return (
-        <span className="status confirmed">
+        <span className={styles.confirmed}>
           Verified
           <FontAwesome name="check-circle" className="ml-2" />
         </span>

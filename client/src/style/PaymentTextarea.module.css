@@ -1,9 +1,9 @@
-.disabled-textarea,
-.disabled-textarea[readonly],
-.disabled-textarea:active,
-.disabled-textarea:disabled,
-.disabled-textarea:focus,
-.disabled-textarea.form-control:focus {
+.textarea,
+.textarea[readonly],
+.textarea:active,
+.textarea:disabled,
+.textarea:focus,
+.textarea.form-control:focus {
   animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   background: hsla(233, 10%, 10%, 1);
   border: 0;
@@ -18,15 +18,15 @@
   -webkit-appearance: none;
 }
 
-.disabled-textarea::placeholder {
+.textarea::placeholder {
   color: hsla(233, 10%, 50%, 1);
 }
 
-.disabled-textarea:hover {
+.textarea:hover {
   cursor: pointer;
 }
 
-.copy-icon {
+.icon {
   color: #18cdca;
   left: 0.75rem;
   opacity: 0;
@@ -37,16 +37,16 @@
   visibility: hidden;
 }
 
-.disabled-textarea:hover + .copy-icon {
+.textarea:hover + .icon {
   opacity: 1;
   visibility: visible;
 }
 
-.disabled-textarea::selection {
+.textarea::selection {
   background-color: #18cdca;
 }
 
-.copy-success {
+.success {
   bottom: 0.75rem;
   color: #18cdca;
   font-weight: 600;
@@ -58,18 +58,18 @@
   visibility: hidden;
 }
 
-.copy-success.show {
+.success.show {
   opacity: 1;
   visibility: visible;
 }
 
 @media (min-width: 768px) {
-  .disabled-textarea,
-  .disabled-textarea[readonly],
-  .disabled-textarea:active,
-  .disabled-textarea:disabled,
-  .disabled-textarea:focus,
-  .disabled-textarea.form-control:focus {
+  .textarea,
+  .textarea[readonly],
+  .textarea:active,
+  .textarea:disabled,
+  .textarea:focus,
+  .textarea.form-control:focus {
     height: 2.5rem;
   }
 }

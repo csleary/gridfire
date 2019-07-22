@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import { connect } from 'react-redux';
 import placeholder from '../placeholder.svg';
+import styles from '../style/RenderRelease.module.css';
 
 const RenderRelease = props => {
   const { player, release, variation } = props;
@@ -28,6 +29,7 @@ const RenderRelease = props => {
       return (
         <>
           <button
+            className={styles.button}
             onClick={() => {
               props.fetchDownloadToken(releaseId, downloadToken => {
                 if (downloadToken) {
@@ -40,10 +42,11 @@ const RenderRelease = props => {
             }}
             title={`Download ${artistName} - '${releaseTitle}' (MP3)`}
           >
-            <FontAwesome name="download" />
-            <div className="label text-center">MP3</div>
+            <FontAwesome className={styles.icon} name="download" />
+            <div className={`${styles.label} text-center`}>MP3</div>
           </button>
           <button
+            className={styles.button}
             onClick={() => {
               props.fetchDownloadToken(releaseId, downloadToken => {
                 if (downloadToken) {
@@ -56,8 +59,8 @@ const RenderRelease = props => {
             }}
             title={`Download ${artistName} - '${releaseTitle}' (FLAC)`}
           >
-            <FontAwesome name="download" />
-            <div className="label text-center">FLAC</div>
+            <FontAwesome className={styles.icon} name="download" />
+            <div className={`${styles.label} text-center`}>FLAC</div>
           </button>
         </>
       );
@@ -65,47 +68,48 @@ const RenderRelease = props => {
   };
 
   return (
-    <div className="cover-artwork" key={releaseId} onTouchStart={() => {}}>
+    <div className={styles.art} key={releaseId} onTouchStart={() => {}}>
       <img
         alt={`${artistName} - ${releaseTitle}`}
-        className="lazyload artwork"
+        className={`lazyload ${styles.image}`}
         data-sizes="auto"
         data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
       />
       <img
         alt={`${artistName} - ${releaseTitle}`}
-        className="placeholder"
+        className={styles.placeholder}
         src={placeholder}
       />
-      <div
-        className="artwork-overlay"
-        title={`${artistName} - ${releaseTitle}`}
-      >
+      <div className={styles.overlay} title={`${artistName} - ${releaseTitle}`}>
         <Link
-          className="artist-name"
+          className={styles.artistName}
           title={`Visit the artist page for ${artistName}`}
           to={`/artist/${artist}`}
         >
           {artistName}
         </Link>
-        <div className="buttons">
+        <div className={styles.buttons}>
           <button
+            className={styles.button}
             onClick={handlePlayTrack}
             title={`Play '${releaseTitle}', by ${artistName}`}
           >
-            <FontAwesome name="play" />
+            <FontAwesome className={styles.icon} name="play" />
           </button>
           <Link
-            className="d-flex"
+            className={`${styles.button} d-flex`}
             title={`More information on '${releaseTitle}', by ${artistName}`}
             to={`/release/${releaseId}`}
           >
-            <FontAwesome className="info m-auto" name="info-circle" />
+            <FontAwesome
+              className={`${styles.icon} info m-auto`}
+              name="info-circle"
+            />
           </Link>
           {showCollectionDownload()}
         </div>
         <Link
-          className="release-title"
+          className={styles.releaseTitle}
           title={`More information on '${releaseTitle}', by ${artistName}`}
           to={`/release/${releaseId}`}
         >

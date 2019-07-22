@@ -1,6 +1,7 @@
 import FontAwesome from 'react-fontawesome';
 import React from 'react';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
+import styles from '../../style/Payment.module.css';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
@@ -24,13 +25,12 @@ const ManualPayment = props => {
         purchase ID. This will be used to confirm your purchase has successfully
         been made.
       </p>
-      <p className="text-center please-note" role="alert">
+      <p className={`${styles.note} text-center`} role="alert">
         <FontAwesome name="exclamation-circle" className="mr-2" />
         Your payment ID is essential to your purchase. Please don&rsquo;t forget
         to include this.
       </p>
       <ReadOnlyTextarea
-        className="payment-info"
         text={paymentHash}
         placeholder="Please log in to see your payment ID"
       />
@@ -42,11 +42,7 @@ const ManualPayment = props => {
         that&rsquo;s left is to enter the payment amount {copyPrice}, and
         copy-paste the payment address:
       </p>
-      <ReadOnlyTextarea
-        className="payment-info"
-        text={paymentAddress}
-        placeholder="Payment Address"
-      />
+      <ReadOnlyTextarea text={paymentAddress} placeholder="Payment Address" />
       <h4 className="text-center mb-4">
         <span className="red">3.</span> Send It!
       </h4>

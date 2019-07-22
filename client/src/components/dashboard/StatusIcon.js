@@ -1,23 +1,28 @@
 import FontAwesome from 'react-fontawesome';
 import React from 'react';
+import styles from '../../style/UserRelease.module.css';
 
 const StatusIcon = ({ published, releaseTitle }) => {
   if (published) {
     return (
-      <div className="status-icon-bg d-flex align-items-center justify-content-center">
+      <div
+        className={`${styles.status} d-flex align-items-center justify-content-center`}
+      >
         <FontAwesome
           name="check-circle"
-          className="cyan status-icon"
+          className={`${styles.icon} cyan`}
           title={`'${releaseTitle}' is live and available for purchase.`}
         />
       </div>
     );
   }
   return (
-    <div className="status-icon-bg d-flex align-items-center justify-content-center">
+    <div
+      className={`${styles.status} d-flex align-items-center justify-content-center`}
+    >
       <FontAwesome
         name="exclamation-circle"
-        className="yellow status-icon"
+        className={`${styles.icon} yellow`}
         title={`'${releaseTitle}' is currently offline.`}
       />
     </div>

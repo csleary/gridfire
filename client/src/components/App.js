@@ -24,6 +24,7 @@ import Support from './Support';
 import ToastList from './ToastList';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
+import { wrapper } from '../style/App.module.css';
 
 const App = ({ fetchUser, user }) => {
   const [, setLoading] = useState(true);
@@ -35,7 +36,7 @@ const App = ({ fetchUser, user }) => {
 
   return (
     <BrowserRouter>
-      <div className="app-wrapper">
+      <div className={wrapper}>
         <Header />
         <NavBar />
         <Route exact path="/" component={Home} />

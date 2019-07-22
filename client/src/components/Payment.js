@@ -1,4 +1,3 @@
-import '../style/payment.css';
 import React, { Component } from 'react';
 import {
   checkFormatMp3,
@@ -14,6 +13,7 @@ import Spinner from './Spinner';
 import TransactionsList from './payment/TransactionsList';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import styles from '../style/Payment.module.css';
 
 class Payment extends Component {
   constructor(props) {
@@ -69,15 +69,15 @@ class Payment extends Component {
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
     const paymentButtonQR = classNames('btn', 'btn-outline-primary', {
-      'method-active': !showPaymentInfo
+      [styles.active]: !showPaymentInfo
     });
 
     const paymentButtonManual = classNames('btn', 'btn-outline-primary', {
-      'method-active': showPaymentInfo
+      [styles.active]: showPaymentInfo
     });
 
-    const paymentMethods = classNames('payment-methods', 'mb-5', {
-      manual: showPaymentInfo
+    const paymentMethods = classNames(styles.methods, 'mb-5', {
+      [styles.manual]: showPaymentInfo
     });
 
     if (this.state.isLoading) {
@@ -124,7 +124,7 @@ class Payment extends Component {
             </h3>
             <div className={paymentMethods}>
               <div
-                className="btn-group payment-method d-flex justify-content-center"
+                className={`${styles.method} btn-group d-flex justify-content-center`}
                 role="group"
                 aria-label="Payment Method"
               >
@@ -151,7 +151,7 @@ class Payment extends Component {
                 />
               ) : (
                 <>
-                  <div className="qrcode text-center">
+                  <div className={`${styles.qrcode} text-center`}>
                     <QRCode
                       paymentAddress={paymentAddress.replace(/-/g, '')}
                       price={priceInXem}

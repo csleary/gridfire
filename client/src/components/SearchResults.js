@@ -1,21 +1,21 @@
-import '../style/home.css';
 import { fetchRelease, playTrack, toastInfo } from '../actions';
 import React from 'react';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
+import { frontPage } from '../style/Home.module.css';
 
 const SearchResults = props => {
-  const { searchQuery, searchResults } = this.props;
+  const { searchQuery, searchResults } = props;
   const number = searchResults.length;
 
   const renderReleases = searchResults.map(release => (
     <RenderRelease
-      fetchRelease={this.props.fetchRelease}
+      fetchRelease={props.fetchRelease}
       key={release._id}
-      playTrack={this.props.playTrack}
+      playTrack={props.playTrack}
       release={release}
-      toastInfo={this.props.toastInfo}
+      toastInfo={props.toastInfo}
     />
   ));
 
@@ -27,7 +27,7 @@ const SearchResults = props => {
             {number} result{number === 1 ? '' : 's'} for &lsquo;{searchQuery}
             &rsquo;.
           </h3>
-          <div className="front-page">{renderReleases}</div>
+          <div className={frontPage}>{renderReleases}</div>
         </>
       );
     }

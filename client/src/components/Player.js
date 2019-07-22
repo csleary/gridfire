@@ -1,4 +1,3 @@
-import '../style/player.css';
 import { Link, withRouter } from 'react-router-dom';
 import React, { Component, createRef } from 'react';
 import {
@@ -12,6 +11,7 @@ import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import styles from '../style/Player.module.css';
 
 class Player extends Component {
   constructor(props) {
@@ -42,10 +42,7 @@ class Player extends Component {
     this.mediaSource.addEventListener('sourceopen', () => {
       URL.revokeObjectURL(audioPlayer.src);
       const mimeType = 'audio/mp4; codecs="mp4a.40.2"';
-      // const support = MediaSource.isTypeSupported(mimeType);
       this.sourceBuffer = this.mediaSource.addSourceBuffer(mimeType);
-      // this.sourceBuffer.addEventListener('update', () => {});
-      // this.sourceBuffer.addEventListener('updatestart', () => {});
 
       this.sourceBuffer.addEventListener('updateend', () => {
         if (this.state.shouldUpdateBuffer) {
@@ -60,8 +57,6 @@ class Player extends Component {
           isBuffering: false
         });
       });
-
-      // this.sourceBuffer.addEventListener('updateerror', () => {});
     });
 
     audioPlayer.addEventListener('timeupdate', () => {
@@ -341,14 +336,20 @@ class Player extends Component {
 
   renderPlayButton = () => {
     if (!this.state.ready) {
-      return <FontAwesome name="cog" spin className="player-button waiting" />;
+      return (
+        <FontAwesome
+          name="cog"
+          spin
+          className={`${styles.playerButton} ${styles.waiting}`}
+        />
+      );
     }
 
     if (this.props.player.isPlaying) {
       return (
         <FontAwesome
           name="pause"
-          className="player-button"
+          className={styles.playerButton}
           onClick={this.playAudio}
         />
       );
@@ -357,7 +358,7 @@ class Player extends Component {
     return (
       <FontAwesome
         name="play"
-        className="player-button"
+        className={styles.playerButton}
         onClick={this.playAudio}
       />
     );
@@ -376,7 +377,7 @@ class Player extends Component {
     }
 
     return (
-      <span className="no-link">
+      <span className={styles.noLink}>
         {artistName} &bull; <em>{trackTitle}</em>
       </span>
     );
@@ -384,37 +385,36 @@ class Player extends Component {
 
   render() {
     const { showPlayer } = this.props.player;
-    const playerClassNames = classNames('player', {
-      show: showPlayer
+    const playerClassNames = classNames(styles.player, {
+      [styles.show]: showPlayer
     });
 
     return (
       <div className={playerClassNames}>
         <audio id="player" ref={this.audioPlayer} />
         <div
-          className="seek-bar"
-          id="seek-bar"
+          className={styles.seek}
           onClick={this.handleSeek}
           ref={this.seekBar}
           role="button"
           tabIndex="-1"
         >
           <div
-            id="player-progress"
+            className={styles.progress}
             style={{ width: `${this.state.percentComplete}%` }}
           />
         </div>
         <div className="container-fluid">
-          <div className="row no-gutters interface">
-            <div className="col-sm controls">
+          <div className={`${styles.interface} row no-gutters`}>
+            <div className={`${styles.controls} col-sm`}>
               {this.renderPlayButton()}
               <FontAwesome
                 name="stop"
-                className="player-button"
+                className={styles.playerButton}
                 onClick={this.stopAudio}
               />
               <div
-                className="player-current-time align-middle"
+                className={`${styles.currentTime} align-middle`}
                 onClick={() =>
                   this.setState({
                     showRemaining: !this.state.showRemaining
@@ -428,11 +428,11 @@ class Player extends Component {
                   : this.state.elapsedTime}
               </div>
             </div>
-            <div className="col-sm track-info">
+            <div className={`${styles.trackInfo} col-sm`}>
               {this.renderTrackInfo()}
               <FontAwesome
                 name="chevron-circle-down"
-                className="player-button hide-player"
+                className={`${styles.playerButton} ${styles.hide}`}
                 onClick={this.hidePlayer}
                 title="Hide player (will stop audio)"
               />

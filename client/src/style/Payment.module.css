@@ -1,0 +1,72 @@
+:global(.btn.btn-outline-primary).active {
+  color: #18cdca;
+}
+
+.manual {
+  background: hsla(233, 10%, 20%, 1);
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.note {
+  color: #ff5349;
+  padding: 0 1rem;
+}
+
+.methods {
+  border-radius: 0;
+  padding: 1.5rem;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.methods p:last-of-type {
+  margin-bottom: 0;
+}
+
+.method {
+  margin-bottom: 3rem;
+}
+
+.qrcode {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  margin-bottom: 2rem;
+}
+
+:global(.btn-group .btn) {
+  color: hsla(233, 10%, 75%, 1);
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+  min-width: auto;
+}
+
+:global(.btn-group .btn:hover) {
+  background-color: #000;
+  border-color: #000;
+}
+
+:global(.btn-group .btn:focus) {
+  box-shadow: none;
+}
+
+:global(.btn-group. .btn-outline-primary:not(:disabled):not(.disabled):active) {
+  background-color: #000;
+  border-color: #000;
+  box-shadow: none;
+  color: #18cdca;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 576px) {
+  .methods {
+    border-radius: 0.5rem;
+  }
+}

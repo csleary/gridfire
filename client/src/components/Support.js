@@ -1,13 +1,13 @@
-import '../style/support.css';
 import React from 'react';
+import styles from '../style/Support.module.css';
 
 const Support = () => (
   <main className="container">
     <div className="row mb-5">
       <div className="col py-3 mb-4">
         <h2 className="text-center mt-4">FAQ</h2>
-        <details>
-          <summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
             What is this &lsquo;credit&rsquo; and how/where do I get some?
           </summary>
           <p>
@@ -31,8 +31,10 @@ const Support = () => (
             drop us a message and we&rsquo;ll be happy to send you one.
           </p>
         </details>
-        <details>
-          <summary>Where can I buy some XEM?</summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
+            Where can I buy some XEM?
+          </summary>
           <p>
             The larger exchanges such as{' '}
             <a href="https://www.binance.com">Binance</a>,{' '}
@@ -57,8 +59,8 @@ const Support = () => (
             (via BTC), Zaif for JPY (direct XEM/JPY pair).
           </p>
         </details>
-        <details>
-          <summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
             I&rsquo;ve not used NEM before. Which wallet should I use?
           </summary>
           <p>
@@ -68,8 +70,10 @@ const Support = () => (
             <a href="https://www.nem.io/install.html">NEM site</a>.
           </p>
         </details>
-        <details>
-          <summary>What format do you use for downloads?</summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
+            What format do you use for downloads?
+          </summary>
           <p>
             All audio downloads are high-quality V0 VBR mp3s by default (created
             using the LAME encoding library), with FLAC downloads also available
@@ -78,22 +82,28 @@ const Support = () => (
             will follow.
           </p>
         </details>
-        <details>
-          <summary>What format do you use for streaming?</summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
+            What format do you use for streaming?
+          </summary>
           <p>
             All source audio is automatically converted to 128kbps aac for
             streaming.
           </p>
         </details>
-        <details>
-          <summary>What if I lose my download?</summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
+            What if I lose my download?
+          </summary>
           <p>
             All successful purchases are stored in your account, accessible in
             your dashboard under the &lsquo;collection&rsquo; tab.
           </p>
         </details>
-        <details>
-          <summary>Why the name &lsquo;nemp3&rsquo;?</summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
+            Why the name &lsquo;nemp3&rsquo;?
+          </summary>
           <p>
             The name is a holdover from the initial proof of concept, which
             offered only mp3s. And so a terrible pun was born. It&rsquo;s also a
@@ -101,8 +111,10 @@ const Support = () => (
             networking music sites on which I cut my teeth as an artist.
           </p>
         </details>
-        <details>
-          <summary>I&rsquo;ve found a bug! How can I report it?</summary>
+        <details className={styles.details}>
+          <summary className={styles.summary}>
+            I&rsquo;ve found a bug! How can I report it?
+          </summary>
           <p>
             Excellent! The best way would be to log an issue on{' '}
             <a href="https://github.com/csleary/nemp3v2/issues">Github</a>, to

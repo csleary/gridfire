@@ -1,13 +1,13 @@
-import '../style/footer.css';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import styles from '../style/Footer.module.css';
 
 const today = new Date();
 const year = today.getFullYear();
 
 const Footer = props => (
-  <footer className="container-fluid">
+  <footer className={`${styles.footer} container-fluid`}>
     <div className="row justify-content-center">
       <div className="col col-sm-2">
         <ul>
@@ -70,7 +70,7 @@ const Footer = props => (
             {year} <a href="https://ochremusic.com">Christopher Leary</a>
           </p>
         </small>
-        <div className="text-center social">
+        <div className={`${styles.social} text-center`}>
           <a href="https://github.com/csleary/nemp3v2">
             <FontAwesome name="github" className="mx-2" />
           </a>

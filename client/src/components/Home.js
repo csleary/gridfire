@@ -1,4 +1,3 @@
-import '../style/home.css';
 import React, { Component } from 'react';
 import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
 import { sortNumbers, sortStrings } from '../functions';
@@ -6,6 +5,7 @@ import FontAwesome from 'react-fontawesome';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
+import styles from '../style/Home.module.css';
 
 class Home extends Component {
   constructor(props) {
@@ -116,14 +116,14 @@ class Home extends Component {
         <div className="row">
           <div className="col p-3">
             <button
-              className="btn btn-outline-primary btn-sm sort-btn mb-3"
+              className={`btn btn-outline-primary btn-sm ${styles.sortButton} mb-3`}
               disabled={this.state.isSorting}
               onClick={this.handleSortClick}
             >
               <FontAwesome name="sort" className="mr-2" />
               {this.state.sortBy[sortIndex]}
             </button>
-            <div className="front-page">{renderReleases}</div>
+            <div className={styles.frontPage}>{renderReleases}</div>
             <div className="d-flex justify-content-center">
               <button
                 className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"

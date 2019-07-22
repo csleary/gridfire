@@ -1,11 +1,11 @@
-import '../../style/progressBar.css';
 import React from 'react';
+import styles from '../../style/ProgressBar.module.css';
 
 const ProgressBar = ({ percentComplete, willDisplay }) => {
   if (willDisplay) {
     return (
       <div
-        className="progress-bar"
+        className={styles.progressBar}
         style={{
           width: `${percentComplete}%`
         }}

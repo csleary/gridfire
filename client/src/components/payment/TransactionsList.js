@@ -1,10 +1,10 @@
-import '../../style/transactionsList.css';
 import React, { useEffect, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import SingleTransaction from './SingleTransaction';
 import Spinner from './../Spinner';
 import nem from 'nem-sdk';
+import styles from '../../style/TransactionsList.module.css';
 
 const TransactionsList = props => {
   const {
@@ -86,7 +86,7 @@ const TransactionsList = props => {
       </p>
       <div className="d-flex justify-content-center">
         <button
-          className="btn btn-outline-primary btn-lg download-button"
+          className={`${styles.download} btn btn-outline-primary btn-lg`}
           disabled={isPreparingDownload === true}
           download
           onClick={handleDownload}
@@ -140,7 +140,7 @@ const TransactionsList = props => {
   );
 
   const confirmedTransactions = transactions.length > 0 && (
-    <div className="tx-list mt-3">
+    <div className="mt-3">
       <h5 className="mb-4">
         <FontAwesome name="list-ol" className="red mr-3" />
         {transactions.length} Confirmed Transaction
@@ -176,7 +176,7 @@ const TransactionsList = props => {
   if (isLoadingTxs) {
     return (
       <Spinner>
-        <h3 className="transactions-searching">
+        <h3>
           <FontAwesome name="search" className="red mr-2" />
           Searching for Transactions&hellip;
         </h3>
@@ -191,8 +191,8 @@ const TransactionsList = props => {
           <h3 className="text-center">Transactions</h3>
         </div>
       </div>
-      <div className="row transactions justify-content-center mb-5">
-        <div className="segment col-md-6 p-4">
+      <div className={`${styles.transactions} row justify-content-center mb-5`}>
+        <div className={`${styles.segment} col-md-6 p-4`}>
           {!transactions.length ? (
             <p className="mb-4">
               No transactions found just yet. Please hit the refresh button to
@@ -208,7 +208,7 @@ const TransactionsList = props => {
           {underpaid()}
           <div className="d-flex justify-content-center">
             <button
-              className="btn btn-outline-primary btn-sm refresh-txs py-2 px-3"
+              className={`${styles.refresh} btn btn-outline-primary btn-sm py-2 px-3`}
               disabled={isUpdating}
               onClick={() => handleFetchIncomingTxs(true)}
               title={`Press to check again for recent payments (NIS Node: ${nemNode}).`}

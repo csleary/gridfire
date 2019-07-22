@@ -1,7 +1,7 @@
-import '../../style/readOnlyTextarea.css';
 import React, { useEffect, useRef, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
+import styles from '../../style/PaymentTextarea.module.css';
 
 const ReadOnlyTextarea = props => {
   const textArea = useRef(null);
@@ -22,15 +22,15 @@ const ReadOnlyTextarea = props => {
     setHasCopied(true);
   };
 
-  const copySuccessClass = classnames('copy-success', {
-    show: hasCopied
+  const copySuccessClass = classnames(styles.success, {
+    [styles.show]: hasCopied
   });
 
   return (
     <div className="row no-gutters justify-content-center">
       <div className="col-md-8 position-relative">
         <textarea
-          className="form-control text-center ibm-type-mono disabled-textarea mb-5 p-2"
+          className={`${styles.textarea} form-control text-center ibm-type-mono mb-5 p-2`}
           onClick={handleClick}
           onKeyDown={handleClick}
           placeholder={props.placeholder}
@@ -38,7 +38,7 @@ const ReadOnlyTextarea = props => {
           value={props.text}
           readOnly
         />
-        <FontAwesome className="copy-icon" name="copy" />
+        <FontAwesome className={styles.icon} name="copy" />
         <div className={copySuccessClass}>
           <FontAwesome className="mr-2" name="thumbs-up" />
           Copied to clipboard!

@@ -2,74 +2,70 @@
   animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
 }
 
-.transactions .segment {
+.segment {
   background: hsla(233, 10%, 10%, 1);
   border-radius: 0;
 }
 
-.bold {
-  font-weight: 600;
-}
-
-button.refresh-txs {
+.refresh {
   display: inline-block;
   min-width: auto;
 }
 
-.transactions .table-dark {
+:global(.transactions .table-dark) {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   color: #f0f0f1;
   white-space: nowrap;
 }
 
-.transactions .table-dark .col-item {
+:global(.transactions .table-dark .col-item) {
   width: 10%;
 }
 
-.transactions .table-dark .col-date {
+:global(.transactions .table-dark .col-date) {
   width: 70%;
 }
 
-.transactions .table-dark .col-price {
+:global(.transactions .table-dark .col-amount) {
   width: 20%;
 }
 
-.transactions .table-dark thead {
+:global(.transactions .table-dark thead) {
   background-color: hsla(233, 10%, 10%, 1);
   color: #f0f0f1;
 }
 
-.transactions .table-sm th,
-.transactions .table-sm td {
+:global(.transactions .table-sm th),
+:global(.transactions .table-sm td) {
   padding: 0.5rem 1rem;
   border: 0;
 }
 
-.transactions .table-dark tbody {
+:global(.transactions .table-dark tbody) {
   background: hsla(233, 10%, 20%, 1);
 }
 
-.transactions .table-dark th {
+:global(.transactions .table-dark th) {
   text-transform: uppercase;
 }
 
-.transactions .table-dark td {
+:global(.transactions .table-dark td) {
   text-overflow: ellipsis;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(odd) {
+:global(.table-dark.table-striped tbody tr:nth-of-type(odd)) {
   background-color: hsla(233, 10%, 15%, 1);
 }
 
-.transactions .table-dark tfoot {
+:global(.transactions .table-dark tfoot) {
   background-color: hsla(233, 10%, 30%, 1);
 }
 
-button.download-button {
+.download {
   width: 100%;
 }
 
-button.download-button:hover {
+.download:hover {
   color: #000;
 }
 
