@@ -24,8 +24,8 @@ img.placeholder {
 }
 
 .front-page .cover-artwork:hover img.artwork {
-  filter: blur(1.125px);
-  transform: scale(1.01);
+  /* filter: blur(1.125px) grayscale(25%); // Causes glitches on win.
+  transform: scale(1.01); */
 }
 
 .front-page .cover-artwork:hover .artwork-overlay,
