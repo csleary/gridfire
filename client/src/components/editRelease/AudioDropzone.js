@@ -1,7 +1,7 @@
+import AudioDropzoneLabel from './AudioDropzoneLabel';
 import React from 'react';
 import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
-import AudioDropzoneLabel from './AudioDropzoneLabel';
 
 const AudioDropzone = props => {
   const {

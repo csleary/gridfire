@@ -1,10 +1,10 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
+import '../style/dashboard.css';
 import Collection from './dashboard/Collection';
 import NemAddress from './dashboard/NemAddress';
 import PasswordUpdate from './dashboard/PasswordUpdate';
+import React from 'react';
+import { Route } from 'react-router-dom';
 import UserReleases from './dashboard/UserReleases';
-import '../style/dashboard.css';
 
 function Dashboard(props) {
   return (

@@ -1,8 +1,4 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import FontAwesome from 'react-fontawesome';
-import uuidv4 from 'uuid/v4';
+import '../style/editRelease.css';
 import {
   Field,
   FieldArray,
@@ -10,11 +6,7 @@ import {
   getFormValues,
   reduxForm
 } from 'redux-form';
-import { CLOUD_URL } from '../index';
-import RenderArtwork from './editRelease/RenderArtwork';
-import RenderReleaseField from './editRelease/RenderReleaseField';
-import RenderTrackList from './editRelease/RenderTrackList';
-import Spinner from './Spinner';
+import React, { Component } from 'react';
 import {
   addRelease,
   addTrack,
@@ -35,7 +27,15 @@ import {
   uploadArtwork,
   uploadAudio
 } from '../actions';
-import '../style/editRelease.css';
+import { CLOUD_URL } from '../index';
+import FontAwesome from 'react-fontawesome';
+import RenderArtwork from './editRelease/RenderArtwork';
+import RenderReleaseField from './editRelease/RenderReleaseField';
+import RenderTrackList from './editRelease/RenderTrackList';
+import Spinner from './Spinner';
+import { connect } from 'react-redux';
+import uuidv4 from 'uuid/v4';
+import { withRouter } from 'react-router-dom';
 
 class EditRelease extends Component {
   constructor(props) {

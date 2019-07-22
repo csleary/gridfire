@@ -1,11 +1,11 @@
+import '../style/home.css';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
+import { sortNumbers, sortStrings } from '../functions';
 import FontAwesome from 'react-fontawesome';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
-import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
-import { sortNumbers, sortStrings } from '../functions';
-import '../style/home.css';
+import { connect } from 'react-redux';
 
 class Home extends Component {
   constructor(props) {

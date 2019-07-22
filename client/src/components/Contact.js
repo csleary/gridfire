@@ -1,8 +1,8 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
-import { sendEmail } from '../actions';
+import React from 'react';
 import RenderRecaptcha from './RenderRecaptcha';
+import { connect } from 'react-redux';
+import { sendEmail } from '../actions';
 
 class Contact extends React.Component {
   renderField = field => {

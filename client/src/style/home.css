@@ -7,6 +7,7 @@
 .front-page .cover-artwork {
   display: flex;
   flex-flow: row nowrap;
+  overflow: hidden;
 }
 
 img.placeholder {
@@ -18,7 +19,13 @@ img.placeholder {
 
 .front-page .cover-artwork img.artwork {
   flex: none;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 100%;
+}
+
+.front-page .cover-artwork:hover img.artwork {
+  filter: blur(1.125px);
+  transform: scale(1.01);
 }
 
 .front-page .cover-artwork:hover .artwork-overlay,

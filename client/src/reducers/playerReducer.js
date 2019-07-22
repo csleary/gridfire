@@ -1,9 +1,9 @@
 import {
-  PLAY_TRACK,
   PLAYER_HIDE,
   PLAYER_PAUSE,
   PLAYER_PLAY,
-  PLAYER_STOP
+  PLAYER_STOP,
+  PLAY_TRACK
 } from '../actions/types';
 
 const initialState = {

@@ -1,5 +1,3 @@
-import axios from 'axios';
-import uuidv4 from 'uuid/v4';
 import {
   FETCH_ARTIST_CATALOGUE,
   FETCH_CATALOGUE,
@@ -11,6 +9,8 @@ import {
   TOAST_SUCCESS,
   TOAST_WARNING
 } from './types';
+import axios from 'axios';
+import uuidv4 from 'uuid/v4';
 
 export { default as sendEmail } from './emailActions';
 export * from './artworkActions';

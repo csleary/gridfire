@@ -1,8 +1,8 @@
-import React from 'react';
 import FontAwesome from 'react-fontawesome';
+import ProgressBar from './ProgressBar';
+import React from 'react';
 import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
-import ProgressBar from './ProgressBar';
 
 const ArtworkDropzone = props => {
   const { artworkUploading, onDrop, percentComplete } = props;

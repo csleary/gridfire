@@ -1,6 +1,6 @@
+import AudioDropzone from './AudioDropzone';
 import React from 'react';
 import classNames from 'classnames';
-import AudioDropzone from './AudioDropzone';
 
 const RenderTrackField = props => {
   const {

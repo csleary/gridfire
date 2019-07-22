@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { toastError, toastSuccess } from './index';
 import {
   FETCH_USER,
   FETCH_USER_CREDIT,
@@ -7,6 +5,8 @@ import {
   FETCH_USER_RELEASES,
   LOG_OUT
 } from './types';
+import { toastError, toastSuccess } from './index';
+import axios from 'axios';
 
 export const fetchUser = () => async dispatch => {
   try {

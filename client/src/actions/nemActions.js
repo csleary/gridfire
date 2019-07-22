@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { toastError } from './index';
 import {
   ADD_NEM_ADDRESS,
   FETCH_INCOMING_TRANSACTIONS,
@@ -8,6 +6,8 @@ import {
   FETCH_INCOMING_TRANSACTIONS_UPDATING,
   FETCH_XEM_PRICE
 } from './types';
+import axios from 'axios';
+import { toastError } from './index';
 
 export const addNemAddress = values => async dispatch => {
   try {

@@ -1,7 +1,7 @@
-import classNames from 'classnames';
-import React from 'react';
-import FontAwesome from 'react-fontawesome';
 import ArtworkDropzone from './ArtworkDropzone';
+import FontAwesome from 'react-fontawesome';
+import React from 'react';
+import classNames from 'classnames';
 
 const RenderArtwork = props => {
   const { coverArtLoaded, coverArtPreview, release } = props;

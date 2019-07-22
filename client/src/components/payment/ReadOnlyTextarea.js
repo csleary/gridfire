@@ -1,22 +1,19 @@
-import React, { useRef, useState, useEffect } from 'react';
+import '../../style/readOnlyTextarea.css';
+import React, { useEffect, useRef, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
-import '../../style/readOnlyTextarea.css';
 
 const ReadOnlyTextarea = props => {
   const textArea = useRef(null);
   const [hasCopied, setHasCopied] = useState(false);
 
-  useEffect(
-    () => {
-      const timer = setTimeout(() => {
-        setHasCopied(false);
-      }, 5000);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasCopied(false);
+    }, 5000);
 
-      return () => clearTimeout(timer);
-    },
-    [hasCopied]
-  );
+    return () => clearTimeout(timer);
+  }, [hasCopied]);
 
   const handleClick = event => {
     if (event.keyCode && event.keyCode !== 13) return;

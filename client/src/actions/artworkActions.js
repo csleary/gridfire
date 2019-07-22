@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { toastError, toastSuccess } from './index';
 import {
   DELETE_ARTWORK,
   UPDATE_RELEASE,
   UPLOAD_ARTWORK,
   UPLOAD_ARTWORK_PROGRESS
 } from './types';
+import { toastError, toastSuccess } from './index';
+import axios from 'axios';
 
 export const deleteArtwork = (releaseId, callback) => async dispatch => {
   try {

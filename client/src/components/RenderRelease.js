@@ -1,8 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
 import { CLOUD_URL } from '../index';
+import FontAwesome from 'react-fontawesome';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { connect } from 'react-redux';
 import placeholder from '../placeholder.svg';
 
 const RenderRelease = props => {

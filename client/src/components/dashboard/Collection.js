@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import RenderRelease from '../RenderRelease';
-import Spinner from '../Spinner';
+import '../../style/home.css';
+import React, { useEffect, useState } from 'react';
 import {
   fetchCollection,
   fetchDownloadToken,
@@ -9,7 +7,9 @@ import {
   playTrack,
   toastInfo
 } from '../../actions';
-import '../../style/home.css';
+import RenderRelease from '../RenderRelease';
+import Spinner from '../Spinner';
+import { connect } from 'react-redux';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);

@@ -1,24 +1,24 @@
-import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
-import { connect } from 'react-redux';
+import '../style/selectedRelease.css';
 import { Link, withRouter } from 'react-router-dom';
-import classNames from 'classnames';
-import moment from 'moment';
-import uuidv4 from 'uuid/v4';
+import React, { Component } from 'react';
 import {
   fetchRelease,
   fetchUser,
   fetchXemPrice,
+  playTrack,
   playerPause,
   playerPlay,
-  playTrack,
   searchReleases,
   toastInfo
 } from '../actions';
-import placeholder from '../placeholder.svg';
 import { CLOUD_URL } from '../index';
+import FontAwesome from 'react-fontawesome';
 import Spinner from './Spinner';
-import '../style/selectedRelease.css';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
+import moment from 'moment';
+import placeholder from '../placeholder.svg';
+import uuidv4 from 'uuid/v4';
 
 class SelectedRelease extends Component {
   constructor(props) {

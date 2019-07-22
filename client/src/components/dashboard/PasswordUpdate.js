@@ -1,6 +1,6 @@
-import React from 'react';
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
+import React from 'react';
 import { connect } from 'react-redux';
 import { passwordUpdate } from '../../actions';
 

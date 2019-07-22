@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import FontAwesome from 'react-fontawesome';
 import { CLOUD_URL } from '../../index';
+import FontAwesome from 'react-fontawesome';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import placeholder from '../../placeholder.svg';
 
 const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {

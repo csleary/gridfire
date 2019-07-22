@@ -1,6 +1,6 @@
-import React from 'react';
-import QRCode from 'qrcode.react';
 import '../style/qrcode.css';
+import QRCode from 'qrcode.react';
+import React from 'react';
 
 const address = 'NBQGRG-QTZ4A4-6TKN7O-SOKE62-XGL6OW-EEHAIX-ZQPD';
 const paymentData = {

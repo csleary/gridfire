@@ -1,5 +1,5 @@
-import React from 'react';
 import FontAwesome from 'react-fontawesome';
+import React from 'react';
 
 const Spinner = ({ children }) => (
   <main className="container d-flex align-items-center justify-content-center">

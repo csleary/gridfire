@@ -1,5 +1,5 @@
-import React from 'react';
 import FontAwesome from 'react-fontawesome';
+import React from 'react';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
 
 const ManualPayment = props => {

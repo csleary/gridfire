@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
 import { Field, reduxForm } from 'redux-form';
+import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
-import axios from 'axios';
 import RenderRecaptcha from './RenderRecaptcha';
+import axios from 'axios';
 
 class ForgotPassword extends Component {
   state = {

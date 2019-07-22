@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import RenderRelease from './RenderRelease';
-import Spinner from './Spinner';
+import '../style/artistPage.css';
+import React, { useEffect, useState } from 'react';
 import {
   fetchArtistCatalogue,
   fetchRelease,
   playTrack,
   toastInfo
 } from '../actions';
-import '../style/artistPage.css';
+import RenderRelease from './RenderRelease';
+import Spinner from './Spinner';
+import { connect } from 'react-redux';
 
 const ArtistPage = props => {
   const {
