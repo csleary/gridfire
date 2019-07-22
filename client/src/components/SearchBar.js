@@ -1,11 +1,11 @@
-import debounce from 'lodash.debounce';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import '../style/searchBar.css';
 import { Link, withRouter } from 'react-router-dom';
+import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
+import debounce from 'lodash.debounce';
 import { searchReleases } from '../actions';
-import '../style/searchBar.css';
 
 class SearchBar extends Component {
   constructor(props) {

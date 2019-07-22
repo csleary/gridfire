@@ -1,13 +1,13 @@
+import { LOG_OUT } from '../actions/types';
+import authReducer from './authReducer';
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
-import authReducer from './authReducer';
 import nemReducer from './nemReducer';
 import playerReducer from './playerReducer';
 import releaseReducer from './releaseReducer';
 import salesReducer from './salesReducer';
 import toastReducer from './toastReducer';
 import txReducer from './txReducer';
-import { LOG_OUT } from '../actions/types';
 
 const appReducer = combineReducers({
   form: formReducer,

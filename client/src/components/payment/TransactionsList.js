@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import '../../style/transactionsList.css';
+import React, { useEffect, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
-import nem from 'nem-sdk';
+import { Link } from 'react-router-dom';
 import SingleTransaction from './SingleTransaction';
 import Spinner from './../Spinner';
-import '../../style/transactionsList.css';
+import nem from 'nem-sdk';
 
 const TransactionsList = props => {
   const {
@@ -26,27 +26,24 @@ const TransactionsList = props => {
   const [isPreparingDownload, setPreparingDownload] = useState(false);
   const [formatExists, setFormatExists] = useState(false);
 
-  useEffect(
-    () => {
-      const updateTxs = () => {
-        if (!hasPurchased) {
-          handleFetchIncomingTxs(true);
-        } else {
-          window.clearInterval(txInterval);
-          clearTimeout(txTimeout);
-        }
-      };
-
-      const txInterval = window.setInterval(updateTxs, 30000);
-      const txTimeout = setTimeout(txInterval, 30000);
-
-      return () => {
+  useEffect(() => {
+    const updateTxs = () => {
+      if (!hasPurchased) {
+        handleFetchIncomingTxs(true);
+      } else {
         window.clearInterval(txInterval);
         clearTimeout(txTimeout);
-      };
-    },
-    [handleFetchIncomingTxs, hasPurchased]
-  );
+      }
+    };
+
+    const txInterval = window.setInterval(updateTxs, 30000);
+    const txTimeout = setTimeout(txInterval, 30000);
+
+    return () => {
+      window.clearInterval(txInterval);
+      clearTimeout(txTimeout);
+    };
+  }, [handleFetchIncomingTxs, hasPurchased]);
 
   const handleDownload = () => {
     setPreparingDownload(true);

@@ -1,6 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import Toast from './Toast';
+import { connect } from 'react-redux';
 
 const ToastList = ({ toastList }) => {
   const renderList = () =>

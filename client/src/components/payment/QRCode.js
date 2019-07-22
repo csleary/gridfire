@@ -1,6 +1,6 @@
-import React from 'react';
-import QRCode from 'qrcode.react';
 import '../../style/qrcode.css';
+import QRCode from 'qrcode.react';
+import React from 'react';
 
 const QrCode = props => {
   const v = process.env.REACT_APP_NEM_NETWORK === 'testnet' ? 1 : 2;

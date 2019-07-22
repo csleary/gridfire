@@ -1,10 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import FontAwesome from 'react-fontawesome';
-import Spinner from '../Spinner';
-import UserRelease from './UserRelease';
-
+import React, { useEffect, useState } from 'react';
 import {
   deleteRelease,
   fetchSales,
@@ -13,6 +7,11 @@ import {
   toastSuccess,
   toastWarning
 } from '../../actions';
+import FontAwesome from 'react-fontawesome';
+import { Link } from 'react-router-dom';
+import Spinner from '../Spinner';
+import UserRelease from './UserRelease';
+import { connect } from 'react-redux';
 
 function UserReleases(props) {
   const {
@@ -29,21 +28,18 @@ function UserReleases(props) {
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
-  useEffect(
-    () => {
-      window.scrollTo(0, 0);
-      if (!userReleases.length) {
-        setLoading(true);
-      }
-      fetchUserReleases()
-        .then(() => fetchSales())
-        .then(data => {
-          setSalesData(data);
-          setLoading(false);
-        });
-    },
-    [fetchUserReleases, fetchSales, userReleases.length]
-  );
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (!userReleases.length) {
+      setLoading(true);
+    }
+    fetchUserReleases()
+      .then(() => fetchSales())
+      .then(data => {
+        setSalesData(data);
+        setLoading(false);
+      });
+  }, [fetchUserReleases, fetchSales, userReleases.length]);
 
   const releasesOffline = () => {
     if (!userReleases) return;

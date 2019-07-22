@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { toastError } from './index';
 import {
   ADD_RELEASE,
   DELETE_RELEASE,
@@ -10,6 +8,8 @@ import {
   SEARCH_RELEASES_LOADING,
   UPDATE_RELEASE
 } from './types';
+import axios from 'axios';
+import { toastError } from './index';
 
 export const addRelease = () => async dispatch => {
   try {

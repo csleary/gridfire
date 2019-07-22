@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { BrowserRouter, Route } from 'react-router-dom';
 import 'lazysizes';
-import { fetchUser } from '../actions';
+import { BrowserRouter, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import About from './About';
 import ArtistPage from './ArtistPage';
 import Contact from './Contact';
@@ -19,10 +17,12 @@ import Player from './Player';
 import PrivateRoute from './PrivateRoute';
 import Register from './Register';
 import ResetPassword from './ResetPassword';
-import SelectedRelease from './SelectedRelease';
 import SearchResults from './SearchResults';
+import SelectedRelease from './SelectedRelease';
 import Support from './Support';
 import ToastList from './ToastList';
+import { connect } from 'react-redux';
+import { fetchUser } from '../actions';
 
 const App = ({ fetchUser, user }) => {
   const [, setLoading] = useState(true);

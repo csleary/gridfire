@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import FontAwesome from 'react-fontawesome';
-import moment from 'moment';
 import Artwork from './Artwork';
+import FontAwesome from 'react-fontawesome';
 import StatusIcon from './StatusIcon';
 import Title from './Title';
+import moment from 'moment';
 
 function UserRelease(props) {
   const {

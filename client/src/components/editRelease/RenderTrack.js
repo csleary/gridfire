@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import FontAwesome from 'react-fontawesome';
 import { Field } from 'redux-form';
-import classNames from 'classnames';
+import FontAwesome from 'react-fontawesome';
 import ProgressBar from './ProgressBar';
 import RenderTrackField from './RenderTrackField';
+import classNames from 'classnames';
 
 const RenderTrack = props => {
   const {

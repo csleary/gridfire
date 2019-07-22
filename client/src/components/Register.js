@@ -1,11 +1,11 @@
-import axios from 'axios';
-import React, { Component } from 'react';
-import FontAwesome from 'react-fontawesome';
 import { Field, reduxForm } from 'redux-form';
+import React, { Component } from 'react';
+import { fetchUser, toastError, toastSuccess } from '../actions';
+import FontAwesome from 'react-fontawesome';
+import RenderRecaptcha from './RenderRecaptcha';
+import axios from 'axios';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import RenderRecaptcha from './RenderRecaptcha';
-import { fetchUser, toastError, toastSuccess } from '../actions';
 
 class Register extends Component {
   onSubmit = values => {

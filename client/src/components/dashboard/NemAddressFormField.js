@@ -1,5 +1,5 @@
-import React from 'react';
 import FontAwesome from 'react-fontawesome';
+import React from 'react';
 import classnames from 'classnames';
 
 const FormInputs = props => {

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import FontAwesome from 'react-fontawesome';
 import '../style/footer.css';
+import FontAwesome from 'react-fontawesome';
+import { Link } from 'react-router-dom';
+import React from 'react';
 
 const today = new Date();
 const year = today.getFullYear();

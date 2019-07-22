@@ -1,11 +1,11 @@
-import axios from 'axios';
-import React, { useEffect } from 'react';
-import FontAwesome from 'react-fontawesome';
-import { Field, reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
-import { Link, withRouter } from 'react-router-dom';
-import { fetchUser, toastError, toastSuccess } from '../actions';
 import '../style/login.css';
+import { Field, reduxForm } from 'redux-form';
+import { Link, withRouter } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { fetchUser, toastError, toastSuccess } from '../actions';
+import FontAwesome from 'react-fontawesome';
+import axios from 'axios';
+import { connect } from 'react-redux';
 
 const renderField = field => {
   const {
@@ -51,18 +51,15 @@ const Login = props => {
     user: { auth }
   } = props;
 
-  useEffect(
-    () => {
-      if (auth && auth.email.length) {
-        if (history.location.state) {
-          history.push(history.location.state.from.pathname);
-        } else {
-          history.push('/');
-        }
+  useEffect(() => {
+    if (auth && auth.email.length) {
+      if (history.location.state) {
+        history.push(history.location.state.from.pathname);
+      } else {
+        history.push('/');
       }
-    },
-    [auth, history]
-  );
+    }
+  }, [auth, history]);
 
   const onSubmit = values => {
     login(values, () => {

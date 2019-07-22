@@ -1,5 +1,5 @@
-import React from 'react';
 import '../../style/progressBar.css';
+import React from 'react';
 
 const ProgressBar = ({ percentComplete, willDisplay }) => {
   if (willDisplay) {

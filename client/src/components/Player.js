@@ -1,9 +1,6 @@
-import axios from 'axios';
-import React, { Component, createRef } from 'react';
-import FontAwesome from 'react-fontawesome';
-import { connect } from 'react-redux';
+import '../style/player.css';
 import { Link, withRouter } from 'react-router-dom';
-import classNames from 'classnames';
+import React, { Component, createRef } from 'react';
 import {
   playTrack,
   playerHide,
@@ -11,7 +8,10 @@ import {
   playerPlay,
   playerStop
 } from '../actions';
-import '../style/player.css';
+import FontAwesome from 'react-fontawesome';
+import axios from 'axios';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 class Player extends Component {
   constructor(props) {

@@ -1,7 +1,5 @@
+import '../style/payment.css';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
 import {
   checkFormatMp3,
   fetchDownloadToken,
@@ -9,11 +7,13 @@ import {
   purchaseRelease,
   toastInfo
 } from '../actions';
+import { Link } from 'react-router-dom';
 import ManualPayment from './payment/ManualPayment';
 import QRCode from './payment/QRCode';
 import Spinner from './Spinner';
 import TransactionsList from './payment/TransactionsList';
-import '../style/payment.css';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 class Payment extends Component {
   constructor(props) {

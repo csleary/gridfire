@@ -1,7 +1,7 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import { NavLink, withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
+import React from 'react';
+import { connect } from 'react-redux';
 
 function DashNavbar(props) {
   const { user } = props;

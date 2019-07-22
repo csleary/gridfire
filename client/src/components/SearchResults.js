@@ -1,9 +1,9 @@
+import '../style/home.css';
+import { fetchRelease, playTrack, toastInfo } from '../actions';
 import React from 'react';
-import { connect } from 'react-redux';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
-import { fetchRelease, playTrack, toastInfo } from '../actions';
-import '../style/home.css';
+import { connect } from 'react-redux';
 
 const SearchResults = props => {
   const { searchQuery, searchResults } = this.props;

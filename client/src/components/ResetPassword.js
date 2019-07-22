@@ -1,9 +1,9 @@
-import axios from 'axios';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
+import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
 import Spinner from './Spinner';
+import axios from 'axios';
+import { connect } from 'react-redux';
 
 class ResetPassword extends Component {
   state = {

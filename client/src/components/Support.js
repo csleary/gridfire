@@ -1,5 +1,5 @@
-import React from 'react';
 import '../style/support.css';
+import React from 'react';
 
 const Support = () => (
   <main className="container">

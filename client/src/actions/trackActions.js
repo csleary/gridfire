@@ -1,15 +1,15 @@
-import axios from 'axios';
-import { toastError, toastSuccess } from './index';
 import {
   ADD_TRACK,
-  DELETE_TRACK_START,
   DELETE_TRACK_COMPLETE,
+  DELETE_TRACK_START,
   MOVE_TRACK,
   PLAY_TRACK,
-  TRANSCODING_START,
   TRANSCODING_COMPLETE,
+  TRANSCODING_START,
   UPLOAD_AUDIO_PROGRESS
 } from './types';
+import { toastError, toastSuccess } from './index';
+import axios from 'axios';
 
 export const addTrack = (releaseId, callback) => async dispatch => {
   try {

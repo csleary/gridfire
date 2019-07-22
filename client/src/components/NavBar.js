@@ -1,15 +1,15 @@
-import classNames from 'classnames';
-import throttle from 'lodash.throttle';
-import React, { useState, useEffect, useRef } from 'react';
-import FontAwesome from 'react-fontawesome';
-import { connect } from 'react-redux';
-import { Link, NavLink, withRouter } from 'react-router-dom';
-import DashNavbar from './dashboard/DashNavbar';
-import PrivateRoute from './PrivateRoute';
-import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
-import Logo from './Logo';
-import SearchBar from './SearchBar';
 import '../style/navbar.css';
+import { Link, NavLink, withRouter } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
+import DashNavbar from './dashboard/DashNavbar';
+import FontAwesome from 'react-fontawesome';
+import Logo from './Logo';
+import PrivateRoute from './PrivateRoute';
+import SearchBar from './SearchBar';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
+import throttle from 'lodash.throttle';
 
 const NavBar = props => {
   const {

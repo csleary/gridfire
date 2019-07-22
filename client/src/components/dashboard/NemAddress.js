@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import { Field, formValueSelector, reduxForm } from 'redux-form';
-import FontAwesome from 'react-fontawesome';
-import classnames from 'classnames';
-import nem from 'nem-sdk';
-import NemAddressFormField from './NemAddressFormField';
+import React, { useEffect, useState } from 'react';
 import {
   addNemAddress,
   fetchUserCredit,
   toastSuccess,
   toastWarning
 } from '../../actions';
+import FontAwesome from 'react-fontawesome';
+import NemAddressFormField from './NemAddressFormField';
+import classnames from 'classnames';
+import { connect } from 'react-redux';
+import nem from 'nem-sdk';
 
 function NemAddress(props) {
   const [isCheckingCredit, setCheckingCredit] = useState(false);

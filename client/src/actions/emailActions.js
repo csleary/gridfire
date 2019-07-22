@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { toastError, toastSuccess } from './index';
+import axios from 'axios';
 
 export default (values, callback) => async dispatch => {
   try {
