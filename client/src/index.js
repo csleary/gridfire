@@ -1,14 +1,13 @@
+import '@ibm/type/css/ibm-type.min.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import * as serviceWorker from './serviceWorker';
+import { applyMiddleware, createStore } from 'redux';
+import App from './components/App';
+import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
 import reduxThunk from 'redux-thunk';
-import 'bootstrap/dist/css/bootstrap.css';
-import '@ibm/type/css/ibm-type.min.css';
-import App from './components/App';
-import * as serviceWorker from './serviceWorker';
 import rootReducer from './reducers';
-import './style/index.css';
 
 const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
 

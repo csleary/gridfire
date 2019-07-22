@@ -1,3 +1,4 @@
+import '../style/app.css';
 import 'lazysizes';
 import { BrowserRouter, Route } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';

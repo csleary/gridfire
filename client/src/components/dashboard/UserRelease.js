@@ -68,6 +68,13 @@ function UserRelease(props) {
     });
   };
 
+  const audioCheck = () => {
+    if (!trackList.length) return false;
+    if (trackList.filter(el => el.hasAudio === false).length) return false;
+    return true;
+  };
+  const hasAudio = audioCheck();
+
   return (
     <li className="no-gutters d-flex flex-column release" key={releaseId}>
       <Artwork
@@ -99,9 +106,10 @@ function UserRelease(props) {
           <h6>
             <FontAwesome
               name="file-audio-o"
-              className={`mr-2 ${trackList.length ? 'cyan' : 'red'}`}
+              className={`mr-2 ${hasAudio ? 'cyan' : 'red'}`}
             />
-            {trackList.length} Tracks
+            {trackList.length} Track{trackList.length === 1 ? '' : 's'}
+            {trackList.length && !hasAudio ? ' (incomplete)' : null}
           </h6>
           <h6>
             <FontAwesome
