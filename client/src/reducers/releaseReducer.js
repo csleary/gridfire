@@ -15,6 +15,7 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   SEARCH_RELEASES,
+  SEARCH_RELEASES_CLEAR,
   SEARCH_RELEASES_LOADING,
   TRANSCODING_COMPLETE,
   TRANSCODING_START,
@@ -139,6 +140,11 @@ export default (state = initialState, action) => {
       ...state,
       searchResults: payload,
       searchQuery: action.searchQuery
+    };
+  case SEARCH_RELEASES_CLEAR:
+    return {
+      ...state,
+      searchResults: []
     };
   case SEARCH_RELEASES_LOADING:
     return {
