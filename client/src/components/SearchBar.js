@@ -1,156 +1,155 @@
-import '../style/searchBar.css';
 import { Link, withRouter } from 'react-router-dom';
-import React, { Component } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { clearReleases, searchReleases } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
-import { searchReleases } from '../actions';
+import styles from '../style/SearchBar.module.css';
+import { usePrevious } from '../functions';
 
-class SearchBar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchQuery: '',
-      showLogo: false,
-      expandSearch: false
-    };
-  }
+const SearchBar = props => {
+  const { isSearching, searchResults } = props;
+  const [expandSearch, setExpandSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchBar = useRef();
 
-  handleKeyDown = e => {
+  const handleKeyDown = e => {
     if (e.keyCode === 27) {
-      this.searchBar.blur();
-      this.setState({ expandSearch: false });
+      searchBar.current.blur();
+      setExpandSearch(false);
     }
   };
 
-  handleSearchInput = e => {
-    this.setState({ searchQuery: e.target.value }, () => {
-      this.handleSearch();
-    });
-  };
-
-  handleSearchBlur = () =>
-    this.setState({ searchQuery: '', expandSearch: false });
-
-  handleSearchFocus = () => {
-    this.searchBar.focus();
-    this.setState({ expandSearch: true });
-  };
-
-  handlePreviewClick = () => {
-    this.setState({ expandSearch: true });
-  };
-
-  handlePreviewBlur = () => {
-    this.setState({ searchQuery: '', expandSearch: false });
-  };
-
-  handleClearSearch = () => {
-    this.searchBar.focus();
-    this.setState({ searchQuery: '' });
-  };
-
-  handleSearch = debounce(
+  const handleSearch = debounce(
     () => {
-      const { searchQuery } = this.state;
-      this.props.searchReleases(searchQuery);
+      props.searchReleases(searchQuery);
     },
     250,
     { leading: false, trailing: true }
   );
 
-  handleSubmit = e => {
-    e.preventDefault();
-    this.props.history.push('/search');
+  const previousQuery = usePrevious(searchQuery);
+
+  useEffect(() => {
+    if (searchQuery.length && searchQuery !== previousQuery) {
+      handleSearch();
+    }
+  }, [handleSearch, previousQuery, searchQuery]);
+
+  const handleSearchInput = e => {
+    setSearchQuery(e.target.value);
   };
 
-  render() {
-    const { searchResults } = this.props;
-    const { expandSearch, searchQuery } = this.state;
+  const handleSearchBlur = () => {
+    setSearchQuery('');
+    setExpandSearch(false);
+  };
 
-    const previewClassNames = classNames('search-preview', {
-      expanded: expandSearch && searchResults.length
-    });
-    const clearSearchClassNames = classNames('clear-search-icon', {
-      show: searchQuery
-    });
-    const searchBarClassNames = classNames('form-control', 'search', {
-      expanded: this.state.expandSearch
-    });
+  const handleSearchFocus = () => {
+    searchBar.current.focus();
+    setExpandSearch(true);
+  };
 
-    const resultsList = searchResults.map(release => (
-      <Link
-        className="list-group-item list-group-item-action"
-        key={release._id}
-        to={`/release/${release._id}`}
-      >
-        {release.artistName} &bull; {release.releaseTitle}
-      </Link>
-    ));
+  const handlePreviewClick = () => {
+    setExpandSearch(true);
+  };
 
-    return (
-      <form className="d-flex" onSubmit={this.handleSubmit}>
-        <div className="form-group d-flex align-items-center">
-          <div
-            className={previewClassNames}
-            onBlur={this.handlePreviewBlur}
-            onClick={this.handlePreviewClick}
-            onMouseDown={e => e.preventDefault()}
-            onMouseUp={this.handlePreviewClick}
-            role="button"
-            tabIndex="-1"
-          >
-            <ul className="list-group">
-              {searchResults.length && (
-                <p className="m-3">
-                  <small>
-                    {searchResults.length} result
-                    {searchResults.length === 1 ? '' : 's'} for &lsquo;
-                    {searchQuery}&rsquo;: (Hit return for the{' '}
-                    <Link to={'/search'}>full grid view</Link>.)
-                  </small>
-                </p>
-              )}
-              {resultsList}
-            </ul>
-          </div>
-          <FontAwesome
-            className="search-icon"
-            onClick={this.handleSearchFocus}
-            onMouseDown={e => e.preventDefault()}
-            onMouseUp={this.handleSearchFocus}
-            onTouchStart={this.handleSearchFocus}
-            name="search"
-            title="Search all available releases."
-          />
-          <FontAwesome
-            className={clearSearchClassNames}
-            onClick={this.handleClearSearch}
-            onMouseDown={e => e.preventDefault()}
-            onMouseUp={this.handleClearSearch}
-            name={this.props.isSearching ? 'circle-o-notch' : 'times'}
-            spin={this.props.isSearching}
-          />
-          <input
-            className={searchBarClassNames}
-            onBlur={this.handleSearchBlur}
-            onChange={this.handleSearchInput}
-            onFocus={this.handleSearchFocus}
-            onKeyDown={this.handleKeyDown}
-            placeholder={this.state.expandSearch ? 'Search…' : undefined}
-            ref={el => {
-              this.searchBar = el;
-            }}
-            tabIndex="-1"
-            type="text"
-            value={this.state.searchQuery}
-          />
+  const handlePreviewBlur = () => {
+    setSearchQuery('');
+    setExpandSearch(false);
+  };
+
+  const handleClearSearch = () => {
+    props.clearReleases();
+    searchBar.current.focus();
+    setSearchQuery('');
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    props.history.push('/search');
+  };
+
+  const previewClassNames = classNames(styles.preview, {
+    [styles.showPreview]: expandSearch && searchResults.length
+  });
+  const clearSearchClassNames = classNames(styles.clear, {
+    [styles.showClear]: searchQuery
+  });
+  const searchBarClassNames = classNames(styles.search, {
+    [styles.expanded]: expandSearch
+  });
+
+  const resultsList = searchResults.map(release => (
+    <Link
+      className={`${styles.item} ${styles.action}`}
+      key={release._id}
+      to={`/release/${release._id}`}
+    >
+      {release.artistName} &bull; {release.releaseTitle}
+    </Link>
+  ));
+
+  return (
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <div className={styles.formGroup}>
+        <div
+          className={previewClassNames}
+          onBlur={handlePreviewBlur}
+          onClick={handlePreviewClick}
+          onMouseDown={e => e.preventDefault()}
+          onMouseUp={handlePreviewClick}
+          role="button"
+          tabIndex="-1"
+        >
+          <ul className={styles.list}>
+            {searchResults.length && (
+              <p className={styles.p}>
+                <small>
+                  {searchResults.length} result
+                  {searchResults.length === 1 ? '' : 's'} for &lsquo;
+                  {searchQuery}&rsquo; (hit return for the{' '}
+                  <Link to={'/search'}>full grid view</Link>):
+                </small>
+              </p>
+            )}
+            {resultsList}
+          </ul>
         </div>
-      </form>
-    );
-  }
-}
+        <FontAwesome
+          className={styles.icon}
+          onClick={handleSearchFocus}
+          onMouseDown={e => e.preventDefault()}
+          onMouseUp={handleSearchFocus}
+          onTouchStart={handleSearchFocus}
+          name="search"
+          title="Search all available releases."
+        />
+        <FontAwesome
+          className={clearSearchClassNames}
+          onClick={handleClearSearch}
+          onMouseDown={e => e.preventDefault()}
+          onMouseUp={handleClearSearch}
+          name={isSearching ? 'circle-o-notch' : 'times'}
+          spin={isSearching}
+        />
+        <input
+          className={searchBarClassNames}
+          onBlur={handleSearchBlur}
+          onChange={handleSearchInput}
+          onFocus={handleSearchFocus}
+          onKeyDown={handleKeyDown}
+          placeholder={expandSearch ? 'Search…' : undefined}
+          ref={searchBar}
+          tabIndex="-1"
+          type="text"
+          value={searchQuery}
+        />
+      </div>
+    </form>
+  );
+};
 
 function mapStateToProps(state) {
   return {
@@ -161,5 +160,5 @@ function mapStateToProps(state) {
 
 export default connect(
   mapStateToProps,
-  { searchReleases }
+  { clearReleases, searchReleases }
 )(withRouter(SearchBar));

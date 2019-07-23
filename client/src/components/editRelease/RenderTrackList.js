@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import RenderTrack from './RenderTrack';
+import { usePrevious } from '../../functions';
 
 function RenderTrackList(props) {
   const {
@@ -22,13 +23,6 @@ function RenderTrackList(props) {
   const [dragActive, setDragActive] = useState(false);
   const [addingTrack, setAddingTrack] = useState(false);
 
-  const usePrevious = value => {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  };
   const prevAddingTrack = usePrevious(addingTrack);
 
   const handleDeleteTrack = (remove, trackId) => {

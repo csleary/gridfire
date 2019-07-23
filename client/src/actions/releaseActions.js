@@ -5,6 +5,7 @@ import {
   PUBLISH_STATUS,
   PURCHASE_RELEASE,
   SEARCH_RELEASES,
+  SEARCH_RELEASES_CLEAR,
   SEARCH_RELEASES_LOADING,
   UPDATE_RELEASE
 } from './types';
@@ -84,6 +85,10 @@ export const searchReleases = searchQuery => async dispatch => {
   dispatch({ type: SEARCH_RELEASES, payload: res.data, searchQuery });
   dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: false });
   return res;
+};
+
+export const clearReleases = () => async dispatch => {
+  dispatch({ type: SEARCH_RELEASES_CLEAR });
 };
 
 export const updateRelease = values => async dispatch => {
