@@ -1,6 +1,6 @@
 import { Link, withRouter } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { clearReleases, searchReleases } from '../actions';
+import { clearResults, searchReleases } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import styles from '../style/SearchBar.module.css';
 import { usePrevious } from '../functions';
 
 const SearchBar = props => {
-  const { isSearching, searchResults } = props;
+  const { clearResults, isSearching, searchResults } = props;
   const [expandSearch, setExpandSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchBar = useRef();
@@ -34,14 +34,21 @@ const SearchBar = props => {
   useEffect(() => {
     if (searchQuery.length && searchQuery !== previousQuery) {
       handleSearch();
+      return;
     }
-  }, [handleSearch, previousQuery, searchQuery]);
+
+    if (!searchQuery.length && previousQuery && previousQuery.length) {
+      clearResults();
+      return;
+    }
+  }, [clearResults, handleSearch, previousQuery, searchQuery]);
 
   const handleSearchInput = e => {
     setSearchQuery(e.target.value);
   };
 
   const handleSearchBlur = () => {
+    props.clearResults();
     setSearchQuery('');
     setExpandSearch(false);
   };
@@ -61,7 +68,7 @@ const SearchBar = props => {
   };
 
   const handleClearSearch = () => {
-    props.clearReleases();
+    props.clearResults();
     searchBar.current.focus();
     setSearchQuery('');
   };
@@ -72,7 +79,8 @@ const SearchBar = props => {
   };
 
   const previewClassNames = classNames(styles.preview, {
-    [styles.showPreview]: expandSearch && searchResults.length
+    [styles.showPreview]:
+      searchResults.length && searchQuery.length && expandSearch
   });
   const clearSearchClassNames = classNames(styles.clear, {
     [styles.showClear]: searchQuery
@@ -80,6 +88,21 @@ const SearchBar = props => {
   const searchBarClassNames = classNames(styles.search, {
     [styles.expanded]: expandSearch
   });
+
+  const renderResults = () => {
+    if (searchResults.length) {
+      return (
+        <p className={styles.p}>
+          <small>
+            {searchResults.length} result
+            {searchResults.length === 1 ? '' : 's'} for &lsquo;
+            {searchQuery}&rsquo; (hit return for the{' '}
+            <Link to={'/search'}>full grid view</Link>):
+          </small>
+        </p>
+      );
+    }
+  };
 
   const resultsList = searchResults.map(release => (
     <Link
@@ -104,16 +127,7 @@ const SearchBar = props => {
           tabIndex="-1"
         >
           <ul className={styles.list}>
-            {searchResults.length && (
-              <p className={styles.p}>
-                <small>
-                  {searchResults.length} result
-                  {searchResults.length === 1 ? '' : 's'} for &lsquo;
-                  {searchQuery}&rsquo; (hit return for the{' '}
-                  <Link to={'/search'}>full grid view</Link>):
-                </small>
-              </p>
-            )}
+            {renderResults()}
             {resultsList}
           </ul>
         </div>
@@ -160,5 +174,5 @@ function mapStateToProps(state) {
 
 export default connect(
   mapStateToProps,
-  { clearReleases, searchReleases }
+  { clearResults, searchReleases }
 )(withRouter(SearchBar));
