@@ -1,4 +1,3 @@
-import '../style/searchBar.css';
 import { Link, withRouter } from 'react-router-dom';
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
@@ -6,6 +5,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { searchReleases } from '../actions';
+import styles from '../style/SearchBar.module.css';
 
 class SearchBar extends Component {
   constructor(props) {
@@ -69,19 +69,19 @@ class SearchBar extends Component {
     const { searchResults } = this.props;
     const { expandSearch, searchQuery } = this.state;
 
-    const previewClassNames = classNames('search-preview', {
-      expanded: expandSearch && searchResults.length
+    const previewClassNames = classNames(styles.preview, {
+      [styles.showPreview]: expandSearch && searchResults.length
     });
-    const clearSearchClassNames = classNames('clear-search-icon', {
-      show: searchQuery
+    const clearSearchClassNames = classNames(styles.clear, {
+      [styles.showClear]: searchQuery
     });
-    const searchBarClassNames = classNames('form-control', 'search', {
-      expanded: this.state.expandSearch
+    const searchBarClassNames = classNames(styles.search, {
+      [styles.expanded]: this.state.expandSearch
     });
 
     const resultsList = searchResults.map(release => (
       <Link
-        className="list-group-item list-group-item-action"
+        className={`${styles.item} ${styles.action}`}
         key={release._id}
         to={`/release/${release._id}`}
       >
@@ -90,8 +90,8 @@ class SearchBar extends Component {
     ));
 
     return (
-      <form className="d-flex" onSubmit={this.handleSubmit}>
-        <div className="form-group d-flex align-items-center">
+      <form className={styles.form} onSubmit={this.handleSubmit}>
+        <div className={styles.formGroup}>
           <div
             className={previewClassNames}
             onBlur={this.handlePreviewBlur}
@@ -101,14 +101,14 @@ class SearchBar extends Component {
             role="button"
             tabIndex="-1"
           >
-            <ul className="list-group">
+            <ul className={styles.list}>
               {searchResults.length && (
-                <p className="m-3">
+                <p className={styles.p}>
                   <small>
                     {searchResults.length} result
                     {searchResults.length === 1 ? '' : 's'} for &lsquo;
-                    {searchQuery}&rsquo;: (Hit return for the{' '}
-                    <Link to={'/search'}>full grid view</Link>.)
+                    {searchQuery}&rsquo; (hit return for the{' '}
+                    <Link to={'/search'}>full grid view</Link>):
                   </small>
                 </p>
               )}
@@ -116,7 +116,7 @@ class SearchBar extends Component {
             </ul>
           </div>
           <FontAwesome
-            className="search-icon"
+            className={styles.icon}
             onClick={this.handleSearchFocus}
             onMouseDown={e => e.preventDefault()}
             onMouseUp={this.handleSearchFocus}
