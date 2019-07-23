@@ -87,7 +87,7 @@ export const searchReleases = searchQuery => async dispatch => {
   return res;
 };
 
-export const clearReleases = () => async dispatch => {
+export const clearResults = () => async dispatch => {
   dispatch({ type: SEARCH_RELEASES_CLEAR });
 };
 
