@@ -8,6 +8,7 @@ import {
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
+import { frontPage } from '../style/Home.module.css';
 import styles from '../style/ArtistPage.module.css';
 
 const ArtistPage = props => {
@@ -53,7 +54,7 @@ const ArtistPage = props => {
         <div className="col py-3">
           <h2 className={`${styles.artist} text-center mt-2 mb-2`}>{name}</h2>
           <h3>Releases</h3>
-          <div className="front-page">{renderReleases()}</div>
+          <div className={frontPage}>{renderReleases()}</div>
         </div>
       </div>
     </main>
