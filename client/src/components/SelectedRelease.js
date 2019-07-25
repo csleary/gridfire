@@ -290,7 +290,7 @@ class SelectedRelease extends Component {
               <Link to={`/artist/${artist}`}>{artistName}</Link>
             </h4>
             <h6 className={`${styles.price} text-center`}>
-              {this.renderPrice()}
+              {this.renderPrice() || 'Loading…'}
             </h6>
             <div className={trackListColumns}>
               <ol className={styles.trackList}>{this.renderTrackList()}</ol>
