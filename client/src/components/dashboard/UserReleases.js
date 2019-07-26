@@ -30,17 +30,24 @@ function UserReleases(props) {
   const [salesData, setSalesData] = useState();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     if (!userReleases.length) {
       setLoading(true);
     }
-    fetchUserReleases()
-      .then(() => fetchSales())
-      .then(data => {
-        setSalesData(data);
-        setLoading(false);
-      });
-  }, [fetchUserReleases, fetchSales, userReleases.length]);
+    window.scrollTo(0, 0);
+    const handleFetch = async () =>
+      fetchUserReleases().then(() => setLoading(false));
+
+    handleFetch();
+  }, [fetchUserReleases, userReleases.length]);
+
+  useEffect(() => {
+    const handleFetch = async () => {
+      const data = await fetchSales();
+      setSalesData(data);
+    };
+
+    handleFetch();
+  }, [fetchSales]);
 
   const releasesOffline = () => {
     if (!userReleases) return;
