@@ -68,13 +68,23 @@ class Payment extends Component {
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
-    const paymentButtonQR = classNames('btn', 'btn-outline-primary', {
-      [styles.selected]: !showPaymentInfo
-    });
+    const paymentButtonQR = classNames(
+      styles.select,
+      'btn',
+      'btn-outline-primary',
+      {
+        [styles.selected]: !showPaymentInfo
+      }
+    );
 
-    const paymentButtonManual = classNames('btn', 'btn-outline-primary', {
-      [styles.selected]: showPaymentInfo
-    });
+    const paymentButtonManual = classNames(
+      styles.select,
+      'btn',
+      'btn-outline-primary',
+      {
+        [styles.selected]: showPaymentInfo
+      }
+    );
 
     const paymentMethods = classNames(styles.methods, 'mb-5', {
       [styles.manual]: showPaymentInfo
