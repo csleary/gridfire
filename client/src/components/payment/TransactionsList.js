@@ -8,6 +8,7 @@ import styles from '../../style/TransactionsList.module.css';
 
 const TransactionsList = props => {
   const {
+    artistName,
     handleFetchIncomingTxs,
     hasPurchased,
     isLoadingTxs,
@@ -15,13 +16,13 @@ const TransactionsList = props => {
     nemNode,
     paidToDate,
     price,
-    release: { artistName, releaseTitle },
+    releaseId,
+    releaseTitle,
     roundUp,
     toastInfo,
     transactions,
     transactionsError
   } = props;
-  const releaseId = props.release._id;
 
   const [isPreparingDownload, setPreparingDownload] = useState(false);
   const [formatExists, setFormatExists] = useState(false);
@@ -211,7 +212,7 @@ const TransactionsList = props => {
               className={`${styles.refresh} btn btn-outline-primary btn-sm py-2 px-3`}
               disabled={isUpdating}
               onClick={() => handleFetchIncomingTxs(true)}
-              title={`Press to check again for recent payments (NIS Node: ${nemNode}).`}
+              title={`Press to check again for recent payments (using NIS Node: ${nemNode}).`}
             >
               <FontAwesome name="refresh" className="mr-2" spin={isUpdating} />
               Refresh
