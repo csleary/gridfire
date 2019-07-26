@@ -1,4 +1,4 @@
-:global(.btn.btn-outline-primary).active {
+:global(.btn.btn-outline-primary).selected {
   color: #18cdca;
 }
 

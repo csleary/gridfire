@@ -71,7 +71,7 @@ const RenderRelease = props => {
     <div className={styles.art} key={releaseId} onTouchStart={() => {}}>
       <img
         alt={`${artistName} - ${releaseTitle}`}
-        className={`lazyload ${styles.image}`}
+        className={`${styles.image} lazyload`}
         data-sizes="auto"
         data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
       />

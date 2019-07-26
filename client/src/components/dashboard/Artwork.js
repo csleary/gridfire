@@ -11,7 +11,7 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
       <Link className={styles.art} to={`/release/${releaseId}`}>
         <img
           alt={artwork && `'${releaseTitle}' Artwork`}
-          className={`${styles.image} lazyload img-fluid`}
+          className={`${styles.image} lazyload`}
           data-sizes="auto"
           data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
         />
@@ -33,7 +33,7 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
         </h6>
         <img
           alt={artwork && `'${releaseTitle}' Artwork`}
-          className="img-fluid"
+          className={styles.image}
           src={placeholder}
         />
       </Link>
