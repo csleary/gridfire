@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   deleteRelease,
   fetchSales,
@@ -13,6 +13,7 @@ import Spinner from '../Spinner';
 import UserRelease from './UserRelease';
 import { connect } from 'react-redux';
 import styles from '../../style/UserReleases.module.css';
+import { useMountEffect } from '../../functions';
 
 function UserReleases(props) {
   const {
@@ -29,25 +30,24 @@ function UserReleases(props) {
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
-  useEffect(() => {
+  useMountEffect(() => {
+    const handleFetchReleases = () =>
+      fetchUserReleases().then(() => setLoading(false));
+
     if (!userReleases.length) {
       setLoading(true);
     }
     window.scrollTo(0, 0);
-    const handleFetch = async () =>
-      fetchUserReleases().then(() => setLoading(false));
+    handleFetchReleases();
+  });
 
-    handleFetch();
-  }, [fetchUserReleases, userReleases.length]);
-
-  useEffect(() => {
-    const handleFetch = async () => {
+  useMountEffect(() => {
+    const handleFetchSales = async () => {
       const data = await fetchSales();
       setSalesData(data);
     };
-
-    handleFetch();
-  }, [fetchSales]);
+    handleFetchSales();
+  });
 
   const releasesOffline = () => {
     if (!userReleases) return;

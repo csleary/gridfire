@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   fetchCollection,
   fetchDownloadToken,
@@ -10,17 +10,18 @@ import RenderRelease from '../RenderRelease';
 import Spinner from '../Spinner';
 import { connect } from 'react-redux';
 import { frontPage } from '../../style/Home.module.css';
+import { useMountEffect } from '../../functions';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
   const { collection, fetchCollection } = props;
 
-  useEffect(() => {
+  useMountEffect(() => {
     if (!collection.length) {
       setLoading(true);
     }
     fetchCollection().then(() => setLoading(false));
-  }, [fetchCollection, collection.length]);
+  });
 
   const renderReleases = collection.map(release => (
     <RenderRelease

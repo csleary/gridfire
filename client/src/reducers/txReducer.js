@@ -6,7 +6,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  error: '',
+  error: false,
   hasPurchased: false,
   incomingTxs: [],
   isLoading: false,
@@ -32,20 +32,19 @@ export default (state = initialState, action) => {
   case FETCH_INCOMING_TRANSACTIONS_ERROR:
     return {
       ...state,
-      isLoading: action.isLoading,
+      isLoading: false,
       isUpdating: false,
       error: action.error
     };
   case FETCH_INCOMING_TRANSACTIONS_LOADING:
     return {
       ...state,
-      isLoading: action.isLoading,
-      error: action.error
+      isLoading: true
     };
   case FETCH_INCOMING_TRANSACTIONS_UPDATING:
     return {
       ...state,
-      isUpdating: action.isUpdating
+      isUpdating: true
     };
   default:
     return state;

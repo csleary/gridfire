@@ -35,27 +35,23 @@ export const fetchIncomingTxs = (
 ) => async dispatch => {
   try {
     if (isUpdating) {
-      dispatch({
-        type: FETCH_INCOMING_TRANSACTIONS_UPDATING,
-        isUpdating: true
-      });
+      dispatch({ type: FETCH_INCOMING_TRANSACTIONS_UPDATING });
     } else {
-      dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING, isLoading: true });
+      dispatch({ type: FETCH_INCOMING_TRANSACTIONS_LOADING });
     }
+
     const res = await axios.post('/api/nem/transactions', paymentParams);
+
     dispatch({
       type: FETCH_INCOMING_TRANSACTIONS,
-      isLoading: false,
-      isUpdating: false,
       payload: res.data
     });
   } catch (e) {
     dispatch({
       type: FETCH_INCOMING_TRANSACTIONS_ERROR,
-      isLoading: false,
-      isUpdating: false,
       error: e.response.data.error
     });
+
     toastError(e.response.data.error)(dispatch);
   }
 };
