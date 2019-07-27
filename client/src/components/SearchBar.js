@@ -8,8 +8,12 @@ import debounce from 'lodash.debounce';
 import styles from '../style/SearchBar.module.css';
 import { usePrevious } from '../functions';
 
+const handleSearch = debounce((searchReleases, searchQuery) => {
+  searchReleases(searchQuery);
+}, 500);
+
 const SearchBar = props => {
-  const { clearResults, isSearching, searchResults } = props;
+  const { clearResults, isSearching, searchReleases, searchResults } = props;
   const [expandSearch, setExpandSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchBar = useRef();
@@ -21,19 +25,11 @@ const SearchBar = props => {
     }
   };
 
-  const handleSearch = debounce(
-    () => {
-      props.searchReleases(searchQuery);
-    },
-    250,
-    { leading: false, trailing: true }
-  );
-
   const previousQuery = usePrevious(searchQuery);
 
   useEffect(() => {
     if (searchQuery.length && searchQuery !== previousQuery) {
-      handleSearch();
+      handleSearch(searchReleases, searchQuery);
       return;
     }
 
@@ -41,7 +37,7 @@ const SearchBar = props => {
       clearResults();
       return;
     }
-  }, [clearResults, handleSearch, previousQuery, searchQuery]);
+  }, [clearResults, previousQuery, searchQuery, searchReleases]);
 
   const handleSearchInput = e => {
     setSearchQuery(e.target.value);

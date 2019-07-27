@@ -43,12 +43,18 @@ const Payment = props => {
   );
 
   useEffect(() => {
-    purchaseRelease(releaseId).then(() => {
-      setLoading(false);
+    const handlePurchase = () => purchaseRelease(releaseId);
+    handlePurchase();
+  }, [purchaseRelease, releaseId]);
+
+  useEffect(() => {
+    const handleFetch = () => {
       if (!paymentAddress) return null;
       handleFetchIncomingTxs();
-    });
-  }, [handleFetchIncomingTxs, paymentAddress, purchaseRelease, releaseId]);
+      setLoading(false);
+    };
+    handleFetch();
+  }, [handleFetchIncomingTxs, paymentAddress]);
 
   const handleShowPaymentInfo = () => {
     setShowPaymentInfo(!showPaymentInfo);
