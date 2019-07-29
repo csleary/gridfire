@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   fetchCollection,
   fetchDownloadToken,
@@ -10,18 +10,15 @@ import RenderRelease from '../RenderRelease';
 import Spinner from '../Spinner';
 import { connect } from 'react-redux';
 import { frontPage } from '../../style/Home.module.css';
-import { useAsyncEffect } from 'use-async-effect';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
   const { collection, fetchCollection } = props;
 
-  useAsyncEffect(() => {
-    if (!collection.length) {
-      setLoading(true);
-    }
-    return fetchCollection().then(() => setLoading(false));
-  }, []);
+  useEffect(() => {
+    if (!collection.length) setLoading(true);
+    fetchCollection().then(() => setLoading(false));
+  }, [collection.length, fetchCollection]);
 
   const renderReleases = collection.map(release => (
     <RenderRelease

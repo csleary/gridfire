@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   deleteRelease,
   fetchSales,
@@ -13,7 +13,6 @@ import Spinner from '../Spinner';
 import UserRelease from './UserRelease';
 import { connect } from 'react-redux';
 import styles from '../../style/UserReleases.module.css';
-import { useAsyncEffect } from 'use-async-effect';
 
 function UserReleases(props) {
   const {
@@ -30,18 +29,20 @@ function UserReleases(props) {
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
-  useAsyncEffect(() => {
-    window.scrollTo(0, 0);
-    if (!userReleases.length) {
-      setLoading(true);
-    }
-    return fetchUserReleases()
-      .then(fetchSales)
-      .then(data => {
-        setSalesData(data);
-        setLoading(false);
-      });
-  }, []);
+  useEffect(() => {
+    if (!userReleases.length) setLoading(true);
+    fetchUserReleases().then(() => {
+      setLoading(false);
+    });
+  }, [fetchUserReleases, userReleases.length]);
+
+  useEffect(() => {
+    const handleFetch = async () => {
+      const data = await fetchSales();
+      setSalesData(data);
+    };
+    handleFetch();
+  }, [fetchSales]);
 
   const releasesOffline = () => {
     if (!userReleases) return;
