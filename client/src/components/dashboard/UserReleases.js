@@ -13,7 +13,7 @@ import Spinner from '../Spinner';
 import UserRelease from './UserRelease';
 import { connect } from 'react-redux';
 import styles from '../../style/UserReleases.module.css';
-import { useMountEffect } from '../../functions';
+import { useAsyncEffect } from 'use-async-effect';
 
 function UserReleases(props) {
   const {
@@ -30,24 +30,18 @@ function UserReleases(props) {
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
-  useMountEffect(() => {
-    const handleFetchReleases = () =>
-      fetchUserReleases().then(() => setLoading(false));
-
+  useAsyncEffect(() => {
+    window.scrollTo(0, 0);
     if (!userReleases.length) {
       setLoading(true);
     }
-    window.scrollTo(0, 0);
-    handleFetchReleases();
-  });
-
-  useMountEffect(() => {
-    const handleFetchSales = async () => {
-      const data = await fetchSales();
-      setSalesData(data);
-    };
-    handleFetchSales();
-  });
+    return fetchUserReleases()
+      .then(fetchSales)
+      .then(data => {
+        setSalesData(data);
+        setLoading(false);
+      });
+  }, []);
 
   const releasesOffline = () => {
     if (!userReleases) return;
