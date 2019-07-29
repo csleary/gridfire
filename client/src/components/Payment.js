@@ -65,6 +65,7 @@ class Payment extends Component {
     } = this.props;
 
     const { artist, artistName, releaseTitle } = release;
+    const releaseId = release._id;
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 
@@ -187,7 +188,8 @@ class Payment extends Component {
           nemNode={nemNode}
           paidToDate={paidToDate}
           price={priceInXem}
-          release={release}
+          releaseId={releaseId}
+          releaseTitle={releaseTitle}
           roundUp={this.roundUp}
           toastInfo={this.props.toastInfo}
           transactions={transactions}
