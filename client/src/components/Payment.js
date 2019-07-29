@@ -59,13 +59,12 @@ class Payment extends Component {
       paidToDate,
       paymentAddress,
       paymentHash,
-      release,
+      release: { artist, artistName, releaseTitle },
       transactions,
       transactionsError
     } = this.props;
 
-    const { artist, artistName, releaseTitle } = release;
-    const releaseId = release._id;
+    const { releaseId } = this.props.match.params;
     const { showPaymentInfo } = this.state;
     const priceInXem = this.roundUp(this.props.priceInXem, 2).toFixed(2);
 

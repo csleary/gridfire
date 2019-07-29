@@ -16,11 +16,11 @@ function Collection(props) {
   const [isLoading, setLoading] = useState(false);
   const { collection, fetchCollection } = props;
 
-  useAsyncEffect(async () => {
+  useAsyncEffect(() => {
     if (!collection.length) {
       setLoading(true);
     }
-    fetchCollection().then(() => setLoading(false));
+    return fetchCollection().then(() => setLoading(false));
   }, []);
 
   const renderReleases = collection.map(release => (

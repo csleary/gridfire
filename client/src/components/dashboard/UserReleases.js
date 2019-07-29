@@ -30,13 +30,13 @@ function UserReleases(props) {
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
-  useAsyncEffect(async () => {
+  useAsyncEffect(() => {
     window.scrollTo(0, 0);
     if (!userReleases.length) {
       setLoading(true);
     }
-    fetchUserReleases()
-      .then(() => fetchSales())
+    return fetchUserReleases()
+      .then(fetchSales)
       .then(data => {
         setSalesData(data);
         setLoading(false);

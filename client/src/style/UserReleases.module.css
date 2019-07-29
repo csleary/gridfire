@@ -42,7 +42,7 @@
   }
 }
 
-@media (min-width: 1920px) {
+@media (min-width: 2460px) {
   .releases {
     grid-template-columns: repeat(5, 1fr);
   }
