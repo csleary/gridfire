@@ -26,6 +26,4 @@ const usePrevious = value => {
   return ref.current;
 };
 
-const useMountEffect = fun => useEffect(fun, []);
-
-export { sortNumbers, sortStrings, useMountEffect, usePrevious };
+export { sortNumbers, sortStrings, usePrevious };

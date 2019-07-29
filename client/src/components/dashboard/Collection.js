@@ -10,18 +10,18 @@ import RenderRelease from '../RenderRelease';
 import Spinner from '../Spinner';
 import { connect } from 'react-redux';
 import { frontPage } from '../../style/Home.module.css';
-import { useMountEffect } from '../../functions';
+import { useAsyncEffect } from 'use-async-effect';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
   const { collection, fetchCollection } = props;
 
-  useMountEffect(() => {
+  useAsyncEffect(async () => {
     if (!collection.length) {
       setLoading(true);
     }
     fetchCollection().then(() => setLoading(false));
-  });
+  }, []);
 
   const renderReleases = collection.map(release => (
     <RenderRelease
