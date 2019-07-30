@@ -7,7 +7,6 @@ import playerReducer from './playerReducer';
 import releaseReducer from './releaseReducer';
 import salesReducer from './salesReducer';
 import toastReducer from './toastReducer';
-import txReducer from './txReducer';
 
 const appReducer = combineReducers({
   form: formReducer,
@@ -16,7 +15,6 @@ const appReducer = combineReducers({
   releases: releaseReducer,
   salesData: salesReducer,
   toastList: toastReducer,
-  transactions: txReducer,
   user: authReducer
 });
 
