@@ -6,7 +6,7 @@ const explorer =
     ? 'http://bob.nem.ninja:8765/#/transfer/'
     : 'http://chain.nem.ninja/#/transfer/';
 
-const SingleTransaction = props => (
+const Transaction = props => (
   <tr>
     <th scope="row">{props.index + 1}</th>
     <td>{props.date}</td>
@@ -18,4 +18,4 @@ const SingleTransaction = props => (
   </tr>
 );
 
-export default SingleTransaction;
+export default Transaction;

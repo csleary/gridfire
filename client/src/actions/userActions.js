@@ -1,4 +1,5 @@
 import {
+  ADD_NEM_ADDRESS,
   FETCH_USER,
   FETCH_USER_CREDIT,
   FETCH_USER_RELEASE,
@@ -7,6 +8,17 @@ import {
 } from './types';
 import { toastError, toastSuccess } from './index';
 import axios from 'axios';
+
+export const addNemAddress = values => async dispatch => {
+  try {
+    const res = await axios.post('/api/nem/address', values);
+    dispatch({ type: ADD_NEM_ADDRESS, payload: res.data });
+    return res.data;
+  } catch (e) {
+    toastError(e.response.data.error)(dispatch);
+    return e.response.data;
+  }
+};
 
 export const fetchUser = () => async dispatch => {
   try {

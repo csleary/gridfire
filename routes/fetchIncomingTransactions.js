@@ -33,7 +33,7 @@ module.exports = (paymentAddress, idHash) =>
         fetchTransactions();
       } else {
         resolve({
-          incomingTxs: total,
+          transactions: total,
           nemNode,
           paidToDate
         });

@@ -1,23 +1,84 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  checkFormatMp3,
-  fetchDownloadToken,
-  fetchIncomingTxs,
-  purchaseRelease,
-  toastInfo
-} from '../actions';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import { Link } from 'react-router-dom';
-import ManualPayment from './payment/ManualPayment';
-import QRCode from './payment/QRCode';
+import PaymentMethods from './payment/PaymentMethods';
+import Payments from './payment/Payments';
 import Spinner from './Spinner';
-import TransactionsList from './payment/TransactionsList';
-import classNames from 'classnames';
+import axios from 'axios';
 import { connect } from 'react-redux';
-import styles from '../style/Payment.module.css';
+import { toastError } from '../actions';
+
+const initialState = {
+  artist: '',
+  artistName: '',
+  error: false,
+  fetchedRelease: false,
+  hasPurchased: false,
+  isLoading: true,
+  isLoadingTxs: false,
+  isUpdating: false,
+  nemNode: '',
+  paidToDate: null,
+  paymentAddress: '',
+  paymentHash: '',
+  priceInXem: '',
+  releaseTitle: '',
+  transactions: []
+};
+
+const reducer = (state, action) => {
+  const { payload } = action;
+  switch (action.type) {
+  case 'setLoading':
+    return { ...state, isLoading: action.value };
+  case 'purchaseRelease':
+    return {
+      ...state,
+      artist: payload.release.artist,
+      artistName: payload.release.artistName,
+      isLoading: false,
+      fetchedRelease: true,
+      paymentAddress: payload.paymentInfo.paymentAddress,
+      paymentHash: payload.paymentInfo.paymentHash,
+      priceInXem: payload.price,
+      releaseTitle: payload.release.releaseTitle
+    };
+  case 'transactions':
+    return {
+      ...state,
+      isLoadingTxs: false,
+      isUpdating: false,
+      error: false,
+      hasPurchased: payload.hasPurchased,
+      transactions: payload.transactions,
+      nemNode: payload.nemNode,
+      paidToDate: payload.paidToDate
+    };
+  case 'transactionsError':
+    return {
+      ...state,
+      isLoadingTxs: false,
+      isUpdating: false,
+      error: action.error
+    };
+  case 'transactionsLoading':
+    return { ...state, isLoadingTxs: true };
+  case 'updating':
+    return { ...state, isUpdating: true };
+  default:
+    return state;
+  }
+};
 
 const Payment = props => {
+  const { releaseId } = props.match.params;
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   const {
-    fetchIncomingTxs,
+    artist,
+    artistName,
+    fetchedRelease,
+    transactions,
+    isLoading,
     isLoadingTxs,
     isUpdating,
     hasPurchased,
@@ -25,31 +86,44 @@ const Payment = props => {
     paidToDate,
     paymentAddress,
     paymentHash,
-    purchaseRelease,
-    release: { artist, artistName, releaseTitle },
-    transactions,
+    releaseTitle,
     transactionsError
-  } = props;
+  } = state;
 
-  const { releaseId } = props.match.params;
-  const [isLoading, setLoading] = useState(true);
-  const [showPaymentInfo, setShowPaymentInfo] = useState(false);
-  const [fetchedRelease, setFetchedRelease] = useState(false);
+  const fetchTransactions = async (paymentParams, isUpdating) => {
+    try {
+      if (isUpdating) {
+        dispatch({ type: 'updating' });
+      } else {
+        dispatch({ type: 'transactionsLoading', value: true });
+      }
+      const res = await axios.post('/api/nem/transactions', paymentParams);
+      dispatch({ type: 'transactions', payload: res.data });
+    } catch (e) {
+      dispatch({ type: 'transactionsError', error: e.response.data.error });
+      toastError(e.response.data.error);
+    }
+  };
 
   const handleFetchIncomingTxs = useCallback(
     (isUpdating = false) => {
-      fetchIncomingTxs({ releaseId, paymentHash }, isUpdating);
+      fetchTransactions({ releaseId, paymentHash }, isUpdating);
     },
-    [fetchIncomingTxs, paymentHash, releaseId]
+    [paymentHash, releaseId]
   );
 
   useEffect(() => {
-    setLoading(true);
-    purchaseRelease(releaseId).then(() => {
-      setLoading(false);
-      setFetchedRelease(true);
-    });
-  }, [purchaseRelease, releaseId]);
+    dispatch({ type: 'setLoading', value: true });
+    axios
+      .get(`/api/purchase/${releaseId}`)
+      .then(res => {
+        dispatch({ type: 'purchaseRelease', payload: res.data });
+      })
+      .catch(e => {
+        dispatch({ type: 'setLoading', value: false });
+        toastError(e.response.data.error);
+      });
+  }, [releaseId]);
 
   useEffect(() => {
     if (fetchedRelease) {
@@ -58,36 +132,12 @@ const Payment = props => {
     }
   }, [fetchedRelease, handleFetchIncomingTxs, paymentAddress]);
 
-  const handleShowPaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
-
   const roundUp = (value, precision) => {
     const factor = 10 ** precision;
     return Math.ceil(value * factor) / factor;
   };
 
-  const priceInXem = roundUp(props.priceInXem, 2).toFixed(2);
-
-  const paymentButtonQR = classNames(
-    styles.select,
-    'btn',
-    'btn-outline-primary',
-    {
-      [styles.selected]: !showPaymentInfo
-    }
-  );
-
-  const paymentButtonManual = classNames(
-    styles.select,
-    'btn',
-    'btn-outline-primary',
-    {
-      [styles.selected]: showPaymentInfo
-    }
-  );
-
-  const paymentMethods = classNames(styles.methods, 'mb-5', {
-    [styles.manual]: showPaymentInfo
-  });
+  const priceInXem = roundUp(state.priceInXem, 2).toFixed(2);
 
   if (isLoading) {
     return (
@@ -130,54 +180,15 @@ const Payment = props => {
             {artistName} &bull;{' '}
             <span className="ibm-type-italic">{releaseTitle}</span>
           </h3>
-          <div className={paymentMethods}>
-            <div
-              className={`${styles.method} btn-group d-flex justify-content-center`}
-              role="group"
-              aria-label="Payment Method"
-            >
-              <button
-                type="button"
-                className={paymentButtonQR}
-                onClick={handleShowPaymentInfo}
-              >
-                QR Scan
-              </button>
-              <button
-                type="button"
-                className={paymentButtonManual}
-                onClick={handleShowPaymentInfo}
-              >
-                Manual Payment
-              </button>
-            </div>
-            {showPaymentInfo ? (
-              <ManualPayment
-                paymentAddress={paymentAddress}
-                paymentHash={paymentHash}
-                priceInXem={priceInXem}
-              />
-            ) : (
-              <>
-                <div className={`${styles.qrcode} text-center`}>
-                  <QRCode
-                    paymentAddress={paymentAddress.replace(/-/g, '')}
-                    price={priceInXem}
-                    idHash={paymentHash}
-                  />
-                </div>
-                <p className="text-center">
-                  Please scan the QR code with a NEM mobile wallet app to make
-                  your payment.
-                </p>
-              </>
-            )}
-          </div>
+          <PaymentMethods
+            paymentAddress={paymentAddress}
+            paymentHash={paymentHash}
+            priceInXem={priceInXem}
+          />
         </div>
       </div>
-      <TransactionsList
-        checkFormatMp3={props.checkFormatMp3}
-        fetchDownloadToken={props.fetchDownloadToken}
+      <Payments
+        artistName={artistName}
         handleFetchIncomingTxs={handleFetchIncomingTxs}
         hasPurchased={hasPurchased}
         isLoadingTxs={isLoadingTxs}
@@ -188,7 +199,6 @@ const Payment = props => {
         releaseId={releaseId}
         releaseTitle={releaseTitle}
         roundUp={roundUp}
-        toastInfo={props.toastInfo}
         transactions={transactions}
         transactionsError={transactionsError}
       />
@@ -196,30 +206,7 @@ const Payment = props => {
   );
 };
 
-function mapStateToProps(state) {
-  return {
-    hasPurchased: state.transactions.hasPurchased,
-    isLoading: state.releases.isLoading,
-    isLoadingTxs: state.transactions.isLoading,
-    isUpdating: state.transactions.isUpdating,
-    nemNode: state.transactions.nemNode,
-    paidToDate: state.transactions.paidToDate,
-    paymentAddress: state.releases.paymentAddress,
-    paymentHash: state.releases.paymentHash,
-    priceInXem: state.releases.priceInXem,
-    release: state.releases.selectedRelease,
-    transactions: state.transactions.incomingTxs,
-    transactionsError: state.transactions.error
-  };
-}
-
 export default connect(
-  mapStateToProps,
-  {
-    checkFormatMp3,
-    fetchDownloadToken,
-    fetchIncomingTxs,
-    purchaseRelease,
-    toastInfo
-  }
+  null,
+  { toastError }
 )(Payment);
