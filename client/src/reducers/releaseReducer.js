@@ -49,7 +49,7 @@ const initialState = {
   paymentAddress: '',
   priceInXem: '',
   reachedEndOfCat: false,
-  selectedRelease: { trackList: [] },
+  selectedRelease: { tags: [], trackList: [] },
   searchQuery: '',
   searchResults: [],
   userReleases: []

@@ -23,11 +23,7 @@ export const addNemAddress = values => async dispatch => {
 export const fetchUser = () => async dispatch => {
   try {
     const res = await axios.get('/api/user');
-    dispatch({
-      type: FETCH_USER,
-      isLoading: false,
-      payload: res.data
-    });
+    dispatch({ type: FETCH_USER, payload: res.data });
     return res;
   } catch (e) {
     toastError(e.response.data.error)(dispatch);
