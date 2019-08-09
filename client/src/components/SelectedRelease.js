@@ -1,5 +1,4 @@
-import { Link, withRouter } from 'react-router-dom';
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   fetchRelease,
   fetchUser,
@@ -10,352 +9,142 @@ import {
   searchReleases,
   toastInfo
 } from '../actions';
-import { CLOUD_URL } from '../index';
-import FontAwesome from 'react-fontawesome';
+import Artwork from './selectedRelease/Artwork';
+import CLine from './selectedRelease/CLine';
+import CatNumber from './selectedRelease/CatNumber';
+import CollectionIndicator from './selectedRelease/CollectionIndicator';
+import Credits from './selectedRelease/Credits';
+import Info from './selectedRelease/Info';
+import { Link } from 'react-router-dom';
+import PLine from './selectedRelease/PLine';
+import Price from './selectedRelease/Price';
+import PurchaseButton from './selectedRelease/PurchaseButton';
+import RecordLabel from './selectedRelease/RecordLabel';
+import ReleaseDate from './selectedRelease/ReleaseDate';
 import Spinner from './Spinner';
+import Tags from './selectedRelease/Tags';
+import TrackList from './selectedRelease/TrackList';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import moment from 'moment';
-import placeholder from '../placeholder.svg';
 import styles from '../style/SelectedRelease.module.css';
-import uuidv4 from 'uuid/v4';
 
-class SelectedRelease extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: true,
-      inCollection: false
-    };
-  }
+const SelectedRelease = props => {
+  const [isLoading, setLoading] = useState(true);
+  const [inCollection, setInCollection] = useState(false);
 
-  componentDidMount() {
-    const { releaseId } = this.props.match.params;
-    this.props.fetchUser();
-    this.props.fetchXemPrice();
-    this.props.fetchRelease(releaseId).then(res => {
-      if (res.error) {
-        this.props.history.push('/');
-        return;
-      }
-      if (!this.props.release) {
-        this.props.history.push('/');
-        return;
-      }
-
-      const tagLength = this.props.release.tags.length;
-      const tagKeys = Array.from({ length: tagLength }, () => uuidv4());
-      this.setState({ tagKeys });
-
-      const { purchases } = this.props.user;
-      const inCollection =
-        purchases &&
-        purchases.some(
-          currentRelease => currentRelease.releaseId === releaseId
-        );
-
-      if (inCollection) this.setState({ inCollection: true });
-      this.setState({ isLoading: false });
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.match.params.releaseId !== this.props.match.params.releaseId
-    ) {
-      this.setState({ isLoading: true });
-      const { releaseId } = nextProps.match.params;
-      this.props
-        .fetchRelease(releaseId)
-        .then(() => this.setState({ isLoading: false }));
-    }
-  }
-
-  setLoading() {
-    this.setState({ isLoading: true });
-  }
-
-  formatDate(date) {
-    return moment(new Date(date)).format('Do of MMM, YYYY');
-  }
-
-  nowPlayingToast(trackTitle) {
-    this.props.toastInfo(`Loading '${trackTitle}'`);
-  }
-
-  handlePlayRelease() {
-    const audioPlayer = document.getElementById('player');
-    const { artistName, trackList } = this.props.release;
-    const releaseId = this.props.release._id;
-    const { isPlaying } = this.props.player;
-    const playerReleaseId = this.props.player.releaseId;
-
-    if (isPlaying && playerReleaseId === releaseId) {
-      audioPlayer.pause();
-      this.props.playerPause();
-    } else if (playerReleaseId === releaseId) {
-      audioPlayer.play();
-      this.props.playerPlay();
-    } else {
-      this.props.playTrack(
-        releaseId,
-        trackList[0]._id,
-        artistName,
-        trackList[0].trackTitle
-      );
-      this.nowPlayingToast(trackList[0].trackTitle);
-    }
-  }
-
-  handleTagSearch = tag => {
-    this.props.searchReleases(tag).then(this.props.history.push('/search'));
-  };
-
-  renderTrackList = () =>
-    this.props.release.trackList.map(track => {
-      const { trackTitle } = track;
-      const trackId = track._id;
-      const { isPlaying, isPaused } = this.props.player;
-      const playerTrackId = this.props.player.trackId;
-      const { _id, artistName } = this.props.release;
-      const releaseId = _id;
-
-      const nowPlaying = () => {
-        if (trackId !== playerTrackId) return;
-        if (isPlaying) {
-          return <FontAwesome className={styles.nowPlaying} name="play" />;
-        }
-        if (isPaused) {
-          return <FontAwesome className={styles.nowPlaying} name="pause" />;
-        }
-      };
-
-      return (
-        <li key={trackId}>
-          <button
-            className="btn btn-link"
-            onClick={() => {
-              if (trackId !== playerTrackId) {
-                this.props.playTrack(
-                  releaseId,
-                  trackId,
-                  artistName,
-                  trackTitle
-                );
-                this.nowPlayingToast(trackTitle);
-              } else if (!isPlaying) {
-                const audioPlayer = document.getElementById('player');
-                audioPlayer.play();
-                this.props.playerPlay();
-              }
-            }}
-          >
-            {trackTitle}
-          </button>
-          {nowPlaying()}
-        </li>
-      );
-    });
-
-  renderPrice() {
-    const { release, xemPriceUsd } = this.props;
-    const { price } = release;
-
-    if (!price) return 'Name Your Price';
-
-    if (xemPriceUsd) {
-      const priceInXem = price / xemPriceUsd;
-      return `${price} USD (~${priceInXem.toFixed(2)} XEM)`;
-    }
-  }
-
-  renderPurchaseButton() {
-    if (!this.props.release.price) {
-      return (
-        <>
-          <FontAwesome name="qrcode" className="mr-2" />
-          Name Your Price
-        </>
-      );
-    }
-    if (this.state.inCollection) {
-      return (
-        <>
-          <FontAwesome name="check-circle" className="mr-2" />
-          Transactions
-        </>
-      );
-    }
-    return (
-      <>
-        <FontAwesome name="qrcode" className="mr-2" />
-        Purchase
-      </>
-    );
-  }
-
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <Spinner>
-          <h2 className="mt-4">Loading release&hellip;</h2>
-        </Spinner>
-      );
-    }
-
-    const {
-      _id,
+  const {
+    fetchRelease,
+    fetchUser,
+    fetchXemPrice,
+    player,
+    release,
+    release: {
       artist,
       artistName,
-      artwork,
       catNumber,
       credits,
       cLine,
       info,
       pLine,
+      price,
       recordLabel,
       releaseTitle,
       releaseDate,
       trackList,
       tags
-    } = this.props.release;
-    const releaseId = _id;
-    const { isPlaying } = this.props.player;
-    const playerReleaseId = this.props.player.releaseId;
+    },
+    user,
+    xemPriceUsd
+  } = props;
 
-    const trackListColumns = classNames({
-      [styles.columns]: trackList.length > 10
-    });
+  const { purchases } = user;
+  const { releaseId } = props.match.params;
 
-    const releaseTags = tags.map((tag, index) => (
-      <div
-        className={`${styles.tag} mr-2 mb-2`}
-        key={this.state.tagKeys[index]}
-        onClick={() => this.handleTagSearch(tag)}
-        role="button"
-        tabIndex="-1"
-        title={`Click to see more releases tagged with '${tag}'.`}
-      >
-        {tag}
-      </div>
-    ));
+  useEffect(() => {
+    setLoading(true);
+    fetchUser();
+    fetchXemPrice();
+    fetchRelease(releaseId).then(() => setLoading(false));
+  }, [fetchRelease, fetchUser, fetchXemPrice, releaseId]);
 
+  useEffect(() => {
+    const inCollection = purchases.some(
+      purchase => purchase.releaseId === releaseId
+    );
+
+    if (inCollection) setInCollection(true);
+  }, [purchases, releaseId]);
+
+  const trackListColumns = classNames({
+    [styles.columns]: trackList.length > 10
+  });
+
+  const nowPlayingToast = trackTitle => {
+    props.toastInfo(`Loading '${trackTitle}'`);
+  };
+
+  if (isLoading) {
     return (
-      <main className="container d-flex align-items-center">
-        <div className={`${styles.release} row`}>
-          <div className={`${styles.col} col-md-6 p-3`}>
-            <div className={styles.artwork} onTouchStart={() => {}}>
-              <img
-                alt={releaseTitle}
-                className={`${styles.image} lazyload img-fluid`}
-                data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
-              />
-              <img
-                alt={`${artistName} - ${releaseTitle}`}
-                className={styles.placeholder}
-                src={placeholder}
-              />
-              <div
-                className={styles.overlay}
-                onClick={() => this.handlePlayRelease()}
-                role="button"
-                tabIndex="-1"
-                title={`${artistName} - ${releaseTitle}`}
-              >
-                {isPlaying && releaseId === playerReleaseId ? (
-                  <FontAwesome className="" name="pause" />
-                ) : (
-                  <FontAwesome className={styles.play} name="play" />
-                )}
-              </div>
-            </div>
-          </div>
-          <div className={`${styles.info} col-md-6 p-3`}>
-            <h2 className={`${styles.title} text-center ibm-type-italic`}>
-              {releaseTitle}
-              {this.state.inCollection && (
-                <>
-                  <div className={styles.collection} />
-                  <Link to={'/dashboard/collection'}>
-                    <FontAwesome
-                      className={styles.check}
-                      name="check"
-                      title="This release is in your collection."
-                    />
-                  </Link>
-                </>
-              )}
-            </h2>
-            <h4 className={`${styles.name} text-center`}>
-              <Link to={`/artist/${artist}`}>{artistName}</Link>
-            </h4>
-            <h6 className={`${styles.price} text-center`}>
-              {this.renderPrice() || 'Loading…'}
-            </h6>
-            <div className={trackListColumns}>
-              <ol className={styles.trackList}>{this.renderTrackList()}</ol>
-            </div>
-            <div className="d-flex justify-content-center">
-              <Link
-                to={`/payment/${releaseId}`}
-                className={`${styles.buy} btn btn-outline-primary`}
-              >
-                {this.renderPurchaseButton()}
-              </Link>
-            </div>
-            <h6>
-              <FontAwesome name="calendar-o" className="mr-2 red" />
-              {this.formatDate(releaseDate)}
-            </h6>
-            {recordLabel && (
-              <h6>
-                <span className="red">Label:</span> {recordLabel}
-              </h6>
-            )}
-            {catNumber && (
-              <h6>
-                <span className="red">Cat.:</span> {catNumber}
-              </h6>
-            )}
-            {info && (
-              <>
-                <h6 className="red mt-4">{info && 'Info'}</h6>
-                <p className="info">{info}</p>
-              </>
-            )}
-            {credits && (
-              <>
-                <h6 className="red mt-4">{credits && 'Credits'}</h6>
-                <p className={styles.credits}>{credits}</p>
-              </>
-            )}
-            {(cLine || pLine) && (
-              <p className={`${styles.copyright} red`}>
-                {cLine && (
-                  <>
-                    &copy; {cLine.year} {cLine.owner}
-                  </>
-                )}
-                {cLine && pLine && <br />}
-                {pLine && (
-                  <>
-                    &#8471; {pLine.year} {pLine.owner}
-                  </>
-                )}
-              </p>
-            )}
-            {releaseTags.length > 0 && (
-              <>
-                <h6 className="red mt-4 mb-3">Tags</h6>
-                <div className={styles.tags}>{releaseTags}</div>
-              </>
-            )}
-          </div>
-        </div>
-      </main>
+      <Spinner>
+        <h2 className="mt-4">Loading release&hellip;</h2>
+      </Spinner>
     );
   }
-}
+
+  return (
+    <main className="container d-flex align-items-center">
+      <div className={`${styles.release} row`}>
+        <div className={`${styles.col} col-md-6 p-3`}>
+          <Artwork
+            isPlaying={player.isPlaying}
+            nowPlayingToast={nowPlayingToast}
+            playerPause={props.playerPause}
+            playerPlay={props.playerPlay}
+            playerReleaseId={player.releaseId}
+            playTrack={props.playTrack}
+            release={release}
+          />
+        </div>
+        <div className={`${styles.info} col-md-6 p-3`}>
+          <CollectionIndicator inCollection={inCollection} />
+          <h2 className={`${styles.title} text-center ibm-type-italic`}>
+            {releaseTitle}
+          </h2>
+          <h4 className={`${styles.name} text-center`}>
+            <Link to={`/artist/${artist}`}>{artistName}</Link>
+          </h4>
+          <h6 className={`${styles.price} text-center`}>
+            <Price price={price} xemPriceUsd={xemPriceUsd} />
+          </h6>
+          <div className={trackListColumns}>
+            <ol className={styles.trackList}>
+              <TrackList
+                nowPlayingToast={nowPlayingToast}
+                player={player}
+                playerPlay={props.playerPlay}
+                playTrack={props.playTrack}
+                release={release}
+              />
+            </ol>
+          </div>
+          <PurchaseButton
+            inCollection={inCollection}
+            price={price}
+            releaseId={releaseId}
+          />
+          <ReleaseDate releaseDate={releaseDate} />
+          <RecordLabel recordLabel={recordLabel} />
+          <CatNumber catNumber={catNumber} />
+          <Info info={info} />
+          <Credits credits={credits} />
+          <CLine cLine={cLine} />
+          <PLine pLine={pLine} />
+          <Tags searchReleases={props.searchReleases} tags={tags} />
+        </div>
+      </div>
+    </main>
+  );
+};
 
 function mapStateToProps(state) {
   return {
@@ -378,4 +167,4 @@ export default connect(
     searchReleases,
     toastInfo
   }
-)(withRouter(SelectedRelease));
+)(SelectedRelease);
