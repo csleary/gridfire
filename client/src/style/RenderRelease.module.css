@@ -1,4 +1,5 @@
 .art {
+  align-items: flex-start;
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
@@ -30,6 +31,7 @@
 }
 
 .overlay {
+  align-self: stretch;
   background: rgba(0, 0, 0, 0.5);
   color: hsla(233, 10%, 75%, 1);
   display: flex;

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Price = ({ price, xemPriceUsd }) => {
   if (price === 0) return 'Name Your Price';
 
