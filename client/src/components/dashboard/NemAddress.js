@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {
   addNemAddress,
   fetchUserCredit,
+  fetchUserReleases,
   toastSuccess,
   toastWarning
 } from '../../actions';
@@ -18,6 +19,7 @@ function NemAddress(props) {
 
   const {
     credit,
+    fetchUserReleases,
     handleSubmit,
     initialize,
     invalid,
@@ -29,10 +31,11 @@ function NemAddress(props) {
   } = props;
 
   useEffect(() => {
+    fetchUserReleases();
     initialize({
       nemAddress: nem.utils.format.address(nemAddress)
     });
-  }, [initialize, nemAddress]);
+  }, [fetchUserReleases, initialize, nemAddress]);
 
   const addressPrefix =
     process.env.REACT_APP_NEM_NETWORK === 'mainnet'
@@ -244,6 +247,12 @@ export default reduxForm({
 })(
   connect(
     mapStateToProps,
-    { addNemAddress, fetchUserCredit, toastSuccess, toastWarning }
+    {
+      addNemAddress,
+      fetchUserCredit,
+      fetchUserReleases,
+      toastSuccess,
+      toastWarning
+    }
   )(NemAddress)
 );
