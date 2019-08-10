@@ -1,8 +1,8 @@
 .list {
-  bottom: 4rem;
+  bottom: 1rem;
   pointer-events: none;
   position: fixed;
-  right: 2rem;
+  right: 1rem;
   z-index: 1060;
 }
 
@@ -38,6 +38,13 @@
 
 .danger {
   color: #ff5349;
+}
+
+@media (min-width: 576px) {
+  .list {
+    bottom: 4rem;
+    right: 2rem;
+  }
 }
 
 @keyframes toast {
