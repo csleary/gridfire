@@ -5,7 +5,8 @@ import {
   playerHide,
   playerPause,
   playerPlay,
-  playerStop
+  playerStop,
+  toastError
 } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
@@ -36,12 +37,31 @@ class Player extends Component {
   }
 
   componentDidMount() {
+    const iPhone = navigator.userAgent.indexOf('iPhone') !== -1;
+    const iPad = navigator.userAgent.indexOf('iPad') !== -1;
+
+    if (iPhone || iPad) {
+      this.props.toastError(
+        'Sorry, iOS does not currently support MediaSource audio playback.'
+      );
+      return;
+    }
+
+    const mimeType = 'audio/mp4; codecs="mp4a.40.2"';
+    const supported = MediaSource.isTypeSupported(mimeType);
+
+    if (!supported) {
+      this.props.toastError(
+        'Sorry, this device does not support MediaSource audio playback.'
+      );
+      return;
+    }
+
     this.mediaSource = new MediaSource();
     const audioPlayer = this.audioPlayer.current;
     audioPlayer.src = URL.createObjectURL(this.mediaSource);
     this.mediaSource.addEventListener('sourceopen', () => {
       URL.revokeObjectURL(audioPlayer.src);
-      const mimeType = 'audio/mp4; codecs="mp4a.40.2"';
       this.sourceBuffer = this.mediaSource.addSourceBuffer(mimeType);
 
       this.sourceBuffer.addEventListener('updateend', () => {
@@ -458,6 +478,7 @@ export default connect(
     playerHide,
     playerPause,
     playerPlay,
-    playerStop
+    playerStop,
+    toastError
   }
 )(withRouter(Player));
