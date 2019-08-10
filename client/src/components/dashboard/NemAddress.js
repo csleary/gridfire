@@ -135,6 +135,8 @@ function NemAddress(props) {
                   hint="It doesn&rsquo;t matter whether you include dashes or not."
                   label="Your NEM Address"
                   name="nemAddress"
+                  nemAddress={nemAddress}
+                  nemAddressVerified={nemAddressVerified}
                   placeholder={`NEM Address (should start with ${addressPrefix})`}
                   type="text"
                   component={NemAddressFormField}

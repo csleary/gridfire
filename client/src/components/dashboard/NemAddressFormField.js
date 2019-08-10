@@ -19,6 +19,7 @@ const NemAddressFormField = ({
   nemAddress,
   nemAddressVerified,
   placeholder,
+  props,
   type,
   meta: { active, error, touched }
 }) => {
@@ -36,7 +37,7 @@ const NemAddressFormField = ({
       return (
         <span
           className={styles.unconfirmed}
-          title="Thank you for verifying your address."
+          title="Please sign a message to verify your address."
         >
           Unverified
           <FontAwesome name="exclamation-circle" className="ml-2" />
@@ -46,7 +47,10 @@ const NemAddressFormField = ({
 
     if (nemAddress && nemAddressVerified) {
       return (
-        <span className={styles.confirmed}>
+        <span
+          className={styles.confirmed}
+          title="Thank you for verifying your address."
+        >
           Verified
           <FontAwesome name="check-circle" className="ml-2" />
         </span>
