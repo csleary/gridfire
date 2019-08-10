@@ -26,6 +26,7 @@
 }
 
 .artwork {
+  align-items: flex-start;
   align-self: flex-start;
   display: flex;
   flex-flow: row nowrap;
@@ -45,6 +46,7 @@
 
 .overlay {
   align-items: center;
+  align-self: stretch;
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
   display: flex;
