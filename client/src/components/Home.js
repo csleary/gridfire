@@ -46,26 +46,24 @@ const Home = props => {
   );
 
   useEffect(() => {
-    const handleLogInService = () => {
-      if (service) {
-        const serviceName =
-          service.charAt(0).toUpperCase() + service.substring(1);
-        toastInfo(
-          `Thank you. You are now logged in using your ${serviceName} account.`
-        );
-      }
-    };
+    if (service) {
+      const serviceName =
+        service.charAt(0).toUpperCase() + service.substring(1);
+      toastInfo(
+        `Thank you. You are now logged in using your ${serviceName} account.`
+      );
+    }
+  }, [service, toastInfo]);
 
+  useEffect(() => {
     if (!catalogue.length) {
       handleFetchCatalogue().then(() => {
-        handleLogInService();
         setLoading(false);
       });
     } else {
-      handleLogInService();
       setLoading(false);
     }
-  }, [catalogue.length, handleFetchCatalogue, service, toastInfo]);
+  }, [catalogue.length, handleFetchCatalogue]);
 
   const handleSortClick = () => setSortCount(sortCount + 1);
   const handleClick = () => handleFetchCatalogue(true);
