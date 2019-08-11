@@ -1,13 +1,13 @@
 .navbar {
   background-color: hsla(233, 10%, 20%, 1);
-  height: 2.5rem;
   padding: 0;
 }
 
 .navbar-nav {
   display: flex;
-  flex-grow: 1;
   flex-direction: row;
+  flex: 1;
+  flex-wrap: wrap;
   opacity: 0;
   transform: translateY(0.25rem);
   transition: all 2s cubic-bezier(0.2, 0.8, 0.4, 1);
@@ -17,6 +17,11 @@
 .navbar.sub-menu .navbar-nav {
   transform: translateY(0);
   opacity: 1;
+}
+
+.nav-button-group {
+  display: flex;
+  flex: 1 0 auto;
 }
 
 .navbar a,

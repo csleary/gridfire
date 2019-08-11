@@ -8,6 +8,7 @@
 .header {
   animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   background: hsla(233, 10%, 20%, 1);
+  padding-bottom: 0.5rem;
 }
 
 @keyframes fadeIn {
