@@ -83,21 +83,33 @@ const NavBar = props => {
   const renderNav = () => {
     if (!auth) {
       return (
-        <li className="nav-item">
-          <NavLink to={'/login'} className="nav-link">
-            <FontAwesome
-              name="sign-in"
-              className="mr-1"
-              title="Click to log in."
-            />
-            <span className="nav-label">Log In</span>
-          </NavLink>
-        </li>
+        <>
+          <li className="nav-item mr-auto">
+            <Link to={'/'} className={brandClass}>
+              <Logo class="navbar-brand" />
+            </Link>
+          </li>
+          <li className="nav-item">
+            <NavLink to={'/login'} className="nav-link">
+              <FontAwesome
+                name="sign-in"
+                className="mr-1"
+                title="Click to log in."
+              />
+              <span className="nav-label">Log In</span>
+            </NavLink>
+          </li>
+        </>
       );
     }
 
     return (
       <>
+        <li className="nav-item mr-auto">
+          <Link to={'/'} className={brandClass}>
+            <Logo class="navbar-brand" />
+          </Link>
+        </li>
         <li className="nav-item">
           <NavLink
             to={'/release/add/'}
@@ -134,12 +146,7 @@ const NavBar = props => {
     <nav className="navbar navbar-expand-lg sticky-top" ref={navBar}>
       <ul className={navbarClass}>
         <SearchBar />
-        <li className="nav-item mr-auto">
-          <Link to={'/'} className={brandClass}>
-            <Logo class="navbar-brand" />
-          </Link>
-        </li>
-        {renderNav()}
+        <div className="nav-button-group">{renderNav()}</div>
       </ul>
     </nav>
   );

@@ -6,7 +6,8 @@ import {
   playerPause,
   playerPlay,
   playerStop,
-  toastError
+  toastError,
+  toastInfo
 } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
@@ -41,8 +42,8 @@ class Player extends Component {
     const iPad = navigator.userAgent.indexOf('iPad') !== -1;
 
     if (iPhone || iPad) {
-      this.props.toastError(
-        'Sorry, iOS does not currently support MediaSource audio playback.'
+      this.props.toastInfo(
+        'This app uses the Media Source Extensions API for audio playback, which is not currently supported on your device (iOS).'
       );
       return;
     }
@@ -52,7 +53,7 @@ class Player extends Component {
 
     if (!supported) {
       this.props.toastError(
-        'Sorry, this device does not support MediaSource audio playback.'
+        'Unfortunately this device does not support the Media Source Extensions API for audio playback.'
       );
       return;
     }
@@ -302,16 +303,10 @@ class Player extends Component {
     const promisePlay = this.audioPlayer.current.play();
 
     if (promisePlay !== undefined) {
-      promisePlay
-        .catch(() => {
-          this.setState({ autoStartDisabled: true });
-        })
-        .then(() => {
-          if (!this.state.autoStartDisabled) {
-            this.audioPlayer.current.play();
-            this.props.playerPlay();
-          }
-        });
+      promisePlay.then(this.props.playerPlay).catch(e => {
+        this.setState({ autoStartDisabled: true });
+        this.props.toastError(`Playback error: ${e.message}`);
+      });
     }
   };
 
@@ -479,6 +474,7 @@ export default connect(
     playerPause,
     playerPlay,
     playerStop,
-    toastError
+    toastError,
+    toastInfo
   }
 )(withRouter(Player));
