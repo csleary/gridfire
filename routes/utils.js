@@ -1,10 +1,7 @@
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
 const { NEM_NETWORK_ID } = require('./constants');
 const { nemp3Secret } = require('../config/keys');
-
-const Sale = mongoose.model('sales');
 
 const checkPayments = (transactions, paid = []) => {
   transactions.forEach(tx => {
