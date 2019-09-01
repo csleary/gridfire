@@ -13,6 +13,7 @@
   height: 4rem;
   line-height: 1.5rem;
   overflow: hidden;
+  padding: 0.5rem 2rem;
   resize: none;
   text-align: center;
   -webkit-appearance: none;
@@ -27,19 +28,16 @@
 }
 
 .icon {
-  color: #18cdca;
+  color: hsla(233, 10%, 50%, 1);
   left: 0.75rem;
-  opacity: 0;
   pointer-events: none;
   position: absolute;
   top: 0.75rem;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  visibility: hidden;
 }
 
 .textarea:hover + .icon {
-  opacity: 1;
-  visibility: visible;
+  color: #18cdca;
 }
 
 .textarea::selection {

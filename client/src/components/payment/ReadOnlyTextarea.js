@@ -27,22 +27,20 @@ const ReadOnlyTextarea = props => {
   });
 
   return (
-    <div className="row no-gutters justify-content-center">
-      <div className="col-md-8 position-relative">
-        <textarea
-          className={`${styles.textarea} form-control text-center ibm-type-mono mb-5 p-2`}
-          onClick={handleClick}
-          onKeyDown={handleClick}
-          placeholder={props.placeholder}
-          ref={textArea}
-          value={props.text}
-          readOnly
-        />
-        <FontAwesome className={styles.icon} name="copy" />
-        <div className={copySuccessClass}>
-          <FontAwesome className="mr-2" name="thumbs-up" />
-          Copied to clipboard!
-        </div>
+    <div className="position-relative">
+      <textarea
+        className={`${styles.textarea} form-control text-center ibm-type-mono mb-5`}
+        onClick={handleClick}
+        onKeyDown={handleClick}
+        placeholder={props.placeholder}
+        ref={textArea}
+        value={props.text}
+        readOnly
+      />
+      <FontAwesome className={styles.icon} name="copy" />
+      <div className={copySuccessClass}>
+        <FontAwesome className="mr-2" name="thumbs-up" />
+        Copied to clipboard!
       </div>
     </div>
   );

@@ -31,13 +31,15 @@ module.exports = app => {
 
       if (transactions.paidToDate >= price && !hasPurchased) {
         const saleId = mongoose.Types.ObjectId();
+
         const newSale = {
           _id: saleId,
           purchaseDate: Date.now(),
           amountPaid: transactions.paidToDate,
           buyer: req.user._id,
           buyerAddress: req.user.nemAddress
-        };
+        }; // TODO add transaction hashes to sale model for recall even if hash changes.
+
         const update = { $addToSet: { purchases: newSale } };
         const options = { upsert: true };
         await Sale.findOneAndUpdate({ releaseId }, update, options).exec();
