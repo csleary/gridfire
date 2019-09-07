@@ -34,9 +34,19 @@ const UserSchema = new Schema(
 UserSchema.pre('save', async function(next) {
   try {
     const user = this;
-    if (!user.isModified('auth.password')) return next();
+
+    if (!user.isModified('auth.password')) {
+      return next();
+    }
+
+    if (!user.auth.password && user.auth.googleId) {
+      return next();
+    }
+
     const salt = await bcrypt.genSalt(10);
+
     const hash = await bcrypt.hash(user.auth.password, salt);
+
     user.auth.password = hash;
     return next();
   } catch (err) {
