@@ -1,10 +1,10 @@
 import { Link, withRouter } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { clearResults, searchReleases } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
+import { searchReleases } from '../actions';
 import styles from '../style/SearchBar.module.css';
 import { usePrevious } from '../functions';
 
@@ -13,7 +13,7 @@ const handleSearch = debounce((searchReleases, searchQuery) => {
 }, 500);
 
 const SearchBar = props => {
-  const { clearResults, isSearching, searchReleases, searchResults } = props;
+  const { isSearching, searchReleases, searchResults } = props;
   const [expandSearch, setExpandSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchBar = useRef();
@@ -32,19 +32,13 @@ const SearchBar = props => {
       handleSearch(searchReleases, searchQuery);
       return;
     }
-
-    if (!searchQuery.length && previousQuery && previousQuery.length) {
-      clearResults();
-      return;
-    }
-  }, [clearResults, previousQuery, searchQuery, searchReleases]);
+  }, [previousQuery, searchQuery, searchReleases]);
 
   const handleSearchInput = e => {
     setSearchQuery(e.target.value);
   };
 
   const handleSearchBlur = () => {
-    props.clearResults();
     setSearchQuery('');
     setExpandSearch(false);
   };
@@ -64,7 +58,6 @@ const SearchBar = props => {
   };
 
   const handleClearSearch = () => {
-    props.clearResults();
     searchBar.current.focus();
     setSearchQuery('');
   };
@@ -85,21 +78,6 @@ const SearchBar = props => {
     [styles.expanded]: expandSearch
   });
 
-  const renderResults = () => {
-    if (searchResults.length) {
-      return (
-        <p className={styles.p}>
-          <small>
-            {searchResults.length} result
-            {searchResults.length === 1 ? '' : 's'} for &lsquo;
-            {searchQuery}&rsquo; (hit return for the{' '}
-            <Link to={'/search'}>full grid view</Link>):
-          </small>
-        </p>
-      );
-    }
-  };
-
   const resultsList = searchResults.map(release => (
     <Link
       className={`${styles.item} ${styles.action}`}
@@ -109,6 +87,24 @@ const SearchBar = props => {
       {release.artistName} &bull; {release.releaseTitle}
     </Link>
   ));
+
+  const renderResults = () => {
+    if (searchResults.length && props.location.pathname !== '/search') {
+      return (
+        <>
+          <p className={styles.p}>
+            <small>
+              {searchResults.length} result
+              {searchResults.length === 1 ? '' : 's'} for &lsquo;
+              {searchQuery}&rsquo; (hit return for the{' '}
+              <Link to={'/search'}>full grid view</Link>):
+            </small>
+          </p>
+          {resultsList}
+        </>
+      );
+    }
+  };
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
@@ -122,10 +118,7 @@ const SearchBar = props => {
           role="button"
           tabIndex="-1"
         >
-          <ul className={styles.list}>
-            {renderResults()}
-            {resultsList}
-          </ul>
+          <ul className={styles.list}>{renderResults()}</ul>
         </div>
         <FontAwesome
           className={styles.icon}
@@ -170,5 +163,5 @@ function mapStateToProps(state) {
 
 export default connect(
   mapStateToProps,
-  { clearResults, searchReleases }
+  { searchReleases }
 )(withRouter(SearchBar));

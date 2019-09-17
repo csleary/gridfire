@@ -1,4 +1,4 @@
-import { fetchRelease, playTrack, toastInfo } from '../actions';
+import { clearResults, fetchRelease, playTrack, toastInfo } from '../actions';
 import React from 'react';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
@@ -7,7 +7,7 @@ import { frontPage } from '../style/Home.module.css';
 
 const SearchResults = props => {
   const { searchQuery, searchResults } = props;
-  const number = searchResults.length;
+  const resultsNum = searchResults.length;
 
   const renderReleases = searchResults.map(release => (
     <RenderRelease
@@ -24,8 +24,18 @@ const SearchResults = props => {
       return (
         <>
           <h3 className="text-center mt-4">
-            {number} result{number === 1 ? '' : 's'} for &lsquo;{searchQuery}
+            {resultsNum ? resultsNum : 'No'} result{resultsNum === 1 ? '' : 's'}{' '}
+            for &lsquo;
+            {searchQuery}
             &rsquo;.
+            {resultsNum ? (
+              <button
+                className="btn btn-sm btn-outline-primary ml-3"
+                onClick={props.clearResults}
+              >
+                Clear
+              </button>
+            ) : null}
           </h3>
           <div className={frontPage}>{renderReleases}</div>
         </>
@@ -67,6 +77,7 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {
+    clearResults,
     fetchRelease,
     playTrack,
     toastInfo
