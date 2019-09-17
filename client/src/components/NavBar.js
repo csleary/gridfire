@@ -5,7 +5,6 @@ import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
 import DashNavbar from './dashboard/DashNavbar';
 import FontAwesome from 'react-fontawesome';
 import Logo from './Logo';
-import PrivateRoute from './PrivateRoute';
 import SearchBar from './SearchBar';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -61,27 +60,8 @@ const NavBar = props => {
     red: credit === 0
   });
 
-  const renderDashNav = () => {
-    if (props.history.location.pathname.includes('/dashboard')) {
-      return <PrivateRoute path="/dashboard" component={DashNavbar} />;
-    }
-
-    return (
-      <li className="nav-item">
-        <NavLink
-          to={'/dashboard'}
-          className="nav-link"
-          title="Visit your dashboard."
-        >
-          <FontAwesome name="user-circle" className="mr-1" />
-          <span className="nav-label">Dashboard</span>
-        </NavLink>
-      </li>
-    );
-  };
-
   const renderNav = () => {
-    if (!auth) {
+    if (auth === undefined) {
       return (
         <>
           <li className="nav-item mr-auto">
@@ -105,7 +85,7 @@ const NavBar = props => {
 
     return (
       <>
-        <li className="nav-item mr-auto">
+        <li className="nav-item ml-auto">
           <Link to={'/'} className={brandClass}>
             <Logo class="navbar-brand" />
           </Link>
@@ -125,7 +105,17 @@ const NavBar = props => {
             />{' '}
           </NavLink>
         </li>
-        {renderDashNav()}
+        <li className="nav-item">
+          <NavLink
+            to={'/dashboard'}
+            className="nav-link"
+            title="Visit your dashboard."
+          >
+            <FontAwesome name="user-circle" className="mr-1" />
+            <span className="nav-label">Dashboard</span>
+          </NavLink>
+          <DashNavbar />
+        </li>
         <li className="nav-item">
           <button className="nav-link" onClick={handleLogout}>
             <FontAwesome
@@ -161,6 +151,11 @@ function mapStateToProps(state) {
 export default withRouter(
   connect(
     mapStateToProps,
-    { fetchCatalogue, fetchUser, logOut, toastSuccess }
+    {
+      fetchCatalogue,
+      fetchUser,
+      logOut,
+      toastSuccess
+    }
   )(NavBar)
 );
