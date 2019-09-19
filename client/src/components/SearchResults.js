@@ -1,4 +1,5 @@
 import { clearResults, fetchRelease, playTrack, toastInfo } from '../actions';
+import FontAwesome from 'react-fontawesome';
 import React from 'react';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
@@ -28,16 +29,17 @@ const SearchResults = props => {
             for &lsquo;
             {searchQuery}
             &rsquo;.
-            {resultsNum ? (
-              <button
-                className="btn btn-sm btn-outline-primary ml-3"
-                onClick={props.clearResults}
-              >
-                Clear
-              </button>
-            ) : null}
           </h3>
           <div className={frontPage}>{renderReleases}</div>
+          {resultsNum ? (
+            <button
+              className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
+              onClick={props.clearResults}
+            >
+              <FontAwesome className="mr-2" name="times" />
+              Clear
+            </button>
+          ) : null}
         </>
       );
     }
