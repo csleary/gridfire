@@ -45,6 +45,7 @@ class EditRelease extends Component {
       isLoading: true,
       coverArtLoaded: false,
       coverArtPreview: false,
+      showAdditionalInfo: false,
       tagsInput: '',
       tagsError: null
     };
@@ -348,72 +349,106 @@ class EditRelease extends Component {
                     required
                     type="number"
                   />
-                  <Field
-                    component={RenderReleaseField}
-                    label="Record Label"
-                    name="recordLabel"
-                    type="text"
-                  />
-                  <Field
-                    component={RenderReleaseField}
-                    formText="Your own identifier, if you have one."
-                    label="Catalogue Number"
-                    name="catNumber"
-                    type="text"
-                  />
-                  <Field
-                    component={RenderReleaseField}
-                    formText="Notable release information, e.g. press release copy, review pull quotes, notable equipment or concepts."
-                    label="Release Info"
-                    name="info"
-                    type="textarea"
-                  />
-                  <Field
-                    component={RenderReleaseField}
-                    formText="Please credit any writers, performers, producers, designers and engineers involved."
-                    label="Credits"
-                    name="credits"
-                    type="textarea"
-                  />
-                  <div className="row p-0">
-                    <div className="col">
+                  <button
+                    className="btn btn-outline-primary btn-sm mb-3"
+                    onClick={() =>
+                      this.setState(
+                        this.state.showAdditionalInfo
+                          ? { showAdditionalInfo: false }
+                          : { showAdditionalInfo: true }
+                      )
+                    }
+                    title="Show more release details."
+                    type="button"
+                  >
+                    {this.state.showAdditionalInfo ? (
+                      <>
+                        <FontAwesome
+                          name="chevron-circle-up"
+                          className="mr-2"
+                        />
+                        Basic
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesome
+                          name="chevron-circle-down"
+                          className="mr-2"
+                        />
+                        Advanced
+                      </>
+                    )}
+                  </button>
+                  {this.state.showAdditionalInfo && (
+                    <>
                       <Field
                         component={RenderReleaseField}
-                        label="Copyright Year"
-                        name="cLine.year"
-                        type="number"
-                      />
-                    </div>
-                    <div className="col">
-                      <Field
-                        component={RenderReleaseField}
-                        formText="i.e. Label, publisher or artist/individual."
-                        label="Copyright Owner"
-                        name="cLine.owner"
+                        label="Record Label"
+                        name="recordLabel"
                         type="text"
                       />
-                    </div>
-                  </div>
-                  <div className="row p-0">
-                    <div className="col">
                       <Field
                         component={RenderReleaseField}
-                        formText="Year first released as a recording."
-                        label="Recording Copyright Year"
-                        name="pLine.year"
-                        type="number"
-                      />
-                    </div>
-                    <div className="col">
-                      <Field
-                        component={RenderReleaseField}
-                        formText="i.e. Label or artist/individual."
-                        label="Recording Copyright Owner"
-                        name="pLine.owner"
+                        formText="Your own identifier, if you have one."
+                        label="Catalogue Number"
+                        name="catNumber"
                         type="text"
                       />
-                    </div>
-                  </div>
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Notable release information, e.g. press release copy, review pull quotes, notable equipment or concepts."
+                        label="Release Info"
+                        name="info"
+                        type="textarea"
+                      />
+                      <Field
+                        component={RenderReleaseField}
+                        formText="Please credit any writers, performers, producers, designers and engineers involved."
+                        label="Credits"
+                        name="credits"
+                        type="textarea"
+                      />
+                      <div className="row p-0">
+                        <div className="col">
+                          <Field
+                            component={RenderReleaseField}
+                            label="Copyright Year"
+                            name="cLine.year"
+                            type="number"
+                          />
+                        </div>
+                        <div className="col">
+                          <Field
+                            component={RenderReleaseField}
+                            formText="i.e. Label, publisher or artist/individual."
+                            label="Copyright Owner"
+                            name="cLine.owner"
+                            type="text"
+                          />
+                        </div>
+                      </div>
+                      <div className="row p-0">
+                        <div className="col">
+                          <Field
+                            component={RenderReleaseField}
+                            formText="Year first released as a recording."
+                            label="Recording Copyright Year"
+                            name="pLine.year"
+                            type="number"
+                          />
+                        </div>
+                        <div className="col">
+                          <Field
+                            component={RenderReleaseField}
+                            formText="i.e. Label or artist/individual."
+                            label="Recording Copyright Owner"
+                            name="pLine.owner"
+                            type="text"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="col-md mb-4">
                   <RenderArtwork
@@ -431,47 +466,49 @@ class EditRelease extends Component {
                     toastSuccess={this.props.toastSuccess}
                     toastWarning={this.props.toastWarning}
                   />
-                  <div className="tags mb-4">
-                    <div className="form-group">
-                      <label htmlFor="tagsInput">
-                        Tags
-                        <button
-                          className="btn btn-outline-primary btn-sm clear-tags px-1 ml-2"
-                          onClick={this.handleClearTags}
-                          title="Remove all currently set tags."
-                          type="button"
-                        >
-                          Clear
-                        </button>
-                      </label>
-                      <input
-                        className="form-control"
-                        id="tagsInput"
-                        disabled={this.state.tagsError}
-                        onChange={this.handleTagsInput}
-                        onKeyPress={this.handleTagsInput}
-                        type="text"
-                        value={this.state.tagsInput}
-                      />
-                      <small className="form-text text-muted">
-                        e.g. Genres, styles, prominent instruments, or guest
-                        artists, remixers, conductors etc. 20 tag max.
-                      </small>
-                      <div className="invalid-feedback">
-                        {tagsError && tagsError}
+                  {this.state.showAdditionalInfo && (
+                    <div className="tags mb-4">
+                      <div className="form-group">
+                        <label htmlFor="tagsInput">
+                          Tags
+                          <button
+                            className="btn btn-outline-primary btn-sm clear-tags px-1 ml-2"
+                            onClick={this.handleClearTags}
+                            title="Remove all currently set tags."
+                            type="button"
+                          >
+                            Clear
+                          </button>
+                        </label>
+                        <input
+                          className="form-control"
+                          id="tagsInput"
+                          disabled={this.state.tagsError}
+                          onChange={this.handleTagsInput}
+                          onKeyPress={this.handleTagsInput}
+                          type="text"
+                          value={this.state.tagsInput}
+                        />
+                        <small className="form-text text-muted">
+                          e.g. Genres, styles, prominent instruments, or guest
+                          artists, remixers, conductors etc. 20 tag max.
+                        </small>
+                        <div className="invalid-feedback">
+                          {tagsError && tagsError}
+                        </div>
                       </div>
+                      {tags && tags.length ? (
+                        <p>Tags set so far…</p>
+                      ) : (
+                        <p>
+                          No tags currently set for this release. We strongly
+                          recommend setting some tags as they are indexed for
+                          searching.
+                        </p>
+                      )}
+                      {tags && tags.length ? tags : null}
                     </div>
-                    {tags && tags.length ? (
-                      <p>Tags set so far…</p>
-                    ) : (
-                      <p>
-                        No tags currently set for this release. We strongly
-                        recommend setting some tags as they are indexed for the
-                        search engine.
-                      </p>
-                    )}
-                    {tags && tags.length ? tags : null}
-                  </div>
+                  )}
                   {submitButton}
                 </div>
               </div>
