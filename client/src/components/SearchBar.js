@@ -1,21 +1,27 @@
 import { Link, withRouter } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
+import { clearResults, searchReleases } from '../actions';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
-import { searchReleases } from '../actions';
 import styles from '../style/SearchBar.module.css';
 import { usePrevious } from '../functions';
 
-const handleSearch = debounce((searchReleases, searchQuery) => {
-  searchReleases(searchQuery);
+const handleSearch = debounce((searchReleases, localSearchQuery) => {
+  searchReleases(localSearchQuery);
 }, 500);
 
 const SearchBar = props => {
-  const { isSearching, searchReleases, searchResults } = props;
+  const {
+    clearResults,
+    isSearching,
+    globalSearchQuery,
+    searchReleases,
+    searchResults
+  } = props;
   const [expandSearch, setExpandSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
   const searchBar = useRef();
 
   const handleKeyDown = e => {
@@ -25,21 +31,22 @@ const SearchBar = props => {
     }
   };
 
-  const previousQuery = usePrevious(searchQuery);
+  const previousQuery = usePrevious(localSearchQuery);
 
   useEffect(() => {
-    if (searchQuery.length && searchQuery !== previousQuery) {
-      handleSearch(searchReleases, searchQuery);
+    if (localSearchQuery.length && localSearchQuery !== previousQuery) {
+      handleSearch(searchReleases, localSearchQuery);
       return;
     }
-  }, [previousQuery, searchQuery, searchReleases]);
+  }, [previousQuery, localSearchQuery, searchReleases]);
 
   const handleSearchInput = e => {
-    setSearchQuery(e.target.value);
+    setLocalSearchQuery(e.target.value);
   };
 
   const handleSearchBlur = () => {
-    setSearchQuery('');
+    clearResults();
+    setLocalSearchQuery('');
     setExpandSearch(false);
   };
 
@@ -53,13 +60,13 @@ const SearchBar = props => {
   };
 
   const handlePreviewBlur = () => {
-    setSearchQuery('');
+    setLocalSearchQuery('');
     setExpandSearch(false);
   };
 
   const handleClearSearch = () => {
     searchBar.current.focus();
-    setSearchQuery('');
+    setLocalSearchQuery('');
   };
 
   const handleSubmit = e => {
@@ -68,11 +75,10 @@ const SearchBar = props => {
   };
 
   const previewClassNames = classNames(styles.preview, {
-    [styles.showPreview]:
-      searchResults.length && searchQuery.length && expandSearch
+    [styles.showPreview]: localSearchQuery.length && expandSearch
   });
   const clearSearchClassNames = classNames(styles.clear, {
-    [styles.showClear]: searchQuery
+    [styles.showClear]: localSearchQuery
   });
   const searchBarClassNames = classNames(styles.search, {
     [styles.expanded]: expandSearch
@@ -89,19 +95,32 @@ const SearchBar = props => {
   ));
 
   const renderResults = () => {
-    if (searchResults.length && props.location.pathname !== '/search') {
+    if (props.location.pathname === '/search') return;
+
+    if (searchResults.length) {
       return (
         <>
           <p className={styles.p}>
             <small>
               {searchResults.length} result
               {searchResults.length === 1 ? '' : 's'} for &lsquo;
-              {searchQuery}&rsquo; (hit return for the{' '}
+              {globalSearchQuery}&rsquo; (hit return for the{' '}
               <Link to={'/search'}>full grid view</Link>):
             </small>
           </p>
           {resultsList}
         </>
+      );
+    }
+
+    if (globalSearchQuery && !searchResults.length) {
+      return (
+        <p className={styles.p}>
+          <small>
+            Nothing found for &lsquo;{globalSearchQuery}
+            &rsquo;.
+          </small>
+        </p>
       );
     }
   };
@@ -147,7 +166,7 @@ const SearchBar = props => {
           ref={searchBar}
           tabIndex="-1"
           type="text"
-          value={searchQuery}
+          value={localSearchQuery}
         />
       </div>
     </form>
@@ -157,11 +176,12 @@ const SearchBar = props => {
 function mapStateToProps(state) {
   return {
     isSearching: state.releases.isSearching,
+    globalSearchQuery: state.releases.searchQuery,
     searchResults: state.releases.searchResults
   };
 }
 
 export default connect(
   mapStateToProps,
-  { searchReleases }
+  { clearResults, searchReleases }
 )(withRouter(SearchBar));

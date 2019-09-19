@@ -144,13 +144,13 @@ export default (state = initialState, action) => {
   case SEARCH_RELEASES_CLEAR:
     return {
       ...state,
-      searchResults: []
+      searchResults: [],
+      searchQuery: ''
     };
   case SEARCH_RELEASES_LOADING:
     return {
       ...state,
-      isSearching: action.isSearching,
-      searchQuery: action.searchQuery || state.searchQuery
+      isSearching: action.isSearching
     };
   case TRANSCODING_START:
     return {
