@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
-import Download from './payments/Download';
+import DownloadButton from './payments/DownloadButton';
 import FontAwesome from 'react-fontawesome';
 import Spinner from './../Spinner';
 import Summary from './payments/Summary';
 import Transactions from './payments/Transactions';
 import Underpaid from './payments/Underpaid';
 import styles from '../../style/Payments.module.css';
+import withDownload from './payments/withDownload';
+
+const Download = withDownload(DownloadButton);
 
 const Payments = props => {
   const {
@@ -83,6 +86,7 @@ const Payments = props => {
           </div>
           <Download
             artistName={artistName}
+            format="mp3"
             hasPurchased={hasPurchased}
             releaseId={releaseId}
             releaseTitle={releaseTitle}

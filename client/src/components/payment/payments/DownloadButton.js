@@ -1,35 +1,16 @@
-import React, { useState } from 'react';
-import {
-  checkFormatMp3,
-  fetchDownloadToken,
-  toastInfo
-} from '../../../actions';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
+import React from 'react';
 import styles from '../../../style/Payments.module.css';
 
-const Download = props => {
-  const { artistName, hasPurchased, releaseId, releaseTitle } = props;
-  const [isPreparingDownload, setPreparingDownload] = useState(false);
-  const [formatExists, setFormatExists] = useState(false);
-
-  const handleDownload = () => {
-    setPreparingDownload(true);
-
-    props.fetchDownloadToken(releaseId, downloadToken => {
-      if (downloadToken) {
-        props.toastInfo(`Fetching download: ${artistName} - '${releaseTitle}'`);
-        props.checkFormatMp3(downloadToken, () => {
-          setFormatExists(true);
-          setPreparingDownload(false);
-          window.location = `/api/download/${downloadToken}`;
-        });
-      } else {
-        setPreparingDownload(false);
-      }
-    });
-  };
+const DownloadButton = props => {
+  const {
+    formatExists,
+    handleDownload,
+    hasPurchased,
+    isPreparingDownload,
+    releaseTitle
+  } = props;
 
   const renderButtonText = () => {
     if (isPreparingDownload) {
@@ -80,7 +61,6 @@ const Download = props => {
           <button
             className={`${styles.download} btn btn-outline-primary btn-lg`}
             disabled={isPreparingDownload === true}
-            download
             onClick={handleDownload}
           >
             {renderButtonText()}
@@ -94,11 +74,4 @@ const Download = props => {
   return null;
 };
 
-export default connect(
-  null,
-  {
-    checkFormatMp3,
-    fetchDownloadToken,
-    toastInfo
-  }
-)(Download);
+export default DownloadButton;

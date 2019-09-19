@@ -1,10 +1,14 @@
 import { CLOUD_URL } from '../index';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
+import OverlayDownloadButton from './OverlayDownloadButton';
 import React from 'react';
 import { connect } from 'react-redux';
 import placeholder from '../placeholder.svg';
 import styles from '../style/RenderRelease.module.css';
+import withDownload from './payment/payments/withDownload';
+
+const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = props => {
   const { player, release, variation } = props;
@@ -28,40 +32,18 @@ const RenderRelease = props => {
     if (variation === 'collection') {
       return (
         <>
-          <button
-            className={styles.button}
-            onClick={() => {
-              props.fetchDownloadToken(releaseId, downloadToken => {
-                if (downloadToken) {
-                  props.toastInfo(
-                    `Fetching download: ${artistName} - '${releaseTitle}'`
-                  );
-                  window.location = `/api/download/${downloadToken}`;
-                }
-              });
-            }}
-            title={`Download ${artistName} - '${releaseTitle}' (MP3)`}
-          >
-            <FontAwesome className={styles.icon} name="download" />
-            <div className={`${styles.label} text-center`}>MP3</div>
-          </button>
-          <button
-            className={styles.button}
-            onClick={() => {
-              props.fetchDownloadToken(releaseId, downloadToken => {
-                if (downloadToken) {
-                  props.toastInfo(
-                    `Fetching download: ${artistName} - '${releaseTitle}'`
-                  );
-                  window.location = `/api/download/${downloadToken}/flac`;
-                }
-              });
-            }}
-            title={`Download ${artistName} - '${releaseTitle}' (FLAC)`}
-          >
-            <FontAwesome className={styles.icon} name="download" />
-            <div className={`${styles.label} text-center`}>FLAC</div>
-          </button>
+          <DownloadButton
+            artistName={artistName}
+            format="mp3"
+            releaseId={releaseId}
+            releaseTitle={releaseTitle}
+          />
+          <DownloadButton
+            artistName={artistName}
+            format="flac"
+            releaseId={releaseId}
+            releaseTitle={releaseTitle}
+          />
         </>
       );
     }
