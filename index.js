@@ -5,7 +5,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const numCPUs = require('os').cpus().length;
 const passport = require('passport');
-const path = require('path');
 const keys = require('./config/keys');
 
 require('./models/Artist');
@@ -14,15 +13,12 @@ require('./models/Sale');
 require('./models/User');
 require('./services/passport');
 
-mongoose.Promise = global.Promise;
-mongoose.connect(
-  keys.mongoURI,
-  {
-    useFindAndModify: false,
-    useCreateIndex: true,
-    useNewUrlParser: true
-  }
-);
+mongoose.connect(keys.mongoURI, {
+  useFindAndModify: false,
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 if (cluster.isMaster) {
   for (let i = 0; i < numCPUs; i++) {
@@ -54,13 +50,6 @@ if (cluster.isMaster) {
   require('./routes/nemRoutes')(app);
   require('./routes/releaseRoutes')(app);
   require('./routes/trackRoutes')(app);
-
-  if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.resolve(__dirname, 'client', 'build')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    });
-  }
 
   const PORT = process.env.PORT || 8083;
   app.listen(PORT);

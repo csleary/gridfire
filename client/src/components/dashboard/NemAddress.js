@@ -111,7 +111,7 @@ function NemAddress(props) {
 
   const creditClassName = classnames({
     red: !credit,
-    yellow: credit
+    green: credit
   });
 
   return (

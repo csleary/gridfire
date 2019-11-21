@@ -40,7 +40,11 @@ const Artwork = props => {
       <img
         alt={releaseTitle}
         className={`${styles.image} lazyload img-fluid`}
-        data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
+        data-src={
+          artwork
+            ? `${CLOUD_URL}/${releaseId}.jpg`
+            : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+        }
       />
       <img
         alt={`${artistName} - ${releaseTitle}`}

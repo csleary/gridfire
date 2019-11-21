@@ -54,8 +54,8 @@ const ManualPayment = props => {
           text={parseFloat(priceInXem) ? priceInXem : 'Name your price!'}
           placeholder="Payment Amount"
         />
+        <h4 className="mb-4">Done!</h4>
         <p>
-          <h4 className="mb-4">Done!</h4>
           Once you have paid, and your payments has been confirmed by the NEM
           network, they will be totalled before presenting you with a download
           button (assuming your payments have met the price!).

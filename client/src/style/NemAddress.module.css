@@ -15,9 +15,10 @@
 }
 
 .status {
+  align-items: center;
   border-radius: 0.5rem;
   color: hsla(233, 10%, 10%, 1);
-  display: inline-block;
+  display: inline-flex;
   font-size: 0.75rem;
   font-weight: 600;
   margin-left: 0.5rem;
@@ -27,7 +28,7 @@
 
 .confirmed {
   composes: status;
-  background: #18cdca;
+  background: #00ff80;
 }
 
 .unconfirmed {
