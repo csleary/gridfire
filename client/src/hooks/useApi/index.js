@@ -1,15 +1,9 @@
-import { useEffect, useCallback, useRef, useState } from "react";
-import axios from "axios";
-import settings from "sdx.client.settings.json";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 
-// Hook for API requests, either on initial render using initial values, or via event handlers using the returned 'fetch' function.
-// Note: Calling the 'fetch' function on render will lead to a render cascade.
-// e.g. usage:
-// const { data, fetch, isLoading } = useApi("/api/my/bots");
-// fetch("/api/upload", "post", { form: data })
-
-const useApi = (initialUrl, initialMethod = "get", initialData) => {
-  const [isLoading, setLoading] = useState(false);
+const useApi = (initialUrl, initialMethod = 'get', initialData) => {
+  const [isLoading, setLoading] = useState(true);
+  const [isFetching, setFetching] = useState(false);
   const [error, setError] = useState();
   const [resData, setResData] = useState();
   const [isCancelled, setCancelled] = useState(false);
@@ -23,15 +17,18 @@ const useApi = (initialUrl, initialMethod = "get", initialData) => {
   };
 
   const fetch = useCallback(
-    async (url, method, data) => {
-      setLoading(true);
-      if (url) setResData(undefined);
+    async (url = initialUrl, method = initialMethod, data = initialData) => {
+      if (!url) {
+        setLoading(true);
+      } else {
+        setFetching(true);
+      }
 
       try {
         const res = await axios({
-          method: method || initialMethod,
-          url: `${settings.api}${url || initialUrl}`,
-          data: data || initialData,
+          method,
+          url,
+          data,
           cancelToken: call.current.token,
           onUploadProgress: e =>
             setUploadProgress(percentComplete(e.loaded / e.total)),
@@ -41,14 +38,15 @@ const useApi = (initialUrl, initialMethod = "get", initialData) => {
 
         setResData(res.data);
         setError(undefined);
-      } catch (error) {
-        if (axios.isCancel(error)) {
+      } catch (e) {
+        if (axios.isCancel(e)) {
           setCancelled(true);
         } else {
           setCancelled(false);
-          setError(error);
+          setError(e);
         }
       } finally {
+        setFetching(false);
         setLoading(false);
       }
     },
@@ -66,6 +64,7 @@ const useApi = (initialUrl, initialMethod = "get", initialData) => {
     data: resData,
     error,
     isCancelled,
+    isFetching,
     isLoading,
     uploadProgress,
     downloadProgress

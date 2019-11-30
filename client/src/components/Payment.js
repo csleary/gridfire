@@ -1,150 +1,21 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
 import { Link } from 'react-router-dom';
 import PaymentMethods from './payment/PaymentMethods';
 import Payments from './payment/Payments';
 import PropTypes from 'prop-types';
+import React from 'react';
 import Spinner from './Spinner';
-import axios from 'axios';
 import { connect } from 'react-redux';
-import { toastError } from '../actions';
+import { toastError } from 'actions';
+import { useApi } from 'hooks/useApi';
 
-const initialState = {
-  artist: '',
-  artistName: '',
-  error: false,
-  fetchedRelease: false,
-  hasPurchased: false,
-  isLoading: true,
-  isLoadingTxs: false,
-  isUpdating: false,
-  nemNode: '',
-  paidToDate: null,
-  paymentAddress: '',
-  paymentHash: '',
-  priceInXem: '',
-  releaseTitle: '',
-  transactions: []
+const roundUp = (value, precision) => {
+  const factor = 10 ** precision;
+  return Math.ceil(value * factor) / factor;
 };
-
-const reducer = (state, action) => {
-  const { payload } = action;
-  switch (action.type) {
-  case 'setLoading':
-    return { ...state, isLoading: action.value };
-  case 'purchaseRelease':
-    return {
-      ...state,
-      artist: payload.release.artist,
-      artistName: payload.release.artistName,
-      isLoading: false,
-      fetchedRelease: true,
-      paymentAddress: payload.paymentInfo.paymentAddress,
-      paymentHash: payload.paymentInfo.paymentHash,
-      priceInXem: payload.price,
-      releaseTitle: payload.release.releaseTitle
-    };
-  case 'transactions':
-    return {
-      ...state,
-      isLoadingTxs: false,
-      isUpdating: false,
-      error: false,
-      hasPurchased: payload.hasPurchased,
-      transactions: payload.transactions,
-      nemNode: payload.nemNode,
-      paidToDate: payload.paidToDate
-    };
-  case 'transactionsError':
-    return {
-      ...state,
-      isLoadingTxs: false,
-      isUpdating: false,
-      error: action.error
-    };
-  case 'transactionsLoading':
-    return { ...state, isLoadingTxs: true };
-  case 'updating':
-    return { ...state, isUpdating: true };
-  default:
-    return state;
-  }
-};
-
-const fetchTransactions = ({ releaseId, paymentHash }) =>
-  axios.post('/api/nem/transactions', {
-    releaseId,
-    paymentHash
-  });
 
 const Payment = props => {
   const { releaseId } = props.match.params;
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  const {
-    artist,
-    artistName,
-    fetchedRelease,
-    transactions,
-    isLoading,
-    isLoadingTxs,
-    isUpdating,
-    hasPurchased,
-    nemNode,
-    paidToDate,
-    paymentAddress,
-    paymentHash,
-    releaseTitle,
-    transactionsError
-  } = state;
-
-  const handleFetchTransactions = useCallback(async () => {
-    try {
-      dispatch({ type: 'transactionsLoading', value: true });
-      const res = await fetchTransactions({ releaseId, paymentHash });
-      dispatch({ type: 'transactions', payload: res.data });
-    } catch (e) {
-      console.log(e);
-      dispatch({ type: 'transactionsError', error: e.response.data.error });
-      toastError(e.response.data.error);
-    }
-  }, [releaseId, paymentHash]);
-
-  const handleFetchUpdate = useCallback(async () => {
-    try {
-      dispatch({ type: 'updating' });
-      const res = await fetchTransactions({ releaseId, paymentHash });
-      dispatch({ type: 'transactions', payload: res.data });
-    } catch (e) {
-      dispatch({ type: 'transactionsError', error: e.response.data.error });
-      toastError(e.response.data.error);
-    }
-  }, [releaseId, paymentHash]);
-
-  useEffect(() => {
-    dispatch({ type: 'setLoading', value: true });
-    axios
-      .get(`/api/purchase/${releaseId}`)
-      .then(res => {
-        dispatch({ type: 'purchaseRelease', payload: res.data });
-      })
-      .catch(e => {
-        dispatch({ type: 'setLoading', value: false });
-        toastError(e.response.data.error);
-      });
-  }, [releaseId]);
-
-  useEffect(() => {
-    if (fetchedRelease && paymentAddress) {
-      handleFetchTransactions();
-    }
-  }, [fetchedRelease, handleFetchTransactions, paymentAddress]);
-
-  const roundUp = (value, precision) => {
-    const factor = 10 ** precision;
-    return Math.ceil(value * factor) / factor;
-  };
-
-  const priceInXem = roundUp(state.priceInXem, 2).toFixed(2);
+  const { data, isLoading } = useApi(`/api/purchase/${releaseId}`);
 
   if (isLoading) {
     return (
@@ -153,6 +24,14 @@ const Payment = props => {
       </Spinner>
     );
   }
+
+  const {
+    release: { artist, artistName, releaseTitle },
+    paymentInfo: { paymentAddress, paymentHash },
+    price
+  } = data;
+
+  const priceInXem = roundUp(price, 2).toFixed(2);
 
   if (!paymentAddress) {
     return (
@@ -196,18 +75,11 @@ const Payment = props => {
       </div>
       <Payments
         artistName={artistName}
-        handleFetchUpdate={handleFetchUpdate}
-        hasPurchased={hasPurchased}
-        isLoadingTxs={isLoadingTxs}
-        isUpdating={isUpdating}
-        nemNode={nemNode}
-        paidToDate={paidToDate}
+        paymentHash={paymentHash}
         price={priceInXem}
         releaseId={releaseId}
         releaseTitle={releaseTitle}
         roundUp={roundUp}
-        transactions={transactions}
-        transactionsError={transactionsError}
       />
     </main>
   );
