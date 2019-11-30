@@ -2,7 +2,7 @@ import '@ibm/type/css/ibm-type.min.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import * as serviceWorker from 'serviceWorker';
 import { applyMiddleware, createStore } from 'redux';
-import App from 'components/App';
+import App from './App';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -25,4 +25,4 @@ ReactDOM.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-export { CLOUD_URL, CLOUD_URL as default };
+export { CLOUD_URL };
