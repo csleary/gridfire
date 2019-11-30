@@ -18,10 +18,9 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
 
   const fetch = useCallback(
     async (url = initialUrl, method = initialMethod, data = initialData) => {
+      setFetching(true);
       if (!url) {
         setLoading(true);
-      } else {
-        setFetching(true);
       }
 
       try {

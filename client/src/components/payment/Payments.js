@@ -6,7 +6,9 @@ import Spinner from 'components/Spinner';
 import Summary from './payments/Summary';
 import Transactions from './payments/Transactions';
 import Underpaid from './payments/Underpaid';
+import { connect } from 'react-redux';
 import styles from 'style/Payments.module.css';
+import { toastError } from 'actions';
 import { useApi } from 'hooks/useApi';
 import withDownload from './payments/withDownload';
 
@@ -30,11 +32,15 @@ const Payments = props => {
     [releaseId, paymentHash]
   );
 
-  const { data, fetch, isFetching, isLoading } = useApi(
+  const { data, error, fetch, isFetching, isLoading } = useApi(
     '/api/nem/transactions',
     'post',
     paymentData
   );
+
+  if (error) {
+    props.toastError(error);
+  }
 
   useEffect(() => {
     const updateTxs = () => {
@@ -123,10 +129,7 @@ const Payments = props => {
 
 Payments.propTypes = {
   artistName: PropTypes.string,
-  handleFetchUpdate: PropTypes.func,
   hasPurchased: PropTypes.bool,
-  isLoadingTxs: PropTypes.bool,
-  isUpdating: PropTypes.bool,
   nemNode: PropTypes.string,
   paidToDate: PropTypes.number,
   paymentHash: PropTypes.string,
@@ -134,9 +137,12 @@ Payments.propTypes = {
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string,
   roundUp: PropTypes.func,
-  source: PropTypes.object,
+  toastError: PropTypes.func,
   transactions: PropTypes.array,
   transactionsError: PropTypes.object
 };
 
-export default Payments;
+export default connect(
+  null,
+  { toastError }
+)(Payments);

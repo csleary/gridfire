@@ -15,7 +15,11 @@ const roundUp = (value, precision) => {
 
 const Payment = props => {
   const { releaseId } = props.match.params;
-  const { data, isLoading } = useApi(`/api/purchase/${releaseId}`);
+  const { data, error, isLoading } = useApi(`/api/purchase/${releaseId}`);
+
+  if (error) {
+    toastError(error);
+  }
 
   if (isLoading) {
     return (
