@@ -27,7 +27,7 @@
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.6.2",
+    "mongoose": "^5.7.5",
     "multer": "^2.0.0-alpha.7",
     "nem-sdk": "^1.6.7",
     "node-expat": "^2.3.18",
