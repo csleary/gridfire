@@ -12,7 +12,8 @@ const UserSchema = new Schema(
       isLocal: Boolean,
       password: String,
       resetToken: String,
-      resetExpire: Date
+      resetExpire: Date,
+      lastLogin: Date
     },
     nemAddress: String,
     nemAddressVerified: { type: Boolean, default: false },
