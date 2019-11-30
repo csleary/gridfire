@@ -1,5 +1,6 @@
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from './ProgressBar';
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
@@ -86,6 +87,13 @@ const ArtworkDropzone = props => {
       />
     </div>
   );
+};
+
+ArtworkDropzone.propTypes = {
+  artworkUploading: PropTypes.bool,
+  children: PropTypes.node,
+  onDrop: PropTypes.func,
+  percentComplete: PropTypes.number
 };
 
 export default ArtworkDropzone;

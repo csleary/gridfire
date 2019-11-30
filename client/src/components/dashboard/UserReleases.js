@@ -6,13 +6,14 @@ import {
   publishStatus,
   toastSuccess,
   toastWarning
-} from '../../actions';
+} from 'actions';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
-import Spinner from '../Spinner';
+import PropTypes from 'prop-types';
+import Spinner from 'components/Spinner';
 import UserRelease from './UserRelease';
 import { connect } from 'react-redux';
-import styles from '../../style/UserReleases.module.css';
+import styles from 'style/UserReleases.module.css';
 
 function UserReleases(props) {
   const {
@@ -138,6 +139,17 @@ function mapStateToProps(state) {
     userReleases: state.releases.userReleases
   };
 }
+
+UserReleases.propTypes = {
+  deleteRelease: PropTypes.func,
+  fetchSales: PropTypes.func,
+  fetchUserReleases: PropTypes.func,
+  history: PropTypes.object,
+  publishStatus: PropTypes.func,
+  toastSuccess: PropTypes.func,
+  toastWarning: PropTypes.func,
+  userReleases: PropTypes.array
+};
 
 export default connect(
   mapStateToProps,

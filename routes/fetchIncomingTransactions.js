@@ -14,32 +14,35 @@ module.exports = (paymentAddress, idHash) =>
     let total = [];
     let paidToDate = 0;
 
-    const fetchTransactions = async () => {
-      const incoming = await nem.com.requests.account.transactions.incoming(
-        endpoint,
-        paymentAddress,
-        null,
-        txId
-      );
+    try {
+      const fetchTransactions = async () => {
+        const incoming = await nem.com.requests.account.transactions.incoming(
+          endpoint,
+          paymentAddress,
+          null,
+          txId
+        );
 
-      const currentBatch = incoming.data || [];
-      const filteredTxs = filterTransactions(idHash, currentBatch);
-      const payments = checkPayments(filteredTxs);
-      paidToDate += payments;
-      total = [...total, ...filteredTxs];
+        const currentBatch = incoming.data || [];
+        const filteredTxs = filterTransactions(idHash, currentBatch);
+        const payments = checkPayments(filteredTxs);
+        paidToDate += payments;
+        total = [...total, ...filteredTxs];
 
-      if (currentBatch.length === 25) {
-        txId = currentBatch[currentBatch.length - 1].meta.id;
-        fetchTransactions();
-      } else {
-        resolve({
-          transactions: total,
-          nemNode,
-          paidToDate
-        });
-      }
-    };
-    fetchTransactions().catch(error => {
+        if (currentBatch.length === 25) {
+          txId = currentBatch[currentBatch.length - 1].meta.id;
+          fetchTransactions();
+        } else {
+          resolve({
+            transactions: total,
+            nemNode,
+            paidToDate
+          });
+        }
+      };
+
+      fetchTransactions();
+    } catch (error) {
       reject(error);
-    });
+    }
   });

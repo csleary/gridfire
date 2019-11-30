@@ -1,4 +1,4 @@
-import '../style/editRelease.css';
+import 'style/editRelease.css';
 import {
   Field,
   FieldArray,
@@ -29,6 +29,7 @@ import {
 } from '../actions';
 import { CLOUD_URL } from '../index';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import RenderArtwork from './editRelease/RenderArtwork';
 import RenderReleaseField from './editRelease/RenderReleaseField';
 import RenderTrackList from './editRelease/RenderTrackList';
@@ -598,6 +599,46 @@ const mapStateToProps = state => ({
   release: state.releases.selectedRelease,
   xemPriceUsd: state.nem.xemPriceUsd
 });
+
+EditRelease.propTypes = {
+  addRelease: PropTypes.func,
+  addTrack: PropTypes.func,
+  artworkUploading: PropTypes.bool,
+  artworkUploadProgress: PropTypes.number,
+  audioUploadProgress: PropTypes.array,
+  change: PropTypes.func,
+  deleteArtwork: PropTypes.func,
+  deleteRelease: PropTypes.func,
+  deleteTrack: PropTypes.func,
+  fetchRelease: PropTypes.func,
+  fetchXemPrice: PropTypes.func,
+  formValues: PropTypes.object,
+  handleSubmit: PropTypes.func,
+  history: PropTypes.object,
+  initialize: PropTypes.func,
+  invalid: PropTypes.bool,
+  isDeleting: PropTypes.array,
+  isTranscoding: PropTypes.array,
+  match: PropTypes.object,
+  moveTrack: PropTypes.func,
+  price: PropTypes.string,
+  pristine: PropTypes.bool,
+  publishStatus: PropTypes.func,
+  release: PropTypes.object,
+  submitting: PropTypes.bool,
+  toastError: PropTypes.func,
+  toastInfo: PropTypes.func,
+  toastWarning: PropTypes.func,
+  toastSuccess: PropTypes.func,
+  transcodeAudio: PropTypes.func,
+  updateRelease: PropTypes.func,
+  uploadArtwork: PropTypes.func,
+  uploadDate: PropTypes.func,
+  uploadRelease: PropTypes.func,
+  uploadAudio: PropTypes.func,
+  valid: PropTypes.bool,
+  xemPriceUsd: PropTypes.number
+};
 
 export default reduxForm({
   validate,

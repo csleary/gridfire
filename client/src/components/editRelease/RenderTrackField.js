@@ -1,4 +1,5 @@
 import AudioDropzone from './AudioDropzone';
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -49,6 +50,24 @@ const RenderTrackField = props => {
       {error && <div className="invalid-feedback">{touched && error}</div>}
     </>
   );
+};
+
+RenderTrackField.propTypes = {
+  audioUploadProgress: PropTypes.number,
+  hasAudio: PropTypes.bool,
+  index: PropTypes.number,
+  input: PropTypes.object,
+  isEncoding: PropTypes.bool,
+  isTranscoding: PropTypes.bool,
+  isUploading: PropTypes.bool,
+  label: PropTypes.number,
+  meta: PropTypes.object,
+  onDropAudio: PropTypes.func,
+  touched: PropTypes.bool,
+  error: PropTypes.bool,
+  name: PropTypes.string,
+  trackId: PropTypes.string,
+  type: PropTypes.string
 };
 
 export default RenderTrackField;

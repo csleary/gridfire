@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Field } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from './ProgressBar';
+import PropTypes from 'prop-types';
 import RenderTrackField from './RenderTrackField';
 import classNames from 'classnames';
 
@@ -134,6 +135,28 @@ const RenderTrack = props => {
       />
     </li>
   );
+};
+
+RenderTrack.propTypes = {
+  audioUploadProgress: PropTypes.number,
+  dragActive: PropTypes.bool,
+  dragOrigin: PropTypes.func,
+  index: PropTypes.number,
+  isDeleting: PropTypes.bool,
+  isTranscoding: PropTypes.bool,
+  fields: PropTypes.object,
+  handleDeleteTrack: PropTypes.func,
+  handleDragEnd: PropTypes.func,
+  handleDragEnter: PropTypes.func,
+  handleDragLeave: PropTypes.func,
+  handleDragOver: PropTypes.func,
+  handleDragStart: PropTypes.func,
+  handleDrop: PropTypes.func,
+  moveTrack: PropTypes.func,
+  name: PropTypes.string,
+  onDropAudio: PropTypes.func,
+  release: PropTypes.object,
+  trackId: PropTypes.string
 };
 
 export default RenderTrack;

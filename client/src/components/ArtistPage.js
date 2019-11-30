@@ -4,17 +4,18 @@ import {
   fetchRelease,
   playTrack,
   toastInfo
-} from '../actions';
+} from 'actions';
+import PropTypes from 'prop-types';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
-import { frontPage } from '../style/Home.module.css';
-import styles from '../style/ArtistPage.module.css';
+import { frontPage } from 'style/Home.module.css';
+import styles from 'style/ArtistPage.module.css';
 
 const ArtistPage = props => {
   const {
     artist: { releases, name },
-    fetchArtistCatalogue,
+    fetchArtistCatalogue: fetchArtist,
     match
   } = props;
 
@@ -23,8 +24,8 @@ const ArtistPage = props => {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchArtistCatalogue(artist).then(() => setLoading(false));
-  }, [artist, fetchArtistCatalogue]);
+    fetchArtist(artist).then(() => setLoading(false));
+  }, [fetchArtist, artist]);
 
   const renderReleases = () => {
     if (!releases) return;
@@ -59,6 +60,15 @@ const ArtistPage = props => {
       </div>
     </main>
   );
+};
+
+ArtistPage.propTypes = {
+  artist: PropTypes.object,
+  fetchArtistCatalogue: PropTypes.func,
+  fetchRelease: PropTypes.func,
+  match: PropTypes.object,
+  playTrack: PropTypes.func,
+  toastInfo: PropTypes.func
 };
 
 function mapStateToProps(state) {

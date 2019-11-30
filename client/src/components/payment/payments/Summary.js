@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const Summary = ({ transactions, paidToDate }) => {
@@ -17,6 +18,11 @@ const Summary = ({ transactions, paidToDate }) => {
       <span className="bold red">{paidToDate.toFixed(2)} XEM</span>
     </p>
   );
+};
+
+Summary.propTypes = {
+  paidToDate: PropTypes.number,
+  transactions: PropTypes.array
 };
 
 export default Summary;

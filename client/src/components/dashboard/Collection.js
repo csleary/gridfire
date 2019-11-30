@@ -5,11 +5,12 @@ import {
   fetchRelease,
   playTrack,
   toastInfo
-} from '../../actions';
-import RenderRelease from '../RenderRelease';
-import Spinner from '../Spinner';
+} from 'actions';
+import PropTypes from 'prop-types';
+import RenderRelease from 'components/RenderRelease';
+import Spinner from 'components/Spinner';
 import { connect } from 'react-redux';
-import { frontPage } from '../../style/Home.module.css';
+import { frontPage } from 'style/Home.module.css';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
@@ -76,6 +77,15 @@ function mapStateToProps(state) {
     collection: state.releases.collection
   };
 }
+
+Collection.propTypes = {
+  collection: PropTypes.array,
+  fetchCollection: PropTypes.func,
+  fetchDownloadToken: PropTypes.func,
+  fetchRelease: PropTypes.func,
+  playTrack: PropTypes.func,
+  toastInfo: PropTypes.func
+};
 
 export default connect(
   mapStateToProps,

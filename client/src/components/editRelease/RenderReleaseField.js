@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const RenderReleaseField = ({
@@ -22,6 +23,17 @@ const RenderReleaseField = ({
       {error && <div className="invalid-feedback">{touched && error}</div>}
     </div>
   );
+};
+
+RenderReleaseField.propTypes = {
+  error: PropTypes.string,
+  formText: PropTypes.string,
+  input: PropTypes.object,
+  label: PropTypes.string,
+  meta: PropTypes.object,
+  name: PropTypes.string,
+  touched: PropTypes.string,
+  type: PropTypes.string
 };
 
 export default RenderReleaseField;

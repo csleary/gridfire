@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const Logo = props => (
@@ -16,5 +17,9 @@ const Logo = props => (
     <path d="m48.782 29.615h-20.022v-29.208h20.022v5.8457h-14.176v5.8457h9.5934v5.8457h-9.5934v5.8253h14.176z" />
   </svg>
 );
+
+Logo.propTypes = {
+  class: PropTypes.string
+};
 
 export default Logo;

@@ -1,8 +1,9 @@
 import FontAwesome from 'react-fontawesome';
 import ManualPayment from './ManualPayment';
+import PropTypes from 'prop-types';
 import QRCode from './QRCode';
 import React from 'react';
-import styles from '../../style/Payment.module.css';
+import styles from 'style/Payment.module.css';
 
 const PaymentMethod = ({
   paymentAddress,
@@ -48,6 +49,13 @@ const PaymentMethod = ({
       </p>
     </>
   );
+};
+
+PaymentMethod.propTypes = {
+  paymentAddress: PropTypes.string,
+  paymentHash: PropTypes.string,
+  priceInXem: PropTypes.string,
+  showManualPayment: PropTypes.bool
 };
 
 export default PaymentMethod;

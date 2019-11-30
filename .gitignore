@@ -4,3 +4,4 @@ dkimKey
 dkimKey.pub
 node_modules/
 scripts/
+upload.sh

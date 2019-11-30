@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import styles from '../../style/PaymentTextarea.module.css';
+import styles from 'style/PaymentTextarea.module.css';
 
 const ReadOnlyTextarea = props => {
   const textArea = useRef(null);
@@ -44,6 +45,11 @@ const ReadOnlyTextarea = props => {
       </div>
     </div>
   );
+};
+
+ReadOnlyTextarea.propTypes = {
+  placeholder: PropTypes.string,
+  text: PropTypes.string
 };
 
 export default ReadOnlyTextarea;

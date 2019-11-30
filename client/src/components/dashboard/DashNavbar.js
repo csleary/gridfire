@@ -1,5 +1,6 @@
 import { NavLink, withRouter } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -70,5 +71,9 @@ function mapStateToProps(state) {
     user: state.user
   };
 }
+
+DashNavbar.propTypes = {
+  user: PropTypes.object
+};
 
 export default withRouter(connect(mapStateToProps)(DashNavbar));

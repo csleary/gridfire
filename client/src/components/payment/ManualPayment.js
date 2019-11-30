@@ -1,7 +1,8 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
-import styles from '../../style/Payment.module.css';
+import styles from 'style/Payment.module.css';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
@@ -63,6 +64,12 @@ const ManualPayment = props => {
       </div>
     </div>
   );
+};
+
+ManualPayment.propTypes = {
+  paymentAddress: PropTypes.string,
+  paymentHash: PropTypes.string,
+  priceInXem: PropTypes.string
 };
 
 export default ManualPayment;

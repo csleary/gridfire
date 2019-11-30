@@ -1,8 +1,9 @@
-import { CLOUD_URL } from '../../index';
+import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
-import placeholder from '../../placeholder.svg';
-import styles from '../../style/SelectedRelease.module.css';
+import placeholder from 'placeholder.svg';
+import styles from 'style/SelectedRelease.module.css';
 
 const Artwork = props => {
   const {
@@ -66,6 +67,16 @@ const Artwork = props => {
       </div>
     </div>
   );
+};
+
+Artwork.propTypes = {
+  isPlaying: PropTypes.bool,
+  nowPlayingToast: PropTypes.func,
+  playerReleaseId: PropTypes.string,
+  release: PropTypes.object,
+  playerPlay: PropTypes.func,
+  playerPause: PropTypes.func,
+  playTrack: PropTypes.func
 };
 
 export default Artwork;

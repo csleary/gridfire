@@ -1,7 +1,8 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
-import { fetchUser, toastError, toastSuccess } from '../actions';
+import { fetchUser, toastError, toastSuccess } from 'actions';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import RenderRecaptcha from './RenderRecaptcha';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -130,6 +131,18 @@ class Register extends Component {
     );
   }
 }
+
+Register.propTypes = {
+  fetchUser: PropTypes.func,
+  handleSubmit: PropTypes.func,
+  history: PropTypes.object,
+  invalid: PropTypes.bool,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func,
+  toastError: PropTypes.func,
+  toastSuccess: PropTypes.func,
+  submitting: PropTypes.bool
+};
 
 export default reduxForm({
   form: 'registerForm'

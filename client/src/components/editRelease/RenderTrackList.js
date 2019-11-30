@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import RenderTrack from './RenderTrack';
-import { usePrevious } from '../../functions';
+import { usePrevious } from 'functions';
 
 function RenderTrackList(props) {
   const {

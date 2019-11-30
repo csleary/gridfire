@@ -1,6 +1,7 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
-import { spinner } from '../style/Spinner.module.css';
+import { spinner } from 'style/Spinner.module.css';
 
 const Spinner = ({ children }) => (
   <main className="container d-flex align-items-center justify-content-center">
@@ -12,5 +13,7 @@ const Spinner = ({ children }) => (
     </div>
   </main>
 );
+
+Spinner.propTypes = { children: PropTypes.object };
 
 export default Spinner;

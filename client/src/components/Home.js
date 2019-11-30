@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from '../actions';
 import { sortNumbers, sortStrings } from '../functions';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
-import styles from '../style/Home.module.css';
+import styles from 'style/Home.module.css';
 
 const Home = props => {
   const {
@@ -142,6 +143,19 @@ const Home = props => {
       </div>
     </main>
   );
+};
+
+Home.propTypes = {
+  catalogue: PropTypes.array,
+  catalogueLimit: PropTypes.number,
+  catalogueSkip: PropTypes.number,
+  fetchCatalogue: PropTypes.func,
+  fetchRelease: PropTypes.func,
+  match: PropTypes.object,
+  playTrack: PropTypes.func,
+  service: PropTypes.string,
+  reachedEndOfCat: PropTypes.bool,
+  toastInfo: PropTypes.func
 };
 
 function mapStateToProps(state) {

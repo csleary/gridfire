@@ -1,7 +1,8 @@
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/SelectedRelease.module.css';
+import styles from 'style/SelectedRelease.module.css';
 
 const CollectionIndicator = ({ inCollection }) => {
   if (!inCollection) return null;
@@ -18,6 +19,10 @@ const CollectionIndicator = ({ inCollection }) => {
       </Link>
     </>
   );
+};
+
+CollectionIndicator.propTypes = {
+  inCollection: PropTypes.bool
 };
 
 export default CollectionIndicator;

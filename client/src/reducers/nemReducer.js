@@ -1,4 +1,4 @@
-import { FETCH_XEM_PRICE } from '../actions/types';
+import { FETCH_XEM_PRICE } from 'actions/types';
 
 export default (state = 0, action) => {
   const { type, payload } = action;

@@ -1,10 +1,11 @@
-import '../style/navbar.css';
+import 'style/navbar.css';
 import { Link, NavLink, withRouter } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, fetchUser, logOut, toastSuccess } from '../actions';
 import DashNavbar from './dashboard/DashNavbar';
 import FontAwesome from 'react-fontawesome';
 import Logo from './Logo';
+import PropTypes from 'prop-types';
 import SearchBar from './SearchBar';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -140,6 +141,14 @@ const NavBar = props => {
       </ul>
     </nav>
   );
+};
+
+NavBar.propTypes = {
+  fetchUser: PropTypes.func,
+  history: PropTypes.object,
+  toastSuccess: PropTypes.func,
+  logOut: PropTypes.func,
+  user: PropTypes.object
 };
 
 function mapStateToProps(state) {

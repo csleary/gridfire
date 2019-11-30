@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import PaymentMethod from './PaymentMethod';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import styles from '../../style/Payment.module.css';
+import styles from 'style/Payment.module.css';
 
 const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   const [showManualPayment, setshowManualPayment] = useState(false);
@@ -61,6 +62,12 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
       />
     </div>
   );
+};
+
+PaymentMethods.propTypes = {
+  paymentAddress: PropTypes.string,
+  paymentHash: PropTypes.string,
+  priceInXem: PropTypes.string
 };
 
 export default PaymentMethods;

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Artwork from './Artwork';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import StatusIcon from './StatusIcon';
 import Title from './Title';
 import moment from 'moment';
-import styles from '../../style/UserRelease.module.css';
+import styles from 'style/UserRelease.module.css';
 
 function UserRelease(props) {
   const {
@@ -178,5 +179,24 @@ function UserRelease(props) {
     </li>
   );
 }
+
+UserRelease.propTypes = {
+  deleteRelease: PropTypes.func,
+  history: PropTypes.object,
+  numSold: PropTypes.number,
+  _id: PropTypes.string,
+  artist: PropTypes.string,
+  artistName: PropTypes.string,
+  artwork: PropTypes.string,
+  price: PropTypes.string,
+  published: PropTypes.bool,
+  publishStatus: PropTypes.func,
+  release: PropTypes.object,
+  releaseDate: PropTypes.string,
+  releaseTitle: PropTypes.string,
+  trackList: PropTypes.array,
+  toastSuccess: PropTypes.func,
+  toastWarning: PropTypes.func
+};
 
 export default UserRelease;

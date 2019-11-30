@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import {
-  checkFormatMp3,
-  fetchDownloadToken,
-  toastInfo
-} from '../../../actions';
+import { checkFormatMp3, fetchDownloadToken, toastInfo } from 'actions';
+import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
@@ -47,6 +44,17 @@ const withDownload = WrappedComponent => props => {
       {...props}
     />
   );
+};
+
+withDownload.propTypes = {
+  artistName: PropTypes.string,
+  checkFormatMp3: PropTypes.func,
+  fetchDownloadToken: PropTypes.func,
+  format: PropTypes.string,
+  releaseId: PropTypes.string,
+  releaseTitle: PropTypes.string,
+  toastInfo: PropTypes.func,
+  price: PropTypes.string
 };
 
 export default compose(

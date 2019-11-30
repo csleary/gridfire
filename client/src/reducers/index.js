@@ -1,4 +1,4 @@
-import { LOG_OUT } from '../actions/types';
+import { LOG_OUT } from 'actions/types';
 import authReducer from './authReducer';
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';

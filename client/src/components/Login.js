@@ -3,9 +3,10 @@ import { Link, withRouter } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import { fetchUser, toastError, toastSuccess } from '../actions';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import styles from '../style/Login.module.css';
+import styles from 'style/Login.module.css';
 
 const renderField = field => {
   const {
@@ -146,6 +147,19 @@ const Login = props => {
       </div>
     </main>
   );
+};
+
+Login.propTypes = {
+  fetchUser: PropTypes.func,
+  handleSubmit: PropTypes.func,
+  history: PropTypes.object,
+  invalid: PropTypes.bool,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func,
+  submitting: PropTypes.bool,
+  toastError: PropTypes.func,
+  toastSuccess: PropTypes.func,
+  user: PropTypes.object
 };
 
 const required = value => (value ? undefined : 'Please enter a value.');

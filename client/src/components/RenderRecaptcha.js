@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import Recaptcha from 'react-google-recaptcha';
 
@@ -29,5 +30,12 @@ class RenderRecaptcha extends React.Component {
     );
   }
 }
+
+RenderRecaptcha.propTypes = {
+  classNames: PropTypes.object,
+  error: PropTypes.bool,
+  input: PropTypes.func,
+  touched: PropTypes.bool
+};
 
 export default RenderRecaptcha;

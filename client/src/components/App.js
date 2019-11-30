@@ -16,6 +16,7 @@ import NavBar from './NavBar';
 import Payment from './Payment';
 import Player from './Player';
 import PrivateRoute from './PrivateRoute';
+import PropTypes from 'prop-types';
 import Register from './Register';
 import ResetPassword from './ResetPassword';
 import SearchResults from './SearchResults';
@@ -26,13 +27,13 @@ import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
 import { wrapper } from '../style/App.module.css';
 
-const App = ({ fetchUser, user }) => {
+const App = ({ fetchUser: loadUser, user }) => {
   const [, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    fetchUser().then(() => setLoading(false));
-  }, [fetchUser]);
+    loadUser().then(() => setLoading(false));
+  }, [loadUser]);
 
   return (
     <BrowserRouter>
@@ -76,6 +77,11 @@ const App = ({ fetchUser, user }) => {
       </div>
     </BrowserRouter>
   );
+};
+
+App.propTypes = {
+  fetchUser: PropTypes.func,
+  user: PropTypes.object
 };
 
 function mapStateToProps(state) {

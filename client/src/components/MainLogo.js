@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../style/MainLogo.module.css';
+import styles from 'style/MainLogo.module.css';
 
 const MainLogo = () => (
   <svg

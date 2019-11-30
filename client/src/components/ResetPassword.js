@@ -1,6 +1,7 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import Spinner from './Spinner';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -164,6 +165,18 @@ class ResetPassword extends Component {
     );
   }
 }
+
+ResetPassword.propTypes = {
+  handleSubmit: PropTypes.func,
+  history: PropTypes.object,
+  invalid: PropTypes.bool,
+  match: PropTypes.object,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func,
+  toastError: PropTypes.func,
+  toastSuccess: PropTypes.func,
+  submitting: PropTypes.bool
+};
 
 const mapStateToProps = state => ({
   user: state.user

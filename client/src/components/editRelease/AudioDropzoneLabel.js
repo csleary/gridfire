@@ -1,4 +1,5 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const AudioDropzoneLabel = props => {
@@ -72,6 +73,16 @@ const AudioDropzoneLabel = props => {
       Add Audio
     </>
   );
+};
+
+AudioDropzoneLabel.propTypes = {
+  hasAudio: PropTypes.bool,
+  isDragActive: PropTypes.bool,
+  isDragReject: PropTypes.bool,
+  isEncoding: PropTypes.bool,
+  isTranscoding: PropTypes.bool,
+  isUploading: PropTypes.bool,
+  audioUploadProgress: PropTypes.number
 };
 
 export default AudioDropzoneLabel;

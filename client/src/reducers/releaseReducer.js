@@ -23,7 +23,7 @@ import {
   UPLOAD_ARTWORK,
   UPLOAD_ARTWORK_PROGRESS,
   UPLOAD_AUDIO_PROGRESS
-} from '../actions/types';
+} from 'actions/types';
 
 const updateFromPayload = (currentState, payload) =>
   currentState.filter(existing => {
@@ -38,6 +38,7 @@ const initialState = {
   artworkUploading: false,
   artworkUploadProgress: 0,
   audioUploadProgress: [],
+  cancelAudioUpload: undefined,
   isLoading: false,
   isSearching: false,
   isDeleting: [],

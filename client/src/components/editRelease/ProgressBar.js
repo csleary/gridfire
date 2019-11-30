@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/ProgressBar.module.css';
+import styles from 'style/ProgressBar.module.css';
 
 const ProgressBar = ({ percentComplete, willDisplay }) => {
   if (willDisplay) {
@@ -13,6 +14,11 @@ const ProgressBar = ({ percentComplete, willDisplay }) => {
     );
   }
   return null;
+};
+
+ProgressBar.propTypes = {
+  percentComplete: PropTypes.number,
+  willDisplay: PropTypes.bool
 };
 
 export default ProgressBar;

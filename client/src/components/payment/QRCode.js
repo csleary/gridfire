@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import QRCode from 'qrcode.react';
 import React from 'react';
 
@@ -22,6 +23,12 @@ const QrCode = props => {
       level={'M'}
     />
   );
+};
+
+QrCode.propTypes = {
+  idHash: PropTypes.string,
+  paymentAddress: PropTypes.string,
+  price: PropTypes.string
 };
 
 export default QrCode;

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const RecordLabel = ({ recordLabel }) => {
@@ -8,6 +9,10 @@ const RecordLabel = ({ recordLabel }) => {
       <span className="red">Label:</span> {recordLabel}
     </h6>
   );
+};
+
+RecordLabel.propTypes = {
+  recordLabel: PropTypes.string
 };
 
 export default RecordLabel;
