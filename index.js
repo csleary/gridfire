@@ -15,14 +15,11 @@ require('./models/User');
 require('./services/passport');
 
 mongoose.Promise = global.Promise;
-mongoose.connect(
-  keys.mongoURI,
-  {
-    useFindAndModify: false,
-    useCreateIndex: true,
-    useNewUrlParser: true
-  }
-);
+mongoose.connect(keys.mongoURI, {
+  useFindAndModify: false,
+  useCreateIndex: true,
+  useNewUrlParser: true
+});
 
 if (cluster.isMaster) {
   for (let i = 0; i < numCPUs; i++) {

@@ -44,6 +44,7 @@ passport.use(
           return done(null, false, 'Login details incorrect.');
         }
 
+        user.updateOne({ 'auth.lastLogin': Date.now() }).exec();
         done(null, user);
       } catch (error) {
         return done(error);
@@ -153,7 +154,10 @@ passport.use(
           'auth.googleId': profile.id
         });
 
-        if (existingUser) return done(null, existingUser);
+        if (existingUser) {
+          existingUser.updateOne({ 'auth.lastLogin': Date.now() }).exec();
+          return done(null, existingUser);
+        }
 
         const user = await new User({
           auth: {
