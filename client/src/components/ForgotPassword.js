@@ -1,6 +1,7 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import RenderRecaptcha from './RenderRecaptcha';
 import axios from 'axios';
 
@@ -133,6 +134,14 @@ class ForgotPassword extends Component {
     );
   }
 }
+
+ForgotPassword.propTypes = {
+  handleSubmit: PropTypes.func,
+  invalid: PropTypes.bool,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func,
+  submitting: PropTypes.bool
+};
 
 export default reduxForm({
   form: 'forgotPasswordForm'

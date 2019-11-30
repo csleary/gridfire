@@ -1,4 +1,4 @@
-import { FETCH_SALES } from '../actions/types';
+import { FETCH_SALES } from 'actions/types';
 
 const initialState = [];
 

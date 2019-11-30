@@ -4,7 +4,7 @@ import {
   TOAST_INFO,
   TOAST_SUCCESS,
   TOAST_WARNING
-} from '../actions/types';
+} from 'actions/types';
 
 const initialState = [];
 const max = 9;

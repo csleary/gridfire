@@ -6,13 +6,14 @@ import {
   fetchUserReleases,
   toastSuccess,
   toastWarning
-} from '../../actions';
+} from 'actions';
 import FontAwesome from 'react-fontawesome';
 import NemAddressFormField from './NemAddressFormField';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import nem from 'nem-sdk';
-import styles from '../../style/NemAddress.module.css';
+import styles from 'style/NemAddress.module.css';
 
 function NemAddress(props) {
   const [isCheckingCredit, setCheckingCredit] = useState(false);
@@ -111,7 +112,7 @@ function NemAddress(props) {
 
   const creditClassName = classnames({
     red: !credit,
-    yellow: credit
+    green: credit
   });
 
   return (
@@ -243,6 +244,24 @@ function mapStateToProps(state) {
     userReleases: state.releases.userReleases
   };
 }
+
+NemAddress.propTypes = {
+  addNemAddress: PropTypes.func,
+  credit: PropTypes.number,
+  fetchUserCredit: PropTypes.func,
+  fetchUserReleases: PropTypes.func,
+  handleSubmit: PropTypes.func,
+  initialize: PropTypes.func,
+  invalid: PropTypes.bool,
+  nemAddress: PropTypes.string,
+  nemAddressField: PropTypes.string,
+  nemAddressVerified: PropTypes.bool,
+  pristine: PropTypes.bool,
+  submitting: PropTypes.bool,
+  toastSuccess: PropTypes.func,
+  toastWarning: PropTypes.func,
+  userReleases: PropTypes.array
+};
 
 export default reduxForm({
   form: 'nemAddressForm'

@@ -115,11 +115,22 @@ export const uploadAudio = (
     };
 
     const res = await axios.post('/api/upload/audio', data, config);
-    dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
+
+    dispatch({
+      type: UPLOAD_AUDIO_PROGRESS,
+      trackId,
+      percent: 0
+    });
+
     return res;
   } catch (e) {
     toastError(e.response.data.error);
-    dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
+
+    dispatch({
+      type: UPLOAD_AUDIO_PROGRESS,
+      trackId,
+      percent: 0
+    });
   }
 };
 

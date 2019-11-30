@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/SelectedRelease.module.css';
+import styles from 'style/SelectedRelease.module.css';
 
 const Credits = ({ credits }) => {
   if (!credits) return null;
@@ -10,6 +11,10 @@ const Credits = ({ credits }) => {
       <p className={styles.credits}>{credits}</p>
     </>
   );
+};
+
+Credits.propTypes = {
+  credits: PropTypes.number
 };
 
 export default Credits;

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useReducer } from 'react';
 import { Link } from 'react-router-dom';
 import PaymentMethods from './payment/PaymentMethods';
 import Payments from './payment/Payments';
+import PropTypes from 'prop-types';
 import Spinner from './Spinner';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -69,6 +70,12 @@ const reducer = (state, action) => {
   }
 };
 
+const fetchTransactions = ({ releaseId, paymentHash }) =>
+  axios.post('/api/nem/transactions', {
+    releaseId,
+    paymentHash
+  });
+
 const Payment = props => {
   const { releaseId } = props.match.params;
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -90,27 +97,28 @@ const Payment = props => {
     transactionsError
   } = state;
 
-  const fetchTransactions = async (paymentParams, isUpdating) => {
+  const handleFetchTransactions = useCallback(async () => {
     try {
-      if (isUpdating) {
-        dispatch({ type: 'updating' });
-      } else {
-        dispatch({ type: 'transactionsLoading', value: true });
-      }
-      const res = await axios.post('/api/nem/transactions', paymentParams);
+      dispatch({ type: 'transactionsLoading', value: true });
+      const res = await fetchTransactions({ releaseId, paymentHash });
+      dispatch({ type: 'transactions', payload: res.data });
+    } catch (e) {
+      console.log(e);
+      dispatch({ type: 'transactionsError', error: e.response.data.error });
+      toastError(e.response.data.error);
+    }
+  }, [releaseId, paymentHash]);
+
+  const handleFetchUpdate = useCallback(async () => {
+    try {
+      dispatch({ type: 'updating' });
+      const res = await fetchTransactions({ releaseId, paymentHash });
       dispatch({ type: 'transactions', payload: res.data });
     } catch (e) {
       dispatch({ type: 'transactionsError', error: e.response.data.error });
       toastError(e.response.data.error);
     }
-  };
-
-  const handleFetchIncomingTxs = useCallback(
-    (isUpdating = false) => {
-      fetchTransactions({ releaseId, paymentHash }, isUpdating);
-    },
-    [paymentHash, releaseId]
-  );
+  }, [releaseId, paymentHash]);
 
   useEffect(() => {
     dispatch({ type: 'setLoading', value: true });
@@ -126,11 +134,10 @@ const Payment = props => {
   }, [releaseId]);
 
   useEffect(() => {
-    if (fetchedRelease) {
-      if (!paymentAddress) return;
-      handleFetchIncomingTxs();
+    if (fetchedRelease && paymentAddress) {
+      handleFetchTransactions();
     }
-  }, [fetchedRelease, handleFetchIncomingTxs, paymentAddress]);
+  }, [fetchedRelease, handleFetchTransactions, paymentAddress]);
 
   const roundUp = (value, precision) => {
     const factor = 10 ** precision;
@@ -189,7 +196,7 @@ const Payment = props => {
       </div>
       <Payments
         artistName={artistName}
-        handleFetchIncomingTxs={handleFetchIncomingTxs}
+        handleFetchUpdate={handleFetchUpdate}
         hasPurchased={hasPurchased}
         isLoadingTxs={isLoadingTxs}
         isUpdating={isUpdating}
@@ -204,6 +211,11 @@ const Payment = props => {
       />
     </main>
   );
+};
+
+Payment.propTypes = {
+  match: PropTypes.object,
+  releaseId: PropTypes.string
 };
 
 export default connect(

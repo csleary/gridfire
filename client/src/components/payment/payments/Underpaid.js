@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const Underpaid = ({ hasPurchased, paidToDate, price, roundUp }) => {
@@ -15,6 +16,13 @@ const Underpaid = ({ hasPurchased, paidToDate, price, roundUp }) => {
   }
 
   return null;
+};
+
+Underpaid.propTypes = {
+  hasPurchased: PropTypes.bool,
+  roundUp: PropTypes.func,
+  paidToDate: PropTypes.number,
+  price: PropTypes.string
 };
 
 export default Underpaid;

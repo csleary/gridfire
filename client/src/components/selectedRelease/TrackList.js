@@ -1,6 +1,7 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/SelectedRelease.module.css';
+import styles from 'style/SelectedRelease.module.css';
 
 const TrackList = props => {
   const {
@@ -50,6 +51,13 @@ const TrackList = props => {
       </li>
     );
   });
+};
+
+TrackList.propTypes = {
+  _id: PropTypes.string,
+  artistName: PropTypes.string,
+  player: PropTypes.object,
+  release: PropTypes.object
 };
 
 export default TrackList;

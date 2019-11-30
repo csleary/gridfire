@@ -1,8 +1,4 @@
-import {
-  ADD_NEM_ADDRESS,
-  FETCH_USER,
-  FETCH_USER_CREDIT
-} from '../actions/types';
+import { ADD_NEM_ADDRESS, FETCH_USER, FETCH_USER_CREDIT } from 'actions/types';
 
 const initialState = {
   credit: 0,

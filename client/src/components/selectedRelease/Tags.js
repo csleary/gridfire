@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/SelectedRelease.module.css';
+import styles from 'style/SelectedRelease.module.css';
 import uuidv4 from 'uuid/v4';
 import { withRouter } from 'react-router-dom';
 
@@ -31,6 +32,12 @@ const Tags = props => {
       <div className={styles.tags}>{renderTags}</div>
     </>
   );
+};
+
+Tags.propTypes = {
+  history: PropTypes.object,
+  searchReleases: PropTypes.func,
+  tags: PropTypes.array
 };
 
 export default withRouter(Tags);

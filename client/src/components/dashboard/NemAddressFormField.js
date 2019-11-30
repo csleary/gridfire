@@ -1,7 +1,8 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
-import styles from '../../style/NemAddress.module.css';
+import styles from 'style/NemAddress.module.css';
 
 const FormInputs = props => {
   if (props.id === 'signedMessage') {
@@ -19,7 +20,6 @@ const NemAddressFormField = ({
   nemAddress,
   nemAddressVerified,
   placeholder,
-  props,
   type,
   meta: { active, error, touched }
 }) => {
@@ -79,6 +79,26 @@ const NemAddressFormField = ({
       )}
     </div>
   );
+};
+
+FormInputs.propTypes = {
+  id: PropTypes.string
+};
+
+NemAddressFormField.propTypes = {
+  active: PropTypes.bool,
+  error: PropTypes.bool,
+  hint: PropTypes.string,
+  id: PropTypes.string,
+  input: PropTypes.object,
+  label: PropTypes.string,
+  meta: PropTypes.object,
+  nemAddress: PropTypes.string,
+  nemAddressVerified: PropTypes.bool,
+  name: PropTypes.string,
+  placeholder: PropTypes.string,
+  touched: PropTypes.bool,
+  type: PropTypes.string
 };
 
 export default NemAddressFormField;

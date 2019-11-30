@@ -22,39 +22,41 @@ module.exports = app => {
         purchase.releaseId.equals(releaseId)
       );
 
-      const transactions = await fetchIncomingTransactions(
+      const payments = await fetchIncomingTransactions(
         paymentAddress,
         paymentHash
       );
 
-      transactions.hasPurchased = hasPurchased;
+      payments.hasPurchased = hasPurchased;
 
-      if (transactions.paidToDate >= price && !hasPurchased) {
+      if (payments.paidToDate >= price && !hasPurchased) {
         const saleId = mongoose.Types.ObjectId();
 
         const newSale = {
           _id: saleId,
           purchaseDate: Date.now(),
-          amountPaid: transactions.paidToDate,
+          amountPaid: payments.paidToDate,
           buyer: req.user._id,
           buyerAddress: req.user.nemAddress
-        }; // TODO add transaction hashes to sale model for recall even if hash changes.
+        };
 
         const update = { $addToSet: { purchases: newSale } };
         const options = { upsert: true };
-        await Sale.findOneAndUpdate({ releaseId }, update, options).exec();
+        Sale.findOneAndUpdate({ releaseId }, update, options).exec();
 
-        transactions.hasPurchased = true;
+        payments.hasPurchased = true;
 
         user.purchases.push({
           purchaseDate: Date.now(),
           releaseId,
-          purchaseRef: saleId
+          purchaseRef: saleId,
+          transactions: payments.transactions
         });
-        await user.save();
+
+        user.save();
       }
 
-      res.send(transactions);
+      res.send(payments);
     } catch (error) {
       if (error.data) {
         res.status(500).send({
@@ -62,6 +64,7 @@ module.exports = app => {
         });
         return;
       }
+
       res.status(500).send({ error: error.message });
     }
   });
@@ -119,6 +122,7 @@ module.exports = app => {
         res.send(user);
         return;
       }
+
       res.end();
     } catch (error) {
       res.status(500).send({ error: error.message });

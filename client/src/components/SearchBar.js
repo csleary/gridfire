@@ -1,12 +1,13 @@
 import { Link, withRouter } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { clearResults, searchReleases } from '../actions';
+import { clearResults, searchReleases } from 'actions';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
-import styles from '../style/SearchBar.module.css';
-import { usePrevious } from '../functions';
+import styles from 'style/SearchBar.module.css';
+import { usePrevious } from 'functions';
 
 const handleSearch = debounce((searchReleases, localSearchQuery) => {
   searchReleases(localSearchQuery);
@@ -171,6 +172,16 @@ const SearchBar = props => {
       </div>
     </form>
   );
+};
+
+SearchBar.propTypes = {
+  clearResults: PropTypes.func,
+  globalSearchQuery: PropTypes.string,
+  history: PropTypes.object,
+  isSearching: PropTypes.bool,
+  location: PropTypes.object,
+  searchReleases: PropTypes.func,
+  searchResults: PropTypes.array
 };
 
 function mapStateToProps(state) {

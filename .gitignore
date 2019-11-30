@@ -1,6 +1,7 @@
-node_modules
+*.env
 dev.js
-dbBackupReleases.json
-dbBackupUsers.json
+dkimKey
+dkimKey.pub
+node_modules/
+scripts/
 upload.sh
-scripts

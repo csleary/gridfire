@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/SelectedRelease.module.css';
+import styles from 'style/SelectedRelease.module.css';
 
 const PLine = ({ pLine }) => {
   if (!pLine) return null;
@@ -9,6 +10,10 @@ const PLine = ({ pLine }) => {
       &#8471; {pLine.year} {pLine.owner}
     </div>
   );
+};
+
+PLine.propTypes = {
+  pLine: PropTypes.string
 };
 
 export default PLine;

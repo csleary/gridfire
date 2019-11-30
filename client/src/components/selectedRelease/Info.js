@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const Info = ({ info }) => {
@@ -9,6 +10,10 @@ const Info = ({ info }) => {
       <p className="info">{info}</p>
     </>
   );
+};
+
+Info.propTypes = {
+  info: PropTypes.string
 };
 
 export default Info;

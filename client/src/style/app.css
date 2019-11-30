@@ -192,6 +192,10 @@ a:visited,
   color: #18cdca;
 }
 
+.green {
+  color: #00ff80;
+}
+
 .form-control {
   background: #f0f0f1;
   border: none;

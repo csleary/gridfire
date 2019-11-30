@@ -1,9 +1,10 @@
-import { CLOUD_URL } from '../../index';
+import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import React from 'react';
-import placeholder from '../../placeholder.svg';
-import styles from '../../style/UserRelease.module.css';
+import placeholder from 'placeholder.svg';
+import styles from 'style/UserRelease.module.css';
 
 const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
   if (artwork) {
@@ -39,6 +40,13 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
       </Link>
     </>
   );
+};
+
+Artwork.propTypes = {
+  artistName: PropTypes.string,
+  artwork: PropTypes.string,
+  releaseId: PropTypes.string,
+  releaseTitle: PropTypes.string
 };
 
 export default Artwork;

@@ -1,7 +1,8 @@
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../style/Footer.module.css';
+import styles from 'style/Footer.module.css';
 
 const today = new Date();
 const year = today.getFullYear();
@@ -79,5 +80,9 @@ const Footer = props => (
     </div>
   </footer>
 );
+
+Footer.propTypes = {
+  user: PropTypes.object
+};
 
 export default Footer;

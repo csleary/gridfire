@@ -1,6 +1,7 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../style/RenderRelease.module.css';
+import styles from 'style/RenderRelease.module.css';
 
 const OverlayDownloadButton = props => {
   const { artistName, format, handleDownload, releaseTitle } = props;
@@ -18,6 +19,13 @@ const OverlayDownloadButton = props => {
       </div>
     </button>
   );
+};
+
+OverlayDownloadButton.propTypes = {
+  artistName: PropTypes.string,
+  format: PropTypes.string,
+  handleDownload: PropTypes.func,
+  releaseTitle: PropTypes.string
 };
 
 export default OverlayDownloadButton;

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const explorer =
@@ -17,5 +18,12 @@ const Transaction = props => (
     </td>
   </tr>
 );
+
+Transaction.propTypes = {
+  amount: PropTypes.number,
+  date: PropTypes.string,
+  hash: PropTypes.string,
+  index: PropTypes.number
+};
 
 export default Transaction;

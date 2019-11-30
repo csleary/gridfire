@@ -1,12 +1,13 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import styles from '../style/Toast.module.css';
+import styles from 'style/Toast.module.css';
 
 const Toast = ({ toast }) => {
   const { message, type, visible } = toast;
 
-  const toastIcon = type => {
+  const toastIcon = () => {
     switch (type) {
     case 'error':
       return 'exclamation-circle';
@@ -38,6 +39,13 @@ const Toast = ({ toast }) => {
       {message}
     </div>
   );
+};
+
+Toast.propTypes = {
+  message: PropTypes.string,
+  toast: PropTypes.object,
+  type: PropTypes.string,
+  visible: PropTypes.bool
 };
 
 export default Toast;

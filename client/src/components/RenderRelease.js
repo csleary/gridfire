@@ -1,11 +1,12 @@
-import { CLOUD_URL } from '../index';
+import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import OverlayDownloadButton from './OverlayDownloadButton';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import placeholder from '../placeholder.svg';
-import styles from '../style/RenderRelease.module.css';
+import placeholder from 'placeholder.svg';
+import styles from 'style/RenderRelease.module.css';
 import withDownload from './payment/payments/withDownload';
 
 const DownloadButton = withDownload(OverlayDownloadButton);
@@ -100,6 +101,15 @@ const RenderRelease = props => {
       </div>
     </div>
   );
+};
+
+RenderRelease.propTypes = {
+  fetchRelease: PropTypes.func,
+  player: PropTypes.object,
+  playTrack: PropTypes.func,
+  release: PropTypes.object,
+  toastInfo: PropTypes.func,
+  variation: PropTypes.string
 };
 
 function mapStateToProps(state) {

@@ -1,4 +1,5 @@
 import { Field, reduxForm } from 'redux-form';
+import PropTypes from 'prop-types';
 import React from 'react';
 import RenderRecaptcha from './RenderRecaptcha';
 import { connect } from 'react-redux';
@@ -111,6 +112,15 @@ class Contact extends React.Component {
     );
   }
 }
+
+Contact.propTypes = {
+  handleSubmit: PropTypes.func,
+  invalid: PropTypes.bool,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func,
+  sendEmail: PropTypes.func,
+  submitSucceeded: PropTypes.bool
+};
 
 const validate = values => {
   const errors = {};

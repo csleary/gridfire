@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const StatusIcon = ({ artist, artistName, releaseId, releaseTitle }) => {
@@ -13,6 +14,13 @@ const StatusIcon = ({ artist, artistName, releaseId, releaseTitle }) => {
     );
   }
   return <h6>Untitled Release</h6>;
+};
+
+StatusIcon.propTypes = {
+  artist: PropTypes.string,
+  artistName: PropTypes.string,
+  releaseId: PropTypes.string,
+  releaseTitle: PropTypes.string
 };
 
 export default StatusIcon;

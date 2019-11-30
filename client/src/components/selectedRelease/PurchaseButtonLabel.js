@@ -1,4 +1,5 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 const PurchaseButtonLabel = ({ inCollection, price }) => {
@@ -26,6 +27,11 @@ const PurchaseButtonLabel = ({ inCollection, price }) => {
       Purchase
     </>
   );
+};
+
+PurchaseButtonLabel.propTypes = {
+  inCollection: PropTypes.bool,
+  price: PropTypes.number
 };
 
 export default PurchaseButtonLabel;

@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/SelectedRelease.module.css';
+import styles from 'style/SelectedRelease.module.css';
 
 const CLine = ({ cLine }) => {
   if (!cLine) return null;
@@ -9,6 +10,10 @@ const CLine = ({ cLine }) => {
       &copy; {cLine.year} {cLine.owner}
     </div>
   );
+};
+
+CLine.propTypes = {
+  cLine: PropTypes.string
 };
 
 export default CLine;

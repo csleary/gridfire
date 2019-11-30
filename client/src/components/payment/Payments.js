@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import DownloadButton from './payments/DownloadButton';
 import FontAwesome from 'react-fontawesome';
-import Spinner from './../Spinner';
+import PropTypes from 'prop-types';
+import Spinner from 'components/Spinner';
 import Summary from './payments/Summary';
 import Transactions from './payments/Transactions';
 import Underpaid from './payments/Underpaid';
-import styles from '../../style/Payments.module.css';
+import styles from 'style/Payments.module.css';
 import withDownload from './payments/withDownload';
 
 const Download = withDownload(DownloadButton);
@@ -13,7 +14,7 @@ const Download = withDownload(DownloadButton);
 const Payments = props => {
   const {
     artistName,
-    handleFetchIncomingTxs,
+    handleFetchUpdate,
     hasPurchased,
     isLoadingTxs,
     isUpdating,
@@ -30,7 +31,7 @@ const Payments = props => {
   useEffect(() => {
     const updateTxs = () => {
       if (!hasPurchased) {
-        handleFetchIncomingTxs(true);
+        handleFetchUpdate();
       } else {
         window.clearInterval(txInterval);
         clearTimeout(txTimeout);
@@ -44,7 +45,7 @@ const Payments = props => {
       window.clearInterval(txInterval);
       clearTimeout(txTimeout);
     };
-  }, [handleFetchIncomingTxs, hasPurchased]);
+  }, [handleFetchUpdate, hasPurchased]);
 
   if (isLoadingTxs) {
     return (
@@ -77,7 +78,7 @@ const Payments = props => {
             <button
               className={`${styles.refresh} btn btn-outline-primary btn-sm py-2 px-3`}
               disabled={isUpdating}
-              onClick={() => handleFetchIncomingTxs(true)}
+              onClick={() => handleFetchUpdate(true)}
               title={`Press to check again for recent payments (using NIS Node: ${nemNode}).`}
             >
               <FontAwesome name="refresh" className="mr-2" spin={isUpdating} />
@@ -99,6 +100,23 @@ const Payments = props => {
       />
     </>
   );
+};
+
+Payments.propTypes = {
+  artistName: PropTypes.string,
+  handleFetchUpdate: PropTypes.func,
+  hasPurchased: PropTypes.bool,
+  isLoadingTxs: PropTypes.bool,
+  isUpdating: PropTypes.bool,
+  nemNode: PropTypes.string,
+  paidToDate: PropTypes.number,
+  price: PropTypes.string,
+  releaseId: PropTypes.string,
+  releaseTitle: PropTypes.string,
+  roundUp: PropTypes.func,
+  source: PropTypes.object,
+  transactions: PropTypes.array,
+  transactionsError: PropTypes.object
 };
 
 export default Payments;

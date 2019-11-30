@@ -4,7 +4,7 @@ import {
   PLAYER_PLAY,
   PLAYER_STOP,
   PLAY_TRACK
-} from '../actions/types';
+} from 'actions/types';
 
 const initialState = {
   isPlaying: false,

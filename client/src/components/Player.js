@@ -10,6 +10,7 @@ import {
   toastInfo
 } from '../actions';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -458,6 +459,19 @@ class Player extends Component {
     );
   }
 }
+
+Player.propTypes = {
+  history: PropTypes.object,
+  player: PropTypes.object,
+  playerHide: PropTypes.func,
+  playerPause: PropTypes.func,
+  playerPlay: PropTypes.func,
+  playerStop: PropTypes.func,
+  playTrack: PropTypes.func,
+  release: PropTypes.object,
+  toastError: PropTypes.func,
+  toastInfo: PropTypes.func
+};
 
 function mapStateToProps(state) {
   return {

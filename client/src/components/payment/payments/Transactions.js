@@ -1,4 +1,5 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import Transaction from './Transaction';
 import nem from 'nem-sdk';
@@ -69,6 +70,11 @@ const Transactions = ({ transactions, transactionsError }) => {
   }
 
   return null;
+};
+
+Transactions.propTypes = {
+  transactions: PropTypes.array,
+  transactionsError: PropTypes.object
 };
 
 export default Transactions;

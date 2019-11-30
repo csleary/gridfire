@@ -1,8 +1,9 @@
 import { Field, reduxForm } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { passwordUpdate } from '../../actions';
+import { passwordUpdate } from 'actions';
 
 const renderField = field => {
   const {
@@ -114,6 +115,16 @@ function PasswordUpdate(props) {
     </main>
   );
 }
+
+PasswordUpdate.propTypes = {
+  handleSubmit: PropTypes.func,
+  passwordUpdate: PropTypes.func,
+  reset: PropTypes.func,
+  pristine: PropTypes.bool,
+  submitting: PropTypes.bool,
+  invalid: PropTypes.bool,
+  user: PropTypes.object
+};
 
 const required = value => (value ? undefined : 'Please enter a value.');
 

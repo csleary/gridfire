@@ -1,5 +1,6 @@
 import ArtworkDropzone from './ArtworkDropzone';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -62,4 +63,19 @@ const RenderArtwork = props => {
     </>
   );
 };
+
+RenderArtwork.propTypes = {
+  artworkUploading: PropTypes.bool,
+  artworkUploadProgress: PropTypes.number,
+  coverArtLoaded: PropTypes.bool,
+  coverArtPreview: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  deleteArtwork: PropTypes.func,
+  handleDeletePreview: PropTypes.func,
+  onArtworkLoad: PropTypes.func,
+  onDropArt: PropTypes.func,
+  release: PropTypes.object,
+  toastSuccess: PropTypes.func,
+  toastWarning: PropTypes.func
+};
+
 export default RenderArtwork;

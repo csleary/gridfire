@@ -1,7 +1,8 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import ReadOnlyTextarea from './ReadOnlyTextarea';
-import styles from '../../style/Payment.module.css';
+import styles from 'style/Payment.module.css';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
@@ -54,8 +55,8 @@ const ManualPayment = props => {
           text={parseFloat(priceInXem) ? priceInXem : 'Name your price!'}
           placeholder="Payment Amount"
         />
+        <h4 className="mb-4">Done!</h4>
         <p>
-          <h4 className="mb-4">Done!</h4>
           Once you have paid, and your payments has been confirmed by the NEM
           network, they will be totalled before presenting you with a download
           button (assuming your payments have met the price!).
@@ -63,6 +64,12 @@ const ManualPayment = props => {
       </div>
     </div>
   );
+};
+
+ManualPayment.propTypes = {
+  paymentAddress: PropTypes.string,
+  paymentHash: PropTypes.string,
+  priceInXem: PropTypes.string
 };
 
 export default ManualPayment;

@@ -1,10 +1,11 @@
 import { clearResults, fetchRelease, playTrack, toastInfo } from '../actions';
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import RenderRelease from './RenderRelease';
 import Spinner from './Spinner';
 import { connect } from 'react-redux';
-import { frontPage } from '../style/Home.module.css';
+import { frontPage } from 'style/Home.module.css';
 
 const SearchResults = props => {
   const { searchQuery, searchResults } = props;
@@ -66,6 +67,16 @@ const SearchResults = props => {
       </div>
     </main>
   );
+};
+
+SearchResults.propTypes = {
+  clearResults: PropTypes.func,
+  fetchRelease: PropTypes.func,
+  isSearching: PropTypes.bool,
+  playTrack: PropTypes.func,
+  searchQuery: PropTypes.string,
+  searchResults: PropTypes.array,
+  toastInfo: PropTypes.func
 };
 
 function mapStateToProps(state) {

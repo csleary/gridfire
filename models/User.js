@@ -22,7 +22,8 @@ const UserSchema = new Schema(
       {
         releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
         purchaseDate: Date,
-        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase' }
+        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase' },
+        transactions: Array
       }
     ],
     artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]

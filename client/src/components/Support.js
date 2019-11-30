@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../style/Support.module.css';
+import styles from 'style/Support.module.css';
 
 const Support = () => (
   <main className="container">

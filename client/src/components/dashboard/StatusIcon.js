@@ -1,6 +1,7 @@
 import FontAwesome from 'react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../style/UserRelease.module.css';
+import styles from 'style/UserRelease.module.css';
 
 const StatusIcon = ({ published, releaseTitle }) => {
   if (published) {
@@ -27,6 +28,11 @@ const StatusIcon = ({ published, releaseTitle }) => {
       />
     </div>
   );
+};
+
+StatusIcon.propTypes = {
+  published: PropTypes.bool,
+  releaseTitle: PropTypes.string
 };
 
 export default StatusIcon;

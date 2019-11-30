@@ -1,7 +1,8 @@
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import React from 'react';
-import styles from '../../../style/Payments.module.css';
+import styles from 'style/Payments.module.css';
 
 const DownloadButton = props => {
   const {
@@ -72,6 +73,14 @@ const DownloadButton = props => {
   }
 
   return null;
+};
+
+DownloadButton.propTypes = {
+  formatExists: PropTypes.bool,
+  handleDownload: PropTypes.func,
+  hasPurchased: PropTypes.bool,
+  isPreparingDownload: PropTypes.bool,
+  releaseTitle: PropTypes.string
 };
 
 export default DownloadButton;

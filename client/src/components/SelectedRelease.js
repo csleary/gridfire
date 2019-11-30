@@ -18,6 +18,7 @@ import Info from './selectedRelease/Info';
 import { Link } from 'react-router-dom';
 import PLine from './selectedRelease/PLine';
 import Price from './selectedRelease/Price';
+import PropTypes from 'prop-types';
 import PurchaseButton from './selectedRelease/PurchaseButton';
 import RecordLabel from './selectedRelease/RecordLabel';
 import ReleaseDate from './selectedRelease/ReleaseDate';
@@ -144,6 +145,23 @@ const SelectedRelease = props => {
       </div>
     </main>
   );
+};
+
+SelectedRelease.propTypes = {
+  fetchRelease: PropTypes.func,
+  fetchUser: PropTypes.func,
+  fetchXemPrice: PropTypes.func,
+  match: PropTypes.object,
+  player: PropTypes.object,
+  playerPause: PropTypes.func,
+  playerPlay: PropTypes.func,
+  playTrack: PropTypes.func,
+  release: PropTypes.object,
+  searchReleases: PropTypes.func,
+  tags: PropTypes.array,
+  toastInfo: PropTypes.func,
+  user: PropTypes.object,
+  xemPriceUsd: PropTypes.number
 };
 
 function mapStateToProps(state) {
