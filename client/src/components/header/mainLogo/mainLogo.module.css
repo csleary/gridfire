@@ -1,0 +1,49 @@
+.logo {
+  animation: title 2s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  display: block;
+  height: auto;
+  margin: 1rem auto 0 auto;
+  max-width: 20rem;
+}
+
+.logo:hover .layer1 {
+  fill: #18cdca;
+}
+
+.logo:hover .layer3 {
+  fill: hsla(233, 10%, 50%, 1);
+}
+
+.layer0 {
+  fill: hsla(233, 10%, 10%, 1);
+}
+
+.layer1 {
+  fill: #f0f0f1;
+  transition: all 1s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.layer2 {
+  fill: #000;
+}
+
+.layer3 {
+  fill: #ff5349;
+  transition: all 1s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.title {
+  animation: title 2s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+}
+
+@keyframes title {
+  from {
+    opacity: 0;
+    transform: scaleX(1.05);
+  }
+
+  to {
+    opacity: 1;
+    transform: unset;
+  }
+}

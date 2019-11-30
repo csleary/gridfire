@@ -1,0 +1,49 @@
+.addRelease {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  min-width: auto;
+}
+
+.releases {
+  display: grid;
+  grid-column-gap: 1rem;
+  grid-row-gap: 1rem;
+  grid-template-columns: 1fr;
+  padding: 0;
+}
+
+@media (min-width: 576px) {
+  .releases {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .releases {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .releases {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .releases {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .releases {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 2460px) {
+  .releases {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

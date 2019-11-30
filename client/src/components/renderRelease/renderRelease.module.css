@@ -1,0 +1,112 @@
+.art {
+  align-items: flex-start;
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: hidden;
+}
+
+.placeholder {
+  flex: none;
+  margin-left: -100%;
+  width: 100%;
+  z-index: -1;
+}
+
+.image {
+  flex: none;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 100%;
+}
+
+.art:hover .overlay,
+.art:active .overlay {
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+}
+
+.overlay {
+  align-self: stretch;
+  background: rgba(0, 0, 0, 0.5);
+  color: hsla(233, 10%, 75%, 1);
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  font-size: 4rem;
+  justify-content: space-between;
+  margin-left: -100%;
+  opacity: 0;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+  width: 100%;
+}
+
+.buttons {
+  align-content: stretch;
+  align-items: stretch;
+  display: flex;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.button {
+  background: none;
+  border: none;
+  color: hsla(233, 10%, 75%, 1);
+  flex: 0 1 50%;
+  padding: 0;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.button:hover {
+  cursor: pointer;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.icon {
+  backface-visibility: hidden;
+  color: hsla(233, 10%, 75%, 1);
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.button:hover .icon {
+  color: #fff;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transform: scale(1.2);
+}
+
+.label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: -1.2rem;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.button:hover .label {
+  color: #fff;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+a.artistName,
+a.releaseTitle {
+  color: hsla(233, 10%, 75%, 1);
+  flex: 0 1 auto;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.artistName:hover,
+.releaseTitle:hover {
+  color: #fff;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+@media (min-width: 1600px) {
+  .overlay {
+    font-size: 5rem;
+  }
+}
