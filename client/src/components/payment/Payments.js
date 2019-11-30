@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import DownloadButton from './payments/DownloadButton';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
@@ -6,7 +6,10 @@ import Spinner from 'components/Spinner';
 import Summary from './payments/Summary';
 import Transactions from './payments/Transactions';
 import Underpaid from './payments/Underpaid';
+import { connect } from 'react-redux';
 import styles from 'style/Payments.module.css';
+import { toastError } from 'actions';
+import { useApi } from 'hooks/useApi';
 import withDownload from './payments/withDownload';
 
 const Download = withDownload(DownloadButton);
@@ -14,24 +17,35 @@ const Download = withDownload(DownloadButton);
 const Payments = props => {
   const {
     artistName,
-    handleFetchUpdate,
-    hasPurchased,
-    isLoadingTxs,
-    isUpdating,
-    nemNode,
-    paidToDate,
+    paymentHash,
     price,
     releaseId,
     releaseTitle,
-    roundUp,
-    transactions,
-    transactionsError
+    roundUp
   } = props;
+
+  const paymentData = useMemo(
+    () => ({
+      releaseId,
+      paymentHash
+    }),
+    [releaseId, paymentHash]
+  );
+
+  const { data, error, fetch, isFetching, isLoading } = useApi(
+    '/api/nem/transactions',
+    'post',
+    paymentData
+  );
+
+  if (error) {
+    props.toastError(error);
+  }
 
   useEffect(() => {
     const updateTxs = () => {
-      if (!hasPurchased) {
-        handleFetchUpdate();
+      if (data && !data.hasPurchased) {
+        fetch('/api/nem/transactions', 'post', paymentData);
       } else {
         window.clearInterval(txInterval);
         clearTimeout(txTimeout);
@@ -45,9 +59,9 @@ const Payments = props => {
       window.clearInterval(txInterval);
       clearTimeout(txTimeout);
     };
-  }, [handleFetchUpdate, hasPurchased]);
+  }, [data, fetch]);
 
-  if (isLoadingTxs) {
+  if (isLoading) {
     return (
       <Spinner>
         <h3>
@@ -57,6 +71,14 @@ const Payments = props => {
       </Spinner>
     );
   }
+
+  const {
+    hasPurchased,
+    nemNode,
+    paidToDate,
+    transactions,
+    transactionsError
+  } = data;
 
   return (
     <>
@@ -77,11 +99,14 @@ const Payments = props => {
           <div className="d-flex justify-content-center">
             <button
               className={`${styles.refresh} btn btn-outline-primary btn-sm py-2 px-3`}
-              disabled={isUpdating}
-              onClick={() => handleFetchUpdate(true)}
+              disabled={isFetching}
+              onClick={() => {
+                fetch('/api/nem/transactions', 'post', paymentData);
+              }}
               title={`Press to check again for recent payments (using NIS Node: ${nemNode}).`}
             >
-              <FontAwesome name="refresh" className="mr-2" spin={isUpdating} />
+              {' '}
+              <FontAwesome name="refresh" className="mr-2" spin={isFetching} />
               Refresh
             </button>
           </div>
@@ -104,19 +129,20 @@ const Payments = props => {
 
 Payments.propTypes = {
   artistName: PropTypes.string,
-  handleFetchUpdate: PropTypes.func,
   hasPurchased: PropTypes.bool,
-  isLoadingTxs: PropTypes.bool,
-  isUpdating: PropTypes.bool,
   nemNode: PropTypes.string,
   paidToDate: PropTypes.number,
+  paymentHash: PropTypes.string,
   price: PropTypes.string,
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string,
   roundUp: PropTypes.func,
-  source: PropTypes.object,
+  toastError: PropTypes.func,
   transactions: PropTypes.array,
   transactionsError: PropTypes.object
 };
 
-export default Payments;
+export default connect(
+  null,
+  { toastError }
+)(Payments);
