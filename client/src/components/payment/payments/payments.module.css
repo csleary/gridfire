@@ -1,0 +1,86 @@
+.transactions {
+  animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+}
+
+.segment {
+  background: hsla(233, 10%, 10%, 1);
+  border-radius: 0;
+}
+
+.refresh {
+  display: inline-block;
+  min-width: auto;
+}
+
+:global(.transactions .table-dark) {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  color: #f0f0f1;
+  white-space: nowrap;
+}
+
+:global(.transactions .table-dark .col-item) {
+  width: 10%;
+}
+
+:global(.transactions .table-dark .col-date) {
+  width: 70%;
+}
+
+:global(.transactions .table-dark .col-amount) {
+  width: 20%;
+}
+
+:global(.transactions .table-dark thead) {
+  background-color: hsla(233, 10%, 10%, 1);
+  color: #f0f0f1;
+}
+
+:global(.transactions .table-sm th),
+:global(.transactions .table-sm td) {
+  padding: 0.5rem 1rem;
+  border: 0;
+}
+
+:global(.transactions .table-dark tbody) {
+  background: hsla(233, 10%, 20%, 1);
+}
+
+:global(.transactions .table-dark th) {
+  text-transform: uppercase;
+}
+
+:global(.transactions .table-dark td) {
+  text-overflow: ellipsis;
+}
+
+:global(.table-dark.table-striped tbody tr:nth-of-type(odd)) {
+  background-color: hsla(233, 10%, 15%, 1);
+}
+
+:global(.transactions .table-dark tfoot) {
+  background-color: hsla(233, 10%, 20%, 1);
+}
+
+.download {
+  width: 100%;
+}
+
+.download:hover {
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 576px) {
+  .transactions .segment {
+    border-radius: 0.5rem;
+  }
+}

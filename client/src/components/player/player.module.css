@@ -1,0 +1,108 @@
+.player {
+  background: hsla(233, 10%, 10%, 1);
+  bottom: 0;
+  color: hsla(233, 10%, 50%, 1);
+  font-size: 2rem;
+  position: fixed;
+  text-align: center;
+  transform: translateY(100%);
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+  width: 100%;
+  z-index: 1030;
+}
+
+.show {
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.hide {
+  color: hsla(233, 10%, 50%, 1);
+  font-size: 1.5rem;
+}
+
+.interface {
+  align-items: center;
+}
+
+.controls {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.playerButton {
+  font-size: 2rem;
+  padding: 0.5rem;
+  transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.playerButton:hover,
+.currentTime:hover {
+  color: #f0f0f1;
+  cursor: pointer;
+}
+
+.waiting:hover {
+  color: hsla(233, 10%, 50%, 1);
+  cursor: unset;
+}
+
+.currentTime {
+  padding: 0 1rem;
+  display: inline-block;
+  text-align: right;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 7rem;
+}
+
+.currentTime:focus {
+  outline: none;
+}
+
+.progress {
+  background: hsla(233, 10%, 50%, 1);
+  height: 100%;
+  transition: 0.125s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 0;
+}
+
+.seek {
+  height: 4px;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 100%;
+}
+
+.player:hover .seek {
+  background: hsla(233, 10%, 20%, 1);
+  cursor: pointer;
+  height: 8px;
+  margin-top: 6px;
+}
+
+.player:hover .progress {
+  background: #18cdca;
+}
+
+.trackInfo {
+  align-items: center;
+  display: flex;
+  font-size: 1.5rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding-left: 1rem;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.noLink {
+  color: #18cdca;
+  font-weight: bold;
+}
+
+@media (min-width: 576px) {
+  .controls {
+    justify-content: flex-end;
+  }
+}

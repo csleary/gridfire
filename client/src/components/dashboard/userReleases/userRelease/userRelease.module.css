@@ -1,0 +1,99 @@
+.status {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  font-size: 2rem;
+  height: 2.5rem;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 2.5rem;
+  z-index: 2;
+}
+
+.icon {
+  font-size: 2rem;
+}
+
+.art {
+  align-items: flex-start;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.image {
+  flex: none;
+  height: auto;
+  max-width: 100%;
+  z-index: 1;
+}
+
+.placeholder {
+  flex: none;
+  margin-left: -100%;
+  width: 100%;
+  z-index: 0;
+}
+
+.buttons {
+  border-radius: 0.5rem;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.button {
+  background: #000;
+  border: 0;
+  border-radius: 0;
+  color: hsla(233, 10%, 75%, 1);
+  flex: 1 0 6rem;
+  min-width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.button:active {
+  color: #292c44;
+}
+
+.button:disabled,
+.button:disabled:hover {
+  background-color: transparent;
+  color: hsla(233, 10%, 75%, 1);
+  cursor: default;
+}
+
+.unpublished {
+  color: #ffd24d;
+}
+
+.unpublished:hover {
+  color: #000;
+}
+
+.button:disabled.deleting,
+.button:disabled.deleting:hover {
+  color: #ff5349;
+}
+
+.release {
+  background: hsla(233, 10%, 10%, 1);
+  border: none;
+  list-style: none;
+  position: relative;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.release:last-child {
+  margin-bottom: 0;
+}
+
+.details {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: flex-end;
+}
