@@ -1,6 +1,7 @@
 .methods {
   border-radius: 0;
   padding: 1.5rem;
+  padding-bottom: 3rem;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
