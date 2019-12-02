@@ -34,7 +34,7 @@ if (cluster.isMaster) {
   app.use(bodyParser.json());
   app.use(
     cookieSession({
-      name: 'NEMp3 session',
+      name: 'nemp3 session',
       keys: [keys.cookieKey],
       maxAge: 7 * 24 * 60 * 60 * 1000
     })

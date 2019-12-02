@@ -155,13 +155,13 @@ function RenderTrackList(props) {
 }
 
 RenderTrackList.propTypes = {
-  audioUploadProgress: PropTypes.number,
-  addTrack: PropTypes.bool,
+  audioUploadProgress: PropTypes.array,
+  addTrack: PropTypes.func,
   change: PropTypes.func,
   deleteTrack: PropTypes.func,
   fields: PropTypes.object,
-  isDeleting: PropTypes.bool,
-  isTranscoding: PropTypes.bool,
+  isDeleting: PropTypes.array,
+  isTranscoding: PropTypes.array,
   moveTrack: PropTypes.func,
   onDropAudio: PropTypes.func,
   release: PropTypes.object,

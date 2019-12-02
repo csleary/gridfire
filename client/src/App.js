@@ -1,12 +1,12 @@
 import './app.css';
 import 'lazysizes';
 import { BrowserRouter, Route } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
 import About from 'components/about';
 import ArtistPage from 'components/artistPage';
 import Contact from 'components/contact';
 import Dashboard from 'components/dashboard';
 import EditRelease from 'components/editRelease';
+import { FETCH_USER } from 'actions/types';
 import Footer from 'components/footer';
 import ForgotPassword from 'components/forgotPassword';
 import Header from 'components/header';
@@ -16,24 +16,22 @@ import NavBar from 'components/navBar';
 import Payment from 'components/payment';
 import Player from 'components/player';
 import PrivateRoute from 'components/privateRoute';
-import PropTypes from 'prop-types';
+import React from 'react';
 import Register from 'components/register';
 import ResetPassword from 'components/resetPassword';
 import SearchResults from 'components/searchResults';
 import SelectedRelease from 'components/selectedRelease';
 import Support from 'components/support';
 import ToastList from 'components/toastList';
-import { connect } from 'react-redux';
-import { fetchUser } from 'actions';
+import { useApi } from 'hooks/useApi';
+import { useDispatch } from 'react-redux';
 import { wrapper } from './App.module.css';
 
-const App = ({ fetchUser: loadUser, user }) => {
-  const [, setLoading] = useState(true);
+const App = () => {
+  const { data: user } = useApi('/api/user');
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    loadUser().then(() => setLoading(false));
-  }, [loadUser]);
+  const dispatch = useDispatch();
+  dispatch({ type: FETCH_USER, payload: user });
 
   return (
     <BrowserRouter>
@@ -79,18 +77,4 @@ const App = ({ fetchUser: loadUser, user }) => {
   );
 };
 
-App.propTypes = {
-  fetchUser: PropTypes.func,
-  user: PropTypes.object
-};
-
-function mapStateToProps(state) {
-  return {
-    user: state.user
-  };
-}
-
-export default connect(
-  mapStateToProps,
-  { fetchUser }
-)(App);
+export default App;

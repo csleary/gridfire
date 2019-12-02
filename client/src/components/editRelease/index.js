@@ -621,7 +621,7 @@ EditRelease.propTypes = {
   isTranscoding: PropTypes.array,
   match: PropTypes.object,
   moveTrack: PropTypes.func,
-  price: PropTypes.string,
+  price: PropTypes.number,
   pristine: PropTypes.bool,
   publishStatus: PropTypes.func,
   release: PropTypes.object,
@@ -644,27 +644,24 @@ export default reduxForm({
   validate,
   form: 'releaseForm'
 })(
-  connect(
-    mapStateToProps,
-    {
-      addRelease,
-      addTrack,
-      deleteArtwork,
-      deleteRelease,
-      deleteTrack,
-      fetchRelease,
-      fetchUserRelease,
-      fetchXemPrice,
-      moveTrack,
-      publishStatus,
-      toastError,
-      toastInfo,
-      toastSuccess,
-      toastWarning,
-      transcodeAudio,
-      updateRelease,
-      uploadArtwork,
-      uploadAudio
-    }
-  )(withRouter(EditRelease))
+  connect(mapStateToProps, {
+    addRelease,
+    addTrack,
+    deleteArtwork,
+    deleteRelease,
+    deleteTrack,
+    fetchRelease,
+    fetchUserRelease,
+    fetchXemPrice,
+    moveTrack,
+    publishStatus,
+    toastError,
+    toastInfo,
+    toastSuccess,
+    toastWarning,
+    transcodeAudio,
+    updateRelease,
+    uploadArtwork,
+    uploadAudio
+  })(withRouter(EditRelease))
 );
