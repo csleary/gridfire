@@ -5,6 +5,7 @@ const passport = require('passport');
 const request = require('request');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const { GOOGLE_CALLBACK } = require('../routes/constants');
 
 const User = mongoose.model('users');
 
@@ -135,17 +136,12 @@ passport.use(
   )
 );
 
-const callbackURL =
-  process.env.NODE_ENV === 'production' && process.env.NEM_NETWORK === 'mainnet'
-    ? 'https://nemp3.app/api/auth/google/callback'
-    : '/api/auth/google/callback';
-
 passport.use(
   new GoogleStrategy(
     {
       clientID: keys.googleClientId,
       clientSecret: keys.googleClientSecret,
-      callbackURL,
+      GOOGLE_CALLBACK,
       proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {

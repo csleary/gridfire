@@ -1,4 +1,5 @@
 const passport = require('passport');
+const { GOOGLE_REDIRECT } = require('./constants');
 
 module.exports = app => {
   app.post('/api/auth/login', (req, res, next) => {
@@ -85,9 +86,7 @@ module.exports = app => {
   app.get(
     '/api/auth/google/callback',
     passport.authenticate('google'),
-    (req, res) => {
-      res.redirect('/oauth/google');
-    }
+    (req, res) => res.redirect(GOOGLE_REDIRECT)
   );
 
   app.get('/api/auth/logout', (req, res) => {
