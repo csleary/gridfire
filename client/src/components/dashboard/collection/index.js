@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { connect } from 'react-redux';
-import { frontPage } from 'components/home/home.module.css';
+import { frontPage } from './collection.module.css';
 
 function Collection(props) {
   const [isLoading, setLoading] = useState(false);
@@ -87,13 +87,10 @@ Collection.propTypes = {
   toastInfo: PropTypes.func
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    fetchCollection,
-    fetchDownloadToken,
-    fetchRelease,
-    playTrack,
-    toastInfo
-  }
-)(Collection);
+export default connect(mapStateToProps, {
+  fetchCollection,
+  fetchDownloadToken,
+  fetchRelease,
+  playTrack,
+  toastInfo
+})(Collection);

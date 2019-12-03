@@ -5,7 +5,7 @@ const passport = require('passport');
 const request = require('request');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const { GOOGLE_CALLBACK } = require('../routes/constants');
+const { GOOGLE_CALLBACK } = require('../config/constants');
 
 const User = mongoose.model('users');
 

@@ -1,5 +1,5 @@
 const passport = require('passport');
-const { GOOGLE_REDIRECT } = require('./constants');
+const { GOOGLE_REDIRECT } = require('../config/constants');
 
 module.exports = app => {
   app.post('/api/auth/login', (req, res, next) => {

@@ -32,9 +32,9 @@ class RenderRecaptcha extends React.Component {
 }
 
 RenderRecaptcha.propTypes = {
-  classNames: PropTypes.object,
+  classNames: PropTypes.string,
   error: PropTypes.bool,
-  input: PropTypes.func,
+  input: PropTypes.object,
   touched: PropTypes.bool
 };
 
