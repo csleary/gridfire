@@ -12,7 +12,7 @@ const {
   BUCKET_OPT,
   BUCKET_SRC,
   TEMP_PATH
-} = require('./constants');
+} = require('../config/constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 
@@ -318,16 +318,16 @@ module.exports = app => {
 
       let ext;
       switch (type) {
-      case 'audio/aiff':
-        ext = '.aiff';
-        break;
-      case 'audio/flac':
-        ext = '.flac';
-        break;
-      case 'audio/wav':
-        ext = '.wav';
-        break;
-      default:
+        case 'audio/aiff':
+          ext = '.aiff';
+          break;
+        case 'audio/flac':
+          ext = '.flac';
+          break;
+        case 'audio/wav':
+          ext = '.wav';
+          break;
+        default:
       }
 
       const s3 = new aws.S3();

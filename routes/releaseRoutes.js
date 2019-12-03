@@ -7,10 +7,10 @@ const {
   BUCKET_IMG,
   BUCKET_OPT,
   BUCKET_SRC
-} = require('./constants');
+} = require('../config/constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const { getXemPrice } = require('./utils');
+const { fetchXemPrice } = require('../controllers/nemController');
 
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
@@ -201,7 +201,7 @@ module.exports = app => {
       const release = await Release.findById(releaseId);
       const owner = await User.findById(release.user);
       const customerIdHash = req.user.auth.idHash;
-      const xemPriceUsd = await getXemPrice();
+      const xemPriceUsd = await fetchXemPrice();
       const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
       req.session.price = price;
 
@@ -242,7 +242,7 @@ module.exports = app => {
         if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
           release.updateOne({ published: false }).exec();
           throw new Error(
-            'Please add a valid NEM address to your account before publishing this release (\'Payment\' tab).'
+            "Please add a valid NEM address to your account before publishing this release ('Payment' tab)."
           );
         }
 
