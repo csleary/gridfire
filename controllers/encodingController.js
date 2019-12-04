@@ -3,7 +3,7 @@ const { BUCKET_MP3, BUCKET_SRC } = require('../config/constants');
 const ffmpeg = require('fluent-ffmpeg');
 
 const generateMp3 = (res, release) =>
-  new Promise(async resolve => {
+  new Promise(async (resolve, reject) => {
     const s3 = new aws.S3();
     const { trackList } = release;
     const releaseId = release._id.toString();
@@ -28,7 +28,7 @@ const generateMp3 = (res, release) =>
             .toFormat('mp3')
             .outputOptions('-q:a 0')
             .on('error', error => {
-              throw new Error(`Transcoding error: ${error.message}`);
+              reject(`Transcoding error: ${error.message}`);
             });
 
           const uploadParams = {
