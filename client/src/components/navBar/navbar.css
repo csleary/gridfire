@@ -121,7 +121,7 @@ li.nav-item ul.dash-dropdown {
   transition: opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1),
     transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1), visibility 0s;
   visibility: hidden;
-  width: max-content;
+  min-width: 12rem;
   z-index: -1;
 }
 
@@ -131,13 +131,17 @@ li.nav-item:hover ul.dash-dropdown {
   visibility: visible;
 }
 
+.navbar-expand-lg .navbar-nav .dash-dropdown .nav-link {
+  padding: 1rem 1.25rem;
+}
+
+.navbar-expand-lg .navbar-nav .dash-dropdown .nav-link:active {
+  padding: 1rem 1.25rem;
+}
+
 @media (min-width: 992px) {
   span.nav-label,
   nav span.credit {
     display: inline;
-  }
-
-  li.nav-item ul.dash-dropdown {
-    left: 0;
   }
 }
