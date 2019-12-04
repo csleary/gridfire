@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const { AWS_REGION, BUCKET_IMG } = require('./constants');
+const { AWS_REGION, BUCKET_IMG } = require('../config/constants');
 
 const Release = mongoose.model('releases');
 const upload = multer();

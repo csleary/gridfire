@@ -2,10 +2,11 @@ const aws = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { nemp3Secret } = require('../config/keys');
-const { AWS_REGION, BUCKET_MP3 } = require('./constants');
-const { downloadArchive, generateMp3 } = require('./encoders');
+const { AWS_REGION, BUCKET_MP3 } = require('../config/constants');
+const { zipDownload } = require('../controllers/archiveController');
+const { generateMp3 } = require('../controllers/encodingController');
+const { generateToken } = require('../controllers/tokenController');
 const requireLogin = require('../middlewares/requireLogin');
-const { generateToken } = require('./utils');
 
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
@@ -63,11 +64,11 @@ module.exports = app => {
     const release = await Release.findById(releaseId);
 
     switch (format) {
-    case 'flac':
-      downloadArchive(res, release, 'flac');
-      break;
-    default:
-      downloadArchive(res, release);
+      case 'flac':
+        zipDownload(res, release, 'flac');
+        break;
+      default:
+        zipDownload(res, release);
     }
   });
 };

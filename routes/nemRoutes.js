@@ -1,8 +1,11 @@
-const fetchIncomingTransactions = require('./fetchIncomingTransactions');
-const fetchOwnedMosaics = require('./fetchOwnedMosaics');
+const {
+  checkSignedMessage,
+  fetchTransactions,
+  fetchMosaics,
+  fetchXemPrice
+} = require('../controllers/nemController');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
-const { getXemPrice, checkSignedMessage } = require('./utils');
 
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
@@ -22,10 +25,7 @@ module.exports = app => {
         purchase.releaseId.equals(releaseId)
       );
 
-      const payments = await fetchIncomingTransactions(
-        paymentAddress,
-        paymentHash
-      );
+      const payments = await fetchTransactions(paymentAddress, paymentHash);
 
       payments.hasPurchased = hasPurchased;
 
@@ -71,7 +71,7 @@ module.exports = app => {
 
   app.get('/api/nem/price', async (req, res) => {
     try {
-      const xemPriceUsd = await getXemPrice();
+      const xemPriceUsd = await fetchXemPrice();
       res.send({ xemPriceUsd });
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -98,7 +98,7 @@ module.exports = app => {
       }
 
       if (nemAddress && user.nemAddressVerified) {
-        const credit = await fetchOwnedMosaics(nemAddress);
+        const credit = await fetchMosaics(nemAddress);
         user.credit = credit;
       }
 
@@ -117,7 +117,7 @@ module.exports = app => {
       const { nemAddress, nemAddressVerified } = user;
 
       if (nemAddress && nemAddressVerified) {
-        user.credit = await fetchOwnedMosaics(nemAddress);
+        user.credit = await fetchMosaics(nemAddress);
         user.save();
         res.send(user);
         return;

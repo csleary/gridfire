@@ -1,7 +1,7 @@
 const aws = require('aws-sdk');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
-const { AWS_REGION } = require('./constants');
+const { AWS_REGION } = require('../config/constants');
 
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');

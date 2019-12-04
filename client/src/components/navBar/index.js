@@ -150,13 +150,10 @@ NavBar.propTypes = {
 };
 
 export default withRouter(
-  connect(
-    null,
-    {
-      fetchCatalogue,
-      fetchUser,
-      logOut,
-      toastSuccess
-    }
-  )(NavBar)
+  connect(null, {
+    fetchCatalogue,
+    fetchUser,
+    logOut,
+    toastSuccess
+  })(NavBar)
 );

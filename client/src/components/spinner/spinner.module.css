@@ -1,14 +1,14 @@
 .spinner {
   animation: spinner 0.75s cubic-bezier(0.8, 0.2, 0.2, 0.6) 0s infinite normal
     none;
-  border-width: 0.25rem;
+  border-width: 0.5rem;
   border-style: solid;
   border-color: hsla(233, 10%, 30%, 1);
   border-top-color: #ff5349;
   border-radius: 50%;
-  height: 4rem;
+  height: 5rem;
   margin: 0 auto;
-  width: 4rem;
+  width: 5rem;
 }
 
 @keyframes spinner {

@@ -9,6 +9,14 @@ const BUCKET_OPT =
   process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-opt' : 'nemp3-opt-testnet';
 const BUCKET_SRC =
   process.env.NEM_NETWORK === 'mainnet' ? 'nemp3-src' : 'nemp3-src-testnet';
+const GOOGLE_CALLBACK =
+  process.env.NODE_ENV === 'production' && process.env.NEM_NETWORK === 'mainnet'
+    ? 'https://nemp3.app/api/auth/google/callback'
+    : '/api/auth/google/callback';
+const GOOGLE_REDIRECT =
+  process.env.NODE_ENV === 'production' && process.env.NEM_NETWORK === 'mainnet'
+    ? 'https://nemp3.app/oauth/google'
+    : 'http://localhost:3000/oauth/google';
 const NEM_NODE =
   process.env.NEM_NETWORK === 'mainnet'
     ? 'http://209.126.98.204'
@@ -26,6 +34,8 @@ module.exports = {
   BUCKET_MP3,
   BUCKET_OPT,
   BUCKET_SRC,
+  GOOGLE_CALLBACK,
+  GOOGLE_REDIRECT,
   NEM_NODE,
   NEM_NETWORK_ID,
   TEMP_PATH

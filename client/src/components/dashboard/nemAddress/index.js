@@ -156,7 +156,7 @@ function NemAddress(props) {
                 <p>
                   <span className={creditClassName}>
                     <FontAwesome name="certificate" className="mr-1" />
-                    Your credit balance is {credit || 0}.
+                    Your credit balance is {credit - userReleaseCount || 0}.
                   </span>
                   <button
                     className="btn btn-outline-primary btn-sm mx-2"
@@ -266,14 +266,11 @@ NemAddress.propTypes = {
 export default reduxForm({
   form: 'nemAddressForm'
 })(
-  connect(
-    mapStateToProps,
-    {
-      addNemAddress,
-      fetchUserCredit,
-      fetchUserReleases,
-      toastSuccess,
-      toastWarning
-    }
-  )(NemAddress)
+  connect(mapStateToProps, {
+    addNemAddress,
+    fetchUserCredit,
+    fetchUserReleases,
+    toastSuccess,
+    toastWarning
+  })(NemAddress)
 );
