@@ -1,0 +1,5 @@
+version: '3.7'
+services:
+  web:
+    env_file: prod.env
+    restart: unless-stopped
