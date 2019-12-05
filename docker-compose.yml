@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+  web:
+    build:
+      context: .
+      target: nemp3
+    command: /usr/bin/node /root/nemp3/index.js
+    container_name: 'nemp3-server'
+    env_file: .env
+    ports:
+      - '8083:8083'
+    restart: unless-stopped
+    stop_grace_period: 10s
