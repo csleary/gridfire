@@ -77,10 +77,11 @@ RUN wget http://zebulon.bok.net/Bento4/binaries/Bento4-SDK-1-5-1-629.x86_64-unkn
   mv /root/Bento4-SDK-1-5-1-629.x86_64-unknown-linux/bin/mp4fragment /root/bin/ && \
   rm -rf Bento4-SDK-1-5-1-629.x86_64-unknown-linux.zip Bento4-SDK-1-5-1-629.x86_64-unknown-linux
 
-FROM ubuntu
+FROM ubuntu AS nemp3
 WORKDIR /root/
 COPY --from=bento4 /root/bin /root/bin
 
+WORKDIR /root/nemp3
 RUN apt-get update -qq && \
   apt-get -y install \
   git-core \
@@ -88,8 +89,8 @@ RUN apt-get update -qq && \
   libvorbis-dev \
   nodejs \
   npm && \
-  git clone https://github.com/csleary/nemp3.git && \
-  cd ~/nemp3 && \
-  npm i --only=production
+  git clone https://github.com/csleary/nemp3.git .
 
+COPY dkimKey /root/nemp3/
 EXPOSE 8083/tcp
+RUN npm i --only=production
