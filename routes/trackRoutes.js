@@ -255,7 +255,7 @@ module.exports = app => {
           })
           .on('end', async () => {
             exec(
-              `mp4dash \
+              `${BENTO4_DIR}/mp4dash \
                 --exec-dir=${BENTO4_DIR} \
                 -f \
                 --mpd-name=${trackId}.mpd \
@@ -387,6 +387,9 @@ module.exports = app => {
               .promise()
               .then(() => fsPromises.unlink(tempPath))
               .then(() => res.end());
+          })
+          .on('error', error => {
+            throw new Error(error);
           })
           .save(tempPath);
       } catch (error) {

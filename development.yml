@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  web:
+    depends_on:
+      - mongo
+    tmpfs: /root/nemp3/tmp
+    volumes:
+      - type: bind
+        source: .
+        target: /root/nemp3
+
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'

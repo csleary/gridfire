@@ -1,4 +1,3 @@
-require('dotenv').config();
 const bodyParser = require('body-parser');
 const cluster = require('cluster');
 const cookieSession = require('cookie-session');
@@ -20,6 +19,7 @@ mongoose.connect(keys.mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+mongoose.set('debug', true);
 
 if (cluster.isMaster) {
   for (let i = 0; i < numCPUs; i++) {

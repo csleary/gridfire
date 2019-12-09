@@ -6,6 +6,7 @@ const RenderReleaseField = ({
   input,
   label,
   meta: { error, touched },
+  min,
   name,
   type
 }) => {
@@ -17,7 +18,13 @@ const RenderReleaseField = ({
       {type === 'textarea' ? (
         <textarea className="form-control" id={name} rows="3" {...input} />
       ) : (
-        <input className="form-control" id={name} type={type} {...input} />
+        <input
+          className="form-control"
+          id={name}
+          type={type}
+          min={min}
+          {...input}
+        />
       )}
       {formText && <small className="form-text text-muted">{formText}</small>}
       {error && <div className="invalid-feedback">{touched && error}</div>}
