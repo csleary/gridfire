@@ -14,6 +14,7 @@ import classnames from 'classnames';
 import { connect } from 'react-redux';
 import nem from 'nem-sdk';
 import styles from './nemAddress.module.css';
+import { usePrevious } from 'hooks/usePrevious';
 
 function NemAddress(props) {
   const [isCheckingCredit, setCheckingCredit] = useState(false);
@@ -31,12 +32,16 @@ function NemAddress(props) {
     submitting
   } = props;
 
+  const prevNemAddress = usePrevious(nemAddress);
+
   useEffect(() => {
     fetchUserReleases();
-    initialize({
-      nemAddress: nem.utils.format.address(nemAddress)
-    });
-  }, [fetchUserReleases, initialize, nemAddress]);
+    if (prevNemAddress !== nemAddress) {
+      initialize({
+        nemAddress: nem.utils.format.address(nemAddress)
+      });
+    }
+  }, [fetchUserReleases, initialize, nemAddress, prevNemAddress]);
 
   const addressPrefix =
     process.env.REACT_APP_NEM_NETWORK === 'mainnet'

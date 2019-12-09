@@ -1,5 +1,18 @@
 version: '3.7'
 services:
   web:
+    build:
+      context: .
+      target: nemp3
+    command: /usr/bin/node /root/nemp3/index.js
+    container_name: 'nemp3-server'
+    depends_on:
+      - mongo
     env_file: prod.env
-    restart: unless-stopped
+    restart: always
+    tmpfs: /root/nemp3/tmp
+
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'

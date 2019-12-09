@@ -3,12 +3,14 @@ services:
   web:
     build:
       context: .
-      target: nemp3
-    command: /usr/bin/node /root/nemp3/index.js
-    container_name: 'nemp3-server'
+      target: nemp3-dev
+    command: >
+      sh -c
+      "cd /root/nemp3/
+      && npm i
+      && /usr/bin/nodemon --ignore client /root/nemp3/index.js"
+    container_name: 'nemp3-server-dev'
     env_file: dev.env
     ports:
       - '8083:8083'
     restart: 'no'
-    restart: 'no'
-    stop_grace_period: 10s

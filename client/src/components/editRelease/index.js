@@ -263,7 +263,7 @@ class EditRelease extends Component {
     if (!xemPriceUsd) return;
     const convertedPrice = (price / xemPriceUsd).toFixed(2);
 
-    if (price === '0') {
+    if (Number(price) === 0) {
       return 'Name Your Price! Or \u2018free\u2019. Fans will still be able to donate.';
     }
 
@@ -348,6 +348,7 @@ class EditRelease extends Component {
                     label="Price (USD)"
                     name="price"
                     required
+                    min="0"
                     type="number"
                   />
                   <button
@@ -595,7 +596,7 @@ const mapStateToProps = state => ({
   formValues: getFormValues('releaseForm')(state),
   isDeleting: state.releases.isDeleting,
   isTranscoding: state.releases.isTranscoding,
-  price: fieldSelector(state, 'price'),
+  price: Number(fieldSelector(state, 'price')),
   release: state.releases.selectedRelease,
   xemPriceUsd: state.nem.xemPriceUsd
 });

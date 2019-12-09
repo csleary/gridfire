@@ -16,7 +16,6 @@ const NemAddressFormField = ({
   id,
   input,
   label,
-  name,
   nemAddress,
   nemAddressVerified,
   placeholder,
@@ -66,7 +65,6 @@ const NemAddressFormField = ({
         {...input}
         className={inputClassNames}
         id={id}
-        name={name}
         placeholder={placeholder}
         type={type}
       />
