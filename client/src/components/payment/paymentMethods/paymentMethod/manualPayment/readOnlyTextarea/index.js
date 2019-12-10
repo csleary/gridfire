@@ -28,7 +28,7 @@ const ReadOnlyTextarea = props => {
   });
 
   return (
-    <div className="position-relative">
+    <div className={styles.wrapper}>
       <textarea
         className={`${styles.textarea} form-control text-center ibm-type-mono mb-5`}
         onClick={handleClick}

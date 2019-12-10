@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Transaction from './transaction';
 import nem from 'nem-sdk';
+import styles from './transactions.module.css';
 
 const Transactions = ({ transactions, transactionsError }) => {
   const txList = transactions.map((tx, index) => (
@@ -33,13 +34,13 @@ const Transactions = ({ transactions, transactionsError }) => {
     return (
       <div className="row transactions">
         <div className="col">
-          <div className="mt-3">
+          <div className={styles.wrapper}>
             <h5 className="mb-4">
               <FontAwesome name="list-ol" className="red mr-3" />
               {transactions.length} Confirmed Transaction
               {transactions.length > 1 && 's'}:
             </h5>
-            <table className="table table-sm table-striped table-dark mb-5">
+            <table className="table table-sm table-striped table-dark">
               <thead>
                 <tr>
                   <th scope="col" className="col-item">
