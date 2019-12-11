@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  web:
+  app:
     depends_on:
       - mongo
     tmpfs: /root/nemp3/tmp
