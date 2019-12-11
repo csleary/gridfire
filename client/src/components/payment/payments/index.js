@@ -87,7 +87,7 @@ const Payments = props => {
           <h3 className="text-center">Payments</h3>
         </div>
       </div>
-      <div className={`${styles.transactions} row justify-content-center mb-5`}>
+      <div className={`${styles.transactions} row`}>
         <div className={`${styles.segment} col-md-6 p-4`}>
           <Summary paidToDate={paidToDate} transactions={transactions} />
           <Underpaid
@@ -142,7 +142,4 @@ Payments.propTypes = {
   transactionsError: PropTypes.object
 };
 
-export default connect(
-  null,
-  { toastError }
-)(Payments);
+export default connect(null, { toastError })(Payments);

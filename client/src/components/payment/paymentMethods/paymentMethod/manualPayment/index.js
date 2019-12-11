@@ -17,7 +17,7 @@ const ManualPayment = props => {
 
   return (
     <div className="row no-gutters">
-      <div className="col-md-8 mx-auto">
+      <div className="col mx-auto">
         <h4 className="mb-4">
           <span className="red">1.</span> Payment ID
         </h4>

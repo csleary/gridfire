@@ -1,5 +1,7 @@
 .transactions {
   animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
+  justify-content: center;
+  margin-bottom: 6rem;
 }
 
 .segment {
@@ -15,6 +17,7 @@
 :global(.transactions .table-dark) {
   animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   color: #f0f0f1;
+  margin-bottom: 0;
   white-space: nowrap;
 }
 

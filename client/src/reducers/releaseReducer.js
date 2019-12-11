@@ -59,146 +59,146 @@ const initialState = {
 export default (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
-  case ADD_RELEASE:
-  case ADD_TRACK:
-  case DELETE_ARTWORK:
-  case FETCH_RELEASE:
-  case FETCH_USER_RELEASE:
-  case MOVE_TRACK:
-  case UPDATE_RELEASE:
-    return {
-      ...state,
-      selectedRelease: payload
-    };
-  case DELETE_RELEASE:
-    if (state.userReleases) {
+    case ADD_RELEASE:
+    case ADD_TRACK:
+    case DELETE_ARTWORK:
+    case FETCH_RELEASE:
+    case FETCH_USER_RELEASE:
+    case MOVE_TRACK:
+    case UPDATE_RELEASE:
       return {
         ...state,
-        userReleases: state.userReleases.filter(
-          release => release._id !== payload
-        )
+        selectedRelease: payload
       };
-    }
-    return { ...state };
-  case DELETE_TRACK_START:
-    return {
-      ...state,
-      isDeleting: [...state.isDeleting, action.trackId]
-    };
-  case DELETE_TRACK_COMPLETE:
-    return {
-      ...state,
-      selectedRelease: payload,
-      isDeleting: state.isDeleting.filter(id => id !== action.trackId)
-    };
-  case FETCH_ARTIST_CATALOGUE:
-    return {
-      ...state,
-      artist: payload
-    };
-  case FETCH_CATALOGUE:
-    return {
-      ...state,
-      catalogue: [...updateFromPayload(state.catalogue, payload), ...payload],
-      catalogueSkip: action.catalogueSkip,
-      reachedEndOfCat: action.reachedEndOfCat
-    };
-  case FETCH_COLLECTION:
-    return {
-      ...state,
-      collection: [
-        ...updateFromPayload(state.collection, payload),
-        ...payload
-      ]
-    };
-  case FETCH_USER_RELEASES:
-    return {
-      ...state,
-      userReleases: [
-        ...updateFromPayload(state.userReleases, payload),
-        ...payload
-      ]
-    };
-  case PUBLISH_STATUS:
-    return {
-      ...state,
-      isLoading: action.isLoading,
-      userReleases: state.userReleases.map(release => {
-        if (release._id === payload._id) return payload;
-        return release;
-      })
-    };
-  case PURCHASE_RELEASE:
-    return {
-      ...state,
-      selectedRelease: payload.release,
-      paymentAddress: payload.paymentInfo.paymentAddress,
-      paymentHash: payload.paymentInfo.paymentHash,
-      priceInXem: payload.price
-    };
-  case SEARCH_RELEASES:
-    return {
-      ...state,
-      searchResults: payload,
-      searchQuery: action.searchQuery
-    };
-  case SEARCH_RELEASES_CLEAR:
-    return {
-      ...state,
-      searchResults: [],
-      searchQuery: ''
-    };
-  case SEARCH_RELEASES_LOADING:
-    return {
-      ...state,
-      isSearching: action.isSearching
-    };
-  case TRANSCODING_START:
-    return {
-      ...state,
-      isTranscoding: [...state.isTranscoding, action.trackId]
-    };
-  case TRANSCODING_COMPLETE:
-    return {
-      ...state,
-      isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
-      selectedRelease: {
-        ...state.selectedRelease,
-        trackList: [
-          ...state.selectedRelease.trackList.map(previous => {
-            if (previous._id !== action.trackId) {
-              return previous;
-            }
-
-            return action.payload.trackList.filter(
-              updated => updated._id === action.trackId
-            )[0];
-          })
-        ]
+    case DELETE_RELEASE:
+      if (state.userReleases) {
+        return {
+          ...state,
+          userReleases: state.userReleases.filter(
+            release => release._id !== payload
+          )
+        };
       }
-    };
-  case UPLOAD_ARTWORK:
-    return {
-      ...state,
-      artworkUploading: payload
-    };
-  case UPLOAD_ARTWORK_PROGRESS:
-    return {
-      ...state,
-      artworkUploadProgress: payload
-    };
-  case UPLOAD_AUDIO_PROGRESS:
-    return {
-      ...state,
-      audioUploadProgress: [
-        ...state.audioUploadProgress.filter(
-          track => !(action.trackId in track)
-        ),
-        { [action.trackId]: action.percent }
-      ]
-    };
+      return { ...state };
+    case DELETE_TRACK_START:
+      return {
+        ...state,
+        isDeleting: [...state.isDeleting, action.trackId]
+      };
+    case DELETE_TRACK_COMPLETE:
+      return {
+        ...state,
+        selectedRelease: payload,
+        isDeleting: state.isDeleting.filter(id => id !== action.trackId)
+      };
+    case FETCH_ARTIST_CATALOGUE:
+      return {
+        ...state,
+        artist: payload
+      };
+    case FETCH_CATALOGUE:
+      return {
+        ...state,
+        catalogue: [...updateFromPayload(state.catalogue, payload), ...payload],
+        catalogueSkip: action.catalogueSkip,
+        reachedEndOfCat: action.reachedEndOfCat
+      };
+    case FETCH_COLLECTION:
+      return {
+        ...state,
+        collection: [
+          ...updateFromPayload(state.collection, payload),
+          ...payload
+        ]
+      };
+    case FETCH_USER_RELEASES:
+      return {
+        ...state,
+        userReleases: [
+          ...updateFromPayload(state.userReleases, payload),
+          ...payload
+        ]
+      };
+    case PUBLISH_STATUS:
+      return {
+        ...state,
+        isLoading: action.isLoading,
+        userReleases: state.userReleases.map(release => {
+          if (release._id === payload._id) return payload;
+          return release;
+        })
+      };
+    case PURCHASE_RELEASE:
+      return {
+        ...state,
+        selectedRelease: payload.release,
+        paymentAddress: payload.paymentInfo.paymentAddress,
+        paymentHash: payload.paymentInfo.paymentHash,
+        priceInXem: payload.price
+      };
+    case SEARCH_RELEASES:
+      return {
+        ...state,
+        searchResults: payload,
+        searchQuery: action.searchQuery
+      };
+    case SEARCH_RELEASES_CLEAR:
+      return {
+        ...state,
+        searchResults: [],
+        searchQuery: ''
+      };
+    case SEARCH_RELEASES_LOADING:
+      return {
+        ...state,
+        isSearching: action.isSearching
+      };
+    case TRANSCODING_START:
+      return {
+        ...state,
+        isTranscoding: [...state.isTranscoding, action.trackId]
+      };
+    case TRANSCODING_COMPLETE:
+      return {
+        ...state,
+        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
+        selectedRelease: {
+          ...state.selectedRelease,
+          trackList: [
+            ...state.selectedRelease.trackList.map(previous => {
+              if (previous._id !== action.trackId) {
+                return previous;
+              }
 
-  default:
-    return state;
+              return action.payload.trackList.filter(
+                updated => updated._id === action.trackId
+              )[0];
+            })
+          ]
+        }
+      };
+    case UPLOAD_ARTWORK:
+      return {
+        ...state,
+        artworkUploading: payload
+      };
+    case UPLOAD_ARTWORK_PROGRESS:
+      return {
+        ...state,
+        artworkUploadProgress: payload
+      };
+    case UPLOAD_AUDIO_PROGRESS:
+      return {
+        ...state,
+        audioUploadProgress: [
+          ...state.audioUploadProgress.filter(
+            track => !(action.trackId in track)
+          ),
+          { [action.trackId]: action.percent }
+        ]
+      };
+
+    default:
+      return state;
   }
 };
