@@ -1,0 +1,9 @@
+.wrapper {
+  margin-bottom: 6rem;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.table {
+  margin-bottom: 0;
+}
