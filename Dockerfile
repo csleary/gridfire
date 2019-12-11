@@ -1,7 +1,7 @@
 FROM ubuntu AS nemp3
 WORKDIR /root/
-COPY --from=bento4 /root/bento4 /root/bento4
-COPY --from=bento4 /root/bin /root/bin
+COPY --from=csleary/bento4 /root/bento4 /root/bento4
+COPY --from=csleary/ffmpeg /root/bin /root/bin
 WORKDIR /root/nemp3
 
 RUN apt-get update -qq \
