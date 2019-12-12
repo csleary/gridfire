@@ -13,3 +13,8 @@ services:
     image: mongo
     ports:
       - '27017:27017'
+    volumes:
+      - data-volume-dev:/data/db
+
+volumes:
+  data-volume-dev:

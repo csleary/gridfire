@@ -19,7 +19,7 @@ mongoose.connect(keys.mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-mongoose.set('debug', true);
+// mongoose.set('debug', true);
 
 if (cluster.isMaster) {
   for (let i = 0; i < numCPUs; i++) {
