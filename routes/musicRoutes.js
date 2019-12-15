@@ -13,9 +13,10 @@ module.exports = app => {
   app.get('/api/collection/', requireLogin, async (req, res) => {
     const { purchases } = req.user;
     const releaseIds = purchases.map(release => release.releaseId);
-    const releases = await Release.find({ _id: { $in: releaseIds } }).sort(
-      '-releaseDate'
-    );
+    const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
+      lean: true,
+      sort: '-releaseDate'
+    });
     res.send(releases);
   });
 
@@ -28,6 +29,7 @@ module.exports = app => {
       match: { published: true },
       model: Release,
       options: {
+        lean: true,
         sort: { releaseDate: -1 }
       }
     });
@@ -37,10 +39,11 @@ module.exports = app => {
   // Fetch Site Catalogue
   app.get('/api/catalogue/', async (req, res) => {
     const { catalogueLimit, catalogueSkip } = req.query;
-    const releases = await Release.find({ published: true })
-      .skip(parseInt(catalogueSkip))
-      .limit(parseInt(catalogueLimit))
-      .sort('-dateCreated');
+    const releases = await Release.find({ published: true }, '-__v', {
+      skip: parseInt(catalogueSkip),
+      limit: parseInt(catalogueLimit),
+      sort: '-dateCreated'
+    });
     res.send(releases);
   });
 
@@ -54,31 +57,43 @@ module.exports = app => {
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ user: req.user.id });
     const releaseIds = releases.map(release => release._id);
-    const sales = await Sale.find({ releaseId: { $in: releaseIds } });
+    const sales = await Sale.find({ releaseId: { $in: releaseIds } }, '-__v', {
+      lean: true
+    });
     res.send(sales);
   });
 
   // Fetch Single User Release
   app.get('/api/user/release/:releaseId', requireLogin, async (req, res) => {
-    const release = await Release.findById(req.params.releaseId);
+    const release = await Release.findById(req.params.releaseId, '-__v', {
+      lean: true
+    });
     res.send(release);
   });
 
   // Fetch User Releases
   app.get('/api/user/releases/', requireLogin, async (req, res) => {
-    const releases = await Release.find({ user: req.user.id }).sort(
-      '-releaseDate'
-    );
+    const releases = await Release.find({ user: req.user.id }, '-__v', {
+      lean: true,
+      sort: '-releaseDate'
+    });
     res.send(releases);
   });
 
   // Search Releases
   app.get('/api/search', async (req, res) => {
     const { searchQuery } = req.query;
-    const results = await Release.find({
-      published: true,
-      $text: { $search: searchQuery }
-    }).limit(50);
+    const results = await Release.find(
+      {
+        published: true,
+        $text: { $search: searchQuery }
+      },
+      '-__v',
+      {
+        lean: true,
+        limit: 50
+      }
+    );
     res.send(results);
   });
 };

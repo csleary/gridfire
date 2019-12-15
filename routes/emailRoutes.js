@@ -119,7 +119,7 @@ ${siteUrl}${token}
 If you did not request this, you can safely ignore this email.
 
 Best wishes,
-nemp3`
+The nemp3 team`
           };
 
           transporter.sendMail(mailOptions, err => {
@@ -193,7 +193,7 @@ nemp3`
 We can confirm that your nemp3 password has successfully been reset.
 
 Best wishes,
-nemp3`
+The nemp3 team`
         };
 
         transporter.sendMail(mailOptions, err => {
