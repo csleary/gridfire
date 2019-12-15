@@ -31,8 +31,8 @@ if (cluster.isMaster) {
   });
 } else {
   const app = express();
-
   app.use(bodyParser.json());
+
   app.use(
     cookieSession({
       name: 'nemp3 session',
@@ -40,9 +40,9 @@ if (cluster.isMaster) {
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
   );
+
   app.use(passport.initialize());
   app.use(passport.session());
-
   require('./routes/artworkRoutes')(app);
   require('./routes/authRoutes')(app);
   require('./routes/downloadRoutes')(app);
@@ -51,7 +51,11 @@ if (cluster.isMaster) {
   require('./routes/nemRoutes')(app);
   require('./routes/releaseRoutes')(app);
   require('./routes/trackRoutes')(app);
-
   const PORT = process.env.PORT || 8083;
   app.listen(PORT);
+
+  process.on('uncaughtException', error => {
+    console.error(`There was an uncaught error: ${error}`);
+    process.exit(1);
+  });
 }

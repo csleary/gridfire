@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const { nemp3Secret } = require('../config/keys');
 const { AWS_REGION, BUCKET_MP3 } = require('../config/constants');
 const { zipDownload } = require('../controllers/archiveController');
-const { generateMp3 } = require('../controllers/encodingController');
+const { encodeMp3 } = require('../controllers/encodingController');
 const { generateToken } = require('../controllers/tokenController');
 const requireLogin = require('../middlewares/requireLogin');
 
@@ -49,7 +49,7 @@ module.exports = app => {
     if (audioMp3Available) {
       res.end();
     } else {
-      generateMp3(res, release).then(() => {
+      encodeMp3(res, release).then(() => {
         res.end();
       });
     }

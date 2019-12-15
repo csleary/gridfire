@@ -18,16 +18,16 @@ const withDownload = WrappedComponent => props => {
         );
 
         switch (format) {
-        case 'mp3':
-          props.checkFormatMp3(downloadToken, () => {
-            setFormatExists(true);
+          case 'mp3':
+            props.checkFormatMp3(downloadToken, () => {
+              setFormatExists(true);
+              setPreparingDownload(false);
+              window.location = `/api/download/${downloadToken}`;
+            });
+            break;
+          default:
             setPreparingDownload(false);
-            window.location = `/api/download/${downloadToken}`;
-          });
-          break;
-        default:
-          setPreparingDownload(false);
-          window.location = `/api/download/${downloadToken}/flac`;
+            window.location = `/api/download/${downloadToken}/flac`;
         }
       } else {
         setPreparingDownload(false);
@@ -58,13 +58,10 @@ withDownload.propTypes = {
 };
 
 export default compose(
-  connect(
-    null,
-    {
-      checkFormatMp3,
-      fetchDownloadToken,
-      toastInfo
-    }
-  ),
+  connect(null, {
+    checkFormatMp3,
+    fetchDownloadToken,
+    toastInfo
+  }),
   withDownload
 );

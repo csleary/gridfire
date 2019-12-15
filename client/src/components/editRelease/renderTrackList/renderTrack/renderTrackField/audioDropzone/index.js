@@ -18,7 +18,6 @@ const AudioDropzone = props => {
     if (isUploading) {
       e.stopPropagation();
     }
-    console.log('click');
   };
 
   const {

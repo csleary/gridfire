@@ -20,6 +20,8 @@ module.exports = app => {
     async (req, res) => {
       try {
         const { releaseId } = req.body;
+        const { release } = res.locals;
+        release.updateOne({ artwork: 'storing' }).exec();
 
         const optimisedImg = sharp()
           .resize(1000, 1000)
@@ -36,12 +38,11 @@ module.exports = app => {
 
         const updateReleaseArtwork = Release.findByIdAndUpdate(
           releaseId,
-          { artwork: true },
-          { new: true }
-        ).select('-__v');
+          { artwork: 'stored' },
+          { lean: true, new: true, select: '-__v' }
+        );
 
         const s3 = new aws.S3();
-
         s3.upload(params)
           .promise()
           .then(() => updateReleaseArtwork)
@@ -61,11 +62,15 @@ module.exports = app => {
       try {
         const { releaseId } = req.params;
         const { release } = res.locals;
-        const s3 = new aws.S3();
+
+        release.updateOne({ artwork: 'deleting' }).exec();
+
         const listImgParams = {
           Bucket: BUCKET_IMG,
           Prefix: `${releaseId}`
         };
+
+        const s3 = new aws.S3();
         const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
 
         if (s3ImgData.Contents.length) {
@@ -74,16 +79,22 @@ module.exports = app => {
             Key: s3ImgData.Contents[0].Key
           };
 
+          const updateReleaseArtwork = Release.findByIdAndUpdate(
+            releaseId,
+            { $unset: { artwork: 1 }, published: false },
+            { lean: true, new: true, select: '-__v' }
+          );
+
           s3.deleteObject(deleteImgParams)
             .promise()
-            .then(() => {
-              release.artwork = undefined;
-              release.published = false;
-              release.save().then(doc => res.send(doc));
-            })
+            .then(() => updateReleaseArtwork)
+            .then(updated => res.send(updated))
             .catch(error => {
               throw new Error(error.message);
             });
+        } else {
+          release.updateOne({ published: false }).exec();
+          throw new Error('Artwork file not found. Please upload a new file.');
         }
       } catch (error) {
         res.status(500).send({ error: error.message });
