@@ -203,6 +203,7 @@ module.exports = app => {
       const customerIdHash = req.user.auth.idHash;
       const xemPriceUsd = await fetchXemPrice();
       const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
+      // eslint-disable-next-line
       req.session.price = price;
 
       if (!owner.nemAddress) {
@@ -242,6 +243,7 @@ module.exports = app => {
         if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
           release.updateOne({ published: false }).exec();
           throw new Error(
+            // eslint-disable-next-line
             "Please add a valid NEM address to your account before publishing this release ('Payment' tab)."
           );
         }
@@ -277,48 +279,16 @@ module.exports = app => {
 
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {
-    const releaseId = req.body._id;
-    const {
-      artistName,
-      catNumber,
-      cLine,
-      credits,
-      info,
-      pLine,
-      price,
-      recordLabel,
-      releaseDate,
-      releaseTitle,
-      tags,
-      trackList
-    } = req.body;
+    const update = req.body;
+    const releaseId = update._id;
 
-    const release = await Release.findById(releaseId).select('-__v');
-
-    // Unfortunately we must be explicit with document updates as non-form items such as track times will be overwritten due to shallow object merging.
-
-    release.artistName = artistName;
-    release.catNumber = catNumber;
-    release.credits = credits;
-    release.info = info;
-    release.price = price;
-    release.recordLabel = recordLabel;
-    release.releaseDate = releaseDate;
-    release.releaseTitle = releaseTitle;
-    release.tags = tags;
-    release.pLine.year = pLine && pLine.year ? pLine.year : undefined;
-    release.pLine.owner = pLine && pLine.owner ? pLine.owner : undefined;
-    release.cLine.year = cLine && cLine.year ? cLine.year : undefined;
-    release.cLine.owner = cLine && cLine.owner ? cLine.owner : undefined;
-    release.trackList.forEach((track, index) => {
-      track.trackTitle = trackList[index].trackTitle;
-      track.hasAudio = trackList[index].hasAudio;
+    const release = await Release.findByIdAndUpdate(releaseId, update, {
+      new: true
     });
-    const updatedRelease = await release.save();
 
     // Add artist to Artist model.
     const artist = await Artist.findOneAndUpdate(
-      { user: req.user._id, name: artistName },
+      { user: req.user._id, name: release.artistName },
       {},
       { new: true, upsert: true }
     );
@@ -336,7 +306,7 @@ module.exports = app => {
       { $push: { artists: artist._id } }
     )
       .exec()
-      .then(res.send(updatedRelease))
+      .then(res.send(release.toObject({ versionKey: false })))
       .catch(error => res.status(500).send({ error: error.message }));
   });
 };

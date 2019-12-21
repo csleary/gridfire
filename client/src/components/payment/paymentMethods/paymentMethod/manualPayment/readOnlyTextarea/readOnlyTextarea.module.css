@@ -10,7 +10,6 @@
 .textarea:disabled,
 .textarea:focus,
 .textarea.form-control:focus {
-  animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   background: hsla(233, 10%, 10%, 1);
   border: 0;
   border-radius: 0.5rem;
@@ -79,15 +78,5 @@
   .textarea:focus,
   .textarea.form-control:focus {
     height: 2.5rem;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
   }
 }
