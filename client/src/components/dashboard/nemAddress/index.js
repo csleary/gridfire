@@ -183,6 +183,11 @@ function NemAddress(props) {
                   credit balance of at least {userReleaseCount + 1} to be able
                   to add a new release or activate perks and powerups.
                 </p>
+                <p>
+                  Need some credit? You&rsquo;ll be able to buy credit with XEM
+                  in the future, but for now <a href="/contact">get in touch</a>{' '}
+                  and we&rsquo;ll send you a token for free.
+                </p>
               </div>
             </div>
           </form>
