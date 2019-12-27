@@ -12,7 +12,6 @@ let BUCKET_SRC = 'nemp3-src';
 let GOOGLE_CALLBACK = 'https://nemp3.app/api/auth/google/callback';
 let GOOGLE_REDIRECT = 'https://nemp3.app/oauth/google';
 let NEM_NETWORK_ID = nem.model.network.data.mainnet.id;
-let NEM_NODE = 'http://209.126.98.204';
 let NEM_NODES = [
   '176.9.68.110',
   '176.9.20.180',
@@ -20,7 +19,8 @@ let NEM_NODES = [
   '108.61.182.27',
   '108.61.168.86',
   '104.238.161.61',
-  '148.251.0.114'
+  '148.251.0.114',
+  '209.126.98.204'
 ];
 
 if (process.env.NODE_ENV === 'development') {
@@ -32,7 +32,6 @@ if (process.env.NEM_NETWORK === 'testnet') {
   BUCKET_OPT = 'nemp3-opt-testnet';
   BUCKET_SRC = 'nemp3-src-testnet';
   NEM_NETWORK_ID = nem.model.network.data.testnet.id;
-  NEM_NODE = nem.model.nodes.defaultTestnet;
   NEM_NODES = ['95.216.73.245', '95.216.73.243', '23.228.67.85'];
 }
 
@@ -45,7 +44,6 @@ module.exports = {
   BUCKET_SRC,
   GOOGLE_CALLBACK,
   GOOGLE_REDIRECT,
-  NEM_NODE,
   NEM_NODES,
   NEM_NETWORK_ID,
   TEMP_PATH

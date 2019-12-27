@@ -80,6 +80,8 @@ const Payments = props => {
     transactionsError
   } = data;
 
+  const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
+
   return (
     <>
       <div className="row">
@@ -103,7 +105,7 @@ const Payments = props => {
               onClick={() => {
                 fetch('/api/nem/transactions', 'post', paymentData);
               }}
-              title={`Press to check again for recent payments (using NIS Node: ${nemNode}).`}
+              title={`Press to check again for recent payments (last used NIS Node: '${formattedNodeName}').`}
             >
               {' '}
               <FontAwesome name="refresh" className="mr-2" spin={isFetching} />

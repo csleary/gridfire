@@ -1,6 +1,6 @@
 const axios = require('axios');
 const nem = require('nem-sdk').default;
-const { NEM_NETWORK_ID, NEM_NODE, NEM_NODES } = require('../config/constants');
+const { NEM_NETWORK_ID, NEM_NODES } = require('../config/constants');
 
 const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
 
