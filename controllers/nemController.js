@@ -1,5 +1,46 @@
+const axios = require('axios');
 const nem = require('nem-sdk').default;
-const { NEM_NETWORK_ID, NEM_NODE } = require('../config/constants');
+const { NEM_NETWORK_ID, NEM_NODE, NEM_NODES } = require('../config/constants');
+
+const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
+
+const queryNodes = async (endpoint, nodesList = defaultNodes) => {
+  const nodes = nodesList.map(
+    node =>
+      new Promise(async (resolve, reject) => {
+        const res = await axios(`${node}${endpoint}`).catch(error =>
+          reject(error)
+        );
+        resolve(res.data);
+      })
+  );
+
+  const firstResult = await Promise.race(nodes).catch(error => {
+    throw new Error(error);
+  });
+  return firstResult;
+};
+
+const findNode = async () => {
+  try {
+    const activeNodes = await queryNodes('/node/peer-list/active');
+
+    const nodeHosts = activeNodes.data.map(
+      node =>
+        `${node.endpoint.protocol}://${node.endpoint.host}:${node.endpoint.port}`
+    );
+
+    const node = await queryNodes('/node/info', nodeHosts);
+    const { protocol } = node.endpoint;
+    const { host } = node.endpoint;
+    const { name } = node.identity;
+    const { port } = node.endpoint;
+    const endpoint = { host: `${protocol}://${host}`, port };
+    return { endpoint, host, name, port, protocol };
+  } catch (error) {
+    throw new Error(`Could not find a NEM node: ${error}`);
+  }
+};
 
 const checkSignedMessage = (address, signedMessage) => {
   const { message, signer, signature } = signedMessage;
@@ -24,10 +65,8 @@ const checkSignedMessage = (address, signedMessage) => {
 
 const fetchMosaics = paymentAddress =>
   new Promise(async resolve => {
-    const endpoint = nem.model.objects.create('endpoint')(
-      NEM_NODE,
-      nem.model.nodes.defaultPort
-    );
+    const node = await findNode();
+    const { endpoint } = node;
 
     const mosaics = await nem.com.requests.account.mosaics.owned(
       endpoint,
@@ -46,13 +85,10 @@ const fetchMosaics = paymentAddress =>
   });
 
 const fetchTransactions = (paymentAddress, idHash) =>
-  new Promise((resolve, reject) => {
-    const endpoint = nem.model.objects.create('endpoint')(
-      NEM_NODE,
-      nem.model.nodes.defaultPort
-    );
-
-    const nemNode = endpoint.host;
+  new Promise(async (resolve, reject) => {
+    const node = await findNode();
+    const { endpoint, name } = node;
+    const nemNode = name;
     let txId;
     let total = [];
     let paidToDate = 0;
@@ -137,5 +173,6 @@ module.exports = {
   checkSignedMessage,
   fetchMosaics,
   fetchTransactions,
-  fetchXemPrice
+  fetchXemPrice,
+  findNode
 };
