@@ -13,7 +13,7 @@ const CLine = ({ cLine }) => {
 };
 
 CLine.propTypes = {
-  cLine: PropTypes.string
+  cLine: PropTypes.object
 };
 
 export default CLine;

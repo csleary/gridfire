@@ -13,7 +13,7 @@ const PLine = ({ pLine }) => {
 };
 
 PLine.propTypes = {
-  pLine: PropTypes.string
+  pLine: PropTypes.object
 };
 
 export default PLine;
