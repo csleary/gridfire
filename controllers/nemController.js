@@ -16,8 +16,9 @@ const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   );
 
   const firstResult = await Promise.race(nodes).catch(error => {
-    throw new Error(error);
+    throw error;
   });
+
   return firstResult;
 };
 
@@ -38,7 +39,7 @@ const findNode = async () => {
     const endpoint = { host: `${protocol}://${host}`, port };
     return { endpoint, host, name, port, protocol };
   } catch (error) {
-    throw new Error(`Could not find a NEM node: ${error}`);
+    throw new Error(`Could not find a responsive NEM node: ${error}`);
   }
 };
 
@@ -86,14 +87,15 @@ const fetchMosaics = paymentAddress =>
 
 const fetchTransactions = (paymentAddress, idHash) =>
   new Promise(async (resolve, reject) => {
-    const node = await findNode();
-    const { endpoint, name } = node;
-    const nemNode = name;
     let txId;
     let total = [];
     let paidToDate = 0;
 
     try {
+      const node = await findNode();
+      const { endpoint, name } = node;
+      const nemNode = name;
+
       const fetchBatch = async () => {
         const incoming = await nem.com.requests.account.transactions.incoming(
           endpoint,

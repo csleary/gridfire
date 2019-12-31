@@ -42,7 +42,7 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
           setCancelled(true);
         } else {
           setCancelled(false);
-          setError(e);
+          setError(e.response.data.error);
         }
       } finally {
         setFetching(false);

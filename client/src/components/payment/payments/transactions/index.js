@@ -5,7 +5,7 @@ import Transaction from './transaction';
 import nem from 'nem-sdk';
 import styles from './transactions.module.css';
 
-const Transactions = ({ transactions, transactionsError }) => {
+const Transactions = ({ transactions, error }) => {
   const txList = transactions.map((tx, index) => (
     <Transaction
       hash={tx.meta.hash.data}
@@ -16,14 +16,14 @@ const Transactions = ({ transactions, transactionsError }) => {
     />
   ));
 
-  if (transactionsError) {
+  if (error) {
     return (
       <div className="row transactions">
         <div className="col">
           <div className="alert alert-danger text-center" role="alert">
             <FontAwesome name="bomb" className="mr-2" />
-            Sorry, we encountered an error while checking for transactions:{' '}
-            {transactionsError}
+            Sorry, we encountered an error while checking for transactions.{' '}
+            {error}
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@ const Transactions = ({ transactions, transactionsError }) => {
 
 Transactions.propTypes = {
   transactions: PropTypes.array,
-  transactionsError: PropTypes.object
+  error: PropTypes.string
 };
 
 export default Transactions;
