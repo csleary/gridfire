@@ -32,15 +32,18 @@ const Payments = props => {
     [releaseId, paymentHash]
   );
 
-  const { data, error, fetch, isFetching, isLoading } = useApi(
+  const initialData = {
+    hasPurchased: false,
+    nemNode: '',
+    paidToDate: 0,
+    transactions: []
+  };
+
+  const { data = initialData, error, fetch, isFetching, isLoading } = useApi(
     '/api/nem/transactions',
     'post',
     paymentData
   );
-
-  if (error) {
-    props.toastError(error);
-  }
 
   useEffect(() => {
     const updateTxs = () => {
@@ -72,13 +75,7 @@ const Payments = props => {
     );
   }
 
-  const {
-    hasPurchased,
-    nemNode,
-    paidToDate,
-    transactions,
-    transactionsError
-  } = data;
+  const { hasPurchased, nemNode, paidToDate, transactions } = data;
 
   const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
 
@@ -125,10 +122,7 @@ const Payments = props => {
           </div>
         </div>
       </div>
-      <Transactions
-        transactions={transactions}
-        transactionsError={transactionsError}
-      />
+      <Transactions transactions={transactions} error={error} />
     </>
   );
 };
@@ -148,7 +142,4 @@ Payments.propTypes = {
   transactionsError: PropTypes.object
 };
 
-export default connect(
-  null,
-  { toastError }
-)(Payments);
+export default connect(null, { toastError })(Payments);
