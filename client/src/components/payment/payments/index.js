@@ -119,6 +119,10 @@ const Payments = props => {
             releaseId={releaseId}
             releaseTitle={releaseTitle}
           />
+          <div className={`${styles.node}`} title="Last used NIS Node">
+            <FontAwesome name="server" className="mr-2" />
+            Node name: {formattedNodeName}
+          </div>
         </div>
       </div>
       <Transactions
@@ -144,4 +148,7 @@ Payments.propTypes = {
   transactionsError: PropTypes.object
 };
 
-export default connect(null, { toastError })(Payments);
+export default connect(
+  null,
+  { toastError }
+)(Payments);
