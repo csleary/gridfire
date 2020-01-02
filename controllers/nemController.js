@@ -5,21 +5,13 @@ const { NEM_NETWORK_ID, NEM_NODES } = require('../config/constants');
 const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
 
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
-  const nodes = nodesList.map(
-    node =>
-      new Promise(async (resolve, reject) => {
-        const res = await axios(`${node}${endpoint}`).catch(error =>
-          reject(error)
-        );
-        resolve(res.data);
-      })
-  );
-
-  const firstResult = await Promise.race(nodes).catch(error => {
-    throw error;
-  });
-
-  return firstResult;
+  try {
+    const nodes = nodesList.map(node => axios(`${node}${endpoint}`));
+    const res = await Promise.race(nodes);
+    return res.data;
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 const findNode = async () => {
@@ -60,73 +52,69 @@ const checkSignedMessage = (address, signedMessage) => {
 
     return keyToAddress === address;
   }
-
   return false;
 };
 
-const fetchMosaics = paymentAddress =>
-  new Promise(async resolve => {
+const fetchMosaics = async paymentAddress => {
+  const node = await findNode();
+  const { endpoint } = node;
+
+  const mosaics = await nem.com.requests.account.mosaics.owned(
+    endpoint,
+    paymentAddress
+  );
+
+  const credits = mosaics.data.filter(
+    mosaic =>
+      mosaic.mosaicId.namespaceId === 'nemp3' &&
+      mosaic.mosaicId.name === 'credits'
+  )[0];
+
+  if (!credits) return 0;
+  return credits.quantity;
+};
+
+const fetchTransactions = async (paymentAddress, idHash) => {
+  let txId;
+  let total = [];
+  let paidToDate = 0;
+
+  try {
     const node = await findNode();
-    const { endpoint } = node;
+    const { endpoint, name } = node;
+    const nemNode = name;
 
-    const mosaics = await nem.com.requests.account.mosaics.owned(
-      endpoint,
-      paymentAddress
-    );
+    const fetchBatch = async () => {
+      const incoming = await nem.com.requests.account.transactions.incoming(
+        endpoint,
+        paymentAddress,
+        null,
+        txId
+      );
 
-    mosaics.data.forEach(mosaic => {
-      if (
-        mosaic.mosaicId.namespaceId === 'nemp3' &&
-        mosaic.mosaicId.name === 'credits'
-      ) {
-        resolve(mosaic.quantity);
+      const currentBatch = incoming.data || [];
+      const filteredTxs = filterTransactions(idHash, currentBatch);
+      const payments = checkPayments(filteredTxs);
+      paidToDate += payments;
+      total = [...total, ...filteredTxs];
+
+      if (currentBatch.length === 25) {
+        txId = currentBatch[currentBatch.length - 1].meta.id;
+        return fetchBatch();
+      } else {
+        return {
+          transactions: total,
+          nemNode,
+          paidToDate
+        };
       }
-    });
-    resolve(0);
-  });
+    };
 
-const fetchTransactions = (paymentAddress, idHash) =>
-  new Promise(async (resolve, reject) => {
-    let txId;
-    let total = [];
-    let paidToDate = 0;
-
-    try {
-      const node = await findNode();
-      const { endpoint, name } = node;
-      const nemNode = name;
-
-      const fetchBatch = async () => {
-        const incoming = await nem.com.requests.account.transactions.incoming(
-          endpoint,
-          paymentAddress,
-          null,
-          txId
-        );
-
-        const currentBatch = incoming.data || [];
-        const filteredTxs = filterTransactions(idHash, currentBatch);
-        const payments = checkPayments(filteredTxs);
-        paidToDate += payments;
-        total = [...total, ...filteredTxs];
-
-        if (currentBatch.length === 25) {
-          txId = currentBatch[currentBatch.length - 1].meta.id;
-          fetchBatch();
-        } else {
-          resolve({
-            transactions: total,
-            nemNode,
-            paidToDate
-          });
-        }
-      };
-
-      fetchBatch();
-    } catch (error) {
-      reject(error);
-    }
-  });
+    return fetchBatch();
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 
 const fetchXemPrice = async () => {
   const xem = await nem.com.requests.market.xem();
