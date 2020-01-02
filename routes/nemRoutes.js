@@ -26,7 +26,6 @@ module.exports = app => {
       );
 
       const payments = await fetchTransactions(paymentAddress, paymentHash);
-
       payments.hasPurchased = hasPurchased;
 
       if (payments.paidToDate >= price && !hasPurchased) {
