@@ -1,11 +1,12 @@
 import {
   DELETE_ARTWORK,
-  UPDATE_RELEASE,
+  // UPDATE_RELEASE,
   UPLOAD_ARTWORK,
+  // UPLOAD_ARTWORK_COMPLETE,
   UPLOAD_ARTWORK_PROGRESS
 } from './types';
-import { toastError, toastSuccess } from './index';
 import axios from 'axios';
+import { toastError } from './index';
 
 export const deleteArtwork = (releaseId, callback) => async dispatch => {
   try {
@@ -38,12 +39,12 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   };
 
   try {
-    const imgUpload = axios.post('/api/upload/artwork', data, config);
-    imgUpload.then(res => {
-      dispatch({ type: UPLOAD_ARTWORK, payload: false });
-      dispatch({ type: UPDATE_RELEASE, payload: res.data });
-      toastSuccess('Artwork uploaded.')(dispatch);
-    });
+    axios.post('/api/upload/artwork', data, config);
+    // imgUpload.then(res => {
+    //   dispatch({ type: UPLOAD_ARTWORK, payload: false });
+    //   dispatch({ type: UPDATE_RELEASE, payload: res.data });
+    //   toastSuccess('Artwork uploaded.')(dispatch);
+    // });
   } catch (e) {
     toastError(e.response.data.error)(dispatch);
   }

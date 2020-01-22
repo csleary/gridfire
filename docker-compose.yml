@@ -14,3 +14,10 @@ services:
     ports:
       - '8083:8083'
     restart: 'no'
+  rabbit:
+    container_name: rabbit
+    hostname: rabbit
+    image: rabbitmq:3.8.2-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'

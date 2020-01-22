@@ -1,5 +1,5 @@
 const aws = require('aws-sdk');
-const fsPromises = require('fs').promises;
+const fs = require('fs');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
@@ -8,14 +8,10 @@ const {
   AWS_REGION,
   BUCKET_OPT,
   BUCKET_SRC,
+  QUEUE_TRANSCODE,
   TEMP_PATH
 } = require('../config/constants');
-const { createMpd } = require('../controllers/bento4Controller');
-const {
-  encodeAacFrag,
-  encodeFlacStream,
-  getTrackDuration
-} = require('../controllers/encodingController');
+const { publishToQueue } = require('../services/rabbitMQ/publisher');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 
@@ -211,80 +207,6 @@ module.exports = app => {
     }
   );
 
-  // Transcode Audio
-  app.get(
-    '/api/transcode/audio',
-    requireLogin,
-    releaseOwner,
-    async (req, res) => {
-      try {
-        const { releaseId, trackId, trackName } = req.query;
-        const s3 = new aws.S3();
-
-        const listParams = {
-          Bucket: BUCKET_SRC,
-          Prefix: `${releaseId}/${trackId}`
-        };
-
-        const inputAudio = await s3.listObjectsV2(listParams).promise();
-        const { Key } = inputAudio.Contents[0];
-        const outputPath = TEMP_PATH;
-        const outputAudio = `${outputPath}${trackId}.mp4`;
-        const outputMpd = `${outputPath}${trackId}.mpd`;
-
-        const probeSrc = s3
-          .getObject({ Bucket: BUCKET_SRC, Key })
-          .createReadStream();
-
-        const metadata = await getTrackDuration(probeSrc);
-        const release = res.locals.release;
-        const trackDoc = release.trackList.id(trackId);
-        trackDoc.duration = metadata.format.duration;
-        release.save();
-
-        const downloadSrc = s3
-          .getObject({ Bucket: BUCKET_SRC, Key })
-          .createReadStream();
-
-        await encodeAacFrag(downloadSrc, outputAudio);
-        createMpd(outputAudio, trackId, outputPath);
-
-        const mp4Audio = await fsPromises.readFile(outputAudio);
-        const mp4Params = {
-          Bucket: BUCKET_OPT,
-          ContentType: 'audio/mp4',
-          Key: `mp4/${releaseId}/${trackId}.mp4`,
-          Body: mp4Audio
-        };
-        const mp4Upload = s3.upload(mp4Params).promise();
-
-        const mpd = await fsPromises.readFile(outputMpd);
-        const mpdParams = {
-          Bucket: BUCKET_OPT,
-          ContentType: 'application/dash+xml',
-          Key: `mpd/${releaseId}/${trackId}.mpd`,
-          Body: mpd
-        };
-        const mpdUpload = s3.upload(mpdParams).promise();
-
-        Promise.all([mp4Upload, mpdUpload])
-          .then(() => fsPromises.unlink(outputAudio))
-          .then(() => fsPromises.unlink(outputMpd))
-          .then(() => {
-            trackDoc.hasAudio = true;
-            release.save().then(updatedRelease =>
-              res.send({
-                updatedRelease,
-                success: `Transcoding ${trackName} to aac complete.`
-              })
-            );
-          });
-      } catch (error) {
-        res.status(500).send({ error: error.message });
-      }
-    }
-  );
-
   // Get Upload Url
   app.get('/api/upload/audio', requireLogin, releaseOwner, async (req, res) => {
     try {
@@ -328,9 +250,7 @@ module.exports = app => {
     releaseOwner,
     async (req, res) => {
       try {
-        const { releaseId, trackId, type } = req.body;
-        const s3 = new aws.S3();
-        const tempPath = path.join(TEMP_PATH, trackId);
+        const { releaseId, trackId, trackName, type } = req.body;
 
         if (
           ![
@@ -347,21 +267,22 @@ module.exports = app => {
           );
         }
 
-        const streamToS3 = async () => {
-          const s3Stream = await fsPromises.readFile(tempPath);
-          const Key = `${releaseId}/${trackId}.flac`;
-          const params = { Bucket: BUCKET_SRC, Key, Body: s3Stream };
+        const { file } = req;
+        const filePath = path.join(TEMP_PATH, trackId);
+        const write = fs.createWriteStream(filePath);
+        file.stream.pipe(write);
 
-          s3.upload(params)
-            .promise()
-            .then(() => fsPromises.unlink(tempPath))
-            .then(() => res.end());
-        };
+        write.on('finish', () => {
+          publishToQueue('', QUEUE_TRANSCODE, {
+            filePath,
+            job: 'encodeFLAC',
+            releaseId,
+            trackId,
+            trackName,
+            userId: req.user._id
+          });
 
-        encodeFlacStream({
-          req,
-          tempPath,
-          onEnd: streamToS3
+          res.end();
         });
       } catch (error) {
         res.status(500).send({ error: error.message });

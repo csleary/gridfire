@@ -1,6 +1,5 @@
 const aws = require('aws-sdk');
 const mongoose = require('mongoose');
-const sharp = require('sharp');
 const Release = mongoose.model('releases');
 const { AWS_REGION, BUCKET_IMG } = require('../config/constants');
 aws.config.update({ region: AWS_REGION });
@@ -37,35 +36,6 @@ const deleteArtwork = async (releaseId, release) => {
   }
 };
 
-const uploadArtwork = async (file, releaseId, release) => {
-  release.updateOne({ artwork: 'storing' }).exec();
-
-  const optimisedImg = sharp()
-    .resize(1000, 1000)
-    .toFormat('jpeg');
-
-  const s3Stream = file.stream.pipe(optimisedImg);
-  const s3 = new aws.S3();
-
-  const params = {
-    ContentType: 'image/jpeg',
-    Body: s3Stream,
-    Bucket: BUCKET_IMG,
-    Key: `${releaseId}.jpg`
-  };
-
-  await s3.upload(params).promise();
-
-  const updated = await Release.findByIdAndUpdate(
-    releaseId,
-    { artwork: 'stored' },
-    { lean: true, new: true, select: '-__v' }
-  );
-
-  return updated;
-};
-
 module.exports = {
-  deleteArtwork,
-  uploadArtwork
+  deleteArtwork
 };

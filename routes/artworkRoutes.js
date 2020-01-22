@@ -1,8 +1,9 @@
+const { QUEUE_ARTWORK, TEMP_PATH } = require('../config/constants');
+const { deleteArtwork } = require('../controllers/artworkController');
+const fs = require('fs');
 const multer = require('multer');
-const {
-  deleteArtwork,
-  uploadArtwork
-} = require('../controllers/artworkController');
+const path = require('path');
+const { publishToQueue } = require('../services/rabbitMQ/publisher');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const upload = multer();
@@ -17,9 +18,20 @@ module.exports = app => {
       try {
         const { file } = req;
         const { releaseId } = req.body;
-        const { release } = res.locals;
-        const updated = await uploadArtwork(file, releaseId, release);
-        res.send(updated);
+        const filePath = path.join(TEMP_PATH, releaseId);
+        const write = fs.createWriteStream(filePath);
+        file.stream.pipe(write);
+
+        write.on('finish', () => {
+          publishToQueue('', QUEUE_ARTWORK, {
+            filePath,
+            releaseId,
+            job: 'uploadArtwork',
+            userId: req.user._id
+          });
+
+          res.end();
+        });
       } catch (error) {
         res.status(500).send({ error: error.message });
       }

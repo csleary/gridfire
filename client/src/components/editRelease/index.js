@@ -159,14 +159,12 @@ class EditRelease extends Component {
       `Uploading file '${audioFile.name}' for ${trackName}.`
     );
     this.props
-      .uploadAudio(releaseId, trackId, audioFile, audioFile.type)
-      .then(() => {
-        this.props.toastSuccess(`Upload complete for ${trackName}!`);
-        return this.props.transcodeAudio(releaseId, trackId, trackName);
-      })
-      .then(() => {
-        const { hasAudio } = this.props.release.trackList[index];
-        this.props.change(`trackList[${index}].hasAudio`, hasAudio);
+      .uploadAudio({
+        releaseId,
+        trackId,
+        trackName,
+        audioFile,
+        type: audioFile.type
       })
       .catch(error => this.props.toastError(`Upload failed! ${error.message}`));
   };
@@ -528,8 +526,6 @@ class EditRelease extends Component {
                 component={RenderTrackList}
                 deleteTrack={this.props.deleteTrack}
                 initialize={this.props.initialize}
-                isDeleting={this.props.isDeleting}
-                isTranscoding={this.props.isTranscoding}
                 moveTrack={this.props.moveTrack}
                 name="trackList"
                 onDropAudio={this.onDropAudio}
@@ -594,8 +590,6 @@ const mapStateToProps = state => ({
   audioUploadProgress: state.releases.audioUploadProgress,
   audioUploadUrl: state.releases.audioUploadUrl,
   formValues: getFormValues('releaseForm')(state),
-  isDeleting: state.releases.isDeleting,
-  isTranscoding: state.releases.isTranscoding,
   price: Number(fieldSelector(state, 'price')),
   release: state.releases.selectedRelease,
   xemPriceUsd: state.nem.xemPriceUsd
@@ -618,8 +612,6 @@ EditRelease.propTypes = {
   history: PropTypes.object,
   initialize: PropTypes.func,
   invalid: PropTypes.bool,
-  isDeleting: PropTypes.array,
-  isTranscoding: PropTypes.array,
   match: PropTypes.object,
   moveTrack: PropTypes.func,
   price: PropTypes.number,

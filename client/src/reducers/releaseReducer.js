@@ -19,6 +19,7 @@ import {
   SEARCH_RELEASES_LOADING,
   TRANSCODING_COMPLETE,
   TRANSCODING_START,
+  TRANSCODING_STOP,
   UPDATE_RELEASE,
   UPLOAD_ARTWORK,
   UPLOAD_ARTWORK_PROGRESS,
@@ -156,26 +157,13 @@ export default (state = initialState, action) => {
     case TRANSCODING_START:
       return {
         ...state,
-        isTranscoding: [...state.isTranscoding, action.trackId]
+        isTranscoding: [...state.isTranscoding, payload.trackId]
       };
     case TRANSCODING_COMPLETE:
+    case TRANSCODING_STOP:
       return {
         ...state,
-        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
-        selectedRelease: {
-          ...state.selectedRelease,
-          trackList: [
-            ...state.selectedRelease.trackList.map(previous => {
-              if (previous._id !== action.trackId) {
-                return previous;
-              }
-
-              return action.payload.trackList.filter(
-                updated => updated._id === action.trackId
-              )[0];
-            })
-          ]
-        }
+        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId)
       };
     case UPLOAD_ARTWORK:
       return {

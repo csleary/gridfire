@@ -15,6 +15,8 @@ services:
       - '27017:27017'
     volumes:
       - data-volume-dev:/data/db
+  rabbit:
+    container_name: rabbit-dev
 
 volumes:
   data-volume-dev:

@@ -11,8 +11,6 @@ function RenderTrackList(props) {
     change,
     deleteTrack,
     fields,
-    isDeleting,
-    isTranscoding,
     moveTrack,
     onDropAudio,
     release,
@@ -123,8 +121,6 @@ function RenderTrackList(props) {
               handleDrop={handleDrop}
               handleDragEnd={handleDragEnd}
               index={index}
-              isDeleting={isDeleting.some(id => id === trackId)}
-              isTranscoding={isTranscoding.some(id => id === trackId)}
               key={trackId}
               moveTrack={moveTrack}
               name={name}
