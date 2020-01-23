@@ -10,6 +10,7 @@ import {
   UPDATE_RELEASE
 } from './types';
 import axios from 'axios';
+import { batch } from 'react-redux';
 import { toastError } from './index';
 
 export const addRelease = () => async dispatch => {
@@ -75,16 +76,18 @@ export const purchaseRelease = releaseId => async dispatch => {
   }
 };
 
-export const searchReleases = searchQuery => async dispatch => {
-  dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: true });
-  const res = await axios.get('/api/search', {
-    params: {
-      searchQuery
-    }
+export const searchReleases = searchQuery => dispatch => {
+  batch(async () => {
+    dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: true });
+    const res = await axios.get('/api/search', {
+      params: {
+        searchQuery
+      }
+    });
+    dispatch({ type: SEARCH_RELEASES, payload: res.data, searchQuery });
+    dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: false });
+    return res;
   });
-  dispatch({ type: SEARCH_RELEASES, payload: res.data, searchQuery });
-  dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: false });
-  return res;
 };
 
 export const clearResults = () => async dispatch => {

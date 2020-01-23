@@ -1,6 +1,7 @@
 const { QUEUE_ARTWORK, QUEUE_TRANSCODE } = require('../../config/constants');
 const Pool = require('worker-threads-pool');
 const amqp = require('amqplib');
+const { rabbitUser, rabbitPass } = require('../../config/keys');
 const numCPUs = require('os').cpus().length;
 const startConsumer = require('./consumer');
 const { startPublisher } = require('./publisher');
@@ -10,7 +11,10 @@ module.exports = app => {
   let connection;
   const connectToServer = async () => {
     try {
-      connection = await amqp.connect('amqp://localhost');
+      connection = await amqp.connect(
+        // `amqp://${rabbitUser}:${rabbitPass}@rabbit:5672` // Docker use.
+        `amqp://${rabbitUser}:${rabbitPass}@localhost:5672`
+      );
 
       connection.on('error', error => {
         if (error.message !== 'Connection closing.') {

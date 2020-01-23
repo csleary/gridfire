@@ -1,8 +1,6 @@
 import {
   DELETE_ARTWORK,
-  // UPDATE_RELEASE,
   UPLOAD_ARTWORK,
-  // UPLOAD_ARTWORK_COMPLETE,
   UPLOAD_ARTWORK_PROGRESS
 } from './types';
 import axios from 'axios';
@@ -30,7 +28,6 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
     },
     onUploadProgress: event => {
       const progress = (event.loaded / event.total) * 100;
-      dispatch({ type: UPLOAD_ARTWORK, payload: true });
       dispatch({
         type: UPLOAD_ARTWORK_PROGRESS,
         payload: Math.floor(progress)
@@ -39,12 +36,8 @@ export const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   };
 
   try {
+    dispatch({ type: UPLOAD_ARTWORK, payload: true });
     axios.post('/api/upload/artwork', data, config);
-    // imgUpload.then(res => {
-    //   dispatch({ type: UPLOAD_ARTWORK, payload: false });
-    //   dispatch({ type: UPDATE_RELEASE, payload: res.data });
-    //   toastSuccess('Artwork uploaded.')(dispatch);
-    // });
   } catch (e) {
     toastError(e.response.data.error)(dispatch);
   }

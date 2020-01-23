@@ -35,11 +35,13 @@ function NemAddress(props) {
     fetchUserReleases();
   }, [fetchUserReleases]);
 
+  /* eslint-disable */
   useEffect(() => {
     initialize({
       nemAddress: nem.utils.format.address(nemAddress)
     });
   }, []);
+  /* eslint-enable */
 
   const addressPrefix =
     process.env.REACT_APP_NEM_NETWORK === 'mainnet'
