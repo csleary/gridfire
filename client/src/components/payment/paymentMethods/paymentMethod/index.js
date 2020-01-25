@@ -32,10 +32,7 @@ const PaymentMethod = ({
       </div>
       <p className="text-center">
         Please scan the QR code with a NEM mobile wallet app to make your
-        payment.
-      </p>
-      <p className="text-center">
-        Download a wallet:{' '}
+        payment:{' '}
         <a href="https://itunes.apple.com/us/app/nem-wallet/id1227112677">
           <FontAwesome name="apple" className="mr-1" />
           iOS

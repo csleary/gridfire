@@ -2,7 +2,7 @@ import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'components/payment/payments/payments.module.css';
+import styles from './downloadButton.module.css';
 
 const DownloadButton = props => {
   const {
@@ -52,23 +52,20 @@ const DownloadButton = props => {
 
   if (hasPurchased) {
     return (
-      <>
-        <h3 className="text-center mt-5">Thank you!</h3>
+      <div className={styles.downloadGroup}>
+        <button
+          className={`${styles.download} btn btn-outline-primary btn-lg`}
+          disabled={isPreparingDownload === true}
+          onClick={handleDownload}
+        >
+          {renderButtonText()}
+        </button>
+        {renderNote()}
         <p className="text-center">
           <span className="ibm-type-italic">{releaseTitle}</span> has been added
           to <Link to={'/dashboard/collection'}>your collection</Link>.
         </p>
-        <div className="d-flex justify-content-center">
-          <button
-            className={`${styles.download} btn btn-outline-primary btn-lg`}
-            disabled={isPreparingDownload === true}
-            onClick={handleDownload}
-          >
-            {renderButtonText()}
-          </button>
-        </div>
-        {renderNote()}
-      </>
+      </div>
     );
   }
 

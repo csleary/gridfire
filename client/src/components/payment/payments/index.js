@@ -5,9 +5,7 @@ import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import Summary from './summary';
 import Transactions from './transactions';
-import Underpaid from './underPaid';
 import { connect } from 'react-redux';
-import styles from './payments.module.css';
 import { toastError } from 'actions';
 import { useApi } from 'hooks/useApi';
 import withDownload from './withDownload';
@@ -77,51 +75,26 @@ const Payments = props => {
 
   const { hasPurchased, nemNode, paidToDate, transactions } = data;
 
-  const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
-
   return (
     <>
-      <div className="row">
-        <div className="col">
-          <h3 className="text-center">Payments</h3>
-        </div>
-      </div>
-      <div className={`${styles.transactions} row`}>
-        <div className={`${styles.segment} col-md-6 p-4`}>
-          <Summary paidToDate={paidToDate} transactions={transactions} />
-          <Underpaid
-            hasPurchased={hasPurchased}
-            paidToDate={paidToDate}
-            price={price}
-            roundUp={roundUp}
-          />
-          <div className="d-flex justify-content-center">
-            <button
-              className={`${styles.refresh} btn btn-outline-primary btn-sm py-2 px-3`}
-              disabled={isFetching}
-              onClick={() => {
-                fetch('/api/nem/transactions', 'post', paymentData);
-              }}
-              title={`Press to check again for recent payments (last used NIS Node: '${formattedNodeName}').`}
-            >
-              {' '}
-              <FontAwesome name="refresh" className="mr-2" spin={isFetching} />
-              Refresh
-            </button>
-          </div>
-          <Download
-            artistName={artistName}
-            format="mp3"
-            hasPurchased={hasPurchased}
-            releaseId={releaseId}
-            releaseTitle={releaseTitle}
-          />
-          <div className={`${styles.node}`} title="Last used NIS Node">
-            <FontAwesome name="server" className="mr-2" />
-            Node name: {formattedNodeName}
-          </div>
-        </div>
-      </div>
+      <Download
+        artistName={artistName}
+        format="mp3"
+        hasPurchased={hasPurchased}
+        releaseId={releaseId}
+        releaseTitle={releaseTitle}
+      />
+      <Summary
+        fetch={fetch}
+        hasPurchased={hasPurchased}
+        isFetching={isFetching}
+        nemNode={nemNode}
+        paidToDate={paidToDate}
+        paymentData={paymentData}
+        price={price}
+        roundUp={roundUp}
+        transactions={transactions}
+      />
       <Transactions transactions={transactions} error={error} />
     </>
   );

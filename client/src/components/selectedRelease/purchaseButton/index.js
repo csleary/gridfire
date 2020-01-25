@@ -7,7 +7,7 @@ import styles from 'components/selectedRelease/selectedRelease.module.css';
 const PurchaseButton = ({ inCollection, price, releaseId }) => (
   <div className="d-flex justify-content-center">
     <Link
-      to={`/payment/${releaseId}`}
+      to={`/release/${releaseId}/pay`}
       className={`${styles.buy} btn btn-outline-primary`}
     >
       <PurchaseButtonLabel inCollection={inCollection} price={price} />

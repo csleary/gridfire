@@ -12,8 +12,7 @@ module.exports = app => {
   const connectToServer = async () => {
     try {
       connection = await amqp.connect(
-        // `amqp://${rabbitUser}:${rabbitPass}@rabbit:5672` // Docker use.
-        `amqp://${rabbitUser}:${rabbitPass}@localhost:5672`
+        `amqp://${rabbitUser}:${rabbitPass}@rabbit:5672`
       );
 
       connection.on('error', error => {
