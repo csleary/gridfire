@@ -18,7 +18,7 @@ const Transactions = ({ transactions, error }) => {
 
   if (error) {
     return (
-      <div className="row transactions">
+      <div className={styles.transactions}>
         <div className="alert alert-danger text-center" role="alert">
           <FontAwesome name="bomb" className="mr-2" />
           Sorry, we encountered an error while checking for transactions.{' '}

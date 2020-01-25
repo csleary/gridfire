@@ -122,8 +122,8 @@ const SelectedRelease = props => {
             <Price price={price} xemPriceUsd={xemPriceUsd} />
           </h6>
           <Switch>
-            <PrivateRoute path={`${path}/pay`} component={Payment} />
-            <Route path={`${path}/`}>
+            <PrivateRoute path={`${path}/payment`} component={Payment} />
+            <Route path={`${path}`}>
               <div className={trackListColumns}>
                 <ol className={styles.trackList}>
                   <TrackList

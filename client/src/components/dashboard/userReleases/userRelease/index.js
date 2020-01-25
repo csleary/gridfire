@@ -63,8 +63,8 @@ function UserRelease(props) {
         published
           ? toastWarning(`\u2018${releaseTitle}\u2019 has been taken offline.`)
           : toastSuccess(
-            `\u2018${releaseTitle}\u2019 is now live and on sale.`
-          );
+              `\u2018${releaseTitle}\u2019 is now live and on sale.`
+            );
       }
       setPublishingRelease(false);
     });
@@ -130,7 +130,7 @@ function UserRelease(props) {
         </div>
         <div className={`${styles.buttons} d-flex mt-auto`}>
           <button
-            onClick={() => history.push(`/release/edit/${releaseId}`)}
+            onClick={() => history.push(`/release/${releaseId}/edit`)}
             className={`${styles.button} btn btn-outline-primary btn-sm`}
           >
             <FontAwesome name="pencil" className="mr-2" />

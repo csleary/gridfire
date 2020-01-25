@@ -25,3 +25,7 @@
   cursor: wait;
   opacity: 0.5;
 }
+
+.summary:last-child {
+  margin-bottom: 0;
+}
