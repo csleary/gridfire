@@ -17,16 +17,6 @@ const Summary = ({
 }) => {
   const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
 
-  if (!transactions.length) {
-    return (
-      <p className={styles.info}>
-        No transactions found just yet. Please hit the refresh button to check
-        again for confirmed payments (we&rsquo;ll automatically check every
-        thirty seconds).
-      </p>
-    );
-  }
-
   return (
     <button
       className={`${styles.summary}`}
@@ -37,7 +27,11 @@ const Summary = ({
       title={`Press to check again for recent payments (last used NIS Node: '${formattedNodeName}').`}
     >
       <div className={styles.refresh}>
-        <p className={styles.paid}>Paid to date: {paidToDate.toFixed(2)} XEM</p>{' '}
+        {!transactions.length ? (
+          <>No transactions found. Check again?</>
+        ) : (
+          <>Paid to date: {paidToDate.toFixed(2)} XEM</>
+        )}
         <FontAwesome name="refresh" className="ml-2" spin={isFetching} />
       </div>
       <Underpaid
