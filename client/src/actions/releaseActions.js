@@ -76,7 +76,7 @@ export const purchaseRelease = releaseId => async dispatch => {
   }
 };
 
-export const searchReleases = searchQuery => dispatch => {
+export const searchReleases = searchQuery => dispatch =>
   batch(async () => {
     dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: true });
     const res = await axios.get('/api/search', {
@@ -88,7 +88,6 @@ export const searchReleases = searchQuery => dispatch => {
     dispatch({ type: SEARCH_RELEASES_LOADING, isSearching: false });
     return res;
   });
-};
 
 export const clearResults = () => async dispatch => {
   dispatch({ type: SEARCH_RELEASES_CLEAR });
