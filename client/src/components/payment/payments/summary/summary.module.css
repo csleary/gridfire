@@ -1,19 +1,10 @@
 .node {
-  display: flex;
-  align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.paid {
-  display: inline-block;
-  margin: 0;
-}
-
 .refresh {
-  display: flex;
-  align-items: baseline;
 }
 
 .summary {
@@ -25,6 +16,7 @@
   margin: 0;
   margin-bottom: 1rem;
   padding: 0;
+  text-align: left;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 100%;
 }
