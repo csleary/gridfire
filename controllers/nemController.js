@@ -7,23 +7,31 @@ const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   try {
     const nodes = nodesList.map(node => axios(`${node}${endpoint}`));
-    const res = await Promise.race(nodes);
-    return res.data;
+
+    return Promise.race(nodes).catch(async error => {
+      const offlineHost = error.hostname;
+      return queryNodes(
+        endpoint,
+        nodesList.filter(node => node !== `http://${offlineHost}:7890`)
+      );
+    });
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.message);
   }
 };
 
 const findNode = async () => {
   try {
-    const activeNodes = await queryNodes('/node/peer-list/active');
+    const getActiveNodes = await queryNodes('/node/peer-list/active');
+    const activeNodes = getActiveNodes.data;
 
     const nodeHosts = activeNodes.data.map(
       node =>
         `${node.endpoint.protocol}://${node.endpoint.host}:${node.endpoint.port}`
     );
 
-    const node = await queryNodes('/node/info', nodeHosts);
+    const getFirstNode = await queryNodes('/node/info', nodeHosts);
+    const node = getFirstNode.data;
     const { protocol } = node.endpoint;
     const { host } = node.endpoint;
     const { name } = node.identity;
@@ -31,7 +39,7 @@ const findNode = async () => {
     const endpoint = { host: `${protocol}://${host}`, port };
     return { endpoint, host, name, port, protocol };
   } catch (error) {
-    throw new Error(`Could not find a responsive NEM node: ${error}`);
+    throw new Error(`Could not find a responsive NEM node: ${error.message}`);
   }
 };
 
