@@ -6,13 +6,13 @@ import { connect } from 'react-redux';
 
 const withDownload = WrappedComponent => props => {
   const { artistName, format, releaseId, releaseTitle } = props;
-  const [isPreparingDownload, setPreparingDownload] = useState(false);
+  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
   const [formatExists, setFormatExists] = useState(false);
 
   const handleDownload = () => {
     props.fetchDownloadToken(releaseId, downloadToken => {
       if (downloadToken) {
-        setPreparingDownload(true);
+        setIsPreparingDownload(true);
         props.toastInfo(
           `Fetching download: ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`
         );
@@ -21,16 +21,16 @@ const withDownload = WrappedComponent => props => {
           case 'mp3':
             props.checkFormatMp3(downloadToken, () => {
               setFormatExists(true);
-              setPreparingDownload(false);
+              setIsPreparingDownload(false);
               window.location = `/api/download/${downloadToken}`;
             });
             break;
           default:
-            setPreparingDownload(false);
+            setIsPreparingDownload(false);
             window.location = `/api/download/${downloadToken}/flac`;
         }
       } else {
-        setPreparingDownload(false);
+        setIsPreparingDownload(false);
       }
     });
   };

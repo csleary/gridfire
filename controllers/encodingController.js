@@ -5,10 +5,11 @@ const ffmpeg = require('fluent-ffmpeg');
 const encodeAacFrag = (downloadSrc, outputAudio) =>
   new Promise((resolve, reject) => {
     ffmpeg(downloadSrc)
-      .audioCodec('libfdk_aac')
+      // .audioCodec('libfdk_aac')
+      .audioCodec('aac')
       .audioBitrate(128)
       .toFormat('mp4')
-      // .on('stderr', () => {})
+      .on('stderr', () => {})
       .output(outputAudio)
       .outputOptions([
         '-frag_duration 15000000',
@@ -21,17 +22,17 @@ const encodeAacFrag = (downloadSrc, outputAudio) =>
       .run();
   });
 
-const encodeFlacStream = ({ req, tempPath, onEnd }) =>
-  ffmpeg(req.file.stream)
+const encodeFlacStream = (stream, outputPath, callback) =>
+  ffmpeg(stream)
     .audioCodec('flac')
     .audioChannels(2)
     .toFormat('flac')
     .outputOptions('-compression_level 5')
-    .on('end', () => onEnd())
+    .on('end', callback)
     .on('error', error => {
       throw new Error(error);
     })
-    .save(tempPath);
+    .save(outputPath);
 
 const encodeMp3 = (res, release) =>
   new Promise((resolve, reject) => {

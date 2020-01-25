@@ -16,7 +16,7 @@ services:
     image: mongo
     command: mongod --auth
     ports:
-      - '27017:27017'
+      - '27017'
     volumes:
       - data-volume:/data/db
 

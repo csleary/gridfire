@@ -1,0 +1,13 @@
+.downloadGroup {
+  margin-bottom: 3rem;
+}
+
+.download {
+  margin-bottom: 0.5rem;
+  padding: 1rem 1rem;
+  width: 100%;
+}
+
+.download:hover {
+  color: #000;
+}

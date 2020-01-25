@@ -14,3 +14,13 @@ services:
     ports:
       - '8083:8083'
     restart: 'no'
+  rabbit:
+    container_name: rabbit
+    hostname: nemp3-rabbit
+    image: rabbitmq:3.8.2-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - '5672'
+      - '15672:15672'

@@ -5,7 +5,9 @@ const AWS_REGION = 'us-east-1';
 const BENTO4_DIR = process.env.BENTO4_DIR;
 const BUCKET_IMG = 'nemp3-img';
 const BUCKET_MP3 = 'nemp3-mp3';
-const TEMP_PATH = path.join(__dirname, './../tmp/');
+const QUEUE_TRANSCODE = 'transcode';
+const QUEUE_ARTWORK = 'artwork';
+const TEMP_PATH = path.join(__dirname, '../tmp');
 
 let BUCKET_OPT = 'nemp3-opt';
 let BUCKET_SRC = 'nemp3-src';
@@ -46,5 +48,7 @@ module.exports = {
   GOOGLE_REDIRECT,
   NEM_NODES,
   NEM_NETWORK_ID,
+  QUEUE_ARTWORK,
+  QUEUE_TRANSCODE,
   TEMP_PATH
 };

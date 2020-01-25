@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import {
   fetchRelease,
   fetchUser,
@@ -17,7 +18,9 @@ import Credits from './credits';
 import Info from './info';
 import { Link } from 'react-router-dom';
 import PLine from './pLine';
+import Payment from 'components/payment';
 import Price from './price';
+import PrivateRoute from 'components/privateRoute';
 import PropTypes from 'prop-types';
 import PurchaseButton from './purchaseButton';
 import RecordLabel from './recordLabel';
@@ -32,6 +35,7 @@ import styles from 'components/selectedRelease/selectedRelease.module.css';
 const SelectedRelease = props => {
   const [isLoading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
+  const { path } = useRouteMatch();
 
   const {
     fetchRelease,
@@ -117,30 +121,35 @@ const SelectedRelease = props => {
           <h6 className={`${styles.price} text-center`}>
             <Price price={price} xemPriceUsd={xemPriceUsd} />
           </h6>
-          <div className={trackListColumns}>
-            <ol className={styles.trackList}>
-              <TrackList
-                nowPlayingToast={nowPlayingToast}
-                player={player}
-                playerPlay={props.playerPlay}
-                playTrack={props.playTrack}
-                release={release}
+          <Switch>
+            <PrivateRoute path={`${path}/pay`} component={Payment} />
+            <Route path={`${path}/`}>
+              <div className={trackListColumns}>
+                <ol className={styles.trackList}>
+                  <TrackList
+                    nowPlayingToast={nowPlayingToast}
+                    player={player}
+                    playerPlay={props.playerPlay}
+                    playTrack={props.playTrack}
+                    release={release}
+                  />
+                </ol>
+              </div>
+              <PurchaseButton
+                inCollection={inCollection}
+                price={price}
+                releaseId={releaseId}
               />
-            </ol>
-          </div>
-          <PurchaseButton
-            inCollection={inCollection}
-            price={price}
-            releaseId={releaseId}
-          />
-          <ReleaseDate releaseDate={releaseDate} />
-          <RecordLabel recordLabel={recordLabel} />
-          <CatNumber catNumber={catNumber} />
-          <Info info={info} />
-          <Credits credits={credits} />
-          <CLine cLine={cLine} />
-          <PLine pLine={pLine} />
-          <Tags searchReleases={props.searchReleases} tags={tags} />
+              <ReleaseDate releaseDate={releaseDate} />
+              <RecordLabel recordLabel={recordLabel} />
+              <CatNumber catNumber={catNumber} />
+              <Info info={info} />
+              <Credits credits={credits} />
+              <CLine cLine={cLine} />
+              <PLine pLine={pLine} />
+              <Tags searchReleases={props.searchReleases} tags={tags} />
+            </Route>
+          </Switch>
         </div>
       </div>
     </main>
@@ -173,16 +182,13 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  {
-    fetchRelease,
-    fetchUser,
-    fetchXemPrice,
-    playerPause,
-    playerPlay,
-    playTrack,
-    searchReleases,
-    toastInfo
-  }
-)(SelectedRelease);
+export default connect(mapStateToProps, {
+  fetchRelease,
+  fetchUser,
+  fetchXemPrice,
+  playerPause,
+  playerPlay,
+  playTrack,
+  searchReleases,
+  toastInfo
+})(SelectedRelease);

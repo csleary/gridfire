@@ -1,15 +1,11 @@
 .methods {
-  border-radius: 0;
-  padding: 1.5rem;
-  padding-bottom: 3rem;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
-}
-
-.methods p:last-of-type {
-  margin-bottom: 0;
+  margin-bottom: 3rem;
 }
 
 .method {
+  display: flex;
+  justify-content: center;
   margin-bottom: 3rem;
 }
 
@@ -31,7 +27,6 @@
 }
 
 .manual {
-  background: hsla(233, 10%, 20%, 1);
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
@@ -41,8 +36,15 @@
 }
 
 .qrcode {
-  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.4, 1) 1 normal;
   margin-bottom: 2rem;
+}
+
+.step:not(:last-of-type) {
+  margin-bottom: 3rem;
+}
+
+.heading {
+  margin-bottom: 1rem;
 }
 
 :global(.btn-group .btn) {
@@ -59,20 +61,4 @@
 
 :global(.btn-group .btn:focus) {
   box-shadow: none;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@media (min-width: 576px) {
-  .methods {
-    border-radius: 0.5rem;
-  }
 }

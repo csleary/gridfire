@@ -9,25 +9,23 @@ const Toast = ({ toast }) => {
 
   const toastIcon = () => {
     switch (type) {
-    case 'error':
-      return 'exclamation-circle';
-    case 'info':
-      return 'info-circle';
-    case 'success':
-      return 'thumbs-o-up';
-    case 'warning':
-      return 'exclamation-circle';
-    default:
-      return 'info-circle';
+      case 'error':
+        return 'exclamation-circle';
+      case 'info':
+        return 'info-circle';
+      case 'success':
+        return 'thumbs-o-up';
+      case 'warning':
+        return 'exclamation-circle';
+      default:
+        return 'info-circle';
     }
   };
 
-  const classes = classNames('toast', styles.alert, 'alert', {
-    'alert-success': type === 'success',
-    'alert-info': type === 'info',
-    'alert-warning': type === 'warning',
+  const classes = classNames(styles.alert, 'toast', {
+    [styles.success]: type === 'success',
+    [styles.info]: type === 'info',
     [styles.warning]: type === 'warning',
-    'alert-danger': type === 'error',
     [styles.danger]: type === 'error',
     [styles.show]: visible,
     [styles.fade]: !visible

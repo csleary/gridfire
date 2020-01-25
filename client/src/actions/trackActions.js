@@ -6,10 +6,11 @@ import {
   PLAY_TRACK,
   TRANSCODING_COMPLETE,
   TRANSCODING_START,
+  TRANSCODING_STOP,
   UPLOAD_AUDIO_PROGRESS
 } from './types';
-import { toastError, toastSuccess } from './index';
 import axios from 'axios';
+import { toastError } from './index';
 
 export const addTrack = (releaseId, callback) => async dispatch => {
   try {
@@ -73,38 +74,29 @@ export const transcodeAudio = (
   trackName
 ) => async dispatch => {
   try {
-    dispatch({ type: TRANSCODING_START, trackId });
-    const res = await axios.get('/api/transcode/audio', {
-      params: {
-        releaseId,
-        trackId,
-        trackName
-      }
-    });
-    toastSuccess(res.data.success)(dispatch);
     dispatch({
-      type: TRANSCODING_COMPLETE,
-      trackId,
-      payload: res.data.updatedRelease
+      type: TRANSCODING_START,
+      payload: { releaseId, trackId, trackName, action: TRANSCODING_COMPLETE }
     });
-    return res;
   } catch (e) {
-    toastError(`Transcoding error: ${e.response.data.error}`)(dispatch);
-    dispatch({ type: TRANSCODING_COMPLETE, trackId });
+    toastError(e.response.data.error)(dispatch);
+    dispatch({ type: TRANSCODING_STOP, trackId });
   }
 };
 
-export const uploadAudio = (
+export const uploadAudio = ({
   releaseId,
   trackId,
-  audioData,
+  trackName,
+  audioFile,
   type
-) => async dispatch => {
+}) => async dispatch => {
   try {
     const data = new FormData();
     data.append('releaseId', releaseId);
     data.append('trackId', trackId);
-    data.append('audio', audioData);
+    data.append('trackName', trackName);
+    data.append('audio', audioFile);
     data.append('type', type);
 
     const config = {
@@ -115,12 +107,6 @@ export const uploadAudio = (
     };
 
     const res = await axios.post('/api/upload/audio', data, config);
-
-    dispatch({
-      type: UPLOAD_AUDIO_PROGRESS,
-      trackId,
-      percent: 0
-    });
 
     return res;
   } catch (e) {

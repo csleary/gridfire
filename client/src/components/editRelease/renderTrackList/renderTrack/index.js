@@ -5,20 +5,18 @@ import ProgressBar from 'components/editRelease/progressBar';
 import PropTypes from 'prop-types';
 import RenderTrackField from './renderTrackField';
 import classNames from 'classnames';
+import { useSelector } from 'react-redux';
 
 const RenderTrack = props => {
-  const {
-    audioUploadProgress,
-    index,
-    isDeleting,
-    isTranscoding,
-    fields,
-    name,
-    release,
-    trackId
-  } = props;
-
+  const { audioUploadProgress, index, fields, name, release, trackId } = props;
   const [isMoving, setMoving] = useState();
+
+  const isDeleting = useSelector(state =>
+    state.releases.isDeleting.some(id => id === trackId)
+  );
+  const isTranscoding = useSelector(state =>
+    state.releases.isTranscoding.some(id => id === trackId)
+  );
 
   const releaseId = release._id;
   const hasAudio = release.trackList[index].hasAudio;
@@ -38,9 +36,7 @@ const RenderTrack = props => {
 
   const deleteButtonClassNames = classNames(
     'btn btn-outline-danger btn-sm ml-auto',
-    {
-      'delete-active': isDeleting
-    }
+    { 'delete-active': isDeleting }
   );
 
   const handleMoveTrack = (swap, id, trackIndex, direction) => {
@@ -140,10 +136,8 @@ const RenderTrack = props => {
 RenderTrack.propTypes = {
   audioUploadProgress: PropTypes.number,
   dragActive: PropTypes.bool,
-  dragOrigin: PropTypes.func,
+  dragOrigin: PropTypes.number,
   index: PropTypes.number,
-  isDeleting: PropTypes.bool,
-  isTranscoding: PropTypes.bool,
   fields: PropTypes.object,
   handleDeleteTrack: PropTypes.func,
   handleDragEnd: PropTypes.func,

@@ -1,9 +1,6 @@
-.wrapper {
-  margin-bottom: 6rem;
-  overflow: hidden;
-  overflow-x: auto;
-}
-
-.table {
-  margin-bottom: 0;
+.grid {
+  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: min-content 1fr max-content;
+  margin-bottom: 0.5rem;
 }

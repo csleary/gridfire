@@ -39,44 +39,26 @@ const Payment = props => {
 
   if (!paymentAddress) {
     return (
-      <main className="container">
-        <div className="row">
-          <div className="col">
-            <h2 className="text-center">Payment</h2>
-            <h3 className="text-center red">
-              {artistName} &bull;{' '}
-              <span className="ibm-type-italic">{releaseTitle}</span>
-            </h3>
-            <p className="text-center">
-              Unfortunately, <Link to={`/artist/${artist}`}>{artistName}</Link>{' '}
-              doesn&rsquo;t have a NEM payment address in their account, so we
-              are unable to process payments for them at the moment.
-            </p>
-            <p className="text-center">
-              Hopefully they&rsquo;ll have an address in place soon!
-            </p>
-          </div>
-        </div>
-      </main>
+      <>
+        <h2 className="text-center">Payment</h2>
+        <p>
+          Unfortunately, <Link to={`/artist/${artist}`}>{artistName}</Link>{' '}
+          doesn&rsquo;t have a NEM payment address in their account, so we are
+          unable to process payments for them at the moment.
+        </p>
+        <p>Hopefully they&rsquo;ll have an address in place soon!</p>
+      </>
     );
   }
 
   return (
-    <main className="container">
-      <div className="row">
-        <div className="col p-3">
-          <h2 className="text-center mt-4">Payment</h2>
-          <h3 className="text-center red">
-            {artistName} &bull;{' '}
-            <span className="ibm-type-italic">{releaseTitle}</span>
-          </h3>
-          <PaymentMethods
-            paymentAddress={paymentAddress}
-            paymentHash={paymentHash}
-            priceInXem={priceInXem}
-          />
-        </div>
-      </div>
+    <>
+      <h2 className="text-center mt-4">Payment</h2>
+      <PaymentMethods
+        paymentAddress={paymentAddress}
+        paymentHash={paymentHash}
+        priceInXem={priceInXem}
+      />
       <Payments
         artistName={artistName}
         paymentHash={paymentHash}
@@ -85,7 +67,7 @@ const Payment = props => {
         releaseTitle={releaseTitle}
         roundUp={roundUp}
       />
-    </main>
+    </>
   );
 };
 
@@ -94,7 +76,4 @@ Payment.propTypes = {
   releaseId: PropTypes.string
 };
 
-export default connect(
-  null,
-  { toastError }
-)(Payment);
+export default connect(null, { toastError })(Payment);

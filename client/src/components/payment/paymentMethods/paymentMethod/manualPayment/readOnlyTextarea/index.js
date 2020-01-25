@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import styles from './readOnlyTextarea.module.css';
 
 const ReadOnlyTextarea = props => {
-  const textArea = useRef(null);
+  const copyText = useRef(null);
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
@@ -18,8 +18,12 @@ const ReadOnlyTextarea = props => {
 
   const handleClick = event => {
     if (event.keyCode && event.keyCode !== 13) return;
-    textArea.current.select();
+    const range = document.createRange();
+    range.selectNode(copyText.current);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
     document.execCommand('copy');
+    window.getSelection().removeAllRanges();
     setHasCopied(true);
   };
 
@@ -29,15 +33,14 @@ const ReadOnlyTextarea = props => {
 
   return (
     <div className={styles.wrapper}>
-      <textarea
-        className={`${styles.textarea} form-control text-center ibm-type-mono mb-5`}
+      <div
+        className={`${styles.copyText} ibm-type-mono`}
         onClick={handleClick}
         onKeyDown={handleClick}
-        placeholder={props.placeholder}
-        ref={textArea}
-        value={props.text}
-        readOnly
-      />
+        ref={copyText}
+      >
+        {props.text ? props.text : props.placeholder}
+      </div>
       <FontAwesome className={styles.icon} name="copy" />
       <div className={copySuccessClass}>
         <FontAwesome className="mr-2" name="thumbs-up" />

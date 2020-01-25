@@ -1,11 +1,12 @@
+const app = require('express')();
 const bodyParser = require('body-parser');
-const cluster = require('cluster');
 const cookieSession = require('cookie-session');
-const express = require('express');
-const mongoose = require('mongoose');
-const numCPUs = require('os').cpus().length;
-const passport = require('passport');
 const keys = require('./config/keys');
+const mongoose = require('mongoose');
+const passport = require('passport');
+var server = app.listen(process.env.PORT || 8083);
+var io = require('socket.io')(server);
+app.set('socketio', io);
 
 require('./models/Artist');
 require('./models/Release');
@@ -19,43 +20,33 @@ mongoose.connect(keys.mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
 // mongoose.set('debug', true);
+app.use(bodyParser.json());
 
-if (cluster.isMaster) {
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
+app.use(
+  cookieSession({
+    name: 'nemp3 session',
+    keys: [keys.cookieKey],
+    maxAge: 28 * 24 * 60 * 60 * 1000
+  })
+);
 
-  cluster.on('exit', () => {
-    cluster.fork();
-  });
-} else {
-  const app = express();
-  app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
-  app.use(
-    cookieSession({
-      name: 'nemp3 session',
-      keys: [keys.cookieKey],
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-  );
+require('./services/rabbitMQ')(app);
+require('./routes/artworkRoutes')(app);
+require('./routes/authRoutes')(app);
+require('./routes/downloadRoutes')(app);
+require('./routes/emailRoutes')(app);
+require('./routes/musicRoutes')(app);
+require('./routes/nemRoutes')(app);
+require('./routes/releaseRoutes')(app);
+require('./routes/trackRoutes')(app);
+require('./routes/socketRoutes')(app);
 
-  app.use(passport.initialize());
-  app.use(passport.session());
-  require('./routes/artworkRoutes')(app);
-  require('./routes/authRoutes')(app);
-  require('./routes/downloadRoutes')(app);
-  require('./routes/emailRoutes')(app);
-  require('./routes/musicRoutes')(app);
-  require('./routes/nemRoutes')(app);
-  require('./routes/releaseRoutes')(app);
-  require('./routes/trackRoutes')(app);
-  const PORT = process.env.PORT || 8083;
-  app.listen(PORT);
-
-  process.on('uncaughtException', error => {
-    console.error(`There was an uncaught error: ${error}`);
-    process.exit(1);
-  });
-}
+process.on('uncaughtException', error => {
+  console.error(`There was an uncaught error: ${error}`);
+  process.exit(1);
+});

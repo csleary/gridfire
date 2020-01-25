@@ -13,7 +13,6 @@ import Header from 'components/header';
 import Home from 'components/home';
 import Login from 'components/login';
 import NavBar from 'components/navBar';
-import Payment from 'components/payment';
 import Player from 'components/player';
 import PrivateRoute from 'components/privateRoute';
 import React from 'react';
@@ -60,14 +59,8 @@ const App = () => {
           path="/release/edit/:releaseId"
           component={EditRelease}
         />
-        <Route
-          strict
-          exact
-          path="/release/:releaseId"
-          component={SelectedRelease}
-        />
+        <Route path="/release/:releaseId" component={SelectedRelease} />
         <Route path="/artist/:artist" component={ArtistPage} />
-        <PrivateRoute path="/payment/:releaseId" component={Payment} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
         <Footer user={user} />
         <Player />

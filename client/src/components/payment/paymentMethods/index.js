@@ -10,7 +10,7 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   const handleshowManualPayment = () =>
     setshowManualPayment(!showManualPayment);
 
-  const paymentMethods = classNames(styles.methods, 'mb-5', {
+  const paymentMethods = classNames(styles.methods, {
     [styles.manual]: showManualPayment
   });
 
@@ -35,7 +35,7 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   return (
     <div className={paymentMethods}>
       <div
-        className={`${styles.method} btn-group d-flex justify-content-center`}
+        className={`${styles.method} btn-group`}
         role="group"
         aria-label="Payment Method"
       >
@@ -51,7 +51,7 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
           className={paymentButtonManual}
           onClick={handleshowManualPayment}
         >
-          Manual Payment
+          Manual
         </button>
       </div>
       <PaymentMethod
