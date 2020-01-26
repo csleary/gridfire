@@ -11,6 +11,7 @@ RUN apt-get update -qq \
   libass-dev \
   libvorbis-dev \
   nodejs
+RUN git clone https://github.com/csleary/nemp3.git .
 COPY dkimKey /root/nemp3/
 EXPOSE 8083/tcp
 RUN npm i --only=production
