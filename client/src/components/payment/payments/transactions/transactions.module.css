@@ -4,3 +4,7 @@
   grid-template-columns: min-content 1fr max-content;
   margin-bottom: 0.5rem;
 }
+
+.transactions *:last-child {
+  margin-bottom: 0;
+}
