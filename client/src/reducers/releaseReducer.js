@@ -140,8 +140,7 @@ export default (state = initialState, action) => {
     case SEARCH_RELEASES:
       return {
         ...state,
-        searchResults: payload,
-        searchQuery: action.searchQuery
+        searchResults: payload
       };
     case SEARCH_RELEASES_CLEAR:
       return {
@@ -152,7 +151,8 @@ export default (state = initialState, action) => {
     case SEARCH_RELEASES_LOADING:
       return {
         ...state,
-        isSearching: action.isSearching
+        isSearching: action.isSearching,
+        searchQuery: action.searchQuery
       };
     case TRANSCODING_START:
       return {
