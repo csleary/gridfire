@@ -31,6 +31,7 @@ module.exports = app => {
       setTimeout(connectToServer, 1000);
     }
   };
+
   const whenConnected = () => {
     const io = app.get('socketio');
     startPublisher(connection);

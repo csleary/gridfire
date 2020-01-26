@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: .
+      target: nemp3-dev
+    command: >
+      sh -c
+      "cd /root/nemp3/
+      && npm i
+      && /usr/bin/nodemon --ignore client -L /root/nemp3/index.js"
+    env_file: prod.env
+    restart: no
+    volumes:
+      - type: bind
+        source: .
+        target: /root/nemp3
+
+  mongo:
+    command: mongod
+
+  rabbit:
+    container_name: rabbit-dev
+
+volumes:
+  data-volume-dev:
