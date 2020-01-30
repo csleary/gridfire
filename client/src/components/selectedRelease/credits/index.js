@@ -7,7 +7,7 @@ const Credits = ({ credits }) => {
 
   return (
     <>
-      <h6 className="red mt-4">{credits && 'Credits'}</h6>
+      <h6 className="yellow mt-4">{credits && 'Credits'}</h6>
       <p className={styles.credits}>{credits}</p>
     </>
   );
