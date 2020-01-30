@@ -6,7 +6,7 @@ const RecordLabel = ({ recordLabel }) => {
 
   return (
     <h6>
-      <span className="red">Label:</span> {recordLabel}
+      <span className="yellow">Label:</span> {recordLabel}
     </h6>
   );
 };

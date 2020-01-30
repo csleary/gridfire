@@ -6,7 +6,7 @@ const CatNumber = ({ catNumber }) => {
 
   return (
     <h6>
-      <span className="red">Cat.:</span> {catNumber}
+      <span className="yellow">Cat.:</span> {catNumber}
     </h6>
   );
 };

@@ -114,13 +114,13 @@
 .price {
   display: flex;
   align-items: center;
-  color: #ff5349;
+  color: #ffd24d;
   margin-bottom: 2rem;
 }
 
 .price::before,
 .price::after {
-  background: #ff5349;
+  background: hsla(233, 10%, 30%, 1);
   content: '';
   flex: 1 0 auto;
   height: 1px;

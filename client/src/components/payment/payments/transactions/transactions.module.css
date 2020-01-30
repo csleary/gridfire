@@ -8,3 +8,8 @@
 .transactions *:last-child {
   margin-bottom: 0;
 }
+
+.heading {
+  border-bottom: 1px solid hsla(233, 10%, 20%, 1);
+  padding-bottom: 0.625rem;
+}
