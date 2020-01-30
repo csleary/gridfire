@@ -19,7 +19,7 @@ function DashNavBar(props) {
             to={'/dashboard/password-update'}
             className="nav-link"
           >
-            <FontAwesome name="key" className="mr-1" />
+            <FontAwesome name="key" className="mr-2" />
             Password
           </NavLink>
         </li>
@@ -31,13 +31,13 @@ function DashNavBar(props) {
     <ul className="dash-dropdown">
       <li>
         <NavLink strict exact to={'/dashboard'} className="nav-link">
-          <FontAwesome name="headphones" className="mr-1" />
+          <FontAwesome name="headphones" className="mr-2" />
           Releases
         </NavLink>
       </li>
       <li>
         <NavLink strict exact to={'/dashboard/collection'} className="nav-link">
-          <FontAwesome name="archive" className="mr-1" />
+          <FontAwesome name="archive" className="mr-2" />
           Collection
         </NavLink>
       </li>
@@ -56,7 +56,7 @@ function DashNavBar(props) {
         >
           <FontAwesome
             name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
-            className={`mr-1 ${!user.nemAddress && 'no-address'}`}
+            className={`mr-2 ${!user.nemAddress && 'no-address'}`}
           />
           Payment
         </NavLink>

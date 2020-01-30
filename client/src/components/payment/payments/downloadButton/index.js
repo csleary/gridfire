@@ -26,7 +26,7 @@ const DownloadButton = props => {
     return (
       <>
         <FontAwesome name="download" className="download mr-2" />
-        Download <span className="ibm-type-italic">{releaseTitle}</span>
+        Download <span className={styles.title}>{releaseTitle}</span>
       </>
     );
   };
@@ -62,8 +62,8 @@ const DownloadButton = props => {
         </button>
         {renderNote()}
         <p className="text-center">
-          <span className="ibm-type-italic">{releaseTitle}</span> has been added
-          to <Link to={'/dashboard/collection'}>your collection</Link>.
+          <span className={styles.title}>{releaseTitle}</span> has been added to{' '}
+          <Link to={'/dashboard/collection'}>your collection</Link>.
         </p>
       </div>
     );

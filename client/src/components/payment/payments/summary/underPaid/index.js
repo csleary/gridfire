@@ -11,10 +11,10 @@ const Underpaid = ({ hasPurchased, paidToDate, price, roundUp }) => {
         <p>
           Please pay a futher{' '}
           <span className="bold yellow">
-            {roundUp(delta, 2).toFixed(2)} XEM
+            {' '}
+            {roundUp(delta, 2).toFixed(2)} XEM{' '}
           </span>{' '}
-          to activate your download, then tap the refresh button to check for
-          confirmed payments.
+          and click to confirm.
         </p>
       </div>
     );

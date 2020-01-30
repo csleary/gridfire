@@ -53,7 +53,7 @@ const NavBar = props => {
     show: showLogo
   });
 
-  const creditClass = classNames('ml-1', 'credit', {
+  const creditClass = classNames('ml-2', 'credit', {
     cyan: credit > 1,
     yellow: credit === 1,
     red: credit === 0
@@ -72,7 +72,7 @@ const NavBar = props => {
             <NavLink to={'/login'} className="nav-link">
               <FontAwesome
                 name="sign-in"
-                className="mr-1"
+                className="mr-2"
                 title="Click to log in."
               />
               <span className="nav-label">Log In</span>
@@ -95,7 +95,7 @@ const NavBar = props => {
             className="nav-link"
             title="Add a new release."
           >
-            <FontAwesome name="plus-square" className="mr-1" />
+            <FontAwesome name="plus-square" className="mr-2" />
             <span className="nav-label">Add Release</span>
             <FontAwesome
               name="certificate"
@@ -110,7 +110,7 @@ const NavBar = props => {
             className="nav-link"
             title="Visit your dashboard."
           >
-            <FontAwesome name="user-circle" className="mr-1" />
+            <FontAwesome name="user-circle" className="mr-2" />
             <span className="nav-label">Dashboard</span>
           </NavLink>
           <DashNavBar />
@@ -119,7 +119,7 @@ const NavBar = props => {
           <button className="nav-link" onClick={handleLogout}>
             <FontAwesome
               name="sign-out"
-              className="mr-1"
+              className="mr-2"
               title="Log out of your account."
             />
             <span className="nav-label">Log out</span>

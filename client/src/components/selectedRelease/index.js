@@ -112,10 +112,8 @@ const SelectedRelease = props => {
         </div>
         <div className={`${styles.info} col-md-6 p-3`}>
           <CollectionIndicator inCollection={inCollection} />
-          <h2 className={`${styles.title} text-center ibm-type-italic`}>
-            {releaseTitle}
-          </h2>
-          <h4 className={`${styles.name} text-center`}>
+          <h2 className={styles.title}>{releaseTitle}</h2>
+          <h4 className={styles.name}>
             <Link to={`/artist/${artist}`}>{artistName}</Link>
           </h4>
           <h6 className={`${styles.price} text-center`}>

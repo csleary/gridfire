@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
+import styles from './title.module.css';
 
 const Title = ({ artist, artistName, releaseId, releaseTitle }) => {
   if (artistName) {
@@ -8,7 +9,7 @@ const Title = ({ artist, artistName, releaseId, releaseTitle }) => {
       <h6>
         <Link to={`/artist/${artist}`}>{artistName}</Link> &bull;{' '}
         <Link to={`/release/${releaseId}`}>
-          <span className="ibm-type-italic">{releaseTitle}</span>
+          <span className={styles.title}>{releaseTitle}</span>
         </Link>
       </h6>
     );

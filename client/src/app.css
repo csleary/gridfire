@@ -13,11 +13,13 @@ hsla(233, 10%, 75%, 1)
 #ff5349
 */
 
-@import 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans|IBM+Plex+Sans+Condensed&display=swap');
+@import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
 body {
   background-color: hsla(233, 10%, 15%, 1);
   color: #f0f0f1;
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -25,6 +27,13 @@ body {
 main {
   flex: 1;
   margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'IBM Plex Sans Condensed', 'Helvetica Neue', Arial, sans-serif;
 }
 
 h2,
@@ -82,10 +91,11 @@ a:visited,
 
 .btn {
   border-radius: 0.25rem;
-  border-width: 2px;
+  border-width: 0;
   font-weight: bold;
   text-transform: uppercase;
-  min-width: 18rem;
+  min-width: 16rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .btn-sm {
@@ -116,7 +126,6 @@ a:visited,
 .btn-outline-success:disabled,
 .btn-outline-success:disabled:hover {
   background-color: transparent;
-  border: 2px solid transparent;
   color: #18cdca80;
   cursor: default;
 }
