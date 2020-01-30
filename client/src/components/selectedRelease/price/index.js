@@ -3,7 +3,7 @@ const Price = ({ price, xemPriceUsd }) => {
 
   if (xemPriceUsd) {
     const priceInXem = price / xemPriceUsd;
-    return `${price} USD (~${priceInXem.toFixed(2)} XEM)`;
+    return `$${price} USD (~${priceInXem.toFixed(2)} XEM)`;
   } else {
     return 'Loading…';
   }

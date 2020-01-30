@@ -34,7 +34,7 @@ const ReadOnlyTextarea = props => {
   return (
     <div className={styles.wrapper}>
       <div
-        className={`${styles.copyText} ibm-type-mono`}
+        className={styles.copyText}
         onClick={handleClick}
         onKeyDown={handleClick}
         ref={copyText}

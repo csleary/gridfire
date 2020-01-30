@@ -1,5 +1,4 @@
-import '@ibm/type/css/ibm-type.min.css';
-import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import * as serviceWorker from 'serviceWorker';
 import { applyMiddleware, createStore } from 'redux';
 import App from './App';

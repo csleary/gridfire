@@ -1,5 +1,6 @@
 import QRCode from 'qrcode.react';
 import React from 'react';
+import styles from './about.module.css';
 
 const address = 'NBQGRG-QTZ4A4-6TKN7O-SOKE62-XGL6OW-EEHAIX-ZQPD';
 const paymentData = {
@@ -49,7 +50,7 @@ const About = () => (
             level={'M'}
           />
           <h6 className="mt-2">
-            Namespace: <span className="bold ibm-type-italic">nemp3</span>
+            Namespace: <span className={styles.namespace}>nemp3</span>
           </h6>
           <h6>{address}</h6>
         </div>

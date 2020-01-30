@@ -54,7 +54,7 @@ const ArtistPage = props => {
       <div className="row">
         <div className="col py-3">
           <h2 className={styles.artist}>{name}</h2>
-          <h3>Releases</h3>
+          <h3 className={styles.title}>Releases</h3>
           <div className={frontPage}>{renderReleases()}</div>
         </div>
       </div>
@@ -77,12 +77,9 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  {
-    fetchRelease,
-    fetchArtistCatalogue,
-    playTrack,
-    toastInfo
-  }
-)(ArtistPage);
+export default connect(mapStateToProps, {
+  fetchRelease,
+  fetchArtistCatalogue,
+  playTrack,
+  toastInfo
+})(ArtistPage);
