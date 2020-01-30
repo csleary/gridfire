@@ -6,7 +6,7 @@ const Info = ({ info }) => {
 
   return (
     <>
-      <h6 className="red mt-4">Info</h6>
+      <h6 className="yellow mt-4">Info</h6>
       <p className="info">{info}</p>
     </>
   );

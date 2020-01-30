@@ -31,7 +31,7 @@ const Transactions = ({ transactions, error }) => {
   if (transactions.length) {
     return (
       <div className={styles.transactions}>
-        <h5 className="mb-3">
+        <h5 className={styles.heading}>
           <FontAwesome name="list-ol" className="yellow mr-3" />
           {transactions.length} confirmed transaction
           {transactions.length > 1 ? 's' : null}:

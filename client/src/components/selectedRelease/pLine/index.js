@@ -6,7 +6,7 @@ const PLine = ({ pLine }) => {
   if (!pLine) return null;
 
   return (
-    <div className={`${styles.copyright} red`}>
+    <div className={`${styles.copyright} yellow`}>
       &#8471; {pLine.year} {pLine.owner}
     </div>
   );

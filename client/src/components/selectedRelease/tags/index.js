@@ -28,7 +28,7 @@ const Tags = props => {
 
   return (
     <>
-      <h6 className="red mt-4 mb-3">Tags</h6>
+      <h6 className="yellow mt-4 mb-3">Tags</h6>
       <div className={styles.tags}>{renderTags}</div>
     </>
   );
