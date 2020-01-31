@@ -62,7 +62,7 @@ const Release = mongoose.model('releases');
       .getObject({ Bucket: BUCKET_SRC, Key })
       .createReadStream();
 
-    parentPort.postMessage('Transcoding streaming aac…');
+    parentPort.postMessage('Transcoding aac…');
     await encodeAacFrag(downloadSrc, outputAudio);
     createMpd(outputAudio, trackId, TEMP_PATH);
     const mp4Audio = await fsPromises.readFile(outputAudio);
@@ -85,7 +85,6 @@ const Release = mongoose.model('releases');
     };
 
     const mpdUpload = s3.upload(mpdParams).promise();
-    parentPort.postMessage('Uploading streaming audio…');
     await Promise.all([mp4Upload, mpdUpload]);
     trackDoc.hasAudio = true;
     await release.save();

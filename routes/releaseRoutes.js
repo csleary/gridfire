@@ -279,25 +279,52 @@ module.exports = app => {
 
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {
-    const update = req.body;
-    const releaseId = update._id;
+    const releaseId = req.body._id;
+    const {
+      artistName,
+      catNumber,
+      cLine,
+      credits,
+      info,
+      pLine,
+      price,
+      recordLabel,
+      releaseDate,
+      releaseTitle,
+      trackList
+    } = req.body;
 
-    const release = await Release.findByIdAndUpdate(releaseId, update, {
-      new: true
+    const release = await Release.findById(releaseId);
+    release.artistName = artistName;
+    release.catNumber = catNumber;
+    release.credits = credits;
+    release.info = info;
+    release.price = price;
+    release.recordLabel = recordLabel;
+    release.releaseDate = releaseDate;
+    release.releaseTitle = releaseTitle;
+    release.pLine.year = pLine && pLine.year;
+    release.pLine.owner = pLine && pLine.owner;
+    release.cLine.year = cLine && cLine.year;
+    release.cLine.owner = cLine && cLine.owner;
+    release.trackList.forEach((track, index) => {
+      track.trackTitle = trackList[index].trackTitle;
     });
+
+    const updatedRelease = await release.save();
 
     // Add artist to Artist model.
     const artist = await Artist.findOneAndUpdate(
-      { user: req.user._id, name: release.artistName },
+      { user: req.user._id, name: updatedRelease.artistName },
       {},
       { new: true, upsert: true }
     );
 
     // Add release ID to artist if it doesn't already exist.
-    if (!artist.releases.some(id => id.equals(release._id))) {
-      artist.releases.push(release._id);
+    if (!artist.releases.some(id => id.equals(updatedRelease._id))) {
+      artist.releases.push(updatedRelease._id);
       artist.save();
-      release.updateOne({ artist: artist._id }).exec();
+      updatedRelease.updateOne({ artist: artist._id }).exec();
     }
 
     // Add artist ID to user account.
@@ -306,7 +333,7 @@ module.exports = app => {
       { $push: { artists: artist._id } }
     )
       .exec()
-      .then(res.send(release.toObject({ versionKey: false })))
+      .then(res.send(updatedRelease.toObject({ versionKey: false })))
       .catch(error => res.status(500).send({ error: error.message }));
   });
 };
