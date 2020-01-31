@@ -21,7 +21,6 @@ aws.config.update({ region: AWS_REGION });
     const s3Stream = await fsPromises.readFile(outputPath);
     const Key = `${releaseId}/${trackId}.flac`;
     const params = { Bucket: BUCKET_SRC, Key, Body: s3Stream };
-    parentPort.postMessage('Storing flac…');
 
     s3.upload(params)
       .promise()

@@ -11,8 +11,6 @@ const handleWork = (io, workerData, workerPool) =>
         }
 
         worker.on('message', message => {
-          console.log(message);
-
           if (message.type) {
             ioEmit(message.type, { ...workerData, ...message });
           } else {
