@@ -350,13 +350,11 @@ class EditRelease extends Component {
                     type="number"
                   />
                   <button
-                    className="btn btn-outline-primary btn-sm mb-3"
+                    className="btn btn-outline-primary btn-sm toggle-advanced mb-3"
                     onClick={() =>
-                      this.setState(
-                        this.state.showAdditionalInfo
-                          ? { showAdditionalInfo: false }
-                          : { showAdditionalInfo: true }
-                      )
+                      this.setState({
+                        showAdditionalInfo: !this.state.showAdditionalInfo
+                      })
                     }
                     title="Show more release details."
                     type="button"

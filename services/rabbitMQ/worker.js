@@ -10,9 +10,15 @@ const handleWork = (io, workerData, workerPool) =>
           reject(poolError.message);
         }
 
-        worker.on('message', message =>
-          ioEmit('workerMessage', { message, ...workerData })
-        );
+        worker.on('message', message => {
+          console.log(message);
+
+          if (message.type) {
+            ioEmit(message.type, { ...workerData, ...message });
+          } else {
+            ioEmit('workerMessage', { ...workerData, message });
+          }
+        });
         worker.on('error', workerError => reject(workerError.message));
         worker.on('exit', status => {
           if (status > 0) {

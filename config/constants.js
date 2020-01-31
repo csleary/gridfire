@@ -24,10 +24,12 @@ let NEM_NODES = [
   '148.251.0.114',
   '209.126.98.204'
 ];
+let RABBIT_HOST = 'rabbit';
 
 if (process.env.NODE_ENV === 'development') {
   GOOGLE_CALLBACK = '/api/auth/google/callback';
   GOOGLE_REDIRECT = 'http://localhost:3000/oauth/google';
+  RABBIT_HOST = 'localhost';
 }
 
 if (process.env.NEM_NETWORK === 'testnet') {
@@ -50,5 +52,6 @@ module.exports = {
   NEM_NETWORK_ID,
   QUEUE_ARTWORK,
   QUEUE_TRANSCODE,
+  RABBIT_HOST,
   TEMP_PATH
 };

@@ -53,6 +53,11 @@ const Release = mongoose.model('releases');
     trackDoc.duration = metadata.format.duration;
     await release.save();
 
+    parentPort.postMessage({
+      type: 'transcodeDuration',
+      duration: metadata.format.duration
+    });
+
     const downloadSrc = s3
       .getObject({ Bucket: BUCKET_SRC, Key })
       .createReadStream();
