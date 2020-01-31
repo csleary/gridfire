@@ -18,6 +18,7 @@ import {
   SEARCH_RELEASES_CLEAR,
   SEARCH_RELEASES_LOADING,
   TRANSCODING_COMPLETE,
+  TRANSCODING_DURATION,
   TRANSCODING_START,
   TRANSCODING_STOP,
   UPDATE_RELEASE,
@@ -160,6 +161,43 @@ export default (state = initialState, action) => {
         isTranscoding: [...state.isTranscoding, payload.trackId]
       };
     case TRANSCODING_COMPLETE:
+      return {
+        ...state,
+        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
+        selectedRelease: {
+          ...state.selectedRelease,
+          trackList: [
+            ...state.selectedRelease.trackList.map(track => {
+              if (track._id === action.trackId) {
+                return {
+                  ...track,
+                  hasAudio: true
+                };
+              }
+              return track;
+            })
+          ]
+        }
+      };
+    case TRANSCODING_DURATION:
+      return {
+        ...state,
+        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
+        selectedRelease: {
+          ...state.selectedRelease,
+          trackList: [
+            ...state.selectedRelease.trackList.map(track => {
+              if (track._id === action.trackId) {
+                return {
+                  ...track,
+                  duration: action.duration
+                };
+              }
+              return track;
+            })
+          ]
+        }
+      };
     case TRANSCODING_STOP:
       return {
         ...state,

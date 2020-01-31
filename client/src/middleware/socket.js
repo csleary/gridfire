@@ -1,5 +1,6 @@
 import {
   TRANSCODING_COMPLETE,
+  TRANSCODING_DURATION,
   TRANSCODING_START,
   UPLOAD_ARTWORK,
   UPLOAD_AUDIO_PROGRESS
@@ -20,7 +21,7 @@ socket.on('connect', () => {
 const socketMiddleware = store => {
   const { dispatch, getState } = store;
 
-  socket.on('error', message => toastError(message)(dispatch));
+  socket.on('error', error => toastError(error.toString())(dispatch));
 
   socket.on('encodeFLAC', data => {
     const { releaseId, trackId, trackName } = data;
@@ -34,6 +35,15 @@ const socketMiddleware = store => {
     toastSuccess(`Transcoding ${trackName} to aac complete.`)(dispatch);
     dispatch({
       type: TRANSCODING_COMPLETE,
+      trackId
+    });
+  });
+
+  socket.on('transcodeDuration', data => {
+    const { trackId, duration } = data;
+    dispatch({
+      type: TRANSCODING_DURATION,
+      duration,
       trackId
     });
   });

@@ -1,4 +1,8 @@
-const { QUEUE_ARTWORK, QUEUE_TRANSCODE } = require('../../config/constants');
+const {
+  QUEUE_ARTWORK,
+  QUEUE_TRANSCODE,
+  RABBIT_HOST
+} = require('../../config/constants');
 const Pool = require('worker-threads-pool');
 const amqp = require('amqplib');
 const { rabbitUser, rabbitPass } = require('../../config/keys');
@@ -12,7 +16,7 @@ module.exports = app => {
   const connectToServer = async () => {
     try {
       connection = await amqp.connect(
-        `amqp://${rabbitUser}:${rabbitPass}@rabbit:5672`
+        `amqp://${rabbitUser}:${rabbitPass}@${RABBIT_HOST}:5672`
       );
 
       connection.on('error', error => {
