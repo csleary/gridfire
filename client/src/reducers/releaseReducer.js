@@ -182,7 +182,6 @@ export default (state = initialState, action) => {
     case TRANSCODING_DURATION:
       return {
         ...state,
-        isTranscoding: state.isTranscoding.filter(id => id !== action.trackId),
         selectedRelease: {
           ...state.selectedRelease,
           trackList: [
