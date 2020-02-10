@@ -2,7 +2,8 @@ const {
   checkSignedMessage,
   fetchTransactions,
   fetchMosaics,
-  fetchXemPrice
+  fetchXemPrice,
+  fetchXemPriceBinance
 } = require('../controllers/nemController');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
@@ -73,7 +74,14 @@ module.exports = app => {
       const xemPriceUsd = await fetchXemPrice();
       res.send({ xemPriceUsd });
     } catch (error) {
-      res.status(500).send({ error: error.message });
+      try {
+        const xemPriceUsd = await fetchXemPriceBinance();
+        res.send({ xemPriceUsd });
+      } catch (backupError) {
+        if ((error.data && error.data === 'error code: 1006') || backupError)
+          res.status(500).send({ error: 'Price data currently unavailable.' });
+        else res.status(500).send({ error: error.message });
+      }
     }
   });
 

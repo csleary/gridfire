@@ -2,7 +2,15 @@ import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-const PurchaseButtonLabel = ({ inCollection, price }) => {
+const PurchaseButtonLabel = ({ inCollection, price, priceError }) => {
+  if (priceError)
+    return (
+      <>
+        <FontAwesome name="qrcode" className="mr-2" />
+        Unavailable
+      </>
+    );
+
   if (!price) {
     return (
       <>
@@ -31,7 +39,8 @@ const PurchaseButtonLabel = ({ inCollection, price }) => {
 
 PurchaseButtonLabel.propTypes = {
   inCollection: PropTypes.bool,
-  price: PropTypes.number
+  price: PropTypes.number,
+  priceError: PropTypes.object
 };
 
 export default PurchaseButtonLabel;

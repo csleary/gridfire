@@ -75,11 +75,6 @@ const Footer = () => {
               {year} <a href="https://ochremusic.com">Christopher Leary</a>
             </p>
           </small>
-          <div className={`${styles.social} text-center`}>
-            <a href="https://github.com/csleary/nemp3v2">
-              <FontAwesome name="github" className="mx-2" />
-            </a>
-          </div>
         </div>
       </div>
     </footer>

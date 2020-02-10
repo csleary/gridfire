@@ -8,8 +8,9 @@ const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   try {
     const nodes = nodesList.map(node => axios(`${node}${endpoint}`));
 
-    return Promise.race(nodes).catch(async error => {
+    return Promise.race(nodes).catch(error => {
       const offlineHost = error.hostname;
+
       return queryNodes(
         endpoint,
         nodesList.filter(node => node !== `http://${offlineHost}:7890`)
@@ -32,10 +33,8 @@ const findNode = async () => {
 
     const getFirstNode = await queryNodes('/node/info', nodeHosts);
     const node = getFirstNode.data;
-    const { protocol } = node.endpoint;
-    const { host } = node.endpoint;
+    const { protocol, host, port } = node.endpoint;
     const { name } = node.identity;
-    const { port } = node.endpoint;
     const endpoint = { host: `${protocol}://${host}`, port };
     return { endpoint, host, name, port, protocol };
   } catch (error) {
@@ -133,6 +132,21 @@ const fetchXemPrice = async () => {
   return xemPriceUsd;
 };
 
+const fetchXemPriceBinance = async () => {
+  const xemTicker = await axios(
+    'https://api.binance.com/api/v3/ticker/price?symbol=XEMBTC'
+  );
+
+  const btcTicker = await axios(
+    'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
+  );
+
+  const xemPriceBtc = xemTicker.data.price;
+  const btcPriceUsd = btcTicker.data.price;
+  const xemPriceUsd = btcPriceUsd * xemPriceBtc;
+  return xemPriceUsd;
+};
+
 const checkPayments = (transactions, paid = []) => {
   transactions.forEach(tx => {
     const { amount, otherTrans } = tx.transaction;
@@ -172,5 +186,6 @@ module.exports = {
   fetchMosaics,
   fetchTransactions,
   fetchXemPrice,
+  fetchXemPriceBinance,
   findNode
 };

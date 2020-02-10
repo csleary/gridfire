@@ -10,7 +10,10 @@ const {
 } = require('../config/constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const { fetchXemPrice } = require('../controllers/nemController');
+const {
+  fetchXemPrice,
+  fetchXemPriceBinance
+} = require('../controllers/nemController');
 
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
@@ -201,7 +204,9 @@ module.exports = app => {
       const release = await Release.findById(releaseId);
       const owner = await User.findById(release.user);
       const customerIdHash = req.user.auth.idHash;
-      const xemPriceUsd = await fetchXemPrice();
+      const xemPriceUsd = await fetchXemPrice().catch(() =>
+        fetchXemPriceBinance()
+      );
       const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
       // eslint-disable-next-line
       req.session.price = price;
