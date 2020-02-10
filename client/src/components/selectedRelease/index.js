@@ -35,6 +35,7 @@ import styles from 'components/selectedRelease/selectedRelease.module.css';
 const SelectedRelease = props => {
   const [isLoading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
+  const [priceError, setPriceError] = useState();
   const { path } = useRouteMatch();
 
   const {
@@ -68,16 +69,19 @@ const SelectedRelease = props => {
   useEffect(() => {
     setLoading(true);
     fetchUser();
-    fetchXemPrice();
+    fetchXemPrice().then(res => {
+      if (res.error) setPriceError(res.error);
+    });
+
     fetchRelease(releaseId).then(() => setLoading(false));
   }, [fetchRelease, fetchUser, fetchXemPrice, releaseId]);
 
   useEffect(() => {
-    const inCollection = purchases.some(
+    const isInCollection = purchases.some(
       purchase => purchase.releaseId === releaseId
     );
 
-    if (inCollection) setInCollection(true);
+    if (isInCollection) setInCollection(true);
   }, [purchases, releaseId]);
 
   const trackListColumns = classNames({
@@ -117,7 +121,11 @@ const SelectedRelease = props => {
             <Link to={`/artist/${artist}`}>{artistName}</Link>
           </h4>
           <h6 className={`${styles.price} text-center`}>
-            <Price price={price} xemPriceUsd={xemPriceUsd} />
+            <Price
+              price={price}
+              priceError={priceError}
+              xemPriceUsd={xemPriceUsd}
+            />
           </h6>
           <Switch>
             <PrivateRoute path={`${path}/payment`} component={Payment} />
@@ -136,6 +144,7 @@ const SelectedRelease = props => {
               <PurchaseButton
                 inCollection={inCollection}
                 price={price}
+                priceError={priceError}
                 releaseId={releaseId}
               />
               <ReleaseDate releaseDate={releaseDate} />

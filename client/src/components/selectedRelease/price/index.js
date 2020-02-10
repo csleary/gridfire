@@ -1,4 +1,6 @@
-const Price = ({ price, xemPriceUsd }) => {
+const Price = ({ price, priceError, xemPriceUsd }) => {
+  if (priceError) return `$${price} USD`;
+
   if (price === 0) return 'Name Your Price';
 
   if (xemPriceUsd) {
