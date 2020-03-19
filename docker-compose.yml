@@ -27,6 +27,7 @@ services:
       internal:
         aliases:
           - mongo
+    restart: always
     volumes:
       - data-volume:/data/db
 
@@ -45,6 +46,7 @@ services:
           - rabbit
     ports:
       - '15672:15672'
+    restart: always
 
 networks:
   internal:
