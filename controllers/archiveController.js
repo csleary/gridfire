@@ -34,9 +34,7 @@ const zipDownload = async (res, release, format) => {
     const trackNumber =
       trackList.findIndex(track => Key.includes(track._id)) + 1;
 
-    const title = trackList.filter(track => Key.includes(track._id))[0]
-      .trackTitle;
-
+    const title = trackList.find(track => Key.includes(track._id)).trackTitle;
     const trackSrc = s3.getObject({ Bucket, Key }).createReadStream();
 
     archive.append(trackSrc, {

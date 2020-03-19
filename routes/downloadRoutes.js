@@ -45,14 +45,8 @@ module.exports = app => {
       .promise();
 
     const audioMp3Available = s3AudioMp3Query.KeyCount === trackList.length;
-
-    if (audioMp3Available) {
-      res.end();
-    } else {
-      encodeMp3(res, release).then(() => {
-        res.end();
-      });
-    }
+    if (!audioMp3Available) await encodeMp3(release);
+    res.end();
   });
 
   // Download Release

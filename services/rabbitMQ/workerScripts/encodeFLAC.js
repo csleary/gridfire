@@ -15,19 +15,13 @@ aws.config.update({ region: AWS_REGION });
   const { releaseId, trackId, filePath } = workerData;
   const s3 = new aws.S3();
   const outputPath = path.join(TEMP_PATH, `${trackId}.flac`);
-  const readStream = fs.createReadStream(filePath);
-
-  const streamToS3 = async () => {
-    const s3Stream = await fsPromises.readFile(outputPath);
-    const Key = `${releaseId}/${trackId}.flac`;
-    const params = { Bucket: BUCKET_SRC, Key, Body: s3Stream };
-
-    s3.upload(params)
-      .promise()
-      .then(fsPromises.unlink(filePath))
-      .then(fsPromises.unlink(outputPath));
-  };
-
+  const readFile = fs.createReadStream(filePath);
   parentPort.postMessage('Encoding flac…');
-  encodeFlacStream(readStream, outputPath, streamToS3);
+  await encodeFlacStream(readFile, outputPath);
+  const readFlac = fs.createReadStream(outputPath);
+  const Key = `${releaseId}/${trackId}.flac`;
+  const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };
+  await s3.upload(params).promise();
+  await fsPromises.unlink(filePath);
+  await fsPromises.unlink(outputPath);
 })();
