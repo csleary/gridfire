@@ -4,20 +4,68 @@
   grid-template-columns: 1fr;
 }
 
+.sort {
+  display: inline-block;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.buttons {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
 .sortButton {
   background: none;
   border: none;
-  color: hsla(233, 10%, 50%, 1);
-  width: 12rem;
+  color: var(--light-grey);
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+}
+
+:global(.btn-outline-primary:not(:disabled):not(.disabled):active).sortButton:active {
+  background: none;
+  border: none;
+  color: var(--off-white);
+}
+
+.sortButton:disabled,
+.sortButton:disabled:hover {
+  color: var(--light-grey);
+  opacity: 0.5;
 }
 
 .sortButton:hover {
   background: none;
   border: none;
   color: #18cdca;
+}
+
+.sortList {
+  background: var(--darker-grey);
+  border-bottom-right-radius: 0.5rem;
+  color: var(--lighter-grey);
+  left: 0;
+  list-style-type: none;
+  margin-top: 0.5rem;
+  padding: 0;
+  position: absolute;
+  z-index: 1000;
+}
+
+.sortItem {
+  cursor: pointer;
+  letter-spacing: 0.075rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sortItem:hover {
+  color: var(--cyan);
 }
 
 @media (min-width: 576px) {

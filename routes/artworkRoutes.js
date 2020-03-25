@@ -6,7 +6,7 @@ const path = require('path');
 const { publishToQueue } = require('../services/rabbitMQ/publisher');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const upload = multer();
+const upload = multer({ limits: { fileSize: '10MB' } });
 
 module.exports = app => {
   app.post(

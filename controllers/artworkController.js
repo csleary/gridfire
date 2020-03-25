@@ -6,12 +6,7 @@ aws.config.update({ region: AWS_REGION });
 
 const deleteArtwork = async (releaseId, release) => {
   release.updateOne({ artwork: 'deleting' }).exec();
-
-  const listImgParams = {
-    Bucket: BUCKET_IMG,
-    Prefix: `${releaseId}`
-  };
-
+  const listImgParams = { Bucket: BUCKET_IMG, Prefix: `${releaseId}` };
   const s3 = new aws.S3();
   const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
 
@@ -27,7 +22,7 @@ const deleteArtwork = async (releaseId, release) => {
       releaseId,
       { $unset: { artwork: 1 }, published: false },
       { lean: true, new: true, select: '-__v' }
-    );
+    ).exec();
 
     return updated;
   } else {

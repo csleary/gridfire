@@ -34,7 +34,7 @@ module.exports = app => {
   // Check if mp3s are cached or need building
   app.get('/api/download/:token/check', async (req, res) => {
     const s3 = new aws.S3();
-    const token = req.params.token.substring(7);
+    const [, token] = req.params.token.split(' ');
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
     const release = await Release.findById(releaseId);
@@ -52,7 +52,7 @@ module.exports = app => {
   // Download Release
   app.get('/api/download/:token/:format?', async (req, res) => {
     const format = req.params.format;
-    const token = req.params.token.substring(7);
+    const [, token] = req.params.token.split(' ');
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
     const release = await Release.findById(releaseId);

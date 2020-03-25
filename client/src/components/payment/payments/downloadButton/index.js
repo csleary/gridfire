@@ -60,11 +60,11 @@ const DownloadButton = props => {
         >
           {renderButtonText()}
         </button>
-        {renderNote()}
         <p className="text-center">
           <span className={styles.title}>{releaseTitle}</span> has been added to{' '}
           <Link to={'/dashboard/collection'}>your collection</Link>.
         </p>
+        {renderNote()}
       </div>
     );
   }
