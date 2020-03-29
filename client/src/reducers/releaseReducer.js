@@ -17,6 +17,7 @@ import {
   SEARCH_RELEASES,
   SEARCH_RELEASES_CLEAR,
   SEARCH_RELEASES_LOADING,
+  SET_IS_PAGING,
   TRANSCODING_COMPLETE,
   TRANSCODING_DURATION,
   TRANSCODING_START,
@@ -27,14 +28,6 @@ import {
   UPLOAD_AUDIO_PROGRESS
 } from 'actions/types';
 
-const updateFromPayload = (currentState, payload) =>
-  currentState.filter(existing => {
-    if (payload.some(updated => updated._id === existing._id)) {
-      return false;
-    }
-    return true;
-  });
-
 const initialState = {
   artist: {},
   artworkUploading: false,
@@ -44,6 +37,7 @@ const initialState = {
   isLoading: false,
   isSearching: false,
   isDeleting: [],
+  isPaging: false,
   isTranscoding: [],
   catalogue: [],
   catalogueLimit: 12,
@@ -68,10 +62,7 @@ export default (state = initialState, action) => {
     case FETCH_USER_RELEASE:
     case MOVE_TRACK:
     case UPDATE_RELEASE:
-      return {
-        ...state,
-        selectedRelease: payload
-      };
+      return { ...state, selectedRelease: payload };
     case DELETE_RELEASE:
       if (state.userReleases) {
         return {
@@ -83,10 +74,7 @@ export default (state = initialState, action) => {
       }
       return { ...state };
     case DELETE_TRACK_START:
-      return {
-        ...state,
-        isDeleting: [...state.isDeleting, action.trackId]
-      };
+      return { ...state, isDeleting: [...state.isDeleting, action.trackId] };
     case DELETE_TRACK_COMPLETE:
       return {
         ...state,
@@ -94,33 +82,24 @@ export default (state = initialState, action) => {
         isDeleting: state.isDeleting.filter(id => id !== action.trackId)
       };
     case FETCH_ARTIST_CATALOGUE:
+      return { ...state, artist: payload };
+    case FETCH_CATALOGUE: {
+      const reachedEndOfCat =
+        payload.length < state.catalogueLimit ? true : false;
       return {
         ...state,
-        artist: payload
+        catalogue: state.isPaging ? [...state.catalogue, ...payload] : payload,
+        catalogueSkip: state.isPaging
+          ? state.catalogueSkip + state.catalogueLimit
+          : 0,
+        isPaging: false,
+        reachedEndOfCat
       };
-    case FETCH_CATALOGUE:
-      return {
-        ...state,
-        catalogue: [...updateFromPayload(state.catalogue, payload), ...payload],
-        catalogueSkip: action.catalogueSkip,
-        reachedEndOfCat: action.reachedEndOfCat
-      };
+    }
     case FETCH_COLLECTION:
-      return {
-        ...state,
-        collection: [
-          ...updateFromPayload(state.collection, payload),
-          ...payload
-        ]
-      };
+      return { ...state, collection: payload };
     case FETCH_USER_RELEASES:
-      return {
-        ...state,
-        userReleases: [
-          ...updateFromPayload(state.userReleases, payload),
-          ...payload
-        ]
-      };
+      return { ...state, userReleases: payload };
     case PUBLISH_STATUS:
       return {
         ...state,
@@ -139,22 +118,17 @@ export default (state = initialState, action) => {
         priceInXem: payload.price
       };
     case SEARCH_RELEASES:
-      return {
-        ...state,
-        searchResults: payload
-      };
+      return { ...state, searchResults: payload };
     case SEARCH_RELEASES_CLEAR:
-      return {
-        ...state,
-        searchResults: [],
-        searchQuery: ''
-      };
+      return { ...state, searchResults: [], searchQuery: '' };
     case SEARCH_RELEASES_LOADING:
       return {
         ...state,
         isSearching: action.isSearching,
         searchQuery: action.searchQuery
       };
+    case SET_IS_PAGING:
+      return { ...state, isPaging: true };
     case TRANSCODING_START:
       return {
         ...state,
@@ -203,15 +177,9 @@ export default (state = initialState, action) => {
         isTranscoding: state.isTranscoding.filter(id => id !== action.trackId)
       };
     case UPLOAD_ARTWORK:
-      return {
-        ...state,
-        artworkUploading: payload
-      };
+      return { ...state, artworkUploading: payload };
     case UPLOAD_ARTWORK_PROGRESS:
-      return {
-        ...state,
-        artworkUploadProgress: payload
-      };
+      return { ...state, artworkUploadProgress: payload };
     case UPLOAD_AUDIO_PROGRESS:
       return {
         ...state,

@@ -3,6 +3,7 @@ import {
   FETCH_CATALOGUE,
   FETCH_COLLECTION,
   FETCH_SALES,
+  SET_IS_PAGING,
   TOAST_ERROR,
   TOAST_HIDE,
   TOAST_INFO,
@@ -48,28 +49,19 @@ export const fetchCatalogue = (
   catalogueSkip,
   sortPath,
   sortOrder
-) => async dispatch => {
+) => async (dispatch, getState) => {
+  const isPaging = getState().releases.isPaging;
+
   const res = await axios.get('/api/catalogue/', {
-    params: { catalogueLimit, catalogueSkip, sortPath, sortOrder }
+    params: {
+      catalogueLimit,
+      catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
+      sortPath,
+      sortOrder
+    }
   });
 
-  if (res.data.length < catalogueLimit) {
-    dispatch({
-      type: FETCH_CATALOGUE,
-      payload: res.data,
-      catalogueLimit,
-      catalogueSkip,
-      reachedEndOfCat: true
-    });
-  } else {
-    dispatch({
-      type: FETCH_CATALOGUE,
-      payload: res.data,
-      catalogueLimit,
-      catalogueSkip: catalogueSkip + catalogueLimit,
-      reachedEndOfCat: false
-    });
-  }
+  dispatch({ type: FETCH_CATALOGUE, payload: res.data });
   return res;
 };
 
@@ -106,6 +98,8 @@ export const fetchSales = () => async dispatch => {
   dispatch({ type: FETCH_SALES, payload: res.data });
   return res.data;
 };
+
+export const setIsPaging = { type: SET_IS_PAGING };
 
 export const toastInfo = message => dispatch => {
   const key = uuidv4();

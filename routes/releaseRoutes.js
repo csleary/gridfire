@@ -323,7 +323,7 @@ module.exports = app => {
       { user: req.user._id, name: updatedRelease.artistName },
       {},
       { new: true, upsert: true }
-    );
+    ).exec();
 
     // Add release ID to artist if it doesn't already exist.
     if (!artist.releases.some(id => id.equals(updatedRelease._id))) {

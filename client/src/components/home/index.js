@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { fetchCatalogue, fetchRelease, playTrack, toastInfo } from 'actions';
+import {
+  fetchCatalogue,
+  fetchRelease,
+  playTrack,
+  setIsPaging,
+  toastInfo
+} from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
@@ -25,23 +31,23 @@ const Home = props => {
   const [sortOrder, setSortOrder] = useState(-1);
 
   const handleFetchCatalogue = useCallback(
-    async (path, order) => {
+    async (path = sortPath, order = sortOrder) => {
       setFetching(true);
       await dispatch(
         fetchCatalogue(catalogueLimit, catalogueSkip, path, order)
       );
       setFetching(false);
     },
-    [catalogueLimit, catalogueSkip, dispatch]
+    [catalogueLimit, catalogueSkip, dispatch, sortPath, sortOrder]
   );
 
   useEffect(() => {
     if (!catalogue.length) {
-      handleFetchCatalogue(sortPath, sortOrder).then(() => setLoading(false));
+      handleFetchCatalogue().then(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, [catalogue.length, handleFetchCatalogue, sortPath, sortOrder]);
+  }, [catalogue.length, handleFetchCatalogue]);
 
   useEffect(() => {
     if (service) {
@@ -89,7 +95,10 @@ const Home = props => {
             <button
               className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
               disabled={isFetching || reachedEndOfCat}
-              onClick={handleFetchCatalogue}
+              onClick={() => {
+                dispatch(setIsPaging);
+                handleFetchCatalogue();
+              }}
             >
               {reachedEndOfCat ? null : (
                 <FontAwesome
