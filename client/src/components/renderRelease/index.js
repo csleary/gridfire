@@ -1,10 +1,11 @@
+import { fetchRelease, playTrack, toastInfo } from 'actions';
+import { useDispatch, useSelector } from 'react-redux';
 import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import OverlayDownloadButton from './overlayDownloadButton';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
 import placeholder from 'placeholder.svg';
 import styles from './renderRelease.module.css';
 import withDownload from 'components/payment/payments/withDownload';
@@ -12,21 +13,26 @@ import withDownload from 'components/payment/payments/withDownload';
 const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = props => {
-  const { player, release, variation } = props;
+  const { release, variation } = props;
+  const { player } = useSelector(state => state);
+  const dispatch = useDispatch();
   const { _id, artist, artistName, artwork, releaseTitle, trackList } = release;
   const releaseId = _id;
 
   const handlePlayTrack = () => {
     if (player.trackId === trackList[0]._id) return;
 
-    props.playTrack(
-      releaseId,
-      trackList[0]._id,
-      artistName,
-      trackList[0].trackTitle
+    dispatch(
+      playTrack(
+        releaseId,
+        trackList[0]._id,
+        artistName,
+        trackList[0].trackTitle
+      )
     );
-    props.fetchRelease(releaseId);
-    props.toastInfo(`Loading ${artistName} - '${trackList[0].trackTitle}'`);
+
+    dispatch(fetchRelease(releaseId));
+    dispatch(toastInfo(`Loading ${artistName} - '${trackList[0].trackTitle}'`));
   };
 
   const showCollectionDownload = () => {
@@ -104,18 +110,8 @@ const RenderRelease = props => {
 };
 
 RenderRelease.propTypes = {
-  fetchRelease: PropTypes.func,
-  player: PropTypes.object,
-  playTrack: PropTypes.func,
   release: PropTypes.object,
-  toastInfo: PropTypes.func,
   variation: PropTypes.string
 };
 
-function mapStateToProps(state) {
-  return {
-    player: state.player
-  };
-}
-
-export default connect(mapStateToProps)(RenderRelease);
+export default RenderRelease;

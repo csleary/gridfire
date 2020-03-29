@@ -5,8 +5,6 @@ import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import Summary from './summary';
 import Transactions from './transactions';
-import { connect } from 'react-redux';
-import { toastError } from 'actions';
 import { useApi } from 'hooks/useApi';
 import withDownload from './withDownload';
 
@@ -66,7 +64,7 @@ const Payments = props => {
     return (
       <Spinner>
         <h3>
-          <FontAwesome name="search" className="red mr-2" />
+          <FontAwesome name="search" className="yellow mr-2" />
           Searching for Payments&hellip;
         </h3>
       </Spinner>
@@ -110,9 +108,8 @@ Payments.propTypes = {
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string,
   roundUp: PropTypes.func,
-  toastError: PropTypes.func,
   transactions: PropTypes.array,
   transactionsError: PropTypes.object
 };
 
-export default connect(null, { toastError })(Payments);
+export default Payments;

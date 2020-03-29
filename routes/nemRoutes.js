@@ -43,7 +43,6 @@ module.exports = app => {
         const update = { $addToSet: { purchases: newSale } };
         const options = { upsert: true };
         Sale.findOneAndUpdate({ releaseId }, update, options).exec();
-
         payments.hasPurchased = true;
 
         user.purchases.push({
@@ -59,9 +58,7 @@ module.exports = app => {
       res.send(payments);
     } catch (error) {
       if (error.data) {
-        res.status(500).send({
-          error: error.data.message
-        });
+        res.status(500).send({ error: error.data.message });
         return;
       }
 
@@ -71,11 +68,11 @@ module.exports = app => {
 
   app.get('/api/nem/price', async (req, res) => {
     try {
-      const xemPriceUsd = await fetchXemPrice();
+      const xemPriceUsd = await fetchXemPriceBinance();
       res.send({ xemPriceUsd });
     } catch (error) {
       try {
-        const xemPriceUsd = await fetchXemPriceBinance();
+        const xemPriceUsd = await fetchXemPrice();
         res.send({ xemPriceUsd });
       } catch (backupError) {
         if ((error.data && error.data === 'error code: 1006') || backupError)

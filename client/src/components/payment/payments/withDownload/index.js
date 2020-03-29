@@ -1,67 +1,69 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { checkFormatMp3, fetchDownloadToken, toastInfo } from 'actions';
 import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const withDownload = WrappedComponent => props => {
   const { artistName, format, releaseId, releaseTitle } = props;
-  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
+  const dispatch = useDispatch();
+  const downloadButtonRef = useRef();
   const [formatExists, setFormatExists] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState();
+  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
 
-  const handleDownload = () => {
-    props.fetchDownloadToken(releaseId, downloadToken => {
-      if (downloadToken) {
-        setIsPreparingDownload(true);
-        props.toastInfo(
-          `Fetching download: ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`
-        );
+  const handleDownload = async () => {
+    const downloadToken = await dispatch(fetchDownloadToken(releaseId));
+    if (!downloadToken) return;
+    setIsPreparingDownload(true);
 
-        switch (format) {
-          case 'mp3':
-            props.checkFormatMp3(downloadToken, () => {
-              setFormatExists(true);
-              setIsPreparingDownload(false);
-              window.location = `/api/download/${downloadToken}`;
-            });
-            break;
-          default:
-            setIsPreparingDownload(false);
-            window.location = `/api/download/${downloadToken}/flac`;
-        }
-      } else {
+    dispatch(
+      toastInfo(
+        `Fetching download: ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`
+      )
+    );
+
+    switch (format) {
+      case 'mp3':
+        await dispatch(checkFormatMp3(downloadToken));
+        setFormatExists(true);
         setIsPreparingDownload(false);
-      }
-    });
+        setDownloadUrl(`/api/download/${downloadToken}`);
+        break;
+      default:
+        setIsPreparingDownload(false);
+        setDownloadUrl(`/api/download/${downloadToken}/flac`);
+    }
+
+    downloadButtonRef.current.click();
   };
 
   return (
-    <WrappedComponent
-      formatExists={formatExists}
-      handleDownload={handleDownload}
-      isPreparingDownload={isPreparingDownload}
-      releaseTitle={releaseTitle}
-      {...props}
-    />
+    <>
+      <WrappedComponent
+        formatExists={formatExists}
+        handleDownload={handleDownload}
+        isPreparingDownload={isPreparingDownload}
+        releaseTitle={releaseTitle}
+        {...props}
+      />
+      <a
+        download
+        href={downloadUrl}
+        ref={downloadButtonRef}
+        style={{ display: 'none' }}
+      >
+        Download
+      </a>
+    </>
   );
 };
 
 withDownload.propTypes = {
   artistName: PropTypes.string,
-  checkFormatMp3: PropTypes.func,
-  fetchDownloadToken: PropTypes.func,
   format: PropTypes.string,
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string,
-  toastInfo: PropTypes.func,
   price: PropTypes.string
 };
 
-export default compose(
-  connect(null, {
-    checkFormatMp3,
-    fetchDownloadToken,
-    toastInfo
-  }),
-  withDownload
-);
+export default withDownload;

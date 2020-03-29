@@ -45,10 +45,12 @@ export const fetchAudioUploadUrl = (
 
 export const fetchCatalogue = (
   catalogueLimit,
-  catalogueSkip
+  catalogueSkip,
+  sortPath,
+  sortOrder
 ) => async dispatch => {
   const res = await axios.get('/api/catalogue/', {
-    params: { catalogueLimit, catalogueSkip }
+    params: { catalogueLimit, catalogueSkip, sortPath, sortOrder }
   });
 
   if (res.data.length < catalogueLimit) {
@@ -68,7 +70,7 @@ export const fetchCatalogue = (
       reachedEndOfCat: false
     });
   }
-  return res.data;
+  return res;
 };
 
 export const fetchCollection = () => async dispatch => {
@@ -81,19 +83,19 @@ export const fetchCollection = () => async dispatch => {
   }
 };
 
-export const checkFormatMp3 = (token, callback) => async dispatch => {
+export const checkFormatMp3 = token => async dispatch => {
   try {
     const res = await axios.get(`/api/download/${token}/check`);
-    callback(res);
+    return res.data;
   } catch (e) {
     toastError(e.response.data.error)(dispatch);
   }
 };
 
-export const fetchDownloadToken = (releaseId, callback) => async dispatch => {
+export const fetchDownloadToken = releaseId => async dispatch => {
   try {
     const res = await axios.post('/api/download', { releaseId });
-    callback(res.headers.authorization);
+    return res.headers.authorization;
   } catch (e) {
     toastError(e.response.data.error)(dispatch);
   }

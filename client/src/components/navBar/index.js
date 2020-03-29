@@ -19,10 +19,7 @@ const NavBar = props => {
 
   useEffect(() => {
     document.addEventListener('scroll', throttle(handleScroll, 200));
-
-    return () => {
-      document.removeEventListener('scroll', handleScroll);
-    };
+    return () => document.removeEventListener('scroll', handleScroll);
   });
 
   const handleLogout = () => {

@@ -6,7 +6,6 @@ import ArtistPage from 'components/artistPage';
 import Contact from 'components/contact';
 import Dashboard from 'components/dashboard';
 import EditRelease from 'components/editRelease';
-import { FETCH_USER } from 'actions/types';
 import Footer from 'components/footer';
 import ForgotPassword from 'components/forgotPassword';
 import Header from 'components/header';
@@ -22,15 +21,13 @@ import SearchResults from 'components/searchResults';
 import SelectedRelease from 'components/selectedRelease';
 import Support from 'components/support';
 import ToastList from 'components/toastList';
-import { useApi } from 'hooks/useApi';
+import { fetchUser } from 'actions/userActions';
 import { useDispatch } from 'react-redux';
 import { wrapper } from './App.module.css';
 
 const App = () => {
-  const { data: user } = useApi('/api/user');
-
   const dispatch = useDispatch();
-  dispatch({ type: FETCH_USER, payload: user });
+  dispatch(fetchUser());
 
   return (
     <BrowserRouter>
@@ -58,7 +55,7 @@ const App = () => {
           <Route path="/artist/:artist" component={ArtistPage} />
           <PrivateRoute path="/dashboard" component={Dashboard} />
         </Switch>
-        <Footer user={user} />
+        <Footer />
         <Player />
         <ToastList />
       </div>

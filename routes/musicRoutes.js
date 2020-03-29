@@ -38,12 +38,12 @@ module.exports = app => {
 
   // Fetch Site Catalogue
   app.get('/api/catalogue/', async (req, res) => {
-    const { catalogueLimit, catalogueSkip } = req.query;
+    const { catalogueLimit, catalogueSkip, sortPath, sortOrder } = req.query;
+
     const releases = await Release.find({ published: true }, '-__v', {
       skip: parseInt(catalogueSkip),
-      limit: parseInt(catalogueLimit),
-      sort: '-dateCreated'
-    });
+      limit: parseInt(catalogueLimit)
+    }).sort({ [sortPath]: sortOrder });
     res.send(releases);
   });
 

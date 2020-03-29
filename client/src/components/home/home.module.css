@@ -4,22 +4,6 @@
   grid-template-columns: 1fr;
 }
 
-.sortButton {
-  background: none;
-  border: none;
-  color: hsla(233, 10%, 50%, 1);
-  width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-}
-
-.sortButton:hover {
-  background: none;
-  border: none;
-  color: #18cdca;
-}
-
 @media (min-width: 576px) {
   .frontPage {
     grid-template-columns: repeat(2, 1fr);

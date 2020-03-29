@@ -1,24 +1,25 @@
-/*
-hsla(233, 10%, 10%, 1)
-hsla(233, 10%, 15%, 1)
-hsla(233, 10%, 20%, 1)
-hsla(233, 10%, 30%, 1)
-hsla(233, 10%, 50%, 1)
-hsla(233, 10%, 75%, 1)
-#292c44
-#4f80e1
-#18cdca
-#f0f0f1
-#ffd24d
-#ff5349
-*/
+:root {
+  --charcoal: hsla(233, 10%, 10%, 1);
+  --darker-grey: hsla(233, 10%, 15%, 1);
+  --dark-grey: hsla(233, 10%, 20%, 1);
+  --mid-grey: hsla(233, 10%, 30%, 1);
+  --light-grey: hsla(233, 10%, 50%, 1);
+  --lighter-grey: hsla(233, 10%, 75%, 1);
+  --off-white: #f0f0f1;
+  --yellow: #ffd24d;
+  --red: #ff5349;
+  --blue: #4f80e1;
+  --cyan: #18cdca;
+  --green: #00ff80;
+  --black: #292c44;
+}
 
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans|IBM+Plex+Sans+Condensed&display=swap');
 @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
 body {
-  background-color: hsla(233, 10%, 15%, 1);
-  color: #f0f0f1;
+  background-color: var(--darker-grey);
+  color: var(--off-white);
   font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   padding: 0;
@@ -51,7 +52,7 @@ a:focus,
 a:hover,
 a:visited,
 .btn.btn-link {
-  color: #18cdca;
+  color: var(--cyan);
   font-weight: 600;
   text-decoration: none;
 }
@@ -77,12 +78,12 @@ a:visited,
 }
 
 .alert-danger {
-  background-color: #ff5349;
-  color: #f0f0f1;
+  background-color: var(--red);
+  color: var(--off-white);
 }
 
 .alert-success {
-  background-color: #18cdca;
+  background-color: var(--cyan);
   color: #000;
 }
 
@@ -110,16 +111,16 @@ a:visited,
 .btn-outline-success {
   background-color: #000;
   border-color: #000;
-  color: #18cdca;
+  color: var(--cyan);
 }
 
 .btn-outline-primary:hover,
 .btn-outline-primary:not(:disabled):not(.disabled):active,
 .btn-outline-success:hover,
 .btn-outline-success:not(:disabled):not(.disabled):active {
-  background-color: #18cdca;
-  border-color: #18cdca;
-  color: #292c44;
+  background-color: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--black);
   cursor: pointer;
 }
 
@@ -133,22 +134,22 @@ a:visited,
 }
 
 .btn-outline-secondary {
-  background-color: #f0f0f1;
-  border-color: hsla(233, 10%, 50%, 1);
-  color: hsla(233, 10%, 50%, 1);
+  background-color: var(--off-white);
+  border-color: var(--light-grey);
+  color: var(--light-grey);
 }
 
 .btn-outline-secondary:hover {
-  background-color: hsla(233, 10%, 50%, 1);
-  border-color: hsla(233, 10%, 50%, 1);
-  color: #f0f0f1;
+  background-color: var(--light-grey);
+  border-color: var(--light-grey);
+  color: var(--off-white);
   cursor: pointer;
 }
 
 .btn-outline-secondary:disabled {
   background-color: transparent;
   border: 2px solid transparent;
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   cursor: default;
 }
 
@@ -158,16 +159,16 @@ a:visited,
 }
 
 .btn-outline-warning {
-  background-color: #f0f0f1;
-  border-color: #ffd24d;
-  color: #ffd24d;
+  background-color: var(--off-white);
+  border-color: var(--yellow);
+  color: var(--yellow);
 }
 
 .btn-outline-warning:hover {
-  background-color: #ffd24d;
-  border-color: #ffd24d;
+  background-color: var(--yellow);
+  border-color: var(--yellow);
   cursor: pointer;
-  color: #292c44;
+  color: var(--black);
 }
 
 .btn-outline-warning:focus {
@@ -175,15 +176,15 @@ a:visited,
 }
 
 .btn-outline-danger {
-  background-color: #f0f0f1;
-  border-color: #ff5349;
-  color: #ff5349;
+  background-color: var(--off-white);
+  border-color: var(--red);
+  color: var(--red);
 }
 
 .btn-outline-danger:hover {
-  background-color: #ff5349;
-  border-color: #ff5349;
-  color: #f0f0f1;
+  background-color: var(--red);
+  border-color: var(--red);
+  color: var(--off-white);
   cursor: pointer;
 }
 
@@ -192,32 +193,32 @@ a:visited,
 }
 
 .red {
-  color: #ff5349;
+  color: var(--red);
 }
 
 .yellow {
-  color: #ffd24d;
+  color: var(--yellow);
 }
 
 .cyan {
-  color: #18cdca;
+  color: var(--cyan);
 }
 
 .green {
-  color: #00ff80;
+  color: var(--green);
 }
 
 .form-control {
-  background: #f0f0f1;
+  background: var(--off-white);
   border: none;
   border-radius: 0.5rem;
-  color: hsla(233, 10%, 30%, 1);
+  color: var(--mid-grey);
   transition: 0.25s;
 }
 
 .form-control:focus {
   background: #fff;
-  box-shadow: 0 0 0 3px hsla(233, 10%, 30%, 1);
+  box-shadow: 0 0 0 3px var(--mid-grey);
 }
 
 .form-control:disabled {
@@ -225,11 +226,11 @@ a:visited,
 }
 
 .form-control::placeholder {
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
 }
 
 .text-muted {
-  color: hsla(233, 10%, 50%, 1) !important;
+  color: var(--light-grey) !important;
 }
 
 .lazyload,
@@ -249,6 +250,6 @@ img[data-sizes='auto'] {
 }
 
 ::selection {
-  background-color: #4f80e1;
-  color: #f0f0f1;
+  background-color: var(--blue);
+  color: var(--off-white);
 }
