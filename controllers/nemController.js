@@ -71,11 +71,11 @@ const fetchMosaics = async paymentAddress => {
     paymentAddress
   );
 
-  const credits = mosaics.data.filter(
+  const credits = mosaics.data.find(
     mosaic =>
       mosaic.mosaicId.namespaceId === 'nemp3' &&
       mosaic.mosaicId.name === 'credits'
-  )[0];
+  );
 
   if (!credits) return 0;
   return credits.quantity;

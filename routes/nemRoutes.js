@@ -3,7 +3,7 @@ const {
   fetchTransactions,
   fetchMosaics,
   fetchXemPrice,
-  fetchXemPriceBinance
+  fetchXemPriceBinance,
 } = require('../controllers/nemController');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
@@ -12,7 +12,7 @@ const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
 
-module.exports = app => {
+module.exports = (app) => {
   app.post('/api/nem/transactions', requireLogin, async (req, res) => {
     try {
       const { releaseId, paymentHash } = req.body;
@@ -22,7 +22,7 @@ module.exports = app => {
       const artist = await User.findById(release.user);
       const paymentAddress = artist.nemAddress;
 
-      const hasPurchased = user.purchases.some(purchase =>
+      const hasPurchased = user.purchases.some((purchase) =>
         purchase.releaseId.equals(releaseId)
       );
 
@@ -37,7 +37,7 @@ module.exports = app => {
           purchaseDate: Date.now(),
           amountPaid: payments.paidToDate,
           buyer: req.user._id,
-          buyerAddress: req.user.nemAddress
+          buyerAddress: req.user.nemAddress,
         };
 
         const update = { $addToSet: { purchases: newSale } };
@@ -49,7 +49,7 @@ module.exports = app => {
           purchaseDate: Date.now(),
           releaseId,
           purchaseRef: saleId,
-          transactions: payments.transactions
+          transactions: payments.transactions,
         });
 
         user.save();
@@ -122,8 +122,8 @@ module.exports = app => {
 
       if (nemAddress && nemAddressVerified) {
         user.credit = await fetchMosaics(nemAddress);
-        user.save();
-        res.send(user);
+        await user.save();
+        res.send(user.toJSON());
         return;
       }
 
