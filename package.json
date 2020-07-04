@@ -22,9 +22,9 @@
   "author": "Christopher Leary",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "^0.5.5",
+    "amqplib": "^0.5.6",
     "archiver": "^3.1.1",
-    "aws-sdk": "^2.642.0",
+    "aws-sdk": "^2.709.0",
     "axios": "^0.19.2",
     "bcrypt": "^3.0.8",
     "body-parser": "^1.19.0",
@@ -33,11 +33,11 @@
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.5",
+    "mongoose": "^5.9.21",
     "multer": "^2.0.0-rc.2",
     "nem-sdk": "^1.6.7",
     "node-expat": "^2.3.18",
-    "nodemailer": "^6.4.5",
+    "nodemailer": "^6.4.10",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
@@ -51,7 +51,7 @@
   "devDependencies": {
     "concurrently": "^4.1.2",
     "eslint": "^6.7.2",
-    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react": "^7.20.3",
     "nodemon": "^1.19.4"
   }
 }
