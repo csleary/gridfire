@@ -424,7 +424,7 @@ Player.propTypes = {
 function mapStateToProps(state) {
   return {
     player: state.player,
-    release: state.releases.selectedRelease
+    release: state.releases.activeRelease
   };
 }
 

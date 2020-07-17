@@ -3,7 +3,7 @@ import { toastError, toastInfo, toastSuccess } from 'features/toast';
 import { batch } from 'react-redux';
 import io from 'socket.io-client';
 import { setArtworkUploading } from 'features/artwork';
-import { setRelease } from 'features/releases';
+import { updateActiveRelease } from 'features/releases';
 
 const socket = io();
 
@@ -37,8 +37,8 @@ const socketMiddleware = ({ dispatch, getState }) => {
     });
   });
 
-  socket.on('updateRelease', ({ release }) => {
-    dispatch(setRelease(release));
+  socket.on('updateActiveRelease', ({ release }) => {
+    dispatch(updateActiveRelease(release));
   });
 
   socket.on('workerMessage', ({ message }) => {

@@ -4,12 +4,12 @@ import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import React from 'react';
 import placeholder from 'placeholder.svg';
-import styles from 'components/selectedRelease/selectedRelease.module.css';
+import styles from 'components/activeRelease/activeRelease.module.css';
 import { toastInfo } from 'features/toast';
 
 const Artwork = () => {
   const dispatch = useDispatch();
-  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
 

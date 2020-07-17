@@ -13,9 +13,9 @@ const handleWork = (io, workerPool, workerData, workerScript) =>
       worker.on('message', async message => {
         const { queue, type } = message;
 
-        if (type === 'updateRelease') {
+        if (type === 'updateActiveRelease') {
           const release = await Release.findById(message.releaseId, '-__v', { lean: true });
-          ioEmit('updateRelease', { userId: release.user.toString(), release });
+          ioEmit('updateActiveRelease', { userId: release.user.toString(), release });
         } else if (type === 'publishToQueue') {
           publishToQueue('', queue, message);
         } else if (type) {

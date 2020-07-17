@@ -9,10 +9,7 @@ import { deleteArtwork } from 'features/artwork';
 
 const RenderArtwork = props => {
   const { coverArtLoaded, coverArtPreview, handleDeletePreview } = props;
-  const { _id: releaseId, published, releaseTitle } = useSelector(
-    state => state.releases.selectedRelease,
-    shallowEqual
-  );
+  const { _id: releaseId, published, releaseTitle } = useSelector(state => state.releases.activeRelease, shallowEqual);
   const dispatch = useDispatch();
 
   const artworkClassNames = classNames('img-fluid', {

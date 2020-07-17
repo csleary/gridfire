@@ -2,13 +2,13 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import React from 'react';
 import { nanoid } from '@reduxjs/toolkit';
 import { searchReleases } from 'features/search';
-import styles from 'components/selectedRelease/selectedRelease.module.css';
+import styles from 'components/activeRelease/activeRelease.module.css';
 import { useHistory } from 'react-router-dom';
 
 const Tags = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const { tags } = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const { tags } = useSelector(state => state.releases.activeRelease, shallowEqual);
   if (!tags.length) return null;
   const handleTagSearch = tag => dispatch(searchReleases(tag)).then(history.push('/search'));
 

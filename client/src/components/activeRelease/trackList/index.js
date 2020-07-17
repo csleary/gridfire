@@ -3,12 +3,12 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'components/selectedRelease/selectedRelease.module.css';
+import styles from 'components/activeRelease/activeRelease.module.css';
 import { toastInfo } from 'features/toast';
 
 const TrackList = () => {
   const dispatch = useDispatch();
-  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, trackList } = release;
 

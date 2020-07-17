@@ -9,7 +9,7 @@ const FavButton = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const { favourites } = useSelector(state => state.user, shallowEqual);
-  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
   const isInFaves = favourites?.some(id => id === releaseId);
   const iconClassName = classnames(styles.icon, { [styles.saved]: isInFaves && !loading });

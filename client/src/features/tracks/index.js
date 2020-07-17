@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { createSlice } from '@reduxjs/toolkit';
-import { setRelease } from 'features/releases';
+import { setActiveRelease } from 'features/releases';
 import { toastError } from 'features/toast';
 
 const trackSlice = createSlice({
@@ -38,7 +38,7 @@ const trackSlice = createSlice({
 const addTrack = releaseId => async dispatch => {
   try {
     const res = await axios.put(`/api/${releaseId}/add`);
-    dispatch(setRelease(res.data));
+    dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
   }
@@ -48,7 +48,7 @@ const deleteTrack = (releaseId, trackId) => async dispatch => {
   try {
     dispatch(setDeletingStart(trackId));
     const res = await axios.delete(`/api/${releaseId}/${trackId}`);
-    dispatch(setRelease(res.data));
+    dispatch(setActiveRelease(res.data));
     dispatch(setDeletingComplete(trackId));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
@@ -58,7 +58,7 @@ const deleteTrack = (releaseId, trackId) => async dispatch => {
 const moveTrack = (releaseId, fromIndex, toIndex) => async dispatch => {
   try {
     const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
-    dispatch(setRelease(res.data));
+    dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
     return { error: error.response.data.error };

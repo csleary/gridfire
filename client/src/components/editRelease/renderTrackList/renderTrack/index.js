@@ -22,7 +22,7 @@ const RenderTrack = props => {
   const dispatch = useDispatch();
   const [isMoving, setMoving] = useState();
   const isDeleting = useSelector(state => state.tracks.isDeleting.some(id => id === trackId), shallowEqual);
-  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
   const pending = status === 'pending';
   const stored = status === 'stored';
