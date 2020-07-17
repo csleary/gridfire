@@ -3,12 +3,12 @@ const path = require('path');
 
 const AWS_REGION = 'us-east-1';
 const BENTO4_DIR = process.env.BENTO4_DIR;
-const BUCKET_IMG = 'nemp3-img';
 const BUCKET_MP3 = 'nemp3-mp3';
 const QUEUE_TRANSCODE = 'transcode';
 const QUEUE_ARTWORK = 'artwork';
 const TEMP_PATH = path.join(__dirname, '../tmp');
 
+let BUCKET_IMG = 'nemp3-img';
 let BUCKET_OPT = 'nemp3-opt';
 let BUCKET_SRC = 'nemp3-src';
 let GOOGLE_CALLBACK = 'https://nemp3.app/api/auth/google/callback';
@@ -33,8 +33,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 if (process.env.NEM_NETWORK === 'testnet') {
-  BUCKET_OPT = 'nemp3-opt-testnet';
-  BUCKET_SRC = 'nemp3-src-testnet';
+  BUCKET_IMG = 'nemp3-testnet-img';
+  BUCKET_OPT = 'nemp3-testnet-opt';
+  BUCKET_SRC = 'nemp3-testnet-src';
   NEM_NETWORK_ID = nem.model.network.data.testnet.id;
   NEM_NODES = ['95.216.73.245', '95.216.73.243', '23.228.67.85'];
 }

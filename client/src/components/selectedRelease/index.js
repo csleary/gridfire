@@ -1,96 +1,53 @@
+import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import {
-  fetchRelease,
-  fetchUser,
-  fetchXemPrice,
-  playTrack,
-  playerPause,
-  playerPlay,
-  searchReleases,
-  toastInfo
-} from 'actions';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Artwork from './artwork';
 import CLine from './cLine';
 import CatNumber from './catNumber';
 import CollectionIndicator from './collectionIndicator';
 import Credits from './credits';
+import FavButton from './favButton';
 import Info from './info';
-import { Link } from 'react-router-dom';
 import PLine from './pLine';
 import Payment from 'components/payment';
 import Price from './price';
 import PrivateRoute from 'components/privateRoute';
-import PropTypes from 'prop-types';
 import PurchaseButton from './purchaseButton';
 import RecordLabel from './recordLabel';
 import ReleaseDate from './releaseDate';
 import Spinner from 'components/spinner';
 import Tags from './tags';
 import TrackList from './trackList';
+import WishListButton from './wishListButton';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+import { fetchRelease } from 'features/releases';
+import { fetchUser } from 'features/user';
+import { fetchXemPrice } from 'features/nem';
 import styles from 'components/selectedRelease/selectedRelease.module.css';
 
-const SelectedRelease = props => {
+const SelectedRelease = () => {
+  const dispatch = useDispatch();
+  const { releaseId } = useParams();
   const [isLoading, setLoading] = useState(true);
-  const [inCollection, setInCollection] = useState(false);
-  const [priceError, setPriceError] = useState();
   const { path } = useRouteMatch();
-
-  const {
-    fetchRelease,
-    fetchUser,
-    fetchXemPrice,
-    player,
-    release,
-    release: {
-      artist,
-      artistName,
-      catNumber,
-      credits,
-      cLine,
-      info,
-      pLine,
-      price,
-      recordLabel,
-      releaseTitle,
-      releaseDate,
-      trackList,
-      tags
-    },
-    user,
-    xemPriceUsd
-  } = props;
-
-  const { purchases } = user;
-  const { releaseId } = props.match.params;
+  const { purchases } = useSelector(state => state.user, shallowEqual);
+  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
+  const isInCollection = purchases.some(purchase => purchase.releaseId === releaseId);
+  const { artist, artistName, catNumber, credits, cLine, info, pLine, price, recordLabel, releaseTitle } = release;
+  const { releaseDate, trackList } = release;
 
   useEffect(() => {
     setLoading(true);
-    fetchUser();
-    fetchXemPrice().then(res => {
-      if (res.error) setPriceError(res.error);
+    batch(() => {
+      dispatch(fetchUser());
+      dispatch(fetchXemPrice());
+      dispatch(fetchRelease(releaseId)).then(() => setLoading(false));
     });
+  }, [dispatch, releaseId]);
 
-    fetchRelease(releaseId).then(() => setLoading(false));
-  }, [fetchRelease, fetchUser, fetchXemPrice, releaseId]);
-
-  useEffect(() => {
-    const isInCollection = purchases.some(
-      purchase => purchase.releaseId === releaseId
-    );
-
-    if (isInCollection) setInCollection(true);
-  }, [purchases, releaseId]);
-
-  const trackListColumns = classNames({
-    [styles.columns]: trackList.length > 10
-  });
-
-  const nowPlayingToast = trackTitle => {
-    props.toastInfo(`Loading '${trackTitle}'`);
-  };
+  const trackListClassName = classNames({ [styles.columns]: trackList?.length > 10 });
 
   if (isLoading) {
     return (
@@ -104,45 +61,31 @@ const SelectedRelease = props => {
     <main className="container d-flex align-items-center">
       <div className={`${styles.release} row`}>
         <div className={`${styles.col} col-md-6 p-3`}>
-          <Artwork
-            isPlaying={player.isPlaying}
-            nowPlayingToast={nowPlayingToast}
-            playerPause={props.playerPause}
-            playerPlay={props.playerPlay}
-            playerReleaseId={player.releaseId}
-            playTrack={props.playTrack}
-            release={release}
-          />
+          <Artwork />
+          <div className={styles.buttons}>
+            <FavButton />
+            <WishListButton />
+          </div>
         </div>
         <div className={`${styles.info} col-md-6 p-3`}>
-          <CollectionIndicator inCollection={inCollection} />
+          <CollectionIndicator inCollection={isInCollection} />
           <h2 className={styles.title}>{releaseTitle}</h2>
           <h4 className={styles.name}>
             <Link to={`/artist/${artist}`}>{artistName}</Link>
           </h4>
           <h6 className={`${styles.price} text-center`}>
-            <Price
-              price={price}
-              priceError={priceError}
-              xemPriceUsd={xemPriceUsd}
-            />
+            <Price price={price} priceError={priceError} xemPriceUsd={xemPriceUsd} />
           </h6>
           <Switch>
             <PrivateRoute path={`${path}/payment`} component={Payment} />
             <Route path={`${path}`}>
-              <div className={trackListColumns}>
+              <div className={trackListClassName}>
                 <ol className={styles.trackList}>
-                  <TrackList
-                    nowPlayingToast={nowPlayingToast}
-                    player={player}
-                    playerPlay={props.playerPlay}
-                    playTrack={props.playTrack}
-                    release={release}
-                  />
+                  <TrackList />
                 </ol>
               </div>
               <PurchaseButton
-                inCollection={inCollection}
+                inCollection={isInCollection}
                 price={price}
                 priceError={priceError}
                 releaseId={releaseId}
@@ -154,7 +97,7 @@ const SelectedRelease = props => {
               <Credits credits={credits} />
               <CLine cLine={cLine} />
               <PLine pLine={pLine} />
-              <Tags searchReleases={props.searchReleases} tags={tags} />
+              <Tags />
             </Route>
           </Switch>
         </div>
@@ -163,39 +106,4 @@ const SelectedRelease = props => {
   );
 };
 
-SelectedRelease.propTypes = {
-  fetchRelease: PropTypes.func,
-  fetchUser: PropTypes.func,
-  fetchXemPrice: PropTypes.func,
-  match: PropTypes.object,
-  player: PropTypes.object,
-  playerPause: PropTypes.func,
-  playerPlay: PropTypes.func,
-  playTrack: PropTypes.func,
-  release: PropTypes.object,
-  searchReleases: PropTypes.func,
-  tags: PropTypes.array,
-  toastInfo: PropTypes.func,
-  user: PropTypes.object,
-  xemPriceUsd: PropTypes.number
-};
-
-function mapStateToProps(state) {
-  return {
-    player: state.player,
-    release: state.releases.selectedRelease,
-    user: state.user,
-    xemPriceUsd: state.nem.xemPriceUsd
-  };
-}
-
-export default connect(mapStateToProps, {
-  fetchRelease,
-  fetchUser,
-  fetchXemPrice,
-  playerPause,
-  playerPlay,
-  playTrack,
-  searchReleases,
-  toastInfo
-})(SelectedRelease);
+export default SelectedRelease;

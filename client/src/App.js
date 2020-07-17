@@ -21,7 +21,7 @@ import SearchResults from 'components/searchResults';
 import SelectedRelease from 'components/selectedRelease';
 import Support from 'components/support';
 import ToastList from 'components/toastList';
-import { fetchUser } from 'actions/userActions';
+import { fetchUser } from 'features/user';
 import { useDispatch } from 'react-redux';
 import { wrapper } from './App.module.css';
 
@@ -46,13 +46,9 @@ const App = () => {
           <Route path="/contact" component={Contact} />
           <Route path="/support" component={Support} />
           <PrivateRoute exact path="/release/add/" component={EditRelease} />
-          <PrivateRoute
-            exact
-            path="/release/:releaseId/edit"
-            component={EditRelease}
-          />
+          <PrivateRoute exact path="/release/:releaseId/edit" component={EditRelease} />
           <Route path="/release/:releaseId" component={SelectedRelease} />
-          <Route path="/artist/:artist" component={ArtistPage} />
+          <Route path="/artist/:artistId" component={ArtistPage} />
           <PrivateRoute path="/dashboard" component={Dashboard} />
         </Switch>
         <Footer />

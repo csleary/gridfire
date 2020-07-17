@@ -1,38 +1,31 @@
+import { playTrack, playerPause, playerPlay } from 'features/player';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
-import PropTypes from 'prop-types';
 import React from 'react';
 import placeholder from 'placeholder.svg';
 import styles from 'components/selectedRelease/selectedRelease.module.css';
+import { toastInfo } from 'features/toast';
 
-const Artwork = props => {
-  const {
-    isPlaying,
-    nowPlayingToast,
-    playerReleaseId,
-    release,
-    release: { artistName, artwork, releaseTitle, trackList }
-  } = props;
-
-  const releaseId = release._id;
+const Artwork = () => {
+  const dispatch = useDispatch();
+  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
+  const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
 
   const handlePlayRelease = () => {
     const audioPlayer = document.getElementById('player');
 
     if (isPlaying && playerReleaseId === releaseId) {
       audioPlayer.pause();
-      props.playerPause();
+      dispatch(playerPause());
     } else if (playerReleaseId === releaseId) {
       audioPlayer.play();
-      props.playerPlay();
+      dispatch(playerPlay());
     } else {
-      props.playTrack(
-        releaseId,
-        trackList[0]._id,
-        artistName,
-        trackList[0].trackTitle
-      );
-      nowPlayingToast(trackList[0].trackTitle);
+      const [{ _id: trackId, trackTitle }] = trackList;
+      dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+      dispatch(toastInfo(`Loading '${trackTitle}'`));
     }
   };
 
@@ -47,11 +40,7 @@ const Artwork = props => {
             : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
         }
       />
-      <img
-        alt={`${artistName} - ${releaseTitle}`}
-        className={styles.placeholder}
-        src={placeholder}
-      />
+      <img alt={`${artistName} - ${releaseTitle}`} className={styles.placeholder} src={placeholder} />
       <div
         className={styles.overlay}
         onClick={handlePlayRelease}
@@ -67,16 +56,6 @@ const Artwork = props => {
       </div>
     </div>
   );
-};
-
-Artwork.propTypes = {
-  isPlaying: PropTypes.bool,
-  nowPlayingToast: PropTypes.func,
-  playerReleaseId: PropTypes.string,
-  release: PropTypes.object,
-  playerPlay: PropTypes.func,
-  playerPause: PropTypes.func,
-  playTrack: PropTypes.func
 };
 
 export default Artwork;

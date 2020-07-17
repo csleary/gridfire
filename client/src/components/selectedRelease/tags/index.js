@@ -1,22 +1,21 @@
-import PropTypes from 'prop-types';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import React from 'react';
+import { nanoid } from '@reduxjs/toolkit';
+import { searchReleases } from 'features/search';
 import styles from 'components/selectedRelease/selectedRelease.module.css';
-import uuidv4 from 'uuid/v4';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
-const Tags = props => {
-  const { tags } = props;
-
+const Tags = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { tags } = useSelector(state => state.releases.selectedRelease, shallowEqual);
   if (!tags.length) return null;
-
-  const handleTagSearch = tag => {
-    props.searchReleases(tag).then(props.history.push('/search'));
-  };
+  const handleTagSearch = tag => dispatch(searchReleases(tag)).then(history.push('/search'));
 
   const renderTags = tags.map(tag => (
     <div
       className={`${styles.tag} mr-2 mb-2`}
-      key={uuidv4()}
+      key={nanoid()}
       onClick={() => handleTagSearch(tag)}
       role="button"
       tabIndex="-1"
@@ -34,10 +33,4 @@ const Tags = props => {
   );
 };
 
-Tags.propTypes = {
-  history: PropTypes.object,
-  searchReleases: PropTypes.func,
-  tags: PropTypes.array
-};
-
-export default withRouter(Tags);
+export default Tags;

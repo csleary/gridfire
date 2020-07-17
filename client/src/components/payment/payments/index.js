@@ -11,22 +11,8 @@ import withDownload from './withDownload';
 const Download = withDownload(DownloadButton);
 
 const Payments = props => {
-  const {
-    artistName,
-    paymentHash,
-    price,
-    releaseId,
-    releaseTitle,
-    roundUp
-  } = props;
-
-  const paymentData = useMemo(
-    () => ({
-      releaseId,
-      paymentHash
-    }),
-    [releaseId, paymentHash]
-  );
+  const { artistName, paymentHash, price, releaseId, releaseTitle, roundUp } = props;
+  const paymentData = useMemo(() => ({ releaseId, paymentHash }), [releaseId, paymentHash]);
 
   const initialData = {
     hasPurchased: false,
@@ -36,7 +22,7 @@ const Payments = props => {
   };
 
   const { data = initialData, error, fetch, isFetching, isLoading } = useApi(
-    '/api/nem/transactions',
+    '/api/user/transactions',
     'post',
     paymentData
   );
@@ -44,7 +30,7 @@ const Payments = props => {
   useEffect(() => {
     const updateTxs = () => {
       if (data && !data.hasPurchased) {
-        fetch('/api/nem/transactions', 'post', paymentData);
+        fetch('/api/user/transactions', 'post', paymentData);
       } else {
         window.clearInterval(txInterval);
         clearTimeout(txTimeout);
@@ -100,16 +86,11 @@ const Payments = props => {
 
 Payments.propTypes = {
   artistName: PropTypes.string,
-  hasPurchased: PropTypes.bool,
-  nemNode: PropTypes.string,
-  paidToDate: PropTypes.number,
   paymentHash: PropTypes.string,
   price: PropTypes.string,
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string,
-  roundUp: PropTypes.func,
-  transactions: PropTypes.array,
-  transactionsError: PropTypes.object
+  roundUp: PropTypes.func
 };
 
 export default Payments;

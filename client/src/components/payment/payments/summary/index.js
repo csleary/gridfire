@@ -22,7 +22,7 @@ const Summary = ({
       className={`${styles.summary}`}
       disabled={isFetching}
       onClick={() => {
-        fetch('/api/nem/transactions', 'post', paymentData);
+        fetch('/api/user/transactions', 'post', paymentData);
       }}
       title={`Press to check again for recent payments (last used NIS Node: '${formattedNodeName}').`}
     >
@@ -34,12 +34,7 @@ const Summary = ({
         )}
         <FontAwesome name="refresh" className="ml-2" spin={isFetching} />
       </div>
-      <Underpaid
-        hasPurchased={hasPurchased}
-        paidToDate={paidToDate}
-        price={price}
-        roundUp={roundUp}
-      />
+      <Underpaid hasPurchased={hasPurchased} paidToDate={paidToDate} price={price} roundUp={roundUp} />
       <div className={`${styles.node}`} title="Last used NIS Node">
         <FontAwesome name="server" className="mr-2" />
         Node: {formattedNodeName}

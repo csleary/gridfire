@@ -1,28 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  fetchCatalogue,
-  fetchRelease,
-  playTrack,
-  setIsPaging,
-  toastInfo
-} from 'actions';
-import { useDispatch, useSelector } from 'react-redux';
+import { fetchCatalogue, setIsPaging } from 'features/releases';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import RenderRelease from 'components/renderRelease';
 import SortReleases from './sortReleases';
 import Spinner from 'components/spinner';
 import styles from './home.module.css';
+import { toastInfo } from 'features/toast';
 
 const Home = props => {
   const { service } = props.match.params;
 
-  const {
-    catalogue,
-    catalogueLimit,
-    catalogueSkip,
-    reachedEndOfCat
-  } = useSelector(state => state.releases);
+  const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
+    state => state.releases,
+    shallowEqual
+  );
 
   const dispatch = useDispatch();
   const [isFetching, setFetching] = useState(false);
@@ -33,9 +26,7 @@ const Home = props => {
   const handleFetchCatalogue = useCallback(
     async (path = sortPath, order = sortOrder) => {
       setFetching(true);
-      await dispatch(
-        fetchCatalogue(catalogueLimit, catalogueSkip, path, order)
-      );
+      await dispatch(fetchCatalogue(catalogueLimit, catalogueSkip, path, order));
       setFetching(false);
     },
     [catalogueLimit, catalogueSkip, dispatch, sortPath, sortOrder]
@@ -51,13 +42,8 @@ const Home = props => {
 
   useEffect(() => {
     if (service) {
-      const serviceName =
-        service.charAt(0).toUpperCase() + service.substring(1);
-      dispatch(
-        toastInfo(
-          `Thank you. You are now logged in using your ${serviceName} account.`
-        )
-      );
+      const serviceName = service.charAt(0).toUpperCase() + service.substring(1);
+      dispatch(toastInfo(`Thank you. You are now logged in using your ${serviceName} account.`));
     }
   }, [dispatch, service]);
 
@@ -82,13 +68,7 @@ const Home = props => {
           />
           <div className={styles.frontPage}>
             {catalogue.map(release => (
-              <RenderRelease
-                fetchRelease={fetchRelease}
-                key={release._id}
-                playTrack={playTrack}
-                release={release}
-                toastInfo={toastInfo}
-              />
+              <RenderRelease key={release._id} release={release} />
             ))}
           </div>
           <div className="d-flex justify-content-center">
@@ -100,13 +80,7 @@ const Home = props => {
                 handleFetchCatalogue();
               }}
             >
-              {reachedEndOfCat ? null : (
-                <FontAwesome
-                  name="refresh"
-                  spin={isFetching}
-                  className="mr-2"
-                />
-              )}
+              {reachedEndOfCat ? null : <FontAwesome name="refresh" spin={isFetching} className="mr-2" />}
               {reachedEndOfCat ? null : 'Load More'}
             </button>
           </div>

@@ -17,7 +17,7 @@ const UserSchema = new Schema(
     },
     nemAddress: String,
     nemAddressVerified: { type: Boolean, default: false },
-    credit: { type: Number, default: 0 },
+    credits: { type: Number, default: 0 },
     purchases: [
       {
         releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
@@ -26,14 +26,16 @@ const UserSchema = new Schema(
         transactions: Array
       }
     ],
-    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
+    favourites: [{ type: Schema.Types.ObjectId, ref: 'Release', unique: true }],
+    wishList: [{ type: Schema.Types.ObjectId, ref: 'Release', unique: true }],
+    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist', unique: true }]
   },
   {
     usePushEach: true
   }
 );
 
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function (next) {
   try {
     const user = this;
 
@@ -56,7 +58,7 @@ UserSchema.pre('save', async function(next) {
   }
 });
 
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+UserSchema.methods.comparePassword = async function (candidatePassword) {
   const isMatched = await bcrypt.compare(candidatePassword, this.auth.password);
   return isMatched;
 };

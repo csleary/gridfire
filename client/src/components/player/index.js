@@ -1,14 +1,7 @@
 import { Link, withRouter } from 'react-router-dom';
 import React, { Component, createRef } from 'react';
-import {
-  playTrack,
-  playerHide,
-  playerPause,
-  playerPlay,
-  playerStop,
-  toastError,
-  toastInfo
-} from 'actions';
+import { playTrack, playerHide, playerPause, playerPlay, playerStop } from 'features/player';
+import { toastError, toastInfo } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import axios from 'axios';
@@ -90,10 +83,7 @@ class Player extends Component {
       const minsLeft = Math.floor(remainingTime / 60);
       const secsLeft = Math.floor(remainingTime % 60);
 
-      if (
-        this.state.bufferEnd &&
-        this.state.percentComplete === percentComplete
-      ) {
+      if (this.state.bufferEnd && this.state.percentComplete === percentComplete) {
         this.handleTrackEnded();
         return;
       }
@@ -144,10 +134,7 @@ class Player extends Component {
       const { currentTime } = audioPlayer;
       let isBuffered;
       for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
-        if (
-          currentTime >= this.sourceBuffer.buffered.start(i) &&
-          currentTime < this.sourceBuffer.buffered.end(i)
-        ) {
+        if (currentTime >= this.sourceBuffer.buffered.start(i) && currentTime < this.sourceBuffer.buffered.end(i)) {
           isBuffered = true;
           break;
         }
@@ -157,14 +144,11 @@ class Player extends Component {
       if (!isBuffered && !this.newTrack) {
         this.setState({ bufferEnd: false });
         this.currentSegment = Math.floor(currentTime / 15);
-        this.setState(
-          { ready: false, isSeeking: true, isBuffering: true },
-          () => {
-            this.fetchAudioRange(buffer => {
-              this.handleAppendBuffer(buffer);
-            });
-          }
-        );
+        this.setState({ ready: false, isSeeking: true, isBuffering: true }, () => {
+          this.fetchAudioRange(buffer => {
+            this.handleAppendBuffer(buffer);
+          });
+        });
       }
     });
     audioPlayer.addEventListener('ended', () => this.handleTrackEnded());
@@ -204,9 +188,7 @@ class Player extends Component {
       return;
     }
 
-    const oldDuration = Number.isFinite(this.mediaSource.duration)
-      ? this.mediaSource.duration
-      : 0;
+    const oldDuration = Number.isFinite(this.mediaSource.duration) ? this.mediaSource.duration : 0;
 
     const newDuration = this.state.duration;
 
@@ -315,8 +297,7 @@ class Player extends Component {
     const x = event.clientX;
     const width = this.seekBar.current.clientWidth;
     this.seekPercent = x / width;
-    this.audioPlayer.current.currentTime =
-      this.mediaSource.duration * this.seekPercent;
+    this.audioPlayer.current.currentTime = this.mediaSource.duration * this.seekPercent;
   };
 
   hidePlayer = () => {
@@ -352,32 +333,14 @@ class Player extends Component {
 
   renderPlayButton = () => {
     if (!this.state.ready) {
-      return (
-        <FontAwesome
-          name="cog"
-          spin
-          className={`${styles.playerButton} ${styles.waiting}`}
-        />
-      );
+      return <FontAwesome name="cog" spin className={`${styles.playerButton} ${styles.waiting}`} />;
     }
 
     if (this.props.player.isPlaying) {
-      return (
-        <FontAwesome
-          name="pause"
-          className={styles.playerButton}
-          onClick={this.playAudio}
-        />
-      );
+      return <FontAwesome name="pause" className={styles.playerButton} onClick={this.playAudio} />;
     }
 
-    return (
-      <FontAwesome
-        name="play"
-        className={styles.playerButton}
-        onClick={this.playAudio}
-      />
-    );
+    return <FontAwesome name="play" className={styles.playerButton} onClick={this.playAudio} />;
   };
 
   renderTrackInfo = () => {
@@ -408,27 +371,14 @@ class Player extends Component {
     return (
       <div className={playerClassNames}>
         <audio id="player" ref={this.audioPlayer} />
-        <div
-          className={styles.seek}
-          onClick={this.handleSeek}
-          ref={this.seekBar}
-          role="button"
-          tabIndex="-1"
-        >
-          <div
-            className={styles.progress}
-            style={{ width: `${this.state.percentComplete}%` }}
-          />
+        <div className={styles.seek} onClick={this.handleSeek} ref={this.seekBar} role="button" tabIndex="-1">
+          <div className={styles.progress} style={{ width: `${this.state.percentComplete}%` }} />
         </div>
         <div className="container-fluid">
           <div className={`${styles.interface} row no-gutters`}>
             <div className={`${styles.controls} col-sm`}>
               {this.renderPlayButton()}
-              <FontAwesome
-                name="stop"
-                className={styles.playerButton}
-                onClick={this.stopAudio}
-              />
+              <FontAwesome name="stop" className={styles.playerButton} onClick={this.stopAudio} />
               <div
                 className={`${styles.currentTime} align-middle`}
                 onClick={() =>
@@ -439,9 +389,7 @@ class Player extends Component {
                 role="button"
                 tabIndex="-1"
               >
-                {this.state.showRemaining
-                  ? this.state.remainingTime
-                  : this.state.elapsedTime}
+                {this.state.showRemaining ? this.state.remainingTime : this.state.elapsedTime}
               </div>
             </div>
             <div className={`${styles.trackInfo} col-sm`}>
@@ -480,15 +428,12 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  {
-    playTrack,
-    playerHide,
-    playerPause,
-    playerPlay,
-    playerStop,
-    toastError,
-    toastInfo
-  }
-)(withRouter(Player));
+export default connect(mapStateToProps, {
+  playTrack,
+  playerHide,
+  playerPause,
+  playerPlay,
+  playerStop,
+  toastError,
+  toastInfo
+})(withRouter(Player));

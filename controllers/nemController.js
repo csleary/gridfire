@@ -1,7 +1,6 @@
 const axios = require('axios');
 const nem = require('nem-sdk').default;
 const { NEM_NETWORK_ID, NEM_NODES } = require('../config/constants');
-
 const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
 
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
@@ -27,8 +26,7 @@ const findNode = async () => {
     const activeNodes = getActiveNodes.data;
 
     const nodeHosts = activeNodes.data.map(
-      node =>
-        `${node.endpoint.protocol}://${node.endpoint.host}:${node.endpoint.port}`
+      node => `${node.endpoint.protocol}://${node.endpoint.host}:${node.endpoint.port}`
     );
 
     const getFirstNode = await queryNodes('/node/info', nodeHosts);
@@ -44,18 +42,10 @@ const findNode = async () => {
 
 const checkSignedMessage = (address, signedMessage) => {
   const { message, signer, signature } = signedMessage;
-
-  const verified = nem.crypto.verifySignature(
-    signer.toString(),
-    message,
-    signature.toString()
-  );
+  const verified = nem.crypto.verifySignature(signer.toString(), message, signature.toString());
 
   if (verified) {
-    const keyToAddress = nem.model.address.toAddress(
-      signer.toString(),
-      NEM_NETWORK_ID
-    );
+    const keyToAddress = nem.model.address.toAddress(signer.toString(), NEM_NETWORK_ID);
 
     return keyToAddress === address;
   }
@@ -65,16 +55,10 @@ const checkSignedMessage = (address, signedMessage) => {
 const fetchMosaics = async paymentAddress => {
   const node = await findNode();
   const { endpoint } = node;
-
-  const mosaics = await nem.com.requests.account.mosaics.owned(
-    endpoint,
-    paymentAddress
-  );
+  const mosaics = await nem.com.requests.account.mosaics.owned(endpoint, paymentAddress);
 
   const credits = mosaics.data.find(
-    mosaic =>
-      mosaic.mosaicId.namespaceId === 'nemp3' &&
-      mosaic.mosaicId.name === 'credits'
+    mosaic => mosaic.mosaicId.namespaceId === 'nemp3' && mosaic.mosaicId.name === 'credits'
   );
 
   if (!credits) return 0;
@@ -92,12 +76,7 @@ const fetchTransactions = async (paymentAddress, idHash) => {
     const nemNode = name;
 
     const fetchBatch = async () => {
-      const incoming = await nem.com.requests.account.transactions.incoming(
-        endpoint,
-        paymentAddress,
-        null,
-        txId
-      );
+      const incoming = await nem.com.requests.account.transactions.incoming(endpoint, paymentAddress, null, txId);
 
       const currentBatch = incoming.data || [];
       const filteredTxs = filterTransactions(idHash, currentBatch);
@@ -133,14 +112,8 @@ const fetchXemPrice = async () => {
 };
 
 const fetchXemPriceBinance = async () => {
-  const xemTicker = await axios(
-    'https://api.binance.com/api/v3/ticker/price?symbol=XEMBTC'
-  );
-
-  const btcTicker = await axios(
-    'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
-  );
-
+  const xemTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=XEMBTC');
+  const btcTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
   const xemPriceBtc = xemTicker.data.price;
   const btcPriceUsd = btcTicker.data.price;
   const xemPriceUsd = btcPriceUsd * xemPriceBtc;
@@ -162,12 +135,8 @@ const checkPayments = (transactions, paid = []) => {
 const filterTransactions = (idHash, transactions, filtered = []) => {
   const transferTransactions = transactions.filter(tx => {
     const { type, otherTrans } = tx.transaction;
-    if (type === 257) {
-      return true;
-    }
-    if (type === 4100 && otherTrans.type === 257) {
-      return true;
-    }
+    if (type === 257) return true;
+    if (type === 4100 && otherTrans.type === 257) return true;
     return false;
   });
 
@@ -178,6 +147,7 @@ const filterTransactions = (idHash, transactions, filtered = []) => {
     const decoded = hexMessage(encodedMessage);
     if (decoded === idHash) filtered.push(tx);
   });
+
   return filtered;
 };
 

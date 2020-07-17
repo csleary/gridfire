@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Spinner from 'components/spinner';
 import { connect } from 'react-redux';
-import { toastError } from 'actions';
+import { toastError } from 'features/toast';
 import { useApi } from 'hooks/useApi';
 
 const roundUp = (value, precision) => {
@@ -42,9 +42,8 @@ const Payment = props => {
       <>
         <h2 className="text-center">Payment</h2>
         <p>
-          Unfortunately, <Link to={`/artist/${artist}`}>{artistName}</Link>{' '}
-          doesn&rsquo;t have a NEM payment address in their account, so we are
-          unable to process payments for them at the moment.
+          Unfortunately, <Link to={`/artist/${artist}`}>{artistName}</Link> doesn&rsquo;t have a NEM payment address in
+          their account, so we are unable to process payments for them at the moment.
         </p>
         <p>Hopefully they&rsquo;ll have an address in place soon!</p>
       </>
@@ -54,11 +53,7 @@ const Payment = props => {
   return (
     <>
       <h2 className="text-center mt-4">Payment</h2>
-      <PaymentMethods
-        paymentAddress={paymentAddress}
-        paymentHash={paymentHash}
-        priceInXem={priceInXem}
-      />
+      <PaymentMethods paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />
       <Payments
         artistName={artistName}
         paymentHash={paymentHash}

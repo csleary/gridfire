@@ -6,7 +6,7 @@ import classNames from 'classnames';
 const RenderTrackField = props => {
   const {
     audioUploadProgress,
-    hasAudio,
+    stored,
     index,
     input,
     isEncoding,
@@ -36,25 +36,23 @@ const RenderTrackField = props => {
           {...input}
         />
         <AudioDropzone
-          hasAudio={hasAudio}
+          stored={stored}
           isEncoding={isEncoding}
           isTranscoding={isTranscoding}
           isUploading={isUploading}
           audioUploadProgress={audioUploadProgress}
           disablePreview
-          onDrop={(accepted, rejected) =>
-            props.onDropAudio(accepted, rejected, index, trackId)
-          }
+          onDrop={(accepted, rejected) => props.onDropAudio(accepted, rejected, index, trackId)}
         />
       </div>
-      {error && <div className="invalid-feedback">{touched && error}</div>}
+      {error ? <div className="invalid-feedback">{touched && error}</div> : null}
     </>
   );
 };
 
 RenderTrackField.propTypes = {
   audioUploadProgress: PropTypes.number,
-  hasAudio: PropTypes.bool,
+  stored: PropTypes.bool,
   index: PropTypes.number,
   input: PropTypes.object,
   isEncoding: PropTypes.bool,

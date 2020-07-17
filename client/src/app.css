@@ -230,7 +230,7 @@ a:visited,
 }
 
 .text-muted {
-  color: var(--light-grey) !important;
+  color: var(--lighter-grey) !important;
 }
 
 .lazyload,

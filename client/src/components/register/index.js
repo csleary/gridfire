@@ -1,11 +1,12 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
-import { fetchUser, toastError, toastSuccess } from 'actions';
+import { toastError, toastSuccess } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { fetchUser } from 'features/user';
 import { withRouter } from 'react-router-dom';
 
 class Register extends Component {
@@ -59,9 +60,7 @@ class Register extends Component {
           required={required}
           type={type}
         />
-        {error && (
-          <div className="invalid-feedback">{touched && error && error}</div>
-        )}
+        {error && <div className="invalid-feedback">{touched && error && error}</div>}
         {hint && <small className="form-text text-muted">{hint}</small>}
       </div>
     );
@@ -75,10 +74,7 @@ class Register extends Component {
         <div className="row">
           <div className="col py-3 mb-4">
             <h2 className="text-center mt-4">Register</h2>
-            <form
-              className="form-row mt-5"
-              onSubmit={handleSubmit(this.onSubmit)}
-            >
+            <form className="form-row mt-5" onSubmit={handleSubmit(this.onSubmit)}>
               <div className="col-md-6 mx-auto">
                 <Field
                   component={this.renderField}
@@ -146,9 +142,4 @@ Register.propTypes = {
 
 export default reduxForm({
   form: 'registerForm'
-})(
-  connect(
-    null,
-    { fetchUser, toastError, toastSuccess }
-  )(withRouter(Register))
-);
+})(connect(null, { fetchUser, toastError, toastSuccess })(withRouter(Register)));

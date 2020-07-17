@@ -1,0 +1,23 @@
+.pending {
+  border-left: 4px solid var(--red);
+}
+
+.incomplete {
+  border-left: 4px solid var(--yellow);
+}
+
+.uploading {
+  border-left: 4px solid var(--yellow);
+}
+
+.encoding {
+  border-left: 4px solid var(--cyan);
+}
+
+.transcoding {
+  border-left: 4px solid var(--cyan);
+}
+
+.stored {
+  border-left: 4px solid var(--green);
+}

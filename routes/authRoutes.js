@@ -5,19 +5,11 @@ module.exports = app => {
   app.post('/api/auth/login', (req, res, next) => {
     passport.authenticate('local-login', (error, user, info) => {
       try {
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        if (!user) {
-          res.status(401).send({ error: info });
-        }
+        if (error) throw new Error(error.message);
+        if (!user) return res.status(401).send({ error: info });
 
         req.logIn(user, logInError => {
-          if (logInError) {
-            throw new Error(`Login error: ${logInError.message}`);
-          }
-
+          if (logInError) throw new Error(`Login error: ${logInError.message}`);
           res.send({ success: 'Thank you. You are now logged in.' });
         });
       } catch (e) {
@@ -29,22 +21,12 @@ module.exports = app => {
   app.post('/api/auth/register', (req, res, next) => {
     passport.authenticate('local-register', (error, user, info) => {
       try {
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        if (!user) {
-          res.status(401).send({ error: info });
-        }
+        if (error) throw new Error(error.message);
+        if (!user) return res.status(401).send({ error: info });
 
         req.logIn(user, logInError => {
-          if (logInError) {
-            throw new Error(`Login error: ${logInError.message}`);
-          }
-
-          res.send({
-            success: 'Thank you for registering. You are now logged in.'
-          });
+          if (logInError) throw new Error(`Login error: ${logInError.message}`);
+          res.send({ success: 'Thank you for registering. You are now logged in.' });
         });
       } catch (e) {
         res.status(500).send({ error: e.message });
@@ -55,22 +37,12 @@ module.exports = app => {
   app.post('/api/auth/update', (req, res, next) => {
     passport.authenticate('local-update', (error, user, info) => {
       try {
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        if (!user) {
-          res.status(401).send({ error: info });
-        }
+        if (error) throw new Error(error.message);
+        if (!user) return res.status(401).send({ error: info });
 
         req.logIn(user, logInError => {
-          if (logInError) {
-            throw new Error(`Login error: ${logInError.message}`);
-          }
-
-          res.send({
-            success: 'Thank you. Password updated successfully!'
-          });
+          if (logInError) throw new Error(`Login error: ${logInError.message}`);
+          res.send({ success: 'Thank you. Password updated successfully!' });
         });
       } catch (e) {
         res.status(500).send({ error: e.message });
@@ -78,16 +50,8 @@ module.exports = app => {
     })(req, res, next);
   });
 
-  app.get(
-    '/api/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-  );
-
-  app.get(
-    '/api/auth/google/callback',
-    passport.authenticate('google'),
-    (req, res) => res.redirect(GOOGLE_REDIRECT)
-  );
+  app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+  app.get('/api/auth/google/callback', passport.authenticate('google'), (req, res) => res.redirect(GOOGLE_REDIRECT));
 
   app.get('/api/auth/logout', (req, res) => {
     req.logout();

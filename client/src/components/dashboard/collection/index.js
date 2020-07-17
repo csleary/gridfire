@@ -1,36 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import {
-  fetchCollection,
-  fetchDownloadToken,
-  fetchRelease,
-  playTrack,
-  toastInfo
-} from 'actions';
-import PropTypes from 'prop-types';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
-import { connect } from 'react-redux';
+import { fetchCollection } from 'features/releases';
 import { frontPage } from './collection.module.css';
 
-function Collection(props) {
+const Collection = () => {
+  const dispatch = useDispatch();
+  const { collection } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
-  const { collection, fetchCollection } = props;
 
   useEffect(() => {
     if (!collection.length) setLoading(true);
-    fetchCollection().then(() => setLoading(false));
-  }, [collection.length, fetchCollection]);
+    dispatch(fetchCollection()).then(() => setLoading(false));
+  }, [collection.length, dispatch]);
 
   const renderReleases = collection.map(release => (
-    <RenderRelease
-      fetchDownloadToken={props.fetchDownloadToken}
-      fetchRelease={props.fetchRelease}
-      key={release._id}
-      playTrack={props.playTrack}
-      release={release}
-      toastInfo={props.toastInfo}
-      variation="collection"
-    />
+    <RenderRelease key={release._id} release={release} variation="collection" />
   ));
 
   if (isLoading) {
@@ -48,8 +34,8 @@ function Collection(props) {
           <div className="col">
             <h3 className="text-center mt-4">No releases found</h3>
             <p className="text-center">
-              Once you&rsquo;ve purchased a release it will be added to your
-              collection, where you&rsquo;ll have easy access to downloads.
+              Once you&rsquo;ve purchased a release it will be added to your collection, where you&rsquo;ll have easy
+              access to downloads.
             </p>
           </div>
         </div>
@@ -70,27 +56,6 @@ function Collection(props) {
       </div>
     </main>
   );
-}
-
-function mapStateToProps(state) {
-  return {
-    collection: state.releases.collection
-  };
-}
-
-Collection.propTypes = {
-  collection: PropTypes.array,
-  fetchCollection: PropTypes.func,
-  fetchDownloadToken: PropTypes.func,
-  fetchRelease: PropTypes.func,
-  playTrack: PropTypes.func,
-  toastInfo: PropTypes.func
 };
 
-export default connect(mapStateToProps, {
-  fetchCollection,
-  fetchDownloadToken,
-  fetchRelease,
-  playTrack,
-  toastInfo
-})(Collection);
+export default Collection;

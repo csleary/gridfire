@@ -5,13 +5,7 @@ import React from 'react';
 import styles from './downloadButton.module.css';
 
 const DownloadButton = props => {
-  const {
-    formatExists,
-    handleDownload,
-    hasPurchased,
-    isPreparingDownload,
-    releaseTitle
-  } = props;
+  const { formatExists, handleDownload, hasPurchased, isPreparingDownload, releaseTitle } = props;
 
   const renderButtonText = () => {
     if (isPreparingDownload) {
@@ -37,13 +31,12 @@ const DownloadButton = props => {
         <>
           <p className="mt-3 mb-2">
             <FontAwesome name="info-circle" className="cyan mr-2" />
-            This can take a little while if we don&rsquo;t have your chosen
-            format cached, as we&rsquo;ll freshly transcode the release from
-            source, before building your archive.
+            This can take a little while if we don&rsquo;t have your chosen format cached, as we&rsquo;ll freshly
+            transcode the release from source, before building your archive.
           </p>
           <p>
-            A download prompt will pop up when it&rsquo;s ready. You&rsquo;re
-            free to continue browsing around the site while you wait.
+            A download prompt will pop up when it&rsquo;s ready. You&rsquo;re free to continue browsing around the site
+            while you wait.
           </p>
         </>
       );

@@ -5,7 +5,7 @@ const { AWS_REGION, BUCKET_IMG } = require('../config/constants');
 aws.config.update({ region: AWS_REGION });
 
 const deleteArtwork = async (releaseId, release) => {
-  release.updateOne({ artwork: 'deleting' }).exec();
+  release.updateOne({ $set: { 'artwork.status': 'deleting', 'artwork.dateUpdated': new Date(Date.now()) } }).exec();
   const listImgParams = { Bucket: BUCKET_IMG, Prefix: `${releaseId}` };
   const s3 = new aws.S3();
   const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
@@ -18,15 +18,17 @@ const deleteArtwork = async (releaseId, release) => {
 
     await s3.deleteObject(deleteImgParams).promise();
 
-    const updated = await Release.findByIdAndUpdate(
+    const updatedRelease = await Release.findByIdAndUpdate(
       releaseId,
-      { $unset: { artwork: 1 }, published: false },
-      { lean: true, new: true, select: '-__v' }
+      { $set: { 'artwork.status': 'deleted', 'artwork.dateUpdated': new Date(Date.now()), published: false } },
+      { new: true }
     ).exec();
 
-    return updated;
+    return updatedRelease.toJSON();
   } else {
-    release.updateOne({ published: false }).exec();
+    release
+      .updateOne({ $set: { 'artwork.status': 'error', 'artwork.dateUpdated': new Date(Date.now()), published: false } })
+      .exec();
     throw new Error('Artwork file not found. Please upload a new file.');
   }
 };

@@ -1,7 +1,3 @@
-module.exports = io => (message, data) => {
-  if (data.clientId) {
-    io.to(data.clientId).emit(message, data);
-  } else {
-    io.emit(message, data);
-  }
+module.exports = io => (message, { userId, ...rest }) => {
+  io.to(userId).emit(message, { ...rest });
 };

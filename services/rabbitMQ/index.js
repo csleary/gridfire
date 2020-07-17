@@ -1,8 +1,4 @@
-const {
-  QUEUE_ARTWORK,
-  QUEUE_TRANSCODE,
-  RABBIT_HOST
-} = require('../../config/constants');
+const { QUEUE_ARTWORK, QUEUE_TRANSCODE, RABBIT_HOST } = require('../../config/constants');
 const Pool = require('worker-threads-pool');
 const amqp = require('amqplib');
 const { rabbitUser, rabbitPass } = require('../../config/keys');
@@ -15,9 +11,7 @@ module.exports = app => {
   let connection;
   const connectToServer = async () => {
     try {
-      connection = await amqp.connect(
-        `amqp://${rabbitUser}:${rabbitPass}@${RABBIT_HOST}:5672`
-      );
+      connection = await amqp.connect(`amqp://${rabbitUser}:${rabbitPass}@${RABBIT_HOST}:5672`);
 
       connection.on('error', error => {
         if (error.message !== 'Connection closing.') {
@@ -27,12 +21,12 @@ module.exports = app => {
 
       connection.on('close', () => {
         console.error('[AMQP] Connection closed. Reconnecting…');
-        return setTimeout(connectToServer, 1000);
+        return setTimeout(connectToServer, 3000);
       });
 
       whenConnected();
     } catch (error) {
-      setTimeout(connectToServer, 1000);
+      setTimeout(connectToServer, 3000);
     }
   };
 
@@ -45,5 +39,6 @@ module.exports = app => {
       startConsumer({ connection, io, workerPool, queue: QUEUE_TRANSCODE });
     }
   };
+
   connectToServer();
 };

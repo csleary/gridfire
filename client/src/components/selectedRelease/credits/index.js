@@ -14,7 +14,7 @@ const Credits = ({ credits }) => {
 };
 
 Credits.propTypes = {
-  credits: PropTypes.number
+  credits: PropTypes.string
 };
 
 export default Credits;

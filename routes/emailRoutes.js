@@ -28,6 +28,7 @@ const defaults = {
     pass: smtpPassword
   }
 };
+
 const transporter = nodemailer.createTransport(defaults);
 
 module.exports = app => {
@@ -57,15 +58,15 @@ module.exports = app => {
         text: req.body.message
       };
 
-      transporter.sendMail(mailOptions, err => {
-        if (err) {
-          throw new Error(`Error! Could not send message: ${err}`);
+      transporter.sendMail(mailOptions, error => {
+        if (error) {
+          throw new Error(`Error! Could not send message: ${error}`);
         } else {
           res.status(200).send({ success: 'Thanks! Message sent.' });
         }
       });
-    } catch (e) {
-      res.status(417).send({ error: e.message });
+    } catch (error) {
+      res.status(417).send({ error: error.message });
     }
   });
 
@@ -91,7 +92,7 @@ module.exports = app => {
       const user = await User.findOne({ 'auth.email': email });
 
       if (!user) {
-        throw new Error('Error! We cannot find a user with that address.');
+        throw new Error('We cannot find a user with that address.');
       }
 
       const token = await crypto.randomBytes(20).toString('hex');
@@ -103,8 +104,7 @@ module.exports = app => {
         })
         .exec()
         .then(() => {
-          const siteUrl = `${`${req.protocol}://${req.headers.host ||
-            req.hostname}`}/reset/`;
+          const siteUrl = `${`${req.protocol}://${req.headers.host || req.hostname}`}/reset/`;
 
           const mailOptions = {
             from: nemp3EmailSupport,
@@ -122,11 +122,9 @@ Best wishes,
 The nemp3 team`
           };
 
-          transporter.sendMail(mailOptions, err => {
-            if (err) {
-              throw new Error(
-                `Error! Could not send password reset email: ${err}`
-              );
+          transporter.sendMail(mailOptions, error => {
+            if (error) {
+              throw new Error(`Could not send password reset email: ${error}`);
             }
           });
 
@@ -134,8 +132,8 @@ The nemp3 team`
             success: `Thank you. An email has been sent to ${email}.`
           });
         });
-    } catch (e) {
-      res.status(417).send({ error: e.message });
+    } catch (error) {
+      res.status(417).send({ error: error.message });
     }
   });
 
@@ -149,14 +147,12 @@ The nemp3 team`
       });
 
       if (!user) {
-        throw new Error(
-          'Error! Either the user does not exist or the token has expired.'
-        );
+        throw new Error('Either the user does not exist or the token has expired.');
       }
 
       res.end();
-    } catch (e) {
-      res.status(417).send({ error: e.message });
+    } catch (error) {
+      res.status(417).send({ error: error.message });
     }
   });
 
@@ -166,7 +162,7 @@ The nemp3 team`
       const { passwordNew, passwordConfirm } = req.body;
 
       if (passwordNew !== passwordConfirm) {
-        throw new Error('Error! The passwords do not match.');
+        throw new Error('The passwords do not match.');
       }
 
       const user = await User.findOne({
@@ -175,9 +171,7 @@ The nemp3 team`
       });
 
       if (!user) {
-        throw new Error(
-          'Error! The reset token cannot be found (perhaps it has expired). Please request another reset.'
-        );
+        throw new Error('The reset token cannot be found (perhaps it has expired). Please request another reset.');
       }
 
       user.auth.password = passwordNew;
@@ -196,18 +190,16 @@ Best wishes,
 The nemp3 team`
         };
 
-        transporter.sendMail(mailOptions, err => {
-          if (err) {
-            throw new Error(
-              `Error! Could not send password reset confirmation: ${err}`
-            );
+        transporter.sendMail(mailOptions, error => {
+          if (error) {
+            throw new Error(`Could not send password reset confirmation: ${error}`);
           }
         });
 
         res.send(updatedUser.auth.email);
       });
-    } catch (e) {
-      res.status(417).send({ error: e.message });
+    } catch (error) {
+      res.status(417).send({ error: error.message });
     }
   });
 };

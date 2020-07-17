@@ -1,9 +1,10 @@
 import { Field, reduxForm } from 'redux-form';
+import { toastError, toastSuccess } from 'features/toast';
 import PropTypes from 'prop-types';
 import React from 'react';
 import RenderRecaptcha from '../renderRecaptcha';
+import axios from 'axios';
 import { connect } from 'react-redux';
-import { sendEmail } from 'actions';
 
 class Contact extends React.Component {
   renderField = field => {
@@ -47,6 +48,16 @@ class Contact extends React.Component {
     );
   };
 
+  sendMail = async (values, callback) => {
+    try {
+      const res = await axios.post('/api/contact', values);
+      this.props.toastSuccess(res.data.success);
+      callback();
+    } catch (e) {
+      this.props.toastError(e.response.data.error);
+    }
+  };
+
   render() {
     const { handleSubmit, invalid, pristine, submitSucceeded } = this.props;
     const captcha = this.captcha;
@@ -59,7 +70,7 @@ class Contact extends React.Component {
             <form
               className="form-row mt-5"
               onSubmit={handleSubmit(values => {
-                this.props.sendEmail(values, () => {
+                this.sendEmail(values, () => {
                   this.props.reset();
                   captcha.getRenderedComponent().reset();
                 });
@@ -119,29 +130,20 @@ Contact.propTypes = {
   pristine: PropTypes.bool,
   reset: PropTypes.func,
   sendEmail: PropTypes.func,
-  submitSucceeded: PropTypes.bool
+  submitSucceeded: PropTypes.bool,
+  toastSuccess: PropTypes.func,
+  toastError: PropTypes.func
 };
 
 const validate = values => {
   const errors = {};
-  if (!values.email) {
-    errors.email = 'Please enter your email address.';
-  }
-  if (!values.message) {
-    errors.message = 'Please enter a message.';
-  }
-  if (!values.recaptcha) {
-    errors.recaptcha = 'Please complete the recaptcha.';
-  }
+  if (!values.email) errors.email = 'Please enter your email address.';
+  if (!values.message) errors.message = 'Please enter a message.';
+  if (!values.recaptcha) errors.recaptcha = 'Please complete the recaptcha.';
   return errors;
 };
 
 export default reduxForm({
   form: 'contactForm',
   validate
-})(
-  connect(
-    null,
-    { sendEmail }
-  )(Contact)
-);
+})(connect(null, { toastSuccess, toastError })(Contact));

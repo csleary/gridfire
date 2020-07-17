@@ -1,44 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import {
-  fetchArtistCatalogue,
-  fetchRelease,
-  playTrack,
-  toastInfo
-} from 'actions';
-import PropTypes from 'prop-types';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
-import { connect } from 'react-redux';
+import { fetchArtistCatalogue } from 'features/releases';
 import { frontPage } from 'components/home/home.module.css';
 import styles from './artistPage.module.css';
+import { useParams } from 'react-router-dom';
 
-const ArtistPage = props => {
-  const {
-    artist: { releases, name },
-    fetchArtistCatalogue: fetchArtist,
-    match
-  } = props;
-
-  const { artist } = match.params;
-
+const ArtistPage = () => {
+  const { artistId } = useParams();
+  const dispatch = useDispatch();
+  const { name, releases } = useSelector(state => state.releases.artist, shallowEqual);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchArtist(artist).then(() => setLoading(false));
-  }, [fetchArtist, artist]);
+    dispatch(fetchArtistCatalogue(artistId)).then(() => setLoading(false));
+  }, [dispatch, artistId]);
 
   const renderReleases = () => {
     if (!releases) return;
-
-    return releases.map(release => (
-      <RenderRelease
-        fetchRelease={props.fetchRelease}
-        key={release._id}
-        playTrack={props.playTrack}
-        release={release}
-        toastInfo={props.toastInfo}
-      />
-    ));
+    return releases.map(release => <RenderRelease key={release._id} release={release} />);
   };
 
   if (isLoading) {
@@ -62,24 +43,4 @@ const ArtistPage = props => {
   );
 };
 
-ArtistPage.propTypes = {
-  artist: PropTypes.object,
-  fetchArtistCatalogue: PropTypes.func,
-  fetchRelease: PropTypes.func,
-  match: PropTypes.object,
-  playTrack: PropTypes.func,
-  toastInfo: PropTypes.func
-};
-
-function mapStateToProps(state) {
-  return {
-    artist: state.releases.artist
-  };
-}
-
-export default connect(mapStateToProps, {
-  fetchRelease,
-  fetchArtistCatalogue,
-  playTrack,
-  toastInfo
-})(ArtistPage);
+export default ArtistPage;

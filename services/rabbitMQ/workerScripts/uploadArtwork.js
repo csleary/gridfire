@@ -5,16 +5,15 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const mongoose = require('mongoose');
 const sharp = require('sharp');
-const { workerData } = require('worker_threads');
-const { parentPort } = require('worker_threads');
+const { workerData, parentPort } = require('worker_threads');
 require('../../../models/Release');
 aws.config.update({ region: AWS_REGION });
 
 const Release = mongoose.model('releases');
 
-(async () => {
+const uploadArtwork = async () => {
   try {
-    const { filePath, releaseId } = workerData;
+    const { filePath, releaseId, userId } = workerData;
 
     await mongoose.connect(keys.mongoURI, {
       useFindAndModify: false,
@@ -25,17 +24,13 @@ const Release = mongoose.model('releases');
 
     const release = await Release.findByIdAndUpdate(
       releaseId,
-      { artwork: 'storing' },
+      { $set: { 'artwork.status': 'storing', 'artwork.dateCreated': new Date(Date.now()) } },
       { new: true }
     ).exec();
 
-    parentPort.postMessage('Optimising and storing artwork…');
-
-    const optimisedImg = sharp()
-      .resize(1000, 1000)
-      .toFormat('jpeg');
-
+    parentPort.postMessage({ message: 'Optimising and storing artwork…', userId });
     const file = fs.createReadStream(filePath);
+    const optimisedImg = sharp().resize(1000, 1000).toFormat('jpeg');
     const s3Stream = file.pipe(optimisedImg);
     const s3 = new aws.S3();
 
@@ -47,10 +42,22 @@ const Release = mongoose.model('releases');
     };
 
     await s3.upload(params).promise();
-    await release.updateOne(releaseId, { artwork: 'stored' }).exec();
+
+    await release
+      .updateOne({
+        $set: {
+          'artwork.status': 'stored',
+          'artwork.dateUpdated': new Date(Date.now())
+        }
+      })
+      .exec();
+
+    parentPort.postMessage({ type: 'artworkUploaded', userId });
     await fsPromises.unlink(filePath);
     await mongoose.disconnect();
   } catch (error) {
     throw new Error(error);
   }
-})();
+};
+
+uploadArtwork();

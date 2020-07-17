@@ -9,12 +9,17 @@ const encodeAacFrag = (downloadSrc, outputAudio) =>
       .audioCodec('aac')
       .audioBitrate(128)
       .toFormat('mp4')
+      // .on('start', () => {})
+      // .on('codecData', ({ duration }) => {
+      //   postMessage(duration);
+      // })
+      // .on('progress', ({ percent }) => {
+      //   postMessage(percent);
+      // })
       .on('stderr', () => {})
+      .on('error', error => reject(error.message))
       .output(outputAudio)
-      .outputOptions([
-        '-frag_duration 15000000',
-        '-movflags default_base_moof+empty_moov'
-      ])
+      .outputOptions(['-frag_duration 15000000', '-movflags default_base_moof+empty_moov'])
       .on('error', error => reject(`Transcoding error: ${error.toString()}`))
       .on('end', resolve)
       .run();
@@ -37,21 +42,12 @@ const encodeMp3 = async release => {
     const s3 = new aws.S3();
     const { trackList } = release;
     const releaseId = release._id.toString();
-
-    const data = await s3
-      .listObjectsV2({
-        Bucket: BUCKET_SRC,
-        Prefix: releaseId
-      })
-      .promise();
+    const data = await s3.listObjectsV2({ Bucket: BUCKET_SRC, Prefix: releaseId }).promise();
 
     for (const s3Track of data.Contents) {
       const { Key } = s3Track;
       const trackId = trackList.find(track => Key.includes(track._id))._id;
-
-      const trackSrc = s3
-        .getObject({ Bucket: BUCKET_SRC, Key })
-        .createReadStream();
+      const trackSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
 
       const encode = ffmpeg(trackSrc)
         .audioCodec('libmp3lame')

@@ -1,21 +1,23 @@
 import './navbar.css';
-import { Link, NavLink, withRouter } from 'react-router-dom';
+import { Link, NavLink, useHistory } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
-import { fetchCatalogue, fetchUser, logOut, toastSuccess } from 'actions';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { fetchUser, logOut } from 'features/user';
 import DashNavBar from './dashNavBar';
 import FontAwesome from 'react-fontawesome';
 import Logo from './logo';
-import PropTypes from 'prop-types';
 import SearchBar from './searchBar';
 import classNames from 'classnames';
 import throttle from 'lodash.throttle';
+import { toastSuccess } from 'features/toast';
 
-const NavBar = props => {
-  const [showLogo, setShowLogo] = useState(false);
+const NavBar = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
   const navBar = useRef();
-  const user = useSelector(state => state.user);
-  const { auth, credit, isLoading } = user;
+  const [showLogo, setShowLogo] = useState(false);
+  const user = useSelector(state => state.user, shallowEqual);
+  const { auth, credits, isLoading } = user;
 
   useEffect(() => {
     document.addEventListener('scroll', throttle(handleScroll, 200));
@@ -23,22 +25,22 @@ const NavBar = props => {
   });
 
   const handleLogout = () => {
-    props.logOut(res => {
-      props.history.push('/login');
-      props.fetchUser();
-      props.toastSuccess(res.data.success);
-    });
+    dispatch(
+      logOut(res => {
+        history.push('/login');
+        batch(() => {
+          dispatch(fetchUser());
+          dispatch(toastSuccess(res.data.success));
+        });
+      })
+    );
   };
 
   const handleScroll = () => {
     const navbarPos = navBar.current && navBar.current.offsetTop;
     const scrollPos = window.pageYOffset;
-
-    if (scrollPos < navbarPos) {
-      setShowLogo(false);
-    } else {
-      setShowLogo(true);
-    }
+    if (scrollPos < navbarPos) return setShowLogo(false);
+    return setShowLogo(true);
   };
 
   const navbarClass = classNames('navbar-nav', {
@@ -51,9 +53,9 @@ const NavBar = props => {
   });
 
   const creditClass = classNames('ml-2', 'credit', {
-    cyan: credit > 1,
-    yellow: credit === 1,
-    red: credit === 0
+    cyan: credits > 1,
+    yellow: credits === 1,
+    red: credits === 0
   });
 
   const renderNav = () => {
@@ -67,11 +69,7 @@ const NavBar = props => {
           </li>
           <li className="nav-item">
             <NavLink to={'/login'} className="nav-link">
-              <FontAwesome
-                name="sign-in"
-                className="mr-2"
-                title="Click to log in."
-              />
+              <FontAwesome name="sign-in" className="mr-2" title="Click to log in." />
               <span className="nav-label">Log In</span>
             </NavLink>
           </li>
@@ -87,26 +85,18 @@ const NavBar = props => {
           </Link>
         </li>
         <li className="nav-item">
-          <NavLink
-            to={'/release/add/'}
-            className="nav-link"
-            title="Add a new release."
-          >
+          <NavLink to={'/release/add/'} className="nav-link" title="Add a new release.">
             <FontAwesome name="plus-square" className="mr-2" />
             <span className="nav-label">Add Release</span>
             <FontAwesome
               name="certificate"
               className={creditClass}
-              title={`Your nemp3 credit balance is: ${credit}`}
+              title={`Your nemp3 credit balance is: ${credits}`}
             />{' '}
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink
-            to={'/dashboard'}
-            className="nav-link"
-            title="Visit your dashboard."
-          >
+          <NavLink to={'/dashboard'} className="nav-link" title="Visit your dashboard.">
             <FontAwesome name="user-circle" className="mr-2" />
             <span className="nav-label">Dashboard</span>
           </NavLink>
@@ -114,11 +104,7 @@ const NavBar = props => {
         </li>
         <li className="nav-item">
           <button className="nav-link" onClick={handleLogout}>
-            <FontAwesome
-              name="sign-out"
-              className="mr-2"
-              title="Log out of your account."
-            />
+            <FontAwesome name="sign-out" className="mr-2" title="Log out of your account." />
             <span className="nav-label">Log out</span>
           </button>
         </li>
@@ -138,19 +124,4 @@ const NavBar = props => {
   );
 };
 
-NavBar.propTypes = {
-  fetchUser: PropTypes.func,
-  history: PropTypes.object,
-  toastSuccess: PropTypes.func,
-  logOut: PropTypes.func,
-  user: PropTypes.object
-};
-
-export default withRouter(
-  connect(null, {
-    fetchCatalogue,
-    fetchUser,
-    logOut,
-    toastSuccess
-  })(NavBar)
-);
+export default NavBar;

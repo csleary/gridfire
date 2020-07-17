@@ -1,56 +1,42 @@
-import { fetchRelease, playTrack, toastInfo } from 'actions';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import OverlayDownloadButton from './overlayDownloadButton';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { fetchRelease } from 'features/releases';
 import placeholder from 'placeholder.svg';
+import { playTrack } from 'features/player';
 import styles from './renderRelease.module.css';
+import { toastInfo } from 'features/toast';
 import withDownload from 'components/payment/payments/withDownload';
 
 const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = props => {
   const { release, variation } = props;
-  const { player } = useSelector(state => state);
   const dispatch = useDispatch();
-  const { _id, artist, artistName, artwork, releaseTitle, trackList } = release;
-  const releaseId = _id;
+  const { player } = useSelector(state => state, shallowEqual);
+  const { _id: releaseId, artist, artistName, artwork, releaseTitle, trackList } = release;
 
   const handlePlayTrack = () => {
-    if (player.trackId === trackList[0]._id) return;
+    const [{ _id: trackId, trackTitle }] = trackList;
+    if (player.trackId === trackId) return;
 
-    dispatch(
-      playTrack(
-        releaseId,
-        trackList[0]._id,
-        artistName,
-        trackList[0].trackTitle
-      )
-    );
-
-    dispatch(fetchRelease(releaseId));
-    dispatch(toastInfo(`Loading ${artistName} - '${trackList[0].trackTitle}'`));
+    batch(() => {
+      dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+      dispatch(fetchRelease(releaseId));
+      dispatch(toastInfo(`Loading ${artistName} - '${trackTitle}'`));
+    });
   };
 
   const showCollectionDownload = () => {
     if (variation === 'collection') {
       return (
         <>
-          <DownloadButton
-            artistName={artistName}
-            format="mp3"
-            releaseId={releaseId}
-            releaseTitle={releaseTitle}
-          />
-          <DownloadButton
-            artistName={artistName}
-            format="flac"
-            releaseId={releaseId}
-            releaseTitle={releaseTitle}
-          />
+          <DownloadButton artistName={artistName} format="mp3" releaseId={releaseId} releaseTitle={releaseTitle} />
+          <DownloadButton artistName={artistName} format="flac" releaseId={releaseId} releaseTitle={releaseTitle} />
         </>
       );
     }
@@ -64,17 +50,9 @@ const RenderRelease = props => {
         data-sizes="auto"
         data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
       />
-      <img
-        alt={`${artistName} - ${releaseTitle}`}
-        className={styles.placeholder}
-        src={placeholder}
-      />
+      <img alt={`${artistName} - ${releaseTitle}`} className={styles.placeholder} src={placeholder} />
       <div className={styles.overlay} title={`${artistName} - ${releaseTitle}`}>
-        <Link
-          className={styles.artistName}
-          title={`Visit the artist page for ${artistName}`}
-          to={`/artist/${artist}`}
-        >
+        <Link className={styles.artistName} title={`Visit the artist page for ${artistName}`} to={`/artist/${artist}`}>
           {artistName}
         </Link>
         <div className={styles.buttons}>
@@ -90,10 +68,7 @@ const RenderRelease = props => {
             title={`More information on '${releaseTitle}', by ${artistName}`}
             to={`/release/${releaseId}`}
           >
-            <FontAwesome
-              className={`${styles.icon} info m-auto`}
-              name="info-circle"
-            />
+            <FontAwesome className={`${styles.icon} info m-auto`} name="info-circle" />
           </Link>
           {showCollectionDownload()}
         </div>

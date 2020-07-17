@@ -1,33 +1,41 @@
-const handleWork = (io, workerData, workerPool) =>
+const mongoose = require('mongoose');
+require('../../models/Release');
+const Release = mongoose.model('releases');
+const { publishToQueue } = require('./publisher');
+
+const handleWork = (io, workerPool, workerData, workerScript) =>
   new Promise((resolve, reject) => {
     const ioEmit = require('./ioEmit')(io);
 
-    workerPool.acquire(
-      workerData.script,
-      { workerData },
-      (poolError, worker) => {
-        if (poolError) {
-          reject(poolError.message);
+    workerPool.acquire(workerScript, { workerData }, (poolError, worker) => {
+      if (poolError) reject(poolError.message);
+
+      worker.on('message', async message => {
+        const { queue, type } = message;
+
+        if (type === 'updateRelease') {
+          const release = await Release.findById(message.releaseId, '-__v', { lean: true });
+          ioEmit('updateRelease', { userId: release.user.toString(), release });
+        } else if (type === 'publishToQueue') {
+          publishToQueue('', queue, message);
+        } else if (type) {
+          ioEmit(type, message);
+        } else {
+          ioEmit('workerMessage', message);
         }
+      });
 
-        worker.on('message', (message) => {
-          if (message.type) {
-            ioEmit(message.type, { ...workerData, ...message });
-          } else {
-            ioEmit('workerMessage', { ...workerData, message });
-          }
-        });
+      worker.on('error', workerError => reject(workerError.message));
+      worker.on('stdout', output => {});
 
-        worker.on('error', (workerError) => reject(workerError.message));
-        worker.on('exit', (status) => {
-          if (status > 0) {
-            resolve(false);
-          } else {
-            resolve(true);
-          }
-        });
-      }
-    );
+      worker.on('exit', status => {
+        if (status > 0) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
   });
 
 module.exports = handleWork;
