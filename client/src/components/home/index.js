@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
@@ -23,11 +23,14 @@ const Home = props => {
   const [sortPath, setSortPath] = useState('dateCreated');
   const [sortOrder, setSortOrder] = useState(-1);
 
-  const handleFetchCatalogue = async (path = sortPath, order = sortOrder, isPaging = false) => {
-    setFetching(true);
-    await dispatch(fetchCatalogue(catalogueLimit, catalogueSkip, path, order, isPaging));
-    setFetching(false);
-  };
+  const handleFetchCatalogue = useCallback(
+    async (path = sortPath, order = sortOrder, isPaging = false) => {
+      setFetching(true);
+      await dispatch(fetchCatalogue(catalogueLimit, catalogueSkip, path, order, isPaging));
+      setFetching(false);
+    },
+    [catalogueLimit, catalogueSkip, dispatch, sortOrder, sortPath]
+  );
 
   useEffect(() => {
     if (!catalogue.length) {
