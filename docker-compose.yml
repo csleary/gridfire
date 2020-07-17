@@ -1,11 +1,11 @@
-version: '3.7'
+version: "3.7"
 services:
   app:
     build:
       context: .
       target: nemp3
     command: /usr/bin/node /root/nemp3/index.js
-    container_name: 'nemp3-server'
+    container_name: "nemp3-server"
     depends_on:
       - rabbit
       - mongo
@@ -13,20 +13,20 @@ services:
     networks:
       - internal
     ports:
-      - '8083:8083'
+      - "8083:8083"
     restart: always
     tmpfs: /root/nemp3/tmp
 
   mongo:
     command: mongod --auth
     container_name: mongo
-    expose:
-      - '27017'
     image: mongo
     networks:
       internal:
         aliases:
           - mongo
+    ports:
+      - "27017"
     restart: always
     volumes:
       - data-volume:/data/db
@@ -37,7 +37,7 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     expose:
-      - '5672'
+      - "5672"
     hostname: rabbit
     image: rabbitmq:3.8.2-management
     networks:
@@ -45,7 +45,7 @@ services:
         aliases:
           - rabbit
     ports:
-      - '15672:15672'
+      - "15672:15672"
     restart: always
 
 networks:

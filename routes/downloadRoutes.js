@@ -7,7 +7,6 @@ const { zipDownload } = require('../controllers/archiveController');
 const { encodeMp3 } = require('../controllers/encodingController');
 const { generateToken } = require('../controllers/tokenController');
 const requireLogin = require('../middlewares/requireLogin');
-
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
@@ -16,11 +15,8 @@ module.exports = app => {
   // Fetch Download Token
   app.post('/api/download', requireLogin, async (req, res) => {
     const { releaseId } = req.body;
-    const user = await User.findById(req.user._id);
-
-    const hasPurchased = user.purchases.some(purchase =>
-      purchase.releaseId.equals(releaseId)
-    );
+    const user = await User.findById(req.user._id).exec();
+    const hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
 
     if (hasPurchased) {
       const token = generateToken({ releaseId });
@@ -37,13 +33,9 @@ module.exports = app => {
     const [, token] = req.params.token.split(' ');
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
-    const release = await Release.findById(releaseId);
+    const release = await Release.findById(releaseId).exec();
     const { trackList } = release;
-
-    const s3AudioMp3Query = await s3
-      .listObjectsV2({ Bucket: BUCKET_MP3, Prefix: releaseId })
-      .promise();
-
+    const s3AudioMp3Query = await s3.listObjectsV2({ Bucket: BUCKET_MP3, Prefix: releaseId }).promise();
     const audioMp3Available = s3AudioMp3Query.KeyCount === trackList.length;
     if (!audioMp3Available) await encodeMp3(release);
     res.end();
@@ -55,7 +47,7 @@ module.exports = app => {
     const [, token] = req.params.token.split(' ');
     const decoded = jwt.verify(token, nemp3Secret);
     const { releaseId } = decoded;
-    const release = await Release.findById(releaseId);
+    const release = await Release.findById(releaseId).exec();
 
     switch (format) {
       case 'flac':

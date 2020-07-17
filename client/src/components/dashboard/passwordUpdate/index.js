@@ -1,9 +1,10 @@
 import { Field, reduxForm } from 'redux-form';
+import { connect, shallowEqual, useSelector } from 'react-redux';
+import { toastError, toastSuccess } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
-import { passwordUpdate } from 'actions';
+import axios from 'axios';
 
 const renderField = field => {
   const {
@@ -37,21 +38,23 @@ const renderField = field => {
   );
 };
 
-function PasswordUpdate(props) {
-  const {
-    handleSubmit,
-    passwordUpdate,
-    reset,
-    pristine,
-    submitting,
-    invalid
-  } = props;
+export const passwordUpdate = values => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/update', values);
+    toastSuccess(res.data.success)(dispatch);
+  } catch (e) {
+    toastError(e.response.data.error)(dispatch);
+  }
+};
 
-  const onSubmit = values =>
-    passwordUpdate({
-      email: props.user.auth.email,
-      ...values
-    }).then(reset);
+function PasswordUpdate(props) {
+  const { handleSubmit, reset, pristine, submitting, invalid } = props;
+  const { auth } = useSelector(state => state.user, shallowEqual);
+
+  const onSubmit = async values => {
+    await passwordUpdate({ email: auth.email, ...values });
+    reset();
+  };
 
   return (
     <main className="container">
@@ -59,8 +62,7 @@ function PasswordUpdate(props) {
         <div className="col mb-5 py-3">
           <h3 className="text-center mt-4">Update Password</h3>
           <p className="text-center">
-            You can update your password using the form below (unless
-            you&rsquo;ve logged-in with a Google account).
+            You can update your password using the form below (unless you&rsquo;ve logged-in with a Google account).
           </p>
           <form className="my-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
@@ -118,12 +120,10 @@ function PasswordUpdate(props) {
 
 PasswordUpdate.propTypes = {
   handleSubmit: PropTypes.func,
-  passwordUpdate: PropTypes.func,
   reset: PropTypes.func,
   pristine: PropTypes.bool,
   submitting: PropTypes.bool,
-  invalid: PropTypes.bool,
-  user: PropTypes.object
+  invalid: PropTypes.bool
 };
 
 const required = value => (value ? undefined : 'Please enter a value.');
@@ -135,15 +135,4 @@ const isMatched = (value, allValues) => {
   return 'The passwords entered do not match. Please double-check them.';
 };
 
-const mapStateToProps = state => ({
-  user: state.user
-});
-
-export default reduxForm({
-  form: 'loginForm'
-})(
-  connect(
-    mapStateToProps,
-    { passwordUpdate }
-  )(PasswordUpdate)
-);
+export default reduxForm({ form: 'loginForm' })(connect(PasswordUpdate));

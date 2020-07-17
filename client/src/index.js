@@ -1,17 +1,19 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as serviceWorker from 'serviceWorker';
-import { applyMiddleware, createStore } from 'redux';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import App from './App';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import reduxThunk from 'redux-thunk';
-import rootReducer from 'reducers';
-import socket from './middleware/socket';
+import rootReducer from 'features';
+import socketMiddleware from 'middleware/socket';
 
 const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
 
-const store = createStore(rootReducer, {}, applyMiddleware(reduxThunk, socket));
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: [...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }), socketMiddleware]
+});
 
 ReactDOM.render(
   <Provider store={store}>

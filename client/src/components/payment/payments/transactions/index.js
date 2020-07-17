@@ -21,8 +21,7 @@ const Transactions = ({ transactions, error }) => {
       <div className={styles.transactions}>
         <div className="alert alert-danger text-center" role="alert">
           <FontAwesome name="bomb" className="mr-2" />
-          Sorry, we encountered an error while checking for transactions.{' '}
-          {error}
+          Sorry, we encountered an error while checking for transactions. {error}
         </div>
       </div>
     );
@@ -42,9 +41,7 @@ const Transactions = ({ transactions, error }) => {
           <div>Amount</div>
           {txList}
         </div>
-        <p>
-          Note: Very recent transactions may not yet be visible on the explorer.
-        </p>
+        <p>Note: Very recent transactions may not yet be visible on the explorer.</p>
       </div>
     );
   }

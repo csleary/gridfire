@@ -1,11 +1,12 @@
 import { Field, reduxForm } from 'redux-form';
-import { Link, withRouter } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import React, { useEffect } from 'react';
-import { fetchUser, toastError, toastSuccess } from 'actions';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { toastError, toastSuccess } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { connect } from 'react-redux';
+import { fetchUser } from 'features/user';
 import styles from './login.module.css';
 
 const renderField = field => {
@@ -43,14 +44,10 @@ const renderField = field => {
 };
 
 const Login = props => {
-  const {
-    handleSubmit,
-    pristine,
-    submitting,
-    history,
-    invalid,
-    user: { auth }
-  } = props;
+  const { handleSubmit, pristine, reset, submitting, invalid } = props;
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { auth } = useSelector(state => state.user, shallowEqual);
 
   useEffect(() => {
     if (auth && auth.email.length) {
@@ -63,20 +60,19 @@ const Login = props => {
   }, [auth, history]);
 
   const onSubmit = values => {
-    login(values, () => {
-      props.fetchUser().then(() => {
-        props.reset();
-      });
+    login(values, async () => {
+      await dispatch(fetchUser());
+      reset();
     });
   };
 
   const login = async (values, callback) => {
     try {
       const res = await axios.post('/api/auth/login', values);
-      props.toastSuccess(res.data.success);
+      dispatch(toastSuccess(res.data.success));
       callback();
-    } catch (e) {
-      props.toastError(e.response.data.error);
+    } catch (error) {
+      dispatch(toastError(error.response.data.error));
     }
   };
 
@@ -89,10 +85,7 @@ const Login = props => {
       </div>
       <div className="row">
         <div className="col-md mb-5">
-          <p>
-            If you already have a nemp3 account, please log in using the form
-            below.
-          </p>
+          <p>If you already have a nemp3 account, please log in using the form below.</p>
           <form className="mb-5" onSubmit={handleSubmit(onSubmit)}>
             <Field
               className="form-control"
@@ -129,12 +122,10 @@ const Login = props => {
             </div>
           </form>
           <p>
-            Don&rsquo;t have an account? Please{' '}
-            <Link to={'/register'}>sign up here</Link>.
+            Don&rsquo;t have an account? Please <Link to={'/register'}>sign up here</Link>.
           </p>
           <p>
-            If you&rsquo;ve forgotten your password, please{' '}
-            <Link to={'/reset'}>reset it here</Link>.
+            If you&rsquo;ve forgotten your password, please <Link to={'/reset'}>reset it here</Link>.
           </p>
         </div>
         <div className={`${styles.divider} p-5 mb-5`}>Or</div>
@@ -150,29 +141,13 @@ const Login = props => {
 };
 
 Login.propTypes = {
-  fetchUser: PropTypes.func,
   handleSubmit: PropTypes.func,
-  history: PropTypes.object,
   invalid: PropTypes.bool,
   pristine: PropTypes.bool,
   reset: PropTypes.func,
-  submitting: PropTypes.bool,
-  toastError: PropTypes.func,
-  toastSuccess: PropTypes.func,
-  user: PropTypes.object
+  submitting: PropTypes.bool
 };
 
 const required = value => (value ? undefined : 'Please enter a value.');
 
-const mapStateToProps = state => ({
-  user: state.user
-});
-
-export default reduxForm({
-  form: 'loginForm'
-})(
-  connect(
-    mapStateToProps,
-    { fetchUser, toastError, toastSuccess }
-  )(withRouter(Login))
-);
+export default reduxForm({ form: 'loginForm' })(Login);

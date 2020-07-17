@@ -5,15 +5,14 @@ const offlineQueue = [];
 const startPublisher = async connection => {
   try {
     publisherChannel = await connection.createConfirmChannel();
-    publisherChannel.on('error', error => {
-      console.error('[AMQP] Channel error:\n', error.message);
-    });
+    publisherChannel.on('error', error => console.error('[AMQP] Channel error:\n', error.message));
     publisherChannel.on('close', () => {});
 
     while (offlineQueue.length) {
-      var job = offlineQueue.shift();
+      const job = offlineQueue.shift();
       if (!job) break;
-      publishToQueue(job[0], job[1], job[2]);
+      const [exchange, routingKey, data] = job;
+      publishToQueue(exchange, routingKey, data);
     }
   } catch (error) {
     if (closeOnError(connection, error)) return;
@@ -23,9 +22,7 @@ const startPublisher = async connection => {
 const publishToQueue = async (exchange, routingKey, data) => {
   const message = Buffer.from(JSON.stringify(data));
   try {
-    await publisherChannel.publish(exchange, routingKey, message, {
-      persistent: true
-    });
+    await publisherChannel.publish(exchange, routingKey, message, { persistent: true });
   } catch (error) {
     offlineQueue.push([exchange, routingKey, message]);
     publisherChannel.connection.close();

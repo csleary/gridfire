@@ -1,76 +1,53 @@
-import {
-  TRANSCODING_COMPLETE,
-  TRANSCODING_DURATION,
-  TRANSCODING_START,
-  UPLOAD_ARTWORK,
-  UPLOAD_AUDIO_PROGRESS
-} from '../actions/types';
-import {
-  toastError,
-  toastInfo,
-  toastSuccess,
-  transcodeAudio
-} from '../actions/index';
+import { setTranscodingComplete, setUploadProgress } from 'features/tracks';
+import { toastError, toastInfo, toastSuccess } from 'features/toast';
+import { batch } from 'react-redux';
 import io from 'socket.io-client';
+import { setArtworkUploading } from 'features/artwork';
+import { setRelease } from 'features/releases';
+
 const socket = io();
 
-socket.on('connect', () => {
-  // console.log('[Socket] Connected.');
-});
-
-const socketMiddleware = store => {
-  const { dispatch, getState } = store;
-
-  socket.on('error', error => toastError(error.toString())(dispatch));
-
-  socket.on('encodeFLAC', data => {
-    const { releaseId, trackId, trackName } = data;
-    dispatch({ type: UPLOAD_AUDIO_PROGRESS, trackId, percent: 0 });
-    toastSuccess(`Upload complete for ${trackName}!`)(dispatch);
-    transcodeAudio(releaseId, trackId, trackName)(dispatch);
+const socketMiddleware = ({ dispatch, getState }) => {
+  socket.on('connect', () => {
+    console.log('[Socket.io] Connected.');
+    const userId = getState().user.userId;
+    if (userId) socket.emit('subscribe', { userId });
   });
 
-  socket.on('transcodeAAC', data => {
-    const { trackId, trackName } = data;
-    toastSuccess(`Transcoding ${trackName} to aac complete.`)(dispatch);
-    dispatch({
-      type: TRANSCODING_COMPLETE,
-      trackId
+  socket.on('error', error => dispatch(toastError(error.toString())));
+
+  socket.on('artworkUploaded', () => {
+    batch(() => {
+      dispatch(setArtworkUploading(false));
+      dispatch(toastSuccess('Artwork uploaded.'));
     });
   });
 
-  socket.on('transcodeDuration', data => {
-    const { trackId, duration } = data;
-    dispatch({
-      type: TRANSCODING_DURATION,
-      duration,
-      trackId
+  socket.on('EncodingCompleteFlac', ({ trackId, trackName }) => {
+    batch(() => {
+      dispatch(setUploadProgress({ trackId, percent: 0 }));
+      dispatch(toastSuccess(`Upload complete for ${trackName}!`));
     });
   });
 
-  socket.on('uploadArtwork', data => {
-    const state = getState();
-    const userId = state.user._id;
-    if (data.userId === userId) {
-      dispatch({
-        type: UPLOAD_ARTWORK,
-        payload: false
-      });
-      toastSuccess('Artwork uploaded.')(dispatch);
-    }
+  socket.on('EncodingCompleteAac', ({ trackId, trackName }) => {
+    batch(() => {
+      dispatch(toastSuccess(`Transcoding ${trackName} to aac complete.`));
+      dispatch(setTranscodingComplete(trackId));
+    });
   });
 
-  socket.on('workerMessage', data => {
-    const state = getState();
-    const userId = state.user._id;
-    if (data.clientId || (data.userId && data.userId === userId)) {
-      toastInfo(data.message)(dispatch);
-    }
+  socket.on('updateRelease', ({ release }) => {
+    dispatch(setRelease(release));
+  });
+
+  socket.on('workerMessage', ({ message }) => {
+    dispatch(toastInfo(message));
   });
 
   return next => action => {
-    if (action.type === TRANSCODING_START) {
-      socket.emit('transcode', action.payload);
+    if (action.type === 'user/updateUser') {
+      socket.emit('subscribeUser', { userId: action.payload._id });
     }
 
     return next(action);

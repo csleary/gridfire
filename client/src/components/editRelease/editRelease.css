@@ -30,19 +30,19 @@ input[type='date'] {
 
 .cover-art-overlay .delete .btn.btn-link {
   font-size: 4rem;
-  color: hsla(233, 10%, 75%, 1);
+  color: var(--lighter-grey);
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .cover-art-overlay .delete .btn.btn-link:hover {
-  color: #f0f0f1;
+  color: var(--off-white);
 }
 
 .dropzone-art {
   background: #000;
-  border: 2px dashed hsla(233, 10%, 50%, 1);
+  border: 2px dashed var(--light-grey);
   border-radius: 0.25rem;
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   font-weight: 600;
   margin: 2rem auto;
   max-height: 12rem;
@@ -58,23 +58,23 @@ input[type='date'] {
 
 .dropzone-art:hover {
   background-color: #000;
-  border-color: #18cdca;
-  color: #18cdca;
+  border-color: var(--cyan);
+  color: var(--cyan);
   cursor: pointer;
 }
 
 .dropzone-art.active,
 .dropzone-art.uploading {
   background-color: #000;
-  border-color: #ffd24d;
-  color: #ffd24d;
+  border-color: var(--yellow);
+  color: var(--yellow);
   cursor: pointer;
 }
 
 .dropzone-art.rejected {
   background-color: #000;
-  border-color: #ff5349;
-  color: #ff5349;
+  border-color: var(--red);
+  color: var(--red);
   cursor: not-allowed;
 }
 
@@ -86,9 +86,9 @@ input[type='date'] {
   align-items: center;
   align-self: stretch;
   background-color: #000;
-  border: 2px dashed hsla(233, 10%, 50%, 1);
+  border: 2px dashed var(--light-grey);
   border-radius: 0.25rem;
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   display: flex;
   flex: 1 0 12rem;
   font-weight: bold;
@@ -99,16 +99,16 @@ input[type='date'] {
 
 .dropzone-audio:hover {
   background-color: #000;
-  border-color: #18cdca;
-  color: #18cdca;
+  border-color: var(--cyan);
+  color: var(--cyan);
   cursor: pointer;
 }
 
 .dropzone-audio.active,
 .dropzone-audio.uploading {
   background-color: #000;
-  border-color: #ffd24d;
-  color: #ffd24d;
+  border-color: var(--yellow);
+  color: var(--yellow);
   cursor: pointer;
 }
 
@@ -118,29 +118,30 @@ input[type='date'] {
 
 .dropzone-audio.complete {
   background-color: #000;
-  border-color: #18cdca;
-  color: #18cdca;
+  border-color: var(--light-grey);
+  color: var(--light-grey);
 }
 
 .dropzone-audio.complete:hover {
-  background-color: #18cdca;
-  color: #292c44;
+  background-color: #000;
+  border-color: var(--cyan);
+  color: var(--cyan);
 }
 
 .dropzone-audio.rejected {
   background-color: #000;
-  border-color: #ff5349;
-  color: #ff5349;
+  border-color: var(--red);
+  color: var(--red);
   cursor: not-allowed;
 }
 
 .invalid input.form-control,
 .invalid {
-  border-color: #ff5349;
+  border-color: var(--red);
 }
 
 .invalid-feedback {
-  color: #ff5349;
+  color: var(--red);
   display: inherit;
 }
 
@@ -153,7 +154,7 @@ button.toggle-advanced {
 }
 
 .track-list label {
-  color: hsla(233, 10%, 30%, 1);
+  color: var(--mid-grey);
   cursor: move;
   cursor: grab;
   font-size: 1.5rem;
@@ -168,12 +169,15 @@ button.toggle-advanced {
 }
 
 .track-list .list-group-item {
-  background: hsla(233, 10%, 10%, 1);
-  border: none;
+  background: var(--charcoal);
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
   cursor: move;
   cursor: grab;
   margin-bottom: 15px;
   padding: 1rem;
+  transition: border-color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .track-list .list-group-item:last-child {
@@ -188,7 +192,7 @@ button.toggle-advanced {
 
 .track-list .list-group-item .btn {
   border-radius: 0.25rem;
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   margin: 0 0 0 0.25rem;
   min-width: auto;
   opacity: 0;
@@ -202,12 +206,16 @@ button.toggle-advanced {
 }
 
 .track-list .list-group-item .btn:hover {
-  color: #f0f0f1;
+  color: var(--off-white);
+}
+
+.track-list .list-group-item .btn:disabled {
+  border: 0;
 }
 
 .track-list .list-group-item .btn.delete-active {
-  background-color: #ff5349;
-  color: #f0f0f1;
+  background-color: var(--red);
+  color: var(--off-white);
   opacity: 1;
   visibility: visible;
 }
@@ -221,15 +229,15 @@ button.toggle-advanced {
 }
 
 .track-list .list-group-item.incomplete {
-  border-left: 4px solid #ff5349;
+  border-left: 4px solid var(--red);
 }
 
 .track-list .list-group-item.complete {
-  border-left: 4px solid #18cdca;
+  border-left: 4px solid var(--cyan);
 }
 
 .track-list .list-group-item.processing {
-  border-left: 4px solid #ffd24d;
+  border-left: 4px solid var(--yellow);
 }
 
 .track-list .list-group-item.drag-origin {
@@ -237,13 +245,13 @@ button.toggle-advanced {
 }
 
 .track-list .list-group-item.drag-active {
-  border-left: 4px solid #ffd24d;
+  border-left: 4px solid var(--yellow);
 }
 
 div.tag {
   background-color: #000;
   border-radius: 0.5rem;
-  color: hsla(233, 10%, 75%, 1);
+  color: var(--lighter-grey);
   cursor: pointer;
   display: inline-block;
   padding: 0.375rem 0.75rem;
@@ -257,10 +265,10 @@ div.tags button.btn.clear-tags {
 }
 
 div.tag .remove-tag {
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   transition: all 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 div.tag:hover .remove-tag {
-  color: #ff5349;
+  color: var(--red);
 }

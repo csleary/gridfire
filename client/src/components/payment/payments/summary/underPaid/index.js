@@ -9,12 +9,8 @@ const Underpaid = ({ hasPurchased, paidToDate, price, roundUp }) => {
     return (
       <div className={styles.info}>
         <p>
-          Please pay a futher{' '}
-          <span className="bold yellow">
-            {' '}
-            {roundUp(delta, 2).toFixed(2)} XEM{' '}
-          </span>{' '}
-          and click to confirm.
+          Please pay a futher <span className="bold yellow"> {roundUp(delta, 2).toFixed(2)} XEM </span> and click to
+          confirm.
         </p>
       </div>
     );

@@ -7,7 +7,7 @@ import placeholder from 'placeholder.svg';
 import styles from '../userRelease.module.css';
 
 const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
-  if (artwork) {
+  if (artwork.status === 'stored') {
     return (
       <Link className={styles.art} to={`/release/${releaseId}`}>
         <img
@@ -16,11 +16,7 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
           data-sizes="auto"
           data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
         />
-        <img
-          alt={`${artistName} - ${releaseTitle}`}
-          className={styles.placeholder}
-          src={placeholder}
-        />
+        <img alt={`${artistName} - ${releaseTitle}`} className={styles.placeholder} src={placeholder} />
       </Link>
     );
   }
@@ -32,11 +28,7 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
           <FontAwesome name="file-image-o" className="mr-2 red" />
           No artwork uploaded.
         </h6>
-        <img
-          alt={artwork && `'${releaseTitle}' Artwork`}
-          className={styles.image}
-          src={placeholder}
-        />
+        <img alt={artwork && `'${releaseTitle}' Artwork`} className={styles.image} src={placeholder} />
       </Link>
     </>
   );
@@ -44,7 +36,7 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
 
 Artwork.propTypes = {
   artistName: PropTypes.string,
-  artwork: PropTypes.string,
+  artwork: PropTypes.object,
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string
 };

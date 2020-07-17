@@ -1,76 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import {
-  deleteRelease,
-  fetchSales,
-  fetchUserReleases,
-  publishStatus,
-  toastSuccess,
-  toastWarning
-} from 'actions';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import UserRelease from './userRelease';
-import { connect } from 'react-redux';
+import axios from 'axios';
+import { fetchUserReleases } from 'features/releases';
 import styles from './userReleases.module.css';
 
-function UserReleases(props) {
-  const {
-    deleteRelease,
-    fetchSales,
-    fetchUserReleases,
-    history,
-    publishStatus,
-    toastSuccess,
-    toastWarning,
-    userReleases
-  } = props;
-
+function UserReleases() {
+  const dispatch = useDispatch();
+  const { userReleases } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
   useEffect(() => {
     if (!userReleases.length) setLoading(true);
-    fetchUserReleases().then(() => {
-      setLoading(false);
-    });
-  }, [fetchUserReleases, userReleases.length]);
+    dispatch(fetchUserReleases()).then(() => setLoading(false));
+  }, [dispatch, userReleases.length]);
 
   useEffect(() => {
     const handleFetch = async () => {
-      const data = await fetchSales();
-      setSalesData(data);
+      const res = await axios.get('/api/sales');
+      setSalesData(res.data);
     };
+
     handleFetch();
-  }, [fetchSales]);
+  }, []);
 
   const releasesOffline = () => {
     if (!userReleases) return;
-
     const offline = userReleases.filter(release => release.published === false);
     return offline.length;
   };
 
   const renderUserReleases = () =>
     userReleases.map(release => {
-      const sales =
-        salesData &&
-        salesData.filter(datum => datum.releaseId === release._id)[0];
-
-      return (
-        <UserRelease
-          deleteRelease={deleteRelease}
-          history={history}
-          key={release._id}
-          publishStatus={publishStatus}
-          numSold={sales && sales.purchases.length}
-          release={release}
-          toastSuccess={toastSuccess}
-          toastWarning={toastWarning}
-          userReleases={userReleases}
-        />
-      );
+      const sales = salesData?.find(sale => sale.releaseId === release._id);
+      return <UserRelease key={release._id} numSold={sales?.purchases.length} release={release} />;
     });
 
   if (isLoading) {
@@ -88,8 +55,8 @@ function UserReleases(props) {
           <div className="col p-3">
             <h3 className="text-center mt-4">Add your first release</h3>
             <p className="text-center">
-              You don&rsquo;t currently have any releases for sale. Please hit
-              the button below to add your first release.
+              You don&rsquo;t currently have any releases for sale. Please hit the button below to add your first
+              release.
             </p>
             <div className="d-flex justify-content-center">
               <Link
@@ -114,8 +81,7 @@ function UserReleases(props) {
         <div className="col py-3">
           <h3 className="text-center">
             You have {userReleases.length} release
-            {userReleases.length > 1 ? 's' : ''}{' '}
-            {releasesOffline() ? ` (${releasesOffline()} offline)` : null}
+            {userReleases.length > 1 ? 's' : ''} {releasesOffline() ? ` (${releasesOffline()} offline)` : null}
           </h3>
           <ul className={styles.releases}>{renderUserReleases()}</ul>
           <Link
@@ -133,32 +99,4 @@ function UserReleases(props) {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    salesData: state.salesData.releaseSales,
-    userReleases: state.releases.userReleases
-  };
-}
-
-UserReleases.propTypes = {
-  deleteRelease: PropTypes.func,
-  fetchSales: PropTypes.func,
-  fetchUserReleases: PropTypes.func,
-  history: PropTypes.object,
-  publishStatus: PropTypes.func,
-  toastSuccess: PropTypes.func,
-  toastWarning: PropTypes.func,
-  userReleases: PropTypes.array
-};
-
-export default connect(
-  mapStateToProps,
-  {
-    deleteRelease,
-    fetchSales,
-    fetchUserReleases,
-    publishStatus,
-    toastSuccess,
-    toastWarning
-  }
-)(UserReleases);
+export default UserReleases;

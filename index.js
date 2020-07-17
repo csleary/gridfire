@@ -1,3 +1,4 @@
+global.__basedir = __dirname;
 const app = require('express')();
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
@@ -9,9 +10,9 @@ var io = require('socket.io')(server);
 app.set('socketio', io);
 
 require('./models/Artist');
+require('./models/User');
 require('./models/Release');
 require('./models/Sale');
-require('./models/User');
 require('./services/passport');
 
 mongoose.connect(keys.mongoURI, {
@@ -44,6 +45,7 @@ require('./routes/musicRoutes')(app);
 require('./routes/nemRoutes')(app);
 require('./routes/releaseRoutes')(app);
 require('./routes/trackRoutes')(app);
+require('./routes/userRoutes')(app);
 require('./routes/socketRoutes')(app);
 
 process.on('uncaughtException', error => {

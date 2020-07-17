@@ -3,9 +3,9 @@ const handleWork = require('./worker');
 const path = require('path');
 
 const scripts = {
-  encodeFLAC: path.join(__dirname, 'workerScripts', 'encodeFLAC.js'),
-  transcodeAAC: path.join(__dirname, 'workerScripts', 'transcodeAAC.js'),
-  uploadArtwork: path.join(__dirname, 'workerScripts', 'artwork.js')
+  encodeFlac: path.join(__dirname, 'workerScripts', 'encodeFlac.js'),
+  transcodeAac: path.join(__dirname, 'workerScripts', 'transcodeAac.js'),
+  uploadArtwork: path.join(__dirname, 'workerScripts', 'uploadArtwork.js')
 };
 
 const startConsumer = async ({ connection, io, workerPool, queue }) => {
@@ -16,19 +16,15 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
     const processMessage = async message => {
       try {
         const workerData = JSON.parse(message.content.toString());
-        workerData.script = scripts[workerData.job];
-        const success = await handleWork(io, workerData, workerPool);
+        const workerScript = scripts[workerData.job];
+        const success = await handleWork(io, workerPool, workerData, workerScript);
 
         if (success) {
           consumerChannel.ack(message);
-          ioEmit(workerData.job, workerData);
         } else {
-          consumerChannel.nack(message, true);
-          workerData.error = 'A work queue error occurred.';
-          ioEmit('error', workerData);
+          consumerChannel.nack(message, false, false);
         }
       } catch (error) {
-        ioEmit('error', error);
         closeOnError(connection, error);
       }
     };

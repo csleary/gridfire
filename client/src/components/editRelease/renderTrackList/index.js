@@ -1,63 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { addTrack, deleteTrack, moveTrack } from 'features/tracks';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import RenderTrack from './renderTrack';
+import { toastSuccess } from 'features/toast';
 import { usePrevious } from 'functions';
 
 function RenderTrackList(props) {
-  const {
-    addTrack,
-    audioUploadProgress,
-    change,
-    deleteTrack,
-    fields,
-    moveTrack,
-    onDropAudio,
-    release,
-    release: { trackList },
-    toastSuccess
-  } = props;
-
+  const { change, fields: trackFields, onDropAudio } = props;
+  const dispatch = useDispatch();
+  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const { audioUploadProgress } = useSelector(state => state.tracks, shallowEqual);
+  const releaseId = release._id;
   const [dragOrigin, setDragOrigin] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [addingTrack, setAddingTrack] = useState(false);
-
   const prevAddingTrack = usePrevious(addingTrack);
-
-  const handleDeleteTrack = (remove, trackId) => {
-    const matchId = el => el._id === trackId;
-    const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
-
-    handleConfirm(trackTitle, hasConfirmed => {
-      if (!hasConfirmed) return;
-
-      deleteTrack(release._id, trackId, () => {
-        const index = trackList.findIndex(matchId);
-        remove(index);
-        const trackTitle = trackList[trackList.findIndex(matchId)].trackTitle;
-
-        toastSuccess(
-          `${(trackTitle && `'${trackTitle}'`) ||
-            `Track ${index + 1}`} deleted.`
-        );
-      });
-    });
-  };
-
-  const handleConfirm = (title, callback) => {
-    const confirmation = window.confirm(
-      `Are you sure you want to delete ${(title && `'${title}'`) ||
-        'this track'}?`
-    );
-    callback(confirmation);
-  };
-
-  const handleAddTrack = () => {
-    setAddingTrack(true);
-    addTrack(release._id, () => {
-      setAddingTrack(false);
-    });
-  };
 
   useEffect(() => {
     if (prevAddingTrack && !addingTrack) {
@@ -66,53 +25,55 @@ function RenderTrackList(props) {
     }
   }, [addingTrack, change, prevAddingTrack, release.trackList]);
 
-  const handleDragStart = index => {
-    setDragOrigin(index);
+  const handleAddTrack = async () => {
+    setAddingTrack(true);
+    await dispatch(addTrack(releaseId));
+    setAddingTrack(false);
   };
 
-  const handleDragEnter = index => {
-    setDragActive(index);
-  };
-
-  const handleDragOver = () => {};
-
-  const handleDragLeave = () => {};
-
-  const handleDrop = (fieldsMove, indexTo) => {
-    const releaseId = release._id;
-    const indexFrom = dragOrigin;
-    moveTrack(releaseId, indexFrom, indexTo, () => {
-      fieldsMove(indexFrom, indexTo);
+  const handleConfirm = trackTitle =>
+    new Promise(resolve => {
+      const hasConfirmed = window.confirm(`Are you sure you want to delete \u2018${trackTitle}\u2019?`);
+      resolve(hasConfirmed);
     });
+
+  const handleDeleteTrack = async (remove, trackId, index, trackTitle) => {
+    const hasConfirmed = await handleConfirm(trackTitle);
+    if (!hasConfirmed) return;
+    await dispatch(deleteTrack(releaseId, trackId));
+    remove(index);
+    dispatch(toastSuccess(`'${trackTitle}' deleted.`));
   };
 
+  const handleDragStart = index => setDragOrigin(index);
   const handleDragEnd = () => {
     setDragOrigin(null);
-    setDragActive(false);
+    setDragActive(null);
   };
+  const handleDragEnter = index => setDragActive(index);
+  const handleDragOver = () => {};
+  const handleDragLeave = () => {};
 
-  const uploadProgress = index => {
-    const track = release.trackList[index];
-    const trackId = track && track._id;
-    const filtered = audioUploadProgress.filter(el => trackId in el);
-    if (filtered.length) return filtered[0][trackId];
+  const handleDrop = async (fieldsMove, indexTo) => {
+    const indexFrom = dragOrigin;
+    await moveTrack(releaseId, indexFrom, indexTo);
+    fieldsMove(indexFrom, indexTo);
   };
 
   return (
     <>
       <ul className="list-group track-list">
-        {fields.map((name, index) => {
+        {trackFields.map((name, index, fields) => {
           const track = release.trackList[index];
           if (!track) return null;
-          const trackId = track._id;
+          const { _id: trackId } = track;
 
           return (
             <RenderTrack
-              audioUploadProgress={uploadProgress(index)}
+              audioUploadProgress={audioUploadProgress[trackId]}
               dragActive={dragActive}
               dragOrigin={dragOrigin}
               fields={fields}
-              handleConfirm={handleConfirm}
               handleDeleteTrack={handleDeleteTrack}
               handleDragStart={handleDragStart}
               handleDragEnter={handleDragEnter}
@@ -122,12 +83,9 @@ function RenderTrackList(props) {
               handleDragEnd={handleDragEnd}
               index={index}
               key={trackId}
-              moveTrack={moveTrack}
               name={name}
               onDropAudio={onDropAudio}
-              release={release}
-              toastSuccess={toastSuccess}
-              trackId={trackId}
+              track={track}
             />
           );
         })}
@@ -151,17 +109,9 @@ function RenderTrackList(props) {
 }
 
 RenderTrackList.propTypes = {
-  audioUploadProgress: PropTypes.array,
-  addTrack: PropTypes.func,
   change: PropTypes.func,
-  deleteTrack: PropTypes.func,
   fields: PropTypes.object,
-  isDeleting: PropTypes.array,
-  isTranscoding: PropTypes.array,
-  moveTrack: PropTypes.func,
-  onDropAudio: PropTypes.func,
-  release: PropTypes.object,
-  toastSuccess: PropTypes.func
+  onDropAudio: PropTypes.func
 };
 
 export default RenderTrackList;

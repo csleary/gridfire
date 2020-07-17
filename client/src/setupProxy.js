@@ -1,17 +1,17 @@
-const proxy = require('http-proxy-middleware');
+const createProxyMiddleware = require('http-proxy-middleware');
 
-module.exports = function(app) {
+module.exports = app => {
   app.use(
     '/api',
-    proxy({ target: 'http://localhost:8083', changeOrigin: true })
+    createProxyMiddleware({
+      target: 'http://localhost:8083'
+    })
   );
 
   app.use(
     '/socket.io',
-    proxy({
-      target: 'http://localhost:8083',
-      changeOrigin: true,
-      websocket: true
+    createProxyMiddleware({
+      target: 'http://localhost:8083'
     })
   );
 };

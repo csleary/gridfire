@@ -1,10 +1,10 @@
 import { Redirect, Route } from 'react-router-dom';
+import { shallowEqual, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { useSelector } from 'react-redux';
 
 const PrivateRoute = ({ component: PrivateComponent, ...rest }) => {
-  const { user } = useSelector(state => state);
+  const { user } = useSelector(state => state, shallowEqual);
 
   return (
     <Route

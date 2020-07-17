@@ -1,32 +1,21 @@
+import { playTrack, playerPlay } from 'features/player';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styles from 'components/selectedRelease/selectedRelease.module.css';
+import { toastInfo } from 'features/toast';
 
-const TrackList = props => {
-  const {
-    release,
-    release: { _id, artistName },
-    player
-  } = props;
-  const releaseId = _id;
-  const { isPlaying, isPaused } = player;
+const TrackList = () => {
+  const dispatch = useDispatch();
+  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
+  const { _id: releaseId, artistName, trackList } = release;
 
-  return release.trackList.map(track => {
-    const { trackTitle } = track;
-    const trackId = track._id;
-    const playerTrackId = player.trackId;
-
+  return trackList.map(({ _id: trackId, trackTitle }) => {
     const nowPlaying = () => {
-      if (trackId !== playerTrackId) return;
-
-      if (isPlaying) {
-        return <FontAwesome className={styles.nowPlaying} name="play" />;
-      }
-
-      if (isPaused) {
-        return <FontAwesome className={styles.nowPlaying} name="pause" />;
-      }
+      if (trackId === playerTrackId && isPlaying) return <FontAwesome className={styles.nowPlaying} name="play" />;
+      if (trackId === playerTrackId && isPaused) return <FontAwesome className={styles.nowPlaying} name="pause" />;
     };
 
     return (
@@ -35,14 +24,14 @@ const TrackList = props => {
           className="btn btn-link"
           onClick={() => {
             if (trackId !== playerTrackId) {
-              props.playTrack(releaseId, trackId, artistName, trackTitle);
-              props.nowPlayingToast(trackTitle);
+              dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+              dispatch(toastInfo(`Loading '${trackTitle}'`));
             } else if (!isPlaying) {
               const audioPlayer = document.getElementById('player');
               audioPlayer.play();
-              props.playerPlay();
+              dispatch(playerPlay());
               return;
-            } else return;
+            }
           }}
         >
           {trackTitle}

@@ -5,14 +5,7 @@ import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
 
 const AudioDropzone = props => {
-  const {
-    audioUploadProgress,
-    hasAudio,
-    isEncoding,
-    isTranscoding,
-    isUploading,
-    onDrop
-  } = props;
+  const { audioUploadProgress, stored, isEncoding, isTranscoding, isUploading, onDrop } = props;
 
   const handleClick = e => {
     if (isUploading) {
@@ -20,14 +13,8 @@ const AudioDropzone = props => {
     }
   };
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject
-  } = useDropzone({
-    accept:
-      'audio/wav, audio/wave, audio/x-wave, audio/vnd.wave, audio/aiff, audio/x-aiff',
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+    accept: 'audio/wav, audio/wave, audio/x-wave, audio/vnd.wave, audio/aiff, audio/x-aiff',
     disabled: isTranscoding || isEncoding,
     multiple: false,
     noDragEventsBubbling: true,
@@ -39,7 +26,7 @@ const AudioDropzone = props => {
     active: isDragActive && !isDragReject,
     uploading: isUploading || isTranscoding || isEncoding,
     disabled: isUploading || isTranscoding || isEncoding,
-    complete: hasAudio && !isUploading && !isTranscoding && !isEncoding,
+    complete: stored && !isUploading && !isTranscoding && !isEncoding,
     rejected: isDragReject
   });
 
@@ -53,7 +40,7 @@ const AudioDropzone = props => {
       <input {...getInputProps()} />
       <AudioDropzoneLabel
         audioUploadProgress={audioUploadProgress}
-        hasAudio={hasAudio}
+        stored={stored}
         isDragActive={isDragActive}
         isDragReject={isDragReject}
         isEncoding={isEncoding}

@@ -1,3 +1,4 @@
+import { shallowEqual, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from '../../progressBar';
 import PropTypes from 'prop-types';
@@ -6,15 +7,10 @@ import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
 
 const ArtworkDropzone = props => {
-  const { artworkUploading, onDrop, percentComplete } = props;
+  const { onDrop } = props;
+  const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
 
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject
-  } = useDropzone({
+  const { acceptedFiles, getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     accept: 'image/png, image/jpeg',
     disabled: artworkUploading,
     maxSize: 1024 * 1024 * 10,
@@ -36,7 +32,7 @@ const ArtworkDropzone = props => {
       return (
         <>
           <FontAwesome name="upload" className="mr-2" />
-          Uploading &lsquo;{acceptedFiles[0].path}&rsquo;: {percentComplete}%
+          Uploading &lsquo;{acceptedFiles[0]?.path}&rsquo;: {artworkUploadProgress}%
         </>
       );
     }
@@ -45,8 +41,7 @@ const ArtworkDropzone = props => {
       return (
         <>
           <FontAwesome name="times-circle" className="mr-2" />
-          Sorry, we don&lsquo;t accept that file type. Please ensure it is a png
-          or jpg image file.
+          Sorry, we don&lsquo;t accept that file type. Please ensure it is a png or jpg image file.
         </>
       );
     }
@@ -63,8 +58,8 @@ const ArtworkDropzone = props => {
     return (
       <>
         <FontAwesome name="upload" className="mr-2" />
-        Drop artwork here, or click to select. Must be under 10MB in size and
-        have a minimum dimension of 1000px (will be resized and cropped square).
+        Drop artwork here, or click to select. Must be under 10MB in size and have a minimum dimension of 1000px (will
+        be resized and cropped square).
       </>
     );
   };
@@ -81,10 +76,7 @@ const ArtworkDropzone = props => {
       <RenderStatus>
         <Status />
       </RenderStatus>
-      <ProgressBar
-        percentComplete={percentComplete}
-        willDisplay={artworkUploading}
-      />
+      <ProgressBar percentComplete={artworkUploadProgress} willDisplay={artworkUploading} />
     </div>
   );
 };
