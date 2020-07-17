@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { createSlice } from '@reduxjs/toolkit';
-import { setRelease } from 'features/releases';
+import { setActiveRelease } from 'features/releases';
 import { toastError } from 'features/toast';
 
 const artworkSlice = createSlice({
@@ -23,7 +23,7 @@ const artworkSlice = createSlice({
 const deleteArtwork = releaseId => async dispatch => {
   try {
     const res = await axios.delete(`/api/artwork/${releaseId}`);
-    dispatch(setRelease(res.data));
+    dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
   }

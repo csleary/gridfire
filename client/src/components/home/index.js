@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { fetchCatalogue, setIsPaging } from 'features/releases';
+import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import RenderRelease from 'components/renderRelease';
 import SortReleases from './sortReleases';
 import Spinner from 'components/spinner';
+import { fetchCatalogue } from 'features/releases';
 import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
 
@@ -23,14 +23,11 @@ const Home = props => {
   const [sortPath, setSortPath] = useState('dateCreated');
   const [sortOrder, setSortOrder] = useState(-1);
 
-  const handleFetchCatalogue = useCallback(
-    async (path = sortPath, order = sortOrder) => {
-      setFetching(true);
-      await dispatch(fetchCatalogue(catalogueLimit, catalogueSkip, path, order));
-      setFetching(false);
-    },
-    [catalogueLimit, catalogueSkip, dispatch, sortPath, sortOrder]
-  );
+  const handleFetchCatalogue = async (path = sortPath, order = sortOrder, isPaging = false) => {
+    setFetching(true);
+    await dispatch(fetchCatalogue(catalogueLimit, catalogueSkip, path, order, isPaging));
+    setFetching(false);
+  };
 
   useEffect(() => {
     if (!catalogue.length) {
@@ -75,10 +72,7 @@ const Home = props => {
             <button
               className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
               disabled={isFetching || reachedEndOfCat}
-              onClick={() => {
-                dispatch(setIsPaging);
-                handleFetchCatalogue();
-              }}
+              onClick={() => handleFetchCatalogue(sortPath, sortOrder, true)}
             >
               {reachedEndOfCat ? null : <FontAwesome name="refresh" spin={isFetching} className="mr-2" />}
               {reachedEndOfCat ? null : 'Load More'}

@@ -11,10 +11,10 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
     return (
       <Link className={styles.art} to={`/release/${releaseId}`}>
         <img
-          alt={artwork && `'${releaseTitle}' Artwork`}
+          alt={`\u2018${releaseTitle}\u2019 Artwork`}
           className={`${styles.image} lazyload`}
           data-sizes="auto"
-          data-src={artwork ? `${CLOUD_URL}/${releaseId}.jpg` : null}
+          data-src={`${CLOUD_URL}/${releaseId}.jpg`}
         />
         <img alt={`${artistName} - ${releaseTitle}`} className={styles.placeholder} src={placeholder} />
       </Link>

@@ -31,7 +31,7 @@ const work = async () => {
     trackDoc.dateUpdated = new Date(Date.now());
     await release.save();
     parentPort.postMessage({ message: 'Transcoding to aac…', userId });
-    parentPort.postMessage({ type: 'updateRelease', releaseId });
+    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
 
     const s3 = new aws.S3();
     const inputAudio = await s3.listObjectsV2(listParams).promise();
@@ -68,7 +68,7 @@ const work = async () => {
       trackName,
       userId
     });
-    parentPort.postMessage({ type: 'updateRelease', releaseId });
+    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
 
     await fsPromises.unlink(outputAudio);
     await fsPromises.unlink(outputMpd);
@@ -78,7 +78,7 @@ const work = async () => {
     trackDoc.status = 'error';
     trackDoc.dateUpdated = new Date(Date.now());
     await release.save();
-    parentPort.postMessage({ type: 'updateRelease', releaseId });
+    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
     throw new Error(error);
   }
 };

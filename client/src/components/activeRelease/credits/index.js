@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'components/selectedRelease/selectedRelease.module.css';
+import styles from 'components/activeRelease/activeRelease.module.css';
 
 const Credits = ({ credits }) => {
   if (!credits) return null;

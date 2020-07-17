@@ -1,7 +1,7 @@
 import './editRelease.css';
 import { Field, FieldArray, formValueSelector, getFormValues, propTypes, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
-import { addRelease, deleteRelease, publishStatus, updateRelease } from 'features/releases';
+import { addNewRelease, deleteRelease, publishStatus, updateRelease } from 'features/releases';
 import { deleteArtwork, uploadArtwork } from 'features/artwork';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import AdvancedFields from './advancedFields';
@@ -46,7 +46,7 @@ class EditRelease extends Component {
       if (artwork?.status === 'stored') this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });
       this.setState({ isLoading: false });
     } else {
-      const res = await this.props.addRelease();
+      const res = await this.props.addNewRelease();
       this.setState({ isLoading: false });
 
       // Check for address or credit issues.
@@ -60,7 +60,7 @@ class EditRelease extends Component {
   componentDidUpdate(prevProps) {
     const { _id: releaseId, artwork } = this.props.release;
     if (prevProps.release._id !== releaseId) {
-      if (artwork.status === 'stored') this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });
+      if (artwork?.status === 'stored') this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });
       this.setState({ isLoading: false });
     }
   }
@@ -261,15 +261,15 @@ const mapStateToProps = state => ({
   artworkUploading: state.artwork.artworkUploading,
   artworkUploadProgress: state.artwork.artworkUploadProgress,
   formValues: getFormValues('releaseForm')(state),
-  initialValues: state.releases.selectedRelease,
+  initialValues: state.releases.activeRelease,
   price: Number(fieldSelector(state, 'price')),
-  release: state.releases.selectedRelease,
+  release: state.releases.activeRelease,
   xemPriceUsd: state.nem.xemPriceUsd
 });
 
 EditRelease.propTypes = {
   ...propTypes,
-  addRelease: PropTypes.func,
+  addNewRelease: PropTypes.func,
   artworkUploading: PropTypes.bool,
   artworkUploadProgress: PropTypes.number,
   deleteArtwork: PropTypes.func,
@@ -299,7 +299,7 @@ let WithForm = reduxForm({
 })(EditRelease);
 
 WithForm = connect(mapStateToProps, {
-  addRelease,
+  addNewRelease,
   deleteArtwork,
   deleteRelease,
   fetchRelease,

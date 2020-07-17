@@ -33,7 +33,7 @@ const encodeFlac = async () => {
     { new: true }
   ).exec();
 
-  parentPort.postMessage({ type: 'updateRelease', releaseId });
+  parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
   await encodeFlacStream(readFile, outputPath);
   const readFlac = fs.createReadStream(outputPath);
   const Key = `${releaseId}/${trackId}.flac`;
@@ -45,7 +45,7 @@ const encodeFlac = async () => {
   trackDoc.status = 'encoded';
   trackDoc.dateUpdated = new Date(Date.now());
   await release.save();
-  parentPort.postMessage({ type: 'updateRelease', releaseId });
+  parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
   parentPort.postMessage({ type: 'EncodingCompleteFlac', trackId, trackName, userId });
 
   parentPort.postMessage({

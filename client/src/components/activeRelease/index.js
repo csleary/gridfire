@@ -24,15 +24,15 @@ import classNames from 'classnames';
 import { fetchRelease } from 'features/releases';
 import { fetchUser } from 'features/user';
 import { fetchXemPrice } from 'features/nem';
-import styles from 'components/selectedRelease/selectedRelease.module.css';
+import styles from 'components/activeRelease/activeRelease.module.css';
 
-const SelectedRelease = () => {
+const ActiveRelease = () => {
   const dispatch = useDispatch();
   const { releaseId } = useParams();
   const [isLoading, setLoading] = useState(true);
   const { path } = useRouteMatch();
   const { purchases } = useSelector(state => state.user, shallowEqual);
-  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
   const isInCollection = purchases.some(purchase => purchase.releaseId === releaseId);
   const { artist, artistName, catNumber, credits, cLine, info, pLine, price, recordLabel, releaseTitle } = release;
@@ -106,4 +106,4 @@ const SelectedRelease = () => {
   );
 };
 
-export default SelectedRelease;
+export default ActiveRelease;

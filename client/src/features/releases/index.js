@@ -9,7 +9,6 @@ const releaseSlice = createSlice({
     artworkUploading: false,
     artworkUploadProgress: 0,
     isLoading: false,
-    isPaging: false,
     catalogue: [],
     catalogueLimit: 12,
     catalogueSkip: 0,
@@ -17,16 +16,20 @@ const releaseSlice = createSlice({
     paymentAddress: '',
     priceInXem: '',
     reachedEndOfCat: false,
-    selectedRelease: { releaseDate: '', tags: [], trackList: [] },
+    activeRelease: { releaseDate: '', tags: [], trackList: [] },
     userReleases: []
   },
   reducers: {
+    clearActiveRelease(state) {
+      state.activeRelease = {};
+    },
+
     setDeleteRelease(state, action) {
       if (state.userReleases) state.userReleases = state.userReleases.filter(release => release._id !== action.payload);
     },
 
     setReleasePurchaseInfo(state, action) {
-      state.selectedRelease = action.payload.release;
+      state.activeRelease = action.payload.release;
       state.paymentAddress = action.payload.paymentInfo.paymentAddress;
       state.paymentHash = action.payload.paymentInfo.paymentHash;
       state.priceInXem = action.payload.price;
@@ -44,11 +47,11 @@ const releaseSlice = createSlice({
       state.artworkUploadProgress = action.payload;
     },
 
-    setCatalogue(state, { payload }) {
-      const reachedEndOfCat = payload.length < state.catalogueLimit ? true : false;
-      state.catalogue = state.isPaging ? [...state.catalogue, ...payload] : payload;
-      state.catalogueSkip = state.isPaging ? state.catalogueSkip + state.catalogueLimit : 0;
-      state.isPaging = false;
+    setCatalogue(state, action) {
+      const { catalogue, isPaging } = action.payload;
+      const reachedEndOfCat = catalogue.length < state.catalogueLimit ? true : false;
+      state.catalogue = isPaging ? [...state.catalogue, ...catalogue] : catalogue;
+      state.catalogueSkip = isPaging ? state.catalogueSkip + state.catalogueLimit : 0;
       state.reachedEndOfCat = reachedEndOfCat;
     },
 
@@ -56,23 +59,23 @@ const releaseSlice = createSlice({
       state.collection = action.payload;
     },
 
-    setIsPaging(state) {
-      state.isPaging = true;
-    },
-
-    setRelease(state, action) {
-      const currentId = state.selectedRelease?._id;
-      const updatedId = action.payload._id;
-      if (!currentId || currentId === updatedId) {
-        state.selectedRelease = action.payload;
-      }
+    setActiveRelease(state, action) {
+      state.activeRelease = action.payload;
     },
 
     setUserReleases(state, action) {
       state.userReleases = action.payload;
     },
 
-    setReleaseUpdate(state, action) {
+    updateActiveRelease(state, action) {
+      const currentId = state.activeRelease?._id;
+      const updatedId = action.payload._id;
+      if (!currentId || currentId === updatedId) {
+        state.activeRelease = action.payload;
+      }
+    },
+
+    updateUserReleases(state, action) {
       state.isLoading = false;
       state.userReleases = state.userReleases.map(release => {
         if (release._id === action.payload._id) return action.payload;
@@ -82,11 +85,12 @@ const releaseSlice = createSlice({
   }
 });
 
-const addRelease = () => async dispatch => {
+const addNewRelease = () => async dispatch => {
   try {
+    dispatch(clearActiveRelease());
     const res = await axios.post('/api/release');
     if (res.data.warning) return res.data;
-    dispatch(setRelease(res.data));
+    dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response?.data.error));
   }
@@ -107,9 +111,7 @@ const fetchArtistCatalogue = artistId => async dispatch => {
   dispatch(setArtistCatalogue(res.data));
 };
 
-const fetchCatalogue = (catalogueLimit, catalogueSkip, sortPath, sortOrder) => async (dispatch, getState) => {
-  const isPaging = getState().releases.isPaging;
-
+const fetchCatalogue = (catalogueLimit, catalogueSkip, sortPath, sortOrder, isPaging = false) => async dispatch => {
   const res = await axios.get('/api/catalogue/', {
     params: {
       catalogueLimit,
@@ -119,7 +121,7 @@ const fetchCatalogue = (catalogueLimit, catalogueSkip, sortPath, sortOrder) => a
     }
   });
 
-  dispatch(setCatalogue(res.data));
+  dispatch(setCatalogue({ catalogue: res.data, isPaging }));
 };
 
 const fetchCollection = () => async dispatch => {
@@ -134,7 +136,7 @@ const fetchCollection = () => async dispatch => {
 const fetchRelease = releaseId => async dispatch => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
-    dispatch(setRelease(res.data.release));
+    dispatch(setActiveRelease(res.data.release));
   } catch (error) {
     dispatch(toastError('Release currently unavailable.'));
     return error.response.data;
@@ -143,7 +145,7 @@ const fetchRelease = releaseId => async dispatch => {
 
 const fetchUserRelease = releaseId => async dispatch => {
   const res = await axios.get(`/api/user/release/${releaseId}`);
-  dispatch(setRelease(res.data));
+  dispatch(setActiveRelease(res.data));
 };
 
 const fetchUserReleases = () => async dispatch => {
@@ -155,7 +157,7 @@ const publishStatus = releaseId => async dispatch => {
   try {
     const res = await axios.patch(`/api/release/${releaseId}`);
     if (res.data.error) return dispatch(toastError(res.data.error));
-    dispatch(setReleaseUpdate(res.data));
+    dispatch(updateUserReleases(res.data));
     return true;
   } catch (error) {
     dispatch(toastError(error.response.data.error));
@@ -175,28 +177,29 @@ const purchaseRelease = releaseId => async dispatch => {
 const updateRelease = values => async dispatch => {
   try {
     const res = await axios.put('/api/release', values);
-    dispatch(setRelease(res.data));
+    dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
   }
 };
 
 export const {
+  clearActiveRelease,
   setArtistCatalogue,
   setArtworkUploading,
   setArtworkUploadProgress,
   setCatalogue,
   setCollection,
   setDeleteRelease,
-  setIsPaging,
-  setRelease,
+  setActiveRelease,
   setReleasePurchaseInfo,
   setUserReleases,
-  setReleaseUpdate
+  updateActiveRelease,
+  updateUserReleases
 } = releaseSlice.actions;
 
 export {
-  addRelease,
+  addNewRelease,
   deleteRelease,
   fetchArtistCatalogue,
   fetchCatalogue,
@@ -208,4 +211,5 @@ export {
   purchaseRelease,
   updateRelease
 };
+
 export default releaseSlice.reducer;

@@ -2,7 +2,7 @@ import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'components/selectedRelease/selectedRelease.module.css';
+import styles from 'components/activeRelease/activeRelease.module.css';
 
 const CollectionIndicator = ({ inCollection }) => {
   if (!inCollection) return null;
@@ -11,11 +11,7 @@ const CollectionIndicator = ({ inCollection }) => {
     <>
       <div className={styles.collection} />
       <Link to={'/dashboard/collection'}>
-        <FontAwesome
-          className={styles.check}
-          name="check"
-          title="This release is in your collection."
-        />
+        <FontAwesome className={styles.check} name="check" title="This release is in your collection." />
       </Link>
     </>
   );

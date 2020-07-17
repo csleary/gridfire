@@ -2,6 +2,7 @@ import './app.css';
 import 'lazysizes';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import About from 'components/about';
+import ActiveRelease from 'components/activeRelease';
 import ArtistPage from 'components/artistPage';
 import Contact from 'components/contact';
 import Dashboard from 'components/dashboard';
@@ -18,7 +19,6 @@ import React from 'react';
 import Register from 'components/register';
 import ResetPassword from 'components/resetPassword';
 import SearchResults from 'components/searchResults';
-import SelectedRelease from 'components/selectedRelease';
 import Support from 'components/support';
 import ToastList from 'components/toastList';
 import { fetchUser } from 'features/user';
@@ -47,7 +47,7 @@ const App = () => {
           <Route path="/support" component={Support} />
           <PrivateRoute exact path="/release/add/" component={EditRelease} />
           <PrivateRoute exact path="/release/:releaseId/edit" component={EditRelease} />
-          <Route path="/release/:releaseId" component={SelectedRelease} />
+          <Route path="/release/:releaseId" component={ActiveRelease} />
           <Route path="/artist/:artistId" component={ArtistPage} />
           <PrivateRoute path="/dashboard" component={Dashboard} />
         </Switch>

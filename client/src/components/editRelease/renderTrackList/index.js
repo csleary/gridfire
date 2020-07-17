@@ -10,7 +10,7 @@ import { usePrevious } from 'functions';
 function RenderTrackList(props) {
   const { change, fields: trackFields, onDropAudio } = props;
   const dispatch = useDispatch();
-  const release = useSelector(state => state.releases.selectedRelease, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { audioUploadProgress } = useSelector(state => state.tracks, shallowEqual);
   const releaseId = release._id;
   const [dragOrigin, setDragOrigin] = useState(null);
