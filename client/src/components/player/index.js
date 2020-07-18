@@ -84,8 +84,7 @@ class Player extends Component {
       const secsLeft = Math.floor(remainingTime % 60);
 
       if (this.state.bufferEnd && this.state.percentComplete === percentComplete) {
-        this.handleTrackEnded();
-        return;
+        return this.handleTrackEnded();
       }
 
       let needsBuffer = false;
@@ -227,44 +226,32 @@ class Player extends Component {
 
   fetchAudioRange = async callback => {
     if (this.newTrack) {
-      this.fetchInitSegment().then(() => {
-        this.handleSegmentRanges(buffer => callback(buffer));
-      });
+      await this.fetchInitSegment();
+      this.handleSegmentRanges(buffer => callback(buffer));
     } else {
       this.handleSegmentRanges(buffer => callback(buffer));
     }
   };
 
-  fetchInitSegment = () =>
-    new Promise(async resolve => {
-      const { releaseId, trackId } = this.props.player;
-      const res = await axios.get(`/api/${releaseId}/${trackId}/init`);
-      this.segmentList = res.data.segmentList;
-      const range = res.data.initRange;
-
-      const initConfig = {
-        headers: { Range: `bytes=${range}` },
-        responseType: 'arraybuffer'
-      };
-      const init = await axios.get(res.data.url, initConfig);
-      this.initSegment = new Uint8Array(init.data);
-      this.currentSegment = 0;
-      this.setState({ duration: res.data.duration });
-      this.newTrack = false;
-      resolve();
-    });
+  fetchInitSegment = async () => {
+    const { releaseId, trackId } = this.props.player;
+    const res = await axios.get(`/api/${releaseId}/${trackId}/init`);
+    this.segmentList = res.data.segmentList;
+    const range = res.data.initRange;
+    const initConfig = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+    const init = await axios.get(res.data.url, initConfig);
+    this.initSegment = new Uint8Array(init.data);
+    this.currentSegment = 0;
+    this.setState({ duration: res.data.duration });
+    this.newTrack = false;
+  };
 
   handleSegmentRanges = async callback => {
     const { releaseId, trackId } = this.props.player;
     const resUrl = await axios.get(`/api/${releaseId}/${trackId}/segment`);
     const segmentUrl = resUrl.data;
     const range = this.segmentList[this.currentSegment];
-
-    const segmentConfig = {
-      headers: { Range: `bytes=${range}` },
-      responseType: 'arraybuffer'
-    };
-
+    const segmentConfig = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
     const res = await axios.get(segmentUrl, segmentConfig);
     const segment = new Uint8Array(res.data);
     const buffer = new Uint8Array([...this.initSegment, ...segment]);
@@ -306,12 +293,12 @@ class Player extends Component {
   };
 
   nextTrack = index => {
-    this.props.playTrack(
-      this.props.release._id,
-      this.props.release.trackList[index]._id,
-      this.props.release.artistName,
-      this.props.release.trackList[index].trackTitle
-    );
+    this.props.playTrack({
+      releaseId: this.props.release._id,
+      trackId: this.props.release.trackList[index]._id,
+      artistName: this.props.release.artistName,
+      trackTitle: this.props.release.trackList[index].trackTitle
+    });
   };
 
   playAudio = async () => {
