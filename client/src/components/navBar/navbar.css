@@ -1,5 +1,5 @@
 .navbar {
-  background-color: hsla(233, 10%, 20%, 1);
+  background-color: var(--dark-grey);
   padding: 0;
 }
 
@@ -29,7 +29,7 @@
 .navbar a:visited,
 .navbar a:focus,
 .navbar button {
-  color: hsla(233, 10%, 75%, 1);
+  color: var(--lighter-grey);
   font-weight: 600;
   transition-duration: 0.25s;
 }
@@ -42,23 +42,23 @@
 .navbar .nav-link:hover:not(.active),
 .navbar a.active:hover:not(.active) .fa,
 .navbar button.active:hover:not(.active) .fa {
-  color: #18cdca;
+  color: var(--cyan);
 }
 
 .navbar a.active,
 .navbar button.active {
-  background: hsla(233, 10%, 15%, 1);
-  color: #f0f0f1;
+  background: var(--darker-grey);
+  color: var(--off-white);
 }
 
 .navbar a.active .fa:not(.credit),
 .navbar button.active .fa {
-  color: #ffd24d;
+  color: var(--yellow);
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .navbar .fa.no-address {
-  color: #ff5349;
+  color: var(--red);
 }
 
 .navbar-expand-lg .navbar-nav .nav-link {
@@ -82,7 +82,7 @@
 }
 
 .navbar-brand {
-  fill: hsla(233, 10%, 50%, 1);
+  fill: var(--light-grey);
   height: auto;
   margin: 0;
   padding: 0;
@@ -91,7 +91,7 @@
 }
 
 .navbar-brand:hover {
-  fill: #18cdca;
+  fill: var(--cyan);
 }
 
 span.nav-label,
@@ -109,7 +109,7 @@ ul.dash-dropdown li:last-child a.nav-link.active {
 }
 
 li.nav-item ul.dash-dropdown {
-  background-color: hsla(233, 10%, 20%, 1);
+  background-color: var(--dark-grey);
   border-bottom-left-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
   right: 0;
@@ -118,8 +118,8 @@ li.nav-item ul.dash-dropdown {
   padding: 0;
   position: absolute;
   transform: translateY(-0.25rem);
-  transition: opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1),
-    transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1), visibility 0s;
+  transition: opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1), transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1),
+    visibility 0s;
   visibility: hidden;
   min-width: 12rem;
   z-index: -1;

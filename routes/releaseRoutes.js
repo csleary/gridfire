@@ -150,14 +150,14 @@ module.exports = app => {
   // Purchase Release
   app.get('/api/purchase/:releaseId', requireLogin, async (req, res) => {
     try {
-      req.session.price = null;
+      delete req.session.price;
       const { releaseId } = req.params;
-      const release = await Release.findById(releaseId);
+      const release = await Release.findById(releaseId, '-__v', { lean: true });
       const owner = await User.findById(release.user, 'nemAddress', { lean: true });
-      const customerIdHash = req.user.auth.idHash;
+      const customer = await User.findById(req.user._id, 'auth.idHash', { lean: true });
+      const customerIdHash = customer.auth.idHash;
       const xemPriceUsd = await fetchXemPrice().catch(() => fetchXemPriceBinance());
       const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
-      // eslint-disable-next-line
       req.session.price = price;
 
       if (!owner.nemAddress) {
@@ -170,7 +170,7 @@ module.exports = app => {
       const hash = crypto.createHash('sha256');
       const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 31);
       const paymentInfo = { paymentAddress: nem.utils.format.address(owner.nemAddress), paymentHash };
-      res.send({ release: release.toJSON(), paymentInfo, price });
+      res.send({ release, paymentInfo, price });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

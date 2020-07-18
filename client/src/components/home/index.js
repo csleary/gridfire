@@ -42,8 +42,8 @@ const Home = props => {
 
   useEffect(() => {
     if (service) {
-      const serviceName = service.charAt(0).toUpperCase() + service.substring(1);
-      dispatch(toastInfo(`Thank you. You are now logged in using your ${serviceName} account.`));
+      const serviceName = `${service.charAt(0).toUpperCase()}${service.substring(1)}`;
+      dispatch(toastInfo(`You are now logged in using your ${serviceName} account.`));
     }
   }, [dispatch, service]);
 

@@ -9,18 +9,46 @@ const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
-  // Fetch User Collection
+  // Fetch user collection
   app.get('/api/collection/', requireLogin, async (req, res) => {
     const { purchases } = req.user;
-    const releaseIds = purchases.map(release => release.releaseId);
+    const releaseIds = purchases.map(release => release._id);
+
+    const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
+      lean: true,
+      sort: '-purchaseDate'
+    }).exec();
+
+    res.send(releases);
+  });
+
+  // Fetch user favourites
+  app.get('/api/favourites/', requireLogin, async (req, res) => {
+    const { favourites } = req.user;
+    const releaseIds = favourites.map(release => release._id);
+
     const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
       lean: true,
       sort: '-releaseDate'
     }).exec();
+
     res.send(releases);
   });
 
-  // Fetch Artist Catalogue
+  // Fetch user wish list
+  app.get('/api/wish-list/', requireLogin, async (req, res) => {
+    const { wishList } = req.user;
+    const releaseIds = wishList.map(release => release._id);
+
+    const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
+      lean: true,
+      sort: '-releaseDate'
+    }).exec();
+
+    res.send(releases);
+  });
+
+  // Fetch artist catalogue
   app.get('/api/catalogue/:artist', async (req, res) => {
     const { artist } = req.params;
 
@@ -29,17 +57,14 @@ module.exports = app => {
         path: 'releases',
         match: { published: true },
         model: Release,
-        options: {
-          lean: true,
-          sort: { releaseDate: -1 }
-        }
+        options: { lean: true, sort: '-releaseDate' }
       })
       .exec();
 
     res.send(catalogue);
   });
 
-  // Fetch Site Catalogue
+  // Fetch site catalogue
   app.get('/api/catalogue/', async (req, res) => {
     const { catalogueLimit, catalogueSkip, sortPath, sortOrder } = req.query;
 
@@ -51,33 +76,38 @@ module.exports = app => {
     res.send(releases);
   });
 
-  // Fetch Site Catalogue Count
+  // Fetch site catalogue count
   app.get('/api/catalogue/count', async (req, res) => {
     const count = await Release.count();
     res.send({ count });
   });
 
-  // Fetch Release Sales Figures
+  // Fetch release sales figures
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ user: req.user._id });
     const releaseIds = releases.map(release => release._id);
-    const sales = await Sale.find({ releaseId: { $in: releaseIds } }, '-__v', { lean: true }).exec();
+    const sales = await Sale.find({ releaseId: { $in: releaseIds } }, '-__v', {
+      lean: true
+    }).exec();
     res.send(sales);
   });
 
-  // Fetch Single User Release
+  // Fetch single user release
   app.get('/api/user/release/:releaseId', requireLogin, async (req, res) => {
     const release = await Release.findById(req.params.releaseId, '-__v', { lean: true }).exec();
     res.send(release);
   });
 
-  // Fetch User Releases
+  // Fetch user releases
   app.get('/api/user/releases/', requireLogin, async (req, res) => {
-    const releases = await Release.find({ user: req.user._id }, '-__v', { lean: true, sort: '-releaseDate' }).exec();
+    const releases = await Release.find({ user: req.user._id }, '-__v', {
+      lean: true,
+      sort: '-releaseDate'
+    }).exec();
     res.send(releases);
   });
 
-  // Search Releases
+  // Search releases
   app.get('/api/search', async (req, res) => {
     const { searchQuery } = req.query;
     const results = await Release.find({ published: true, $text: { $search: searchQuery } }, '-__v', {
@@ -88,6 +118,7 @@ module.exports = app => {
     res.send(results);
   });
 
+  // Add release to user favourites
   app.post('/api/user/favourite/:releaseId', requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const userId = req.user._id;
@@ -103,6 +134,7 @@ module.exports = app => {
     res.send(user.toJSON().favourites);
   });
 
+  // Add release to user wish list
   app.post('/api/user/wish-list/:releaseId', requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const userId = req.user._id;
