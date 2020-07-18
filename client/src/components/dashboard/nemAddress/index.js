@@ -99,7 +99,7 @@ let NemAddress = props => {
                       .toUpperCase()
                       .replace(/-/g, '')
                       .match(/.{1,6}/g)
-                      .join('-')
+                      ?.join('-')
                   }
                   id="nemAddress"
                   hint="It doesn&rsquo;t matter whether you include dashes or not."
