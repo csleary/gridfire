@@ -36,20 +36,18 @@ class Player extends Component {
     const iPad = navigator.userAgent.indexOf('iPad') !== -1;
 
     if (iPhone || iPad) {
-      this.props.toastInfo(
+      return this.props.toastInfo(
         'This app uses the Media Source Extensions API for audio playback, which is not currently supported on your device (iOS).'
       );
-      return;
     }
 
     const mimeType = 'audio/mp4; codecs="mp4a.40.2"';
     const supported = MediaSource.isTypeSupported(mimeType);
 
     if (!supported) {
-      this.props.toastError(
+      return this.props.toastError(
         'Unfortunately this device does not support the Media Source Extensions API for audio playback.'
       );
-      return;
     }
 
     this.mediaSource = new MediaSource();
@@ -67,10 +65,8 @@ class Player extends Component {
         } else if (this.queue.length) {
           this.sourceBuffer.appendBuffer(this.queue.shift());
         }
-        this.setState({
-          isSeeking: false,
-          isBuffering: false
-        });
+
+        this.setState({ isSeeking: false, isBuffering: false });
       });
     });
 
@@ -103,10 +99,9 @@ class Player extends Component {
       }
 
       if (needsBuffer) {
-        this.setState({ isBuffering: true }, () => {
-          this.fetchAudioRange(buffer => {
-            this.handleAppendBuffer(buffer);
-          });
+        this.setState({ isBuffering: true }, async () => {
+          const buffer = await this.fetchAudioRange();
+          this.handleAppendBuffer(buffer);
         });
       }
 
@@ -117,17 +112,9 @@ class Player extends Component {
       });
     });
 
-    audioPlayer.addEventListener('loadstart', () => {
-      this.setState({ ready: false });
-    });
-
-    audioPlayer.addEventListener('canplay', () => {
-      this.setState({ ready: true });
-    });
-
-    audioPlayer.addEventListener('play', () => {
-      this.handlePlay();
-    });
+    audioPlayer.addEventListener('loadstart', () => this.setState({ ready: false }));
+    audioPlayer.addEventListener('canplay', () => this.setState({ ready: true }));
+    audioPlayer.addEventListener('play', () => this.handlePlay());
 
     audioPlayer.addEventListener('seeking', () => {
       const { currentTime } = audioPlayer;
@@ -143,29 +130,28 @@ class Player extends Component {
       if (!isBuffered && !this.newTrack) {
         this.setState({ bufferEnd: false });
         this.currentSegment = Math.floor(currentTime / 15);
-        this.setState({ ready: false, isSeeking: true, isBuffering: true }, () => {
-          this.fetchAudioRange(buffer => {
-            this.handleAppendBuffer(buffer);
-          });
+        this.setState({ ready: false, isSeeking: true, isBuffering: true }, async () => {
+          const buffer = await this.fetchAudioRange();
+          this.handleAppendBuffer(buffer);
         });
       }
     });
-    audioPlayer.addEventListener('ended', () => this.handleTrackEnded());
+
+    audioPlayer.addEventListener('ended', this.handleTrackEnded);
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (prevProps.player.trackId !== this.props.player.trackId) {
       this.audioPlayer.current.pause();
       this.queue.length = 0;
       this.newTrack = true;
-      this.emptySourceBuffer();
+      if (this.mediaSource.duration) this.sourceBuffer.remove(0, this.mediaSource.duration);
       this.setState({ bufferEnd: false, percentComplete: 0, ready: false });
-      this.fetchAudioRange(buffer => {
-        this.audioPlayer.current.currentTime = 0;
-        this.handleUpdateBuffer();
-        this.handleAppendBuffer(buffer);
-        this.handlePlay();
-      });
+      const buffer = await this.fetchAudioRange();
+      this.audioPlayer.current.currentTime = 0;
+      this.handleUpdateBuffer();
+      this.handleAppendBuffer(buffer);
+      this.handlePlay();
     }
   }
 
@@ -175,29 +161,18 @@ class Player extends Component {
     }
   }
 
-  emptySourceBuffer() {
-    if (this.mediaSource.duration) {
-      this.sourceBuffer.remove(0, this.mediaSource.duration);
-    }
-  }
-
   handleUpdateBuffer() {
-    if (this.sourceBuffer.updating) {
-      this.setState({ shouldUpdateBuffer: true });
-      return;
-    }
-
+    if (this.sourceBuffer.updating) return this.setState({ shouldUpdateBuffer: true });
     const oldDuration = Number.isFinite(this.mediaSource.duration) ? this.mediaSource.duration : 0;
-
     const newDuration = this.state.duration;
 
     if (newDuration < oldDuration) {
       this.sourceBuffer.remove(newDuration, oldDuration);
-      this.setState({ shouldUpdateBuffer: false, shouldSetDuration: true });
-    } else {
-      this.mediaSource.duration = newDuration;
-      this.setState({ shouldUpdateBuffer: false, shouldSetDuration: false });
+      return this.setState({ shouldUpdateBuffer: false, shouldSetDuration: true });
     }
+
+    this.mediaSource.duration = newDuration;
+    this.setState({ shouldUpdateBuffer: false, shouldSetDuration: false });
   }
 
   handleUpdateDuration() {
@@ -206,31 +181,26 @@ class Player extends Component {
   }
 
   handleAppendBuffer(buffer) {
-    if (!this.sourceBuffer.updating) {
-      this.sourceBuffer.appendBuffer(buffer);
-    } else {
-      this.queue.push(buffer);
-    }
+    if (this.sourceBuffer.updating) return this.queue.push(buffer);
+    this.sourceBuffer.appendBuffer(buffer);
   }
 
   handleTrackEnded() {
     const trackIndex = this.props.release.trackList.findIndex(
       track => track.trackTitle === this.props.player.trackTitle
     );
-    if (trackIndex + 1 < this.props.release.trackList.length) {
-      this.nextTrack(trackIndex + 1);
-    } else {
-      this.stopAudio();
-    }
+
+    if (trackIndex + 1 < this.props.release.trackList.length) return this.nextTrack(trackIndex + 1);
+    this.stopAudio();
   }
 
-  fetchAudioRange = async callback => {
+  fetchAudioRange = async () => {
     if (this.newTrack) {
       await this.fetchInitSegment();
-      this.handleSegmentRanges(buffer => callback(buffer));
-    } else {
-      this.handleSegmentRanges(buffer => callback(buffer));
+      return this.handleSegmentRanges();
     }
+
+    return this.handleSegmentRanges();
   };
 
   fetchInitSegment = async () => {
@@ -246,7 +216,7 @@ class Player extends Component {
     this.newTrack = false;
   };
 
-  handleSegmentRanges = async callback => {
+  handleSegmentRanges = async () => {
     const { releaseId, trackId } = this.props.player;
     const resUrl = await axios.get(`/api/${releaseId}/${trackId}/segment`);
     const segmentUrl = resUrl.data;
@@ -261,7 +231,8 @@ class Player extends Component {
     } else {
       this.setState({ bufferEnd: true });
     }
-    callback(buffer);
+
+    return buffer;
   };
 
   handlePause = () => {
@@ -303,11 +274,8 @@ class Player extends Component {
 
   playAudio = async () => {
     this.setState({ autoStartDisabled: false });
-    if (this.props.player.isPlaying) {
-      this.handlePause();
-    } else {
-      this.handlePlay();
-    }
+    if (this.props.player.isPlaying) return this.handlePause();
+    this.handlePlay();
   };
 
   stopAudio = () => {
