@@ -12,39 +12,31 @@ module.exports = app => {
   // Fetch user collection
   app.get('/api/collection/', requireLogin, async (req, res) => {
     const { purchases } = req.user;
-    const releaseIds = purchases.map(release => release._id);
-
+    const releaseIds = purchases.map(release => release.releaseId);
     const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
       lean: true,
       sort: '-purchaseDate'
     }).exec();
-
     res.send(releases);
   });
 
   // Fetch user favourites
   app.get('/api/favourites/', requireLogin, async (req, res) => {
     const { favourites } = req.user;
-    const releaseIds = favourites.map(release => release._id);
-
-    const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
+    const releases = await Release.find({ _id: { $in: favourites } }, '-__v', {
       lean: true,
       sort: '-releaseDate'
     }).exec();
-
     res.send(releases);
   });
 
   // Fetch user wish list
   app.get('/api/wish-list/', requireLogin, async (req, res) => {
     const { wishList } = req.user;
-    const releaseIds = wishList.map(release => release._id);
-
-    const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
+    const releases = await Release.find({ _id: { $in: wishList } }, '-__v', {
       lean: true,
       sort: '-releaseDate'
     }).exec();
-
     res.send(releases);
   });
 
