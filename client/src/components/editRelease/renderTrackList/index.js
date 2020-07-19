@@ -56,8 +56,9 @@ function RenderTrackList(props) {
 
   const handleDrop = async (fieldsMove, indexTo) => {
     const indexFrom = dragOrigin;
-    await moveTrack(releaseId, indexFrom, indexTo);
+    console.log(indexFrom, indexTo);
     fieldsMove(indexFrom, indexTo);
+    await dispatch(moveTrack(releaseId, indexFrom, indexTo));
   };
 
   return (

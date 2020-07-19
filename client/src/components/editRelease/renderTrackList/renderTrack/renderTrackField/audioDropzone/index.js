@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { useDropzone } from 'react-dropzone';
 
 const AudioDropzone = props => {
-  const { audioUploadProgress, stored, isEncoding, isTranscoding, isUploading, onDrop } = props;
+  const { audioUploadProgress, stored, isEncoding, isTranscoding, isUploading, onDropAudio } = props;
 
   const handleClick = e => {
     if (isUploading) {
@@ -19,7 +19,7 @@ const AudioDropzone = props => {
     multiple: false,
     noDragEventsBubbling: true,
     noKeyboard: true,
-    onDrop
+    onDrop: onDropAudio
   });
 
   const dropzoneClassNames = classNames('dropzone-audio', {
@@ -57,7 +57,8 @@ AudioDropzone.propTypes = {
   isEncoding: PropTypes.bool,
   isTranscoding: PropTypes.bool,
   isUploading: PropTypes.bool,
-  onDrop: PropTypes.func
+  onDropAudio: PropTypes.func,
+  stored: PropTypes.bool
 };
 
 export default AudioDropzone;

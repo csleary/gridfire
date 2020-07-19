@@ -121,11 +121,11 @@ module.exports = app => {
   // Move track position
   app.patch('/api/:releaseId/:from/:to', requireLogin, releaseOwner, async (req, res) => {
     try {
-      const { from, to } = req.params;
-      const release = res.locals.release;
+      const { releaseId, from, to } = req.params;
+      const release = await Release.findById(releaseId).exec();
       release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
       const updatedRelease = await release.save();
-      res.send(updatedRelease.toJSON({ versionKey: false }));
+      res.send(updatedRelease.toJSON());
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

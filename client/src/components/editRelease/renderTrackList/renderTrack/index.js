@@ -12,10 +12,19 @@ import styles from './renderTrackField.module.css';
 const RenderTrack = props => {
   const {
     audioUploadProgress,
+    dragActive,
+    dragOrigin,
     index,
     fields,
     handleDeleteTrack,
+    handleDragStart,
+    handleDragEnter,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleDragEnd,
     name,
+    onDropAudio,
     track: { _id: trackId, trackTitle = `Track ${index + 1}`, status }
   } = props;
 
@@ -37,16 +46,16 @@ const RenderTrack = props => {
     [styles.encoding]: isEncoding,
     [styles.transcoding]: isTranscoding,
     [styles.stored]: stored,
-    'drag-active': props.dragActive === index,
-    'drag-origin': props.dragOrigin === index
+    'drag-active': dragActive === index,
+    'drag-origin': dragOrigin === index
   });
 
   const deleteButtonClassNames = classNames('btn btn-outline-danger btn-sm ml-auto', { 'delete-active': isDeleting });
 
   const handleMoveTrack = async (swap, id, trackIndex, direction) => {
     setMoving(trackId);
-    await dispatch(moveTrack(id, trackIndex, trackIndex + direction));
     swap(trackIndex, trackIndex + direction);
+    await dispatch(moveTrack(id, trackIndex, trackIndex + direction));
     setMoving();
   };
 
@@ -54,12 +63,12 @@ const RenderTrack = props => {
     <li
       className={trackClassNames}
       draggable="true"
-      onDragStart={() => props.handleDragStart(index)}
-      onDragEnter={() => props.handleDragEnter(index)}
-      onDragOver={props.handleDragOver}
-      onDragLeave={props.handleDragLeave}
-      onDrop={() => props.handleDrop(fields.move, index)}
-      onDragEnd={props.handleDragEnd}
+      onDragStart={() => handleDragStart(index)}
+      onDragEnter={() => handleDragEnter(index)}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={() => handleDrop(fields.move, index)}
+      onDragEnd={handleDragEnd}
       onTouchStart={() => {}}
     >
       <Field
@@ -72,7 +81,7 @@ const RenderTrack = props => {
         isUploading={isUploading}
         label={index + 1}
         name={`${name}.trackTitle`}
-        onDropAudio={props.onDropAudio}
+        onDropAudio={onDropAudio}
         trackId={trackId}
         type="text"
       />

@@ -15,6 +15,7 @@ const RenderTrackField = props => {
     label,
     meta: { touched, error },
     name,
+    onDropAudio,
     trackId,
     type
   } = props;
@@ -42,7 +43,7 @@ const RenderTrackField = props => {
           isUploading={isUploading}
           audioUploadProgress={audioUploadProgress}
           disablePreview
-          onDrop={(accepted, rejected) => props.onDropAudio(accepted, rejected, index, trackId)}
+          onDropAudio={(accepted, rejected) => onDropAudio(accepted, rejected, index, trackId)}
         />
       </div>
       {error ? <div className="invalid-feedback">{touched && error}</div> : null}
