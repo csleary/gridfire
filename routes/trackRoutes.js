@@ -177,7 +177,7 @@ module.exports = app => {
         { lean: true, new: true, select: '-__v' }
       ).exec();
 
-      io.to(userId).emit('updateRelease', { release });
+      io.to(userId).emit('updateActiveRelease', { release });
 
       const { file } = req;
       const filePath = path.join(TEMP_PATH, trackId);
@@ -191,7 +191,7 @@ module.exports = app => {
           { lean: true, new: true, select: '-__v' }
         ).exec();
 
-        io.to(userId).emit('updateRelease', { release });
+        io.to(userId).emit('updateActiveRelease', { release });
 
         publishToQueue('', QUEUE_TRANSCODE, {
           userId,

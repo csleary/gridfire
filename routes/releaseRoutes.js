@@ -133,7 +133,7 @@ module.exports = app => {
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
     try {
-      const release = await Release.findOne({ _id: req.params.releaseId });
+      const release = await Release.findOne({ _id: req.params.releaseId }, '-trackList.mpd');
 
       if (!release.published && !release.user.equals(req.user._id)) {
         throw new Error('This release is currently unavailable.');

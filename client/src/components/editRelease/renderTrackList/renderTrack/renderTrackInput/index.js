@@ -3,19 +3,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 
-const RenderTrackField = props => {
+const RenderTrackInput = props => {
   const {
-    audioUploadProgress,
-    stored,
-    index,
+    dragActive,
     input,
-    isEncoding,
-    isTranscoding,
-    isUploading,
     label,
     meta: { touched, error },
     name,
-    onDropAudio,
     trackId,
     type
   } = props;
@@ -29,6 +23,7 @@ const RenderTrackField = props => {
         <label htmlFor={name}>{label}</label>
         <input
           className={inputClasses}
+          disabled={dragActive}
           id={name}
           name="trackTitle"
           placeholder={`Track ${label} Title`}
@@ -36,32 +31,18 @@ const RenderTrackField = props => {
           type={type}
           {...input}
         />
-        <AudioDropzone
-          stored={stored}
-          isEncoding={isEncoding}
-          isTranscoding={isTranscoding}
-          isUploading={isUploading}
-          audioUploadProgress={audioUploadProgress}
-          disablePreview
-          onDropAudio={(accepted, rejected) => onDropAudio(accepted, rejected, index, trackId)}
-        />
+        <AudioDropzone trackId={trackId} disablePreview />
       </div>
       {error ? <div className="invalid-feedback">{touched && error}</div> : null}
     </>
   );
 };
 
-RenderTrackField.propTypes = {
-  audioUploadProgress: PropTypes.number,
-  stored: PropTypes.bool,
-  index: PropTypes.number,
+RenderTrackInput.propTypes = {
   input: PropTypes.object,
-  isEncoding: PropTypes.bool,
-  isTranscoding: PropTypes.bool,
-  isUploading: PropTypes.bool,
+  dragActive: PropTypes.bool,
   label: PropTypes.number,
   meta: PropTypes.object,
-  onDropAudio: PropTypes.func,
   touched: PropTypes.bool,
   error: PropTypes.bool,
   name: PropTypes.string,
@@ -69,4 +50,4 @@ RenderTrackField.propTypes = {
   type: PropTypes.string
 };
 
-export default RenderTrackField;
+export default RenderTrackInput;

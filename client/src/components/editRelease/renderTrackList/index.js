@@ -56,7 +56,6 @@ function RenderTrackList(props) {
 
   const handleDrop = async (fieldsMove, indexTo) => {
     const indexFrom = dragOrigin;
-    console.log(indexFrom, indexTo);
     fieldsMove(indexFrom, indexTo);
     await dispatch(moveTrack(releaseId, indexFrom, indexTo));
   };
@@ -72,8 +71,7 @@ function RenderTrackList(props) {
           return (
             <RenderTrack
               audioUploadProgress={audioUploadProgress[trackId]}
-              dragActive={dragActive}
-              dragOrigin={dragOrigin}
+              dragActive={dragActive === index}
               fields={fields}
               handleDeleteTrack={handleDeleteTrack}
               handleDragStart={handleDragStart}
@@ -83,6 +81,7 @@ function RenderTrackList(props) {
               handleDrop={handleDrop}
               handleDragEnd={handleDragEnd}
               index={index}
+              isDragOrigin={dragOrigin === index}
               key={trackId}
               name={name}
               onDropAudio={onDropAudio}

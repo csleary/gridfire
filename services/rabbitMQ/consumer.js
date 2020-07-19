@@ -9,8 +9,6 @@ const scripts = {
 };
 
 const startConsumer = async ({ connection, io, workerPool, queue }) => {
-  const ioEmit = require('./ioEmit')(io);
-
   try {
     const consumerChannel = await connection.createChannel();
     const processMessage = async message => {
@@ -25,6 +23,7 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
           consumerChannel.nack(message, false, false);
         }
       } catch (error) {
+        consumerChannel.nack(message, false, false);
         closeOnError(connection, error);
       }
     };

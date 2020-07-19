@@ -106,22 +106,6 @@ class EditRelease extends Component {
     };
   };
 
-  onDropAudio = (accepted, rejected, index, trackId) => {
-    if (rejected?.length) {
-      return this.props.toastError('This does not seem to be an audio file. Please select a wav or aiff audio file.');
-    }
-
-    const { release } = this.props;
-    const audioFile = accepted[0];
-    const releaseId = release._id;
-    const { trackTitle } = release.trackList[index];
-    const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(index, 10) + 1}`;
-    this.props.toastInfo(`Uploading file \u2018${audioFile.name}\u2019 for ${trackName}.`);
-    this.props
-      .uploadAudio({ releaseId, trackId, trackName, audioFile, type: audioFile.type })
-      .catch(error => this.props.toastError(`Upload failed! ${error.message}`));
-  };
-
   onSubmit = async values => {
     await this.props.updateRelease(values);
     const releaseTitle = this.props.release.releaseTitle;

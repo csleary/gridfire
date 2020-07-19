@@ -4,17 +4,17 @@ import { Field } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from 'components/editRelease/progressBar';
 import PropTypes from 'prop-types';
-import RenderTrackField from './renderTrackField';
+import RenderTrackInput from './renderTrackInput';
 import classNames from 'classnames';
 import { moveTrack } from 'features/tracks';
-import styles from './renderTrackField.module.css';
+import styles from './renderTrack.module.css';
 
 const RenderTrack = props => {
   const {
     audioUploadProgress,
     dragActive,
-    dragOrigin,
     index,
+    isDragOrigin,
     fields,
     handleDeleteTrack,
     handleDragStart,
@@ -24,7 +24,6 @@ const RenderTrack = props => {
     handleDrop,
     handleDragEnd,
     name,
-    onDropAudio,
     track: { _id: trackId, trackTitle = `Track ${index + 1}`, status }
   } = props;
 
@@ -46,8 +45,8 @@ const RenderTrack = props => {
     [styles.encoding]: isEncoding,
     [styles.transcoding]: isTranscoding,
     [styles.stored]: stored,
-    'drag-active': dragActive === index,
-    'drag-origin': dragOrigin === index
+    'drag-active': dragActive,
+    'drag-origin': isDragOrigin
   });
 
   const deleteButtonClassNames = classNames('btn btn-outline-danger btn-sm ml-auto', { 'delete-active': isDeleting });
@@ -72,16 +71,10 @@ const RenderTrack = props => {
       onTouchStart={() => {}}
     >
       <Field
-        audioUploadProgress={audioUploadProgress}
-        component={RenderTrackField}
-        stored={stored}
-        index={index}
-        isEncoding={isEncoding}
-        isTranscoding={isTranscoding}
-        isUploading={isUploading}
+        component={RenderTrackInput}
+        dragActive={dragActive === index}
         label={index + 1}
         name={`${name}.trackTitle`}
-        onDropAudio={onDropAudio}
         trackId={trackId}
         type="text"
       />
@@ -144,9 +137,9 @@ const RenderTrack = props => {
 
 RenderTrack.propTypes = {
   audioUploadProgress: PropTypes.number,
-  dragActive: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
-  dragOrigin: PropTypes.number,
+  dragActive: PropTypes.bool,
   index: PropTypes.number,
+  isDragOrigin: PropTypes.bool,
   fields: PropTypes.object,
   handleDeleteTrack: PropTypes.func,
   handleDragEnd: PropTypes.func,

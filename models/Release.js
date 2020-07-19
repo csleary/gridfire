@@ -50,4 +50,10 @@ releaseSchema.post('save', release => {
 });
 
 releaseSchema.set('toJSON', { versionKey: false });
+
+releaseSchema.options.toJSON.transform = function (doc, ret) {
+  ret.trackList.forEach(track => delete track.mpd);
+  return ret;
+};
+
 mongoose.model('releases', releaseSchema);
