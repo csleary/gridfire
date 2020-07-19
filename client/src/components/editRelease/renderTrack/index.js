@@ -4,7 +4,7 @@ import { Field } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from 'components/editRelease/progressBar';
 import PropTypes from 'prop-types';
-import RenderTrackInput from './renderTrackInput';
+import RenderTrackInput from 'components/editRelease/renderTrackInput';
 import classNames from 'classnames';
 import { moveTrack } from 'features/tracks';
 import styles from './renderTrack.module.css';
@@ -33,18 +33,18 @@ const RenderTrack = props => {
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
   const pending = status === 'pending';
-  const stored = status === 'stored';
+  const isStored = status === 'stored';
   const isUploading = status === 'uploading';
   const isEncoding = status === 'encoding';
   const isTranscoding = status === 'transcoding';
 
   const trackClassNames = classNames('list-group-item', {
     [styles.pending]: pending,
-    [styles.incomplete]: !pending && !stored,
+    [styles.incomplete]: !pending && !isStored,
     [styles.uploading]: isUploading,
     [styles.encoding]: isEncoding,
     [styles.transcoding]: isTranscoding,
-    [styles.stored]: stored,
+    [styles.stored]: isStored,
     'drag-active': dragActive,
     'drag-origin': isDragOrigin
   });
@@ -70,23 +70,22 @@ const RenderTrack = props => {
       onDragEnd={handleDragEnd}
       onTouchStart={() => {}}
     >
-      <Field
-        component={RenderTrackInput}
-        dragActive={dragActive === index}
-        label={index + 1}
-        name={`${name}.trackTitle`}
-        trackId={trackId}
-        type="text"
-      />
+      <Field component={RenderTrackInput} label={index + 1} name={`${name}.trackTitle`} trackId={trackId} type="text" />
       <div className="d-flex mt-3">
-        {isTranscoding ? (
+        {isUploading ? (
           <span className="mr-2 yellow">
+            <FontAwesome name="cog" spin className="mr-2" />
+            <strong>Uploading…</strong>
+          </span>
+        ) : null}
+        {isTranscoding ? (
+          <span className="mr-2 cyan">
             <FontAwesome name="cog" spin className="mr-2" />
             <strong>Transcoding…</strong>
           </span>
         ) : null}
         {isEncoding ? (
-          <span className="mr-2 yellow">
+          <span className="mr-2 cyan">
             <FontAwesome name="file-archive-o" className="mr-2" />
             <strong>Encoding…</strong>
           </span>

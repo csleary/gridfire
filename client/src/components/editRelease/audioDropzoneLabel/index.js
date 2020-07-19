@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 const AudioDropzoneLabel = props => {
-  const { stored, isDragActive, isDragReject, isEncoding, isTranscoding, isUploading, audioUploadProgress } = props;
+  const { isDragActive, isDragReject, isEncoding, isStored, isTranscoding, isUploading, audioUploadProgress } = props;
 
   if (isDragReject && !isUploading) {
     return (
@@ -50,7 +50,7 @@ const AudioDropzoneLabel = props => {
     );
   }
 
-  if (stored) {
+  if (isStored) {
     return (
       <>
         <FontAwesome name="refresh" className="mr-2" />
@@ -68,13 +68,14 @@ const AudioDropzoneLabel = props => {
 };
 
 AudioDropzoneLabel.propTypes = {
+  audioUploadProgress: PropTypes.number,
   hasAudio: PropTypes.bool,
   isDragActive: PropTypes.bool,
   isDragReject: PropTypes.bool,
   isEncoding: PropTypes.bool,
+  isStored: PropTypes.bool,
   isTranscoding: PropTypes.bool,
-  isUploading: PropTypes.bool,
-  audioUploadProgress: PropTypes.number
+  isUploading: PropTypes.bool
 };
 
 export default AudioDropzoneLabel;

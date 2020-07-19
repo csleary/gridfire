@@ -1,5 +1,5 @@
 .progressBar {
-  background: #ffd24d;
+  background: var(--yellow);
   height: 4px;
   margin-top: 1rem;
   transition: 0.25s;

@@ -1,11 +1,10 @@
-import AudioDropzone from './audioDropzone';
+import AudioDropzone from 'components/editRelease/audioDropzone';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 
 const RenderTrackInput = props => {
   const {
-    dragActive,
     input,
     label,
     meta: { touched, error },
@@ -23,7 +22,6 @@ const RenderTrackInput = props => {
         <label htmlFor={name}>{label}</label>
         <input
           className={inputClasses}
-          disabled={dragActive}
           id={name}
           name="trackTitle"
           placeholder={`Track ${label} Title`}

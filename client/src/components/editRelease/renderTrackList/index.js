@@ -3,7 +3,7 @@ import { addTrack, deleteTrack, moveTrack } from 'features/tracks';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
-import RenderTrack from './renderTrack';
+import RenderTrack from 'components/editRelease/renderTrack';
 import { toastSuccess } from 'features/toast';
 import { usePrevious } from 'functions';
 

@@ -1,6 +1,6 @@
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastInfo } from 'features/toast';
-import AudioDropzoneLabel from './audioDropzoneLabel';
+import AudioDropzoneLabel from 'components/editRelease/audioDropzoneLabel';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
@@ -15,7 +15,7 @@ const AudioDropzone = ({ trackId }) => {
   const currentTrack = release.trackList.find(track => track._id === trackId);
   const trackIndex = release.trackList.findIndex(track => track._id === trackId);
   const { status, trackTitle } = currentTrack;
-  const stored = status === 'stored';
+  const isStored = status === 'stored';
   const isUploading = status === 'uploading';
   const isEncoding = status === 'encoding';
   const isTranscoding = status === 'transcoding';
@@ -52,7 +52,7 @@ const AudioDropzone = ({ trackId }) => {
     active: isDragActive && !isDragReject,
     uploading: isUploading || isTranscoding || isEncoding,
     disabled: isUploading || isTranscoding || isEncoding,
-    complete: stored && !isUploading && !isTranscoding && !isEncoding,
+    complete: isStored && !isUploading && !isTranscoding && !isEncoding,
     rejected: isDragReject
   });
 
@@ -66,7 +66,7 @@ const AudioDropzone = ({ trackId }) => {
       <input {...getInputProps()} />
       <AudioDropzoneLabel
         audioUploadProgress={audioUploadProgress[trackId]}
-        stored={stored}
+        isStored={isStored}
         isDragActive={isDragActive}
         isDragReject={isDragReject}
         isEncoding={isEncoding}

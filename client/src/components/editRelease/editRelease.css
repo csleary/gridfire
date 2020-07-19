@@ -104,7 +104,13 @@ input[type='date'] {
   cursor: pointer;
 }
 
-.dropzone-audio.active,
+.dropzone-audio.active {
+  background-color: #000;
+  border-color: var(--green);
+  color: var(--green);
+  cursor: pointer;
+}
+
 .dropzone-audio.uploading {
   background-color: #000;
   border-color: var(--yellow);
@@ -116,7 +122,7 @@ input[type='date'] {
   cursor: wait;
 }
 
-.dropzone-audio.complete {
+.dropzone-audio.complete:not(.active) {
   background-color: #000;
   border-color: var(--light-grey);
   color: var(--light-grey);
