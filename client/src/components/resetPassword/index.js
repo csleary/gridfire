@@ -93,9 +93,7 @@ class ResetPassword extends Component {
           required={required}
           type={type}
         />
-        {error && (
-          <div className="invalid-feedback">{touched && error && error}</div>
-        )}
+        {error && <div className="invalid-feedback">{touched && error && error}</div>}
         {hint && <small className="form-text text-muted">{hint}</small>}
       </div>
     );
@@ -103,8 +101,7 @@ class ResetPassword extends Component {
 
   render() {
     const { isLoading, response } = this.state;
-    const className =
-      response && response.error ? 'alert-danger' : 'alert-success';
+    const className = response && response.error ? 'alert-danger' : 'alert-success';
     const { handleSubmit, pristine, submitting, invalid } = this.props;
 
     if (isLoading) {
@@ -116,10 +113,7 @@ class ResetPassword extends Component {
         <div className="row">
           <div className="col-6 mx-auto mb-4 py-3">
             <h2 className="text-center mt-4">Reset Password</h2>
-            <p>
-              Please enter your new password here. You&rsquo;ll be logged-in
-              afterwards automatically.
-            </p>
+            <p>Please enter your new password here. You&rsquo;ll be logged-in afterwards automatically.</p>
             <form onSubmit={handleSubmit(this.onSubmit)}>
               <Field
                 component={this.renderField}
@@ -150,11 +144,7 @@ class ResetPassword extends Component {
                 </div>
               )}
               <div className="d-flex justify-content-center">
-                <button
-                  className="btn btn-outline-primary"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
+                <button className="btn btn-outline-primary" disabled={invalid || pristine || submitting} type="submit">
                   Update Password
                 </button>
               </div>
@@ -184,9 +174,4 @@ const mapStateToProps = state => ({
 
 export default reduxForm({
   form: 'resetPasswordForm'
-})(
-  connect(
-    mapStateToProps,
-    null
-  )(ResetPassword)
-);
+})(connect(mapStateToProps)(ResetPassword));

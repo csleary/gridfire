@@ -47,7 +47,8 @@ const socketMiddleware = ({ dispatch, getState }) => {
 
   return next => action => {
     if (action.type === 'user/updateUser') {
-      socket.emit('subscribeUser', { userId: action.payload._id });
+      const { _id: userId } = action.payload;
+      if (userId) socket.emit('subscribeUser', { userId });
     }
 
     return next(action);

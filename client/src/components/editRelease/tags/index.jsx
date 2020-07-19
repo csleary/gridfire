@@ -2,17 +2,24 @@ import React, { useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import { nanoid } from '@reduxjs/toolkit';
+const NUM_MAX_CHARS = 30;
+const NUM_MAX_TAGS = 20;
 
 const Tags = ({ change, tags }) => {
-  const [tagsInput, setTagsInput] = useState();
-  const [tagsError, setTagsError] = useState();
+  const [tagsInput, setTagsInput] = useState('');
+  const [tagsError, setTagsError] = useState('');
 
   const handleTagsInput = event => {
     const { value } = event.target;
-    if (tags.length >= 20) return setTagsError('Tag limit reached!');
+    if (value.length >= NUM_MAX_CHARS) return setTagsError(`Tag character limit (${NUM_MAX_CHARS}) reached!`);
+    if (tags.length >= NUM_MAX_TAGS) return setTagsError(`Max limit of ${NUM_MAX_TAGS} tags reached.`);
+    setTagsInput(value);
+    setTagsError('');
+  };
 
-    if (event.key === 'Enter') {
-      const tag = value
+  const handleKeyPress = ({ key }) => {
+    if (key === 'Enter') {
+      const tag = tagsInput
         .replace(/[^0-9a-z\s]/gi, '')
         .trim()
         .toLowerCase();
@@ -23,8 +30,6 @@ const Tags = ({ change, tags }) => {
       setTagsError('');
       setTagsInput('');
     }
-
-    setTagsInput(value);
   };
 
   const handleRemoveTag = indexToDelete => {
@@ -36,6 +41,7 @@ const Tags = ({ change, tags }) => {
   const handleClearTags = () => {
     change('tags', []);
     setTagsInput('');
+    setTagsError('');
   };
 
   return (
@@ -45,6 +51,7 @@ const Tags = ({ change, tags }) => {
           Add Tags
           <button
             className="btn btn-outline-primary btn-sm clear-tags px-1 ml-2"
+            disabled={!tags.length}
             onClick={handleClearTags}
             title="Remove all currently set tags."
             type="button"
@@ -52,17 +59,23 @@ const Tags = ({ change, tags }) => {
             Clear All
           </button>
         </label>
+        <p>
+          {tagsInput.length
+            ? `Hit return to tag your release with \u2018${tagsInput}\u2019.`
+            : 'Enter a tag for your release below:'}
+        </p>
         <input
           className="form-control"
           id="tagsInput"
-          disabled={tagsError}
           onChange={handleTagsInput}
-          onKeyPress={handleTagsInput}
+          onKeyPress={handleKeyPress}
           type="text"
           value={tagsInput}
         />
         <small className="form-text text-muted">
-          e.g. Genres, styles, prominent instruments, or guest artists, remixers, conductors etc. 20 tag max.
+          e.g. Genres, styles, prominent instruments, or guest artists, remixers, conductors etc.
+          <br />
+          {NUM_MAX_TAGS} tag max, {NUM_MAX_CHARS} characters per tag.
         </small>
         <div className="invalid-feedback">{tagsError ? tagsError : null}</div>
       </div>
