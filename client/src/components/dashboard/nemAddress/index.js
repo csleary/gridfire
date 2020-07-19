@@ -20,9 +20,9 @@ let NemAddress = props => {
   const { handleSubmit, invalid, nemAddressField, pristine, submitting } = props;
 
   useEffect(() => {
-    dispatch(fetchUserCredits());
+    if (nemAddress && nemAddressVerified) dispatch(fetchUserCredits());
     dispatch(fetchUserReleases());
-  }, [dispatch]);
+  }, [dispatch, nemAddress, nemAddressVerified]);
 
   const onSubmit = async values => {
     await dispatch(addNemAddress(values));
@@ -96,7 +96,7 @@ let NemAddress = props => {
                   disabled={submitting}
                   format={address =>
                     address
-                      .toUpperCase()
+                      ?.toUpperCase()
                       .replace(/-/g, '')
                       .match(/.{1,6}/g)
                       ?.join('-')
@@ -129,7 +129,7 @@ let NemAddress = props => {
                   </span>
                   <button
                     className="btn btn-outline-primary btn-sm mx-2"
-                    disabled={isCheckingCredits}
+                    disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
                     onClick={handleUpdateCredits}
                     style={{ verticalAlign: 'bottom' }}
                     title={'Press to recheck your credit.'}

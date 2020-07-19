@@ -67,8 +67,8 @@ class EditRelease extends Component {
 
   async componentWillUnmount() {
     const isInvalid = !this.props.valid;
-    const hasNoTracks = !this.props.release.trackList.length;
-    const hasNoArtwork = !this.props.release.artwork.status !== 'stored';
+    const hasNoTracks = !this.props.release.trackList?.length;
+    const hasNoArtwork = !this.props.release.artwork?.status !== 'stored';
     if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
 
     if (isInvalid && hasNoTracks && hasNoArtwork) {
@@ -291,14 +291,14 @@ EditRelease.propTypes = {
   xemPriceUsd: PropTypes.number
 };
 
-let WithForm = reduxForm({
+const WithForm = reduxForm({
   enableReinitialize: true,
   form: 'releaseForm',
   keepDirtyOnReinitialize: true,
   validate
 })(EditRelease);
 
-WithForm = connect(mapStateToProps, {
+export default connect(mapStateToProps, {
   addNewRelease,
   deleteArtwork,
   deleteRelease,
@@ -313,5 +313,3 @@ WithForm = connect(mapStateToProps, {
   uploadArtwork,
   uploadAudio
 })(withRouter(WithForm));
-
-export default WithForm;

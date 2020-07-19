@@ -11,11 +11,7 @@ function Dashboard({ match }) {
     <>
       <Route exact path={`${match.path}/collection`} component={Collection} />
       <Route exact path={`${match.path}/nem-address`} component={NemAddress} />
-      <Route
-        exact
-        path={`${match.path}/password-update`}
-        component={PasswordUpdate}
-      />
+      <Route exact path={`${match.path}/password-update`} component={PasswordUpdate} />
       <Route exact path={match.path} component={UserReleases} />
     </>
   );

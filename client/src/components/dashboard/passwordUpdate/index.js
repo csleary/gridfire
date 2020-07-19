@@ -1,10 +1,10 @@
 import { Field, reduxForm } from 'redux-form';
-import { connect, shallowEqual, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
 
 const renderField = field => {
   const {
@@ -38,22 +38,19 @@ const renderField = field => {
   );
 };
 
-export const passwordUpdate = values => async dispatch => {
-  try {
-    const res = await axios.post('/api/auth/update', values);
-    toastSuccess(res.data.success)(dispatch);
-  } catch (e) {
-    toastError(e.response.data.error)(dispatch);
-  }
-};
-
-function PasswordUpdate(props) {
+const PasswordUpdate = props => {
   const { handleSubmit, reset, pristine, submitting, invalid } = props;
-  const { auth } = useSelector(state => state.user, shallowEqual);
+  const dispatch = useDispatch();
 
   const onSubmit = async values => {
-    await passwordUpdate({ email: auth.email, ...values });
-    reset();
+    try {
+      const res = await axios.post('/api/auth/update', values);
+      dispatch(toastSuccess(res.data.success));
+      reset();
+    } catch (error) {
+      dispatch(toastError(error.response.data.error.message || error.message.toString()));
+      reset();
+    }
   };
 
   return (
@@ -116,7 +113,7 @@ function PasswordUpdate(props) {
       </div>
     </main>
   );
-}
+};
 
 PasswordUpdate.propTypes = {
   handleSubmit: PropTypes.func,
@@ -126,13 +123,14 @@ PasswordUpdate.propTypes = {
   invalid: PropTypes.bool
 };
 
-const required = value => (value ? undefined : 'Please enter a value.');
+const required = value => {
+  if (value) return;
+  return 'Please enter a value.';
+};
 
 const isMatched = (value, allValues) => {
-  if (value === allValues.passwordNew) {
-    return undefined;
-  }
+  if (value === allValues.passwordNew) return;
   return 'The passwords entered do not match. Please double-check them.';
 };
 
-export default reduxForm({ form: 'loginForm' })(connect(PasswordUpdate));
+export default reduxForm({ form: 'loginForm' })(PasswordUpdate);

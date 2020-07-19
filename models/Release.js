@@ -46,7 +46,7 @@ releaseSchema.index({
 });
 
 releaseSchema.post('save', release => {
-  release.updateOne({ dateUpdated: new Date(Date.now()) }).exec();
+  release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
 releaseSchema.set('toJSON', { versionKey: false });

@@ -50,29 +50,21 @@ const Login = props => {
   const { auth } = useSelector(state => state.user, shallowEqual);
 
   useEffect(() => {
-    if (auth && auth.email.length) {
-      if (history.location.state) {
-        history.push(history.location.state.from.pathname);
-      } else {
-        history.push('/');
-      }
+    if (auth?.email.length && history.location.state) {
+      history.push(history.location.state.from.pathname);
+    } else if (auth?.email.length) {
+      history.push('/');
     }
   }, [auth, history]);
 
-  const onSubmit = values => {
-    login(values, async () => {
-      await dispatch(fetchUser());
-      reset();
-    });
-  };
-
-  const login = async (values, callback) => {
+  const onSubmit = async values => {
     try {
       const res = await axios.post('/api/auth/login', values);
       dispatch(toastSuccess(res.data.success));
-      callback();
+      await dispatch(fetchUser());
     } catch (error) {
       dispatch(toastError(error.response.data.error));
+      reset();
     }
   };
 
@@ -148,6 +140,9 @@ Login.propTypes = {
   submitting: PropTypes.bool
 };
 
-const required = value => (value ? undefined : 'Please enter a value.');
+const required = value => {
+  if (value) return;
+  return 'Please enter a value.';
+};
 
 export default reduxForm({ form: 'loginForm' })(Login);

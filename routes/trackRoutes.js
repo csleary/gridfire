@@ -17,7 +17,7 @@ module.exports = app => {
   app.put('/api/:releaseId/add', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { release } = res.locals;
-      release.trackList.push({ status: 'pending', dateCreated: new Date(Date.now()) });
+      release.trackList.push({ status: 'pending', dateCreated: Date.now() });
       const updatedRelease = await release.save();
       res.send(updatedRelease.toJSON());
     } catch (error) {
@@ -173,7 +173,7 @@ module.exports = app => {
 
       let release = await Release.findOneAndUpdate(
         { _id: releaseId, 'trackList._id': trackId },
-        { $set: { 'trackList.$.status': 'uploading', 'trackList.$.dateUpdated': new Date(Date.now()) } },
+        { $set: { 'trackList.$.status': 'uploading', 'trackList.$.dateUpdated': Date.now() } },
         { lean: true, new: true, select: '-__v' }
       ).exec();
 
@@ -187,7 +187,7 @@ module.exports = app => {
       write.on('finish', async () => {
         release = await Release.findOneAndUpdate(
           { _id: releaseId, 'trackList._id': trackId },
-          { $set: { 'trackList.$.status': 'uploaded', 'trackList.$.dateUpdated': new Date(Date.now()) } },
+          { $set: { 'trackList.$.status': 'uploaded', 'trackList.$.dateUpdated': Date.now() } },
           { lean: true, new: true, select: '-__v' }
         ).exec();
 

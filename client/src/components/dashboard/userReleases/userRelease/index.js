@@ -78,7 +78,7 @@ function UserRelease({ numSold, release }) {
           <h6>
             <FontAwesome
               name="circle"
-              className={`mr-2 ${new Date(Date.now()) - new Date(releaseDate) > 0 ? 'green' : 'yellow'}`}
+              className={`mr-2 ${Date.now() - new Date(releaseDate) > 0 ? 'green' : 'yellow'}`}
             />
             {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
           </h6>

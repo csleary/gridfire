@@ -26,12 +26,13 @@ passport.use(
   'local-login',
   new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
     try {
-      const user = await User.findOne({ 'auth.email': email }).exec();
+      const user = await User.findOne({ 'auth.email': email }, '-__v').exec();
       if (!user) return done(null, false, 'Login details incorrect.');
       const isMatched = await user.comparePassword(password);
       if (!isMatched) return done(null, false, 'Login details incorrect.');
-      user.updateOne({ 'auth.lastLogin': Date.now() }).exec();
-      done(null, user);
+      user.auth.lastLogin = Date.now();
+      const userUpdate = await user.save();
+      done(null, userUpdate);
     } catch (error) {
       return done(error);
     }
@@ -55,6 +56,7 @@ passport.use(
               email,
               idHash: idHash(email),
               isLocal: true,
+              lastLogin: Date.now(),
               password
             }
           });
@@ -72,7 +74,7 @@ passport.use(
   'local-update',
   new LocalStrategy({ usernameField: 'email', passReqToCallback: true }, async (req, email, password, done) => {
     try {
-      const user = await User.findOne({ 'auth.email': email });
+      const user = await User.findOne({ 'auth.email': email }).exec();
       if (!user) return done(null, false, 'Incorrect username.');
       const isMatched = await user.comparePassword(password);
       if (!isMatched) return done(null, false, 'Incorrect password.');
@@ -82,7 +84,7 @@ passport.use(
       }
 
       user.auth.password = req.body.passwordNew;
-      user.save();
+      await user.save();
       done(null, user);
     } catch (error) {
       return done(error);
@@ -112,7 +114,8 @@ passport.use(
             googleId: profile.id,
             email: profile.emails[0].value,
             idHash: idHash(profile.emails[0].value),
-            isLocal: false
+            isLocal: false,
+            lastLogin: Date.now()
           }
         });
 

@@ -1,6 +1,6 @@
 const { checkSignedMessage, fetchTransactions, fetchMosaics } = require('../controllers/nemController');
-const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
+const mongoose = require('mongoose');
 
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');

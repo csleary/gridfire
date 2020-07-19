@@ -34,7 +34,7 @@ const ActiveRelease = () => {
   const { purchases } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
-  const isInCollection = purchases.some(purchase => purchase.releaseId === releaseId);
+  const isInCollection = purchases?.some(purchase => purchase.releaseId === releaseId);
   const { artist, artistName, catNumber, credits, cLine, info, pLine, price, recordLabel, releaseTitle } = release;
   const { releaseDate, trackList } = release;
 

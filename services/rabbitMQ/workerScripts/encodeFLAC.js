@@ -29,7 +29,7 @@ const encodeFlac = async () => {
 
   const release = await Release.findOneAndUpdate(
     { _id: releaseId, 'trackList._id': trackId },
-    { $set: { 'trackList.$.status': 'encoding', 'trackList.$.dateUpdated': new Date(Date.now()) } },
+    { $set: { 'trackList.$.status': 'encoding', 'trackList.$.dateUpdated': Date.now() } },
     { new: true }
   ).exec();
 
@@ -43,7 +43,7 @@ const encodeFlac = async () => {
 
   const trackDoc = release.trackList.id(trackId);
   trackDoc.status = 'encoded';
-  trackDoc.dateUpdated = new Date(Date.now());
+  trackDoc.dateUpdated = Date.now();
   await release.save();
   parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
   parentPort.postMessage({ type: 'EncodingCompleteFlac', trackId, trackName, userId });

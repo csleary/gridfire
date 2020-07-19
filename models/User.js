@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
-
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
@@ -37,30 +36,19 @@ const UserSchema = new Schema(
 
 UserSchema.pre('save', async function (next) {
   try {
-    const user = this;
-
-    if (!user.isModified('auth.password')) {
-      return next();
-    }
-
-    if (!user.auth.password && user.auth.googleId) {
-      return next();
-    }
-
+    if (!this.isModified('auth.password')) return next();
+    if (!this.auth.password && this.auth.googleId) return next();
     const salt = await bcrypt.genSalt(10);
-
-    const hash = await bcrypt.hash(user.auth.password, salt);
-
-    user.auth.password = hash;
+    const hash = await bcrypt.hash(this.auth.password, salt);
+    this.auth.password = hash;
     return next();
   } catch (err) {
     return next(err);
   }
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  const isMatched = await bcrypt.compare(candidatePassword, this.auth.password);
-  return isMatched;
+UserSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.auth.password);
 };
 
 mongoose.model('users', UserSchema);

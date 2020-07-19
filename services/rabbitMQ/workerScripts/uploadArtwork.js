@@ -24,7 +24,7 @@ const uploadArtwork = async () => {
 
     const release = await Release.findByIdAndUpdate(
       releaseId,
-      { $set: { 'artwork.status': 'storing', 'artwork.dateCreated': new Date(Date.now()) } },
+      { $set: { 'artwork.status': 'storing', 'artwork.dateCreated': Date.now() } },
       { new: true }
     ).exec();
 
@@ -47,7 +47,7 @@ const uploadArtwork = async () => {
       .updateOne({
         $set: {
           'artwork.status': 'stored',
-          'artwork.dateUpdated': new Date(Date.now())
+          'artwork.dateUpdated': Date.now()
         }
       })
       .exec();

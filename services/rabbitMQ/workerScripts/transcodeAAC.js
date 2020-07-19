@@ -28,7 +28,7 @@ const work = async () => {
     release = await Release.findById(releaseId).exec();
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = 'transcoding';
-    trackDoc.dateUpdated = new Date(Date.now());
+    trackDoc.dateUpdated = Date.now();
     await release.save();
     parentPort.postMessage({ message: 'Transcoding to aac…', userId });
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
@@ -39,7 +39,7 @@ const work = async () => {
     const probeSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
     const metadata = await getTrackDuration(probeSrc);
     trackDoc.duration = metadata.format.duration;
-    trackDoc.dateUpdated = new Date(Date.now());
+    trackDoc.dateUpdated = Date.now();
     await release.save();
     const downloadSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
     const outputAudio = path.join(TEMP_PATH, `${trackId}.mp4`);
@@ -59,7 +59,7 @@ const work = async () => {
     const mpdData = await fsPromises.readFile(outputMpd);
     trackDoc.mpd = mpdData;
     trackDoc.status = 'stored';
-    trackDoc.dateUpdated = new Date(Date.now());
+    trackDoc.dateUpdated = Date.now();
     await release.save();
 
     parentPort.postMessage({
@@ -76,7 +76,7 @@ const work = async () => {
   } catch (error) {
     console.error(error.message.toString());
     trackDoc.status = 'error';
-    trackDoc.dateUpdated = new Date(Date.now());
+    trackDoc.dateUpdated = Date.now();
     await release.save();
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
     throw new Error(error);

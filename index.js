@@ -22,7 +22,7 @@ mongoose.connect(keys.mongoURI, {
   useUnifiedTopology: true
 });
 
-// mongoose.set('debug', true);
+mongoose.set('debug', true);
 app.use(bodyParser.json());
 
 app.use(
