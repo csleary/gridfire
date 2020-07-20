@@ -47,13 +47,14 @@ class EditRelease extends Component {
       this.setState({ isLoading: false });
     } else {
       const res = await this.props.addNewRelease();
-      this.setState({ isLoading: false });
 
       // Check for address or credit issues.
       if (res?.warning) {
         this.props.toastWarning(res.warning);
         return this.props.history.push('/dashboard/nem-address');
       }
+
+      this.setState({ isLoading: false });
     }
   }
 
@@ -66,15 +67,14 @@ class EditRelease extends Component {
   }
 
   async componentWillUnmount() {
-    const isInvalid = !this.props.valid;
-    const hasNoTracks = !this.props.release.trackList?.length;
-    const hasNoArtwork = !this.props.release.artwork?.status !== 'stored';
+    // const isInvalid = !this.props.valid;
+    // const hasNoTracks = !this.props.release.trackList?.length;
+    // const hasNoArtwork = !this.props.release.artwork?.status !== 'stored';
     if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
 
-    if (isInvalid && hasNoTracks && hasNoArtwork) {
-      this.props.toastWarning('Invalid/empty release will be removed…');
-      await this.props.deleteRelease(this.props.release._id);
-    }
+    // if (isInvalid && hasNoTracks && hasNoArtwork) {
+    //   await this.props.deleteRelease(this.props.release._id);
+    // }
   }
 
   onDropArt = (accepted, rejected) => {

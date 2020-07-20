@@ -1,12 +1,13 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
+import { batch, useDispatch } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import axios from 'axios';
+import { fetchUser } from 'features/user';
 import { toastSuccess } from 'features/toast';
-import { useDispatch } from 'react-redux';
 
 const renderField = field => {
   const {
@@ -66,13 +67,18 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
     try {
       const resetReq = await axios.post(`/api/auth/reset/${token}`, values);
       const email = resetReq.data;
-      const loginReq = await axios.post('/auth/login', { email, password: values.passwordNew });
-      dispatch(toastSuccess(loginReq.data.success));
+      const loginReq = await axios.post('/api/auth/login', { email, password: values.passwordNew });
       reset();
+
+      batch(() => {
+        dispatch(fetchUser());
+        dispatch(toastSuccess(loginReq.data.success));
+      });
+
       history.push('/');
     } catch (error) {
-      setResponse(error.response.data);
       reset();
+      setResponse(error.response.data);
     }
   };
 

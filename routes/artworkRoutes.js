@@ -1,12 +1,14 @@
 const { QUEUE_ARTWORK, TEMP_PATH } = require(__basedir + '/config/constants');
 const { deleteArtwork } = require(__basedir + '/controllers/artworkController');
 const fs = require('fs');
+const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
 const { publishToQueue } = require(__basedir + '/services/rabbitMQ/publisher');
 const releaseOwner = require(__basedir + '/middlewares/releaseOwner');
 const requireLogin = require(__basedir + '/middlewares/requireLogin');
 const upload = multer({ limits: { fileSize: '20MB' } });
+const Release = mongoose.model('releases');
 
 module.exports = app => {
   app.post('/api/upload/artwork', upload.single('artwork'), requireLogin, releaseOwner, async (req, res) => {
@@ -35,7 +37,7 @@ module.exports = app => {
   app.delete('/api/artwork/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId } = req.params;
-      const { release } = res.locals;
+      const release = await Release.findById(releaseId, '-__v').exec();
       const updated = await deleteArtwork(releaseId, release);
       res.send(updated);
     } catch (error) {

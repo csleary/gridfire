@@ -16,7 +16,8 @@ module.exports = app => {
   // Add Track
   app.put('/api/:releaseId/add', requireLogin, releaseOwner, async (req, res) => {
     try {
-      const { release } = res.locals;
+      const { releaseId } = req.params;
+      const release = await Release.findById(releaseId, 'trackList').exec();
       release.trackList.push({ status: 'pending', dateCreated: Date.now() });
       const updatedRelease = await release.save();
       res.send(updatedRelease.toJSON());
@@ -29,7 +30,7 @@ module.exports = app => {
   app.get('/api/:releaseId/:trackId/init', async (req, res) => {
     const { releaseId, trackId } = req.params;
     const s3 = new aws.S3();
-    const release = await Release.findById(releaseId).exec();
+    const release = await Release.findById(releaseId, 'trackList').exec();
     const duration = release.trackList.id(trackId).duration;
     const mpd = release.trackList.id(trackId).mpd;
     const strict = true;
@@ -122,7 +123,7 @@ module.exports = app => {
   app.patch('/api/:releaseId/:from/:to', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId, from, to } = req.params;
-      const release = await Release.findById(releaseId).exec();
+      const release = await Release.findById(releaseId, 'trackList').exec();
       release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
       const updatedRelease = await release.save();
       res.send(updatedRelease.toJSON());

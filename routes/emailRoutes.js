@@ -180,7 +180,7 @@ The nemp3 team`
       user.save().then(updatedUser => {
         const mailOptions = {
           from: nemp3EmailSupport,
-          to: req.body.email,
+          to: user.auth.email,
           subject: 'Success! Your nemp3 password has been reset.',
           text: `Hi!
 
@@ -192,11 +192,12 @@ The nemp3 team`
 
         transporter.sendMail(mailOptions, error => {
           if (error) {
-            throw new Error(`Could not send password reset confirmation: ${error}`);
+            res.status(417).send({ error: 'Could not send password reset confirmation.' });
+            return console.error(error);
           }
-        });
 
-        res.send(updatedUser.auth.email);
+          res.send(updatedUser.auth.email);
+        });
       });
     } catch (error) {
       res.status(417).send({ error: error.message });

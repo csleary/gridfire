@@ -77,7 +77,7 @@ let NemAddress = props => {
     return 'Save Address';
   };
 
-  const userReleaseCount = userReleases?.length ?? 0;
+  const publishedReleaseCount = userReleases?.filter(release => release.published === true).length ?? 0;
   const creditClassName = classnames({ red: !credits, green: credits });
 
   return (
@@ -140,9 +140,9 @@ let NemAddress = props => {
                   </button>
                 </p>
                 <p>
-                  As you have {userReleaseCount} release
-                  {userReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
-                  {userReleaseCount + 1} to be able to add a new release or activate perks and powerups.
+                  As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release
+                  {publishedReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
+                  {publishedReleaseCount + 1} to be able to publish a new release or activate future powerups.
                 </p>
                 <p>
                   Need some credit? You&rsquo;ll be able to buy credit with XEM in the future, but for now{' '}

@@ -1,10 +1,12 @@
 import { Field, reduxForm } from 'redux-form';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
+import { fetchUser } from 'features/user';
+import { useHistory } from 'react-router-dom';
 
 const renderField = field => {
   const {
@@ -41,12 +43,20 @@ const renderField = field => {
 const PasswordUpdate = props => {
   const { handleSubmit, reset, pristine, submitting, invalid } = props;
   const dispatch = useDispatch();
+  const history = useHistory();
+  const { email } = useSelector(state => state.user.auth, shallowEqual);
 
   const onSubmit = async values => {
     try {
-      const res = await axios.post('/api/auth/update', values);
-      dispatch(toastSuccess(res.data.success));
+      const res = await axios.post('/api/auth/update', { email, ...values });
       reset();
+
+      batch(() => {
+        dispatch(fetchUser());
+        dispatch(toastSuccess(res.data.success));
+      });
+
+      history.push('/dashboard');
     } catch (error) {
       dispatch(toastError(error.response.data.error.message || error.message.toString()));
       reset();

@@ -21,17 +21,32 @@ module.exports = app => {
       const releases = await Release.find({ user: userId }, {}, { lean: true }).exec();
 
       if (!user.nemAddress || !user.nemAddressVerified) {
-        res.send({
+        return res.send({
           warning: 'Please add and verify your NEM address first. You will need credit to add a release.'
         });
-        return;
       }
 
       if (user.credits <= releases.length) {
-        res.send({
-          warning: 'Sorry, you don\u2019t have enough credit to add a new release. Please add more nemp3 credits first.'
+        return res.send({
+          warning:
+            'Sorry, you don\u2019t have enough credit to add a new release. Please add more nemp3 credits to cover the number of releases you wish to create.'
         });
-        return;
+      }
+
+      const incompleteReleases = await Release.where({
+        releaseTitle: { $exists: false },
+        'artwork.status': 'pending',
+        $where: 'this.trackList.length === 0'
+      }).exec();
+
+      if (incompleteReleases.length >= 3) {
+        const num = incompleteReleases.length;
+
+        return res.send({
+          warning: `It looks like you have ${incompleteReleases.length} release${
+            num !== 1 ? 's' : ''
+          } in need of completion already. Please complete ${num > 1 ? 'these' : 'that'} before creating another.`
+        });
       }
 
       const release = await Release.create({ user: userId, dateCreated: Date.now() });
@@ -45,13 +60,12 @@ module.exports = app => {
   app.delete('/api/release/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId } = req.params;
-      const release = res.locals.release;
 
       // Delete from db
       const deleteRelease = Release.findByIdAndRemove(releaseId).exec();
 
       const artistPullRelease = await Artist.findByIdAndUpdate(
-        release.artist,
+        deleteRelease.artist,
         { $pull: { releases: releaseId } },
         { lean: true, new: true }
       ).exec();
@@ -179,14 +193,15 @@ module.exports = app => {
   // Toggle Release Status
   app.patch('/api/release/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     try {
-      const release = res.locals.release;
+      const { releaseId } = req.params;
       const { nemAddress } = req.user;
+      const release = await Release.findById(releaseId).exec();
 
       if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
         release.updateOne({ published: false }).exec();
         throw new Error(
           // eslint-disable-next-line
-          "Please add a valid NEM address to your account before publishing this release ('Payment' tab)."
+          'Please add a confirmed NEM address to your account before publishing this release (\u2018Payment\u2019 tab).'
         );
       }
 
@@ -197,7 +212,7 @@ module.exports = app => {
 
       if (!release.trackList.length) {
         release.updateOne({ published: false }).exec();
-        throw new Error('Please add at least one track to the release (with audio), before publishing.');
+        throw new Error('Please add at least one track to the release, with audio, before publishing.');
       }
 
       if (release.trackList.some(track => track.status !== 'stored')) {

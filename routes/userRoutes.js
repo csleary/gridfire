@@ -11,9 +11,10 @@ module.exports = app => {
     try {
       const { releaseId, paymentHash } = req.body;
       const { price } = req.session;
-      const user = await User.findById(req.user._id).exec();
-      const release = await Release.findById(releaseId, { user: 1 }, { lean: true }).exec();
-      const artist = await User.findById(release.user).exec();
+      const { _id: custUserId, nemAddress: custNemAddress } = req.user;
+      const user = await User.findById(custUserId, 'purchases').exec();
+      const release = await Release.findById(releaseId, 'user', { lean: true }).exec();
+      const artist = await User.findById(release.user, 'nemAddress', { lean: true }).exec();
       const paymentAddress = artist.nemAddress;
       const hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
       const payments = await fetchTransactions(paymentAddress, paymentHash);
@@ -26,8 +27,8 @@ module.exports = app => {
           _id: saleId,
           purchaseDate: Date.now(),
           amountPaid: payments.paidToDate,
-          buyer: req.user._id,
-          buyerAddress: req.user.nemAddress
+          buyer: custUserId,
+          buyerAddress: custNemAddress
         };
 
         await Sale.findOneAndUpdate({ releaseId }, { $addToSet: { purchases: newSale } }, { upsert: true }).exec();
