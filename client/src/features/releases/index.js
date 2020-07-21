@@ -17,7 +17,9 @@ const releaseSlice = createSlice({
     priceInXem: '',
     reachedEndOfCat: false,
     activeRelease: { releaseDate: '', tags: [], trackList: [] },
-    userReleases: []
+    userFavourites: [],
+    userReleases: [],
+    userWishList: []
   },
   reducers: {
     clearActiveRelease(state) {
@@ -63,8 +65,16 @@ const releaseSlice = createSlice({
       state.activeRelease = action.payload;
     },
 
+    setUserFavourites(state, action) {
+      state.userFavourites = action.payload;
+    },
+
     setUserReleases(state, action) {
       state.userReleases = action.payload;
+    },
+
+    setUserWishList(state, action) {
+      state.userWishList = action.payload;
     },
 
     updateActiveRelease(state, action) {
@@ -126,7 +136,7 @@ const fetchCatalogue = (catalogueLimit, catalogueSkip, sortPath, sortOrder, isPa
 
 const fetchCollection = () => async dispatch => {
   try {
-    const res = await axios.get('/api/collection/');
+    const res = await axios.get('/api/user/collection/');
     dispatch(setCollection(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
@@ -151,6 +161,24 @@ const fetchUserRelease = releaseId => async dispatch => {
 const fetchUserReleases = () => async dispatch => {
   const res = await axios.get('/api/user/releases');
   dispatch(setUserReleases(res.data));
+};
+
+const fetchUserFavourites = () => async dispatch => {
+  try {
+    const res = await axios.get('/api/user/favourites');
+    if (res.data) dispatch(setUserFavourites(res.data));
+  } catch (error) {
+    dispatch(toastError(error.response.data.error));
+  }
+};
+
+const fetchUserWishList = () => async dispatch => {
+  try {
+    const res = await axios.get('/api/user/wish-list');
+    if (res.data) dispatch(setUserWishList(res.data));
+  } catch (error) {
+    dispatch(toastError(error.response.data.error));
+  }
 };
 
 const publishStatus = releaseId => async dispatch => {
@@ -185,15 +213,17 @@ const updateRelease = values => async dispatch => {
 
 export const {
   clearActiveRelease,
+  setActiveRelease,
   setArtistCatalogue,
   setArtworkUploading,
   setArtworkUploadProgress,
   setCatalogue,
   setCollection,
   setDeleteRelease,
-  setActiveRelease,
   setReleasePurchaseInfo,
+  setUserFavourites,
   setUserReleases,
+  setUserWishList,
   updateActiveRelease,
   updateUserReleases
 } = releaseSlice.actions;
@@ -205,6 +235,8 @@ export {
   fetchCatalogue,
   fetchCollection,
   fetchRelease,
+  fetchUserFavourites,
+  fetchUserWishList,
   fetchUserRelease,
   fetchUserReleases,
   publishStatus,

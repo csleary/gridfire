@@ -16,7 +16,7 @@ const Collection = () => {
   }, [collection.length, dispatch]);
 
   const renderReleases = collection.map(release => (
-    <RenderRelease key={release._id} release={release} variation="collection" />
+    <RenderRelease key={release._id} release={release} type="collection" />
   ));
 
   if (isLoading) {

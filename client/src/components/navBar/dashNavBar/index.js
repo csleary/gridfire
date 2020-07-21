@@ -13,12 +13,7 @@ function DashNavBar(props) {
     if (user.auth.isLocal || !user.auth.googleId) {
       return (
         <li className="nav-item">
-          <NavLink
-            strict
-            exact
-            to={'/dashboard/password-update'}
-            className="nav-link"
-          >
+          <NavLink strict exact to={'/dashboard/password-update'} className="nav-link">
             <FontAwesome name="key" className="mr-2" />
             Password
           </NavLink>
@@ -43,17 +38,11 @@ function DashNavBar(props) {
       </li>
       <li
         title={
-          user.nemAddress
-            ? 'Your NEM payment address.'
-            : 'You don\u2019t currently have a NEM payment address saved.'
+          user.nemAddress ? 'Your NEM payment address.' : 'You don\u2019t currently have a NEM payment address saved.'
         }
-      >
-        <NavLink
-          strict
-          exact
-          to={'/dashboard/nem-address'}
-          className="nav-link"
-        >
+      ></li>
+      <li>
+        <NavLink strict exact to={'/dashboard/nem-address'} className="nav-link">
           <FontAwesome
             name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
             className={`mr-2 ${!user.nemAddress && 'no-address'}`}
@@ -62,6 +51,18 @@ function DashNavBar(props) {
         </NavLink>
       </li>
       {showPasswordChange()}
+      <li>
+        <NavLink strict exact to={'/dashboard/favourites'} className="nav-link">
+          <FontAwesome name={'heart'} className={'mr-2'} />
+          Favourites
+        </NavLink>
+      </li>
+      <li>
+        <NavLink strict exact to={'/dashboard/wish-list'} className="nav-link">
+          <FontAwesome name={'magic'} className={'mr-2'} />
+          Wish List
+        </NavLink>
+      </li>
     </ul>
   );
 }

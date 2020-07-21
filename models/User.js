@@ -21,12 +21,22 @@ const UserSchema = new Schema(
       {
         releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
         purchaseDate: Date,
-        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase' },
+        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase', unique: true },
         transactions: Array
       }
     ],
-    favourites: [{ type: Schema.Types.ObjectId, ref: 'Release', unique: true }],
-    wishList: [{ type: Schema.Types.ObjectId, ref: 'Release', unique: true }],
+    favourites: [
+      {
+        releaseId: { type: Schema.Types.ObjectId, ref: 'Release', unique: true },
+        dateAdded: { type: Date }
+      }
+    ],
+    wishList: [
+      {
+        releaseId: { type: Schema.Types.ObjectId, ref: 'Release', unique: true },
+        dateAdded: { type: Date }
+      }
+    ],
     artists: [{ type: Schema.Types.ObjectId, ref: 'Artist', unique: true }]
   },
   {

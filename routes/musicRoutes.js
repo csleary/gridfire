@@ -10,7 +10,7 @@ aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
   // Fetch user collection
-  app.get('/api/collection/', requireLogin, async (req, res) => {
+  app.get('/api/user/collection/', requireLogin, async (req, res) => {
     const { purchases } = req.user;
     const releaseIds = purchases.map(release => release.releaseId);
     const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
@@ -21,23 +21,25 @@ module.exports = app => {
   });
 
   // Fetch user favourites
-  app.get('/api/favourites/', requireLogin, async (req, res) => {
-    const { favourites } = req.user;
-    const releases = await Release.find({ _id: { $in: favourites } }, '-__v', {
+  app.get('/api/user/favourites/', requireLogin, async (req, res) => {
+    const user = await User.findById(req.user._id, 'favourites', { lean: true }).exec();
+    const releaseIds = user.favourites.map(rel => rel.releaseId);
+    const userFavourites = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
       lean: true,
       sort: '-releaseDate'
     }).exec();
-    res.send(releases);
+    res.send(userFavourites);
   });
 
   // Fetch user wish list
-  app.get('/api/wish-list/', requireLogin, async (req, res) => {
-    const { wishList } = req.user;
-    const releases = await Release.find({ _id: { $in: wishList } }, '-__v', {
+  app.get('/api/user/wish-list/', requireLogin, async (req, res) => {
+    const user = await User.findById(req.user._id, 'wishList', { lean: true }).exec();
+    const releaseIds = user.wishList.map(rel => rel.releaseId);
+    const userWishList = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
       lean: true,
       sort: '-releaseDate'
     }).exec();
-    res.send(releases);
+    res.send(userWishList);
   });
 
   // Fetch artist catalogue
@@ -114,15 +116,13 @@ module.exports = app => {
   app.post('/api/user/favourite/:releaseId', requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const userId = req.user._id;
-    const favExists = await User.exists({ _id: userId, favourites: { $in: releaseId } });
-    const operator = favExists ? '$pull' : '$push';
+    const favExists = await User.exists({ _id: userId, 'favourites.releaseId': releaseId });
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { [operator]: { favourites: releaseId } },
-      { new: true, select: { favourites: 1 } }
-    ).exec();
+    const update = favExists
+      ? { $pull: { favourites: { releaseId } } }
+      : { $push: { favourites: { releaseId, dateAdded: Date.now() } } };
 
+    const user = await User.findByIdAndUpdate(userId, update, { new: true, select: { favourites: 1 } }).exec();
     res.send(user.toJSON().favourites);
   });
 
@@ -130,15 +130,13 @@ module.exports = app => {
   app.post('/api/user/wish-list/:releaseId', requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const userId = req.user._id;
-    const releaseExists = await User.exists({ _id: userId, wishList: { $in: releaseId } });
-    const operator = releaseExists ? '$pull' : '$push';
+    const releaseExists = await User.exists({ _id: userId, 'wishList.releaseId': releaseId });
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { [operator]: { wishList: releaseId } },
-      { new: true, select: { wishList: 1 } }
-    ).exec();
+    const update = releaseExists
+      ? { $pull: { wishList: { releaseId } } }
+      : { $push: { wishList: { releaseId, dateAdded: Date.now() } } };
 
+    const user = await User.findByIdAndUpdate(userId, update, { new: true, select: { wishList: 1 } }).exec();
     res.send(user.toJSON().wishList);
   });
 };

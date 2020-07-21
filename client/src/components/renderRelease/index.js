@@ -15,7 +15,7 @@ import withDownload from 'components/payment/payments/withDownload';
 const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = props => {
-  const { release, variation } = props;
+  const { release, type } = props;
   const dispatch = useDispatch();
   const { player } = useSelector(state => state, shallowEqual);
   const { _id: releaseId, artist, artistName, artwork, releaseTitle, trackList } = release;
@@ -32,7 +32,7 @@ const RenderRelease = props => {
   };
 
   const showCollectionDownload = () => {
-    if (variation === 'collection') {
+    if (type === 'collection') {
       return (
         <>
           <DownloadButton artistName={artistName} format="mp3" releaseId={releaseId} releaseTitle={releaseTitle} />
@@ -86,7 +86,7 @@ const RenderRelease = props => {
 
 RenderRelease.propTypes = {
   release: PropTypes.object,
-  variation: PropTypes.string
+  type: PropTypes.string
 };
 
 export default RenderRelease;

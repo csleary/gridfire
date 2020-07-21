@@ -11,7 +11,7 @@ const WishListButton = () => {
   const { wishList } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
-  const isInWishList = wishList?.some(id => id === releaseId);
+  const isInWishList = wishList?.some(rel => rel.releaseId === releaseId);
   const iconClassName = classnames(styles.icon, { [styles.saved]: isInWishList && !loading });
 
   return (

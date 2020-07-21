@@ -1,6 +1,7 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { fetchUserFavourites, fetchUserWishList } from 'features/releases';
 import { toastError, toastSuccess } from 'features/toast';
+import axios from 'axios';
 
 const userSlice = createSlice({
   name: 'user',
@@ -69,16 +70,18 @@ const saveToFavourites = releaseId => async dispatch => {
   const res = await axios.post(`/api/user/favourite/${releaseId}`);
   const favourites = res.data;
   dispatch(updateFavourites(favourites));
-  if (favourites.includes(releaseId)) dispatch(toastSuccess('Added to favourites.'));
+  if (favourites.some(rel => rel.releaseId === releaseId)) dispatch(toastSuccess('Added to favourites.'));
   else dispatch(toastSuccess('Removed from favourites.'));
+  dispatch(fetchUserFavourites());
 };
 
 const saveToWishList = releaseId => async dispatch => {
   const res = await axios.post(`/api/user/wish-list/${releaseId}`);
   const wishList = res.data;
   dispatch(updateWishList(wishList));
-  if (wishList.includes(releaseId)) dispatch(toastSuccess('Added to wish list.'));
+  if (wishList.some(rel => rel.releaseId === releaseId)) dispatch(toastSuccess('Added to wish list.'));
   else dispatch(toastSuccess('Removed from wish list.'));
+  dispatch(fetchUserWishList());
 };
 
 const addNemAddress = values => async dispatch => {
@@ -129,4 +132,5 @@ export const {
   updateWishList,
   updateUser
 } = userSlice.actions;
+
 export { addNemAddress, fetchUser, fetchUserCredits, logOut, saveToFavourites, saveToWishList };
