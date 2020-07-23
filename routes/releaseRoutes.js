@@ -144,6 +144,17 @@ module.exports = app => {
     }
   });
 
+  // Fetch fav count
+  app.get('/api/release/:releaseId/favourites', requireLogin, releaseOwner, async (req, res) => {
+    try {
+      const { releaseId } = req.params;
+      const favCount = await User.where({ 'favourites.releaseId': releaseId }).countDocuments().exec();
+      res.send({ releaseId, favCount });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  });
+
   // Fetch Release
   app.get('/api/release/:releaseId', async (req, res) => {
     try {

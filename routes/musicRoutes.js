@@ -120,7 +120,7 @@ module.exports = app => {
 
     const update = favExists
       ? { $pull: { favourites: { releaseId } } }
-      : { $push: { favourites: { releaseId, dateAdded: Date.now() } } };
+      : { $addToSet: { favourites: { releaseId, dateAdded: Date.now() } } };
 
     const user = await User.findByIdAndUpdate(userId, update, { new: true, select: { favourites: 1 } }).exec();
     res.send(user.toJSON().favourites);
@@ -134,7 +134,7 @@ module.exports = app => {
 
     const update = releaseExists
       ? { $pull: { wishList: { releaseId } } }
-      : { $push: { wishList: { releaseId, dateAdded: Date.now() } } };
+      : { $addToSet: { wishList: { releaseId, dateAdded: Date.now() } } };
 
     const user = await User.findByIdAndUpdate(userId, update, { new: true, select: { wishList: 1 } }).exec();
     res.send(user.toJSON().wishList);

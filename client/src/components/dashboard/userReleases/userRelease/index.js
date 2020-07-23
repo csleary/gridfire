@@ -18,6 +18,7 @@ function UserRelease({ numSold, release }) {
     artist,
     artistName,
     artwork,
+    favCount,
     price,
     published,
     releaseDate,
@@ -90,6 +91,9 @@ function UserRelease({ numSold, release }) {
           <h6>
             <FontAwesome name="circle" className={`mr-2 ${numSold ? 'green' : 'red'}`} title="Number of copies sold." />
             {numSold} {numSold ? `cop${numSold > 1 ? 'ies' : 'y'} sold` : 'No sales yet'}
+          </h6>
+          <h6>
+            <FontAwesome name="heart" className={'mr-2 red'} title="User favourites count." /> {favCount}
           </h6>
         </div>
         <div className={styles.buttons}>

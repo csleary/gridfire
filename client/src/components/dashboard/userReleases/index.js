@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { fetchUserReleaseFavCount, fetchUserReleases } from 'features/releases';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import Spinner from 'components/spinner';
 import UserRelease from './userRelease';
 import axios from 'axios';
-import { fetchUserReleases } from 'features/releases';
 import styles from './userReleases.module.css';
 
 function UserReleases() {
@@ -18,6 +18,11 @@ function UserReleases() {
     if (!userReleases.length) setLoading(true);
     dispatch(fetchUserReleases()).then(() => setLoading(false));
   }, [dispatch, userReleases.length]);
+
+  useEffect(() => {
+    if (!userReleases.length) return;
+    userReleases.forEach(({ _id: releaseId }) => dispatch(fetchUserReleaseFavCount(releaseId)));
+  }, [dispatch, userReleases]);
 
   useEffect(() => {
     const handleFetch = async () => {

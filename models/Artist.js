@@ -8,7 +8,6 @@ const artistSchema = new Schema({
   biography: { type: String, trim: true },
   links: [
     {
-      _id: false,
       title: { type: String, trim: true },
       uri: { type: String, trim: true }
     }

@@ -30,12 +30,6 @@ function DashNavBar(props) {
           Releases
         </NavLink>
       </li>
-      <li>
-        <NavLink strict exact to={'/dashboard/collection'} className="nav-link">
-          <FontAwesome name="archive" className="mr-2" />
-          Collection
-        </NavLink>
-      </li>
       <li
         title={
           user.nemAddress ? 'Your NEM payment address.' : 'You don\u2019t currently have a NEM payment address saved.'
@@ -51,6 +45,12 @@ function DashNavBar(props) {
         </NavLink>
       </li>
       {showPasswordChange()}
+      <li>
+        <NavLink strict exact to={'/dashboard/collection'} className="nav-link">
+          <FontAwesome name="archive" className="mr-2" />
+          Collection
+        </NavLink>
+      </li>
       <li>
         <NavLink strict exact to={'/dashboard/favourites'} className="nav-link">
           <FontAwesome name={'heart'} className={'mr-2'} />

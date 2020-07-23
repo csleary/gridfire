@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import rootReducer from 'features';
 import socketMiddleware from 'middleware/socket';
 
-const CLOUD_URL = 'https://d2gjz4j3cdttft.cloudfront.net';
+const CLOUD_URL = `https://${process.env.REACT_APP_CLOUDFRONT}`;
 
 const store = configureStore({
   reducer: rootReducer,
