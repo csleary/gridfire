@@ -17,12 +17,12 @@ function UserReleases() {
   useEffect(() => {
     if (!userReleases.length) setLoading(true);
     dispatch(fetchUserReleases()).then(() => setLoading(false));
-  }, [dispatch, userReleases.length]);
+  }, [userReleases.length]);
 
   useEffect(() => {
     if (!userReleases.length) return;
     userReleases.forEach(({ _id: releaseId }) => dispatch(fetchUserReleaseFavCount(releaseId)));
-  }, [dispatch, userReleases]);
+  }, [userReleases.length]);
 
   useEffect(() => {
     const handleFetch = async () => {

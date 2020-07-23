@@ -278,7 +278,7 @@ EditRelease.propTypes = {
 const WithForm = reduxForm({
   enableReinitialize: true,
   form: 'releaseForm',
-  keepDirtyOnReinitialize: false,
+  keepDirtyOnReinitialize: true,
   validate
 })(EditRelease);
 
