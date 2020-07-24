@@ -62,7 +62,7 @@ module.exports = app => {
       const { releaseId } = req.params;
 
       // Delete from db
-      const deleteRelease = Release.findByIdAndRemove(releaseId).exec();
+      const deleteRelease = await Release.findByIdAndRemove(releaseId).exec();
 
       const artistPullRelease = await Artist.findByIdAndUpdate(
         deleteRelease.artist,
@@ -140,7 +140,7 @@ module.exports = app => {
 
       res.send(values[0]._id);
     } catch (error) {
-      res.status(500).send({ error });
+      res.status(500).send({ error: error.message });
     }
   });
 

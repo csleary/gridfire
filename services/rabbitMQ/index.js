@@ -24,19 +24,17 @@ module.exports = app => {
         return setTimeout(connectToServer, 3000);
       });
 
-      whenConnected();
+      const io = app.get('socketio');
+      startPublisher(connection);
+      for (let i = 0; i < 2; i++) {
+        startConsumer({ connection, io, workerPool, queue: QUEUE_ARTWORK });
+      }
+
+      for (let i = 0; i < numCPUs; i++) {
+        startConsumer({ connection, io, workerPool, queue: QUEUE_TRANSCODE });
+      }
     } catch (error) {
       setTimeout(connectToServer, 3000);
-    }
-  };
-
-  const whenConnected = () => {
-    const io = app.get('socketio');
-    startPublisher(connection);
-    startConsumer({ connection, io, workerPool, queue: QUEUE_ARTWORK });
-
-    for (let i = 0; i < numCPUs; i++) {
-      startConsumer({ connection, io, workerPool, queue: QUEUE_TRANSCODE });
     }
   };
 

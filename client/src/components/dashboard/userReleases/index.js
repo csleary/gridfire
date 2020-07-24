@@ -17,21 +17,15 @@ function UserReleases() {
   useEffect(() => {
     if (!userReleases.length) setLoading(true);
     dispatch(fetchUserReleases()).then(() => setLoading(false));
-  }, [userReleases.length]);
-
-  useEffect(() => {
-    if (!userReleases.length) return;
     userReleases.forEach(({ _id: releaseId }) => dispatch(fetchUserReleaseFavCount(releaseId)));
-  }, [userReleases.length]);
 
-  useEffect(() => {
-    const handleFetch = async () => {
+    const fetchSales = async () => {
       const res = await axios.get('/api/sales');
       setSalesData(res.data);
     };
 
-    handleFetch();
-  }, []);
+    fetchSales();
+  }, [userReleases.length]);
 
   const releasesOffline = () => {
     if (!userReleases) return;
