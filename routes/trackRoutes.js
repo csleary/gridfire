@@ -172,32 +172,35 @@ module.exports = app => {
         throw new Error('File type not recognised. Needs to be flac/aiff/wav.');
       }
 
-      let release = await Release.findOneAndUpdate(
-        { _id: releaseId, 'trackList._id': trackId },
-        { $set: { 'trackList.$.status': 'uploading', 'trackList.$.dateUpdated': Date.now() } },
-        { lean: true, new: true, select: '-__v' }
-      ).exec();
-
-      io.to(userId).emit('updateActiveRelease', { release });
-
       const { file } = req;
       const filePath = path.join(TEMP_PATH, trackId);
       const write = fs.createWriteStream(filePath);
       file.stream.pipe(write);
+      file.stream.on('data', () => {});
+
+      write.on('open', async () => {
+        const uploadingRelease = await Release.findOneAndUpdate(
+          { _id: releaseId, 'trackList._id': trackId },
+          { $set: { 'trackList.$.status': 'uploading', 'trackList.$.dateUpdated': Date.now() } },
+          { lean: true, new: true, select: '-__v' }
+        ).exec();
+
+        io.to(userId).emit('updateActiveRelease', { release: uploadingRelease });
+      });
 
       write.on('finish', async () => {
-        release = await Release.findOneAndUpdate(
+        const uploadedRelease = await Release.findOneAndUpdate(
           { _id: releaseId, 'trackList._id': trackId },
           { $set: { 'trackList.$.status': 'uploaded', 'trackList.$.dateUpdated': Date.now() } },
           { lean: true, new: true, select: '-__v' }
         ).exec();
 
-        io.to(userId).emit('updateActiveRelease', { release });
+        io.to(userId).emit('updateActiveRelease', { release: uploadedRelease });
 
         publishToQueue('', QUEUE_TRANSCODE, {
           userId,
           filePath,
-          job: 'encodeFlac',
+          job: 'encodeFLAC',
           releaseId,
           trackId,
           trackName

@@ -46,11 +46,11 @@ const encodeFlac = async () => {
   trackDoc.dateUpdated = Date.now();
   await release.save();
   parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
-  parentPort.postMessage({ type: 'EncodingCompleteFlac', trackId, trackName, userId });
+  parentPort.postMessage({ type: 'EncodingCompleteFLAC', trackId, trackName, userId });
 
   parentPort.postMessage({
     type: 'publishToQueue',
-    job: 'transcodeAac',
+    job: 'transcodeAAC',
     queue: QUEUE_TRANSCODE,
     releaseId,
     trackId,

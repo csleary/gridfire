@@ -23,14 +23,14 @@ const socketMiddleware = ({ dispatch, getState }) => {
     });
   });
 
-  socket.on('EncodingCompleteFlac', ({ trackId, trackName }) => {
+  socket.on('EncodingCompleteFLAC', ({ trackId, trackName }) => {
     batch(() => {
       dispatch(setUploadProgress({ trackId, percent: 0 }));
       dispatch(toastSuccess(`Upload complete for ${trackName}!`));
     });
   });
 
-  socket.on('EncodingCompleteAac', ({ trackId, trackName }) => {
+  socket.on('EncodingCompleteAAC', ({ trackId, trackName }) => {
     batch(() => {
       dispatch(toastSuccess(`Transcoding ${trackName} to aac complete.`));
       dispatch(setTranscodingComplete(trackId));

@@ -3,8 +3,8 @@ const handleWork = require('./worker');
 const path = require('path');
 
 const scripts = {
-  encodeFlac: path.join(__dirname, 'workerScripts', 'encodeFlac.js'),
-  transcodeAac: path.join(__dirname, 'workerScripts', 'transcodeAac.js'),
+  encodeFLAC: path.join(__dirname, 'workerScripts', 'encodeFLAC.js'),
+  transcodeAAC: path.join(__dirname, 'workerScripts', 'transcodeAAC.js'),
   uploadArtwork: path.join(__dirname, 'workerScripts', 'uploadArtwork.js')
 };
 

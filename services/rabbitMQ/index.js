@@ -8,10 +8,9 @@ const { startPublisher } = require('./publisher');
 const workerPool = new Pool({ max: numCPUs });
 
 module.exports = app => {
-  let connection;
   const connectToServer = async () => {
     try {
-      connection = await amqp.connect(`amqp://${rabbitUser}:${rabbitPass}@${RABBIT_HOST}:5672`);
+      const connection = await amqp.connect(`amqp://${rabbitUser}:${rabbitPass}@${RABBIT_HOST}:5672`);
 
       connection.on('error', error => {
         if (error.message !== 'Connection closing.') {

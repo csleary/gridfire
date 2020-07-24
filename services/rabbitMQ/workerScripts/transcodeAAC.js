@@ -63,11 +63,12 @@ const work = async () => {
     await release.save();
 
     parentPort.postMessage({
-      type: 'EncodingCompleteAac',
+      type: 'EncodingCompleteAAC',
       trackId,
       trackName,
       userId
     });
+
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
 
     await fsPromises.unlink(outputAudio);
