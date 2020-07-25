@@ -27,7 +27,7 @@ const AudioDropzoneLabel = props => {
     return (
       <>
         <FontAwesome name="cog" spin className="mr-2" />
-        {audioUploadProgress.toString(10).padStart(2, '0')}%
+        {audioUploadProgress?.toString(10).padStart(2, '0')}%
       </>
     );
   }

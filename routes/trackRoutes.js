@@ -1,7 +1,7 @@
 const aws = require('aws-sdk');
+const busboy = require('connect-busboy');
 const fs = require('fs');
 const mongoose = require('mongoose');
-const multer = require('multer');
 const path = require('path');
 const sax = require('sax');
 const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = require('../config/constants');
@@ -10,7 +10,6 @@ const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
-const upload = multer();
 
 module.exports = app => {
   // Add Track
@@ -162,23 +161,57 @@ module.exports = app => {
   });
 
   // Upload Audio
-  app.post('/api/upload/audio', upload.single('audio'), requireLogin, releaseOwner, async (req, res) => {
+  app.post('/api/upload/audio', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 200 } }), async (req, res) => {
     try {
       const io = app.get('socketio');
-      const { releaseId, trackId, trackName, type } = req.body;
       const userId = req.user._id;
+      let formData = {};
 
-      if (!['audio/aiff', 'audio/x-aiff', 'audio/flac', 'audio/vnd.wav', 'audio/wav', 'audio/x-wav'].includes(type)) {
-        throw new Error('File type not recognised. Needs to be flac/aiff/wav.');
-      }
+      req.busboy.on('field', (key, value) => {
+        formData[key] = value;
+      });
 
-      const { file } = req;
-      const filePath = path.join(TEMP_PATH, trackId);
-      const write = fs.createWriteStream(filePath);
-      file.stream.pipe(write);
-      file.stream.on('data', () => {});
+      req.busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
+        const { releaseId, trackId, trackName } = formData;
 
-      write.on('open', async () => {
+        if (releaseId) {
+          const isUserRelease = await Release.exists({ _id: releaseId, user: userId });
+          if (!isUserRelease) throw new Error('User is not authorised.');
+        }
+
+        const accepted = [
+          'audio/aiff',
+          'audio/x-aiff',
+          'audio/flac',
+          'audio/vnd.wav',
+          'audio/wav',
+          'audio/x-wav'
+        ].includes(mimetype);
+
+        if (!accepted) {
+          throw new Error('File type not recognised. Needs to be flac/aiff/wav.');
+        }
+
+        const filePath = path.join(TEMP_PATH, trackId);
+        const write = fs.createWriteStream(filePath, { autoClose: true });
+
+        write.on('finish', async () => {
+          const uploadedRelease = await Release.findOneAndUpdate(
+            { _id: releaseId, 'trackList._id': trackId },
+            { $set: { 'trackList.$.status': 'uploaded', 'trackList.$.dateUpdated': Date.now() } },
+            { lean: true, new: true, select: '-__v' }
+          ).exec();
+
+          io.to(userId).emit('updateActiveRelease', { release: uploadedRelease });
+
+          if ([userId, filePath, releaseId, trackId, trackName].includes(undefined)) {
+            throw new Error('Job parameters missing.');
+          }
+
+          publishToQueue('', QUEUE_TRANSCODE, { userId, filePath, job: 'encodeFLAC', releaseId, trackId, trackName });
+          res.end();
+        });
+
         const uploadingRelease = await Release.findOneAndUpdate(
           { _id: releaseId, 'trackList._id': trackId },
           { $set: { 'trackList.$.status': 'uploading', 'trackList.$.dateUpdated': Date.now() } },
@@ -186,28 +219,11 @@ module.exports = app => {
         ).exec();
 
         io.to(userId).emit('updateActiveRelease', { release: uploadingRelease });
+        file.pipe(write);
       });
 
-      write.on('finish', async () => {
-        const uploadedRelease = await Release.findOneAndUpdate(
-          { _id: releaseId, 'trackList._id': trackId },
-          { $set: { 'trackList.$.status': 'uploaded', 'trackList.$.dateUpdated': Date.now() } },
-          { lean: true, new: true, select: '-__v' }
-        ).exec();
-
-        io.to(userId).emit('updateActiveRelease', { release: uploadedRelease });
-
-        publishToQueue('', QUEUE_TRANSCODE, {
-          userId,
-          filePath,
-          job: 'encodeFLAC',
-          releaseId,
-          trackId,
-          trackName
-        });
-
-        res.end();
-      });
+      req.busboy.on('finish', () => res.end());
+      req.pipe(req.busboy);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

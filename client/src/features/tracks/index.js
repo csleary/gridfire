@@ -76,12 +76,12 @@ const transcodeAudio = (releaseId, trackId, trackName) => async dispatch => {
 
 const uploadAudio = ({ releaseId, trackId, trackName, audioFile, type }) => async dispatch => {
   try {
-    const data = new FormData();
-    data.append('releaseId', releaseId);
-    data.append('trackId', trackId);
-    data.append('trackName', trackName);
-    data.append('audio', audioFile);
-    data.append('type', type);
+    const formData = new FormData();
+    formData.append('type', type);
+    formData.append('releaseId', releaseId);
+    formData.append('trackId', trackId);
+    formData.append('trackName', trackName);
+    formData.append('file', audioFile, audioFile.name);
 
     const config = {
       onUploadProgress: event => {
@@ -90,7 +90,7 @@ const uploadAudio = ({ releaseId, trackId, trackName, audioFile, type }) => asyn
       }
     };
 
-    const res = await axios.post('/api/upload/audio', data, config);
+    const res = await axios.post('/api/upload/audio', formData, config);
     return res;
   } catch (error) {
     toastError(error.response.data.error);

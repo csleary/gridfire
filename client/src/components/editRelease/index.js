@@ -67,14 +67,7 @@ class EditRelease extends Component {
   }
 
   async componentWillUnmount() {
-    // const isInvalid = !this.props.valid;
-    // const hasNoTracks = !this.props.release.trackList?.length;
-    // const hasNoArtwork = !this.props.release.artwork?.status !== 'stored';
     if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
-
-    // if (isInvalid && hasNoTracks && hasNoArtwork) {
-    //   await this.props.deleteRelease(this.props.release._id);
-    // }
   }
 
   onDropArt = (accepted, rejected) => {

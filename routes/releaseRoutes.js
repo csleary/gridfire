@@ -223,12 +223,17 @@ module.exports = app => {
 
       if (!release.trackList.length) {
         release.updateOne({ published: false }).exec();
-        throw new Error('Please add at least one track to the release, with audio, before publishing.');
+        throw new Error('Please add at least one track to the release, with audio and a title, before publishing.');
       }
 
       if (release.trackList.some(track => track.status !== 'stored')) {
         release.updateOne({ published: false }).exec();
         throw new Error('Please ensure that all tracks have audio uploaded before publishing.');
+      }
+
+      if (release.trackList.some(track => !track.trackTitle)) {
+        release.updateOne({ published: false }).exec();
+        throw new Error('Please ensure that all tracks have titles set before publishing.');
       }
 
       release.published = !release.published;

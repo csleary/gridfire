@@ -32,13 +32,10 @@ const deleteArtwork = releaseId => async dispatch => {
 const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
   const data = new FormData();
   data.append('releaseId', releaseId);
-  data.append('artwork', imgData);
   data.append('type', type);
+  data.append('file', imgData);
 
   const config = {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
     onUploadProgress: event => {
       const progress = (event.loaded / event.total) * 100;
       dispatch(setArtworkUploadProgress(Math.floor(progress)));
