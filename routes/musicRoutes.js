@@ -107,14 +107,14 @@ module.exports = app => {
       const userId = req.user._id;
       const releases = await Release.find({ user: userId }, '_id', { lean: true }).exec();
 
-      const counts = await User.aggregate([
+      const releaseFavs = await User.aggregate([
         { $match: { 'favourites.releaseId': { $in: releases.map(rel => rel._id) } } },
         { $group: { _id: { releaseId: '$favourites.releaseId' } } },
         { $unwind: '$_id.releaseId' },
         { $group: { _id: '$_id.releaseId', favs: { $sum: 1 } } }
       ]).exec();
 
-      res.send({ counts });
+      res.send({ releases: releaseFavs });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

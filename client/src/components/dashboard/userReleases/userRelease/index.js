@@ -12,13 +12,12 @@ import styles from './userRelease.module.css';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
-function UserRelease({ numSold, release }) {
+function UserRelease({ favs, numSold, release }) {
   const {
     _id: releaseId,
     artist,
     artistName,
     artwork,
-    favs,
     price,
     published,
     releaseDate,
@@ -147,6 +146,7 @@ function UserRelease({ numSold, release }) {
 }
 
 UserRelease.propTypes = {
+  favs: PropTypes.number,
   numSold: PropTypes.number,
   release: PropTypes.object
 };

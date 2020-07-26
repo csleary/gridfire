@@ -9,7 +9,7 @@ let socket;
 if (process.env.REACT_APP_NODE_ENV === 'development') {
   socket = io('http://localhost:8083', { path: '/socket.io' });
 } else {
-  socket = io({ path: '/socket-io' });
+  socket = io();
 }
 
 const socketMiddleware = ({ dispatch, getState }) => {

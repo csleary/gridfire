@@ -10,7 +10,7 @@ import styles from './userReleases.module.css';
 
 function UserReleases() {
   const dispatch = useDispatch();
-  const { userReleases } = useSelector(state => state.releases, shallowEqual);
+  const { userReleases, favCounts } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState();
 
@@ -36,8 +36,11 @@ function UserReleases() {
 
   const renderUserReleases = () =>
     userReleases.map(release => {
-      const sales = salesData?.find(sale => sale.releaseId === release._id);
-      return <UserRelease key={release._id} numSold={sales?.purchases.length} release={release} />;
+      const releaseId = release._id;
+      const sales = salesData?.find(sale => sale.releaseId === releaseId);
+      return (
+        <UserRelease key={releaseId} numSold={sales?.purchases.length} release={release} favs={favCounts[releaseId]} />
+      );
     });
 
   if (isLoading) {
