@@ -128,9 +128,28 @@
   margin-bottom: 0;
 }
 
+.columns {
+  align-items: flex-start;
+  display: flex;
+}
+
 .details {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
   justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.stats {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.favs {
+  color: var(--red);
+  margin-right: 0.5rem;
 }

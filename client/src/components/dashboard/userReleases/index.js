@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUserReleaseFavCount, fetchUserReleases } from 'features/releases';
+import { fetchUserReleases, fetchUserReleasesFavCounts } from 'features/releases';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
@@ -15,17 +15,18 @@ function UserReleases() {
   const [salesData, setSalesData] = useState();
 
   useEffect(() => {
+    axios.get('/api/sales').then(res => setSalesData(res.data));
+  }, []);
+
+  useEffect(() => {
     if (!userReleases.length) setLoading(true);
     dispatch(fetchUserReleases()).then(() => setLoading(false));
-    userReleases.forEach(({ _id: releaseId }) => dispatch(fetchUserReleaseFavCount(releaseId)));
+  }, [dispatch, userReleases.length]);
 
-    const fetchSales = async () => {
-      const res = await axios.get('/api/sales');
-      setSalesData(res.data);
-    };
-
-    fetchSales();
-  }, [userReleases.length]);
+  useEffect(() => {
+    if (!userReleases.length) return;
+    dispatch(fetchUserReleasesFavCounts());
+  }, [dispatch, userReleases.length]);
 
   const releasesOffline = () => {
     if (!userReleases) return;

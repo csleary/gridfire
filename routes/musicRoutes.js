@@ -101,6 +101,25 @@ module.exports = app => {
     res.send(releases);
   });
 
+  // Fetch user releases fav counts
+  app.get('/api/user/releases/favourites', requireLogin, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const releases = await Release.find({ user: userId }, '_id', { lean: true }).exec();
+
+      const counts = await User.aggregate([
+        { $match: { 'favourites.releaseId': { $in: releases.map(rel => rel._id) } } },
+        { $group: { _id: { releaseId: '$favourites.releaseId' } } },
+        { $unwind: '$_id.releaseId' },
+        { $group: { _id: '$_id.releaseId', favs: { $sum: 1 } } }
+      ]).exec();
+
+      res.send({ counts });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  });
+
   // Search releases
   app.get('/api/search', async (req, res) => {
     const { searchQuery } = req.query;

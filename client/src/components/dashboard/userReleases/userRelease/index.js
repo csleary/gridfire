@@ -18,7 +18,7 @@ function UserRelease({ numSold, release }) {
     artist,
     artistName,
     artwork,
-    favCount,
+    favs,
     price,
     published,
     releaseDate,
@@ -70,31 +70,44 @@ function UserRelease({ numSold, release }) {
       <Artwork artistName={artistName} artwork={artwork} releaseId={releaseId} releaseTitle={releaseTitle} />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
       <div className="d-flex flex-column flex-grow-1 p-3">
-        <div className={`${styles.details} mb-3`}>
-          <Title artist={artist} artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
-          <h6>
-            <FontAwesome name="circle" className={`mr-2 ${price ? 'cyan' : 'yellow'}`} />
-            {price ? `$${price} USD` : 'Name your price'}
-          </h6>
-          <h6>
-            <FontAwesome
-              name="circle"
-              className={`mr-2 ${Date.now() - new Date(releaseDate) > 0 ? 'green' : 'yellow'}`}
-            />
-            {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
-          </h6>
-          <h6>
-            <FontAwesome name="circle" className={`mr-2 ${hasAudio ? 'green' : 'red'}`} />
-            {trackList.length} Track{trackList.length === 1 ? '' : 's'}
-            {trackList.length && !hasAudio ? ' (incomplete)' : null}
-          </h6>
-          <h6>
-            <FontAwesome name="circle" className={`mr-2 ${numSold ? 'green' : 'red'}`} title="Number of copies sold." />
-            {numSold} {numSold ? `cop${numSold > 1 ? 'ies' : 'y'} sold` : 'No sales yet'}
-          </h6>
-          <h6>
-            <FontAwesome name="heart" className={'mr-2 red'} title="User favourites count." /> {favCount}
-          </h6>
+        <Title artist={artist} artistName={artistName} favs={favs} releaseId={releaseId} releaseTitle={releaseTitle} />
+        <div className={styles.columns}>
+          <div className={styles.details}>
+            <h6>
+              <FontAwesome name="circle" className={`mr-2 ${price ? 'cyan' : 'yellow'}`} />
+              {price ? `$${price} USD` : 'Name your price'}
+            </h6>
+            <h6>
+              <FontAwesome
+                name="circle"
+                className={`mr-2 ${Date.now() - new Date(releaseDate) > 0 ? 'green' : 'yellow'}`}
+              />
+              {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
+            </h6>
+            <h6>
+              <FontAwesome name="circle" className={`mr-2 ${hasAudio ? 'green' : 'red'}`} />
+              {trackList.length} Track{trackList.length === 1 ? '' : 's'}
+              {trackList.length && !hasAudio ? ' (incomplete)' : null}
+            </h6>
+            <h6>
+              <FontAwesome
+                name="circle"
+                className={`mr-2 ${numSold ? 'green' : 'red'}`}
+                title="Number of copies sold."
+              />
+              {numSold} {numSold ? `cop${numSold > 1 ? 'ies' : 'y'} sold` : 'No sales yet'}
+            </h6>
+          </div>
+          <div className={styles.stats}>
+            <h6>
+              <FontAwesome
+                name="heart"
+                className={styles.favs}
+                title="Number of users who have favourited this release."
+              />
+              {favs ?? 0}
+            </h6>
+          </div>
         </div>
         <div className={styles.buttons}>
           <button onClick={() => history.push(`/release/${releaseId}/edit`)} className={styles.button}>

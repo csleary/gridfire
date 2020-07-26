@@ -8,10 +8,10 @@ module.exports = app => {
     })
   );
 
-  app.use(
-    '/socket.io',
-    createProxyMiddleware({
-      target: 'http://localhost:8083'
-    })
-  );
+  // app.use(
+  //   '/socket.io',
+  //   createProxyMiddleware({
+  //     target: 'http://localhost:8083'
+  //   })
+  // );
 };

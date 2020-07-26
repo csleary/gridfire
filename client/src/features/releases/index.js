@@ -73,11 +73,11 @@ const releaseSlice = createSlice({
       state.userReleases = action.payload;
     },
 
-    setUserReleaseFavCount(state, action) {
-      const { favCount, releaseId } = action.payload;
+    setUserReleasesFavCounts(state, action) {
+      const { counts } = action.payload;
       state.userReleases = state.userReleases.map(release => {
-        if (release._id === releaseId) return { ...release, favCount };
-        return release;
+        const favs = counts.find(rel => rel._id === release._id)?.favs ?? 0;
+        return { ...release, favs };
       });
     },
 
@@ -171,9 +171,9 @@ const fetchUserReleases = () => async dispatch => {
   dispatch(setUserReleases(res.data));
 };
 
-const fetchUserReleaseFavCount = releaseId => async dispatch => {
-  const res = await axios.get(`/api/release/${releaseId}/favourites`);
-  dispatch(setUserReleaseFavCount(res.data));
+const fetchUserReleasesFavCounts = () => async dispatch => {
+  const res = await axios.get('/api/user/releases/favourites');
+  dispatch(setUserReleasesFavCounts(res.data));
 };
 
 const fetchUserFavourites = () => async dispatch => {
@@ -235,7 +235,7 @@ export const {
   setDeleteRelease,
   setReleasePurchaseInfo,
   setUserFavourites,
-  setUserReleaseFavCount,
+  setUserReleasesFavCounts,
   setUserReleases,
   setUserWishList,
   updateActiveRelease,
@@ -252,8 +252,8 @@ export {
   fetchUserFavourites,
   fetchUserWishList,
   fetchUserRelease,
-  fetchUserReleaseFavCount,
   fetchUserReleases,
+  fetchUserReleasesFavCounts,
   publishStatus,
   purchaseRelease,
   updateRelease

@@ -5,7 +5,12 @@ import io from 'socket.io-client';
 import { setArtworkUploading } from 'features/artwork';
 import { updateActiveRelease } from 'features/releases';
 
-const socket = io();
+let socket;
+if (process.env.REACT_APP_NODE_ENV === 'development') {
+  socket = io('http://localhost:8083', { path: '/socket.io' });
+} else {
+  socket = io({ path: '/socket-io' });
+}
 
 const socketMiddleware = ({ dispatch, getState }) => {
   socket.on('connect', () => {
