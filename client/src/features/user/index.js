@@ -1,6 +1,6 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { fetchUserFavourites, fetchUserWishList } from 'features/releases';
-import { toastError, toastSuccess } from 'features/toast';
+import { toastError, toastSuccess, toastWarning } from 'features/toast';
 import axios from 'axios';
 
 const userSlice = createSlice({
@@ -88,6 +88,11 @@ const addNemAddress = values => async dispatch => {
   try {
     const res = await axios.post('/api/user/address', values);
     dispatch(setNemAddress(res.data));
+    if (!values.nemAddress) {
+      dispatch(toastWarning('NEM payment address removed.'));
+    } else {
+      dispatch(toastSuccess('NEM payment address saved.'));
+    }
   } catch (error) {
     dispatch(toastError(error.response.data.error));
     return error.response.data;

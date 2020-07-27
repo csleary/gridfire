@@ -35,7 +35,7 @@ const Artwork = () => {
         alt={releaseTitle}
         className={`${styles.image} lazyload img-fluid`}
         data-src={
-          artwork
+          artwork.status === 'stored'
             ? `${CLOUD_URL}/${releaseId}.jpg`
             : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
         }

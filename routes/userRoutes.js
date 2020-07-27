@@ -65,6 +65,9 @@ module.exports = app => {
       const addressChanged = nemAddress !== existingNemAddress;
 
       if (addressChanged) {
+        const addressExists = await User.exists({ nemAddress, nemAddressVerified: true });
+        if (addressExists)
+          throw new Error('NEM addresses cannot be registered for more than one account. Please use another address.');
         user.nemAddress = nemAddress;
         user.nemAddressVerified = false;
         user.credits = 0;
@@ -83,7 +86,7 @@ module.exports = app => {
       user.save();
       res.send(user.toJSON());
     } catch (error) {
-      res.status(500).send({ error: `We could not verify your address: ${error.message}` });
+      res.status(500).send({ error: error.message });
     }
   });
 

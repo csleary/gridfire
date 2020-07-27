@@ -2,7 +2,6 @@ import { Field, formValueSelector, propTypes, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { addNemAddress, fetchUserCredits } from 'features/user';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { toastSuccess, toastWarning } from 'features/toast';
 import FontAwesome from 'react-fontawesome';
 import NemAddressFormField from './nemAddressFormField';
 import PropTypes from 'prop-types';
@@ -26,12 +25,6 @@ let NemAddress = props => {
 
   const onSubmit = async values => {
     await dispatch(addNemAddress(values));
-
-    if (!values.nemAddress) {
-      dispatch(toastWarning('NEM payment address removed.'));
-    } else {
-      dispatch(toastSuccess('NEM payment address saved.'));
-    }
   };
 
   const handleUpdateCredits = async () => {
