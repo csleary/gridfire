@@ -34,6 +34,7 @@
 .node {
   color: var(--light-grey);
   display: inline-block;
+  flex: 1 1 auto;
   font-weight: 700;
   overflow: hidden;
   text-align: right;
@@ -44,12 +45,14 @@
 .refresh {
   display: flex;
   color: var(--cyan);
+  flex-wrap: nowrap;
   font-weight: 700;
   justify-content: space-between;
   margin-top: 0.5rem;
 }
 
 .button {
+  flex: 1 0 auto;
   letter-spacing: 0.075rem;
   text-transform: uppercase;
   display: inline-block;
