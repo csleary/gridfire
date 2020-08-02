@@ -1,5 +1,5 @@
 const passport = require('passport');
-const { GOOGLE_REDIRECT } = require('../config/constants');
+const { GOOGLE_REDIRECT, SPOTIFY_REDIRECT } = require('../config/constants');
 const requireLogin = require('../middlewares/requireLogin');
 
 module.exports = app => {
@@ -53,6 +53,8 @@ module.exports = app => {
 
   app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
   app.get('/api/auth/google/callback', passport.authenticate('google'), (req, res) => res.redirect(GOOGLE_REDIRECT));
+  app.get('/api/auth/spotify', passport.authenticate('spotify', { scope: ['user-read-email'] }));
+  app.get('/api/auth/spotify/callback', passport.authenticate('spotify'), (req, res) => res.redirect(SPOTIFY_REDIRECT));
 
   app.get('/api/auth/logout', (req, res) => {
     req.logout();

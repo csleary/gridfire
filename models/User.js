@@ -6,10 +6,11 @@ const UserSchema = new Schema(
   {
     auth: {
       email: { type: String, trim: true },
-      googleId: String,
-      idHash: String,
+      oauthService: String,
+      oauthId: String,
       isLocal: Boolean,
       password: String,
+      idHash: String,
       resetToken: String,
       resetExpire: Date,
       lastLogin: Date
@@ -21,23 +22,23 @@ const UserSchema = new Schema(
       {
         releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
         purchaseDate: Date,
-        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase', unique: true },
+        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase' },
         transactions: Array
       }
     ],
     favourites: [
       {
-        releaseId: { type: Schema.Types.ObjectId, ref: 'Release', unique: true },
+        releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
         dateAdded: { type: Date }
       }
     ],
     wishList: [
       {
-        releaseId: { type: Schema.Types.ObjectId, ref: 'Release', unique: true },
+        releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
         dateAdded: { type: Date }
       }
     ],
-    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist', unique: true }]
+    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
   },
   {
     usePushEach: true
@@ -47,10 +48,13 @@ const UserSchema = new Schema(
 UserSchema.pre('save', async function (next) {
   try {
     if (!this.isModified('auth.password')) return next();
-    if (!this.auth.password && this.auth.googleId) return next();
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(this.auth.password, salt);
-    this.auth.password = hash;
+
+    if (this.auth.password) {
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(this.auth.password, salt);
+      this.auth.password = hash;
+    }
+
     return next();
   } catch (err) {
     return next(err);

@@ -10,7 +10,7 @@ function DashNavBar(props) {
   const showPasswordChange = () => {
     if (!user.auth) return false;
 
-    if (user.auth.isLocal || !user.auth.googleId) {
+    if (user.auth.isLocal) {
       return (
         <li className="nav-item">
           <NavLink strict exact to={'/dashboard/password-update'} className="nav-link">

@@ -10,7 +10,7 @@ services:
       && npm i
       && /usr/bin/nodemon --ignore client -L /root/nemp3/index.js"
     env_file: prod.env
-    restart: no
+    restart: 'no'
     volumes:
       - type: bind
         source: .

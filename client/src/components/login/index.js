@@ -121,11 +121,15 @@ const Login = props => {
           </p>
         </div>
         <div className={`${styles.divider} p-5 mb-5`}>Or</div>
-        <div className="col-md d-flex align-items-center justify-content-center mb-5">
-          <p>
-            <FontAwesome name="google" className="mr-2" />
-            <a href="api/auth/google/">Log in with your Google credentials</a>.
-          </p>
+        <div className={`${styles.oauth} col-md`}>
+          <div className={styles.service}>
+            <FontAwesome className={styles.icon} name="google" />
+            <a href="api/auth/google/">Log in with Google</a>
+          </div>
+          <div className={styles.service}>
+            <FontAwesome className={styles.icon} name="spotify" />
+            <a href="api/auth/spotify/">Log in with Spotify</a>
+          </div>
         </div>
       </div>
     </main>

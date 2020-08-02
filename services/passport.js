@@ -5,8 +5,9 @@ const passport = require('passport');
 const request = require('request');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const SpotifyStrategy = require('passport-spotify').Strategy;
 const User = mongoose.model('users');
-const { GOOGLE_CALLBACK } = require('../config/constants');
+const { GOOGLE_CALLBACK, SPOTIFY_CALLBACK } = require('../config/constants');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -105,7 +106,7 @@ const localUpdate = async (req, email, password, done) => {
 
 const loginGoogle = async (accessToken, refreshToken, profile, done) => {
   try {
-    const existingUser = await User.findOne({ 'auth.googleId': profile.id }).exec();
+    const existingUser = await User.findOne({ 'auth.oauthId': profile.id }).exec();
     const email = profile.emails[0].value;
 
     if (existingUser) {
@@ -115,7 +116,8 @@ const loginGoogle = async (accessToken, refreshToken, profile, done) => {
 
     const user = await User.create({
       auth: {
-        googleId: profile.id,
+        oauthService: 'google',
+        oauthId: profile.id,
         email,
         idHash: idHash(email),
         isLocal: false,
@@ -129,6 +131,37 @@ const loginGoogle = async (accessToken, refreshToken, profile, done) => {
   }
 };
 
+const loginSpotify = async (accessToken, refreshToken, expires_in, profile, done) => {
+  try {
+    const existingUser = await User.findOne({ 'auth.oauthId': profile.id }).exec();
+    const email = profile.emails[0].value;
+
+    if (existingUser) {
+      existingUser.updateOne({ 'auth.lastLogin': Date.now() }).exec();
+      return done(null, existingUser);
+    }
+
+    const user = await User.create({
+      auth: {
+        oauthService: 'spotify',
+        oauthId: profile.id,
+        email,
+        idHash: idHash(email),
+        isLocal: false,
+        lastLogin: Date.now()
+      }
+    });
+
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+};
+
+passport.use('local-login', new LocalStrategy({ usernameField: 'email' }, localLogin));
+passport.use('local-register', new LocalStrategy({ usernameField: 'email', passReqToCallback: true }, localRegister));
+passport.use('local-update', new LocalStrategy({ usernameField: 'email', passReqToCallback: true }, localUpdate));
+
 const googleConfig = {
   clientID: keys.googleClientId,
   clientSecret: keys.googleClientSecret,
@@ -136,7 +169,12 @@ const googleConfig = {
   proxy: true
 };
 
-passport.use('local-login', new LocalStrategy({ usernameField: 'email' }, localLogin));
-passport.use('local-register', new LocalStrategy({ usernameField: 'email', passReqToCallback: true }, localRegister));
-passport.use('local-update', new LocalStrategy({ usernameField: 'email', passReqToCallback: true }, localUpdate));
 passport.use(new GoogleStrategy(googleConfig, loginGoogle));
+
+const spotifyConfig = {
+  clientID: keys.spotifyClientId,
+  clientSecret: keys.spotifyClientSecret,
+  callbackURL: SPOTIFY_CALLBACK
+};
+
+passport.use(new SpotifyStrategy(spotifyConfig, loginSpotify));

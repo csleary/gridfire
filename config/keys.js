@@ -15,5 +15,7 @@ module.exports = {
   smtpHostName: process.env.NEMP3_SMTP_HOST,
   smtpPassword: process.env.NEMP3_SMTP_PASSWORD,
   smtpUsername: process.env.NEMP3_SMTP_USER,
+  spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
+  spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
   recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY
 };
