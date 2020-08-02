@@ -19,7 +19,7 @@ passport.deserializeUser(async (id, done) => {
 
 const idHash = emailAddress => {
   const hash = crypto.createHash('sha256');
-  return hash.update(emailAddress).update(keys.nemp3Secret).digest('hex').substring(0, 31);
+  return hash.update(emailAddress).update(keys.nemp3Secret).update(Date.now().toFixed()).digest('hex').substring(0, 31);
 };
 
 const localLogin = async (email, password, done) => {
@@ -106,6 +106,7 @@ const localUpdate = async (req, email, password, done) => {
 const loginGoogle = async (accessToken, refreshToken, profile, done) => {
   try {
     const existingUser = await User.findOne({ 'auth.googleId': profile.id }).exec();
+    const email = profile.emails[0].value;
 
     if (existingUser) {
       existingUser.updateOne({ 'auth.lastLogin': Date.now() }).exec();
@@ -115,8 +116,8 @@ const loginGoogle = async (accessToken, refreshToken, profile, done) => {
     const user = await User.create({
       auth: {
         googleId: profile.id,
-        email: profile.emails[0].value,
-        idHash: idHash(profile.emails[0].value),
+        email,
+        idHash: idHash(email),
         isLocal: false,
         lastLogin: Date.now()
       }
