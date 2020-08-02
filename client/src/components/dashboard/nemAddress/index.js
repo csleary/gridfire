@@ -79,8 +79,9 @@ let NemAddress = props => {
         <div className="col-lg mb-5 py-3">
           <h3 className="text-center mt-4">NEM Payment Address</h3>
           <p className="text-center">
-            Please add a NEM address if you wish to sell music, as fan payments and nemp3 credit will be sent directly
-            to this address.
+            Please add a NEM address if you wish to sell music, as fan payments and nemp3 credit will be sent to this
+            address. You do not need to add an address to support artists, as payments are made directly from your
+            account to theirs.
           </p>
           <form className={`${styles.form} my-5 py-5`} onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
@@ -118,7 +119,9 @@ let NemAddress = props => {
                 <p>
                   <span className={creditClassName}>
                     <FontAwesome name="certificate" className="mr-1" />
-                    Your credit balance is {credits}.
+                    {credits
+                      ? `Your current credits balance is ${credits}.`
+                      : 'You don\u2019t currently have any credits.'}
                   </span>
                   <button
                     className="btn btn-outline-primary btn-sm mx-2"

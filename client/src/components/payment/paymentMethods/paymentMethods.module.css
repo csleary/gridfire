@@ -1,12 +1,12 @@
 .methods {
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .method {
   display: flex;
   justify-content: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .methods > .method > .selected {

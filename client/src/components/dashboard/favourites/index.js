@@ -30,8 +30,8 @@ const Favourites = () => {
       <main className="container">
         <div className="row">
           <div className="col">
-            <h3 className="text-center mt-4">No releases found</h3>
-            <p className="text-center">All your favourites releases in one place.</p>
+            <h3 className="text-center mt-4">Favourites empty</h3>
+            <p className="text-center">Start fav&rsquo;ing releases to see them here.</p>
           </div>
         </div>
       </main>

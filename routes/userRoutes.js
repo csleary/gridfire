@@ -16,36 +16,42 @@ module.exports = app => {
       const release = await Release.findById(releaseId, 'user', { lean: true }).exec();
       const artist = await User.findById(release.user, 'nemAddress', { lean: true }).exec();
       const paymentAddress = artist.nemAddress;
-      const hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
-      const payments = await fetchTransactions(paymentAddress, paymentHash);
-      payments.hasPurchased = hasPurchased;
+      let hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
+      const { transactions, nemNode, paidToDate } = await fetchTransactions(paymentAddress, paymentHash);
+      const remaining = ((price - paidToDate) / 10 ** 6).toFixed(6);
 
-      if (payments.paidToDate >= price && !hasPurchased) {
+      if (paidToDate >= price && !hasPurchased) {
         const saleId = mongoose.Types.ObjectId();
 
         const newSale = {
           _id: saleId,
           purchaseDate: Date.now(),
-          amountPaid: payments.paidToDate,
+          amountPaid: paidToDate,
           buyer: custUserId,
           buyerAddress: custNemAddress
         };
 
         await Sale.findOneAndUpdate({ releaseId }, { $addToSet: { purchases: newSale } }, { upsert: true }).exec();
 
-        payments.hasPurchased = true;
-
         user.purchases.push({
           purchaseDate: Date.now(),
           releaseId,
           purchaseRef: saleId,
-          transactions: payments.transactions
+          transactions
         });
 
         await user.save();
+        hasPurchased = true;
       }
 
-      res.send(payments);
+      res.send({
+        remaining,
+        hasPurchased,
+        nemNode,
+        paidToDate: (paidToDate / 10 ** 6).toFixed(6),
+        releaseId,
+        transactions
+      });
     } catch (error) {
       if (error.data) {
         res.status(500).send({ error: error.data.message });

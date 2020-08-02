@@ -1,20 +1,10 @@
-.node {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.refresh {
-}
-
 .summary {
   background: none;
   border: 0;
-  color: #18cdca;
+  border-radius: 0.5rem;
+  color: var(--off-white);
   display: block;
-  font-weight: 700;
-  margin: 0;
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
   padding: 0;
   text-align: left;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
@@ -28,4 +18,39 @@
 
 .summary:last-child {
   margin-bottom: 0;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.paid {
+  color: var(--yellow);
+  font-weight: 700;
+}
+
+.node {
+  color: var(--light-grey);
+  display: inline-block;
+  font-weight: 700;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.refresh {
+  display: flex;
+  color: var(--cyan);
+  font-weight: 700;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.button {
+  letter-spacing: 0.075rem;
+  text-transform: uppercase;
+  display: inline-block;
 }

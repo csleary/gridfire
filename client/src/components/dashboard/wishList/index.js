@@ -30,8 +30,8 @@ const WishList = () => {
       <main className="container">
         <div className="row">
           <div className="col">
-            <h3 className="text-center mt-4">No releases found</h3>
-            <p className="text-center">Keep track of the releases you plan to grab by adding them to your wish list.</p>
+            <h3 className="text-center mt-4">Wish list empty</h3>
+            <p className="text-center">Something caught your ear? Save it here for later.</p>
           </div>
         </div>
       </main>

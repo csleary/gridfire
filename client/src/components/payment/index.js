@@ -8,11 +8,6 @@ import { connect } from 'react-redux';
 import { toastError } from 'features/toast';
 import { useApi } from 'hooks/useApi';
 
-const roundUp = (value, precision) => {
-  const factor = 10 ** precision;
-  return Math.ceil(value * factor) / factor;
-};
-
 const Payment = props => {
   const { releaseId } = props.match.params;
   const { data, error, isLoading } = useApi(`/api/purchase/${releaseId}`);
@@ -35,8 +30,6 @@ const Payment = props => {
     price
   } = data;
 
-  const priceInXem = roundUp(price, 2).toFixed(2);
-
   if (!paymentAddress) {
     return (
       <>
@@ -53,14 +46,13 @@ const Payment = props => {
   return (
     <>
       <h2 className="text-center mt-4">Payment</h2>
-      <PaymentMethods paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />
+      <PaymentMethods paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={price} />
       <Payments
         artistName={artistName}
         paymentHash={paymentHash}
-        price={priceInXem}
+        price={price}
         releaseId={releaseId}
         releaseTitle={releaseTitle}
-        roundUp={roundUp}
       />
     </>
   );

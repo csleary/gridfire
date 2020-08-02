@@ -181,15 +181,17 @@ module.exports = app => {
       const owner = await User.findById(release.user, 'nemAddress', { lean: true });
       const customer = await User.findById(req.user._id, 'auth.idHash', { lean: true });
       const customerIdHash = customer.auth.idHash;
-      const xemPriceUsd = await fetchXemPrice().catch(() => fetchXemPriceBinance());
-      const price = (release.price / xemPriceUsd).toFixed(6); // Convert depending on currency used.
-      req.session.price = price;
+
+      const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
+      const priceInXem = release.price / xemPriceUsd;
+      const priceInRawXem = Math.ceil(priceInXem * 10 ** 6);
+      req.session.price = priceInRawXem;
+      const price = (priceInRawXem / 10 ** 6).toFixed(6);
 
       if (!owner.nemAddress) {
-        const error = 'NEM payment address not found!';
+        const error = 'NEM payment address not found.';
         const paymentInfo = { paymentAddress: null, paymentHash: null };
-        res.send({ error, release, paymentInfo, price });
-        return;
+        return res.send({ error, release, paymentInfo, price });
       }
 
       const hash = crypto.createHash('sha256');

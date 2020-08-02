@@ -26,7 +26,7 @@ const findNode = async () => {
     const activeNodes = getActiveNodes.data;
 
     const nodeHosts = activeNodes.data.map(
-      node => `${node.endpoint.protocol}://${node.endpoint.host}:${node.endpoint.port}`
+      ({ endpoint }) => `${endpoint.protocol}://${endpoint.host}:${endpoint.port}`
     );
 
     const getFirstNode = await queryNodes('/node/info', nodeHosts);
@@ -46,7 +46,6 @@ const checkSignedMessage = (address, signedMessage) => {
 
   if (verified) {
     const keyToAddress = nem.model.address.toAddress(signer.toString(), NEM_NETWORK_ID);
-
     return keyToAddress === address;
   }
   return false;
@@ -77,11 +76,15 @@ const fetchTransactions = async (paymentAddress, idHash) => {
 
     const fetchBatch = async () => {
       const incoming = await nem.com.requests.account.transactions.incoming(endpoint, paymentAddress, null, txId);
+      const currentBatch = incoming && incoming.data;
+      let filteredTxs = [];
 
-      const currentBatch = incoming.data || [];
-      const filteredTxs = filterTransactions(idHash, currentBatch);
-      const payments = checkPayments(filteredTxs);
-      paidToDate += payments;
+      if (currentBatch.length) {
+        filteredTxs = filterTransactions(idHash, currentBatch);
+        const payments = checkPayments(filteredTxs);
+        paidToDate += payments;
+      }
+
       total = [...total, ...filteredTxs];
 
       if (currentBatch.length === 25) {
@@ -120,24 +123,23 @@ const fetchXemPriceBinance = async () => {
   return xemPriceUsd;
 };
 
-const checkPayments = (transactions, paid = []) => {
+const checkPayments = transactions => {
+  const paid = [];
+
   transactions.forEach(tx => {
     const { amount, otherTrans } = tx.transaction;
-    const payment = amount || otherTrans.amount;
-    paid.push(payment);
+    if (amount) paid.push(amount);
+    else if (otherTrans && otherTrans.amount) paid.push(otherTrans.amount);
   });
 
-  let sum = paid.reduce((acc, cur) => acc + cur, 0);
-  sum /= 10 ** 6;
-  return sum;
+  return paid.reduce((acc, cur) => acc + cur, 0);
 };
 
-const filterTransactions = (idHash, transactions, filtered = []) => {
+const filterTransactions = (idHash, transactions = []) => {
+  const filtered = [];
   const transferTransactions = transactions.filter(tx => {
-    const { type, otherTrans } = tx.transaction;
-    if (type === 257) return true;
-    if (type === 4100 && otherTrans.type === 257) return true;
-    return false;
+    const { type, otherTrans } = tx && tx.transaction;
+    return type === 257 || (type === 4100 && otherTrans.type === 257);
   });
 
   transferTransactions.forEach(tx => {

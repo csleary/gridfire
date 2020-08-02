@@ -2,16 +2,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './underPaid.module.css';
 
-const Underpaid = ({ hasPurchased, paidToDate, price, roundUp }) => {
-  const delta = price - paidToDate;
-
-  if (paidToDate > 0 && paidToDate < price && !hasPurchased) {
+const Underpaid = ({ payments, price }) => {
+  const { remaining, hasPurchased, paidToDate } = payments;
+  if (parseFloat(paidToDate) > 0 && parseFloat(paidToDate) < parseFloat(price) && !hasPurchased) {
     return (
       <div className={styles.info}>
-        <p>
-          Please pay a futher <span className="bold yellow"> {roundUp(delta, 2).toFixed(2)} XEM </span> and click to
-          confirm.
-        </p>
+        <div>Remaining</div>
+        <div className={styles.remaining}> {remaining} XEM </div>
       </div>
     );
   }
@@ -20,9 +17,7 @@ const Underpaid = ({ hasPurchased, paidToDate, price, roundUp }) => {
 };
 
 Underpaid.propTypes = {
-  hasPurchased: PropTypes.bool,
-  roundUp: PropTypes.func,
-  paidToDate: PropTypes.number,
+  payments: PropTypes.object,
   price: PropTypes.string
 };
 

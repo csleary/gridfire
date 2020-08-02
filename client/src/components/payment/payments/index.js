@@ -11,7 +11,7 @@ import withDownload from './withDownload';
 const Download = withDownload(DownloadButton);
 
 const Payments = props => {
-  const { artistName, paymentHash, price, releaseId, releaseTitle, roundUp } = props;
+  const { artistName, paymentHash, price, releaseId, releaseTitle } = props;
   const paymentData = useMemo(() => ({ releaseId, paymentHash }), [releaseId, paymentHash]);
 
   const initialData = {
@@ -21,7 +21,7 @@ const Payments = props => {
     transactions: []
   };
 
-  const { data = initialData, error, fetch, isFetching, isLoading } = useApi(
+  const { data: payments = initialData, error, fetch, isFetching, isLoading } = useApi(
     '/api/user/transactions',
     'post',
     paymentData
@@ -29,7 +29,7 @@ const Payments = props => {
 
   useEffect(() => {
     const updateTxs = () => {
-      if (data && !data.hasPurchased) {
+      if (payments && !payments.hasPurchased) {
         fetch('/api/user/transactions', 'post', paymentData);
       } else {
         window.clearInterval(txInterval);
@@ -44,7 +44,7 @@ const Payments = props => {
       window.clearInterval(txInterval);
       clearTimeout(txTimeout);
     };
-  }, [data, fetch, paymentData]);
+  }, [payments, fetch, paymentData]);
 
   if (isLoading) {
     return (
@@ -57,7 +57,7 @@ const Payments = props => {
     );
   }
 
-  const { hasPurchased, nemNode, paidToDate, transactions } = data;
+  const { hasPurchased, transactions } = payments;
 
   return (
     <>
@@ -68,17 +68,7 @@ const Payments = props => {
         releaseId={releaseId}
         releaseTitle={releaseTitle}
       />
-      <Summary
-        fetch={fetch}
-        hasPurchased={hasPurchased}
-        isFetching={isFetching}
-        nemNode={nemNode}
-        paidToDate={paidToDate}
-        paymentData={paymentData}
-        price={price}
-        roundUp={roundUp}
-        transactions={transactions}
-      />
+      <Summary payments={payments} fetch={fetch} isFetching={isFetching} paymentData={paymentData} price={price} />
       <Transactions transactions={transactions} error={error} />
     </>
   );
@@ -89,8 +79,7 @@ Payments.propTypes = {
   paymentHash: PropTypes.string,
   price: PropTypes.string,
   releaseId: PropTypes.string,
-  releaseTitle: PropTypes.string,
-  roundUp: PropTypes.func
+  releaseTitle: PropTypes.string
 };
 
 export default Payments;

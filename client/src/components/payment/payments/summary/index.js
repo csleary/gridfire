@@ -4,40 +4,38 @@ import React from 'react';
 import Underpaid from './underPaid';
 import styles from './summary.module.css';
 
-const Summary = ({
-  fetch,
-  hasPurchased,
-  isFetching,
-  nemNode,
-  paymentData,
-  paidToDate,
-  price,
-  roundUp,
-  transactions
-}) => {
+const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
+  const { hasPurchased, nemNode, paidToDate, transactions } = payments;
   const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
+
+  if (hasPurchased) return null;
 
   return (
     <button
-      className={`${styles.summary}`}
+      className={styles.summary}
       disabled={isFetching}
       onClick={() => {
         fetch('/api/user/transactions', 'post', paymentData);
       }}
       title={`Press to check again for recent payments (last used NIS Node: '${formattedNodeName}').`}
     >
+      {!transactions.length ? (
+        <div>No transactions found. Check again?</div>
+      ) : (
+        <div className={styles.info}>
+          <div>Paid</div>
+          <div className={styles.paid}>{paidToDate} XEM</div>
+        </div>
+      )}
+      <Underpaid payments={payments} price={price} />
       <div className={styles.refresh}>
-        {!transactions.length ? (
-          <>No transactions found. Check again?</>
-        ) : (
-          <>Paid to date: {paidToDate.toFixed(2)} XEM</>
-        )}
-        <FontAwesome name="refresh" className="ml-2" spin={isFetching} />
-      </div>
-      <Underpaid hasPurchased={hasPurchased} paidToDate={paidToDate} price={price} roundUp={roundUp} />
-      <div className={`${styles.node}`} title="Last used NIS Node">
-        <FontAwesome name="server" className="mr-2" />
-        Node: {formattedNodeName}
+        <div className={styles.button}>
+          <FontAwesome name="refresh" className="mr-2" spin={isFetching} />
+          Refresh
+        </div>
+        <div className={styles.node} title="Last used NIS Node">
+          <FontAwesome name="server" className="mr-1" /> {formattedNodeName}
+        </div>
       </div>
     </button>
   );
@@ -45,14 +43,10 @@ const Summary = ({
 
 Summary.propTypes = {
   fetch: PropTypes.func,
-  hasPurchased: PropTypes.bool,
   isFetching: PropTypes.bool,
-  nemNode: PropTypes.string,
-  paidToDate: PropTypes.number,
   paymentData: PropTypes.object,
-  price: PropTypes.string,
-  roundUp: PropTypes.func,
-  transactions: PropTypes.array
+  payments: PropTypes.object,
+  price: PropTypes.string
 };
 
 export default Summary;

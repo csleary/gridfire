@@ -1,3 +1,11 @@
 .info {
+  display: flex;
+  justify-content: space-between;
   text-align: left;
+}
+
+.remaining {
+  display: inline-block;
+  color: var(--yellow);
+  font-weight: 700;
 }
