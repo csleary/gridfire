@@ -13,8 +13,8 @@ const Footer = () => {
 
   return (
     <footer className={`${styles.footer} container-fluid`}>
-      <div className="row justify-content-center">
-        <div className="col col-sm-2">
+      <div className="row justify-content-center mb-3">
+        <div className="col col-sm-2 mb-3">
           <ul>
             <li>
               <Link to={'/about'}>About</Link>
@@ -67,13 +67,11 @@ const Footer = () => {
           </div>
         )}
       </div>
-      <div className="row mt-5">
-        <div className="col">
+      <div className="row">
+        <div className="col text-center">
           <small>
-            <p className="text-center">
-              &copy; <span>2017&ndash;</span>
-              {year} <a href="https://ochremusic.com">Christopher Leary</a>
-            </p>
+            &copy; <span>2017&ndash;</span>
+            {year} <a href="https://ochremusic.com">Christopher Leary</a>
           </small>
         </div>
       </div>

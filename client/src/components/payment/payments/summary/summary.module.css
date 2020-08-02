@@ -1,7 +1,6 @@
 .summary {
   background: none;
   border: 0;
-  border-radius: 0.5rem;
   color: var(--off-white);
   display: block;
   margin-bottom: 4rem;
@@ -37,6 +36,7 @@
   flex: 1 1 auto;
   font-weight: 700;
   overflow: hidden;
+  margin-left: 2rem;
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;

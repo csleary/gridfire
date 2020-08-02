@@ -1,3 +1,4 @@
+import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import PaymentMethods from './paymentMethods';
 import Payments from './payments';
@@ -5,12 +6,15 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Spinner from 'components/spinner';
 import { connect } from 'react-redux';
+import styles from './payment.module.css';
 import { toastError } from 'features/toast';
 import { useApi } from 'hooks/useApi';
+import { useHistory } from 'react-router-dom';
 
 const Payment = props => {
   const { releaseId } = props.match.params;
   const { data, error, isLoading } = useApi(`/api/purchase/${releaseId}`);
+  const history = useHistory();
 
   if (error) {
     toastError(error);
@@ -33,19 +37,25 @@ const Payment = props => {
   if (!paymentAddress) {
     return (
       <>
-        <h2 className="text-center">Payment</h2>
+        <h2 className={styles.heading}>Payment</h2>
         <p>
           Unfortunately, <Link to={`/artist/${artist}`}>{artistName}</Link> doesn&rsquo;t have a NEM payment address in
           their account, so we are unable to process payments for them at the moment.
         </p>
-        <p>Hopefully they&rsquo;ll have an address in place soon!</p>
+        <p>Hopefully they&rsquo;ll have an address in place soon.</p>
       </>
     );
   }
 
   return (
     <>
-      <h2 className="text-center mt-4">Payment</h2>
+      <div className={styles.heading}>
+        <button className={styles.back} onClick={() => history.push(`/release/${releaseId}`)}>
+          <FontAwesome className={styles.icon} name={'chevron-left'} />
+          Back
+        </button>
+        <h2 className={styles.h2}>Payment</h2>
+      </div>
       <PaymentMethods paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={price} />
       <Payments
         artistName={artistName}
