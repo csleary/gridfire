@@ -1,7 +1,7 @@
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'components/renderRelease/renderRelease.module.css';
+import styles from '../renderRelease.module.css';
 
 const OverlayDownloadButton = props => {
   const { artistName, format, handleDownload, releaseTitle } = props;
@@ -14,9 +14,7 @@ const OverlayDownloadButton = props => {
       title={`Download ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`}
     >
       <FontAwesome className={styles.icon} name="download" />
-      <div className={`${styles.label} text-center`}>
-        {format.toUpperCase()}
-      </div>
+      <div className={`${styles.label} text-center`}>{format.toUpperCase()}</div>
     </button>
   );
 };

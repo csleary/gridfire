@@ -11,7 +11,7 @@ import placeholder from 'placeholder.svg';
 import { playTrack } from 'features/player';
 import styles from './renderRelease.module.css';
 import { toastInfo } from 'features/toast';
-import withDownload from 'components/payment/payments/withDownload';
+import withDownload from 'pages/payment/payments/withDownload';
 
 const DownloadButton = withDownload(OverlayDownloadButton);
 
