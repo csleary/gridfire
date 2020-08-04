@@ -1,6 +1,7 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useRef } from 'react';
 import { toastError, toastSuccess } from 'features/toast';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
@@ -104,13 +105,9 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
                 validate={required}
               />
               <div className="d-flex justify-content-end">
-                <button
-                  className="btn btn-outline-primary my-3"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
+                <Button className="my-3" type="submit" disabled={invalid || pristine || submitting}>
                   Sign Up
-                </button>
+                </Button>
               </div>
             </div>
           </form>

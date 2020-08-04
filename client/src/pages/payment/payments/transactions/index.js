@@ -36,7 +36,7 @@ const Transactions = ({ transactions, error }) => {
           {transactions.length > 1 ? 's' : null}:
         </h5>
         <div className={styles.grid}>
-          <div className="bold yellow">#</div>
+          <div className="yellow">#</div>
           <div>Payment Date</div>
           <div>Amount</div>
           {txList}

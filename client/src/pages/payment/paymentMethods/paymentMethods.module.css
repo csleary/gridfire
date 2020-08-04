@@ -30,23 +30,6 @@
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.note {
-  color: #ff5349;
-  padding: 0 1rem;
-}
-
-.qrcode {
-  margin-bottom: 2rem;
-}
-
-.step:not(:last-of-type) {
-  margin-bottom: 3rem;
-}
-
-.heading {
-  margin-bottom: 1rem;
-}
-
 :global(.btn-group .btn) {
   color: hsla(233, 10%, 75%, 1);
   flex: 0 0 auto;

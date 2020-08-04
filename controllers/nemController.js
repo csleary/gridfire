@@ -2,6 +2,7 @@ const axios = require('axios');
 const nem = require('nem-sdk').default;
 const { NEM_NETWORK_ID, NEM_NODES } = require('../config/constants');
 const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
+const { hexMessage } = nem.utils.format;
 
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   try {
@@ -52,105 +53,98 @@ const checkSignedMessage = (address, signedMessage) => {
 };
 
 const fetchMosaics = async paymentAddress => {
-  const node = await findNode();
-  const { endpoint } = node;
-  const mosaics = await nem.com.requests.account.mosaics.owned(endpoint, paymentAddress);
-
-  const credits = mosaics.data.find(
-    mosaic => mosaic.mosaicId.namespaceId === 'nemp3' && mosaic.mosaicId.name === 'credits'
-  );
-
-  if (!credits) return 0;
-  return credits.quantity;
-};
-
-const fetchTransactions = async (paymentAddress, idHash) => {
-  let txId;
-  let total = [];
-  let paidToDate = 0;
-
   try {
     const node = await findNode();
-    const { endpoint, name } = node;
-    const nemNode = name;
+    const { endpoint } = node;
+    const mosaics = await nem.com.requests.account.mosaics.owned(endpoint, paymentAddress);
 
-    const fetchBatch = async () => {
-      const incoming = await nem.com.requests.account.transactions.incoming(endpoint, paymentAddress, null, txId);
-      const currentBatch = incoming && incoming.data;
-      let filteredTxs = [];
+    const credits = mosaics.data.find(
+      ({ mosaicId }) => mosaicId.namespaceId === 'nemp3' && mosaicId.name === 'credits'
+    );
 
-      if (currentBatch.length) {
-        filteredTxs = filterTransactions(idHash, currentBatch);
-        const payments = checkPayments(filteredTxs);
-        paidToDate += payments;
-      }
-
-      total = [...total, ...filteredTxs];
-
-      if (currentBatch.length === 25) {
-        txId = currentBatch[currentBatch.length - 1].meta.id;
-        return fetchBatch();
-      } else {
-        return {
-          transactions: total,
-          nemNode,
-          paidToDate
-        };
-      }
-    };
-
-    return fetchBatch();
+    if (!credits) return 0;
+    return credits.quantity;
   } catch (error) {
-    throw new Error(error);
+    throw new Error(`Error during credits fetch. ${error.message}`);
   }
 };
 
+const fetchTransactions = async (address, idHash) => {
+  let transactions = [];
+  let amountPaid = 0;
+
+  try {
+    const node = await findNode();
+    const { endpoint, name: nemNode } = node;
+
+    const fetchRecent = async txId => {
+      const incoming = await nem.com.requests.account.transactions.incoming(endpoint, address, null, txId);
+      if (!incoming) throw new Error('Could not fetch recent transactions.');
+      const { data } = incoming;
+
+      if (data.length) {
+        const recent = filterTransactions(idHash, data);
+        amountPaid += recentPayments(recent);
+        transactions = [...transactions, ...recent];
+      }
+
+      if (data.length === 25) {
+        const { id } = data[data.length - 1].meta;
+        return fetchRecent(id);
+      } else {
+        return { transactions, nemNode, amountPaid };
+      }
+    };
+
+    return fetchRecent();
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Error fetching transactions. ${error.message}`);
+  }
+};
+
+const recentPayments = transactions =>
+  transactions
+    .map(tx => {
+      const { amount, otherTrans, type } = tx.transaction;
+      if (type === 257) return amount;
+      return otherTrans.amount;
+    })
+    .reduce((total, current) => total + current, 0);
+
+const filterTransactions = (idHash, transactions = []) =>
+  transactions.filter(tx => {
+    if (!tx) return false;
+    const { type, message, otherTrans } = tx.transaction;
+    if (type === 257) return idHash === hexMessage(message);
+    if (type === 4100 && otherTrans.type === 257) return idHash === hexMessage(otherTrans.message);
+    return false;
+  });
+
 const fetchXemPrice = async () => {
-  const xem = await nem.com.requests.market.xem();
-  const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
-  const btc = await nem.com.requests.market.btc();
-  const btcPriceUsd = btc.USD.last;
-  const xemPriceUsd = btcPriceUsd * xemPriceBtc;
-  return xemPriceUsd;
+  try {
+    const xem = await nem.com.requests.market.xem();
+    const xemPriceBtc = parseFloat(xem.BTC_XEM.last);
+    const btc = await nem.com.requests.market.btc();
+    const btcPriceUsd = btc.USD.last;
+    const xemPriceUsd = btcPriceUsd * xemPriceBtc;
+    return xemPriceUsd;
+  } catch (error) {
+    throw new Error(error.message || error);
+  }
 };
 
 const fetchXemPriceBinance = async () => {
-  const xemTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=XEMBTC');
-  const btcTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
-  const xemPriceBtc = xemTicker.data.price;
-  const btcPriceUsd = btcTicker.data.price;
-  const xemPriceUsd = btcPriceUsd * xemPriceBtc;
-  return xemPriceUsd;
-};
-
-const checkPayments = transactions => {
-  const paid = [];
-
-  transactions.forEach(tx => {
-    const { amount, otherTrans } = tx.transaction;
-    if (amount) paid.push(amount);
-    else if (otherTrans && otherTrans.amount) paid.push(otherTrans.amount);
-  });
-
-  return paid.reduce((acc, cur) => acc + cur, 0);
-};
-
-const filterTransactions = (idHash, transactions = []) => {
-  const filtered = [];
-  const transferTransactions = transactions.filter(tx => {
-    const { type, otherTrans } = tx && tx.transaction;
-    return type === 257 || (type === 4100 && otherTrans.type === 257);
-  });
-
-  transferTransactions.forEach(tx => {
-    const { hexMessage } = nem.utils.format;
-    const { message, otherTrans } = tx.transaction;
-    const encodedMessage = message || (otherTrans && otherTrans.message);
-    const decoded = hexMessage(encodedMessage);
-    if (decoded === idHash) filtered.push(tx);
-  });
-
-  return filtered;
+  try {
+    const xemTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=XEMBTC');
+    const btcTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+    const xemPriceBtc = xemTicker.data.price;
+    const btcPriceUsd = btcTicker.data.price;
+    const xemPriceUsd = btcPriceUsd * xemPriceBtc;
+    return xemPriceUsd;
+  } catch (error) {
+    throw new Error(error.message || error);
+  }
 };
 
 module.exports = {

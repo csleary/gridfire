@@ -1,17 +1,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-const explorer =
-  process.env.REACT_APP_NEM_NETWORK === 'testnet'
-    ? 'http://bob.nem.ninja:8765/#/transfer/'
-    : 'http://chain.nem.ninja/#/transfer/';
+const explorer = process.env.REACT_APP_NEM_NETWORK === 'testnet' ? 'bob.nem.ninja:8765' : 'chain.nem.ninja';
 
 const Transaction = props => (
   <>
-    <div className="bold yellow">{props.index + 1}</div>
+    <div className="yellow">{props.index + 1}</div>
     <div>{props.date}</div>
     <div>
-      <a href={`${explorer}${props.hash}`} title={props.date}>
+      <a href={`http://${explorer}/#/transfer/${props.hash}`} title={props.date}>
         {`${props.amount} XEM`}
       </a>
     </div>

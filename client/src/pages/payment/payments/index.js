@@ -17,7 +17,7 @@ const Payments = props => {
   const initialData = {
     hasPurchased: false,
     nemNode: '',
-    paidToDate: 0,
+    amountPaid: 0,
     transactions: []
   };
 

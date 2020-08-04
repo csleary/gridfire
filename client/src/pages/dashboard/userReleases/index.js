@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { fetchUserReleases, fetchUserReleasesFavCounts } from 'features/releases';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import Spinner from 'components/spinner';
 import UserRelease from './userRelease';

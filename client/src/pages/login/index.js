@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import axios from 'axios';
@@ -104,13 +105,9 @@ const Login = props => {
               validate={required}
             />
             <div className="d-flex justify-content-center">
-              <button
-                className="btn btn-outline-primary mt-4"
-                disabled={invalid || pristine || submitting}
-                type="submit"
-              >
+              <Button className="mt-4" type="submit" disabled={invalid || pristine || submitting}>
                 Log In
-              </button>
+              </Button>
             </div>
           </form>
           <p>

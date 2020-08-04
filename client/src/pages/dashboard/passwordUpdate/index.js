@@ -1,6 +1,7 @@
 import { Field, reduxForm } from 'redux-form';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -108,13 +109,9 @@ const PasswordUpdate = props => {
                   validate={[required, isMatched]}
                 />
                 <div className="d-flex justify-content-end mt-4">
-                  <button
-                    className="btn btn-outline-primary btn-lg"
-                    disabled={invalid || pristine || submitting}
-                    type="submit"
-                  >
+                  <Button type="submit" disabled={invalid || pristine || submitting}>
                     Update
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

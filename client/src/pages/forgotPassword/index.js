@@ -42,7 +42,7 @@ const renderField = field => {
 const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
   const captchaRef = useRef();
   const [response, setResponse] = useState();
-  const className = response && response.error ? 'alert-danger' : 'alert-success';
+  const className = response?.error ? 'alert-danger' : 'alert-success';
 
   const onSubmit = async values => {
     try {

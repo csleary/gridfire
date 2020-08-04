@@ -6,51 +6,27 @@ import styles from './paymentMethods.module.css';
 
 const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   const [showManualPayment, setshowManualPayment] = useState(false);
-
-  const handleshowManualPayment = () =>
-    setshowManualPayment(!showManualPayment);
+  const handleshowManualPayment = () => setshowManualPayment(!showManualPayment);
 
   const paymentMethods = classNames(styles.methods, {
     [styles.manual]: showManualPayment
   });
 
-  const paymentButtonQR = classNames(
-    styles.select,
-    'btn',
-    'btn-outline-primary',
-    {
-      [styles.selected]: !showManualPayment
-    }
-  );
+  const paymentButtonQR = classNames(styles.select, 'btn', 'btn-outline-primary', {
+    [styles.selected]: !showManualPayment
+  });
 
-  const paymentButtonManual = classNames(
-    styles.select,
-    'btn',
-    'btn-outline-primary',
-    {
-      [styles.selected]: showManualPayment
-    }
-  );
+  const paymentButtonManual = classNames(styles.select, 'btn', 'btn-outline-primary', {
+    [styles.selected]: showManualPayment
+  });
 
   return (
     <div className={paymentMethods}>
-      <div
-        className={`${styles.method} btn-group`}
-        role="group"
-        aria-label="Payment Method"
-      >
-        <button
-          type="button"
-          className={paymentButtonQR}
-          onClick={handleshowManualPayment}
-        >
+      <div className={`${styles.method} btn-group`} role="group" aria-label="Payment Method">
+        <button type="button" className={paymentButtonQR} onClick={handleshowManualPayment}>
           QR Scan
         </button>
-        <button
-          type="button"
-          className={paymentButtonManual}
-          onClick={handleshowManualPayment}
-        >
+        <button type="button" className={paymentButtonManual} onClick={handleshowManualPayment}>
           Manual
         </button>
       </div>

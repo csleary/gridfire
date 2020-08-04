@@ -6,20 +6,16 @@ import classnames from 'classnames';
 import styles from './summary.module.css';
 
 const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
-  const { hasPurchased, nemNode, paidToDate, transactions } = payments;
+  const { hasPurchased, nemNode, amountPaid, transactions } = payments;
   const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
-
   if (hasPurchased) return null;
-
   const iconClassNames = classnames(styles.icon, { [styles.active]: isFetching });
 
   return (
     <button
       className={styles.summary}
       disabled={isFetching}
-      onClick={() => {
-        fetch('/api/user/transactions', 'post', paymentData);
-      }}
+      onClick={() => fetch('/api/user/transactions', 'post', paymentData)}
       title={`Press to check again for recent payments (last used NIS Node: '${formattedNodeName}').`}
     >
       {!transactions.length ? (
@@ -27,7 +23,7 @@ const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
       ) : (
         <div className={styles.info}>
           <div>Paid</div>
-          <div className={styles.paid}>{paidToDate} XEM</div>
+          <div className={styles.paid}>{amountPaid} XEM</div>
         </div>
       )}
       <Underpaid payments={payments} price={price} />
@@ -37,7 +33,7 @@ const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
           {isFetching ? 'Scanning…' : 'Scan'}
         </div>
         <div className={styles.node} title="Last used NIS Node">
-          <FontAwesome name="server" className="mr-2" /> {formattedNodeName}
+          <FontAwesome name="server" className={styles.icon} /> {formattedNodeName}
         </div>
       </div>
     </button>

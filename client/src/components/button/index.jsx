@@ -34,6 +34,12 @@ const ButtonClick = ({
     [styles.small]: size === 'small'
   });
 
+  const iconClassNames = classnames({
+    [iconClassName]: iconClassName,
+    [styles.icon]: !iconClassName,
+    [styles.spin]: spin
+  });
+
   const chevronClassNames = classnames(styles.chevron, {
     [styles.rotate]: menuOpen
   });
@@ -50,9 +56,7 @@ const ButtonClick = ({
       type={type}
       {...rest}
     >
-      {icon ? (
-        <FontAwesome className={iconClassName ? iconClassName : styles.icon} name={icon} fixedWidth spin={spin} />
-      ) : null}
+      {icon ? <FontAwesome className={iconClassNames} name={icon} fixedWidth /> : null}
       {children ? children : text || null}
       {!textLink && menuOpen !== undefined ? <FontAwesome className={chevronClassNames} name="chevron-down" /> : null}
     </button>

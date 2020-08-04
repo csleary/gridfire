@@ -2,6 +2,7 @@ import { Field, formValueSelector, propTypes, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { addNemAddress, fetchUserCredits } from 'features/user';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import NemAddressFormField from './nemAddressFormField';
 import PropTypes from 'prop-types';
@@ -108,13 +109,9 @@ let NemAddress = props => {
                 />
                 {renderVerifyAddressField()}
                 <div className="d-flex justify-content-end mb-5">
-                  <button
-                    type="submit"
-                    className="btn btn-outline-primary btn-lg"
-                    disabled={(nemAddressField && invalid) || pristine || submitting}
-                  >
+                  <Button type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
                     {renderButtonLabel()}
-                  </button>
+                  </Button>
                 </div>
                 <p>
                   <span className={creditClassName}>
@@ -123,7 +120,20 @@ let NemAddress = props => {
                       ? `Your current credits balance is ${credits}.`
                       : 'You don\u2019t currently have any credits.'}
                   </span>
-                  <button
+                  <Button
+                    className={styles.update}
+                    disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
+                    icon="refresh"
+                    onClick={handleUpdateCredits}
+                    spin={isCheckingCredits}
+                    textLink
+                    title={'Press to recheck your credit.'}
+                    type="button"
+                  >
+                    Update
+                  </Button>
+
+                  {/* <button
                     className="btn btn-outline-primary btn-sm mx-2"
                     disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
                     onClick={handleUpdateCredits}
@@ -133,7 +143,7 @@ let NemAddress = props => {
                   >
                     <FontAwesome name="refresh" className="mr-2" spin={isCheckingCredits} />
                     Refresh
-                  </button>
+                  </button> */}
                 </p>
                 <p>
                   As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release

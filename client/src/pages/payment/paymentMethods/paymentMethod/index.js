@@ -3,36 +3,20 @@ import ManualPayment from './manualPayment';
 import PropTypes from 'prop-types';
 import QRCode from './qrCode';
 import React from 'react';
-import styles from '../paymentMethods.module.css';
+import styles from './paymentMethod.module.css';
 
-const PaymentMethod = ({
-  paymentAddress,
-  paymentHash,
-  priceInXem,
-  showManualPayment
-}) => {
+const PaymentMethod = ({ paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
   if (showManualPayment) {
-    return (
-      <ManualPayment
-        paymentAddress={paymentAddress}
-        paymentHash={paymentHash}
-        priceInXem={priceInXem}
-      />
-    );
+    return <ManualPayment paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />;
   }
 
   return (
     <>
-      <div className={`${styles.qrcode} text-center`}>
-        <QRCode
-          paymentAddress={paymentAddress.replace(/-/g, '')}
-          price={priceInXem}
-          idHash={paymentHash}
-        />
+      <div className={styles.qrcode}>
+        <QRCode paymentAddress={paymentAddress.replace(/-/g, '')} price={priceInXem} idHash={paymentHash} />
       </div>
       <p className="text-center">
-        Please scan the QR code with a NEM mobile wallet app to make your
-        payment:{' '}
+        Please scan the QR code with a NEM mobile wallet app to make your payment:{' '}
         <a href="https://itunes.apple.com/us/app/nem-wallet/id1227112677">
           <FontAwesome name="apple" className="mr-1" />
           iOS

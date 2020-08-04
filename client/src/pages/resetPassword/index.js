@@ -2,6 +2,7 @@ import { Field, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { batch, useDispatch } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
@@ -50,7 +51,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
   const { token } = params;
   const [isLoading, setIsLoading] = useState();
   const [response, setResponse] = useState();
-  const className = response && response.error ? 'alert-danger' : 'alert-success';
+  const className = response?.error ? 'alert-danger' : 'alert-success';
 
   useEffect(() => {
     if (!token) return;
@@ -113,16 +114,16 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
               type="password"
               validate={[required, isMatched]}
             />
-            {response && response.error && (
+            {response?.error && (
               <div className={`alert ${className} text-center`} role="alert">
                 <FontAwesome name="bomb" className="mr-2" />
                 {response.error}
               </div>
             )}
             <div className="d-flex justify-content-center">
-              <button className="btn btn-outline-primary" disabled={invalid || pristine || submitting} type="submit">
+              <Button className="mt-4" type="submit" disabled={invalid || pristine || submitting}>
                 Update Password
-              </button>
+              </Button>
             </div>
           </form>
         </div>

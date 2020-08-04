@@ -3,8 +3,8 @@ import React from 'react';
 import styles from './underPaid.module.css';
 
 const Underpaid = ({ payments, price }) => {
-  const { remaining, hasPurchased, paidToDate } = payments;
-  if (parseFloat(paidToDate) > 0 && parseFloat(paidToDate) < parseFloat(price) && !hasPurchased) {
+  const { remaining, hasPurchased, amountPaid } = payments;
+  if (parseFloat(amountPaid) > 0 && parseFloat(amountPaid) < parseFloat(price) && !hasPurchased) {
     return (
       <div className={styles.info}>
         <div>Remaining</div>
