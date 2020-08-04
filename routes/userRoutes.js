@@ -1,7 +1,6 @@
 const { checkSignedMessage, fetchTransactions, fetchMosaics } = require('../controllers/nemController');
 const requireLogin = require('../middlewares/requireLogin');
 const mongoose = require('mongoose');
-
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
@@ -17,16 +16,15 @@ module.exports = app => {
       const artist = await User.findById(release.user, 'nemAddress', { lean: true }).exec();
       const paymentAddress = artist.nemAddress;
       let hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
-      const { transactions, nemNode, paidToDate } = await fetchTransactions(paymentAddress, paymentHash);
-      const remaining = ((price - paidToDate) / 10 ** 6).toFixed(6);
+      const { transactions, nemNode, amountPaid } = await fetchTransactions(paymentAddress, paymentHash);
 
-      if (paidToDate >= price && !hasPurchased) {
+      if (amountPaid >= price && !hasPurchased) {
         const saleId = mongoose.Types.ObjectId();
 
         const newSale = {
           _id: saleId,
           purchaseDate: Date.now(),
-          amountPaid: paidToDate,
+          amountPaid,
           buyer: custUserId,
           buyerAddress: custNemAddress
         };
@@ -45,17 +43,16 @@ module.exports = app => {
       }
 
       res.send({
-        remaining,
+        remaining: ((price - amountPaid) / 10 ** 6).toFixed(6),
         hasPurchased,
         nemNode,
-        paidToDate: (paidToDate / 10 ** 6).toFixed(6),
+        amountPaid: (amountPaid / 10 ** 6).toFixed(6),
         releaseId,
         transactions
       });
     } catch (error) {
       if (error.data) {
-        res.status(500).send({ error: error.data.message });
-        return;
+        return res.status(500).send({ error: error.data.message });
       }
 
       res.status(500).send({ error: error.message });
@@ -107,8 +104,7 @@ module.exports = app => {
         const numCredits = await fetchMosaics(nemAddress);
         user.credits = numCredits - numActiveReleases;
         await user.save();
-        res.status(200).send({ credits: user.toJSON().credits });
-        return;
+        return res.status(200).send({ credits: user.toJSON().credits });
       }
 
       res.end();

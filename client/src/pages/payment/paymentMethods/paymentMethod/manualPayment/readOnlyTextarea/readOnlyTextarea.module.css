@@ -1,0 +1,61 @@
+.wrapper {
+  margin: 0;
+  position: relative;
+}
+
+.copyText,
+.copyText[readonly],
+.copyText:active,
+.copyText:disabled,
+.copyText:focus,
+.copyText.form-control:focus {
+  background: hsla(233, 10%, 5%, 1);
+  border: 0;
+  border-radius: 0.5rem;
+  color: #f0f0f1;
+  font-family: 'IBM Plex Mono', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', Courier, monospace;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 2rem;
+  text-align: center;
+}
+
+.copyText:hover {
+  cursor: pointer;
+}
+
+.icon {
+  color: hsla(233, 10%, 50%, 1);
+  left: 1rem;
+  pointer-events: none;
+  position: absolute;
+  top: 1rem;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.copyText:hover + .icon {
+  color: #18cdca;
+}
+
+.copyText::selection {
+  background-color: #18cdca;
+}
+
+.success {
+  background: hsla(233, 10%, 10%, 1);
+  border-radius: 0.5rem;
+  bottom: -2.25rem;
+  color: #18cdca;
+  font-weight: 600;
+  opacity: 0;
+  padding: 0.25rem 0.5rem;
+  position: absolute;
+  right: 0.25rem;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+}
+
+.success.show {
+  opacity: 1;
+  visibility: visible;
+}

@@ -1,0 +1,12 @@
+.heading {
+  margin-bottom: 1rem;
+}
+
+.note {
+  color: #ff5349;
+  padding: 0 1rem;
+}
+
+.step:not(:last-of-type) {
+  margin-bottom: 3rem;
+}

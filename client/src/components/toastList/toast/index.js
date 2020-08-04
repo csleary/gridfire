@@ -2,7 +2,7 @@ import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import styles from 'components/toastList/toast.module.css';
+import styles from '../toast.module.css';
 
 const Toast = ({ toast }) => {
   const { message, type, visible } = toast;

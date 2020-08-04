@@ -1,0 +1,47 @@
+.methods {
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  margin-bottom: 4rem;
+}
+
+.method {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4rem;
+}
+
+.methods > .method > .selected {
+  color: #18cdca;
+}
+
+.methods > .method > .select:active,
+.methods > .method > .selected:active {
+  background-color: #000;
+  border-color: #000;
+  box-shadow: none;
+  color: hsla(233, 10%, 75%, 1);
+  cursor: pointer;
+}
+
+.methods > .method > .selected:active {
+  color: #18cdca;
+}
+
+.manual {
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+:global(.btn-group .btn) {
+  color: hsla(233, 10%, 75%, 1);
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+  min-width: auto;
+}
+
+:global(.btn-group .btn:hover) {
+  background-color: #000;
+  border-color: #000;
+}
+
+:global(.btn-group .btn:focus) {
+  box-shadow: none;
+}

@@ -1,0 +1,4 @@
+.icon {
+  margin-right: 0.5rem;
+  transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}

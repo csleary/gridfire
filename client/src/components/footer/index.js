@@ -9,7 +9,7 @@ const year = today.getFullYear();
 
 const Footer = () => {
   const user = useSelector(state => state.user, shallowEqual);
-  const auth = user.auth;
+  const { auth } = user;
 
   return (
     <footer className={`${styles.footer} container-fluid`}>
@@ -33,7 +33,7 @@ const Footer = () => {
             </li>
           </ul>
         </div>
-        {!auth && (
+        {!auth ? (
           <div className="col col-sm-2">
             <ul>
               <li>
@@ -47,8 +47,8 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-        )}
-        {auth && (
+        ) : null}
+        {auth ? (
           <div className="col col-sm-2">
             <ul>
               <li>
@@ -65,7 +65,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-        )}
+        ) : null}
       </div>
       <div className="row">
         <div className="col text-center">
