@@ -25,7 +25,7 @@
 .link:disabled {
   background: none;
   opacity: 0.5;
-  cursor: default;
+  cursor: not-allowed;
 }
 
 .button.large {

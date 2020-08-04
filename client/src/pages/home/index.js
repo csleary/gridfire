@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import Button from 'components/button';
 import PropTypes from 'prop-types';
 import RenderRelease from 'components/renderRelease';
 import SortReleases from './sortReleases';
@@ -9,8 +9,8 @@ import { fetchCatalogue } from 'features/releases';
 import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
 
-const Home = props => {
-  const { service } = props.match.params;
+const Home = ({ match }) => {
+  const { service } = match.params;
 
   const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
     state => state.releases,
@@ -50,7 +50,7 @@ const Home = props => {
   if (isLoading) {
     return (
       <Spinner>
-        <h2 className="mt-4">Loading catalogue&hellip;</h2>
+        <h2 className={styles.loading}>Loading catalogue&hellip;</h2>
       </Spinner>
     );
   }
@@ -71,15 +71,17 @@ const Home = props => {
               <RenderRelease key={release._id} release={release} />
             ))}
           </div>
-          <div className="d-flex justify-content-center">
-            <button
-              className="btn btn-outline-primary btn-sm px-3 py-2 mt-3"
+          <div className={styles.wrapper}>
+            <Button
+              className={styles.button}
               disabled={isFetching || reachedEndOfCat}
+              icon={reachedEndOfCat ? null : 'refresh'}
               onClick={() => handleFetchCatalogue(sortPath, sortOrder, true)}
+              size="small"
+              spin={isFetching}
             >
-              {reachedEndOfCat ? null : <FontAwesome name="refresh" spin={isFetching} className="mr-2" />}
               {reachedEndOfCat ? null : 'Load More'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -88,8 +90,7 @@ const Home = props => {
 };
 
 Home.propTypes = {
-  match: PropTypes.object,
-  service: PropTypes.string
+  match: PropTypes.object
 };
 
 export default Home;

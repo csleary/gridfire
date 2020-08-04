@@ -4,6 +4,21 @@
   grid-template-columns: 1fr;
 }
 
+.load {
+  margin-top: 1rem;
+  min-width: auto;
+  padding: 0.5rem 1rem;
+}
+
+.button {
+  margin-top: 1.5rem;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 @media (min-width: 576px) {
   .frontPage {
     grid-template-columns: repeat(2, 1fr);

@@ -1,6 +1,7 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useRef } from 'react';
 import { toastError, toastSuccess } from 'features/toast';
+import Button from 'components/button';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
@@ -41,6 +42,7 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
               />
               <Field
                 component={InputField}
+                icon="commenting"
                 id="message"
                 label="Your Message:"
                 name="message"
@@ -59,13 +61,9 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
                 }}
               />
               <div className="d-flex justify-content-end">
-                <button
-                  className="btn btn-outline-primary my-3"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
+                <Button className="my-3" icon={'check'} type="submit" disabled={invalid || pristine || submitting}>
                   Send Message
-                </button>
+                </Button>
               </div>
             </div>
           </form>
