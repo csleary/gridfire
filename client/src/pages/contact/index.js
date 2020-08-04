@@ -1,138 +1,78 @@
 import { Field, reduxForm } from 'redux-form';
+import React, { useRef } from 'react';
 import { toastError, toastSuccess } from 'features/toast';
+import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
-import React from 'react';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
-class Contact extends React.Component {
-  renderField = field => {
-    const {
-      id,
-      input,
-      label,
-      meta: { touched, error },
-      name,
-      placeholder,
-      required,
-      rows,
-      type
-    } = field;
+const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
+  const dispatch = useDispatch();
+  const captchaRef = useRef();
 
-    return (
-      <div className="form-group">
-        <label htmlFor={id}>{label}</label>
-        {type !== 'textarea' ? (
-          <input
-            {...input}
-            autoFocus
-            className="form-control"
-            name={name}
-            placeholder={placeholder}
-            required={required}
-            type={type}
-          />
-        ) : (
-          <textarea
-            {...input}
-            className="form-control"
-            name={name}
-            placeholder={placeholder}
-            required={required}
-            rows={rows}
-          />
-        )}
-        {touched && error && <div className="invalid-feedback">{error}</div>}
-      </div>
-    );
-  };
-
-  sendMail = async (values, callback) => {
+  const onSubmit = async values => {
     try {
       const res = await axios.post('/api/contact', values);
-      this.props.toastSuccess(res.data.success);
-      callback();
-    } catch (e) {
-      this.props.toastError(e.response.data.error);
+      reset();
+      captchaRef.current.getRenderedComponent().reset();
+      dispatch(toastSuccess(res.data.success));
+    } catch (error) {
+      dispatch(toastError(error.response.data.error));
     }
   };
 
-  render() {
-    const { handleSubmit, invalid, pristine, submitSucceeded } = this.props;
-    const captcha = this.captcha;
-
-    return (
-      <main className="container">
-        <div className="row">
-          <div className="col py-3 mb-4">
-            <h2 className="text-center mt-4">Contact Us</h2>
-            <form
-              className="form-row mt-5"
-              onSubmit={handleSubmit(values => {
-                this.sendEmail(values, () => {
-                  this.props.reset();
-                  captcha.getRenderedComponent().reset();
-                });
-              })}
-            >
-              <div className="col-md-6 mx-auto">
-                <Field
-                  component={this.renderField}
-                  icon="envelope-o"
-                  id="email"
-                  label="Email Address:"
-                  name="email"
-                  placeholder="Email Address"
-                  type="email"
-                  required
-                />
-                <Field
-                  component={this.renderField}
-                  id="message"
-                  label="Your Message:"
-                  name="message"
-                  placeholder="Enter your message."
-                  rows="6"
-                  type="textarea"
-                  required
-                />
-                <Field
-                  component={RenderRecaptcha}
-                  classNames="justify-content-end"
-                  forwardRef
-                  name="recaptcha"
-                  ref={el => {
-                    this.captcha = el;
-                  }}
-                />
-                <div className="d-flex justify-content-end">
-                  <button
-                    className="btn btn-outline-primary my-3"
-                    disabled={invalid || pristine || submitSucceeded}
-                    type="submit"
-                  >
-                    Send Message
-                  </button>
-                </div>
+  return (
+    <main className="container">
+      <div className="row">
+        <div className="col py-3 mb-4">
+          <h2 className="text-center mt-4">Contact Us</h2>
+          <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
+            <div className="col-md-6 mx-auto">
+              <Field
+                component={InputField}
+                icon="envelope-o"
+                id="email"
+                label="Email Address:"
+                name="email"
+                placeholder="Email Address"
+                type="email"
+                required
+              />
+              <Field
+                component={InputField}
+                id="message"
+                label="Your Message:"
+                name="message"
+                placeholder="Enter your message."
+                rows="6"
+                type="textarea"
+                required
+              />
+              <Field
+                component={RenderRecaptcha}
+                classNames="justify-content-end"
+                forwardRef
+                name="recaptcha"
+                ref={el => {
+                  captchaRef.current = el;
+                }}
+              />
+              <div className="d-flex justify-content-end">
+                <button
+                  className="btn btn-outline-primary my-3"
+                  disabled={invalid || pristine || submitting}
+                  type="submit"
+                >
+                  Send Message
+                </button>
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
-      </main>
-    );
-  }
-}
-
-Contact.propTypes = {
-  handleSubmit: PropTypes.func,
-  invalid: PropTypes.bool,
-  pristine: PropTypes.bool,
-  reset: PropTypes.func,
-  sendEmail: PropTypes.func,
-  submitSucceeded: PropTypes.bool,
-  toastSuccess: PropTypes.func,
-  toastError: PropTypes.func
+      </div>
+    </main>
+  );
 };
 
 const validate = values => {
@@ -143,7 +83,12 @@ const validate = values => {
   return errors;
 };
 
-export default reduxForm({
-  form: 'contactForm',
-  validate
-})(connect(null, { toastSuccess, toastError })(Contact));
+Contact.propTypes = {
+  handleSubmit: PropTypes.func,
+  invalid: PropTypes.bool,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func,
+  submitting: PropTypes.bool
+};
+
+export default reduxForm({ form: 'contactForm', validate })(Contact);
