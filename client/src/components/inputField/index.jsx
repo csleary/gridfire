@@ -14,6 +14,7 @@ const InputField = field => {
     name,
     placeholder,
     required,
+    rows,
     type
   } = field;
 
@@ -25,14 +26,25 @@ const InputField = field => {
         <FontAwesome name={icon} className={iconClassNames} />
         {label}
       </label>
-      <input
-        {...input}
-        className="form-control"
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-      />
+      {type === 'textarea' ? (
+        <textarea
+          {...input}
+          className="form-control"
+          name={name}
+          placeholder={placeholder}
+          required={required}
+          rows={rows}
+        />
+      ) : (
+        <input
+          {...input}
+          className="form-control"
+          name={name}
+          placeholder={placeholder}
+          required={required}
+          type={type}
+        />
+      )}
       {touched && error ? <div className="invalid-feedback">{error}</div> : null}
       {hint ? <small className="form-text text-muted">{hint}</small> : null}
     </div>
