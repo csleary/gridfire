@@ -5,44 +5,11 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
+import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { fetchUser } from 'features/user';
 import styles from './login.module.css';
-
-const renderField = field => {
-  const {
-    hint,
-    icon,
-    id,
-    input,
-    label,
-    meta: { touched, error },
-    name,
-    placeholder,
-    required,
-    type
-  } = field;
-
-  return (
-    <div className="form-group">
-      <label htmlFor={id}>
-        <FontAwesome name={icon} className="red mr-2" />
-        {label}
-      </label>
-      <input
-        {...input}
-        className="form-control"
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-      />
-      {touched && error && <div className="invalid-feedback">{error}</div>}
-      {hint && <small className="form-text text-muted">{hint}</small>}
-    </div>
-  );
-};
 
 const Login = props => {
   const { handleSubmit, pristine, reset, submitting, invalid } = props;
@@ -82,7 +49,7 @@ const Login = props => {
           <form className="mb-5" onSubmit={handleSubmit(onSubmit)}>
             <Field
               className="form-control"
-              component={renderField}
+              component={InputField}
               icon="envelope-o"
               id="email"
               label="Email Address:"
@@ -94,7 +61,7 @@ const Login = props => {
             />
             <Field
               className="form-control"
-              component={renderField}
+              component={InputField}
               icon="key"
               id="password"
               label="Password:"
@@ -120,12 +87,12 @@ const Login = props => {
         <div className={`${styles.divider} p-5 mb-5`}>Or</div>
         <div className={`${styles.oauth} col-md`}>
           <div className={styles.service}>
-            <FontAwesome className={styles.icon} name="google" />
-            <a href="api/auth/google/">Log in with Google</a>
-          </div>
-          <div className={styles.service}>
             <FontAwesome className={styles.icon} name="spotify" />
             <a href="api/auth/spotify/">Log in with Spotify</a>
+          </div>
+          <div className={styles.service}>
+            <FontAwesome className={styles.icon} name="google" />
+            <a href="api/auth/google/">Log in with Google</a>
           </div>
         </div>
       </div>

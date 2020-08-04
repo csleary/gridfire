@@ -2,44 +2,12 @@ import { Field, reduxForm } from 'redux-form';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import React from 'react';
 import axios from 'axios';
 import { fetchUser } from 'features/user';
 import { useHistory } from 'react-router-dom';
-
-const renderField = field => {
-  const {
-    icon,
-    id,
-    input,
-    label,
-    meta: { touched, error },
-    name,
-    placeholder,
-    required,
-    type
-  } = field;
-
-  return (
-    <div className="form-group">
-      <label htmlFor={id}>
-        <FontAwesome name={icon} className="red mr-2" />
-        {label}
-      </label>
-      <input
-        {...input}
-        className="form-control"
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-      />
-      <div className="invalid-feedback">{touched && error && error}</div>
-    </div>
-  );
-};
 
 const PasswordUpdate = props => {
   const { handleSubmit, reset, pristine, submitting, invalid } = props;
@@ -76,7 +44,7 @@ const PasswordUpdate = props => {
             <div className="form-row">
               <div className="col-md-6 mx-auto">
                 <Field
-                  component={renderField}
+                  component={InputField}
                   icon="key"
                   id="password"
                   label="Current Password:"
@@ -87,7 +55,7 @@ const PasswordUpdate = props => {
                   validate={required}
                 />
                 <Field
-                  component={renderField}
+                  component={InputField}
                   icon="check-circle-o"
                   id="passwordNew"
                   label="New Password:"
@@ -98,7 +66,7 @@ const PasswordUpdate = props => {
                   validate={required}
                 />
                 <Field
-                  component={renderField}
+                  component={InputField}
                   id="passwordConfirm"
                   icon="check-circle"
                   label="Confirm New Password:"

@@ -2,47 +2,13 @@ import { Field, reduxForm } from 'redux-form';
 import React, { useRef } from 'react';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
 import { fetchUser } from 'features/user';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-
-const renderField = field => {
-  const {
-    hint,
-    icon,
-    id,
-    input,
-    label,
-    meta: { touched, error },
-    name,
-    placeholder,
-    required,
-    type
-  } = field;
-
-  return (
-    <div className="form-group">
-      <label htmlFor={id}>
-        <FontAwesome name={icon} className="red mr-2" />
-        {label}
-      </label>
-      <input
-        {...input}
-        className="form-control"
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-      />
-      {error ? <div className="invalid-feedback">{touched && error && error}</div> : null}
-      {hint ? <small className="form-text text-muted">{hint}</small> : null}
-    </div>
-  );
-};
 
 const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
   const dispatch = useDispatch();
@@ -71,7 +37,7 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
           <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="col-md-6 mx-auto">
               <Field
-                component={renderField}
+                component={InputField}
                 icon="envelope-o"
                 id="email"
                 label="Email Address:"
@@ -83,7 +49,7 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
               />
               <Field
                 className="form-control"
-                component={renderField}
+                component={InputField}
                 hint="A strong and unique alphanumeric password recommended."
                 icon="key"
                 id="password"

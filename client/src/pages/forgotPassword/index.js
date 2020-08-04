@@ -1,43 +1,10 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useRef, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
+import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
-
-const renderField = field => {
-  const {
-    hint,
-    icon,
-    id,
-    input,
-    label,
-    meta: { touched, error },
-    name,
-    placeholder,
-    required,
-    type
-  } = field;
-
-  return (
-    <div className="form-group">
-      <label htmlFor={id}>
-        <FontAwesome name={icon} className="red mr-2" />
-        {label}
-      </label>
-      <input
-        {...input}
-        className="form-control"
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-      />
-      {error ? <div className="invalid-feedback">{touched && error ? error : null}</div> : null}
-      {hint ? <small className="form-text text-muted">{hint}</small> : null}
-    </div>
-  );
-};
 
 const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
   const captchaRef = useRef();
@@ -68,7 +35,7 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
           <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="col-md-6 mx-auto">
               <Field
-                component={renderField}
+                component={InputField}
                 icon="envelope-o"
                 id="email"
                 label="Email Address:"

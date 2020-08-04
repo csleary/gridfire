@@ -4,45 +4,12 @@ import { batch, useDispatch } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
+import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import axios from 'axios';
 import { fetchUser } from 'features/user';
 import { toastSuccess } from 'features/toast';
-
-const renderField = field => {
-  const {
-    hint,
-    icon,
-    id,
-    input,
-    label,
-    meta: { touched, error },
-    name,
-    placeholder,
-    required,
-    type
-  } = field;
-
-  return (
-    <div className="form-group">
-      <label htmlFor={id}>
-        <FontAwesome name={icon} className="red mr-2" />
-        {label}
-      </label>
-      <input
-        {...input}
-        className="form-control"
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-      />
-      {error ? <div className="invalid-feedback">{touched && error && error}</div> : null}
-      {hint ? <small className="form-text text-muted">{hint}</small> : null}
-    </div>
-  );
-};
 
 const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
   const dispatch = useDispatch();
@@ -93,7 +60,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
           <p>Please enter your new password here. You&rsquo;ll be logged-in afterwards automatically.</p>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field
-              component={renderField}
+              component={InputField}
               icon="key"
               id="passwordNew"
               label="New Password:"
@@ -104,7 +71,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
               validate={required}
             />
             <Field
-              component={renderField}
+              component={InputField}
               id="passwordConfirm"
               icon="check-circle-o"
               label="Confirm New Password:"
