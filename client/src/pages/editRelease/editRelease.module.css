@@ -1,0 +1,14 @@
+.heading {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.submit {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.trackListTitle {
+  margin: 2rem 0 1rem;
+  text-align: center;
+}

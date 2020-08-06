@@ -132,18 +132,6 @@ let NemAddress = props => {
                   >
                     Update
                   </Button>
-
-                  {/* <button
-                    className="btn btn-outline-primary btn-sm mx-2"
-                    disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
-                    onClick={handleUpdateCredits}
-                    style={{ verticalAlign: 'bottom' }}
-                    title={'Press to recheck your credit.'}
-                    type="button"
-                  >
-                    <FontAwesome name="refresh" className="mr-2" spin={isCheckingCredits} />
-                    Refresh
-                  </button> */}
                 </p>
                 <p>
                   As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release

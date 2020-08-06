@@ -1,4 +1,3 @@
-import './editRelease.css';
 import { Field, FieldArray, formValueSelector, getFormValues, propTypes, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
 import { addNewRelease, deleteRelease, publishStatus, updateRelease } from 'features/releases';
@@ -16,6 +15,7 @@ import Tags from './tags';
 import { connect } from 'react-redux';
 import { fetchRelease } from 'features/releases';
 import { fetchXemPrice } from 'features/nem';
+import styles from './editRelease.module.css';
 import { uploadAudio } from 'features/tracks';
 import validate from './validate';
 import { withRouter } from 'react-router-dom';
@@ -127,7 +127,7 @@ class EditRelease extends Component {
     const { isEditing, isLoading } = this.state;
 
     const submitButton = (
-      <div className="d-flex justify-content-end">
+      <div className={styles.submit}>
         <Button
           icon="check"
           type="button"
@@ -146,7 +146,7 @@ class EditRelease extends Component {
         <div className="row">
           <div className="col mb-5">
             <form>
-              <h2 className="text-center mt-4">{this.renderHeader()}</h2>
+              <h2 className={styles.heading}>{this.renderHeader()}</h2>
               {!isEditing ? (
                 <p>Please enter your release info below. Artwork and audio will be saved instantly after uploading.</p>
               ) : null}
@@ -203,7 +203,7 @@ class EditRelease extends Component {
                   {submitButton}
                 </div>
               </div>
-              <h3 className="track-list-title text-center">Track List</h3>
+              <h3 className={styles.trackListTitle}>Track List</h3>
               <p>
                 Upload formats supported: flac, aiff, wav (bit-depths greater than 24 will be truncated to 24-bit). All
                 formats will be stored in flac format.

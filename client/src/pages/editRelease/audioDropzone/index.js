@@ -6,6 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { uploadAudio } from 'features/tracks';
 import { useDropzone } from 'react-dropzone';
+import styles from './audioDropzone.module.css';
 
 const AudioDropzone = ({ trackId }) => {
   const dispatch = useDispatch();
@@ -48,12 +49,12 @@ const AudioDropzone = ({ trackId }) => {
     onDrop: onDropAudio
   });
 
-  const dropzoneClassNames = classNames('dropzone-audio', {
-    active: isDragActive && !isDragReject,
-    uploading: isUploading || isTranscoding || isEncoding,
-    disabled: isUploading || isTranscoding || isEncoding,
-    complete: isStored && !isUploading && !isTranscoding && !isEncoding,
-    rejected: isDragReject
+  const dropzoneClassNames = classNames(styles.dropzone, {
+    [styles.active]: isDragActive && !isDragReject,
+    [styles.uploading]: isUploading || isTranscoding || isEncoding,
+    [styles.disabled]: isUploading || isTranscoding || isEncoding,
+    [styles.complete]: isStored && !isUploading && !isTranscoding && !isEncoding,
+    [styles.rejected]: isDragReject
   });
 
   return (

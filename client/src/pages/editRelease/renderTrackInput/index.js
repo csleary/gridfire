@@ -2,6 +2,7 @@ import AudioDropzone from 'pages/editRelease/audioDropzone';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
+import styles from './renderTrackInput.module.css';
 
 const RenderTrackInput = props => {
   const {
@@ -13,15 +14,18 @@ const RenderTrackInput = props => {
     type
   } = props;
   const inputClasses = classNames('form-control', {
-    invalid: touched && error
+    [styles.invalid]: touched && error
   });
 
   return (
     <>
-      <div className="d-flex align-items-center">
-        <label htmlFor={name}>{label}</label>
+      <div className={styles.wrapper}>
+        <label className={styles.label} htmlFor={name}>
+          {label}
+        </label>
         <input
           className={inputClasses}
+          onDrop={() => false}
           id={name}
           name="trackTitle"
           placeholder={`Track ${label} Title`}
@@ -31,7 +35,7 @@ const RenderTrackInput = props => {
         />
         <AudioDropzone trackId={trackId} disablePreview />
       </div>
-      {error ? <div className="invalid-feedback">{touched && error}</div> : null}
+      {error ? <div className={styles.feedback}>{touched && error}</div> : null}
     </>
   );
 };

@@ -4,6 +4,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import PropTypes from 'prop-types';
 import RenderTrack from 'pages/editRelease/renderTrack';
+import styles from './renderTrackList.module.css';
 import { toastSuccess } from 'features/toast';
 import { usePrevious } from 'functions';
 
@@ -62,7 +63,7 @@ function RenderTrackList(props) {
 
   return (
     <>
-      <ul className="list-group track-list">
+      <ul className={styles.tracks}>
         {trackFields.map((name, index, fields) => {
           const track = release.trackList[index];
           if (!track) return null;

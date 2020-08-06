@@ -1,11 +1,12 @@
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastSuccess, toastWarning } from 'features/toast';
 import ArtworkDropzone from './artworkDropzone';
-import FontAwesome from 'react-fontawesome';
+import Button from 'components/button';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { deleteArtwork } from 'features/artwork';
+import styles from './renderArtwork.module.css';
 
 const RenderArtwork = props => {
   const { coverArtLoaded, coverArtPreview, handleDeletePreview } = props;
@@ -31,19 +32,21 @@ const RenderArtwork = props => {
     <>
       <h3 className="text-center">Artwork</h3>
       {coverArtPreview && (
-        <div className="cover-art">
+        <div className={styles.art}>
           <img
             alt={`The cover art for ${(releaseTitle && `\u2018${releaseTitle}\u2019`) || 'this release.'}`}
             className={artworkClassNames}
             onLoad={() => props.onArtworkLoad()}
             src={coverArtPreview}
           />
-          <div className="d-flex flex-row justify-content-end cover-art-overlay">
-            <div className="delete">
-              <button className="btn btn-link" onClick={handleDeleteArtwork} type="button">
-                <FontAwesome name="trash" />
-              </button>
-            </div>
+          <div className={styles.overlay}>
+            <Button
+              className={styles.delete}
+              iconClassName={styles.icon}
+              icon="trash"
+              onClick={handleDeleteArtwork}
+              type="button"
+            />
           </div>
         </div>
       )}

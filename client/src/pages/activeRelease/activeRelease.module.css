@@ -16,12 +16,6 @@
   color: hsla(233, 10%, 75%, 1);
 }
 
-.nowPlaying {
-  animation: now-playing 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms;
-  color: #18cdca;
-  padding-left: 0.5rem;
-}
-
 .artwork {
   align-items: flex-start;
   align-self: flex-start;
@@ -191,15 +185,5 @@
 
   .price {
     font-size: 1.2rem;
-  }
-}
-
-@keyframes now-playing {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
   }
 }

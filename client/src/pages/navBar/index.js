@@ -97,7 +97,7 @@ const NavBar = () => {
         </li>
         <li className="nav-item">
           <NavLink to={'/dashboard'} className="nav-link" title="Visit your dashboard.">
-            <FontAwesome name="user-circle" className="mr-2" />
+            <FontAwesome name={auth.oauthService ?? 'user-circle'} className="mr-2" />
             <span className="nav-label">Dashboard</span>
           </NavLink>
           <DashNavBar />

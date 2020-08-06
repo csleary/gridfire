@@ -1,0 +1,23 @@
+.wrapper {
+  align-items: center;
+  display: flex;
+}
+
+.label {
+  color: var(--mid-grey);
+  cursor: grab;
+  font-size: 1.5rem;
+  margin: 0;
+  padding: 0;
+  padding-right: 1rem;
+  user-select: none;
+}
+
+.invalid {
+  border-color: var(--red);
+}
+
+.feedback {
+  color: var(--red);
+  display: inherit;
+}

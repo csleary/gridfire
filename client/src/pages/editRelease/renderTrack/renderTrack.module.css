@@ -1,3 +1,105 @@
+.track {
+  background: var(--charcoal);
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  cursor: grab;
+  display: block;
+  margin-bottom: 15px;
+  padding: 1rem;
+  position: relative;
+  transition: border-color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.track:last-child {
+  border-radius: 0;
+}
+
+.track:hover .button,
+.track:active .button {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wrapper {
+  align-items: center;
+  display: flex;
+  margin-top: 1rem;
+}
+
+.status {
+  color: var(--yellow);
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.button {
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--light-grey);
+  margin: 0 0 0 0.25rem;
+  opacity: 0;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--mid-grey);
+  color: var(--off-white);
+}
+
+.button:not(:hover) {
+  background: #000;
+}
+
+.button:disabled {
+  border: 0;
+}
+
+.button:last-of-type {
+  margin-right: 0;
+}
+
+.icon {
+  color: var(--light-grey);
+  margin-right: 0.5rem;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.iconStatus {
+  margin-right: 0.5rem;
+}
+
+.button:hover:not(:disabled) .icon {
+  color: var(--off-white);
+}
+
+.delete {
+  composes: button;
+  margin-left: auto;
+}
+
+.delete:hover:not(:disabled) {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--off-white);
+}
+
+.deleteIcon {
+  composes: icon;
+}
+
+.delete:hover:not(:disabled) .deleteIcon {
+  color: var(--off-white);
+}
+
+.deleteActive {
+  background-color: var(--red);
+  color: var(--off-white);
+  opacity: 1;
+  visibility: visible;
+}
+
 .pending {
   border-left: 4px solid var(--red);
 }
@@ -20,4 +122,17 @@
 
 .stored {
   border-left: 4px solid var(--green);
+}
+
+.dragOrigin {
+  opacity: 0.5;
+}
+
+.dragActive {
+  cursor: move;
+  border-left: 4px solid var(--yellow);
+}
+
+.track:first-child {
+  border-radius: 0;
 }

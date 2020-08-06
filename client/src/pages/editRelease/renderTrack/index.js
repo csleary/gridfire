@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import Button from 'components/button';
 import { Field } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import ProgressBar from 'pages/editRelease/progressBar';
@@ -38,18 +39,20 @@ const RenderTrack = props => {
   const isEncoding = status === 'encoding';
   const isTranscoding = status === 'transcoding';
 
-  const trackClassNames = classNames('list-group-item', {
+  const trackClassNames = classNames(styles.track, {
     [styles.pending]: pending,
     [styles.incomplete]: !pending && !isStored,
     [styles.uploading]: isUploading,
     [styles.encoding]: isEncoding,
     [styles.transcoding]: isTranscoding,
     [styles.stored]: isStored,
-    'drag-active': dragActive,
-    'drag-origin': isDragOrigin
+    [styles.dragActive]: dragActive,
+    [styles.dragOrigin]: isDragOrigin
   });
 
-  const deleteButtonClassNames = classNames('btn btn-outline-danger btn-sm ml-auto', { 'delete-active': isDeleting });
+  const deleteButtonClassNames = classNames(styles.delete, {
+    [styles.deleteActive]: isDeleting
+  });
 
   const handleMoveTrack = async (swap, id, trackIndex, direction) => {
     setMoving(trackId);
@@ -71,63 +74,65 @@ const RenderTrack = props => {
       onTouchStart={() => {}}
     >
       <Field component={RenderTrackInput} label={index + 1} name={`${name}.trackTitle`} trackId={trackId} type="text" />
-      <div className="d-flex mt-3">
+      <div className={styles.wrapper}>
         {isUploading ? (
-          <span className="mr-2 yellow">
-            <FontAwesome name="cog" spin className="mr-2" />
-            <strong>Uploading…</strong>
+          <span className={styles.status}>
+            <FontAwesome name="cog" spin className={styles.iconStatus} />
+            Uploading…
           </span>
         ) : null}
         {isTranscoding ? (
-          <span className="mr-2 cyan">
-            <FontAwesome name="cog" spin className="mr-2" />
-            <strong>Transcoding…</strong>
+          <span className={styles.status}>
+            <FontAwesome name="cog" spin className={styles.iconStatus} />
+            Transcoding…
           </span>
         ) : null}
         {isEncoding ? (
-          <span className="mr-2 cyan">
-            <FontAwesome name="file-archive-o" className="mr-2" />
-            <strong>Encoding…</strong>
+          <span className={styles.status}>
+            <FontAwesome name="file-archive-o" className={styles.iconStatus} />
+            Encoding…
           </span>
         ) : null}
         {index < fields.length - 1 ? (
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            disabled={isMoving}
+          <Button
+            className={styles.button}
+            disabled={Boolean(isMoving)}
+            icon="arrow-down"
+            iconClassName={styles.icon}
             onClick={() => handleMoveTrack(fields.swap, releaseId, index, 1)}
+            size="small"
             title="Move Down"
             type="button"
           >
-            <FontAwesome name="arrow-down" className="mr-2" />
             Down
-          </button>
+          </Button>
         ) : null}
         {index > 0 ? (
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            disabled={isMoving}
+          <Button
+            className={styles.button}
+            disabled={Boolean(isMoving)}
+            icon="arrow-up"
+            iconClassName={styles.icon}
             onClick={() => handleMoveTrack(fields.swap, releaseId, index, -1)}
+            size="small"
             title="Move Up"
             type="button"
           >
-            <FontAwesome name="arrow-up" className="mr-2" />
             Up
-          </button>
+          </Button>
         ) : null}
-        <button
+        <Button
           className={deleteButtonClassNames}
           disabled={isDeleting}
+          icon={isDeleting ? 'circle-o-notch' : 'trash'}
+          iconClassName={styles.deleteIcon}
           onClick={() => handleDeleteTrack(fields.remove, trackId, index, trackTitle)}
+          size="small"
           title="Delete Track"
           type="button"
         >
-          {isDeleting ? (
-            <FontAwesome name="circle-o-notch" spin className="mr-2" />
-          ) : (
-            <FontAwesome name="trash" className="mr-2" />
-          )}
           {isDeleting ? 'Deleting…' : 'Delete'}
-        </button>
+        </Button>
       </div>
       <ProgressBar percentComplete={audioUploadProgress} willDisplay={isUploading} />
     </li>

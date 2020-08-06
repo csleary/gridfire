@@ -1,0 +1,58 @@
+.dropzone {
+  align-items: center;
+  align-self: stretch;
+  background-color: #000;
+  border: 2px dashed var(--light-grey);
+  border-radius: 0.25rem;
+  color: var(--light-grey);
+  display: flex;
+  flex: 1 0 12rem;
+  font-weight: bold;
+  justify-content: center;
+  margin: 0 0 0 1rem;
+  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.dropzone:hover {
+  background-color: #000;
+  border-color: var(--cyan);
+  color: var(--cyan);
+  cursor: pointer;
+}
+
+.active {
+  background-color: #000;
+  border-color: var(--green);
+  color: var(--green);
+  cursor: pointer;
+}
+
+.uploading {
+  background-color: #000;
+  border-color: var(--yellow);
+  color: var(--yellow);
+  cursor: pointer;
+}
+
+.disabled:hover {
+  cursor: wait;
+}
+
+.complete:not(.active) {
+  background-color: #000;
+  border-color: var(--light-grey);
+  color: var(--light-grey);
+}
+
+.complete:hover {
+  background-color: #000;
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.rejected {
+  background-color: #000;
+  border-color: var(--red);
+  color: var(--red);
+  cursor: not-allowed;
+}

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import { nanoid } from '@reduxjs/toolkit';
+import styles from './tags.module.css';
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
@@ -45,19 +47,20 @@ const Tags = ({ change, tags }) => {
   };
 
   return (
-    <div className="tags mb-4">
+    <div className={styles.tags}>
       <div className="form-group">
         <label htmlFor="tagsInput">
           Add Tags
-          <button
-            className="btn btn-outline-primary btn-sm clear-tags px-1 ml-2"
+          <Button
+            className={styles.clear}
             disabled={!tags.length}
             onClick={handleClearTags}
-            title="Remove all currently set tags."
+            textLink
+            title={'Remove all currently set tags.'}
             type="button"
           >
             Clear All
-          </button>
+          </Button>
         </label>
         <p>
           {tagsInput.length
@@ -89,7 +92,7 @@ const Tags = ({ change, tags }) => {
       )}
       {tags?.map((tag, index) => (
         <div
-          className="tag mr-2 mb-2"
+          className={styles.tag}
           key={nanoid()}
           onClick={() => handleRemoveTag(index)}
           role="button"
@@ -97,7 +100,7 @@ const Tags = ({ change, tags }) => {
           title={`Click to delete \u2018${tag}\u2019.`}
         >
           {tag}
-          <FontAwesome className="ml-2 remove-tag" name="times" />
+          <FontAwesome className={styles.remove} name="times" />
         </div>
       ))}
     </div>

@@ -1,9 +1,9 @@
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { playTrack, playerPlay } from 'features/player';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
-import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'pages/activeRelease/activeRelease.module.css';
+import styles from './trackList.module.css';
 import { toastInfo } from 'features/toast';
 
 const TrackList = () => {
@@ -16,37 +16,33 @@ const TrackList = () => {
     const nowPlaying = () => {
       if (trackId === playerTrackId && isPlaying) return <FontAwesome className={styles.nowPlaying} name="play" />;
       if (trackId === playerTrackId && isPaused) return <FontAwesome className={styles.nowPlaying} name="pause" />;
+      return null;
     };
 
     return (
       <li key={trackId}>
-        <button
-          className="btn btn-link"
+        <Button
+          textLink
+          className={styles.track}
           onClick={() => {
             if (trackId !== playerTrackId) {
-              dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
-              dispatch(toastInfo(`Loading '${trackTitle}'`));
+              batch(() => {
+                dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+                dispatch(toastInfo(`Loading '${trackTitle}'`));
+              });
             } else if (!isPlaying) {
               const audioPlayer = document.getElementById('player');
               audioPlayer.play();
-              dispatch(playerPlay());
-              return;
+              return dispatch(playerPlay());
             }
           }}
         >
           {trackTitle}
-        </button>
+        </Button>
         {nowPlaying()}
       </li>
     );
   });
-};
-
-TrackList.propTypes = {
-  _id: PropTypes.string,
-  artistName: PropTypes.string,
-  player: PropTypes.object,
-  release: PropTypes.object
 };
 
 export default TrackList;
