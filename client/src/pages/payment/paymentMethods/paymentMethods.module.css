@@ -1,47 +1,44 @@
 .methods {
-  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   margin-bottom: 4rem;
 }
 
-.method {
+.group {
   display: flex;
   justify-content: center;
   margin-bottom: 4rem;
 }
 
-.methods > .method > .selected {
-  color: #18cdca;
+.group > .select {
+  color: var(--lighter-grey);
+  flex: 0 0 auto;
+  min-width: 6.75rem;
+  padding: 0.5rem 1rem;
+  transition: color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.methods > .method > .select:active,
-.methods > .method > .selected:active {
+.group > .select:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.group > .select:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.group > .select:hover {
   background-color: #000;
-  border-color: #000;
-  box-shadow: none;
-  color: hsla(233, 10%, 75%, 1);
-  cursor: pointer;
+  color: var(--lighter-grey);
 }
 
-.methods > .method > .selected:active {
-  color: #18cdca;
+.group > .selected {
+  color: var(--cyan);
+}
+
+.group > .selected:hover {
+  color: var(--cyan);
 }
 
 .manual {
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
-}
-
-:global(.btn-group .btn) {
-  color: hsla(233, 10%, 75%, 1);
-  flex: 0 0 auto;
-  padding: 0.5rem 1rem;
-  min-width: auto;
-}
-
-:global(.btn-group .btn:hover) {
-  background-color: #000;
-  border-color: #000;
-}
-
-:global(.btn-group .btn:focus) {
-  box-shadow: none;
 }

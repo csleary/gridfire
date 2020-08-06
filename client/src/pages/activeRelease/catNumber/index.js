@@ -6,7 +6,10 @@ const CatNumber = ({ catNumber }) => {
 
   return (
     <h6>
-      <span className="yellow">Cat.:</span> {catNumber}
+      <span className="yellow" title={'Catalogue number'}>
+        Cat.:
+      </span>{' '}
+      {catNumber}
     </h6>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Button from 'components/button';
 import PaymentMethod from './paymentMethod';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -12,23 +13,23 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
     [styles.manual]: showManualPayment
   });
 
-  const paymentButtonQR = classNames(styles.select, 'btn', 'btn-outline-primary', {
+  const paymentButtonQR = classNames(styles.select, {
     [styles.selected]: !showManualPayment
   });
 
-  const paymentButtonManual = classNames(styles.select, 'btn', 'btn-outline-primary', {
+  const paymentButtonManual = classNames(styles.select, {
     [styles.selected]: showManualPayment
   });
 
   return (
     <div className={paymentMethods}>
-      <div className={`${styles.method} btn-group`} role="group" aria-label="Payment Method">
-        <button type="button" className={paymentButtonQR} onClick={handleshowManualPayment}>
+      <div className={styles.group} role="group" aria-label="Payment Method">
+        <Button type="button" className={paymentButtonQR} onClick={handleshowManualPayment}>
           QR Scan
-        </button>
-        <button type="button" className={paymentButtonManual} onClick={handleshowManualPayment}>
+        </Button>
+        <Button type="button" className={paymentButtonManual} onClick={handleshowManualPayment}>
           Manual
-        </button>
+        </Button>
       </div>
       <PaymentMethod
         paymentAddress={paymentAddress}

@@ -1,18 +1,25 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { spinner } from "./spinner.module.css";
+import { spinner, wrapper } from './spinner.module.css';
+import PropTypes from 'prop-types';
+import React from 'react';
+import classnames from 'classnames';
 
-const Spinner = ({ children }) => (
-  <main className="container d-flex align-items-center justify-content-center">
-    <div className="row mb-5">
-      <div className="col text-center py-3">
-        {children}
-        <div className={`${spinner}`} />
-      </div>
-    </div>
-  </main>
+const Spinner = ({ children, className, wrapperClassName }) => (
+  <div
+    className={classnames(
+      'container',
+      { [wrapper]: !wrapperClassName },
+      { [wrapperClassName]: Boolean(wrapperClassName) }
+    )}
+  >
+    {children}
+    <div className={classnames(spinner, { [className]: Boolean(className) })} />
+  </div>
 );
 
-Spinner.propTypes = { children: PropTypes.object };
+Spinner.propTypes = {
+  children: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  className: PropTypes.string,
+  wrapperClassName: PropTypes.string
+};
 
 export default Spinner;

@@ -1,11 +1,12 @@
 .downloadGroup {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 4rem;
 }
 
 .download {
-  margin-bottom: 0.5rem;
-  padding: 1rem 1rem;
-  width: 100%;
+  margin-bottom: 1rem;
 }
 
 .download:hover {
@@ -14,4 +15,9 @@
 
 .title {
   font-style: italic;
+}
+
+.note {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
 }

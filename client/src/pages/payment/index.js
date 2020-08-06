@@ -23,7 +23,7 @@ const Payment = props => {
   if (isLoading) {
     return (
       <Spinner>
-        <h2 className="mt-4">Loading Payment Info&hellip;</h2>
+        <h2>Loading Payment Info&hellip;</h2>
       </Spinner>
     );
   }

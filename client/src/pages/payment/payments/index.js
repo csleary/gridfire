@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import DownloadButton from './downloadButton';
-import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import Summary from './summary';
 import Transactions from './transactions';
+import styles from './payments.module.css';
 import { useApi } from 'hooks/useApi';
 import withDownload from './withDownload';
 
@@ -48,11 +48,8 @@ const Payments = props => {
 
   if (isLoading) {
     return (
-      <Spinner>
-        <h3>
-          <FontAwesome name="search" className="yellow mr-2" />
-          Searching for Payments&hellip;
-        </h3>
+      <Spinner className={styles.spinner} wrapperClassName={styles.wrapper}>
+        <div>Searching for payments&hellip;</div>
       </Spinner>
     );
   }

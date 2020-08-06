@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import styles from './readOnlyTextarea.module.css';
 
 const ReadOnlyTextarea = props => {
@@ -9,15 +8,22 @@ const ReadOnlyTextarea = props => {
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setHasCopied(false);
-    }, 5000);
+    const timer = setTimeout(
+      () => {
+        setHasCopied(false);
+      },
+      5000,
+      [hasCopied]
+    );
 
     return () => clearTimeout(timer);
   }, [hasCopied]);
 
-  const handleClick = event => {
-    if (event.keyCode && event.keyCode !== 13) return;
+  const handleClick = () => {
+    if (hasCopied) {
+      return setHasCopied(false);
+    }
+
     const range = document.createRange();
     range.selectNode(copyText.current);
     window.getSelection().removeAllRanges();
@@ -27,25 +33,21 @@ const ReadOnlyTextarea = props => {
     setHasCopied(true);
   };
 
-  const copySuccessClass = classnames(styles.success, {
-    [styles.show]: hasCopied
-  });
-
   return (
     <div className={styles.wrapper}>
-      <div
-        className={styles.copyText}
-        onClick={handleClick}
-        onKeyDown={handleClick}
-        ref={copyText}
-      >
-        {props.text ? props.text : props.placeholder}
+      <div className={styles.copyText} onClick={handleClick} onKeyDown={handleClick} ref={copyText}>
+        {hasCopied ? (
+          <div className={styles.success}>
+            <FontAwesome className={styles.iconSuccess} name="thumbs-up" />
+            Copied to clipboard!
+          </div>
+        ) : props.text ? (
+          props.text
+        ) : (
+          props.placeholder
+        )}
       </div>
       <FontAwesome className={styles.icon} name="copy" />
-      <div className={copySuccessClass}>
-        <FontAwesome className="mr-2" name="thumbs-up" />
-        Copied to clipboard!
-      </div>
     </div>
   );
 };
