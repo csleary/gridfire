@@ -54,13 +54,13 @@ function DashNavBar(props) {
       <li>
         <NavLink strict exact to={'/dashboard/favourites'} className="nav-link">
           <FontAwesome name={'heart'} className={'mr-2'} />
-          Favourites
+          Faves
         </NavLink>
       </li>
       <li>
         <NavLink strict exact to={'/dashboard/wish-list'} className="nav-link">
           <FontAwesome name={'magic'} className={'mr-2'} />
-          Wish List
+          List
         </NavLink>
       </li>
     </ul>

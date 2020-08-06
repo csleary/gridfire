@@ -26,7 +26,7 @@ const FavButton = () => {
       title="Save to favourites."
     >
       <FontAwesome className={iconClassName} name={loading ? 'cog' : isInFaves ? 'heart' : 'heart-o'} spin={loading} />
-      Faves
+      Fave
     </button>
   );
 };
