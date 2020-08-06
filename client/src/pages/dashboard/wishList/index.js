@@ -20,7 +20,7 @@ const WishList = () => {
   if (isLoading) {
     return (
       <Spinner>
-        <h2>Loading wish list&hellip;</h2>
+        <h2>Loading your list&hellip;</h2>
       </Spinner>
     );
   }
@@ -30,7 +30,7 @@ const WishList = () => {
       <main className="container">
         <div className="row">
           <div className="col">
-            <h3 className="text-center mt-4">Wish list empty</h3>
+            <h3 className="text-center mt-4">List empty</h3>
             <p className="text-center">Something caught your ear? Save it here for later.</p>
           </div>
         </div>

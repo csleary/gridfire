@@ -4,7 +4,7 @@ import React from 'react';
 import classnames from 'classnames';
 import styles from './button.module.css';
 
-const ButtonClick = ({
+const Button = ({
   autoFocus = false,
   children,
   className,
@@ -63,7 +63,7 @@ const ButtonClick = ({
   );
 };
 
-ButtonClick.propTypes = {
+Button.propTypes = {
   autoFocus: PropTypes.bool,
   buttonRef: PropTypes.object,
   children: PropTypes.node,
@@ -84,4 +84,4 @@ ButtonClick.propTypes = {
   type: PropTypes.string
 };
 
-export default ButtonClick;
+export default Button;

@@ -26,7 +26,7 @@ const WishListButton = () => {
       title="Save to wish list."
     >
       <FontAwesome className={iconClassName} name={loading ? 'cog' : 'magic'} spin={loading} />
-      {isInWishList ? 'Saved' : 'Add'}
+      List
     </button>
   );
 };

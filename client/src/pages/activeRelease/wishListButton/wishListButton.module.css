@@ -11,6 +11,7 @@
   letter-spacing: 0.075rem;
   padding: 0.25rem;
   text-transform: uppercase;
+  transition: background-color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .button:hover {
@@ -20,6 +21,11 @@
 .icon {
   color: var(--cyan);
   margin-right: 0.5rem;
+  transition: color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.button:hover .icon {
+  color: var(--yellow);
 }
 
 .saved {

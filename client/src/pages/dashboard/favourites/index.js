@@ -31,7 +31,7 @@ const Favourites = () => {
         <div className="row">
           <div className="col">
             <h3 className="text-center mt-4">Favourites empty</h3>
-            <p className="text-center">Start fav&rsquo;ing releases to see them here.</p>
+            <p className="text-center">Keep all your favourites release to hand here.</p>
           </div>
         </div>
       </main>
