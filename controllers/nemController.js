@@ -21,7 +21,7 @@ const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   }
 };
 
-const findNode = async () => {
+const findNode = async (attempt = 0) => {
   try {
     const getActiveNodes = await queryNodes('/node/peer-list/active');
     const activeNodes = getActiveNodes.data;
@@ -30,14 +30,25 @@ const findNode = async () => {
       ({ endpoint }) => `${endpoint.protocol}://${endpoint.host}:${endpoint.port}`
     );
 
-    const getFirstNode = await queryNodes('/node/info', nodeHosts);
-    const node = getFirstNode.data;
+    let node;
+    let requestTimeout;
+    if (attempt < 10) {
+      requestTimeout = setTimeout(findNode, 500 + 100 * Math.pow(2, attempt), attempt + 1);
+      const getFirstNode = await queryNodes('/node/info', nodeHosts);
+      node = getFirstNode.data;
+    } else {
+      const getFirstNode = await queryNodes('/node/info', defaultNodes);
+      node = getFirstNode.data;
+    }
+
+    clearTimeout(requestTimeout);
     const { protocol, host, port } = node.endpoint;
     const { name } = node.identity;
     const endpoint = { host: `${protocol}://${host}`, port };
     return { endpoint, host, name, port, protocol };
   } catch (error) {
-    throw new Error(`Could not find a responsive NEM node: ${error.message}`);
+    console.error(error);
+    throw new Error(`Could not find a responsive NEM node: ${error.message || error}`);
   }
 };
 
@@ -74,7 +85,10 @@ const fetchTransactions = async (address, idHash) => {
   let amountPaid = 0;
 
   try {
-    const node = await findNode();
+    const node = await findNode().catch(error => {
+      throw new Error(error);
+    });
+
     const { endpoint, name: nemNode } = node;
 
     const fetchRecent = async txId => {
