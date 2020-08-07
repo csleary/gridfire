@@ -1,16 +1,20 @@
 .methods {
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
+  height: 28rem;
+  overflow: hidden;
+  position: relative;
 }
 
 .group {
   display: flex;
   justify-content: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 .group > .select {
   color: var(--lighter-grey);
   flex: 0 0 auto;
+  margin: 0;
   min-width: 6.75rem;
   padding: 0.5rem 1rem;
   transition: color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);

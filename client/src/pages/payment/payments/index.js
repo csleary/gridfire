@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import { animated, useTransition } from 'react-spring';
 import DownloadButton from './downloadButton';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
@@ -26,6 +27,13 @@ const Payments = props => {
     'post',
     paymentData
   );
+
+  const transition = useTransition(isLoading, null, {
+    config: { mass: 1, tension: 200, friction: 20, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    from: { opacity: 0, transform: 'translateY(-2rem) scale(0.95)' },
+    enter: { opacity: 1, transform: 'translateY(0) scale(1.0)' },
+    leave: { opacity: 0, transform: 'translateY(-2rem) scale(0.95)' }
+  });
 
   useEffect(() => {
     const updateTxs = () => {
@@ -56,18 +64,21 @@ const Payments = props => {
 
   const { hasPurchased, transactions } = payments;
 
-  return (
-    <>
-      <Download
-        artistName={artistName}
-        format="mp3"
-        hasPurchased={hasPurchased}
-        releaseId={releaseId}
-        releaseTitle={releaseTitle}
-      />
-      <Summary payments={payments} fetch={fetch} isFetching={isFetching} paymentData={paymentData} price={price} />
-      <Transactions transactions={transactions} error={error} />
-    </>
+  return transition.map(
+    ({ item, props: style, key }) =>
+      !item && (
+        <animated.div key={key} style={style}>
+          <Download
+            artistName={artistName}
+            format="mp3"
+            hasPurchased={hasPurchased}
+            releaseId={releaseId}
+            releaseTitle={releaseTitle}
+          />
+          <Summary payments={payments} fetch={fetch} isFetching={isFetching} paymentData={paymentData} price={price} />
+          <Transactions transactions={transactions} error={error} />
+        </animated.div>
+      )
   );
 };
 

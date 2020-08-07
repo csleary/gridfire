@@ -7,6 +7,16 @@
   padding: 0 1rem;
 }
 
-.step:not(:last-of-type) {
-  margin-bottom: 3rem;
+.step {
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  align-self: flex-end;
+}
+
+.icon {
+  margin-left: 0.25rem;
+  margin-right: 0;
 }

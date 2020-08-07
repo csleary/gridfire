@@ -11,6 +11,7 @@ const Button = ({
   disabled,
   icon,
   iconClassName,
+  iconRight,
   isActive,
   menuOpen,
   onClick,
@@ -34,15 +35,16 @@ const Button = ({
     [styles.small]: size === 'small'
   });
 
-  const iconClassNames = classnames({
+  const iconClassNames = classnames(styles.icon, {
     [iconClassName]: iconClassName,
-    [styles.icon]: !iconClassName,
     [styles.spin]: spin
   });
 
   const chevronClassNames = classnames(styles.chevron, {
     [styles.rotate]: menuOpen
   });
+
+  const buttonIcon = icon ? <FontAwesome className={iconClassNames} name={icon} fixedWidth /> : null;
 
   return (
     <button
@@ -56,8 +58,9 @@ const Button = ({
       type={type}
       {...rest}
     >
-      {icon ? <FontAwesome className={iconClassNames} name={icon} fixedWidth /> : null}
+      {icon && !iconRight ? buttonIcon : null}
       {children ? children : text || null}
+      {icon && iconRight ? buttonIcon : null}
       {!textLink && menuOpen !== undefined ? <FontAwesome className={chevronClassNames} name="chevron-down" /> : null}
     </button>
   );
@@ -71,6 +74,7 @@ Button.propTypes = {
   disabled: PropTypes.bool,
   icon: PropTypes.string,
   iconClassName: PropTypes.string,
+  iconRight: PropTypes.bool,
   isActive: PropTypes.bool,
   menuOpen: PropTypes.bool,
   onClick: PropTypes.func,

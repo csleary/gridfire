@@ -1,11 +1,21 @@
+import React, { useState } from 'react';
+import { animated, useTransition } from 'react-spring';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
-import React from 'react';
 import ReadOnlyTextarea from './readOnlyTextarea';
 import styles from './manualPayment.module.css';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
+  const [step, setStep] = useState(0);
+
+  const transitions = useTransition(step, null, {
+    config: { mass: 1, tension: 250, friction: 30, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    from: { opacity: 0, position: 'absolute', left: '100%', right: '-100%', transform: 'scale(0.9)' },
+    enter: { opacity: 1, left: '0', right: '0', transform: 'scale(1)' },
+    leave: { opacity: 0, left: '-100%', right: '100%', transform: 'scale(0.9)' }
+  });
 
   const copyPrice = parseFloat(priceInXem) ? (
     <>
@@ -15,9 +25,22 @@ const ManualPayment = props => {
     '(name your price!)'
   );
 
-  return (
-    <>
-      <div className={styles.step}>
+  const nextButton = (
+    <Button
+      className={styles.button}
+      icon="chevron-right"
+      iconClassName={styles.icon}
+      iconRight
+      textLink
+      onClick={() => setStep(step + 1)}
+    >
+      Next Step
+    </Button>
+  );
+
+  return transitions.map(({ item, key, props: style }) =>
+    item % 3 === 0 ? (
+      <animated.div className={styles.step} key={key} style={style}>
         <h4 className={styles.heading}>
           <span className="yellow">1.</span> Payment ID
         </h4>
@@ -30,15 +53,19 @@ const ManualPayment = props => {
           <FontAwesome name="exclamation-circle" className="mr-2" />
           Your payment ID is essential to your purchase. Please don&rsquo;t forget to include this.
         </p>
-      </div>
-      <div className={styles.step}>
+        {nextButton}
+      </animated.div>
+    ) : item % 3 === 1 ? (
+      <animated.div className={styles.step} key={key} style={style}>
         <h4 className={styles.heading}>
           <span className="yellow">2.</span> Address
         </h4>
         <p>Add the payment address below:</p>
         <ReadOnlyTextarea text={paymentAddress} placeholder="Payment Address" />
-      </div>
-      <div className={styles.step}>
+        {nextButton}
+      </animated.div>
+    ) : item % 3 === 2 ? (
+      <animated.div className={styles.step} key={key} style={style}>
         <h4 className={styles.heading}>
           <span className="yellow">3.</span> Amount
         </h4>
@@ -47,8 +74,9 @@ const ManualPayment = props => {
           text={parseFloat(priceInXem) ? priceInXem : 'Name your price!'}
           placeholder="Payment Amount"
         />
-      </div>
-    </>
+        {nextButton}
+      </animated.div>
+    ) : null
   );
 };
 
