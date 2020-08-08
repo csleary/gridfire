@@ -6,16 +6,6 @@ import nem from 'nem-sdk';
 import styles from './transactions.module.css';
 
 const Transactions = ({ transactions, error }) => {
-  const txList = transactions.map((tx, index) => (
-    <Transaction
-      hash={tx.meta.hash.data}
-      index={index}
-      key={tx.meta.hash.data}
-      amount={tx.transaction.amount / 10 ** 6}
-      date={nem.utils.format.nemDate(tx.transaction.timeStamp)}
-    />
-  ));
-
   if (error) {
     return (
       <div className={styles.transactions}>
@@ -39,7 +29,15 @@ const Transactions = ({ transactions, error }) => {
           <div className="yellow">#</div>
           <div>Payment Date</div>
           <div>Amount</div>
-          {txList}
+          {transactions.map((tx, index) => (
+            <Transaction
+              hash={tx.meta.hash.data}
+              index={index}
+              key={tx.meta.hash.data}
+              amount={tx.transaction.amount / 10 ** 6}
+              date={nem.utils.format.nemDate(tx.transaction.timeStamp)}
+            />
+          ))}
         </div>
         <p>Note: Very recent transactions may not yet be visible on the explorer.</p>
       </div>

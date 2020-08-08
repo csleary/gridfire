@@ -4,6 +4,8 @@
 }
 
 .wrapper {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   position: absolute;
   bottom: 0;
   left: 0;

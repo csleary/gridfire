@@ -8,6 +8,8 @@
 }
 
 .step {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   left: 0;
   position: absolute;
   right: 0;

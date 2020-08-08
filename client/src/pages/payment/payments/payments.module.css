@@ -16,5 +16,7 @@
 }
 
 .payments {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   margin-top: auto;
 }
