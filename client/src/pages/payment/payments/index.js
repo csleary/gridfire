@@ -29,10 +29,10 @@ const Payments = props => {
   );
 
   const transition = useTransition(isLoading, null, {
-    config: { mass: 1, tension: 200, friction: 20, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
-    from: { opacity: 0, transform: 'translateY(-2rem) scale(0.95)' },
+    config: { mass: 1, tension: 250, friction: 30, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    from: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' },
     enter: { opacity: 1, transform: 'translateY(0) scale(1.0)' },
-    leave: { opacity: 0, transform: 'translateY(-2rem) scale(0.95)' }
+    leave: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' }
   });
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const Payments = props => {
   return transition.map(
     ({ item, props: style, key }) =>
       !item && (
-        <animated.div key={key} style={style}>
+        <animated.div className={styles.payments} key={key} style={style}>
           <Download
             artistName={artistName}
             format="mp3"

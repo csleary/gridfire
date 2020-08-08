@@ -8,12 +8,15 @@
 }
 
 .step {
-  display: flex;
-  flex-direction: column;
+  left: 0;
+  position: absolute;
+  right: 0;
 }
 
 .button {
-  align-self: flex-end;
+  bottom: 0;
+  position: absolute;
+  right: 0;
 }
 
 .icon {

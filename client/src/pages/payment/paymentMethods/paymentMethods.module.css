@@ -8,7 +8,6 @@
 .group {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
 }
 
 .group > .select {
@@ -41,8 +40,4 @@
 
 .group > .selected:hover {
   color: var(--cyan);
-}
-
-.manual {
-  transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }

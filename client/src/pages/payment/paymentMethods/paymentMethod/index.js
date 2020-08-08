@@ -8,19 +8,19 @@ import styles from './paymentMethod.module.css';
 
 const PaymentMethod = ({ paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
   const transitions = useTransition(showManualPayment, null, {
-    config: { mass: 1, tension: 250, friction: 30, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
-    from: { opacity: 0, position: 'absolute', left: '100%', right: '-100%', transform: 'scale(0.9)' },
-    enter: { opacity: 1, left: '0', right: '0', transform: 'scale(1)' },
-    leave: { opacity: 0, left: '-100%', right: '100%', transform: 'scale(0.9)' }
+    config: { mass: 1, tension: 250, friction: 30, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    from: { opacity: 0, transform: 'scale(0.98)' },
+    enter: { opacity: 1, transform: 'scale(1)' },
+    leave: { opacity: 0, transform: 'scale(0.98)' }
   });
 
   return transitions.map(({ item, key, props }) =>
     item ? (
-      <animated.div key={key} style={props}>
+      <animated.div className={styles.wrapper} key={key} style={props}>
         <ManualPayment paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />
       </animated.div>
     ) : (
-      <animated.div key={key} style={props}>
+      <animated.div className={styles.wrapper} key={key} style={props}>
         <div className={styles.qrcode}>
           <QRCode paymentAddress={paymentAddress.replace(/-/g, '')} price={priceInXem} idHash={paymentHash} />
         </div>

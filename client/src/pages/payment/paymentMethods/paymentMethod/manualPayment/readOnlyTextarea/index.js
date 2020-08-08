@@ -12,7 +12,7 @@ const ReadOnlyTextarea = props => {
       () => {
         setHasCopied(false);
       },
-      5000,
+      3000,
       [hasCopied]
     );
 

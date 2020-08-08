@@ -13,6 +13,7 @@ const UserSchema = new Schema(
       idHash: String,
       resetToken: String,
       resetExpire: Date,
+      dateCreated: Date,
       lastLogin: Date
     },
     nemAddress: String,

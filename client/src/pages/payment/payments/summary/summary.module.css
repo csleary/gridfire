@@ -45,6 +45,7 @@
 }
 
 .refresh {
+  align-items: center;
   display: flex;
   color: var(--cyan);
   flex-wrap: nowrap;

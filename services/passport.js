@@ -64,10 +64,11 @@ const localRegister = async (req, email, password, done) => {
       const newUser = await User.create({
         auth: {
           email,
+          password,
           idHash: idHash(email),
           isLocal: true,
-          lastLogin: Date.now(),
-          password
+          dateCreated: Date.now(),
+          lastLogin: Date.now()
         }
       });
 
@@ -121,6 +122,7 @@ const loginGoogle = async (accessToken, refreshToken, profile, done) => {
         email,
         idHash: idHash(email),
         isLocal: false,
+        dateCreated: Date.now(),
         lastLogin: Date.now()
       }
     });
@@ -148,6 +150,7 @@ const loginSpotify = async (accessToken, refreshToken, expires_in, profile, done
         email,
         idHash: idHash(email),
         isLocal: false,
+        dateCreated: Date.now(),
         lastLogin: Date.now()
       }
     });
