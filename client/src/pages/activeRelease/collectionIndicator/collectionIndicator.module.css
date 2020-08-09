@@ -1,0 +1,18 @@
+.collection {
+  border-top: 3.4rem solid #ffd24d;
+  border-left: 3.4rem solid transparent;
+  display: flex;
+  height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+}
+
+.check {
+  color: hsla(233, 10%, 10%, 1);
+  font-size: 1.5rem;
+  position: absolute;
+  right: 0.3rem;
+  top: 0.2rem;
+}

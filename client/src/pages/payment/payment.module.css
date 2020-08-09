@@ -1,6 +1,6 @@
 .heading {
-  margin-bottom: 1.5rem;
-  position: relative;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .icon {
@@ -8,26 +8,5 @@
 }
 
 .back {
-  background: none;
-  border: 0;
-  border-radius: 10rem;
-  color: var(--cyan);
-  font-size: 0.75rem;
-  font-weight: 700;
-  left: 0;
-  letter-spacing: 0.075rem;
-  margin: 0;
-  padding: 0.25rem 0.75rem;
-  position: absolute;
-  text-transform: uppercase;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-}
-
-.back:hover {
-  background-color: #000;
-}
-
-.h2 {
-  margin: 0 auto;
-  text-align: center;
+  margin-right: auto;
 }

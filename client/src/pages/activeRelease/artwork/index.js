@@ -4,7 +4,7 @@ import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import React from 'react';
 import placeholder from 'placeholder.svg';
-import styles from 'pages/activeRelease/activeRelease.module.css';
+import styles from './artwork.module.css';
 import { toastInfo } from 'features/toast';
 
 const Artwork = () => {

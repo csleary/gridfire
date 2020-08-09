@@ -1,0 +1,45 @@
+.artwork {
+  align-items: flex-start;
+  align-self: flex-start;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.image {
+  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  width: 100%;
+}
+
+.placeholder {
+  flex: none;
+  margin-left: -100%;
+  width: 100%;
+  z-index: -1;
+}
+
+.overlay {
+  align-items: center;
+  align-self: stretch;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  display: flex;
+  flex: none;
+  font-size: 4rem;
+  justify-content: space-evenly;
+  margin-left: -100%;
+  opacity: 0;
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  visibility: hidden;
+  width: 100%;
+  z-index: 1;
+}
+
+.artwork:hover .overlay {
+  opacity: 1;
+  cursor: pointer;
+  visibility: visible;
+}
+
+.play {
+  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}

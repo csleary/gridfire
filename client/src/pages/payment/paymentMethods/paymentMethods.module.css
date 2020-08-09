@@ -1,16 +1,17 @@
 .methods {
   margin-bottom: 2rem;
-  height: 28rem;
+  height: 22rem;
   overflow: hidden;
   position: relative;
 }
 
-.group {
+.buttons {
   display: flex;
   justify-content: center;
+  margin-bottom: 2rem;
 }
 
-.group > .select {
+.buttons > .select {
   color: var(--lighter-grey);
   flex: 0 0 auto;
   margin: 0;
@@ -19,25 +20,25 @@
   transition: color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.group > .select:first-child {
+.buttons > .select:first-child {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.group > .select:last-child {
+.buttons > .select:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.group > .select:hover {
+.buttons > .select:hover {
   background-color: #000;
   color: var(--lighter-grey);
 }
 
-.group > .selected {
+.buttons > .selected {
   color: var(--cyan);
 }
 
-.group > .selected:hover {
+.buttons > .selected:hover {
   color: var(--cyan);
 }

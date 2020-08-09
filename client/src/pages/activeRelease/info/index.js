@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import styles from './info.module.css';
 
 const Info = ({ info }) => {
   if (!info) return null;
@@ -7,7 +8,7 @@ const Info = ({ info }) => {
   return (
     <>
       <h6 className="yellow mt-4">Info</h6>
-      <p className="info">{info}</p>
+      <p className={styles.info}>{info}</p>
     </>
   );
 };

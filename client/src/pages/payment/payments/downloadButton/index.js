@@ -8,9 +8,9 @@ import styles from './downloadButton.module.css';
 const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparingDownload, releaseTitle }) => {
   if (hasPurchased) {
     return (
-      <div className={styles.downloadGroup}>
+      <div className={styles.download}>
         <Button
-          className={styles.download}
+          className={styles.button}
           disabled={isPreparingDownload === true}
           icon={isPreparingDownload ? 'cog' : 'download'}
           onClick={handleDownload}

@@ -9,10 +9,6 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   const [showManualPayment, setshowManualPayment] = useState(false);
   const handleshowManualPayment = () => setshowManualPayment(!showManualPayment);
 
-  const paymentMethods = classNames(styles.methods, {
-    [styles.manual]: showManualPayment
-  });
-
   const paymentButtonQR = classNames(styles.select, {
     [styles.selected]: !showManualPayment
   });
@@ -22,8 +18,8 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   });
 
   return (
-    <div className={paymentMethods}>
-      <div className={styles.group} role="group" aria-label="Payment Method">
+    <>
+      <div className={styles.buttons} role="group" aria-label="Payment Method">
         <Button type="button" className={paymentButtonQR} onClick={handleshowManualPayment}>
           QR Scan
         </Button>
@@ -31,13 +27,15 @@ const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
           Manual
         </Button>
       </div>
-      <PaymentMethod
-        paymentAddress={paymentAddress}
-        paymentHash={paymentHash}
-        priceInXem={priceInXem}
-        showManualPayment={showManualPayment}
-      />
-    </div>
+      <div className={styles.methods}>
+        <PaymentMethod
+          paymentAddress={paymentAddress}
+          paymentHash={paymentHash}
+          priceInXem={priceInXem}
+          showManualPayment={showManualPayment}
+        />
+      </div>
+    </>
   );
 };
 

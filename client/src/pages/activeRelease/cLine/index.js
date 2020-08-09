@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'pages/activeRelease/activeRelease.module.css';
+import styles from './cLine.module.css';
 
 const CLine = ({ cLine }) => {
   if (!cLine) return null;

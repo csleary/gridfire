@@ -1,15 +1,19 @@
-.downloadGroup {
+.download {
   align-items: center;
   display: flex;
   flex-direction: column;
   margin-bottom: 4rem;
 }
 
-.download {
+.download:last-child {
+  margin-bottom: 0;
+}
+
+.button {
   margin-bottom: 1rem;
 }
 
-.download:hover {
+.button:hover {
   color: #000;
 }
 

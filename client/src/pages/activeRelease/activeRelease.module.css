@@ -1,3 +1,7 @@
+.columns {
+  columns: 2 16rem;
+}
+
 .release {
   align-self: stretch;
   flex: 1;
@@ -8,58 +12,8 @@
   padding: 0;
 }
 
-.columns {
-  columns: 2 16rem;
-}
-
 .trackList {
   color: hsla(233, 10%, 75%, 1);
-}
-
-.artwork {
-  align-items: flex-start;
-  align-self: flex-start;
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.image {
-  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  width: 100%;
-}
-
-.placeholder {
-  flex: none;
-  margin-left: -100%;
-  width: 100%;
-  z-index: -1;
-}
-
-.overlay {
-  align-items: center;
-  align-self: stretch;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  display: flex;
-  flex: none;
-  font-size: 4rem;
-  justify-content: space-evenly;
-  margin-left: -100%;
-  opacity: 0;
-  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  visibility: hidden;
-  width: 100%;
-  z-index: 1;
-}
-
-.artwork:hover .overlay {
-  opacity: 1;
-  cursor: pointer;
-  visibility: visible;
-}
-
-.play {
-  transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 .info {
@@ -68,24 +22,6 @@
   flex-direction: column;
   margin: 0;
   position: relative;
-}
-
-.collection {
-  border-top: 3.4rem solid #ffd24d;
-  border-left: 3.4rem solid transparent;
-  height: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-}
-
-.check {
-  color: hsla(233, 10%, 10%, 1);
-  font-size: 1.5rem;
-  position: absolute;
-  right: 0.3rem;
-  top: 0.2rem;
 }
 
 .title {
@@ -128,10 +64,6 @@
 .credits,
 .info {
   white-space: pre-line;
-}
-
-.copyright {
-  font-size: 80%;
 }
 
 .info p:last-child {

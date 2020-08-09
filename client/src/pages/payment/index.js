@@ -49,12 +49,16 @@ const Payment = props => {
 
   return (
     <>
-      <div className={styles.heading}>
-        <Button icon={'chevron-left'} onClick={() => history.push(`/release/${releaseId}`)} size="small" textLink>
-          Back
-        </Button>
-        <h2 className={styles.h2}>Payment</h2>
-      </div>
+      <Button
+        className={styles.back}
+        icon={'chevron-left'}
+        onClick={() => history.push(`/release/${releaseId}`)}
+        size="small"
+        textLink
+      >
+        Back
+      </Button>
+      <h2 className={styles.heading}>Payment</h2>
       <PaymentMethods paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={price} />
       <Payments
         artistName={artistName}

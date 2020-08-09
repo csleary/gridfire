@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import styles from 'pages/activeRelease/activeRelease.module.css';
+import styles from './pLine.module.css';
 
 const PLine = ({ pLine }) => {
   if (!pLine) return null;
