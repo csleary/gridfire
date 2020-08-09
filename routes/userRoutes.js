@@ -95,14 +95,14 @@ module.exports = app => {
 
   app.get('/api/user/credits', requireLogin, async (req, res) => {
     try {
-      const user = await User.findById(req.user._id).select('credits nemAddress nemAddressVerified');
+      const user = await User.findById(req.user._id, 'credits nemAddress nemAddressVerified').exec();
       if (!user) return res.end();
       const { nemAddress, nemAddressVerified } = user;
 
       if (nemAddress && nemAddress.length && nemAddressVerified) {
-        const numActiveReleases = await Release.countDocuments({ user: user.id, published: true });
-        const numCredits = await fetchMosaics(nemAddress);
-        user.credits = numCredits - numActiveReleases;
+        const publishedReleaseCount = await Release.countDocuments({ user: user.id, published: true });
+        const total = await fetchMosaics(nemAddress);
+        user.credits = total - publishedReleaseCount;
         await user.save();
         return res.status(200).send({ credits: user.toJSON().credits });
       }

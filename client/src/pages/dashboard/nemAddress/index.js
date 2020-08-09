@@ -85,65 +85,59 @@ let NemAddress = props => {
             account to theirs.
           </p>
           <form className={`${styles.form} my-5 py-5`} onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-row">
-              <div className="col-md-9 mx-auto px-3">
-                <Field
-                  disabled={submitting}
-                  format={address =>
-                    address
-                      ?.toUpperCase()
-                      .replace(/-/g, '')
-                      .match(/.{1,6}/g)
-                      ?.join('-')
-                  }
-                  id="nemAddress"
-                  hint="It doesn&rsquo;t matter whether you include dashes or not."
-                  label="Your NEM Address"
-                  name="nemAddress"
-                  nemAddress={nemAddress}
-                  nemAddressVerified={nemAddressVerified}
-                  placeholder={`NEM Address (should start with ${addressPrefix})`}
-                  type="text"
-                  component={NemAddressFormField}
-                  validate={checkNemAddress}
-                />
-                {renderVerifyAddressField()}
-                <div className="d-flex justify-content-end mb-5">
-                  <Button icon="check" type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
-                    {renderButtonLabel()}
-                  </Button>
-                </div>
-                <p>
-                  <span className={creditClassName}>
-                    <FontAwesome name="certificate" className="mr-1" />
-                    {credits
-                      ? `Your current credits balance is ${credits}.`
-                      : 'You don\u2019t currently have any credits.'}
-                  </span>
-                  <Button
-                    className={styles.update}
-                    disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
-                    icon="refresh"
-                    onClick={handleUpdateCredits}
-                    spin={isCheckingCredits}
-                    textLink
-                    title={'Press to recheck your credit.'}
-                    type="button"
-                  >
-                    Update
-                  </Button>
-                </p>
-                <p>
-                  As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release
-                  {publishedReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
-                  {publishedReleaseCount + 1} to be able to publish a new release or activate future powerups.
-                </p>
-                <p>
-                  Need some credit? You&rsquo;ll be able to buy credit with XEM in the future, but for now{' '}
-                  <a href="/contact">get in touch</a> and we&rsquo;ll send you a token for free.
-                </p>
-              </div>
+            <Field
+              disabled={submitting}
+              format={address =>
+                address
+                  ?.toUpperCase()
+                  .replace(/-/g, '')
+                  .match(/.{1,6}/g)
+                  ?.join('-')
+              }
+              id="nemAddress"
+              hint="It doesn&rsquo;t matter whether you include dashes or not."
+              label="Your NEM Address"
+              name="nemAddress"
+              nemAddress={nemAddress}
+              nemAddressVerified={nemAddressVerified}
+              placeholder={`NEM Address (should start with ${addressPrefix})`}
+              type="text"
+              component={NemAddressFormField}
+              validate={checkNemAddress}
+            />
+            {renderVerifyAddressField()}
+            <div className="d-flex justify-content-end mb-5">
+              <Button icon="check" type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
+                {renderButtonLabel()}
+              </Button>
             </div>
+            <p>
+              <span className={creditClassName}>
+                <FontAwesome name="certificate" className="mr-1" />
+                {credits ? `Address credits balance: ${credits}` : 'You don\u2019t currently have any credits.'}
+              </span>
+              <Button
+                className={styles.update}
+                disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
+                icon="refresh"
+                onClick={handleUpdateCredits}
+                spin={isCheckingCredits}
+                textLink
+                title={'Press to recheck your credit.'}
+                type="button"
+              >
+                Update
+              </Button>
+            </p>
+            <p>
+              As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release
+              {publishedReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
+              {publishedReleaseCount + 1} to be able to publish a new release or activate future powerups.
+            </p>
+            <p>
+              Need some credit? You&rsquo;ll be able to buy credit with XEM in the future, but for now{' '}
+              <a href="/contact">get in touch</a> and we&rsquo;ll send you a token for free.
+            </p>
           </form>
           <h4>Getting Your First NEM Address</h4>
           <p>
