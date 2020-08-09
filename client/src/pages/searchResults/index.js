@@ -1,10 +1,11 @@
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import Button from 'components/button';
 import React from 'react';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { clearResults } from 'features/search';
 import { frontPage } from 'pages/home/home.module.css';
+import styles from './searchResults.module.css';
 
 const SearchResults = () => {
   const dispatch = useDispatch();
@@ -23,10 +24,9 @@ const SearchResults = () => {
           </h3>
           <div className={frontPage}>{renderReleases}</div>
           {resultsNum ? (
-            <button className="btn btn-outline-primary btn-sm px-3 py-2 mt-3" onClick={() => dispatch(clearResults())}>
-              <FontAwesome className="mr-2" name="times" />
+            <Button className={styles.clear} icon="times" onClick={() => dispatch(clearResults())} size="small">
               Clear
-            </button>
+            </Button>
           ) : null}
         </>
       );

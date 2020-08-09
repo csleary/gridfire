@@ -50,23 +50,10 @@ a,
 a:active,
 a:focus,
 a:hover,
-a:visited,
-.btn.btn-link {
+a:visited {
   color: var(--cyan);
   font-weight: 600;
   text-decoration: none;
-}
-
-.btn.btn-link {
-  border: 0;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: initial;
-  margin: 0;
-  min-width: auto;
-  padding: 0;
-  text-align: left;
-  vertical-align: initial;
 }
 
 .alert {
@@ -89,107 +76,6 @@ a:visited,
 
 .bold {
   font-weight: 600;
-}
-
-.btn {
-  border-radius: 5rem;
-  border-width: 0;
-  font-weight: bold;
-  letter-spacing: 0.075rem;
-  text-transform: uppercase;
-  min-width: 16rem;
-  padding: 0.5rem 0.75rem;
-}
-
-.btn-sm {
-  padding: 0 0.5rem;
-  margin-top: 0;
-  min-width: auto;
-}
-
-.btn-outline-primary,
-.btn-outline-success {
-  background-color: #000;
-  border-color: #000;
-  color: var(--cyan);
-}
-
-.btn-outline-primary:hover,
-.btn-outline-primary:not(:disabled):not(.disabled):active,
-.btn-outline-success:hover,
-.btn-outline-success:not(:disabled):not(.disabled):active {
-  background-color: var(--cyan);
-  border-color: var(--cyan);
-  color: var(--black);
-  cursor: pointer;
-}
-
-.btn-outline-primary:disabled,
-.btn-outline-primary:disabled:hover,
-.btn-outline-success:disabled,
-.btn-outline-success:disabled:hover {
-  background-color: transparent;
-  color: #18cdca80;
-  cursor: default;
-}
-
-.btn-outline-secondary {
-  background-color: var(--off-white);
-  border-color: var(--light-grey);
-  color: var(--light-grey);
-}
-
-.btn-outline-secondary:hover {
-  background-color: var(--light-grey);
-  border-color: var(--light-grey);
-  color: var(--off-white);
-  cursor: pointer;
-}
-
-.btn-outline-secondary:disabled {
-  background-color: transparent;
-  border: 2px solid transparent;
-  color: var(--light-grey);
-  cursor: default;
-}
-
-.btn-outline-primary:focus,
-.btn-outline-success:focus {
-  box-shadow: 0 0 0 3px #18cdca80;
-}
-
-.btn-outline-warning {
-  background-color: var(--off-white);
-  border-color: var(--yellow);
-  color: var(--yellow);
-}
-
-.btn-outline-warning:hover {
-  background-color: var(--yellow);
-  border-color: var(--yellow);
-  cursor: pointer;
-  color: var(--black);
-}
-
-.btn-outline-warning:focus {
-  box-shadow: 0 0 0 3px #ffd24d80;
-}
-
-.btn-outline-danger {
-  background-color: var(--off-white);
-  border-color: var(--red);
-  color: var(--red);
-}
-
-.btn-outline-danger:hover {
-  background-color: var(--red);
-  border-color: var(--red);
-  color: var(--off-white);
-  cursor: pointer;
-}
-
-.btn-outline-danger:focus {
-  box-shadow: 0 0 0 3px #ff534980;
 }
 
 .red {

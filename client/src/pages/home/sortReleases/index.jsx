@@ -1,4 +1,6 @@
 import React, { useRef, useState } from 'react';
+import { animated, useTransition } from 'react-spring';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import styles from './sortReleases.module.css';
@@ -27,15 +29,17 @@ const sortOptions = [
   { title: 'Price', sortPath: 'price', '-1': 'Desc.', '1': 'Asc.' }
 ];
 
-const SortReleases = ({
-  handleFetchCatalogue,
-  sortPath,
-  setSortPath,
-  sortOrder,
-  setSortOrder
-}) => {
+const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, setSortOrder }) => {
   const sortRef = useRef();
   const [showSortMenu, setShowSortMenu] = useState(false);
+
+  const transitions = useTransition(showSortMenu, null, {
+    config: { mass: 1, tension: 250, friction: 10, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    from: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' },
+    enter: { opacity: 1, transform: 'scale(1) translateY(0)' },
+    leave: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' }
+  });
+
   useOnClickOutside(sortRef, () => setShowSortMenu(false));
   const [isSorting, setSorting] = useState(false);
 
@@ -54,47 +58,41 @@ const SortReleases = ({
     setSorting(false);
   };
 
-  const renderSortMenu = () => {
-    if (!showSortMenu) return null;
-
-    return sortOptions.map(option => (
-      <li
-        className={styles.sortItem}
-        key={option.title}
-        onClick={() => handleSortPath(option.sortPath)}
-      >
-        {option.title}
-      </li>
-    ));
-  };
-
   return (
     <div className={styles.sort} ref={sortRef}>
       <div className={styles.buttons}>
-        <button
-          className={`btn btn-outline-primary btn-sm ${styles.sortButton}`}
+        <Button
+          className={styles.sortButton}
           disabled={isSorting}
+          icon="sort"
+          iconClassName={styles.sortIcon}
           onClick={() => setShowSortMenu(!showSortMenu)}
+          textLink
         >
-          <FontAwesome name="sort" className="mr-2" />
           {sortOptions.find(option => option.sortPath === sortPath).title}
-        </button>
-        <button
-          className={`btn btn-outline-primary btn-sm ${styles.sortButton}`}
+        </Button>
+        <Button
+          className={styles.sortButton}
           disabled={isSorting}
           onClick={() => handleSortOrder(sortOrder * -1)}
+          textLink
         >
-          {`(${
-            sortOptions.find(option => option.sortPath === sortPath)[
-              sortOrder.toString()
-            ]
-          })`}
-        </button>
-        {isSorting ? (
-          <FontAwesome className="yellow ml-2" name="cog" spin />
-        ) : null}
+          {`(${sortOptions.find(option => option.sortPath === sortPath)[sortOrder.toString()]})`}
+        </Button>
+        {isSorting ? <FontAwesome name="cog" spin /> : null}
       </div>
-      <ul className={styles.sortList}>{renderSortMenu()}</ul>
+      {transitions.map(
+        ({ item, props: animations, key }) =>
+          item && (
+            <animated.ul className={styles.sortList} key={key} style={animations}>
+              {sortOptions.map(option => (
+                <li className={styles.sortItem} key={option.title} onClick={() => handleSortPath(option.sortPath)}>
+                  {option.title}
+                </li>
+              ))}
+            </animated.ul>
+          )
+      )}
     </div>
   );
 };

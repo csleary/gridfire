@@ -7,8 +7,7 @@
 .copyText[readonly],
 .copyText:active,
 .copyText:disabled,
-.copyText:focus,
-.copyText.form-control:focus {
+.copyText:focus {
   background: hsla(233, 10%, 5%, 1);
   border: 0;
   border-radius: 0.5rem;

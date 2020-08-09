@@ -1,10 +1,12 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useRef, useState } from 'react';
+import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
+import styles from './forgotPassword.module.css';
 
 const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
   const captchaRef = useRef();
@@ -63,13 +65,9 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
                 validate={required}
               />
               <div className="d-flex justify-content-end">
-                <button
-                  className="btn btn-outline-primary my-3"
-                  disabled={invalid || pristine || submitting}
-                  type="submit"
-                >
+                <Button className={styles.button} disabled={invalid || pristine || submitting} type="submit">
                   Send Reset Email
-                </button>
+                </Button>
               </div>
             </div>
           </form>

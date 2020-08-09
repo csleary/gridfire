@@ -152,6 +152,7 @@ const fetchXemPriceBinance = async () => {
   try {
     const xemTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=XEMBTC');
     const btcTicker = await axios('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+    if (!xemTicker || !btcTicker) throw new Error('Could not retrieve XEM price.');
     const xemPriceBtc = xemTicker.data.price;
     const btcPriceUsd = btcTicker.data.price;
     const xemPriceUsd = btcPriceUsd * xemPriceBtc;

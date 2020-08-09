@@ -28,16 +28,6 @@
   cursor: not-allowed;
 }
 
-.button.large {
-  font-size: 1.2rem;
-}
-
-.button.small {
-  font-size: 0.875rem;
-  min-width: auto;
-  padding: 0.375rem 0.75rem;
-}
-
 .icon {
   color: var(--cyan);
   transition: all 250ms cubic-bezier(0.2, 0.8, 0.4, 1);
@@ -80,7 +70,7 @@
   background-color: initial;
   border: 0;
   color: var(--cyan);
-  font-size: inherit;
+  font-size: initial;
   font-weight: 700;
   margin: 0;
   padding: 0;
@@ -99,6 +89,16 @@
 .link .icon {
   color: var(--cyan);
   margin-right: 0.25rem;
+}
+
+.large {
+  font-size: 1.2rem;
+}
+
+.small {
+  font-size: 0.875rem;
+  min-width: auto;
+  padding: 0.375rem 0.75rem;
 }
 
 .spin {

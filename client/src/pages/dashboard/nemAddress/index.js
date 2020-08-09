@@ -109,7 +109,7 @@ let NemAddress = props => {
                 />
                 {renderVerifyAddressField()}
                 <div className="d-flex justify-content-end mb-5">
-                  <Button type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
+                  <Button icon="check" type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
                     {renderButtonLabel()}
                   </Button>
                 </div>
