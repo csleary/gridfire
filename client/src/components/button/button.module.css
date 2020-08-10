@@ -102,7 +102,7 @@
 }
 
 .spin {
-  animation: spin 1s cubic-bezier(0.8, 0.2, 0.2, 0.6) 0s infinite normal none;
+  animation: spin 2s linear;
 }
 
 .link:hover .icon:not(.spin) {

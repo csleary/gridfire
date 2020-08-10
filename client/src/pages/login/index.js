@@ -84,7 +84,7 @@ const Login = props => {
             If you&rsquo;ve forgotten your password, please <Link to={'/reset'}>reset it here</Link>.
           </p>
         </div>
-        <div className={`${styles.divider} p-5 mb-5`}>Or</div>
+        <div className={styles.divider}>Or</div>
         <div className={`${styles.oauth} col-md`}>
           <div className={styles.service}>
             <FontAwesome className={styles.icon} name="spotify" />

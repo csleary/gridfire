@@ -30,7 +30,7 @@ const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparin
               transcode the release from source, before building your archive.
             </p>
             <p>
-              A download prompt will pop up when it&rsquo;s ready. You&rsquo;re free to continue browsing around the
+              A download prompt will pop up when it&rsquo;s ready. You&rsquo;re welcome to continue browsing around the
               site while you wait.
             </p>
           </>
