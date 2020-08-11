@@ -105,7 +105,7 @@
   animation: spin 2s linear;
 }
 
-.link:hover .icon:not(.spin) {
+.link:hover:not(:disabled) .icon:not(.spin) {
   animation: blink 750ms cubic-bezier(0, 0.85, 0.85, 1) 50ms;
   color: var(--cyan);
 }

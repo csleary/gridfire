@@ -15,6 +15,8 @@ let GOOGLE_CALLBACK = 'https://nemp3.app/api/auth/google/callback';
 let GOOGLE_REDIRECT = 'https://nemp3.app/oauth/google';
 let SPOTIFY_CALLBACK = 'https://nemp3.app/api/auth/spotify/callback';
 let SPOTIFY_REDIRECT = 'https://nemp3.app/oauth/spotify';
+let TWITTER_CALLBACK = 'https://nemp3.app/api/auth/twitter/callback';
+let TWITTER_REDIRECT = 'https://nemp3.app/oauth/twitter';
 let NEM_NETWORK_ID = nem.model.network.data.mainnet.id;
 let NEM_NODES = [
   '176.9.68.110',
@@ -31,9 +33,11 @@ let RABBIT_HOST = 'rabbit';
 if (process.env.NODE_ENV === 'development') {
   GOOGLE_CALLBACK = '/api/auth/google/callback';
   GOOGLE_REDIRECT = 'http://localhost:3000/oauth/google';
+  RABBIT_HOST = 'localhost';
   SPOTIFY_CALLBACK = '/api/auth/spotify/callback';
   SPOTIFY_REDIRECT = 'http://localhost:3000/oauth/spotify';
-  RABBIT_HOST = 'localhost';
+  TWITTER_CALLBACK = '/api/auth/twitter/callback';
+  TWITTER_REDIRECT = 'http://localhost:3000/oauth/twitter';
 }
 
 if (process.env.NEM_NETWORK === 'testnet') {
@@ -60,5 +64,7 @@ module.exports = {
   RABBIT_HOST,
   SPOTIFY_CALLBACK,
   SPOTIFY_REDIRECT,
-  TEMP_PATH
+  TEMP_PATH,
+  TWITTER_CALLBACK,
+  TWITTER_REDIRECT
 };

@@ -12,10 +12,12 @@ module.exports = {
   nemp3Secret: process.env.NEMP3_SECRET,
   rabbitUser: process.env.RABBITMQ_DEFAULT_USER,
   rabbitPass: process.env.RABBITMQ_DEFAULT_PASS,
+  recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY,
   smtpHostName: process.env.NEMP3_SMTP_HOST,
   smtpPassword: process.env.NEMP3_SMTP_PASSWORD,
   smtpUsername: process.env.NEMP3_SMTP_USER,
   spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
   spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY
+  twitterConsumerKey: process.env.TWITTER_CONSUMER_KEY,
+  twitterConsumerSecret: process.env.TWITTER_CONSUMER_SECRET
 };

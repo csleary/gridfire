@@ -114,7 +114,11 @@ let NemAddress = props => {
             <p>
               <span className={creditClassName}>
                 <FontAwesome name="certificate" className="mr-1" />
-                {credits ? `Address credits balance: ${credits}` : 'You don\u2019t currently have any credits.'}
+                {nemAddressVerified && credits
+                  ? `Address credits balance: ${credits}`
+                  : nemAddressVerified
+                  ? 'You don\u2019t currently have any credits.'
+                  : 'Please add a verified NEM address to update your credits balance.'}
               </span>
               <Button
                 className={styles.update}

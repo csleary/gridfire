@@ -91,6 +91,10 @@ const Login = props => {
             <a href="api/auth/spotify/">Log in with Spotify</a>
           </div>
           <div className={styles.service}>
+            <FontAwesome className={styles.icon} name="twitter" />
+            <a href="api/auth/twitter/">Log in with Twitter</a>
+          </div>
+          <div className={styles.service}>
             <FontAwesome className={styles.icon} name="google" />
             <a href="api/auth/google/">Log in with Google</a>
           </div>

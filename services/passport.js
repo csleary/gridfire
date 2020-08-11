@@ -6,8 +6,9 @@ const request = require('request');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const SpotifyStrategy = require('passport-spotify').Strategy;
+const TwitterStrategy = require('passport-twitter').Strategy;
 const User = mongoose.model('users');
-const { GOOGLE_CALLBACK, SPOTIFY_CALLBACK } = require('../config/constants');
+const { GOOGLE_CALLBACK, SPOTIFY_CALLBACK, TWITTER_CALLBACK } = require('../config/constants');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -107,7 +108,7 @@ const localUpdate = async (req, email, password, done) => {
 
 const loginGoogle = async (accessToken, refreshToken, profile, done) => {
   try {
-    const existingUser = await User.findOne({ 'auth.oauthId': profile.id }).exec();
+    const existingUser = await User.findOne({ 'auth.oauthService': 'google', 'auth.oauthId': profile.id }).exec();
     const email = profile.emails[0].value;
 
     if (existingUser) {
@@ -139,7 +140,7 @@ const loginSpotify = async (accessToken, refreshToken, expires_in, profile, done
     const email = profile.emails[0].value;
 
     if (existingUser) {
-      existingUser.updateOne({ 'auth.lastLogin': Date.now() }).exec();
+      existingUser.updateOne({ 'auth.oauthService': 'spotify', 'auth.lastLogin': Date.now() }).exec();
       return done(null, existingUser);
     }
 
@@ -181,3 +182,43 @@ const spotifyConfig = {
 };
 
 passport.use(new SpotifyStrategy(spotifyConfig, loginSpotify));
+
+const loginTwitter = async (token, tokenSecret, profile, done) => {
+  try {
+    const existingUser = await User.findOne({ 'auth.oauthService': 'twitter', 'auth.oauthId': profile.id }).exec();
+    const email = profile.emails[0].value;
+
+    if (existingUser) {
+      existingUser.updateOne({ 'auth.lastLogin': Date.now() }).exec();
+      return done(null, existingUser);
+    }
+
+    const user = await User.create({
+      auth: {
+        oauthService: 'twitter',
+        oauthId: profile.id,
+        email,
+        idHash: idHash(email),
+        isLocal: false,
+        dateCreated: Date.now(),
+        lastLogin: Date.now()
+      }
+    });
+
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+};
+
+passport.use(
+  new TwitterStrategy(
+    {
+      consumerKey: keys.twitterConsumerKey,
+      consumerSecret: keys.twitterConsumerSecret,
+      includeEmail: true,
+      callbackURL: TWITTER_CALLBACK
+    },
+    loginTwitter
+  )
+);
