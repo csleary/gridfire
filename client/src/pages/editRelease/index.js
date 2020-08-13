@@ -165,7 +165,7 @@ class EditRelease extends Component {
                     formText="This won't affect the visibility of your release."
                     label="Release Date"
                     name="releaseDate"
-                    format={date => date?.split('T')[0]}
+                    format={date => date?.split('T')[0] ?? ''}
                     required
                     type="date"
                   />

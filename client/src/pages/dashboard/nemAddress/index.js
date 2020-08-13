@@ -88,11 +88,13 @@ let NemAddress = props => {
             <Field
               disabled={submitting}
               format={address =>
-                address
-                  ?.toUpperCase()
-                  .replace(/-/g, '')
-                  .match(/.{1,6}/g)
-                  ?.join('-')
+                address?.length
+                  ? address
+                      ?.toUpperCase()
+                      .replace(/-/g, '')
+                      .match(/.{1,6}/g)
+                      ?.join('-')
+                  : ''
               }
               id="nemAddress"
               hint="It doesn&rsquo;t matter whether you include dashes or not."

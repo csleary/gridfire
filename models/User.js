@@ -16,7 +16,7 @@ const UserSchema = new Schema(
       dateCreated: Date,
       lastLogin: Date
     },
-    nemAddress: String,
+    nemAddress: { type: String, default: '' },
     nemAddressVerified: { type: Boolean, default: false },
     credits: { type: Number, default: 0 },
     purchases: [
