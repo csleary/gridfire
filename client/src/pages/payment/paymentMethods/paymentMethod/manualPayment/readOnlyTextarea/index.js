@@ -3,27 +3,18 @@ import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import styles from './readOnlyTextarea.module.css';
 
-const ReadOnlyTextarea = props => {
-  const copyText = useRef(null);
+const ReadOnlyTextarea = ({ placeholder = '', text }) => {
+  const copyText = useRef();
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => {
-        setHasCopied(false);
-      },
-      3000,
-      [hasCopied]
-    );
-
+    let timer;
+    if (hasCopied) timer = setTimeout(setHasCopied, 3000, false);
     return () => clearTimeout(timer);
   }, [hasCopied]);
 
   const handleClick = () => {
-    if (hasCopied) {
-      return setHasCopied(false);
-    }
-
+    if (hasCopied) return setHasCopied(false);
     const range = document.createRange();
     range.selectNode(copyText.current);
     window.getSelection().removeAllRanges();
@@ -35,16 +26,21 @@ const ReadOnlyTextarea = props => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.copyText} onClick={handleClick} onKeyDown={handleClick} ref={copyText}>
+      <div
+        className={styles.copyText}
+        onClick={handleClick}
+        onKeyDown={handleClick}
+        ref={ref => (copyText.current = ref)}
+      >
         {hasCopied ? (
           <div className={styles.success}>
             <FontAwesome className={styles.iconSuccess} name="thumbs-up" />
             Copied to clipboard!
           </div>
-        ) : props.text ? (
-          props.text
+        ) : text ? (
+          text
         ) : (
-          props.placeholder
+          placeholder
         )}
       </div>
       <FontAwesome className={styles.icon} name="copy" />

@@ -5,50 +5,36 @@ const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
 const { hexMessage } = nem.utils.format;
 
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
-  try {
-    const nodes = nodesList.map(node => axios(`${node}${endpoint}`));
-
-    return Promise.race(nodes).catch(error => {
-      const offlineHost = error.hostname;
-
-      return queryNodes(
-        endpoint,
-        nodesList.filter(node => node !== `http://${offlineHost}:7890`)
-      );
-    });
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const randomNode = nodesList[Math.floor(Math.random() * nodesList.length)];
+  const res = await axios(`${randomNode}${endpoint}`);
+  if (res.data.endpoint) return res.data;
+  else throw randomNode;
 };
 
-const findNode = async (attempt = 0) => {
-  try {
-    const getActiveNodes = await queryNodes('/node/peer-list/active');
-    const activeNodes = getActiveNodes.data;
+const findNode = async () => {
+  let requestTimeout;
 
-    const nodeHosts = activeNodes.data.map(
-      ({ endpoint }) => `${endpoint.protocol}://${endpoint.host}:${endpoint.port}`
-    );
+  const fetchNodeInfo = async (attempt = 0) => {
+    if (requestTimeout) clearTimeout(requestTimeout);
 
-    let node;
-    let requestTimeout;
     if (attempt < 10) {
-      requestTimeout = setTimeout(findNode, 500 + 100 * Math.pow(2, attempt), attempt + 1);
-      const getFirstNode = await queryNodes('/node/info', nodeHosts);
-      node = getFirstNode.data;
+      return queryNodes('/node/info').catch(() => {
+        requestTimeout = setTimeout(fetchNodeInfo, 500 + 100 * Math.pow(2, attempt), attempt + 1);
+      });
     } else {
-      const getFirstNode = await queryNodes('/node/info', defaultNodes);
-      node = getFirstNode.data;
+      throw new Error(`Received no response after ${attempt} attempts.`);
     }
+  };
 
-    clearTimeout(requestTimeout);
+  try {
+    const node = await fetchNodeInfo();
     const { protocol, host, port } = node.endpoint;
     const { name } = node.identity;
     const endpoint = { host: `${protocol}://${host}`, port };
     return { endpoint, host, name, port, protocol };
-  } catch (error) {
-    console.error(error);
-    throw new Error(`Could not find a responsive NEM node: ${error.message || error}`);
+  } catch ({ message }) {
+    console.error(message);
+    throw new Error('Could not find a NEM node.');
   }
 };
 
