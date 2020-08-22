@@ -6,28 +6,21 @@ const { hexMessage } = nem.utils.format;
 
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   const randomNode = nodesList[Math.floor(Math.random() * nodesList.length)];
-  const res = await axios(`${randomNode}${endpoint}`);
-  if (res.data.endpoint) return res.data;
-  else throw randomNode;
+  console.log(`Trying node [${randomNode}]…`);
+  const res = await axios(`${randomNode}${endpoint}`).catch(() => false);
+  return res.data;
 };
 
-const findNode = async () => {
-  let requestTimeout;
-
-  const fetchNodeInfo = async (attempt = 0) => {
-    if (requestTimeout) clearTimeout(requestTimeout);
-
-    if (attempt < 10) {
-      return queryNodes('/node/info').catch(() => {
-        requestTimeout = setTimeout(fetchNodeInfo, 500 + 100 * Math.pow(2, attempt), attempt + 1);
-      });
-    } else {
-      throw new Error(`Received no response after ${attempt} attempts.`);
-    }
-  };
-
+const findNode = async (attempt = 0) => {
   try {
-    const node = await fetchNodeInfo();
+    const node = await queryNodes('/node/info');
+
+    if (!node && attempt < 10) {
+      return findNode(attempt + 1);
+    } else if (!node) {
+      throw new Error(`Tried ${attempt} times to find a node without success.`);
+    }
+
     const { protocol, host, port } = node.endpoint;
     const { name } = node.identity;
     const endpoint = { host: `${protocol}://${host}`, port };
