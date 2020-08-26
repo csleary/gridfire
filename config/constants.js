@@ -13,26 +13,19 @@ let BUCKET_OPT = 'nemp3-opt';
 let BUCKET_SRC = 'nemp3-src';
 let GOOGLE_CALLBACK = 'https://nemp3.app/api/auth/google/callback';
 let GOOGLE_REDIRECT = 'https://nemp3.app/oauth/google';
+let PAYMENT_ADDRESS = 'NC7KCR-GLODPZ-M6F6E6-4W4AAB-KLLONP-2XY7FN-EMP3';
 let SPOTIFY_CALLBACK = 'https://nemp3.app/api/auth/spotify/callback';
 let SPOTIFY_REDIRECT = 'https://nemp3.app/oauth/spotify';
 let TWITTER_CALLBACK = 'https://nemp3.app/api/auth/twitter/callback';
 let TWITTER_REDIRECT = 'https://nemp3.app/oauth/twitter';
 let NEM_NETWORK_ID = nem.model.network.data.mainnet.id;
-let NEM_NODES = [
-  '176.9.68.110',
-  '176.9.20.180',
-  '199.217.118.114',
-  '108.61.182.27',
-  '108.61.168.86',
-  '104.238.161.61',
-  '148.251.0.114',
-  '209.126.98.204'
-];
+let NEM_NODES = ['176.9.68.110', '176.9.20.180', '199.217.118.114', '108.61.182.27', '108.61.168.86', '104.238.161.61'];
 let RABBIT_HOST = 'rabbit';
 
 if (process.env.NODE_ENV === 'development') {
   GOOGLE_CALLBACK = '/api/auth/google/callback';
   GOOGLE_REDIRECT = 'http://localhost:3000/oauth/google';
+  PAYMENT_ADDRESS = 'TD74GO-NFLRQV-X5Z75T-TRQRD2-2A65K4-4E6VUH-7QSZ';
   RABBIT_HOST = 'localhost';
   SPOTIFY_CALLBACK = '/api/auth/spotify/callback';
   SPOTIFY_REDIRECT = 'http://localhost:3000/oauth/spotify';
@@ -59,6 +52,7 @@ module.exports = {
   GOOGLE_REDIRECT,
   NEM_NODES,
   NEM_NETWORK_ID,
+  PAYMENT_ADDRESS,
   QUEUE_ARTWORK,
   QUEUE_TRANSCODE,
   RABBIT_HOST,

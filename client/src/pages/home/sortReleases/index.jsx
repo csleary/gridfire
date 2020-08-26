@@ -7,33 +7,33 @@ import styles from './sortReleases.module.css';
 import { useOnClickOutside } from 'hooks/useOnClickOutside';
 
 const sortOptions = [
-  { title: 'Date Added', sortPath: 'dateCreated', '1': 'Old', '-1': 'New' },
+  { title: 'Date Added', sortPath: 'dateCreated', 1: 'Old', '-1': 'New' },
   {
     title: 'Release Date',
     sortPath: 'releaseDate',
-    '1': 'Old',
+    1: 'Old',
     '-1': 'New'
   },
   {
     title: 'Artist Name',
     sortPath: 'artistName',
-    '1': 'A\u2013Z',
+    1: 'A\u2013Z',
     '-1': 'Z\u2013A'
   },
   {
     title: 'Release Title',
     sortPath: 'releaseTitle',
-    '1': 'A\u2013Z',
+    1: 'A\u2013Z',
     '-1': 'Z\u2013A'
   },
-  { title: 'Price', sortPath: 'price', '-1': 'Desc.', '1': 'Asc.' }
+  { title: 'Price', sortPath: 'price', '-1': 'Desc.', 1: 'Asc.' }
 ];
 
 const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, setSortOrder }) => {
   const sortRef = useRef();
   const [showSortMenu, setShowSortMenu] = useState(false);
 
-  const transitions = useTransition(showSortMenu, null, {
+  const transition = useTransition(showSortMenu, {
     config: { mass: 1, tension: 250, friction: 10, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
     from: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' },
     enter: { opacity: 1, transform: 'scale(1) translateY(0)' },
@@ -81,10 +81,10 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
         </Button>
         {isSorting ? <FontAwesome name="cog" spin /> : null}
       </div>
-      {transitions.map(
-        ({ item, props: animations, key }) =>
+      {transition(
+        (style, item) =>
           item && (
-            <animated.ul className={styles.sortList} key={key} style={animations}>
+            <animated.ul className={styles.sortList} style={style}>
               {sortOptions.map(option => (
                 <li className={styles.sortItem} key={option.title} onClick={() => handleSortPath(option.sortPath)}>
                   {option.title}

@@ -29,10 +29,8 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
           url,
           data,
           cancelToken: call.current.token,
-          onUploadProgress: e =>
-            setUploadProgress(percentComplete(e.loaded / e.total)),
-          onDownloadProgress: e =>
-            setDownloadProgress(percentComplete(e.loaded / e.total))
+          onUploadProgress: e => setUploadProgress(percentComplete(e.loaded / e.total)),
+          onDownloadProgress: e => setDownloadProgress(percentComplete(e.loaded / e.total))
         });
 
         setResData(res.data);
@@ -53,9 +51,10 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
   );
 
   useEffect(() => {
+    if (!initialUrl) return;
     fetch();
     return () => call.current.cancel();
-  }, [fetch]);
+  }, [fetch, initialUrl]);
 
   return {
     fetch,

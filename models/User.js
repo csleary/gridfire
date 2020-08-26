@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const UserSchema = new Schema(
+const userSchema = new Schema(
   {
     auth: {
       email: { type: String, trim: true },
@@ -41,12 +41,10 @@ const UserSchema = new Schema(
     ],
     artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
   },
-  {
-    usePushEach: true
-  }
+  { usePushEach: true }
 );
 
-UserSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
   try {
     if (!this.isModified('auth.password')) return next();
 
@@ -62,8 +60,10 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-UserSchema.methods.comparePassword = function (candidatePassword) {
+userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.auth.password);
 };
 
-mongoose.model('users', UserSchema);
+userSchema.set('toJSON', { versionKey: false });
+
+mongoose.model('users', userSchema);

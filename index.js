@@ -13,6 +13,7 @@ require('./models/Artist');
 require('./models/User');
 require('./models/Release');
 require('./models/Sale');
+require('./models/Payment');
 require('./services/passport');
 
 mongoose.connect(keys.mongoURI, {

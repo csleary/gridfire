@@ -1,9 +1,13 @@
 const { checkSignedMessage, fetchTransactions, fetchMosaics } = require('../controllers/nemController');
+const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
+const crypto = require('crypto');
 const requireLogin = require('../middlewares/requireLogin');
 const mongoose = require('mongoose');
+const Payment = mongoose.model('payments');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
+const { PAYMENT_ADDRESS } = require('../config/constants');
 
 module.exports = app => {
   app.post('/api/user/transactions', requireLogin, async (req, res) => {
@@ -111,5 +115,50 @@ module.exports = app => {
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
+  });
+
+  app.get('/api/user/credits/buy', requireLogin, async (req, res) => {
+    try {
+      delete req.session.usdPriceInRawXem;
+      const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
+      if (!xemPriceUsd) throw new Error('Price information unavailable.');
+      const usdXem = 1 / xemPriceUsd;
+      const usdRawXem = Math.round(usdXem * 10 ** 6);
+      req.session.usdRawXem = usdRawXem;
+      res.send({ usdRawXem });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  });
+
+  app.post('/api/user/credits/buy', requireLogin, async (req, res) => {
+    const { creditsId } = req.body;
+    const { usdRawXem } = req.session;
+    const user = await User.findById(req.user._id, 'auth.idHash').exec();
+    if (!user) return res.end();
+
+    const {
+      _id: userId,
+      auth: { idHash }
+    } = user;
+
+    const nonce = crypto.randomBytes(16).toString('hex');
+
+    const prices = {
+      '01NPC': (15 * usdRawXem) / 10 ** 6,
+      '05NPC': Math.round(70 * usdRawXem * 0.95) / 10 ** 6,
+      '10NPC': Math.round(135 * usdRawXem * 0.9) / 10 ** 6
+    };
+
+    await Payment.create({
+      dateCreated: Date.now(),
+      nonce,
+      price: prices[creditsId],
+      idHash,
+      user: userId
+    });
+
+    const paymentId = nonce.concat(idHash);
+    res.send({ PAYMENT_ADDRESS, paymentId, price: String(prices[creditsId]) });
   });
 };

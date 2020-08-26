@@ -3,14 +3,14 @@ import { animated, useTransition } from 'react-spring';
 import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
-import ReadOnlyTextarea from './readOnlyTextarea';
+import ReadOnlyTextArea from 'components/readOnlyTextArea';
 import styles from './manualPayment.module.css';
 
 const ManualPayment = props => {
   const { paymentAddress, paymentHash, priceInXem } = props;
   const [step, setStep] = useState(0);
 
-  const transitions = useTransition(step, null, {
+  const transition = useTransition(step, {
     config: { mass: 1, tension: 250, friction: 30, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
     from: { opacity: 0, transform: 'scale(0.9) translateX(100%)' },
     enter: { opacity: 1, transform: 'scale(1) translateX(0)' },
@@ -27,9 +27,9 @@ const ManualPayment = props => {
 
   return (
     <>
-      {transitions.map(({ item, key, props: style }) =>
+      {transition((style, item) =>
         item % 3 === 0 ? (
-          <animated.div className={styles.step} key={key} style={style}>
+          <animated.div className={styles.step} style={style}>
             <h4 className={styles.heading}>
               <span className="yellow">1.</span> Payment ID
             </h4>
@@ -37,27 +37,27 @@ const ManualPayment = props => {
               Please remember to include the payment ID below in the &lsquo;message&rsquo; field when making your
               payment, as it&rsquo;s your unique, personalised purchase ID, used to confirm your purchase.
             </p>
-            <ReadOnlyTextarea text={paymentHash} placeholder="Please log in to see your payment ID" />
+            <ReadOnlyTextArea text={paymentHash} placeholder="Please log in to see your payment ID" />
             <p className={styles.note} role="alert">
               <FontAwesome name="exclamation-circle" className="mr-2" />
               Your payment ID is essential to your purchase. Please don&rsquo;t forget to include this.
             </p>
           </animated.div>
         ) : item % 3 === 1 ? (
-          <animated.div className={styles.step} key={key} style={style}>
+          <animated.div className={styles.step} style={style}>
             <h4 className={styles.heading}>
               <span className="yellow">2.</span> Address
             </h4>
             <p>Add the artist&rsquo;s payment address below:</p>
-            <ReadOnlyTextarea text={paymentAddress} placeholder="Payment Address" />
+            <ReadOnlyTextArea text={paymentAddress} placeholder="Payment Address" />
           </animated.div>
         ) : item % 3 === 2 ? (
-          <animated.div className={styles.step} key={key} style={style}>
+          <animated.div className={styles.step} style={style}>
             <h4 className={styles.heading}>
               <span className="yellow">3.</span> Amount
             </h4>
             <p>Fill in the payment amount {copyPrice} and hit send.</p>
-            <ReadOnlyTextarea
+            <ReadOnlyTextArea
               text={parseFloat(priceInXem) ? priceInXem : 'Name your price!'}
               placeholder="Payment Amount"
             />

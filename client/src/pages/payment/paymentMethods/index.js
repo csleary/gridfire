@@ -8,22 +8,16 @@ import styles from './paymentMethods.module.css';
 const PaymentMethods = ({ paymentAddress, paymentHash, priceInXem }) => {
   const [showManualPayment, setshowManualPayment] = useState(false);
   const handleshowManualPayment = () => setshowManualPayment(!showManualPayment);
-
-  const paymentButtonQR = classNames(styles.select, {
-    [styles.selected]: !showManualPayment
-  });
-
-  const paymentButtonManual = classNames(styles.select, {
-    [styles.selected]: showManualPayment
-  });
+  const qrButton = classNames(styles.select, { [styles.selected]: !showManualPayment });
+  const manualButton = classNames(styles.select, { [styles.selected]: showManualPayment });
 
   return (
     <>
       <div className={styles.buttons} role="group" aria-label="Payment Method">
-        <Button type="button" className={paymentButtonQR} onClick={handleshowManualPayment}>
+        <Button type="button" className={qrButton} onClick={handleshowManualPayment}>
           QR Scan
         </Button>
-        <Button type="button" className={paymentButtonManual} onClick={handleshowManualPayment}>
+        <Button type="button" className={manualButton} onClick={handleshowManualPayment}>
           Manual
         </Button>
       </div>

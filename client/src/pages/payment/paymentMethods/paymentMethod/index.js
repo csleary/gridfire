@@ -2,25 +2,25 @@ import { animated, useTransition } from 'react-spring';
 import FontAwesome from 'react-fontawesome';
 import ManualPayment from './manualPayment';
 import PropTypes from 'prop-types';
-import QRCode from './qrCode';
+import QRCode from 'components/qrCode';
 import React from 'react';
 import styles from './paymentMethod.module.css';
 
 const PaymentMethod = ({ paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
-  const transitions = useTransition(showManualPayment, null, {
+  const transition = useTransition(showManualPayment, {
     config: { mass: 1, tension: 250, friction: 30, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
     from: { opacity: 0, transform: 'scale(0.98)' },
     enter: { opacity: 1, transform: 'scale(1)' },
     leave: { opacity: 0, transform: 'scale(0.98)' }
   });
 
-  return transitions.map(({ item, key, props }) =>
+  return transition((style, item) =>
     item ? (
-      <animated.div className={styles.wrapper} key={key} style={props}>
+      <animated.div className={styles.wrapper} style={style}>
         <ManualPayment paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />
       </animated.div>
     ) : (
-      <animated.div className={styles.wrapper} key={key} style={props}>
+      <animated.div className={styles.wrapper} style={style}>
         <div className={styles.qrcode}>
           <QRCode paymentAddress={paymentAddress.replace(/-/g, '')} price={priceInXem} idHash={paymentHash} />
         </div>

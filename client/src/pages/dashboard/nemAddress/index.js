@@ -4,8 +4,10 @@ import { addNemAddress, fetchUserCredits } from 'features/user';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
+import Modal from 'components/modal';
 import NemAddressFormField from './nemAddressFormField';
 import PropTypes from 'prop-types';
+import PurchaseCredits from './purchaseCredits';
 import classnames from 'classnames';
 import { fetchUserReleases } from 'features/releases';
 import nem from 'nem-sdk';
@@ -14,6 +16,7 @@ const addressPrefix = process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? 'an \u20
 
 let NemAddress = props => {
   const [isCheckingCredits, setIsCheckingCredits] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const dispatch = useDispatch();
   const { credits, nemAddress, nemAddressVerified } = useSelector(state => state.user, shallowEqual);
   const { userReleases } = useSelector(state => state.releases, shallowEqual);
@@ -73,6 +76,10 @@ let NemAddress = props => {
 
   const publishedReleaseCount = userReleases?.filter(release => release.published === true).length ?? 0;
   const creditClassName = classnames({ red: !credits, green: credits });
+  const releaseCountClassName = classnames('mb-3', {
+    red: credits < publishedReleaseCount,
+    green: credits >= publishedReleaseCount
+  });
 
   return (
     <main className="container">
@@ -113,9 +120,9 @@ let NemAddress = props => {
                 {renderButtonLabel()}
               </Button>
             </div>
-            <p>
+            <div className="mb-1">
               <span className={creditClassName}>
-                <FontAwesome name="certificate" className="mr-1" />
+                <FontAwesome name="certificate" className="mr-2" />
                 {nemAddressVerified && credits
                   ? `Address credits balance: ${credits}`
                   : nemAddressVerified
@@ -134,16 +141,30 @@ let NemAddress = props => {
               >
                 Update
               </Button>
-            </p>
+            </div>
+            <div className={releaseCountClassName}>
+              <FontAwesome name="music" className="mr-2" />
+              {`Published releases: ${publishedReleaseCount}`}
+            </div>
             <p>
               As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release
               {publishedReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
               {publishedReleaseCount + 1} to be able to publish a new release or activate future powerups.
             </p>
             <p>
-              Need some credit? You&rsquo;ll be able to buy credit with XEM in the future, but for now{' '}
-              <a href="/contact">get in touch</a> and we&rsquo;ll send you a token for free.
+              Need some credits? You&rsquo;ll be able to buy credits with XEM in the future, but for now{' '}
+              <a href="/contact">get in touch</a> and we&rsquo;ll send you one for free.
             </p>
+            <div className={styles.buy}>
+              <Button
+                className={styles.buyButton}
+                icon="certificate"
+                onClick={() => setShowPaymentModal(true)}
+                type="button"
+              >
+                Buy Credits
+              </Button>
+            </div>
           </form>
           <h4>Getting Your First NEM Address</h4>
           <p>
@@ -169,6 +190,9 @@ let NemAddress = props => {
           </p>
         </div>
       </div>
+      <Modal closeModal={() => setShowPaymentModal(false)} isOpen={showPaymentModal}>
+        <PurchaseCredits />
+      </Modal>
     </main>
   );
 };

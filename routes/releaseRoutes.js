@@ -195,7 +195,7 @@ module.exports = app => {
       }
 
       const hash = crypto.createHash('sha256');
-      const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 31);
+      const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 32);
       const paymentInfo = { paymentAddress: nem.utils.format.address(owner.nemAddress), paymentHash };
       res.send({ release, paymentInfo, price });
     } catch (error) {

@@ -16,6 +16,10 @@
   transition: all 250ms cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.button:last-child {
+  margin-bottom: 0;
+}
+
 .button:hover:not(:disabled) {
   background: var(--cyan);
   color: #000;

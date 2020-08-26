@@ -21,7 +21,7 @@ passport.deserializeUser(async (id, done) => {
 
 const idHash = emailAddress => {
   const hash = crypto.createHash('sha256');
-  return hash.update(emailAddress).update(keys.nemp3Secret).update(Date.now().toFixed()).digest('hex').substring(0, 31);
+  return hash.update(emailAddress).update(keys.nemp3Secret).digest('hex').substring(0, 32);
 };
 
 const localLogin = async (email, password, done) => {
