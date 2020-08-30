@@ -35,9 +35,11 @@ const Button = ({
     [styles.small]: size === 'small'
   });
 
-  const iconClassNames = classnames(styles.icon, {
+  const iconClassNames = classnames({
     [iconClassName]: iconClassName,
-    [styles.spin]: spin
+    [styles.spin]: spin,
+    [styles.icon]: Boolean(icon) && !iconRight,
+    [styles.iconRight]: iconRight
   });
 
   const chevronClassNames = classnames(styles.chevron, {

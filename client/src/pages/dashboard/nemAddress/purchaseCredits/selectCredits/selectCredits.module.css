@@ -1,0 +1,50 @@
+.buttons {
+  display: flex;
+  justify-content: space-around;
+  margin: 3rem 0;
+}
+
+.button {
+  margin: 0 0.5rem 0 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+.button:last-child {
+  margin: 0;
+}
+
+.button.selected {
+  background: var(--cyan);
+  color: #000;
+}
+
+.price {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.confirm {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.unit {
+  background: var(--yellow);
+  border: 3px solid var(--charcoal);
+  border-radius: 5rem;
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0 0.5rem;
+  position: absolute;
+  bottom: -1.125rem;
+  right: 1rem;
+  text-transform: uppercase;
+  transition: all 250ms cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.spinner {
+  padding-bottom: 3rem;
+}

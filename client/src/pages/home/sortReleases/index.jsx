@@ -34,7 +34,7 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
   const [showSortMenu, setShowSortMenu] = useState(false);
 
   const transition = useTransition(showSortMenu, {
-    config: { mass: 1, tension: 250, friction: 10, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    config: { mass: 1, tension: 250, friction: 10, clamp: true },
     from: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' },
     enter: { opacity: 1, transform: 'scale(1) translateY(0)' },
     leave: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' }

@@ -30,7 +30,7 @@ const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
       <div className={styles.refresh}>
         <div className={styles.button}>
           <FontAwesome name="circle" className={iconClassNames} />
-          {isFetching ? 'Scanning…' : 'Scan'}
+          Scan
         </div>
         <div className={styles.node} title="Last used NIS Node">
           <FontAwesome name="server" className={styles.icon} /> {formattedNodeName}

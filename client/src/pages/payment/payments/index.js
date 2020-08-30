@@ -29,7 +29,7 @@ const Payments = props => {
   );
 
   const transition = useTransition(isLoading, {
-    config: { mass: 1, tension: 250, friction: 30, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    config: { mass: 1, tension: 250, friction: 30, clamp: true },
     from: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' },
     enter: { opacity: 1, transform: 'translateY(0) scale(1.0)' },
     leave: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' }

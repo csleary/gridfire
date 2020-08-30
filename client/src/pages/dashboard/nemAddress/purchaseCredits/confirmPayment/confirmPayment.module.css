@@ -1,0 +1,60 @@
+.confirm {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.loading {
+  margin-bottom: 2rem;
+}
+
+.heading {
+  margin-bottom: 1rem;
+}
+
+.thanks {
+  margin: 2rem 0 4rem;
+  text-align: center;
+}
+
+*:last-child {
+  margin-bottom: 0;
+}
+
+.check {
+  align-items: center;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.error {
+  composes: check;
+  color: var(--red);
+  font-weight: bold;
+}
+
+.errorHeading {
+  font-weight: 700;
+}
+
+.icon {
+  margin-right: 0.25rem;
+  transition: opacity 2s;
+}
+
+.active {
+  animation: blink 250ms cubic-bezier(0, 0.15, 0.85, 1) infinite;
+}
+
+@keyframes blink {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

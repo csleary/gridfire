@@ -30,7 +30,7 @@ app.use(
   cookieSession({
     name: 'nemp3 session',
     keys: [keys.cookieKey],
-    maxAge: 28 * 24 * 60 * 60 * 1000
+    maxAge: 1 * 24 * 60 * 60 * 1000
   })
 );
 

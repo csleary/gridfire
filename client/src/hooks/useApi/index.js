@@ -1,29 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
+const percentComplete = (loaded, total) => Math.floor((loaded / total) * 100);
+
 const useApi = (initialUrl, initialMethod = 'get', initialData) => {
   const [isLoading, setLoading] = useState(true);
   const [isFetching, setFetching] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState('');
   const [resData, setResData] = useState();
   const [isCancelled, setCancelled] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
   const call = useRef();
-  call.current = axios.CancelToken.source();
-
-  const percentComplete = (loaded, total) => {
-    return Math.floor((loaded / total) * 100);
-  };
+  const isMounted = useRef(true);
 
   const fetch = useCallback(
     async (url = initialUrl, method = initialMethod, data = initialData) => {
-      setFetching(true);
-      if (!url) {
-        setLoading(true);
-      }
+      if (!url) return;
+      if (call.current) call.current.cancel();
 
       try {
+        call.current = axios.CancelToken.source();
+        setFetching(true);
+
         const res = await axios({
           method,
           url,
@@ -34,10 +33,10 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
         });
 
         setResData(res.data);
-        setError(undefined);
+        setError('');
       } catch (e) {
         if (axios.isCancel(e)) {
-          setCancelled(true);
+          if (isMounted.current) setCancelled(true);
         } else {
           setCancelled(false);
           setError(e.response.data.error);
@@ -45,20 +44,24 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
       } finally {
         setFetching(false);
         setLoading(false);
+        call.current = null;
       }
     },
     [initialUrl, initialMethod, initialData]
   );
 
   useEffect(() => {
-    if (!initialUrl) return;
     fetch();
-    return () => call.current.cancel();
-  }, [fetch, initialUrl]);
+
+    return () => {
+      if (call.current) call.current.cancel();
+      isMounted.current = false;
+    };
+  }, [fetch]);
 
   return {
     fetch,
-    cancel: call.current.cancel,
+    cancel: call.current?.cancel,
     data: resData,
     error,
     isCancelled,

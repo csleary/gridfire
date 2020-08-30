@@ -19,6 +19,14 @@ const userSchema = new Schema(
     nemAddress: { type: String, default: '' },
     nemAddressVerified: { type: Boolean, default: false },
     credits: { type: Number, default: 0 },
+    creditPurchases: [
+      {
+        purchaseDate: Date,
+        sku: String,
+        paymentId: String,
+        transactions: Array
+      }
+    ],
     purchases: [
       {
         releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },

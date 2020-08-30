@@ -1,5 +1,10 @@
-const { checkSignedMessage, fetchTransactions, fetchMosaics } = require('../controllers/nemController');
-const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
+const {
+  checkSignedMessage,
+  fetchTransactions,
+  fetchMosaics,
+  fetchXemPrice,
+  fetchXemPriceBinance
+} = require('../controllers/nemController');
 const crypto = require('crypto');
 const requireLogin = require('../middlewares/requireLogin');
 const mongoose = require('mongoose');
@@ -7,7 +12,7 @@ const Payment = mongoose.model('payments');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
-const { PAYMENT_ADDRESS } = require('../config/constants');
+const { PAYMENT_ADDRESS, PRODUCTS } = require('../config/constants');
 
 module.exports = app => {
   app.post('/api/user/transactions', requireLogin, async (req, res) => {
@@ -119,23 +124,30 @@ module.exports = app => {
 
   app.get('/api/user/credits/buy', requireLogin, async (req, res) => {
     try {
-      delete req.session.usdPriceInRawXem;
+      delete req.session.productData;
       const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
       if (!xemPriceUsd) throw new Error('Price information unavailable.');
-      const usdXem = 1 / xemPriceUsd;
-      const usdRawXem = Math.round(usdXem * 10 ** 6);
-      req.session.usdRawXem = usdRawXem;
-      res.send({ usdRawXem });
+      const usdInXem = 1 / xemPriceUsd;
+
+      const productData = PRODUCTS.map(product => {
+        product.priceUsd = (product.quantity * product.unitPrice).toString();
+        product.priceXem = Number.parseFloat((product.quantity * product.unitPrice * usdInXem).toFixed(6));
+        product.priceRawXem = Number.parseInt((product.quantity * product.unitPrice * usdInXem * 10 ** 6).toFixed());
+        return product;
+      });
+
+      req.session.productData = productData;
+      res.send(productData);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
   });
 
   app.post('/api/user/credits/buy', requireLogin, async (req, res) => {
-    const { creditsId } = req.body;
-    const { usdRawXem } = req.session;
+    const { sku } = req.body;
+    const { productData } = req.session;
     const user = await User.findById(req.user._id, 'auth.idHash').exec();
-    if (!user) return res.end();
+    if (!user) return res.status(401).end();
 
     const {
       _id: userId,
@@ -143,22 +155,69 @@ module.exports = app => {
     } = user;
 
     const nonce = crypto.randomBytes(16).toString('hex');
-
-    const prices = {
-      '01NPC': (15 * usdRawXem) / 10 ** 6,
-      '05NPC': Math.round(70 * usdRawXem * 0.95) / 10 ** 6,
-      '10NPC': Math.round(135 * usdRawXem * 0.9) / 10 ** 6
-    };
+    const hash = crypto.createHash('sha256');
+    const paymentId = hash.update(nonce).update(idHash).digest('hex').substring(0, 32);
+    const { priceXem, priceRawXem } = productData.find(product => product.sku === sku);
 
     await Payment.create({
       dateCreated: Date.now(),
       nonce,
-      price: prices[creditsId],
-      idHash,
+      priceRawXem,
+      paymentId,
+      sku,
       user: userId
     });
 
-    const paymentId = nonce.concat(idHash);
-    res.send({ PAYMENT_ADDRESS, paymentId, price: String(prices[creditsId]) });
+    req.session.nonce = nonce;
+    req.session.paymentId = paymentId;
+    req.session.priceRawXem = priceRawXem;
+    res.send({ nonce, PAYMENT_ADDRESS, paymentId, priceXem });
+  });
+
+  app.post('/api/user/credits/confirm', requireLogin, async (req, res) => {
+    try {
+      const { nonce, paymentId } = req.session;
+      const userId = req.user._id;
+      const user = await User.findById(userId, 'auth.idHash').exec();
+      const { idHash } = user.auth;
+      const { clientId, cnonce } = req.body;
+      const hash = crypto.createHash('sha256');
+      const hashed = hash.update(cnonce).update(idHash).update(nonce).update(paymentId).digest('hex');
+
+      if (hashed !== clientId) {
+        return res.status(401).json({ error: 'Not authorised.' });
+      }
+
+      const paymentInfo = await Payment.findOne({ nonce, paymentId }, 'priceRawXem sku', { lean: true }).exec();
+      if (!paymentInfo) return res.status(401).json({ error: 'Payment session expired. Please begin a new session.' });
+      const { priceRawXem, sku } = paymentInfo;
+      const { transactions, amountPaid } = await fetchTransactions(PAYMENT_ADDRESS, paymentId);
+
+      let hasPaid = false;
+      if (amountPaid >= priceRawXem) {
+        hasPaid = true;
+
+        await User.findByIdAndUpdate(
+          userId,
+          {
+            $push: {
+              creditPurchases: {
+                purchaseDate: Date.now(),
+                sku,
+                paymentId,
+                transactions
+              }
+            }
+          },
+          { new: true }
+        ).exec();
+
+        await Payment.findByIdAndDelete(paymentInfo._id).exec();
+      }
+
+      res.send({ hasPaid, transactions });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
   });
 };

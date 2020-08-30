@@ -8,7 +8,7 @@ import styles from './paymentMethod.module.css';
 
 const PaymentMethod = ({ paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
   const transition = useTransition(showManualPayment, {
-    config: { mass: 1, tension: 250, friction: 30, clamp: true, easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)' },
+    config: { mass: 1, tension: 250, friction: 30, clamp: true },
     from: { opacity: 0, transform: 'scale(0.98)' },
     enter: { opacity: 1, transform: 'scale(1)' },
     leave: { opacity: 0, transform: 'scale(0.98)' }

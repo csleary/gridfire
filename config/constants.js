@@ -8,12 +8,18 @@ const QUEUE_TRANSCODE = 'transcode';
 const QUEUE_ARTWORK = 'artwork';
 const TEMP_PATH = path.join(__dirname, '../tmp');
 
+const PRODUCTS = [
+  { sku: '01NPC', label: '1 Credit', quantity: 1, unitPrice: 15 },
+  { sku: '05NPC', label: '5 Credits', quantity: 5, unitPrice: 12 },
+  { sku: '10NPC', label: '10 Credits', quantity: 10, unitPrice: 10 }
+];
+
 let BUCKET_IMG = 'nemp3-img';
 let BUCKET_OPT = 'nemp3-opt';
 let BUCKET_SRC = 'nemp3-src';
 let GOOGLE_CALLBACK = 'https://nemp3.app/api/auth/google/callback';
 let GOOGLE_REDIRECT = 'https://nemp3.app/oauth/google';
-let PAYMENT_ADDRESS = 'NC7KCR-GLODPZ-M6F6E6-4W4AAB-KLLONP-2XY7FN-EMP3';
+let PAYMENT_ADDRESS = 'NC7KCRGLODPZM6F6E64W4AABKLLONP2XY7FNEMP3';
 let SPOTIFY_CALLBACK = 'https://nemp3.app/api/auth/spotify/callback';
 let SPOTIFY_REDIRECT = 'https://nemp3.app/oauth/spotify';
 let TWITTER_CALLBACK = 'https://nemp3.app/api/auth/twitter/callback';
@@ -25,7 +31,7 @@ let RABBIT_HOST = 'rabbit';
 if (process.env.NODE_ENV === 'development') {
   GOOGLE_CALLBACK = '/api/auth/google/callback';
   GOOGLE_REDIRECT = 'http://localhost:3000/oauth/google';
-  PAYMENT_ADDRESS = 'TD74GO-NFLRQV-X5Z75T-TRQRD2-2A65K4-4E6VUH-7QSZ';
+  PAYMENT_ADDRESS = 'TD74GONFLRQVX5Z75TTRQRD22A65K44E6VUH7QSZ';
   RABBIT_HOST = 'localhost';
   SPOTIFY_CALLBACK = '/api/auth/spotify/callback';
   SPOTIFY_REDIRECT = 'http://localhost:3000/oauth/spotify';
@@ -53,6 +59,7 @@ module.exports = {
   NEM_NODES,
   NEM_NETWORK_ID,
   PAYMENT_ADDRESS,
+  PRODUCTS,
   QUEUE_ARTWORK,
   QUEUE_TRANSCODE,
   RABBIT_HOST,

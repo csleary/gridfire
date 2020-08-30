@@ -50,7 +50,7 @@ const Home = ({ match }) => {
   if (isLoading) {
     return (
       <Spinner>
-        <h2 className={styles.loading}>Loading catalogue&hellip;</h2>
+        <h2>Loading catalogue&hellip;</h2>
       </Spinner>
     );
   }

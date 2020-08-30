@@ -190,8 +190,8 @@ let NemAddress = props => {
           </p>
         </div>
       </div>
-      <Modal closeModal={() => setShowPaymentModal(false)} isOpen={showPaymentModal}>
-        <PurchaseCredits />
+      <Modal closeModal={() => setShowPaymentModal(false)} isOpen={showPaymentModal} showClose={false}>
+        <PurchaseCredits setShowPaymentModal={setShowPaymentModal} />
       </Modal>
     </main>
   );

@@ -141,11 +141,20 @@ const fetchXemPriceBinance = async () => {
   }
 };
 
+const formatAddress = address =>
+  address &&
+  address
+    .toUpperCase()
+    .replace(/-/g, '')
+    .match(/.{1,6}/g)
+    .join('-');
+
 module.exports = {
   checkSignedMessage,
   fetchMosaics,
   fetchTransactions,
   fetchXemPrice,
   fetchXemPriceBinance,
+  formatAddress,
   findNode
 };

@@ -9,15 +9,10 @@
   font-weight: 700;
   justify-content: center;
   letter-spacing: 0.075rem;
-  margin-bottom: 0.5rem;
   min-width: 12rem;
   padding: 0.5rem 1rem;
   text-transform: uppercase;
   transition: all 250ms cubic-bezier(0.2, 0.8, 0.4, 1);
-}
-
-.button:last-child {
-  margin-bottom: 0;
 }
 
 .button:hover:not(:disabled) {
@@ -36,6 +31,12 @@
   color: var(--cyan);
   transition: all 250ms cubic-bezier(0.2, 0.8, 0.4, 1);
   margin-right: 0.5rem;
+}
+
+.iconRight {
+  composes: icon;
+  margin-left: 0.5rem;
+  margin-right: 0;
 }
 
 .active .icon {
@@ -106,7 +107,7 @@
 }
 
 .spin {
-  animation: spin 2s linear;
+  animation: spin 2s linear infinite;
 }
 
 .link:hover:not(:disabled) .icon:not(.spin) {

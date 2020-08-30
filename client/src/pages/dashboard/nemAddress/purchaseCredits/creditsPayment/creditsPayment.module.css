@@ -1,0 +1,83 @@
+.summary {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.methods {
+  height: 22rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.qrCode {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.wrapper {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.buttons > .select {
+  color: var(--lighter-grey);
+  flex: 0 0 auto;
+  margin: 0;
+  min-width: 6.75rem;
+  padding: 0.5rem 1rem;
+  transition: color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.buttons > .select:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.buttons > .select:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.buttons > .select:hover {
+  background-color: #000;
+  color: var(--lighter-grey);
+}
+
+.buttons > .selected {
+  color: var(--cyan);
+}
+
+.buttons > .selected:hover {
+  color: var(--cyan);
+}
+
+.icon {
+  margin: 0 0.5rem;
+}
+
+.important {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.remember {
+  margin-bottom: 1rem;
+}
+
+.confirm {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
