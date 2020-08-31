@@ -1,4 +1,4 @@
-const { QUEUE_ARTWORK, QUEUE_TRANSCODE, RABBIT_HOST } = require('../../config/constants');
+const { QUEUE_ARTWORK, QUEUE_CREDITS, QUEUE_TRANSCODE, RABBIT_HOST } = require('../../config/constants');
 const Pool = require('worker-threads-pool');
 const amqp = require('amqplib');
 const { rabbitUser, rabbitPass } = require('../../config/keys');
@@ -25,13 +25,9 @@ module.exports = app => {
 
       const io = app.get('socketio');
       startPublisher(connection);
-      for (let i = 0; i < 2; i++) {
-        startConsumer({ connection, io, workerPool, queue: QUEUE_ARTWORK });
-      }
-
-      for (let i = 0; i < numCPUs; i++) {
-        startConsumer({ connection, io, workerPool, queue: QUEUE_TRANSCODE });
-      }
+      startConsumer({ connection, io, workerPool, queue: QUEUE_ARTWORK });
+      startConsumer({ connection, io, workerPool, queue: QUEUE_TRANSCODE });
+      startConsumer({ connection, io, workerPool, queue: QUEUE_CREDITS });
     } catch (error) {
       setTimeout(connectToServer, 3000);
     }

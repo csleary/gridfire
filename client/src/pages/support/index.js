@@ -83,10 +83,8 @@ const Support = () => (
         <details className={styles.details}>
           <summary className={styles.summary}>I&rsquo;ve found a bug! How can I report it?</summary>
           <p>
-            Excellent! The best way would be to log an issue on{' '}
-            <a href="https://github.com/csleary/nemp3/issues">Github</a>, to keep everything organised with a history of
-            all issues that have either been addressed or remain outstanding. But you can also simply drop a note
-            through the contact form. Thanks!
+            Please send us as much detail as you can via the contact form, and we&rsquo;ll address it as soon as
+            possible. Thanks!
           </p>
         </details>
       </div>

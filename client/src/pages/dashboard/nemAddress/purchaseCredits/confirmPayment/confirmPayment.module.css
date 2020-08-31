@@ -17,7 +17,7 @@
   text-align: center;
 }
 
-*:last-child {
+.thanks *:last-child {
   margin-bottom: 0;
 }
 

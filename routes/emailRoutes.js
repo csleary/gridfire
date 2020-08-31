@@ -110,7 +110,8 @@ module.exports = app => {
             from: nemp3EmailSupport,
             to: email,
             subject: 'nemp3 Password Reset Requested',
-            text: `Hi!
+            text: `
+Hi!
 
 A password reset was requested for this nemp3 account. To reset and choose a new password, please visit the URL below.
 
@@ -182,7 +183,8 @@ The nemp3 team`
           from: nemp3EmailSupport,
           to: user.auth.email,
           subject: 'Success! Your nemp3 password has been reset.',
-          text: `Hi!
+          text: `
+Hi!
 
 We can confirm that your nemp3 password has successfully been reset.
 

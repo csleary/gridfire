@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
@@ -7,9 +7,11 @@ import Spinner from 'components/spinner';
 import Transactions from 'pages/payment/payments/transactions';
 import axios from 'axios';
 import classnames from 'classnames';
+import { fetchUserCredits } from 'features/user';
 import styles from './confirmPayment.module.css';
 
 const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPaymentModal }) => {
+  const dispatch = useDispatch();
   const { idHash } = useSelector(state => state.user.auth, shallowEqual);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +51,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       if (hasPaid) {
         window.clearInterval(txInterval);
         clearTimeout(txTimeout);
+        dispatch(fetchUserCredits());
       } else {
         setIsUpdating(true);
         await fetchTransactions();
@@ -70,7 +73,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       window.clearInterval(txInterval);
       clearTimeout(txTimeout);
     };
-  }, [fetchTransactions, hasPaid]);
+  }, [dispatch, fetchTransactions, hasPaid]);
 
   return (
     <>
@@ -90,7 +93,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
         <>
           {hasPaid ? (
             <div className={styles.thanks}>
-              <h4>
+              <h4 className="green">
                 <FontAwesome name="check-circle" className="green mr-2" />
                 Thanks for supporting nemp3!
               </h4>

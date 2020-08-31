@@ -76,9 +76,11 @@ let NemAddress = props => {
 
   const publishedReleaseCount = userReleases?.filter(release => release.published === true).length ?? 0;
   const creditClassName = classnames({ red: !credits, green: credits });
+
   const releaseCountClassName = classnames('mb-3', {
+    yellow: !publishedReleaseCount,
     red: credits < publishedReleaseCount,
-    green: credits >= publishedReleaseCount
+    green: publishedReleaseCount && credits >= publishedReleaseCount
   });
 
   return (
@@ -87,9 +89,8 @@ let NemAddress = props => {
         <div className="col-lg mb-5 py-3">
           <h3 className="text-center mt-4">NEM Payment Address</h3>
           <p className="text-center">
-            Please add a NEM address if you wish to sell music, as fan payments and nemp3 credit will be sent to this
-            address. You do not need to add an address to support artists, as payments are made directly from your
-            account to theirs.
+            Please add a NEM address if you wish to sell music. You do not need to enter an address if you only plan on
+            purchasing music, as payments are made directly from your account to the artist&rsquo;s account.
           </p>
           <form className={`${styles.form} my-5 py-5`} onSubmit={handleSubmit(onSubmit)}>
             <Field
@@ -168,25 +169,11 @@ let NemAddress = props => {
           </form>
           <h4>Getting Your First NEM Address</h4>
           <p>
-            To receive payments from fans, as well as utility tokens or rewards from nemp3, you will need to have your
-            own NEM address. The easiest way to do this is by setting up an account with one of the mobile wallets,
-            which are available from your phone&rsquo;s respective download store, as linked from{' '}
-            <a href="https://nem.io/downloads/">the NEM site</a>. Of course, there is a more fully-featured
-            cross-platform desktop wallet also available.
-          </p>
-          <p>
-            The mobile wallets are especially handy, as they are able to scan the QR codes on the payment pages using
-            the device&rsquo;s camera, to fill in payment details automatically (which you can confirm before sending,
-            naturally). This makes including the payment message code with your payment amount foolproof.
-          </p>
-          <p>
-            Within any of the wallets, whether desktop or mobile, you can create any number of accounts, each with their
-            own individual address. You could easily dedicate an address to nemp3, for instance.
-          </p>
-          <p>
-            At present, only a single NEM address can be added to nemp3 accounts, so for example, automatic royalty
-            splits are not yet possible (and would incur a network fee for royalties sent to each band member). This
-            will change with the next update of the NEM infrastructure.
+            To make payments and receive credits or rewards from nemp3, you will need your own NEM address. Mobile
+            wallets are available for iOS and android, allowing you to easily make payments by scanning a QR code, as
+            well as a more fully-featured desktop wallet for Mac/PC, allowing you to create and explore namespaces and
+            mosaics, sign messages, earn/harvest XEM, and more. Please visit{' '}
+            <a href="https://nem.io/downloads/">the NEM site</a> to download a wallet for your preferred platform.
           </p>
         </div>
       </div>

@@ -9,7 +9,8 @@ import Spinner from 'components/spinner';
 import axios from 'axios';
 import classnames from 'classnames';
 import styles from './creditsPayment.module.css';
-const explorer = process.env.REACT_APP_NEM_NETWORK === 'testnet' ? 'bob.nem.ninja:8765' : 'chain.nem.ninja';
+const explorer =
+  process.env.REACT_APP_NEM_NETWORK === 'testnet' ? 'testnet-explorer.nemtool.com' : 'explorer.nemtool.com';
 
 const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStage }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +67,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
               <ReadOnlyTextArea
                 label={
                   <a
-                    href={`http://${explorer}/#/account/${PAYMENT_ADDRESS?.replace('-', '')}`}
+                    href={`https://${explorer}/#/s_account?account=${PAYMENT_ADDRESS?.replace(/-/g, '')}`}
                     rel="nofollow noopener noreferrer"
                     tabIndex="0"
                     target="_blank"

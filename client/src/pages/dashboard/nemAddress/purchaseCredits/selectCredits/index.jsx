@@ -13,11 +13,8 @@ const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, set
 
   return (
     <>
-      <p>Help us cover our infrastructure costs by purchasing utility tokens called &lsquo;credits&rsquo; (NPC).</p>
-      <p>
-        Please select how many credits you wish to purchase. You receive a discount for buying more than one credit at a
-        time.
-      </p>
+      <p>Help us cover our infrastructure costs by purchasing credits.</p>
+      <p>Select how many credits you wish to purchase:</p>
       {isLoading ? (
         <Spinner wrapperClassName={styles.spinner} />
       ) : (
@@ -46,9 +43,8 @@ const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, set
         </>
       )}
       <p>
-        After your payment has been confirmed, you will receive your selected number of nemp3 credits to the same
-        address. Each token buys your the right to use nemp3 to sell your own music, and is freely transferable at any
-        point.
+        After your payment is confirmed, your nemp3 credits will be sent back to the same address. Each token buys you
+        the right to use nemp3 to sell your own music, and is freely transferable at any point.
       </p>
       <div className={styles.confirm}>
         <Button

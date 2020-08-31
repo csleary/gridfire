@@ -4,8 +4,9 @@ const path = require('path');
 const AWS_REGION = 'us-east-1';
 const BENTO4_DIR = process.env.BENTO4_DIR;
 const BUCKET_MP3 = 'nemp3-mp3';
-const QUEUE_TRANSCODE = 'transcode';
 const QUEUE_ARTWORK = 'artwork';
+const QUEUE_CREDITS = 'credits';
+const QUEUE_TRANSCODE = 'transcode';
 const TEMP_PATH = path.join(__dirname, '../tmp');
 
 const PRODUCTS = [
@@ -61,6 +62,7 @@ module.exports = {
   PAYMENT_ADDRESS,
   PRODUCTS,
   QUEUE_ARTWORK,
+  QUEUE_CREDITS,
   QUEUE_TRANSCODE,
   RABBIT_HOST,
   SPOTIFY_CALLBACK,

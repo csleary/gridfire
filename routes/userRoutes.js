@@ -5,14 +5,16 @@ const {
   fetchXemPrice,
   fetchXemPriceBinance
 } = require('../controllers/nemController');
+const { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS, QUEUE_CREDITS } = require('../config/constants');
 const crypto = require('crypto');
 const requireLogin = require('../middlewares/requireLogin');
 const mongoose = require('mongoose');
+const nem = require('nem-sdk').default;
 const Payment = mongoose.model('payments');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
-const { PAYMENT_ADDRESS, PRODUCTS } = require('../config/constants');
+const { publishToQueue } = require(__basedir + '/services/rabbitMQ/publisher');
 
 module.exports = app => {
   app.post('/api/user/transactions', requireLogin, async (req, res) => {
@@ -213,6 +215,10 @@ module.exports = app => {
         ).exec();
 
         await Payment.findByIdAndDelete(paymentInfo._id).exec();
+        const [tx] = transactions;
+        const { signer } = tx.transaction;
+        const sender = nem.utils.format.pubToAddress(signer, NEM_NETWORK_ID);
+        publishToQueue('', QUEUE_CREDITS, { job: 'sendCredits', sender, sku, userId });
       }
 
       res.send({ hasPaid, transactions });

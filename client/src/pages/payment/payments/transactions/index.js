@@ -32,9 +32,9 @@ const Transactions = ({ transactions, error }) => {
           {transactions.map((tx, index) => (
             <Transaction
               hash={tx.meta.hash.data}
-              index={index}
+              index={String(index + 1)}
               key={tx.meta.hash.data}
-              amount={tx.transaction.amount / 10 ** 6}
+              amount={(tx.transaction.amount / 10 ** 6).toFixed(6)}
               date={nem.utils.format.nemDate(tx.transaction.timeStamp)}
             />
           ))}

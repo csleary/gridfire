@@ -5,6 +5,7 @@ const path = require('path');
 const scripts = {
   encodeFLAC: path.join(__dirname, 'workerScripts', 'encodeFLAC.js'),
   transcodeAAC: path.join(__dirname, 'workerScripts', 'transcodeAAC.js'),
+  sendCredits: path.join(__dirname, 'workerScripts', 'sendCredits.js'),
   uploadArtwork: path.join(__dirname, 'workerScripts', 'uploadArtwork.js')
 };
 
@@ -29,6 +30,7 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
     };
 
     consumerChannel.on('close', () => {});
+
     consumerChannel.on('error', error => {
       console.error('[AMQP] Channel error:\n', error.message);
     });

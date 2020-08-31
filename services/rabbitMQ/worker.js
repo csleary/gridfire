@@ -25,7 +25,11 @@ const handleWork = (io, workerPool, workerData, workerScript) =>
         }
       });
 
-      worker.on('error', workerError => reject(workerError.message));
+      worker.on('error', workerError => {
+        console.log('Worker error: %s', workerError.message);
+        reject(workerError.message);
+      });
+
       worker.on('stdout', output => {});
 
       worker.on('exit', status => {
