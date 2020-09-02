@@ -9,6 +9,7 @@ const userSlice = createSlice({
     credits: 0,
     favourites: [],
     nemAddress: '',
+    nemAddressChallenge: '',
     nemAddressVerified: false,
     purchases: [],
     wishList: []
@@ -30,6 +31,7 @@ const userSlice = createSlice({
     setNemAddress(state, action) {
       state.credits = action.payload.credits;
       state.nemAddress = action.payload.nemAddress;
+      state.nemAddressChallenge = action.payload.nemAddressChallenge;
       state.nemAddressVerified = action.payload.nemAddressVerified;
     },
 
@@ -49,6 +51,7 @@ const userSlice = createSlice({
         credits,
         favourites,
         nemAddress,
+        nemAddressChallenge,
         nemAddressVerified,
         purchases,
         wishList
@@ -58,6 +61,7 @@ const userSlice = createSlice({
       state.credits = credits;
       state.favourites = favourites;
       state.nemAddress = nemAddress;
+      state.nemAddressChallenge = nemAddressChallenge;
       state.nemAddressVerified = nemAddressVerified;
       state.purchases = purchases;
       state.wishList = wishList;

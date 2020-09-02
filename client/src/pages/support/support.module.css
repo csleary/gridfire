@@ -6,3 +6,7 @@
 .details p {
   margin-top: 1rem;
 }
+
+.details:last-of-type {
+  margin-bottom: 1rem;
+}

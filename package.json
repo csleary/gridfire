@@ -33,6 +33,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
+    "human-id": "^2.0.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.22",
     "nem-sdk": "^1.6.7",

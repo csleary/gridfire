@@ -8,6 +8,7 @@ import Modal from 'components/modal';
 import NemAddressFormField from './nemAddressFormField';
 import PropTypes from 'prop-types';
 import PurchaseCredits from './purchaseCredits';
+import ReadOnlyTextArea from 'components/readOnlyTextArea';
 import classnames from 'classnames';
 import { fetchUserReleases } from 'features/releases';
 import nem from 'nem-sdk';
@@ -18,7 +19,10 @@ let NemAddress = props => {
   const [isCheckingCredits, setIsCheckingCredits] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const dispatch = useDispatch();
-  const { credits, nemAddress, nemAddressVerified } = useSelector(state => state.user, shallowEqual);
+  const { credits, nemAddress, nemAddressChallenge, nemAddressVerified } = useSelector(
+    state => state.user,
+    shallowEqual
+  );
   const { userReleases } = useSelector(state => state.releases, shallowEqual);
   const { handleSubmit, invalid, nemAddressField, pristine, submitting } = props;
 
@@ -28,7 +32,7 @@ let NemAddress = props => {
   }, [dispatch, nemAddress, nemAddressVerified]);
 
   const onSubmit = async values => {
-    await dispatch(addNemAddress(values));
+    await dispatch(addNemAddress({ ...values, nemAddressChallenge }));
   };
 
   const handleUpdateCredits = async () => {
@@ -41,11 +45,12 @@ let NemAddress = props => {
     if (nemAddress && nemAddressField && !nemAddressVerified) {
       return (
         <>
+          <ReadOnlyTextArea label={'Verification message to be signed'} text={nemAddressChallenge} />
           <Field
             disabled={submitting}
             hint="This address has not yet been verified."
             id="signedMessage"
-            label="Your Signed Message"
+            label="Your signed message"
             name="signedMessage"
             nemAddress={nemAddress}
             nemAddressVerified={nemAddressVerified}
@@ -55,14 +60,11 @@ let NemAddress = props => {
             validate={checkNemMessage}
           />
           <p>
-            Please create a signed message in the desktop wallet app (Services &#8594; Signed message &#8594; Create a
-            signed message), and copy/paste the results here to verify ownership of your account.
+            Please copy the verification phrase and create a signed message with it using the desktop wallet app
+            (Services &#8594; Signed message &#8594; Create a signed message). Then copy/paste the results here to
+            verify ownership of your account.
           </p>
-          <p>
-            It doesn&rsquo;t matter what you put in the message field, only that it is cryptographically signed by your
-            private key.
-          </p>
-          <p>Once you have verified your account, you can add credit and start selling your music!</p>
+          <p>Then you&rsquo;re all set to add credit and start selling your music!</p>
         </>
       );
     }
@@ -106,7 +108,7 @@ let NemAddress = props => {
               }
               id="nemAddress"
               hint="It doesn&rsquo;t matter whether you include dashes or not."
-              label="Your NEM Address"
+              label="Your NEM address"
               name="nemAddress"
               nemAddress={nemAddress}
               nemAddressVerified={nemAddressVerified}

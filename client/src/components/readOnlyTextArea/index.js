@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import styles from './readOnlyTextArea.module.css';
 
-const ReadOnlyTextArea = ({ label = false, placeholder = '', text, ...rest }) => {
+const ReadOnlyTextArea = ({ className, label = false, placeholder = '', text, ...rest }) => {
   const copyText = useRef();
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -24,12 +25,14 @@ const ReadOnlyTextArea = ({ label = false, placeholder = '', text, ...rest }) =>
     setHasCopied(true);
   };
 
+  const textClassNames = classnames(styles.copyText, { [className]: className });
+
   return (
     <>
       {label ? <div className={styles.label}>{label}</div> : null}
       <div className={styles.wrapper}>
         <div
-          className={styles.copyText}
+          className={textClassNames}
           onClick={handleClick}
           onKeyDown={handleClick}
           rest={rest}
@@ -53,6 +56,7 @@ const ReadOnlyTextArea = ({ label = false, placeholder = '', text, ...rest }) =>
 };
 
 ReadOnlyTextArea.propTypes = {
+  className: PropTypes.string,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   placeholder: PropTypes.string,
   text: PropTypes.string

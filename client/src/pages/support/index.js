@@ -10,19 +10,15 @@ const Support = () => (
           <summary className={styles.summary}>What are &lsquo;credits&rsquo; and how/where do I get some?</summary>
           <p>
             nemp3 credits are the tokens used to regulate the addition of new releases. To be able to add releases, your
-            credit balance needs to exceed the number of releases you have on the site. If you trade or transfer the
-            credit token to another NEM account (you have the right to do so; the token is yours), you will not be able
-            to add new releases.
+            credits balance needs to cover the number of published releases you have on the site. If you trade or
+            transfer the credit token to another NEM account (you have the right to do so; the token is yours), you will
+            not be able to add new releases.
           </p>
           <p>
             Your credits are tokens on the NEM blockchain, accessed using the NEM address/account you use with the site.
             In order for us to ensure you have access to the NEM account you have linked to your profile, we require
             that you verify your NEM address by cryptographically &lsquo;signing&rsquo; a message. This is proof that
             you have full control of the account.
-          </p>
-          <p>
-            We are currently working on an automated process to dispense credits, while the site is in its testing
-            phase. But in the mean time, please drop us a message and we&rsquo;ll be happy to send you one.
           </p>
         </details>
         <details className={styles.details}>
@@ -51,6 +47,14 @@ const Support = () => (
             There are two official wallets, an web-based, feature-complete desktop client called NanoWallet, and an
             Android/iOS Mobile Wallet. More information on both can be found on the{' '}
             <a href="https://www.nem.io/install.html">NEM site</a>.
+          </p>
+        </details>
+        <details className={styles.details}>
+          <summary className={styles.summary}>How do I verify my address?</summary>
+          <p>
+            You can verify your NEM address using the official cross-platform desktop wallet,{' '}
+            <a href="https://www.nem.io/install.html">NanoWallet</a>. You can create a signed message in the
+            &lsquo;services&rsquo; section of the wallet app.
           </p>
         </details>
         <details className={styles.details}>
@@ -87,6 +91,9 @@ const Support = () => (
             possible. Thanks!
           </p>
         </details>
+        <p>
+          Still need help? Please send us a message via the contact form and we&rsquo;ll do what we can to assist you.
+        </p>
       </div>
     </div>
   </main>

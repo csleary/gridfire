@@ -31,13 +31,14 @@ const findNode = async (attempt = 0) => {
   }
 };
 
-const checkSignedMessage = (address, signedMessage) => {
+const checkSignedMessage = (address, nemAddressChallenge, signedMessage) => {
   const { message, signer, signature } = signedMessage;
   const verified = nem.crypto.verifySignature(signer.toString(), message, signature.toString());
 
   if (verified) {
+    let convertedMessage = nem.utils.convert.hex2a(message);
     const keyToAddress = nem.model.address.toAddress(signer.toString(), NEM_NETWORK_ID);
-    return keyToAddress === address;
+    return keyToAddress === address && convertedMessage === nemAddressChallenge;
   }
   return false;
 };

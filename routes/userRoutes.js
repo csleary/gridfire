@@ -7,6 +7,7 @@ const {
 } = require('../controllers/nemController');
 const { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS, QUEUE_CREDITS } = require('../config/constants');
 const crypto = require('crypto');
+const { humanId } = require('human-id');
 const requireLogin = require('../middlewares/requireLogin');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
@@ -72,32 +73,42 @@ module.exports = app => {
 
   app.post('/api/user/address', requireLogin, async (req, res) => {
     try {
-      let { nemAddress = '', signedMessage } = req.body;
-      nemAddress = nemAddress.toUpperCase().replace(/-/g, '');
+      const { nemAddress = '', nemAddressChallenge, signedMessage } = req.body;
+      const updatedNemAddress = nemAddress.toUpperCase().replace(/-/g, '');
       const user = await User.findById(req.user._id, 'credit nemAddress nemAddressVerified').exec();
       const existingNemAddress = user.nemAddress;
-      const addressChanged = nemAddress !== existingNemAddress;
+      const addressChanged = updatedNemAddress !== existingNemAddress;
 
       if (addressChanged) {
         const addressExists = await User.exists({ nemAddress, nemAddressVerified: true });
-        if (addressExists)
+
+        if (addressExists) {
           throw new Error('NEM addresses cannot be registered for more than one account. Please use another address.');
-        user.nemAddress = nemAddress;
+        }
+
+        if (!updatedNemAddress) {
+          await Release.updateMany({ user: user._id }, { $set: { published: false } }).exec();
+        }
+        user.nemAddress = updatedNemAddress;
+        user.nemAddressChallenge = humanId();
         user.nemAddressVerified = false;
         user.credits = 0;
       }
 
-      if (nemAddress && signedMessage) {
-        signedMessage = JSON.parse(signedMessage);
-        user.nemAddressVerified = checkSignedMessage(nemAddress, signedMessage);
+      if (updatedNemAddress && signedMessage) {
+        const parsedMessage = JSON.parse(signedMessage);
+        const messageIsValid = checkSignedMessage(nemAddress, nemAddressChallenge, parsedMessage);
+        user.nemAddressVerified = messageIsValid;
+        if (!messageIsValid) throw new Error('This message is not valid.');
+        user.nemAddressChallenge = undefined;
       }
 
-      if (nemAddress && user.nemAddressVerified) {
-        const credits = await fetchMosaics(nemAddress);
+      if (updatedNemAddress && user.nemAddressVerified) {
+        const credits = await fetchMosaics(updatedNemAddress);
         user.credits = credits;
       }
 
-      user.save();
+      await user.save();
       res.send(user.toJSON());
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -111,9 +122,7 @@ module.exports = app => {
       const { nemAddress, nemAddressVerified } = user;
 
       if (nemAddress && nemAddress.length && nemAddressVerified) {
-        const publishedReleaseCount = await Release.countDocuments({ user: user.id, published: true });
-        const total = await fetchMosaics(nemAddress);
-        user.credits = total - publishedReleaseCount;
+        user.credits = await fetchMosaics(nemAddress);
         await user.save();
         return res.status(200).send({ credits: user.toJSON().credits });
       }
