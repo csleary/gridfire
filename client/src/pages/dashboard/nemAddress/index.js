@@ -154,10 +154,6 @@ let NemAddress = props => {
               {publishedReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
               {publishedReleaseCount + 1} to be able to publish a new release or activate future powerups.
             </p>
-            <p>
-              Need some credits? You&rsquo;ll be able to buy credits with XEM in the future, but for now{' '}
-              <a href="/contact">get in touch</a> and we&rsquo;ll send you one for free.
-            </p>
             <div className={styles.buy}>
               <Button
                 className={styles.buyButton}
