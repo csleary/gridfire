@@ -1,7 +1,7 @@
 const { parentPort, workerData } = require('worker_threads');
-const { findNode } = require('../../../controllers/nemController');
+const { fetchMosaics, findNode } = require('../../../controllers/nemController');
 const { privKey } = require('../../../config/keys');
-const { NEM_NETWORK_ID, PRODUCTS } = require('../../../config/constants');
+const { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS } = require('../../../config/constants');
 const nem = require('nem-sdk').default;
 const { sendEmail } = require('../../../controllers/emailController');
 
@@ -51,14 +51,19 @@ const sendCredits = async () => {
     const due = 60;
     transactionEntity.deadline = timeStamp + due * 60;
     const status = await nem.model.transactions.send(common, transactionEntity, endpoint);
+    const hotWalletBalance = await fetchMosaics(PAYMENT_ADDRESS);
 
     const body = `
 Credits purchased: ${quantity} (${sku})
 Purchase address: ${sender}
 User ID: ${userId}
 Status:
-
 ${JSON.stringify(status, null, 2)}
+
+Transaction entity:
+${JSON.stringify(transactionEntity, null, 2)}
+
+Hot wallet balance: ${hotWalletBalance}
 `;
 
     sendEmail('mail@nemp3.app', 'nemp3 Credits Purchase', body);

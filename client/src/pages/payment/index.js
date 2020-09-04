@@ -5,20 +5,18 @@ import Payments from './payments';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Spinner from 'components/spinner';
-import { connect } from 'react-redux';
 import styles from './payment.module.css';
 import { toastError } from 'features/toast';
 import { useApi } from 'hooks/useApi';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 const Payment = props => {
   const { releaseId } = props.match.params;
   const { data, error, isLoading } = useApi(`/api/purchase/${releaseId}`);
+  const dispatch = useDispatch();
   const history = useHistory();
-
-  if (error) {
-    toastError(error);
-  }
+  if (error) dispatch(toastError(error));
 
   if (isLoading) {
     return (
@@ -76,4 +74,4 @@ Payment.propTypes = {
   releaseId: PropTypes.string
 };
 
-export default connect(null, { toastError })(Payment);
+export default Payment;

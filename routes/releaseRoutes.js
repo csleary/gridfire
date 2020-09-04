@@ -213,7 +213,6 @@ module.exports = app => {
       if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
         release.updateOne({ published: false }).exec();
         throw new Error(
-          // eslint-disable-next-line
           'Please add a confirmed NEM address to your account before publishing this release (\u2018Payment\u2019 tab).'
         );
       }

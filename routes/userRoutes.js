@@ -135,7 +135,7 @@ module.exports = app => {
 
   app.get('/api/user/credits/buy', requireLogin, async (req, res) => {
     try {
-      delete req.session.productData;
+      req.session.productData = null;
       const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
       if (!xemPriceUsd) throw new Error('Price information unavailable.');
       const usdInXem = 1 / xemPriceUsd;
