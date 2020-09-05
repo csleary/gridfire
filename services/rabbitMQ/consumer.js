@@ -16,6 +16,7 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
       try {
         const workerData = JSON.parse(message.content.toString());
         const workerScript = scripts[workerData.job];
+        if (!workerScript) return consumerChannel.nack(message, false, false);
         const success = await handleWork(io, workerPool, workerData, workerScript);
 
         if (success) {

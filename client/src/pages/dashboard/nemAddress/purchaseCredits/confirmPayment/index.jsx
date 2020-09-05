@@ -118,6 +118,9 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
               >
                 Scan
               </Button>
+              <p className={styles.help}>
+                Forgotten to send payment, or need to see the address again? Please start a new payment session.
+              </p>
             </div>
           )}
           {transactions.length ? (
@@ -132,12 +135,13 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
         <Button
           disabled={isLoading}
           icon="chevron-left"
-          onClick={() => setStage(2)}
+          onClick={() => setStage(1)}
           size="large"
           tabIndex="0"
+          textLink
           type="button"
         >
-          Back
+          Restart
         </Button>
         <Button
           disabled={isLoading}
@@ -147,7 +151,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
           tabIndex="0"
           type="button"
         >
-          Done
+          Close
         </Button>
       </div>
     </>

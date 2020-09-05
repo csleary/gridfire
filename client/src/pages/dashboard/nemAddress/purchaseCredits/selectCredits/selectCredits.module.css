@@ -24,12 +24,6 @@
   margin-bottom: 3rem;
 }
 
-.confirm {
-  display: flex;
-  justify-content: space-between;
-  margin-top: auto;
-}
-
 .unit {
   background: var(--yellow);
   border: 3px solid var(--charcoal);
@@ -47,4 +41,10 @@
 
 .spinner {
   padding-bottom: 3rem;
+}
+
+.confirm {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
 }

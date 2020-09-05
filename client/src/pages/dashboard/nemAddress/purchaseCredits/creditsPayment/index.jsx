@@ -13,13 +13,12 @@ const explorer =
   process.env.REACT_APP_NEM_NETWORK === 'testnet' ? 'testnet-explorer.nemtool.com' : 'explorer.nemtool.com';
 
 const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStage }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showManualPayment, setshowManualPayment] = useState(false);
   const handleshowManualPayment = () => setshowManualPayment(!showManualPayment);
 
   useEffect(() => {
     if (!sku) return;
-    setIsLoading(true);
     axios
       .post('/api/user/credits/buy', { sku })
       .then(res => setPaymentData(res.data))
@@ -121,7 +120,11 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                 </a>
                 ) to make your payment.
                 <br />
-                After you&rsquo;ve paid, confirm it on the next screen to receive your tokens.
+                Confirm your payment on the next screen to receive your tokens.
+              </p>
+              <p>
+                Payment sessions are unique, so please ensure payments are confirmed on the next step to receive your
+                credits.
               </p>
             </animated.div>
           ) : (
