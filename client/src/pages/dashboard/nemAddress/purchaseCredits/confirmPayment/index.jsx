@@ -101,7 +101,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
             </div>
           ) : (
             <div className={styles.check}>
-              <h3>No payments found</h3>
+              <h3>No payments found yet…</h3>
               <p>We&rsquo;ll automatically check every 30 seconds, but you can also manually check below.</p>
               <Button
                 iconClassName={classnames(styles.icon, { [styles.active]: isUpdating })}
