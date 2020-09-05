@@ -58,7 +58,20 @@ class EditRelease extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
+    if (prevProps.match.params.releaseId && !this.props.match.params.releaseId) {
+      this.setState({ isLoading: true });
+      const res = await this.props.addNewRelease();
+
+      // Check for address or credit issues.
+      if (res?.warning) {
+        this.props.toastWarning(res.warning);
+        return this.props.history.push('/dashboard/nem-address');
+      }
+
+      this.setState({ coverArtPreview: '', isEditing: false, isLoading: false });
+    }
+
     const { _id: releaseId, artwork } = this.props.release;
     if (prevProps.release._id !== releaseId) {
       if (artwork?.status === 'stored') this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });

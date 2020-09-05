@@ -84,9 +84,9 @@ function UserRelease({ favs, numSold, release }) {
               {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
             </h6>
             <h6>
-              <FontAwesome name="circle" className={`mr-2 ${hasAudio ? 'green' : 'red'}`} />
+              <FontAwesome name="circle" className={`mr-2 ${hasAudio() ? 'green' : 'red'}`} />
               {trackList.length} Track{trackList.length === 1 ? '' : 's'}
-              {trackList.length && !hasAudio ? ' (incomplete)' : null}
+              {trackList.length && !hasAudio() ? ' (incomplete)' : null}
             </h6>
             <h6>
               <FontAwesome

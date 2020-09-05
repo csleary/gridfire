@@ -110,18 +110,18 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                 />
               </div>
               <p className="text-center">
-                Please scan the QR code with a NEM mobile wallet app to make your payment:
-                <br />
-                <a href="https://itunes.apple.com/us/app/nem-wallet/id1227112677" tabIndex="0">
+                Scan the QR code (
+                <a className="mr-2" href="https://itunes.apple.com/us/app/nem-wallet/id1227112677" tabIndex="0">
                   <FontAwesome name="apple" className="mr-1" />
                   iOS
-                </a>{' '}
-                and{' '}
+                </a>
                 <a href="https://play.google.com/store/apps/details?id=org.nem.nac.mainnet&hl=en" tabIndex="0">
                   <FontAwesome name="android" className="mr-1" />
                   Android
                 </a>
-                .
+                ) to make your payment.
+                <br />
+                After you&rsquo;ve paid, confirm it on the next screen to receive your tokens.
               </p>
             </animated.div>
           ) : (

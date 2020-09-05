@@ -2,11 +2,8 @@
   background: var(--charcoal);
   display: flex;
   flex-direction: column;
-  height: 44rem;
-  max-height: 90vh;
-  overflow: hidden;
+  height: 48rem;
   width: 48rem;
-  max-width: 90vw;
   padding: 3rem;
 }
 
