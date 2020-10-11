@@ -1,3 +1,4 @@
+import Artists from './artists';
 import Collection from './collection';
 import Favourites from './favourites';
 import NemAddress from './nemAddress';
@@ -11,6 +12,7 @@ import WishList from './wishList';
 function Dashboard({ match }) {
   return (
     <>
+      <Route exact path={`${match.path}/artists`} component={Artists} />
       <Route exact path={`${match.path}/collection`} component={Collection} />
       <Route exact path={`${match.path}/favourites`} component={Favourites} />
       <Route exact path={`${match.path}/nem-address`} component={NemAddress} />

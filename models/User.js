@@ -50,7 +50,7 @@ const userSchema = new Schema(
     ],
     artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
   },
-  { usePushEach: true }
+  { usePushEach: true, toJSON: { versionKey: false } }
 );
 
 userSchema.pre('save', async function (next) {
@@ -72,7 +72,5 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.auth.password);
 };
-
-userSchema.set('toJSON', { versionKey: false });
 
 mongoose.model('users', userSchema);

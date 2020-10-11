@@ -1,0 +1,83 @@
+.heading {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.list {
+  background-color: var(--charcoal);
+  display: inline-block;
+  list-style: none;
+  padding: 1rem;
+}
+
+.active {
+  color: var(--yellow);
+}
+
+.input {
+  background-color: var(--off-white);
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.input:focus {
+  background-color: #fff;
+}
+
+.biography {
+  composes: input;
+  height: 12rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.charCount {
+  color: var(--light-grey);
+}
+
+.charCount.minReached {
+  color: var(--yellow);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 3rem;
+}
+
+.links {
+  display: flex;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.link {
+  align-items: baseline;
+  display: flex;
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.linkLabel {
+  margin-right: 0.75rem;
+}
+
+.linkInput {
+  composes: input;
+  flex: 1;
+}
+
+.linkRemove {
+  align-self: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.error {
+  color: var(--red);
+}
+
+.submit {
+  display: flex;
+  justify-content: flex-end;
+}

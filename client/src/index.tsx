@@ -28,3 +28,4 @@ ReactDOM.render(
 serviceWorker.unregister();
 
 export { CLOUD_URL };
+export type RootState = ReturnType<typeof store.getState>;

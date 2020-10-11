@@ -18,6 +18,10 @@ const User = mongoose.model('users');
 const { publishToQueue } = require(__basedir + '/services/rabbitMQ/publisher');
 
 module.exports = app => {
+  app.get('/api/user', (req, res) => {
+    res.send(req.user);
+  });
+
   app.post('/api/user/transactions', requireLogin, async (req, res) => {
     try {
       const { releaseId, paymentHash } = req.body;

@@ -1,3 +1,4 @@
+import artistSlice from 'features/artists';
 import artworkSlice from 'features/artwork';
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
@@ -10,6 +11,7 @@ import trackSlice from 'features/tracks';
 import userSlice from 'features/user';
 
 const appReducer = combineReducers({
+  artists: artistSlice,
   artwork: artworkSlice,
   form: formReducer,
   nem: nemSlice,

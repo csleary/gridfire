@@ -38,6 +38,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 require('./services/rabbitMQ')(app);
+require('./routes/artistRoutes')(app);
 require('./routes/artworkRoutes')(app);
 require('./routes/authRoutes')(app);
 require('./routes/downloadRoutes')(app);

@@ -36,6 +36,12 @@ function DashNavBar(props) {
         }
       ></li>
       <li>
+        <NavLink strict exact to={'/dashboard/artists'} className="nav-link">
+          <FontAwesome name="archive" className="mr-2" />
+          Artists
+        </NavLink>
+      </li>
+      <li>
         <NavLink strict exact to={'/dashboard/nem-address'} className="nav-link">
           <FontAwesome
             name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
@@ -53,13 +59,13 @@ function DashNavBar(props) {
       </li>
       <li>
         <NavLink strict exact to={'/dashboard/favourites'} className="nav-link">
-          <FontAwesome name={'heart'} className={'mr-2'} />
+          <FontAwesome name="heart" className="mr-2" />
           Faves
         </NavLink>
       </li>
       <li>
         <NavLink strict exact to={'/dashboard/wish-list'} className="nav-link">
-          <FontAwesome name={'magic'} className={'mr-2'} />
+          <FontAwesome name="magic" className="mr-2" />
           List
         </NavLink>
       </li>

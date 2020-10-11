@@ -2,13 +2,14 @@ import { shallowEqual, useSelector } from 'react-redux';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { RootState } from 'index';
 import styles from './footer.module.css';
 
 const today = new Date();
 const year = today.getFullYear();
 
 const Footer = () => {
-  const user = useSelector(state => state.user, shallowEqual);
+  const user = useSelector((state: RootState) => state.user, shallowEqual);
   const { auth } = user;
 
   return (

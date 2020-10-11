@@ -6,6 +6,7 @@ import axios from 'axios';
 const userSlice = createSlice({
   name: 'user',
   initialState: {
+    auth: undefined,
     credits: 0,
     favourites: [],
     nemAddress: '',

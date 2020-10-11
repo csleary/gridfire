@@ -63,8 +63,4 @@ module.exports = app => {
     delete req.user;
     res.send({ success: 'Thanks for visiting. You are now logged out.' });
   });
-
-  app.get('/api/user', (req, res) => {
-    res.send(req.user);
-  });
 };

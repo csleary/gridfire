@@ -4,6 +4,28 @@ import React from 'react';
 import classnames from 'classnames';
 import styles from './button.module.css';
 
+interface Props {
+  autoFocus?: boolean;
+  children?: object;
+  className?: string;
+  disabled?: boolean;
+  icon?: string;
+  iconClassName: string;
+  iconRight?: boolean;
+  isActive?: boolean;
+  menuOpen?: boolean;
+  onClick: (arg0: any) => CustomEvent;
+  secondary?: boolean;
+  buttonRef?: string;
+  size?: string;
+  spin?: boolean;
+  style?: object;
+  text?: string;
+  textLink?: boolean;
+  title?: string;
+  type?: 'submit' | 'reset' | 'button';
+}
+
 const Button = ({
   autoFocus = false,
   children,
@@ -25,7 +47,7 @@ const Button = ({
   title,
   type,
   ...rest
-}) => {
+}: Props) => {
   const buttonClassNames = classnames(className, {
     [styles.active]: isActive,
     [styles.button]: !textLink,

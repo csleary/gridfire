@@ -23,7 +23,7 @@ import Support from 'pages/support';
 import ToastList from 'components/toastList';
 import { fetchUser } from 'features/user';
 import { useDispatch } from 'react-redux';
-import { wrapper } from './App.module.css';
+import styles from './App.module.css';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <div className={wrapper}>
+      <div className={styles.wrapper}>
         <Header />
         <NavBar />
         <Switch>
