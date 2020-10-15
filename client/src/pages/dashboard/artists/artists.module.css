@@ -10,8 +10,15 @@
   padding: 1rem;
 }
 
+.artistName {
+  color: var(--light-grey);
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  transition: color 400ms ease-in-out;
+}
+
 .active {
-  color: var(--yellow);
+  color: var(--cyan);
 }
 
 .input {

@@ -17,8 +17,8 @@ module.exports = app => {
   app.post('/api/release', requireLogin, async (req, res) => {
     try {
       const userId = req.user._id;
-      const user = await User.findById(userId, {}, { lean: true }).exec();
-      const releases = await Release.find({ user: userId }, {}, { lean: true }).exec();
+      const user = await User.findById(userId, '', { lean: true }).exec();
+      const releases = await Release.find({ user: userId }, '', { lean: true }).exec();
 
       if (!user.nemAddress || !user.nemAddressVerified) {
         return res.send({
@@ -60,14 +60,15 @@ module.exports = app => {
   app.delete('/api/release/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId } = req.params;
+      const userId = req.user._id;
 
       // Delete from db
       const deleteRelease = await Release.findByIdAndRemove(releaseId).exec();
 
-      const artistPullRelease = await Artist.findByIdAndUpdate(
-        deleteRelease.artist,
+      const artistPullRelease = await Artist.findOneAndUpdate(
+        { releases: releaseId, user: userId },
         { $pull: { releases: releaseId } },
-        { lean: true, new: true }
+        { fields: { releases: 1 }, lean: true, new: true }
       ).exec();
 
       let deleteArtist;
@@ -128,7 +129,7 @@ module.exports = app => {
         deleteS3Img = s3.deleteObject(deleteImgParams).promise();
       }
 
-      const values = await Promise.all([
+      const [{ _id }] = await Promise.all([
         deleteRelease,
         artistPullRelease,
         deleteArtist,
@@ -138,7 +139,7 @@ module.exports = app => {
         deleteS3Img
       ]);
 
-      res.send(values[0]._id);
+      res.send(_id);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
@@ -267,6 +268,7 @@ module.exports = app => {
       } = req.body;
 
       const release = await Release.findById(releaseId);
+      const prevArtistName = release.artistName || artistName; // So we can update existing records saved with old name.
       release.artistName = artistName;
       release.catNumber = catNumber;
       release.credits = credits;
@@ -285,29 +287,35 @@ module.exports = app => {
         track.trackTitle = trackList.find(update => update._id.toString() === track._id.toString()).trackTitle;
       });
 
-      const updatedRelease = await release.save();
+      // Check for artist first using the previous release artist name, just in case it has since been changed.
+      const artistExists = await Artist.exists({ name: prevArtistName, user: userId });
 
-      // Add artist to Artist model.
-      const artist = await Artist.findOneAndUpdate(
-        { user: userId, name: updatedRelease.artistName },
-        { $set: { name: updatedRelease.artistName } },
-        { new: true, upsert: true }
-      ).exec();
+      let artistId;
+      if (artistExists) {
+        const artist = await Artist.findOneAndUpdate(
+          { name: prevArtistName, user: userId },
+          { $set: { name: artistName }, $addToSet: { releases: releaseId } },
+          { fields: { _id: 1 }, lean: true, new: true }
+        ).exec();
 
-      // Add release ID to artist if it doesn't already exist.
-      if (!artist.releases.some(id => id.equals(updatedRelease._id))) {
-        await artist.updateOne({ $push: { releases: updatedRelease._id } }).exec();
-        await updatedRelease.updateOne({ artist: artist._id }).exec();
+        artistId = artist._id;
+      } else {
+        const artist = await Artist.create([{ name: artistName, releases: [releaseId], user: userId }], {
+          fields: { _id: 1 },
+          lean: true,
+          new: true
+        });
+
+        artistId = artist[0]._id;
       }
 
-      // Add artist ID to user account if it doesn't already exist..
-      await User.findOneAndUpdate(
-        { _id: userId, artists: { $ne: artist._id } },
-        { $push: { artists: artist._id } }
-      ).exec();
-
+      // Add artist ID to user account if it doesn't already exist.
+      await User.findByIdAndUpdate(userId, { $addToSet: { artists: artistId } }).exec();
+      release.artist = artistId;
+      const updatedRelease = await release.save();
       res.send(updatedRelease.toJSON());
     } catch (error) {
+      console.log(error);
       res.status(500).send({ error: error.message });
     }
   });

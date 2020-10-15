@@ -14,5 +14,6 @@ const artistSchema = new Schema({
   releases: [{ type: Schema.Types.ObjectId, ref: 'Release' }]
 });
 
+artistSchema.index({ name: 1 }, { partialFilterExpression: { name: { $exists: true }, unique: true } });
 artistSchema.set('toJSON', { versionKey: false });
 mongoose.model('artists', artistSchema);

@@ -42,11 +42,11 @@ const Artists = () => {
           <p>Select an artist to edit their details:</p>
           <ul className={styles.list}>
             {artists.map(artist => {
-              const artistNameClassName = classnames({[styles.active]: artist._id === activeArtistId});
+              const artistNameClassNames = classnames(styles.artistName, {[styles.active]: artist._id === activeArtistId});
 
               return (
                 <li key={artist._id}>
-                  <Button className={artistNameClassName} onClick={() => dispatch(setActiveArtistId(artist._id))} textLink text={artist.name} />
+                  <Button className={artistNameClassNames} onClick={() => dispatch(setActiveArtistId(artist._id))} textLink text={artist.name} />
                 </li>
               );
             })}
