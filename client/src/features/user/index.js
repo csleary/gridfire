@@ -57,7 +57,7 @@ const userSlice = createSlice({
         purchases,
         wishList
       } = action.payload;
-      state.auth = artists;
+      state.artists = artists;
       state.auth = auth;
       state.credits = credits;
       state.favourites = favourites;

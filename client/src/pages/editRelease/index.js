@@ -4,9 +4,9 @@ import { addNewRelease, deleteRelease, publishStatus, updateRelease } from 'feat
 import { deleteArtwork, uploadArtwork } from 'features/artwork';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import AdvancedFields from './advancedFields';
+import ArtistMenu from './artistMenu';
 import Button from 'components/button';
 import { CLOUD_URL } from 'index';
-import Dropdown from 'components/dropdown';
 import PropTypes from 'prop-types';
 import RenderArtwork from './renderArtwork';
 import RenderReleaseField from './renderReleaseField';
@@ -29,7 +29,8 @@ class EditRelease extends Component {
       isLoading: true,
       coverArtLoaded: false,
       coverArtPreview: false,
-      showAdditionalInfo: false
+      showAdditionalInfo: false,
+      showNewArtistName: false
     };
 
     this.artworkFile = null;
@@ -162,11 +163,28 @@ class EditRelease extends Component {
             <form>
               <h2 className={styles.heading}>{this.renderHeader()}</h2>
               {!isEditing ? (
-                <p>Please enter your release info below. Artwork and audio will be saved instantly after uploading.</p>
+                <p>
+                  Please enter your release info below. Artwork and audio will be saved automatically after uploading.
+                </p>
               ) : null}
               <div className="row p-0">
                 <div className="col-md mb-4">
-                  <Field component={RenderReleaseField} label="Artist Name" name="artistName" required type="text" />
+                  <Field
+                    component={ArtistMenu}
+                    label="Artist Name"
+                    name="artist"
+                    setShowNewArtist={value => this.setState({ showNewArtistName: value })}
+                    showNewArtistName={this.state.showNewArtistName}
+                  />
+                  {this.state.showNewArtistName ? (
+                    <Field
+                      component={RenderReleaseField}
+                      label="New artist name"
+                      name="artistName"
+                      required
+                      type="text"
+                    />
+                  ) : null}
                   <Field
                     component={RenderReleaseField}
                     label="Release Title"
@@ -222,7 +240,7 @@ class EditRelease extends Component {
                 Upload formats supported: flac, aiff, wav (bit-depths greater than 24 will be truncated to 24-bit). All
                 formats will be stored in flac format.
               </p>
-              <p>You can drag and drop to reorder tracks.</p>
+              <p>You can also drag and drop to reorder tracks.</p>
               <FieldArray
                 change={this.props.change}
                 component={RenderTrackList}

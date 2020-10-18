@@ -1,5 +1,6 @@
 import { toastError, toastSuccess } from 'features/toast';
 import axios from 'axios';
+import { batch } from 'react-redux';
 import { createSlice } from '@reduxjs/toolkit';
 
 const artistSlice = createSlice({
@@ -116,11 +117,13 @@ const updateArtist = values => async dispatch => {
       return dispatch(setIsSubmitting(false));
     }
 
-    dispatch(setArtist(res.data));
-    dispatch(setErrors());
-    dispatch(toastSuccess('Artist saved'));
-    dispatch(setIsSubmitting(false));
-    dispatch(setIsPristine(true));
+    batch(() => {
+      dispatch(setArtist(res.data));
+      dispatch(setErrors());
+      dispatch(toastSuccess('Artist saved'));
+      dispatch(setIsSubmitting(false));
+      dispatch(setIsPristine(true));
+    });
   } catch (error) {
     dispatch(toastError(error.response?.data.error));
     dispatch(setIsLoading(false));

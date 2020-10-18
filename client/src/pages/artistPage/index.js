@@ -16,7 +16,7 @@ const ArtistPage = () => {
   useEffect(() => {
     if (!releaseCount) setLoading(true);
     dispatch(fetchArtistCatalogue(artistId, artistSlug)).then(() => setLoading(false));
-  }, [dispatch, artistId, releaseCount]);
+  }, [dispatch, artistId, artistSlug, releaseCount]);
 
   const renderReleases = () => {
     if (!releases) return;

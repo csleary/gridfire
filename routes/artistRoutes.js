@@ -8,7 +8,7 @@ module.exports = app => {
   app.get('/api/artists', requireLogin, async (req, res) => {
     try {
       const userId = req.user._id;
-      const artists = await Artist.find({ user: userId }, '-__v', { lean: true }).exec();
+      const artists = await Artist.find({ user: userId }, '-releases -__v', { lean: true }).exec();
       res.send(artists);
     } catch (error) {
       res.status(500).send({ error: error.message });

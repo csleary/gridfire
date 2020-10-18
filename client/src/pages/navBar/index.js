@@ -1,4 +1,3 @@
-import './navbar.css';
 import { Link, NavLink, useHistory } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';

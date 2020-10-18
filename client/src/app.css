@@ -99,6 +99,7 @@ a:visited {
   border: none;
   border-radius: 0.5rem;
   color: var(--mid-grey);
+  height: initial;
   transition: 0.25s;
 }
 

@@ -8,10 +8,15 @@ import styles from './dashNav.module.css';
 
 const DashNav = () => {
   const { user } = useSelector(state => state, shallowEqual);
-  const { userReleases } = useSelector(state => state.releases, shallowEqual);
 
   return (
     <>
+      <li>
+        <NavLink className={styles.link} strict exact to={'/dashboard/artists'}>
+          <FontAwesome name="archive" className={styles.icon} />
+          Artists
+        </NavLink>
+      </li>
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard'}>
           <FontAwesome name="headphones" className={styles.icon} />
@@ -23,14 +28,6 @@ const DashNav = () => {
           user.nemAddress ? 'Your NEM payment address.' : 'You don\u2019t currently have a NEM payment address saved.'
         }
       ></li>
-      {userReleases.length ? (
-        <li>
-          <NavLink className={styles.link} strict exact to={'/dashboard/artists'}>
-            <FontAwesome name="archive" className={styles.icon} />
-            Artists
-          </NavLink>
-        </li>
-      ) : null}
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard/nem-address'}>
           <FontAwesome
