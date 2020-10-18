@@ -124,8 +124,8 @@ const deleteRelease = (releaseId, releaseTitle = 'release') => async dispatch =>
   }
 };
 
-const fetchArtistCatalogue = artistId => async dispatch => {
-  const res = await axios.get(`/api/catalogue/${artistId}`);
+const fetchArtistCatalogue = (artistId, artistSlug) => async dispatch => {
+  const res = await axios.get(`/api/catalogue/${artistId}`, { params: { artistId, artistSlug } });
   dispatch(setArtistCatalogue(res.data));
 };
 

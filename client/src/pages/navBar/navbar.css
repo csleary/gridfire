@@ -1,4 +1,4 @@
-.navbar {
+/* .navbar {
   background-color: var(--dark-grey);
   padding: 0;
 }
@@ -22,9 +22,9 @@
 .nav-button-group {
   display: flex;
   flex: 1 0 auto;
-}
+} */
 
-.navbar a,
+/* .navbar a,
 .navbar a:active,
 .navbar a:visited,
 .navbar a:focus,
@@ -32,7 +32,7 @@
   color: var(--lighter-grey);
   font-weight: 600;
   transition-duration: 0.25s;
-}
+} */
 
 .navbar button {
   background-color: inherit;
@@ -81,7 +81,7 @@
   visibility: visible;
 }
 
-.navbar-brand {
+/* .navbar-brand {
   fill: var(--light-grey);
   height: auto;
   margin: 0;
@@ -92,7 +92,7 @@
 
 .navbar-brand:hover {
   fill: var(--cyan);
-}
+} */
 
 span.nav-label,
 nav span.credit {

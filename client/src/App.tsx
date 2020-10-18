@@ -50,6 +50,7 @@ const App = () => {
           <Route path="/release/:releaseId" component={ActiveRelease} />
           <Route path="/artist/:artistId" component={ArtistPage} />
           <PrivateRoute path="/dashboard" component={Dashboard} />
+          <Route exact path="/:artistSlug" component={ArtistPage} />
         </Switch>
         <Footer />
         <Player />

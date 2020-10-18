@@ -6,6 +6,7 @@ import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toas
 import AdvancedFields from './advancedFields';
 import Button from 'components/button';
 import { CLOUD_URL } from 'index';
+import Dropdown from 'components/dropdown';
 import PropTypes from 'prop-types';
 import RenderArtwork from './renderArtwork';
 import RenderReleaseField from './renderReleaseField';

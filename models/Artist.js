@@ -9,11 +9,25 @@ const linkSchema = new Schema({
 const artistSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User' },
   name: { type: String, trim: true },
+  slug: { type: String, trim: true },
   biography: { type: String, trim: true },
   links: [linkSchema],
   releases: [{ type: Schema.Types.ObjectId, ref: 'Release' }]
 });
 
-artistSchema.index({ name: 1 }, { partialFilterExpression: { name: { $exists: true }, unique: true } });
+artistSchema.index(
+  { slug: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      slug: { $exists: true, $type: 'string' }
+    },
+    collation: {
+      locale: 'en',
+      strength: 2
+    }
+  }
+);
+
 artistSchema.set('toJSON', { versionKey: false });
 mongoose.model('artists', artistSchema);

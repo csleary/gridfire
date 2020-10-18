@@ -1,0 +1,19 @@
+.container {
+  align-self: flex-start;
+  display: inline-block;
+  position: relative;
+}
+
+.menu {
+  backface-visibility: hidden;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0.5rem 1rem;
+  position: absolute;
+  user-select: none;
+  z-index: 1080;
+}

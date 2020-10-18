@@ -19,7 +19,7 @@ const Home = ({ match }) => {
 
   const dispatch = useDispatch();
   const [isFetching, setFetching] = useState(false);
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
   const [sortPath, setSortPath] = useState('dateCreated');
   const [sortOrder, setSortOrder] = useState(-1);
 
@@ -33,11 +33,8 @@ const Home = ({ match }) => {
   );
 
   useEffect(() => {
-    if (!catalogue.length) {
-      handleFetchCatalogue().then(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+    if (!catalogue.length) setLoading(true);
+    handleFetchCatalogue().then(() => setLoading(false));
   }, [catalogue.length, handleFetchCatalogue]);
 
   useEffect(() => {

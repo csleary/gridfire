@@ -3,11 +3,14 @@ import { Link, NavLink, useHistory } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { fetchUser, logOut } from 'features/user';
-import DashNavBar from './dashNavBar';
+import Button from 'components/button';
+import DashNav from './dashNav';
+import Dropdown from 'components/dropdown';
 import FontAwesome from 'react-fontawesome';
 import Logo from './logo';
 import SearchBar from './searchBar';
-import classNames from 'classnames';
+import classnames from 'classnames';
+import styles from './navBar.module.css';
 import throttle from 'lodash.throttle';
 import { toastSuccess } from 'features/toast';
 
@@ -16,7 +19,8 @@ const NavBar = () => {
   const history = useHistory();
   const navBar = useRef();
   const [showLogo, setShowLogo] = useState(false);
-  const user = useSelector(state => state.user, shallowEqual);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const { user } = useSelector(state => state, shallowEqual);
   const { auth, credits, isLoading } = user;
 
   useEffect(() => {
@@ -37,88 +41,95 @@ const NavBar = () => {
   };
 
   const handleScroll = () => {
-    const navbarPos = navBar.current && navBar.current.offsetTop;
+    const navbarPos = navBar.current?.offsetTop;
     const scrollPos = window.pageYOffset;
     if (scrollPos < navbarPos) return setShowLogo(false);
     return setShowLogo(true);
   };
 
-  const navbarClass = classNames('navbar-nav', {
-    loaded: !isLoading
+  const logoClassNames = classnames(styles.logoLink, {
+    [styles.show]: showLogo
   });
 
-  const brandClass = classNames('nav-link', {
-    hide: !showLogo,
-    show: showLogo
-  });
-
-  const creditClass = classNames('ml-2', 'credit', {
+  const creditClass = classnames(styles.credit, {
     cyan: credits > 1,
     yellow: credits === 1,
-    red: credits === 0
+    red: !credits
   });
-
-  const renderNav = () => {
-    if (auth === undefined) {
-      return (
-        <>
-          <li className="nav-item mr-auto">
-            <Link to={'/'} className={brandClass}>
-              <Logo class="navbar-brand" />
-            </Link>
-          </li>
-          <li className="nav-item">
-            <NavLink to={'/login'} className="nav-link">
-              <FontAwesome name="sign-in" className="mr-2" title="Click to log in." />
-              <span className="nav-label">Log In</span>
-            </NavLink>
-          </li>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <li className="nav-item ml-auto">
-          <Link to={'/'} className={brandClass}>
-            <Logo class="navbar-brand" />
-          </Link>
-        </li>
-        <li className="nav-item">
-          <NavLink to={'/release/add/'} className="nav-link" title="Add a new release.">
-            <FontAwesome name="plus-square" className="mr-2" />
-            <span className="nav-label">Add Release</span>
-            <FontAwesome
-              name="certificate"
-              className={creditClass}
-              title={`Your nemp3 credit balance is: ${credits}`}
-            />{' '}
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink to={'/dashboard'} className="nav-link" title="Visit your dashboard.">
-            <FontAwesome name={auth.oauthService ?? 'user-circle'} className="mr-2" />
-            <span className="nav-label">Dashboard</span>
-          </NavLink>
-          <DashNavBar />
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={handleLogout}>
-            <FontAwesome name="sign-out" className="mr-2" title="Log out of your account." />
-            <span className="nav-label">Log out</span>
-          </button>
-        </li>
-      </>
-    );
-  };
 
   if (isLoading) return null;
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top" ref={navBar}>
-      <ul className={navbarClass}>
+    <nav className={styles.root} ref={navBar}>
+      <ul className={styles.list}>
         <SearchBar />
-        <div className="nav-button-group">{renderNav()}</div>
+        <div className={styles.group}>
+          {auth === undefined ? (
+            <>
+              <li className="mr-auto">
+                <Link to={'/'} className={logoClassNames}>
+                  <Logo class={styles.logo} />
+                </Link>
+              </li>
+              <li>
+                <NavLink to={'/login'} className={styles.link}>
+                  <FontAwesome name="sign-in" className={styles.icon} title="Click to log in." />
+                  <span className={styles.label}>Log In</span>
+                </NavLink>
+              </li>
+            </>
+          ) : (
+            <>
+              <li className="ml-auto">
+                <Link to={'/'} className={logoClassNames}>
+                  <Logo class={styles.logo} />
+                </Link>
+              </li>
+              <li>
+                <NavLink to={'/release/add/'} className={styles.link} title="Add a new release.">
+                  <FontAwesome name="plus-square" className={styles.icon} />
+                  <span className={styles.label}>Add Release</span>
+                  <FontAwesome
+                    name="certificate"
+                    className={creditClass}
+                    title={`Your nemp3 credit balance is: ${credits}`}
+                  />
+                </NavLink>
+              </li>
+              <li>
+                <Dropdown
+                  className={classnames(styles.link, { [styles.active]: menuIsOpen })}
+                  closeOnClick
+                  dropdownClassName={styles.dropdown}
+                  fullWidth
+                  icon={auth.oauthService ?? 'user-circle'}
+                  iconClassName={styles.icon}
+                  offset={0}
+                  onClick={() => setMenuIsOpen(!menuIsOpen)}
+                  onClickOutside={() => setMenuIsOpen(false)}
+                  text="Dashboard"
+                  textLink
+                  title="Visit your dashboard."
+                >
+                  <DashNav />
+                </Dropdown>
+              </li>
+              <li>
+                <Button
+                  className={styles.link}
+                  icon="sign-out"
+                  iconClassName={styles.icon}
+                  onClick={handleLogout}
+                  textLink
+                >
+                  <span className={styles.label} title="Log out of your account.">
+                    Log out
+                  </span>
+                </Button>
+              </li>
+            </>
+          )}
+        </div>
       </ul>
     </nav>
   );

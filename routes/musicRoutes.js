@@ -43,17 +43,30 @@ module.exports = app => {
   });
 
   // Fetch artist catalogue
-  app.get('/api/catalogue/:artist', async (req, res) => {
-    const { artist } = req.params;
+  app.get('/api/catalogue/:artistId', async (req, res) => {
+    const { artistId } = req.params;
+    const { artistSlug } = req.query;
 
-    const catalogue = await Artist.findById(artist)
-      .populate({
-        path: 'releases',
-        match: { published: true },
-        model: Release,
-        options: { lean: true, sort: '-releaseDate' }
-      })
-      .exec();
+    let catalogue;
+    if (artistSlug) {
+      catalogue = await Artist.findOne({ slug: artistSlug })
+        .populate({
+          path: 'releases',
+          match: { published: true },
+          model: Release,
+          options: { lean: true, sort: '-releaseDate' }
+        })
+        .exec();
+    } else {
+      catalogue = await Artist.findById(artistId)
+        .populate({
+          path: 'releases',
+          match: { published: true },
+          model: Release,
+          options: { lean: true, sort: '-releaseDate' }
+        })
+        .exec();
+    }
 
     res.send(catalogue);
   });

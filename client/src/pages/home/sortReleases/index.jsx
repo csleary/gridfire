@@ -1,10 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { animated, useTransition } from 'react-spring';
 import Button from 'components/button';
+import Dropdown from 'components/dropdown';
 import FontAwesome from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import styles from './sortReleases.module.css';
-import { useOnClickOutside } from 'hooks/useOnClickOutside';
 
 const sortOptions = [
   { title: 'Date Added', sortPath: 'dateCreated', 1: 'Old', '-1': 'New' },
@@ -31,21 +30,10 @@ const sortOptions = [
 
 const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, setSortOrder }) => {
   const sortRef = useRef();
-  const [showSortMenu, setShowSortMenu] = useState(false);
-
-  const transition = useTransition(showSortMenu, {
-    config: { mass: 1, tension: 250, friction: 10, clamp: true },
-    from: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' },
-    enter: { opacity: 1, transform: 'scale(1) translateY(0)' },
-    leave: { opacity: 0, transform: 'scale(0.98) translateY(-0.25rem)' }
-  });
-
-  useOnClickOutside(sortRef, () => setShowSortMenu(false));
   const [isSorting, setSorting] = useState(false);
 
   const handleSortPath = async path => {
     setSorting(true);
-    setShowSortMenu(false);
     await handleFetchCatalogue(path, sortOrder);
     setSortPath(path);
     setSorting(false);
@@ -61,16 +49,23 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
   return (
     <div className={styles.sort} ref={sortRef}>
       <div className={styles.buttons}>
-        <Button
+        <Dropdown
           className={styles.sortButton}
-          disabled={isSorting}
+          closeOnClick
+          dropdownClassName={styles.sortList}
           icon="sort"
           iconClassName={styles.sortIcon}
-          onClick={() => setShowSortMenu(!showSortMenu)}
+          offset={0}
+          text={sortOptions.find(option => option.sortPath === sortPath).title}
           textLink
+          title="Sort releases."
         >
-          {sortOptions.find(option => option.sortPath === sortPath).title}
-        </Button>
+          {sortOptions.map(option => (
+            <li className={styles.sortItem} key={option.title} onClick={() => handleSortPath(option.sortPath)}>
+              {option.title}
+            </li>
+          ))}
+        </Dropdown>
         <Button
           className={styles.sortButton}
           disabled={isSorting}
@@ -81,18 +76,6 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
         </Button>
         {isSorting ? <FontAwesome name="cog" spin /> : null}
       </div>
-      {transition(
-        (style, item) =>
-          item && (
-            <animated.ul className={styles.sortList} style={style}>
-              {sortOptions.map(option => (
-                <li className={styles.sortItem} key={option.title} onClick={() => handleSortPath(option.sortPath)}>
-                  {option.title}
-                </li>
-              ))}
-            </animated.ul>
-          )
-      )}
     </div>
   );
 };

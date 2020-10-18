@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 
 const Artist = mongoose.model('artists');
-// const Release = mongoose.model('releases');
-// const User = mongoose.model('users');
+const Release = mongoose.model('releases');
 
 module.exports = app => {
   app.get('/api/artists', requireLogin, async (req, res) => {
@@ -19,16 +18,31 @@ module.exports = app => {
   app.post('/api/artist/:artistId', requireLogin, async (req, res) => {
     try {
       const userId = req.user._id;
-      const { biography, links } = req.body;
+      const { name, slug, biography, links } = req.body;
 
-      const updated = await Artist.findOneAndUpdate(
+      // If slug string length is zero, set it to null to satisfy the unique index.
+      const { releases, ...rest } = await Artist.findOneAndUpdate(
         { _id: req.params.artistId, user: userId },
-        { biography, links },
-        { fields: { biography: 1, links: 1, name: 1 }, lean: true, new: true }
+        {
+          name,
+          slug: slug && slug.length === 0 ? null : slug,
+          biography,
+          links: links.slice(0, 10)
+        },
+        { fields: { __v: 0 }, lean: true, new: true }
       ).exec();
 
-      res.send(updated);
+      await Release.updateMany({ _id: { $in: releases }, user: userId }, { artistName: name }).exec();
+      res.send({ ...rest });
     } catch (error) {
+      if (error.codeName === 'DuplicateKey') {
+        return res.send({
+          error: 'Save failed. This artist slug is already in use. Please try another.',
+          name: 'slug',
+          value: 'This slug is in use. Please try another.'
+        });
+      }
+
       res.status(500).send({ error: error.message });
     }
   });
@@ -40,7 +54,7 @@ module.exports = app => {
       const updated = await Artist.findOneAndUpdate(
         { _id: req.params.artistId, user: userId },
         { $addToSet: { links: { title: '', uri: '' } } },
-        { fields: { biography: 1, links: 1, name: 1 }, lean: true, new: true }
+        { fields: { links: 1 }, lean: true, new: true }
       ).exec();
 
       res.send(updated);

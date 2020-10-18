@@ -287,19 +287,45 @@ module.exports = app => {
         track.trackTitle = trackList.find(update => update._id.toString() === track._id.toString()).trackTitle;
       });
 
+      let artistId = release.artist;
       // Check for artist first using the previous release artist name, just in case it has since been changed.
-      const artistExists = await Artist.exists({ name: prevArtistName, user: userId });
+      const shouldUpdateArtist = await Artist.exists({ _id: artistId, name: prevArtistName, user: userId });
+      const artistNameExists = await Artist.exists({ name: artistName, user: userId });
 
-      let artistId;
-      if (artistExists) {
+      if (shouldUpdateArtist && artistNameExists) {
+        // Merge artists
+        const mergedArtist = await Artist.findOneAndUpdate(
+          { name: artistName, user: userId },
+          { $set: { name: artistName }, $addToSet: { releases: releaseId } },
+          { fields: { _id: 1 }, lean: true, new: true }
+        ).exec();
+
+        const prevArtist = await Artist.findByIdAndUpdate(
+          artistId,
+          { $pull: { releases: releaseId } },
+          { fields: { _id: 1, releases: 1 }, lean: true, new: true }
+        ).exec();
+
+        await User.findByIdAndUpdate(req.user._id, { $pull: { artists: prevArtist._id } }).exec();
+        if (!prevArtist.releases.length) await Artist.findByIdAndDelete(prevArtist._id).exec();
+        artistId = mergedArtist._id;
+      } else if (shouldUpdateArtist) {
+        // Update artists
+        await Artist.findByIdAndUpdate(artistId, {
+          $set: { name: artistName },
+          $addToSet: { releases: releaseId }
+        }).exec();
+      } else if (artistNameExists) {
+        // Add to existing artist
         const artist = await Artist.findOneAndUpdate(
-          { name: prevArtistName, user: userId },
+          { name: artistName, user: userId },
           { $set: { name: artistName }, $addToSet: { releases: releaseId } },
           { fields: { _id: 1 }, lean: true, new: true }
         ).exec();
 
         artistId = artist._id;
       } else {
+        // Create new artist
         const artist = await Artist.create([{ name: artistName, releases: [releaseId], user: userId }], {
           fields: { _id: 1 },
           lean: true,
@@ -315,7 +341,6 @@ module.exports = app => {
       const updatedRelease = await release.save();
       res.send(updatedRelease.toJSON());
     } catch (error) {
-      console.log(error);
       res.status(500).send({ error: error.message });
     }
   });

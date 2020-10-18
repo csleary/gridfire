@@ -1,5 +1,45 @@
 .artist {
   font-size: 3rem;
-  margin: 0.5rem 0;
+  margin: 0;
   text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.biography {
+  background-color: var(--charcoal);
+  padding: 3rem;
+}
+
+.links {
+  margin-top: 1.5rem;
+}
+
+.linksList {
+  list-style: none;
+  padding: 0 3rem 1.5rem;
+}
+
+.link {
+  margin-bottom: 0.5rem;
+}
+
+.link:last-of-type {
+  margin-bottom: 0;
+}
+
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

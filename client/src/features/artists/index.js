@@ -9,7 +9,8 @@ const artistSlice = createSlice({
     artists: [],
     errors: {},
     isLoading: false,
-    isSubmitting: false
+    isSubmitting: false,
+    isPristine: true
   },
   reducers: {
     removeLink(state, action) {
@@ -38,11 +39,20 @@ const artistSlice = createSlice({
     },
 
     setErrors(state, action) {
+      if (!action.payload) {
+        state.errors = {};
+        return;
+      }
+
       state.errors[action.payload.name] = action.payload.value;
     },
 
     setIsLoading(state, action) {
       state.isLoading = action.payload;
+    },
+
+    setIsPristine(state, action) {
+      state.isPristine = action.payload;
     },
 
     setIsSubmitting(state, action) {
@@ -72,15 +82,14 @@ const artistSlice = createSlice({
   }
 });
 
-const addLink = activeArtistId => async dispatch => {
+const addLink = activeArtistId => async (dispatch, getState) => {
   try {
-    dispatch(setIsLoading(true));
     const res = await axios.patch(`/api/artist/${activeArtistId}/link`);
-    dispatch(setArtist(res.data));
-    dispatch(setIsLoading(false));
+    const existing = getState().artists.artists.find(artist => artist._id === res.data._id);
+    const update = { ...existing, links: res.data.links };
+    dispatch(setArtist(update));
   } catch (error) {
-    dispatch(toastError(error.response?.data.error));
-    dispatch(setIsLoading(false));
+    dispatch(toastError(error.response?.data.error ?? error.toString()));
   }
 };
 
@@ -100,9 +109,18 @@ const updateArtist = values => async dispatch => {
   try {
     dispatch(setIsSubmitting(true));
     const res = await axios.post(`/api/artist/${values._id}`, values);
+
+    if (res.data.error) {
+      dispatch(setErrors({ name: res.data.name, value: res.data.value }));
+      dispatch(toastError(res.data.error));
+      return dispatch(setIsSubmitting(false));
+    }
+
     dispatch(setArtist(res.data));
+    dispatch(setErrors());
     dispatch(toastSuccess('Artist saved'));
     dispatch(setIsSubmitting(false));
+    dispatch(setIsPristine(true));
   } catch (error) {
     dispatch(toastError(error.response?.data.error));
     dispatch(setIsLoading(false));
@@ -115,6 +133,7 @@ export const {
   setArtist,
   setArtists,
   setErrors,
+  setIsPristine,
   setIsSubmitting,
   setValues,
   setIsLoading

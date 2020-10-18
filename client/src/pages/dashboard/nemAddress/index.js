@@ -88,7 +88,7 @@ let NemAddress = props => {
   return (
     <main className="container">
       <div className="row">
-        <div className="col-lg mb-5 py-3">
+        <div className="col-lg mb-5">
           <h3 className="text-center mt-4">NEM Payment Address</h3>
           <p className="text-center">
             Please add a NEM address if you wish to sell music. You do not need to enter an address if you only plan on
@@ -127,7 +127,7 @@ let NemAddress = props => {
               <span className={creditClassName}>
                 <FontAwesome name="certificate" className="mr-2" />
                 {nemAddressVerified && credits
-                  ? `Address credits balance: ${credits}`
+                  ? `Your nemp3 credits balance: ${credits}`
                   : nemAddressVerified
                   ? 'You don\u2019t currently have any credits.'
                   : 'Please add a verified NEM address to update your credits balance.'}

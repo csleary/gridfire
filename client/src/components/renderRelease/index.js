@@ -16,7 +16,7 @@ import withDownload from 'pages/payment/payments/withDownload';
 const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = props => {
-  const { release, type } = props;
+  const { release, showArtist = true, showTitle = true, type } = props;
   const dispatch = useDispatch();
   const { player } = useSelector(state => state, shallowEqual);
   const { _id: releaseId, artist, artistName, artwork, releaseTitle, trackList } = release;
@@ -55,9 +55,15 @@ const RenderRelease = props => {
       />
       <img alt={`${artistName} - ${releaseTitle}`} className={styles.placeholder} src={placeholder} />
       <div className={styles.overlay} title={`${artistName} - ${releaseTitle}`}>
-        <Link className={styles.artistName} title={`Visit the artist page for ${artistName}`} to={`/artist/${artist}`}>
-          {artistName}
-        </Link>
+        {showArtist ? (
+          <Link
+            className={styles.artistName}
+            title={`Visit the artist page for ${artistName}`}
+            to={`/artist/${artist}`}
+          >
+            {artistName}
+          </Link>
+        ) : null}
         <div className={styles.buttons}>
           <button
             className={styles.button}
@@ -75,13 +81,15 @@ const RenderRelease = props => {
           </Link>
           {showCollectionDownload()}
         </div>
-        <Link
-          className={styles.releaseTitle}
-          title={`More information on '${releaseTitle}', by ${artistName}`}
-          to={`/release/${releaseId}`}
-        >
-          {releaseTitle}
-        </Link>
+        {showTitle ? (
+          <Link
+            className={styles.releaseTitle}
+            title={`More information on '${releaseTitle}', by ${artistName}`}
+            to={`/release/${releaseId}`}
+          >
+            {releaseTitle}
+          </Link>
+        ) : null}
       </div>
     </div>
   );
@@ -89,6 +97,8 @@ const RenderRelease = props => {
 
 RenderRelease.propTypes = {
   release: PropTypes.object,
+  showArtist: PropTypes.bool,
+  showTitle: PropTypes.bool,
   type: PropTypes.string
 };
 

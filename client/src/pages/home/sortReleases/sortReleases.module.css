@@ -1,21 +1,17 @@
 .sort {
   display: inline-block;
   margin-bottom: 1rem;
-  position: relative;
 }
 
 .buttons {
   align-items: center;
   display: flex;
-  position: relative;
 }
 
 .sortButton {
   background: none;
   border: none;
   color: var(--light-grey);
-  font-size: 0.875rem;
-  letter-spacing: 0.075rem;
   margin-right: 0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -40,17 +36,12 @@
 
 .sortList {
   background: var(--darker-grey);
+  border: 0;
   border-bottom-right-radius: 0.5rem;
   color: var(--lighter-grey);
-  font-size: 0.875rem;
-  left: 0;
-  letter-spacing: 0.075rem;
   list-style-type: none;
   margin-top: 0.5rem;
-  min-width: 12rem;
   padding: 0;
-  position: absolute;
-  z-index: 1000;
 }
 
 .sortItem {

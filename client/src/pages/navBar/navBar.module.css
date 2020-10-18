@@ -1,0 +1,137 @@
+.root {
+  background-color: var(--dark-grey);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.group {
+  align-items: center;
+  display: flex;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+}
+
+.root .link {
+  color: var(--lighter-grey);
+  display: inline-block;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+}
+
+.root .link > button {
+  color: var(--lighter-grey);
+  font-weight: 600;
+}
+
+.root .link:hover,
+.root .link:hover > .icon {
+  animation: blink 750ms cubic-bezier(0, 0.85, 0.85, 1);
+  color: var(--cyan);
+}
+
+.root .link:global(.active) {
+  background: var(--darker-grey);
+  color: var(--off-white);
+}
+
+.root .link .icon {
+  color: var(--lighter-grey);
+  margin-right: 0.5rem;
+}
+
+.root .link:hover .icon {
+  animation: blink 750ms cubic-bezier(0, 0.85, 0.85, 1) 50ms;
+}
+
+.link:global(.active) > .icon {
+  color: var(--yellow);
+}
+
+.logoLink {
+  composes: link;
+  opacity: 0;
+  pointer-events: none;
+  visibility: invisible;
+}
+
+.logoLink.show {
+  opacity: 1;
+  pointer-events: all;
+  visibility: visible;
+}
+
+.logo {
+  fill: var(--light-grey);
+  height: auto;
+  margin: 0;
+  transition-duration: 0.25s;
+  width: 4rem;
+}
+
+.logo:hover {
+  fill: var(--cyan);
+}
+
+.credit {
+  margin-left: 0.5rem;
+}
+
+.label {
+  display: none;
+}
+
+.dropdown {
+  background-color: var(--dark-grey);
+  border: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: fixed;
+}
+
+.link.active {
+  background: var(--darker-grey);
+  color: var(--off-white);
+}
+
+.link.active > .icon {
+  color: var(--yellow);
+}
+
+@media (min-width: 992px) {
+  .label {
+    display: inline;
+  }
+}
+
+@keyframes blink {
+  from {
+    color: #000;
+  }
+
+  10% {
+    color: #fff;
+  }
+
+  to {
+    color: var(--cyan);
+  }
+}
