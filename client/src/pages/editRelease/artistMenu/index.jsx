@@ -51,7 +51,7 @@ const ArtistMenu = field => {
             </button>
           </li>
         ))}
-        <li className={styles.listItem} key={'create'}>
+        <li className={styles.create} key={'create'}>
           <button className={styles.artist} onClick={() => setShowNewArtist(true)}>
             <FontAwesome name="plus-circle" className="mr-2" />
             Create new artist…

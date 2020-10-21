@@ -1,11 +1,12 @@
+const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC } = require('../config/constants');
+const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
 const aws = require('aws-sdk');
+const { createArtist } = require('../controllers/artistController');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
-const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC } = require('../config/constants');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
-const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
 
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
@@ -40,12 +41,18 @@ module.exports = app => {
       }).exec();
 
       if (incompleteReleases.length >= 3) {
+        const io = app.get('socketio');
         const num = incompleteReleases.length;
+        const [release] = incompleteReleases;
+        res.send(release.toJSON());
 
-        return res.send({
-          warning: `It looks like you have ${incompleteReleases.length} release${
+        return io.to(userId).emit('notify', {
+          type: 'warning',
+          message: `It looks like you have ${num} release${
             num !== 1 ? 's' : ''
-          } in need of completion already. Please complete ${num > 1 ? 'these' : 'that'} before creating another.`
+          } in need of completion already. Please complete ${
+            num > 1 ? 'one of these' : 'that'
+          } before creating another.`
         });
       }
 
@@ -270,11 +277,7 @@ module.exports = app => {
 
       let artist;
       if (!existingArtistId) {
-        [artist] = await Artist.create([{ name: artistName, releases: [releaseId], user: userId }], {
-          fields: { _id: 1 },
-          lean: true,
-          new: true
-        });
+        [artist] = await createArtist(artistName, releaseId, userId);
       } else {
         artist = await Artist.findByIdAndUpdate(
           existingArtistId,

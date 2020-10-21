@@ -15,6 +15,7 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import classnames from 'classnames';
 import styles from './artists.module.css';
+import slugify from 'slugify';
 
 const Artists = () => {
   const dispatch = useDispatch();
@@ -37,6 +38,17 @@ const Artists = () => {
 
     if (name === 'biography' && value.length > 2000) {
       return dispatch(setErrors({ name, value: 'Please keep your biography to under 2000 characters.' }));
+    }
+
+    if (name === 'slug') {
+      dispatch(
+        setValues({
+          artistId: activeArtistId,
+          name,
+          value: slugify(value, { lower: true, strict: true })
+        })
+      );
+      return dispatch(setErrors());
     }
 
     dispatch(setValues({ artistId: activeArtistId, name, value }));

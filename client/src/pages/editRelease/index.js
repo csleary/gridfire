@@ -169,13 +169,17 @@ class EditRelease extends Component {
               ) : null}
               <div className="row p-0">
                 <div className="col-md mb-4">
-                  <Field
-                    component={ArtistMenu}
-                    label="Artist Name"
-                    name="artist"
-                    setShowNewArtist={value => this.setState({ showNewArtistName: value })}
-                    showNewArtistName={this.state.showNewArtistName}
-                  />
+                  {isEditing ? (
+                    <h3>{this.props.release.artistName}</h3>
+                  ) : (
+                    <Field
+                      component={ArtistMenu}
+                      label="Artist Name"
+                      name="artist"
+                      setShowNewArtist={value => this.setState({ showNewArtistName: value })}
+                      showNewArtistName={this.state.showNewArtistName}
+                    />
+                  )}
                   {this.state.showNewArtistName ? (
                     <Field
                       component={RenderReleaseField}

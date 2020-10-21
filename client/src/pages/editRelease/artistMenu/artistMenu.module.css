@@ -50,3 +50,8 @@
 .artist:last-child {
   padding-bottom: 0.75rem;
 }
+
+.create {
+  composes: listItem;
+  border-top: 1px dashed var(--light-grey);
+}

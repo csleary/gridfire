@@ -48,6 +48,7 @@
     "request-promise-native": "^1.0.9",
     "sax": "^1.2.4",
     "sharp": "^0.24.1",
+    "slugify": "^1.4.5",
     "socket.io": "^2.3.0",
     "worker-threads-pool": "^2.0.0"
   },

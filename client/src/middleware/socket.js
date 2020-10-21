@@ -1,5 +1,5 @@
 import { setTranscodingComplete, setUploadProgress } from 'features/tracks';
-import { toastError, toastInfo, toastSuccess } from 'features/toast';
+import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import { batch } from 'react-redux';
 import io from 'socket.io-client';
 import { setArtworkUploading } from 'features/artwork';
@@ -40,6 +40,21 @@ const socketMiddleware = ({ dispatch, getState }) => {
       dispatch(toastSuccess(`Transcoding ${trackName} to aac complete.`));
       dispatch(setTranscodingComplete(trackId));
     });
+  });
+
+  socket.on('notify', ({ type, message }) => {
+    switch (type) {
+      case 'error':
+        return dispatch(toastError(message));
+      case 'info':
+        return dispatch(toastInfo(message));
+      case 'success':
+        return dispatch(toastSuccess(message));
+      case 'warning':
+        return dispatch(toastWarning(message));
+      default:
+        return dispatch(toastInfo(message));
+    }
   });
 
   socket.on('updateActiveRelease', ({ release }) => {
