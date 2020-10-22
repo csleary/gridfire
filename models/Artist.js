@@ -12,7 +12,9 @@ const artistSchema = new Schema({
   slug: { type: String, trim: true },
   biography: { type: String, trim: true },
   links: [linkSchema],
-  releases: [{ type: Schema.Types.ObjectId, ref: 'Release' }]
+  releases: [{ type: Schema.Types.ObjectId, ref: 'Release' }],
+  dateCreated: { type: Date },
+  dateUpdated: { type: Date }
 });
 
 artistSchema.index(
@@ -28,6 +30,10 @@ artistSchema.index(
     }
   }
 );
+
+artistSchema.post('save', release => {
+  release.updateOne({ dateUpdated: Date.now() }).exec();
+});
 
 artistSchema.set('toJSON', { versionKey: false });
 mongoose.model('artists', artistSchema);
