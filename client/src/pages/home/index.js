@@ -33,8 +33,10 @@ const Home = ({ match }) => {
   );
 
   useEffect(() => {
-    if (!catalogue.length) setLoading(true);
-    handleFetchCatalogue().then(() => setLoading(false));
+    if (!catalogue.length) {
+      setLoading(true);
+      handleFetchCatalogue().then(() => setLoading(false));
+    }
   }, [catalogue.length, handleFetchCatalogue]);
 
   useEffect(() => {
