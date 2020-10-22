@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
+const slugify = require('slugify');
 
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
@@ -25,7 +26,7 @@ module.exports = app => {
         { _id: req.params.artistId, user: userId },
         {
           name,
-          slug: slug && slug.length === 0 ? null : slug,
+          slug: slug && slug.length === 0 ? null : slugify(slug, { lower: true, strict: true }),
           biography,
           links: links.slice(0, 10)
         },

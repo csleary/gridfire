@@ -39,7 +39,7 @@ const ArtistPage = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-md-6 py-3">
+        <div className={'col-md-6 py-3'}>
           <h3 className={styles.title}>Releases</h3>
           <div className={styles.grid}>{renderReleases()}</div>
         </div>

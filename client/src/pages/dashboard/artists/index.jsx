@@ -15,7 +15,6 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import classnames from 'classnames';
 import styles from './artists.module.css';
-import slugify from 'slugify';
 
 const Artists = () => {
   const dispatch = useDispatch();
@@ -38,17 +37,6 @@ const Artists = () => {
 
     if (name === 'biography' && value.length > 2000) {
       return dispatch(setErrors({ name, value: 'Please keep your biography to under 2000 characters.' }));
-    }
-
-    if (name === 'slug') {
-      dispatch(
-        setValues({
-          artistId: activeArtistId,
-          name,
-          value: slugify(value, { lower: true, strict: true })
-        })
-      );
-      return dispatch(setErrors());
     }
 
     dispatch(setValues({ artistId: activeArtistId, name, value }));
@@ -108,12 +96,12 @@ const Artists = () => {
               <p>Rename your artist or set a unique URL stem for your artist page.</p>
               <fieldset className={styles.fields}>
                 <div className={styles.names}>
-                  <div className={styles.slug}>
+                  <div className={styles.name}>
                     <label className={styles.label} htmlFor={'name'}>
                       Name
                     </label>
                     <input
-                      className={styles.slugInput}
+                      className={styles.nameInput}
                       name={'name'}
                       onChange={handleChange}
                       type="text"
@@ -124,16 +112,22 @@ const Artists = () => {
                     <label className={styles.label} htmlFor={'slug'}>
                       URL Slug
                     </label>
-                    <input
-                      className={styles.slugInput}
-                      name={'slug'}
-                      onChange={handleChange}
-                      type="text"
-                      value={activeArtist?.slug || ''}
-                    />
+                    <div className={styles.field}>
+                      <input
+                        className={styles.nameInput}
+                        name={'slug'}
+                        onChange={handleChange}
+                        type="text"
+                        value={activeArtist?.slug || ''}
+                      />
+                      {errors.slug ? (
+                        <div className={styles.error}>{errors.slug}</div>
+                      ) : (
+                        <div className={styles.hint}>Alphanumerics and dashes only.</div>
+                      )}
+                    </div>
                   </div>
                 </div>
-                {errors.slug ? <div className={styles.error}>{errors.slug}</div> : null}
               </fieldset>
               <fieldset className={styles.fields}>
                 <label className={styles.label} htmlFor="biography">
