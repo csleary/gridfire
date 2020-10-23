@@ -91,12 +91,6 @@
   color: #18cdca;
 }
 
-.item:last-child {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0.5rem;
-  margin-bottom: 0;
-}
-
 .item {
   background-color: inherit;
   border: 0;
@@ -107,6 +101,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.item:last-child {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0.5rem;
+  margin-bottom: 0;
+  padding-bottom: 0.75rem;
 }
 
 .action {

@@ -64,6 +64,7 @@
   composes: link;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: invisible;
 }
 

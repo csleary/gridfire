@@ -1,4 +1,4 @@
-import { Field, FieldArray, formValueSelector, getFormValues, propTypes, reduxForm } from 'redux-form';
+import { Field, FieldArray, formValueSelector, propTypes, reduxForm } from 'redux-form';
 import React, { Component } from 'react';
 import { addNewRelease, deleteRelease, publishStatus, updateRelease } from 'features/releases';
 import { deleteArtwork, uploadArtwork } from 'features/artwork';
@@ -56,6 +56,7 @@ class EditRelease extends Component {
         return this.props.history.push('/dashboard/nem-address');
       }
 
+      this.props.initialize({ releaseDate: new Date(Date.now()).toISOString() });
       this.setState({ isLoading: false });
     }
   }
@@ -138,7 +139,7 @@ class EditRelease extends Component {
   }
 
   render() {
-    const { formValues, invalid, pristine, submitting } = this.props;
+    const { invalid, pristine, submitting } = this.props;
     const { isEditing, isLoading } = this.state;
 
     const submitButton = (
@@ -235,7 +236,7 @@ class EditRelease extends Component {
                     handleDeletePreview={() => this.setState({ coverArtPreview: undefined })}
                     onDropArt={this.onDropArt}
                   />
-                  {this.state.showAdditionalInfo ? <Tags change={this.props.change} tags={formValues.tags} /> : null}
+                  {this.state.showAdditionalInfo ? <Field component={Tags} label="Add Tags" name="tags" /> : null}
                   {submitButton}
                 </div>
               </div>
@@ -265,7 +266,6 @@ const fieldSelector = formValueSelector('releaseForm');
 const mapStateToProps = state => ({
   artworkUploading: state.artwork.artworkUploading,
   artworkUploadProgress: state.artwork.artworkUploadProgress,
-  formValues: getFormValues('releaseForm')(state),
   initialValues: state.releases.activeRelease,
   price: Number(fieldSelector(state, 'price')),
   release: state.releases.activeRelease,

@@ -7,7 +7,7 @@ import styles from './tags.module.css';
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
-const Tags = ({ change, tags }) => {
+const Tags = ({ input: { name, value: tags, onChange }, label }) => {
   const [tagsInput, setTagsInput] = useState('');
   const [tagsError, setTagsError] = useState('');
 
@@ -28,7 +28,7 @@ const Tags = ({ change, tags }) => {
 
       if (!tag.length) return;
       const update = [...tags, tag];
-      change('tags', update);
+      onChange(update);
       setTagsError('');
       setTagsInput('');
     }
@@ -36,12 +36,13 @@ const Tags = ({ change, tags }) => {
 
   const handleRemoveTag = indexToDelete => {
     const update = tags.filter((tag, index) => index !== indexToDelete);
-    change('tags', update);
+    onChange(update);
+    setTagsError('');
     if (tags.length <= 20) setTagsInput('');
   };
 
   const handleClearTags = () => {
-    change('tags', []);
+    onChange([]);
     setTagsInput('');
     setTagsError('');
   };
@@ -49,8 +50,8 @@ const Tags = ({ change, tags }) => {
   return (
     <div className={styles.tags}>
       <div className="form-group">
-        <label htmlFor="tagsInput">
-          Add Tags
+        <label htmlFor={name}>
+          {label}
           <Button
             className={styles.clear}
             disabled={!tags.length}
@@ -69,7 +70,7 @@ const Tags = ({ change, tags }) => {
         </p>
         <input
           className="form-control"
-          id="tagsInput"
+          id={name}
           onChange={handleTagsInput}
           onKeyPress={handleKeyPress}
           type="text"
@@ -80,14 +81,13 @@ const Tags = ({ change, tags }) => {
           <br />
           {NUM_MAX_TAGS} tag max, {NUM_MAX_CHARS} characters per tag.
         </small>
-        <div className="invalid-feedback">{tagsError ? tagsError : null}</div>
+        <div className={styles.error}>{tagsError ? tagsError : null}</div>
       </div>
       {tags?.length ? (
         <p>Tags set so far…</p>
       ) : (
         <p>
-          No tags currently set for this release. We strongly recommend setting some tags as they are indexed for
-          searching.
+          No tags currently set for this release. We strongly recommend setting some tags as they help for searching.
         </p>
       )}
       {tags?.map((tag, index) => (
@@ -108,8 +108,8 @@ const Tags = ({ change, tags }) => {
 };
 
 Tags.propTypes = {
-  change: PropTypes.func,
-  tags: PropTypes.array
+  input: PropTypes.object,
+  label: PropTypes.string
 };
 
 export default Tags;

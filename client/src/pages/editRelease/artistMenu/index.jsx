@@ -7,8 +7,7 @@ import styles from './artistMenu.module.css';
 
 const ArtistMenu = field => {
   const {
-    id,
-    input: { value, onChange },
+    input: { name, value, onChange },
     label,
     meta: { touched, error },
     setShowNewArtist,
@@ -29,13 +28,14 @@ const ArtistMenu = field => {
 
   return (
     <fieldset className={styles.field}>
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={name}>{label}</label>
       <Dropdown
         className={styles.select}
         closeOnClick
         containerClassName={styles.container}
         dropdownClassName={styles.dropdown}
         fullWidth
+        id={name}
         text={selectedArtist?.name || defaultLabel}
       >
         {artists.map(artist => (
