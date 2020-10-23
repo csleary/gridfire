@@ -16,6 +16,7 @@ const artistSlice = createSlice({
   reducers: {
     removeLink(state, action) {
       const { artistId, linkId } = action.payload;
+      state.isPristine = false;
 
       state.artists = state.artists.map(artist => {
         if (artist._id === artistId) return { ...artist, links: artist.links.filter(link => link._id !== linkId) };
@@ -60,6 +61,15 @@ const artistSlice = createSlice({
       state.isSubmitting = action.payload;
     },
 
+    setLink(state, action) {
+      const { artistId, link } = action.payload;
+      state.isPristine = false;
+      state.artists = state.artists.map(artist => {
+        if (artist._id === artistId) return { ...artist, links: [...artist.links, link] };
+        return artist;
+      });
+    },
+
     setValues(state, action) {
       const { artistId, name, value } = action.payload;
 
@@ -83,12 +93,10 @@ const artistSlice = createSlice({
   }
 });
 
-const addLink = activeArtistId => async (dispatch, getState) => {
+const addLink = activeArtistId => async dispatch => {
   try {
     const res = await axios.patch(`/api/artist/${activeArtistId}/link`);
-    const existing = getState().artists.artists.find(artist => artist._id === res.data._id);
-    const update = { ...existing, links: res.data.links };
-    dispatch(setArtist(update));
+    dispatch(setLink({ artistId: activeArtistId, link: res.data }));
   } catch (error) {
     dispatch(toastError(error.response?.data.error ?? error.toString()));
   }
@@ -138,6 +146,7 @@ export const {
   setErrors,
   setIsPristine,
   setIsSubmitting,
+  setLink,
   setValues,
   setIsLoading
 } = artistSlice.actions;

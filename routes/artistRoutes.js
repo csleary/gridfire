@@ -51,14 +51,9 @@ module.exports = app => {
   app.patch('/api/artist/:artistId/link', requireLogin, async (req, res) => {
     try {
       const userId = req.user._id;
-
-      const updated = await Artist.findOneAndUpdate(
-        { _id: req.params.artistId, user: userId },
-        { $addToSet: { links: { title: '', uri: '' } } },
-        { fields: { links: 1 }, lean: true, new: true }
-      ).exec();
-
-      res.send(updated);
+      const artist = await Artist.findOne({ _id: req.params.artistId, user: userId }, 'links').exec();
+      const newLink = artist.links.create();
+      res.send(newLink);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

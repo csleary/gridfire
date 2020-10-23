@@ -39,6 +39,10 @@ const Artists = () => {
       return dispatch(setErrors({ name, value: 'Please keep your biography to under 2000 characters.' }));
     }
 
+    if ((name.endsWith('title') || name.endsWith('uri')) && value.length > 200) {
+      return dispatch(setErrors({ name: 'links', value: 'Please keep your links to under 200 characters.' }));
+    }
+
     dispatch(setValues({ artistId: activeArtistId, name, value }));
     dispatch(setErrors());
   };

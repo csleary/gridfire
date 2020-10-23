@@ -19,6 +19,13 @@ const socketMiddleware = ({ dispatch, getState }) => {
     if (userId) socket.emit('subscribe', { userId });
   });
 
+  socket.on('connect_error', error => console.error(error.message));
+  socket.on('connect_timeout', () => console.error('[Socket.io] Connection attempt timed out.'));
+  socket.on('reconnect_attempt', () => console.error('[Socket.io] Attempting to reconnect…'));
+  socket.on('reconnect', retries => console.error(`[Socket.io] Reconnected. Attempt ${retries}.`));
+  socket.on('reconnect_error', error => console.error(`[Socket.io] Could not reconnect: ${error.message}.`));
+  socket.on('reconnect_failed', () => console.error('[Socket.io] Could not reconnect.'));
+  socket.on('disconnect', () => console.log('[Socket.io] Server disconnected!'));
   socket.on('error', error => dispatch(toastError(error.toString())));
 
   socket.on('artworkUploaded', () => {

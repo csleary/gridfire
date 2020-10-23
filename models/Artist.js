@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const linkSchema = new Schema({
-  title: { type: String, trim: true },
-  uri: { type: String, trim: true }
+  title: { type: String, trim: true, default: '' },
+  uri: { type: String, trim: true, default: '' }
 });
 
 const artistSchema = new Schema({
