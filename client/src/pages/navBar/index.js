@@ -1,5 +1,5 @@
 import { Link, NavLink, useHistory } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { fetchUser, logOut } from 'features/user';
 import Button from 'components/button';
@@ -22,10 +22,19 @@ const NavBar = () => {
   const { user } = useSelector(state => state, shallowEqual);
   const { auth, credits, isLoading } = user;
 
+  const handleScroll = useCallback(
+    throttle(() => {
+      const navbarPos = navBar.current?.offsetTop;
+      const scrollPos = window.pageYOffset;
+      if (scrollPos < navbarPos) return setShowLogo(false);
+      setShowLogo(true);
+    }, 500)
+  );
+
   useEffect(() => {
-    document.addEventListener('scroll', throttle(handleScroll, 200));
+    document.addEventListener('scroll', handleScroll);
     return () => document.removeEventListener('scroll', handleScroll);
-  });
+  }, [handleScroll]);
 
   const handleLogout = () => {
     dispatch(
@@ -37,13 +46,6 @@ const NavBar = () => {
         });
       })
     );
-  };
-
-  const handleScroll = () => {
-    const navbarPos = navBar.current?.offsetTop;
-    const scrollPos = window.pageYOffset;
-    if (scrollPos < navbarPos) return setShowLogo(false);
-    return setShowLogo(true);
   };
 
   const logoClassNames = classnames(styles.logoLink, {

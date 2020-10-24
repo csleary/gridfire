@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { animated, config, useTransition } from 'react-spring';
 import Button from 'components/button';
 import PropTypes from 'prop-types';
@@ -33,6 +33,15 @@ const Dropdown = ({
     setShowMenu(false);
     if (onClickOutside) onClickOutside();
   });
+
+  useLayoutEffect(() => {
+    const handleScroll = () => {
+      if (showMenu) setShowMenu(false);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showMenu]);
 
   const transition = useTransition(showMenu, {
     config: { clamp: true, ...config.stiff },
@@ -83,7 +92,7 @@ const Dropdown = ({
 
   return (
     <>
-      <div className={containerClassNames} ref={menuRef}>
+      <div className={containerClassNames} onScroll={() => setShowMenu(false)} ref={menuRef}>
         <Button
           buttonRef={buttonRef}
           className={className}
