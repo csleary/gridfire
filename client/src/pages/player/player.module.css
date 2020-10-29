@@ -44,17 +44,12 @@
   cursor: pointer;
 }
 
-.waiting:hover {
-  color: hsla(233, 10%, 50%, 1);
-  cursor: unset;
-}
-
 .currentTime {
   padding: 0 1rem;
   display: inline-block;
   text-align: right;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  width: 7rem;
+  width: 8rem;
 }
 
 .currentTime:focus {
@@ -94,11 +89,6 @@
   padding-left: 1rem;
   text-align: left;
   text-overflow: ellipsis;
-}
-
-.noLink {
-  color: #18cdca;
-  font-weight: bold;
 }
 
 @media (min-width: 576px) {

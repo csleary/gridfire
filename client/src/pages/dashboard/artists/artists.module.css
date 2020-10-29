@@ -23,6 +23,13 @@
   color: var(--cyan);
 }
 
+section {
+  background-color: var(--charcoal);
+  border-radius: 0.5rem;
+  margin-bottom: 3rem;
+  padding: 3rem;
+}
+
 .h5 {
   margin-bottom: 1rem;
 }
@@ -30,7 +37,6 @@
 .fields {
   display: flex;
   flex-direction: column;
-  margin-bottom: 3rem;
 }
 
 .label {
@@ -69,6 +75,10 @@
 }
 
 /* Names */
+
+.artistLink {
+  margin-left: 1rem;
+}
 
 .names {
   display: flex;
@@ -109,7 +119,7 @@
 
 .biography {
   composes: input;
-  height: 16rem;
+  height: 24rem;
   margin-bottom: 0.5rem;
   width: 100%;
 }

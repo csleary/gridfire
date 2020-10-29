@@ -1,0 +1,15 @@
+.playerButton {
+  font-size: 2rem;
+  padding: 0.5rem;
+  transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
+.playerButton:hover {
+  color: #f0f0f1;
+  cursor: pointer;
+}
+
+.waiting:hover {
+  color: hsla(233, 10%, 50%, 1);
+  cursor: unset;
+}
