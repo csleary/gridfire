@@ -4,11 +4,12 @@ import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
 import { saveToFavourites } from 'features/user';
 import styles from './favButton.module.css';
+import { toastInfo } from 'features/toast';
 
 const FavButton = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { favourites } = useSelector(state => state.user, shallowEqual);
+  const { auth, favourites } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
   const isInFaves = favourites?.some(rel => rel.releaseId === releaseId);
@@ -19,6 +20,7 @@ const FavButton = () => {
       className={styles.button}
       disabled={loading}
       onClick={async () => {
+        if (!auth) return dispatch(toastInfo('Please log in to save this track to your favourites.'));
         setLoading(true);
         await dispatch(saveToFavourites(releaseId));
         setLoading(false);

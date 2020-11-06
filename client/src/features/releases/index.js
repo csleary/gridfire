@@ -16,7 +16,7 @@ const releaseSlice = createSlice({
     paymentAddress: '',
     priceInXem: '',
     reachedEndOfCat: false,
-    activeRelease: { releaseDate: '', tags: [], trackList: [] },
+    activeRelease: { artwork: {}, releaseDate: '', tags: [], trackList: [] },
     userFavourites: [],
     userReleases: [],
     favCounts: {},
@@ -64,6 +64,10 @@ const releaseSlice = createSlice({
 
     setActiveRelease(state, action) {
       state.activeRelease = action.payload;
+    },
+
+    setIsLoading(state, action) {
+      state.isLoading = action.payload;
     },
 
     setUserFavourites(state, action) {
@@ -233,6 +237,7 @@ export const {
   setCatalogue,
   setCollection,
   setDeleteRelease,
+  setIsLoading,
   setReleasePurchaseInfo,
   setUserFavourites,
   setUserReleaseFavs,

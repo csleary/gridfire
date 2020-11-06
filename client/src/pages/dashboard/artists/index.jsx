@@ -174,12 +174,12 @@ const Artists = () => {
                 {activeArtist.links?.map(({ _id: linkId, title, uri }) => (
                   <fieldset className={styles.links} key={linkId}>
                     <div className={styles.link}>
-                      <label className={styles.label} htmlFor={`${linkId}.title`}>
-                        Title
+                      <label className={styles.label} htmlFor={`${linkId}.text`}>
+                        Text
                       </label>
                       <input
                         className={styles.linkInput}
-                        name={`${linkId}.title`}
+                        name={`${linkId}.text`}
                         onChange={handleChange}
                         type="text"
                         value={title}

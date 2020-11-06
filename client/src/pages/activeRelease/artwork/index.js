@@ -1,3 +1,5 @@
+import 'lazysizes';
+import 'lazysizes/plugins/attrchange/ls.attrchange';
 import { playTrack, playerPause, playerPlay } from 'features/player';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { CLOUD_URL } from 'index';
@@ -9,7 +11,7 @@ import { toastInfo } from 'features/toast';
 
 const Artwork = () => {
   const dispatch = useDispatch();
-  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
 
@@ -33,9 +35,9 @@ const Artwork = () => {
     <div className={styles.artwork} onTouchStart={() => {}}>
       <img
         alt={releaseTitle}
-        className={`${styles.image} lazyload img-fluid`}
+        className={`${styles.image} lazyload`}
         data-src={
-          artwork.status === 'stored'
+          artwork.status === 'stored' && !isLoading
             ? `${CLOUD_URL}/${releaseId}.jpg`
             : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
         }

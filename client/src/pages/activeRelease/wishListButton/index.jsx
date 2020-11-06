@@ -4,11 +4,12 @@ import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
 import { saveToWishList } from 'features/user';
 import styles from './wishListButton.module.css';
+import { toastInfo } from 'features/toast';
 
 const WishListButton = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { wishList } = useSelector(state => state.user, shallowEqual);
+  const { auth, wishList } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
   const isInWishList = wishList?.some(rel => rel.releaseId === releaseId);
@@ -19,6 +20,7 @@ const WishListButton = () => {
       className={styles.button}
       disabled={loading}
       onClick={async () => {
+        if (!auth) return dispatch(toastInfo('Please log in to save this track to your wish list.'));
         setLoading(true);
         await dispatch(saveToWishList(releaseId));
         setLoading(false);

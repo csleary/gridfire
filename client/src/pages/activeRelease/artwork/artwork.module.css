@@ -1,36 +1,44 @@
 .artwork {
-  align-items: flex-start;
-  align-self: flex-start;
-  display: flex;
-  flex-flow: row nowrap;
+  position: relative;
+  padding-top: 100%;
 }
 
 .image {
+  bottom: 0;
+  left: 0;
   transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  width: 100%;
+  max-width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .placeholder {
-  flex: none;
-  margin-left: -100%;
-  width: 100%;
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
   z-index: -1;
 }
 
 .overlay {
   align-items: center;
-  align-self: stretch;
   background: rgba(0, 0, 0, 0.5);
+  bottom: 0;
   color: #fff;
   display: flex;
-  flex: none;
   font-size: 4rem;
   justify-content: space-evenly;
-  margin-left: -100%;
+  left: 0;
   opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: hidden;
-  width: 100%;
+  max-width: 100%;
   z-index: 1;
 }
 
