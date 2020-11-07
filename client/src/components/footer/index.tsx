@@ -51,7 +51,7 @@ const Footer = () => {
         ) : null}
         {auth ? (
           <div className="col col-sm-2">
-            <ul>
+            <ul className={styles.list}>
               <li>
                 <Link to={'/release/add/'}>Add Release</Link>
               </li>

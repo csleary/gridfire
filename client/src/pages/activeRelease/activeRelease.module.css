@@ -16,18 +16,13 @@
   color: hsla(233, 10%, 75%, 1);
 }
 
-.container {
-  background: hsla(233, 10%, 10%, 1);
-  display: flex;
-  flex-direction: column;
-  margin: 1rem 0;
-  padding: 1rem;
-}
-
 .info {
+  background: hsla(233, 10%, 10%, 1);
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
+  margin: 1rem 0;
+  padding: 1rem;
 }
 
 .title {

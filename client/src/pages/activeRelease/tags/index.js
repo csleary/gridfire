@@ -1,13 +1,12 @@
 import { animated, config, useTrail } from 'react-spring';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
 import React from 'react';
 import { nanoid } from '@reduxjs/toolkit';
 import { searchReleases } from 'features/search';
 import styles from './tags.module.css';
 import { useHistory } from 'react-router-dom';
 
-const Tags = ({ trailRef }) => {
+const Tags = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { tags } = useSelector(state => state.releases.activeRelease, shallowEqual);
@@ -17,8 +16,7 @@ const Tags = ({ trailRef }) => {
     config: { ...config.stiff, clamp: true },
     from: { opacity: 0 },
     to: { opacity: 1 },
-    keys,
-    ref: trailRef
+    keys
   });
 
   if (!tags.length) return null;
@@ -48,10 +46,6 @@ const Tags = ({ trailRef }) => {
       </div>
     </>
   );
-};
-
-Tags.propTypes = {
-  trailRef: PropTypes.object
 };
 
 export default Tags;
