@@ -41,7 +41,7 @@ const ActiveRelease = () => {
   const trackListClassName = classNames({ [styles.columns]: trackList?.length > 10 });
 
   useEffect(() => {
-    dispatch(setIsLoading(true));
+    if (releaseId !== release._id) dispatch(setIsLoading(true));
     batch(() => {
       dispatch(fetchUser());
       dispatch(fetchXemPrice());
