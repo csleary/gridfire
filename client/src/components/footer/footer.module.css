@@ -1,7 +1,7 @@
 .footer {
   background: hsla(233, 10%, 20%, 1);
   color: hsla(233, 10%, 50%, 1);
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .footer ul {
@@ -22,10 +22,26 @@
   color: #18cdca;
 }
 
+.links {
+  justify-content: center;
+}
+
+.list {
+  margin: 0;
+}
+
 .social a {
   font-size: 2rem;
 }
 
 .social a:hover {
   color: #18cdca;
+}
+
+.icon {
+  margin-left: 0.25rem;
+}
+
+.credits {
+  text-align: right;
 }

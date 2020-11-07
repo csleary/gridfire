@@ -36,8 +36,22 @@ const ActiveRelease = () => {
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
   const isInCollection = purchases?.some(purchase => purchase.releaseId === releaseId);
-  const { artist, artistName, catNumber, credits, cLine, info, pLine, price, recordLabel, releaseTitle } = release;
-  const { releaseDate, trackList } = release;
+
+  const {
+    artist,
+    artistName,
+    catNumber,
+    credits,
+    cLine,
+    info,
+    pLine,
+    price,
+    recordLabel,
+    releaseTitle,
+    releaseDate,
+    trackList
+  } = release;
+
   const trackListClassName = classNames({ [styles.columns]: trackList?.length > 10 });
 
   useEffect(() => {
@@ -54,7 +68,7 @@ const ActiveRelease = () => {
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
-    keys: release._id,
+    key: release._id,
     ref: transitionRef
   });
 

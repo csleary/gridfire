@@ -14,9 +14,9 @@ const Footer = () => {
 
   return (
     <footer className={`${styles.footer} container-fluid`}>
-      <div className="row justify-content-center mb-3">
-        <div className="col col-sm-2 mb-3">
-          <ul>
+      <div className={`${styles.links} row`}>
+        <div className="col col-sm-2">
+          <ul className={styles.list}>
             <li>
               <Link to={'/about'}>About</Link>
             </li>
@@ -29,14 +29,14 @@ const Footer = () => {
             <li>
               <a href="https://nem.io/" title="Visit the official NEM site.">
                 NEM
-                <FontAwesome name="external-link" className="ml-1" />
+                <FontAwesome name="external-link" className={styles.icon} />
               </a>
             </li>
           </ul>
         </div>
         {!auth ? (
           <div className="col col-sm-2">
-            <ul>
+            <ul className={styles.list}>
               <li>
                 <Link to={'/login'}>Log In</Link>
               </li>
@@ -69,7 +69,7 @@ const Footer = () => {
         ) : null}
       </div>
       <div className="row">
-        <div className="col text-center">
+        <div className={`${styles.credits} col`}>
           <small>
             &copy; <span>2017&ndash;</span>
             {year} <a href="https://ochremusic.com">Christopher Leary</a>

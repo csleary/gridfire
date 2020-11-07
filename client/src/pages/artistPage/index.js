@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
+import classnames from 'classnames';
 import { fetchArtistCatalogue } from 'features/releases';
 import styles from './artistPage.module.css';
 import { useParams } from 'react-router-dom';
@@ -31,22 +32,34 @@ const ArtistPage = () => {
     );
   }
 
+  const releasesClassNames = classnames(styles.releases, {
+    'col-md-6': releaseCount < 4,
+    'col-md-8': releaseCount >= 4
+  });
+
+  const biographyClassNames = classnames(styles.biogCol, {
+    'col-md-6': releaseCount < 4,
+    'col-md-4': releaseCount >= 4
+  });
+
   return (
     <main className="container-fluid">
       <div className="row">
-        <div className="col py-3">
+        <div className={`${styles.title} col`}>
           <h2 className={styles.artist}>{name}</h2>
         </div>
       </div>
       <div className="row">
-        <div className={'col-md-6 py-3'}>
-          <h3 className={styles.title}>Releases</h3>
+        <section className={releasesClassNames}>
+          <h3 className={styles.title}>
+            {releaseCount} Release{releaseCount > 1 ? 's' : ''}
+          </h3>
           <div className={styles.grid}>{renderReleases()}</div>
-        </div>
-        <div className="col-md-6 py-3">
+        </section>
+        <section className={biographyClassNames}>
           {biography ? (
             <>
-              <h3 className={styles.title}>Info</h3>
+              <h3 className={styles.title}>Biography</h3>
               <div className={styles.biography}>
                 {biography
                   .split('\n')
@@ -71,7 +84,7 @@ const ArtistPage = () => {
               </ul>
             </div>
           ) : null}
-        </div>
+        </section>
       </div>
     </main>
   );

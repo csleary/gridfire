@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import OverlayDownloadButton from './overlayDownloadButton';
 import PropTypes from 'prop-types';
 import React from 'react';
-import classnames from 'classnames';
 import { fetchRelease } from 'features/releases';
 import placeholder from 'placeholder.svg';
 import { playTrack } from 'features/player';
@@ -43,13 +42,11 @@ const RenderRelease = props => {
     }
   };
 
-  const imageClassNames = classnames(styles.image, 'lazyload');
-
   return (
     <div className={styles.art} key={releaseId} onTouchStart={() => {}}>
       <img
         alt={`${artistName} - ${releaseTitle}`}
-        className={imageClassNames}
+        className={`${styles.image} lazyload`}
         data-sizes="auto"
         data-src={artwork.status === 'stored' ? `${CLOUD_URL}/${releaseId}.jpg` : null}
       />
@@ -73,7 +70,7 @@ const RenderRelease = props => {
             <FontAwesome className={styles.icon} name="play" />
           </button>
           <Link
-            className={`${styles.button} d-flex`}
+            className={styles.button}
             title={`More information on '${releaseTitle}', by ${artistName}`}
             to={`/release/${releaseId}`}
           >

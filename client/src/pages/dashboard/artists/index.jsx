@@ -98,7 +98,7 @@ const Artists = () => {
           {activeArtist ? (
             <>
               <h3 className={styles.heading}>{activeArtist.name}</h3>
-              <section>
+              <section className={styles.section}>
                 <h5 className={styles.h5}>
                   Artist Name
                   <Button

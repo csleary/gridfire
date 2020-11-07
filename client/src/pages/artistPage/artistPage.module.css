@@ -10,6 +10,16 @@
   grid-template-columns: 1fr;
 }
 
+.releases {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.biogCol {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
 .biography {
   background-color: var(--charcoal);
   padding: 3rem;
@@ -30,6 +40,10 @@
 
 .link:last-of-type {
   margin-bottom: 0;
+}
+
+.title {
+  padding: 1rem 0;
 }
 
 @media (min-width: 1200px) {
