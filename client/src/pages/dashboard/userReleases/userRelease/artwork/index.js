@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
 import placeholder from 'placeholder.svg';
-import styles from '../userRelease.module.css';
+import styles from './artwork.module.css';
 
 const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
   if (artwork.status === 'stored') {

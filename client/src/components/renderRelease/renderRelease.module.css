@@ -3,19 +3,30 @@
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
+  padding-bottom: 100%;
+  position: relative;
 }
 
 .placeholder {
-  flex: none;
-  margin-left: -100%;
-  width: 100%;
+  bottom: 0;
+  height: auto;
+  left: 0;
+  max-width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
   z-index: -1;
 }
 
 .image {
-  flex: none;
+  bottom: 0;
+  height: auto;
+  left: 0;
+  max-width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
-  width: 100%;
 }
 
 .art:hover .overlay,
@@ -26,19 +37,22 @@
 }
 
 .overlay {
-  align-self: stretch;
   background: rgba(0, 0, 0, 0.5);
+  bottom: 0;
   color: hsla(233, 10%, 75%, 1);
   display: flex;
-  flex: none;
   flex-direction: column;
   font-size: 4rem;
   justify-content: space-between;
-  margin-left: -100%;
+  height: auto;
+  left: 0;
+  max-width: 100%;
   opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: hidden;
-  width: 100%;
 }
 
 .buttons {

@@ -1,0 +1,25 @@
+.art {
+  padding-bottom: 100%;
+  position: relative;
+}
+
+.image {
+  bottom: 0;
+  height: auto;
+  left: 0;
+  max-width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.placeholder {
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 0;
+}

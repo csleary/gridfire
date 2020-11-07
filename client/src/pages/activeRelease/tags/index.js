@@ -1,5 +1,6 @@
 import { animated, config, useTrail } from 'react-spring';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { nanoid } from '@reduxjs/toolkit';
 import { searchReleases } from 'features/search';
@@ -10,11 +11,13 @@ const Tags = ({ trailRef }) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { tags } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const keys = tags.map(() => nanoid());
 
   const trail = useTrail(tags.length, {
     config: { ...config.stiff, clamp: true },
     from: { opacity: 0 },
     to: { opacity: 1 },
+    keys,
     ref: trailRef
   });
 
@@ -31,7 +34,7 @@ const Tags = ({ trailRef }) => {
           return (
             <animated.div
               className={styles.tag}
-              key={nanoid()}
+              key={keys[index]}
               onClick={() => handleTagSearch(tag)}
               role="button"
               tabIndex="-1"
@@ -45,6 +48,10 @@ const Tags = ({ trailRef }) => {
       </div>
     </>
   );
+};
+
+Tags.propTypes = {
+  trailRef: PropTypes.object
 };
 
 export default Tags;

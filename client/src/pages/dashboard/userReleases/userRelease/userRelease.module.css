@@ -14,26 +14,6 @@
   font-size: 2rem;
 }
 
-.art {
-  align-items: flex-start;
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.image {
-  flex: none;
-  height: auto;
-  max-width: 100%;
-  z-index: 1;
-}
-
-.placeholder {
-  flex: none;
-  margin-left: -100%;
-  width: 100%;
-  z-index: 0;
-}
-
 .buttons {
   border-radius: 0.5rem;
   display: flex;

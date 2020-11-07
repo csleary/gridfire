@@ -47,13 +47,14 @@ const ActiveRelease = () => {
       dispatch(fetchXemPrice());
       dispatch(fetchRelease(releaseId)).then(() => dispatch(setIsLoading(false)));
     });
-  }, [dispatch, releaseId]);
+  }, [dispatch, release._id, releaseId]);
 
   const transition = useTransition(isLoading, {
     config: { ...config.stiff, clamp: true },
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
+    keys: release._id,
     ref: transitionRef
   });
 
