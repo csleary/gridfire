@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
-import classnames from 'classnames';
 import { fetchArtistCatalogue } from 'features/releases';
 import styles from './artistPage.module.css';
 import { useParams } from 'react-router-dom';
@@ -19,11 +18,6 @@ const ArtistPage = () => {
     dispatch(fetchArtistCatalogue(artistId, artistSlug)).then(() => setLoading(false));
   }, [dispatch, artistId, artistSlug, releaseCount]);
 
-  const renderReleases = () => {
-    if (!releases) return;
-    return releases.map(release => <RenderRelease key={release._id} showArtist={false} release={release} />);
-  };
-
   if (isLoading) {
     return (
       <Spinner>
@@ -32,16 +26,6 @@ const ArtistPage = () => {
     );
   }
 
-  const releasesClassNames = classnames(styles.releases, {
-    'col-md-6': releaseCount < 4,
-    'col-md-8': releaseCount >= 4
-  });
-
-  const biographyClassNames = classnames(styles.biogCol, {
-    'col-md-6': releaseCount < 4,
-    'col-md-4': releaseCount >= 4
-  });
-
   return (
     <main className="container-fluid">
       <div className="row">
@@ -49,14 +33,18 @@ const ArtistPage = () => {
           <h2 className={styles.artist}>{name}</h2>
         </div>
       </div>
-      <div className="row">
-        <section className={releasesClassNames}>
+      <div className={`${styles.container} row`}>
+        <section className={`${styles.releases} col-lg-8`}>
           <h3 className={styles.title}>
             {releaseCount} Release{releaseCount > 1 ? 's' : ''}
           </h3>
-          <div className={styles.grid}>{renderReleases()}</div>
+          <div className={styles.grid}>
+            {releases?.map(release => (
+              <RenderRelease key={release._id} showArtist={false} release={release} />
+            ))}
+          </div>
         </section>
-        <section className={biographyClassNames}>
+        <section className={`${styles.info} col-lg-4`}>
           {biography ? (
             <>
               <h3 className={styles.title}>Biography</h3>

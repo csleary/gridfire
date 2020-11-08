@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import OverlayDownloadButton from './overlayDownloadButton';
 import PropTypes from 'prop-types';
 import React from 'react';
+import classnames from 'classnames';
 import { fetchRelease } from 'features/releases';
 import placeholder from 'placeholder.svg';
 import { playTrack } from 'features/player';
@@ -15,7 +16,7 @@ import withDownload from 'pages/payment/payments/withDownload';
 const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = props => {
-  const { release, showArtist = true, showTitle = true, type } = props;
+  const { className, release, showArtist = true, showTitle = true, type } = props;
   const dispatch = useDispatch();
   const { player } = useSelector(state => state, shallowEqual);
   const { _id: releaseId, artist, artistName, artwork, releaseTitle, trackList } = release;
@@ -43,7 +44,11 @@ const RenderRelease = props => {
   };
 
   return (
-    <div className={styles.art} key={releaseId} onTouchStart={() => {}}>
+    <div
+      className={classnames(styles.art, { [className]: Boolean(className) })}
+      key={releaseId}
+      onTouchStart={() => {}}
+    >
       <img
         alt={`${artistName} - ${releaseTitle}`}
         className={`${styles.image} lazyload`}

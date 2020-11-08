@@ -1,7 +1,13 @@
 .artist {
   font-size: 3rem;
   margin: 0;
+  padding: 1rem 0;
   text-align: center;
+}
+
+.container {
+  padding: 1rem;
+  padding-right: 0;
 }
 
 .grid {
@@ -11,13 +17,11 @@
 }
 
 .releases {
-  padding-bottom: 1rem;
-  padding-top: 1rem;
+  padding: 0 1rem 0 0;
 }
 
-.biogCol {
-  padding-bottom: 1rem;
-  padding-top: 1rem;
+.info {
+  padding: 0 1rem 0 0;
 }
 
 .biography {
@@ -43,17 +47,22 @@
 }
 
 .title {
-  padding: 1rem 0;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1200px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
