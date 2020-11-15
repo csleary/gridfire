@@ -73,14 +73,18 @@ module.exports = app => {
 
   // Fetch site catalogue
   app.get('/api/catalogue/', async (req, res) => {
-    const { catalogueLimit, catalogueSkip, sortPath, sortOrder } = req.query;
+    try {
+      const { catalogueLimit, catalogueSkip, sortPath, sortOrder } = req.query;
 
-    const releases = await Release.find({ published: true }, '-__v', {
-      skip: parseInt(catalogueSkip),
-      limit: parseInt(catalogueLimit)
-    }).sort({ [sortPath]: sortOrder });
+      const releases = await Release.find({ published: true }, '-__v', {
+        skip: parseInt(catalogueSkip),
+        limit: parseInt(catalogueLimit)
+      }).sort({ [sortPath]: sortOrder });
 
-    res.send(releases);
+      res.send(releases);
+    } catch (error) {
+      res.status(500).send({ error: 'Music catalogue could not be fetched.' });
+    }
   });
 
   // Fetch site catalogue count

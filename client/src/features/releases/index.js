@@ -40,6 +40,7 @@ const releaseSlice = createSlice({
 
     setArtistCatalogue(state, action) {
       state.artist = action.payload;
+      state.isLoading = false;
     },
 
     setArtworkUploading(state, action) {
@@ -129,21 +130,26 @@ const deleteRelease = (releaseId, releaseTitle = 'release') => async dispatch =>
 };
 
 const fetchArtistCatalogue = (artistId, artistSlug) => async dispatch => {
+  dispatch(setIsLoading(true));
   const res = await axios.get(`/api/catalogue/${artistId}`, { params: { artistId, artistSlug } });
   dispatch(setArtistCatalogue(res.data));
 };
 
 const fetchCatalogue = (catalogueLimit, catalogueSkip, sortPath, sortOrder, isPaging = false) => async dispatch => {
-  const res = await axios.get('/api/catalogue/', {
-    params: {
-      catalogueLimit,
-      catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
-      sortPath,
-      sortOrder
-    }
-  });
-
-  dispatch(setCatalogue({ catalogue: res.data, isPaging }));
+  try {
+    const res = await axios.get('/api/catalogue/', {
+      params: {
+        catalogueLimit,
+        catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
+        sortPath,
+        sortOrder
+      }
+    });
+    dispatch(setCatalogue({ catalogue: res.data, isPaging }));
+  } catch (error) {
+    dispatch(setIsLoading(false));
+    dispatch(toastError(error.response.data.error));
+  }
 };
 
 const fetchCollection = () => async dispatch => {

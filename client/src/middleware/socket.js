@@ -16,7 +16,7 @@ const socketMiddleware = ({ dispatch, getState }) => {
   socket.on('connect', () => {
     console.log('[Socket.io] Connected.');
     const userId = getState().user.userId;
-    if (userId) socket.emit('subscribe', { userId });
+    if (userId) socket.emit('subscribeUser', { userId });
   });
 
   socket.on('connect_error', error => console.error(error.message));
@@ -26,7 +26,7 @@ const socketMiddleware = ({ dispatch, getState }) => {
   socket.on('reconnect_error', error => console.error(`[Socket.io] Could not reconnect: ${error.message}.`));
   socket.on('reconnect_failed', () => console.error('[Socket.io] Could not reconnect.'));
   socket.on('disconnect', () => console.log('[Socket.io] Server disconnected!'));
-  socket.on('error', error => dispatch(toastError(error.toString())));
+  socket.on('error', error => dispatch(toastError(error.message)));
 
   socket.on('artworkUploaded', () => {
     batch(() => {

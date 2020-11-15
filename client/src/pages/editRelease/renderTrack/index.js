@@ -30,24 +30,26 @@ const RenderTrack = props => {
 
   const dispatch = useDispatch();
   const [isMoving, setMoving] = useState();
+  const hasError = status === 'error';
   const isDeleting = useSelector(state => state.tracks.isDeleting.some(id => id === trackId), shallowEqual);
+  const isEncoding = status === 'encoding';
+  const isPending = status === 'pending';
+  const isStored = status === 'stored';
+  const isTranscoding = status === 'transcoding';
+  const isUploading = status === 'uploading';
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
-  const pending = status === 'pending';
-  const isStored = status === 'stored';
-  const isUploading = status === 'uploading';
-  const isEncoding = status === 'encoding';
-  const isTranscoding = status === 'transcoding';
 
   const trackClassNames = classNames(styles.track, {
-    [styles.pending]: pending,
-    [styles.incomplete]: !pending && !isStored,
-    [styles.uploading]: isUploading,
-    [styles.encoding]: isEncoding,
-    [styles.transcoding]: isTranscoding,
-    [styles.stored]: isStored,
     [styles.dragActive]: dragActive,
-    [styles.dragOrigin]: isDragOrigin
+    [styles.dragOrigin]: isDragOrigin,
+    [styles.encoding]: isEncoding,
+    [styles.error]: hasError,
+    [styles.incomplete]: !isPending && !isStored,
+    [styles.pending]: isPending,
+    [styles.stored]: isStored,
+    [styles.transcoding]: isTranscoding,
+    [styles.uploading]: isUploading
   });
 
   const deleteButtonClassNames = classNames(styles.delete, {
@@ -75,6 +77,12 @@ const RenderTrack = props => {
     >
       <Field component={RenderTrackInput} label={index + 1} name={`${name}.trackTitle`} trackId={trackId} type="text" />
       <div className={styles.wrapper}>
+        {hasError ? (
+          <span className={styles.statusError}>
+            <FontAwesome name="exclamation-triangle" className={styles.iconStatus} />
+            An error occurred processing audio for this track. Please either re-upload or delete this track.
+          </span>
+        ) : null}
         {isUploading ? (
           <span className={styles.status}>
             <FontAwesome name="cog" spin className={styles.iconStatus} />

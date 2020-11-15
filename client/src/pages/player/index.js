@@ -125,12 +125,7 @@ class Player extends Component {
 
   handleTimeUpdate = () => {
     const { currentTime } = this.audioPlayerRef.current;
-    const mins = Math.floor(currentTime / 60);
-    const secs = Math.floor(currentTime % 60);
     const percentComplete = (currentTime / this.mediaSource.duration) * 100;
-    const remainingTime = this.mediaSource.duration - currentTime || 0;
-    const minsLeft = Math.floor(remainingTime / 60);
-    const secsLeft = Math.floor(remainingTime % 60);
 
     if (this.state.bufferReachedEnd && this.state.percentComplete === percentComplete) {
       return this.handleTrackEnded();
@@ -140,7 +135,6 @@ class Player extends Component {
     for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
       if (
         currentTime > this.sourceBuffer.buffered.start(i) &&
-        currentTime < this.sourceBuffer.buffered.end(i) &&
         currentTime > this.sourceBuffer.buffered.end(i) - 5 &&
         !this.state.bufferReachedEnd &&
         !this.state.isBuffering &&
@@ -158,9 +152,13 @@ class Player extends Component {
       });
     }
 
+    const mins = Math.floor(currentTime / 60);
+    const secs = Math.floor(currentTime % 60);
+    const remainingTime = Math.floor(this.mediaSource.duration - currentTime || 0);
+
     this.setState({
       elapsedTime: `${mins}:${secs.toString(10).padStart(2, '0')}`,
-      remainingTime: `-${minsLeft}:${secsLeft.toString(10).padStart(2, '0')}`,
+      remainingTime: `-${remainingTime / 60}:${(remainingTime % 60).toString(10).padStart(2, '0')}`,
       percentComplete
     });
   };

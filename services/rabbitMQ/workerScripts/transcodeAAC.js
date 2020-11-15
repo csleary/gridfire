@@ -1,30 +1,38 @@
-const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, TEMP_PATH } = require('../../../config/constants');
+const { AWS_REGION, BUCKET_OPT, TEMP_PATH } = require('../../../config/constants');
 const { encodeAacFrag, getTrackDuration } = require('../../../controllers/encodingController');
 const { parentPort, workerData } = require('worker_threads');
 const aws = require('aws-sdk');
 const { createMpd } = require('../../../controllers/bento4Controller');
-const fsPromises = require('fs').promises;
+const fs = require('fs');
+const fsPromises = fs.promises;
 const keys = require('../../../config/keys');
 const mongoose = require('mongoose');
 const path = require('path');
+const sax = require('sax');
 require('../../../models/Release');
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
 
+const removeTempFiles = async (mp4Path, flacPath, playlistDir) => {
+  const dirContents = await fsPromises.readdir(playlistDir);
+  const deleteFiles = dirContents.map(file => fsPromises.unlink(path.join(playlistDir, file)));
+  const outcome = await Promise.allSettled([fsPromises.unlink(mp4Path), fsPromises.unlink(flacPath), ...deleteFiles]);
+  if (outcome.some(({ status }) => status === 'rejected')) return;
+  await fsPromises.rmdir(playlistDir);
+};
+
 const work = async () => {
   const { releaseId, trackId, trackName, userId } = workerData;
-  let release;
-  let trackDoc;
+  let db, release, trackDoc, mp4Path, flacPath, playlistDir;
 
   try {
-    await mongoose.connect(keys.mongoURI, {
+    db = await mongoose.connect(keys.mongoURI, {
       useFindAndModify: false,
       useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
 
-    const listParams = { Bucket: BUCKET_SRC, Prefix: `${releaseId}/${trackId}` };
     release = await Release.findById(releaseId).exec();
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = 'transcoding';
@@ -33,19 +41,48 @@ const work = async () => {
     parentPort.postMessage({ message: 'Transcoding to aac…', userId });
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
 
-    const s3 = new aws.S3();
-    const inputAudio = await s3.listObjectsV2(listParams).promise();
-    const [{ Key }] = inputAudio.Contents;
-    const probeSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
+    // Probe for track duration
+    flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
+    const probeSrc = fs.createReadStream(flacPath);
     const metadata = await getTrackDuration(probeSrc);
     trackDoc.duration = metadata.format.duration;
     trackDoc.dateUpdated = Date.now();
     await release.save();
-    const downloadSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
-    const outputAudio = path.join(TEMP_PATH, `${trackId}.mp4`);
-    await encodeAacFrag(downloadSrc, outputAudio, parentPort);
-    createMpd(outputAudio, trackId, TEMP_PATH);
-    const mp4Audio = await fsPromises.readFile(outputAudio);
+
+    // Transcode FLAC to AAC
+    mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
+    const flacData = fs.createReadStream(flacPath);
+    await encodeAacFrag(flacData, mp4Path);
+    playlistDir = path.join(TEMP_PATH, trackId);
+
+    // Create and parse mpd
+    createMpd(mp4Path, trackId, playlistDir);
+    const outputMpd = path.join(playlistDir, `${trackId}.mpd`);
+    const mpdData = await fsPromises.readFile(outputMpd);
+    const strict = true;
+    const parser = sax.parser(strict);
+    const segmentList = [];
+
+    parser.onopentag = node => {
+      if (node.name === 'Initialization') {
+        trackDoc.initRange = node.attributes.range;
+      }
+    };
+
+    parser.onattribute = attr => {
+      if (attr.name === 'mediaRange') {
+        segmentList.push(attr.value);
+      }
+    };
+
+    parser.write(mpdData).close();
+    trackDoc.segmentList = segmentList;
+    trackDoc.mpd = mpdData;
+
+    // Upload AAC, playlists
+    const mp4Audio = fs.createReadStream(mp4Path);
+    const m3u8Master = fsPromises.readFile(path.join(playlistDir, 'master.m3u8'));
+    const m3u8Media = fsPromises.readFile(path.join(playlistDir, 'audio-und-mp4a.m3u8'));
 
     const mp4Params = {
       Bucket: BUCKET_OPT,
@@ -54,10 +91,26 @@ const work = async () => {
       Body: mp4Audio
     };
 
-    await s3.upload(mp4Params).promise();
-    const outputMpd = path.join(TEMP_PATH, `${trackId}.mpd`);
-    const mpdData = await fsPromises.readFile(outputMpd);
-    trackDoc.mpd = mpdData;
+    const m3u8MasterParams = {
+      Bucket: BUCKET_OPT,
+      ContentType: 'application/x-mpegURL',
+      Key: `mp4/${releaseId}/master.m3u8`,
+      Body: m3u8Master
+    };
+
+    const m3u8MediaParams = {
+      Bucket: BUCKET_OPT,
+      ContentType: 'application/x-mpegURL',
+      Key: `mp4/${releaseId}/audio-und-mp4a.m3u8`,
+      Body: m3u8Media
+    };
+
+    const uploads = [];
+    const s3 = new aws.S3();
+    uploads.push(s3.upload(mp4Params).promise());
+    uploads.push(s3.upload(m3u8MasterParams).promise());
+    uploads.push(s3.upload(m3u8MediaParams).promise());
+    await Promise.allSettled(uploads);
     trackDoc.status = 'stored';
     trackDoc.dateUpdated = Date.now();
     await release.save();
@@ -70,17 +123,21 @@ const work = async () => {
     });
 
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
-
-    await fsPromises.unlink(outputAudio);
-    await fsPromises.unlink(outputMpd);
-    await mongoose.disconnect();
+    await removeTempFiles(mp4Path, flacPath, playlistDir);
+    await db.disconnect();
   } catch (error) {
-    console.error(error.message.toString());
-    trackDoc.status = 'error';
-    trackDoc.dateUpdated = Date.now();
-    await release.save();
+    console.error(error);
+
+    if (trackDoc) {
+      trackDoc.status = 'error';
+      trackDoc.dateUpdated = Date.now();
+      await release.save();
+      await db.disconnect();
+    }
+
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
-    throw new Error(error);
+    await removeTempFiles(mp4Path, flacPath, playlistDir);
+    process.exit(1);
   }
 };
 

@@ -30,26 +30,7 @@ module.exports = app => {
     const { releaseId, trackId } = req.params;
     const s3 = new aws.S3();
     const release = await Release.findById(releaseId, 'trackList').exec();
-    const duration = release.trackList.id(trackId).duration;
-    const mpd = release.trackList.id(trackId).mpd;
-    const strict = true;
-    const parser = sax.parser(strict);
-    let initRange;
-    const segmentList = [];
-
-    parser.onopentag = node => {
-      if (node.name === 'Initialization') {
-        initRange = node.attributes.range;
-      }
-    };
-
-    parser.onattribute = attr => {
-      if (attr.name === 'mediaRange') {
-        segmentList.push(attr.value);
-      }
-    };
-
-    parser.write(mpd).close();
+    const { duration, initRange, segmentList } = release.trackList.id(trackId);
     const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}.mp4` };
     const url = s3.getSignedUrl('getObject', mp4Params);
     res.send({ duration, initRange, segmentList, url });
@@ -60,7 +41,7 @@ module.exports = app => {
     const { releaseId, trackId } = req.params;
     const s3 = new aws.S3();
     const mp4List = await s3.listObjectsV2({ Bucket: BUCKET_OPT, Prefix: `mp4/${releaseId}/${trackId}` }).promise();
-    const Key = mp4List.Contents[0].Key;
+    const [{ Key }] = mp4List.Contents;
     const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key };
     const mp4Url = s3.getSignedUrl('getObject', mp4Params);
     res.send(mp4Url);

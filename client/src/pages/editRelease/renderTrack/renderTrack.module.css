@@ -33,6 +33,11 @@
   margin-right: 0.5rem;
 }
 
+.statusError {
+  composes: status;
+  color: var(--red);
+}
+
 .button {
   border: none;
   border-radius: 0.25rem;
@@ -106,6 +111,10 @@
 
 .incomplete {
   border-left: 4px solid var(--yellow);
+}
+
+.incomplete.error {
+  border-left: 4px solid var(--red);
 }
 
 .uploading {

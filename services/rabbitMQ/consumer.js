@@ -26,7 +26,6 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
         }
       } catch (error) {
         consumerChannel.nack(message, false, false);
-        closeOnError(connection, error);
       }
     };
 

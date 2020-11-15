@@ -30,8 +30,6 @@ const handleWork = (io, workerPool, workerData, workerScript) =>
         reject(workerError.message);
       });
 
-      worker.on('stdout', output => {});
-
       worker.on('exit', status => {
         if (status > 0) {
           resolve(false);

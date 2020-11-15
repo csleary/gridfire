@@ -15,52 +15,68 @@ const Release = mongoose.model('releases');
 
 const encodeFlac = async () => {
   const { filePath, releaseId, trackId, trackName, userId } = workerData;
+  let db;
+  let release;
+  let trackDoc;
 
-  await mongoose.connect(keys.mongoURI, {
-    useFindAndModify: false,
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+  try {
+    db = await mongoose.connect(keys.mongoURI, {
+      useFindAndModify: false,
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
 
-  const outputPath = path.join(TEMP_PATH, `${trackId}.flac`);
-  const readFile = fs.createReadStream(filePath);
-  parentPort.postMessage({ message: 'Encoding flac…', userId });
+    parentPort.postMessage({ message: 'Encoding flac…', userId });
 
-  const release = await Release.findOneAndUpdate(
-    { _id: releaseId, 'trackList._id': trackId },
-    { $set: { 'trackList.$.status': 'encoding', 'trackList.$.dateUpdated': Date.now() } },
-    { new: true }
-  ).exec();
+    release = await Release.findOneAndUpdate(
+      { _id: releaseId, 'trackList._id': trackId },
+      { $set: { 'trackList.$.status': 'encoding', 'trackList.$.dateUpdated': Date.now() } },
+      { new: true }
+    ).exec();
 
-  parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
-  await encodeFlacStream(readFile, outputPath);
-  const readFlac = fs.createReadStream(outputPath);
-  const Key = `${releaseId}/${trackId}.flac`;
-  const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };
-  const s3 = new aws.S3();
-  await s3.upload(params).promise();
+    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    const readFile = fs.createReadStream(filePath);
+    const flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
+    await encodeFlacStream(readFile, flacPath);
+    const readFlac = fs.createReadStream(flacPath);
+    const Key = `${releaseId}/${trackId}.flac`;
+    const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };
+    const s3 = new aws.S3();
+    await s3.upload(params).promise();
 
-  const trackDoc = release.trackList.id(trackId);
-  trackDoc.status = 'encoded';
-  trackDoc.dateUpdated = Date.now();
-  await release.save();
-  parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
-  parentPort.postMessage({ type: 'EncodingCompleteFLAC', trackId, trackName, userId });
+    trackDoc = release.trackList.id(trackId);
+    trackDoc.status = 'encoded';
+    trackDoc.dateUpdated = Date.now();
+    await release.save();
+    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'EncodingCompleteFLAC', trackId, trackName, userId });
 
-  parentPort.postMessage({
-    type: 'publishToQueue',
-    job: 'transcodeAAC',
-    queue: QUEUE_TRANSCODE,
-    releaseId,
-    trackId,
-    trackName,
-    userId
-  });
+    parentPort.postMessage({
+      type: 'publishToQueue',
+      job: 'transcodeAAC',
+      queue: QUEUE_TRANSCODE,
+      releaseId,
+      trackId,
+      trackName,
+      userId
+    });
 
-  await fsPromises.unlink(filePath);
-  await fsPromises.unlink(outputPath);
-  await mongoose.disconnect();
+    await fsPromises.unlink(filePath);
+    await db.disconnect();
+  } catch (error) {
+    console.error(error);
+
+    if (trackDoc) {
+      trackDoc.status = 'error';
+      trackDoc.dateUpdated = Date.now();
+      await release.save();
+      await db.disconnect();
+    }
+
+    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    process.exit(1);
+  }
 };
 
 encodeFlac();

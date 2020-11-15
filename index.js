@@ -16,11 +16,17 @@ require('./models/Sale');
 require('./models/Payment');
 require('./services/passport');
 
-mongoose.connect(keys.mongoURI, {
-  useFindAndModify: false,
-  useCreateIndex: true,
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+mongoose
+  .connect(keys.mongoURI, {
+    useFindAndModify: false,
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .catch(({ message }) => console.error(message));
+
+mongoose.connection.on('error', () => {
+  io.emit('error', { message: 'Could not connect to database.' });
 });
 
 // mongoose.set('debug', true);

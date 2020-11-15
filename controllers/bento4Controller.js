@@ -4,16 +4,15 @@ const { BENTO4_DIR } = require('../config/constants');
 const createMpd = (audioFile, trackId, outputPath) =>
   execSync(
     `${BENTO4_DIR}/mp4dash \
-                --exec-dir=${BENTO4_DIR} \
-                -f \
-                --mpd-name=${trackId}.mpd \
-                --no-media \
-                --no-split \
-                -o ${outputPath} \
-                --use-segment-list \
-                ${audioFile}`
+    -o ${outputPath} \
+    --force \
+    --mpd-name=${trackId}.mpd \
+    --no-media \
+    --no-split \
+    --use-segment-list \
+    --hls \
+    --exec-dir=${BENTO4_DIR} \
+    ${audioFile}`
   );
 
-module.exports = {
-  createMpd
-};
+module.exports = { createMpd };

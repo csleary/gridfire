@@ -26,6 +26,8 @@ const releaseSchema = new Schema(
         status: { type: String, default: 'pending' },
         duration: { type: Number, trim: true },
         mpd: { type: Buffer },
+        initRange: { type: String },
+        segmentList: { type: Array },
         dateCreated: { type: Date },
         dateUpdated: { type: Date }
       }
