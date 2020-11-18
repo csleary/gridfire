@@ -20,7 +20,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
   useEffect(() => {
     if (!sku) return;
     axios
-      .post('/api/user/credits/buy', { sku })
+      .post('/api/user/credits/purchase', { sku })
       .then(res => setPaymentData(res.data))
       .finally(() => setIsLoading(false));
   }, [sku, setPaymentData]);

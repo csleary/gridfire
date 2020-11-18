@@ -1,33 +1,18 @@
 const {
-  checkSignedMessage,
-  fetchTransactions,
-  fetchMosaics,
-  fetchXemPrice,
-  fetchXemPriceBinance
-} = require('../controllers/nemController');
-const { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS, QUEUE_CREDITS } = require('../config/constants');
-const crypto = require('crypto');
-const { humanId } = require('human-id');
+  creditPricing,
+  creditPurchase,
+  creditConfirmation,
+  getUser,
+  getUserCredits,
+  getUserTransactions,
+  setUserNemAddress
+} = require(__basedir + '/controllers/userController');
+const { PAYMENT_ADDRESS } = require('../config/constants');
 const requireLogin = require('../middlewares/requireLogin');
-const mongoose = require('mongoose');
-const nem = require('nem-sdk').default;
-const CreditPayment = mongoose.model('credit-payments');
-const Payment = mongoose.model('payments');
-const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
-const User = mongoose.model('users');
-const { publishToQueue } = require(__basedir + '/services/rabbitMQ/publisher');
 
 module.exports = app => {
   app.get('/api/user', async (req, res) => {
-    const [user] = await User.aggregate([
-      { $match: { _id: req.user._id } },
-      { $lookup: { from: 'favourites', localField: '_id', foreignField: 'user', as: 'favourites' } },
-      { $lookup: { from: 'wishlists', localField: '_id', foreignField: 'user', as: 'wishList' } },
-      { $lookup: { from: 'sales', localField: '_id', foreignField: 'user', as: 'purchases' } },
-      { $project: { __v: 0 } }
-    ]).exec();
-
+    const user = await getUser(req.user._id);
     res.send(user);
   });
 
@@ -35,49 +20,8 @@ module.exports = app => {
     try {
       const { releaseId, paymentHash } = req.body;
       const { price } = req.session;
-      const { _id: custUserId, nemAddress: custNemAddress } = req.user;
-      const release = await Release.findById(releaseId, 'user', { lean: true }).exec();
-      const artist = await User.findById(release.user, 'nemAddress', { lean: true }).exec();
-      const paymentAddress = artist.nemAddress;
-      let [sale] = await Sale.find({ user: custUserId, release: releaseId }, 'amountPaid transactions', { lean: true });
-      let hasPurchased = Boolean(sale);
-      console.log(sale);
-      console.log(hasPurchased);
-
-      if (hasPurchased) {
-        return res.send({
-          remaining: '0',
-          hasPurchased,
-          nemNode: '',
-          amountPaid: sale.amountPaid.toFixed(6),
-          releaseId,
-          transactions: sale.transactions
-        });
-      }
-
-      const { transactions, nemNode, amountPaid } = await fetchTransactions(paymentAddress, paymentHash);
-
-      if (amountPaid >= price && !hasPurchased) {
-        await Sale.create({
-          purchaseDate: Date.now(),
-          release: releaseId,
-          amountPaid,
-          transactions,
-          user: custUserId,
-          userAddress: custNemAddress
-        });
-
-        hasPurchased = true;
-      }
-
-      res.send({
-        remaining: ((price - amountPaid) / 10 ** 6).toFixed(6),
-        hasPurchased,
-        nemNode,
-        amountPaid: (amountPaid / 10 ** 6).toFixed(6),
-        releaseId,
-        transactions
-      });
+      const transations = await getUserTransactions({ user: req.user, releaseId, paymentHash, price });
+      res.send(transations);
     } catch (error) {
       if (error.data) return res.status(500).send({ error: error.data.message });
       res.status(500).send({ error: error.message });
@@ -87,42 +31,8 @@ module.exports = app => {
   app.post('/api/user/address', requireLogin, async (req, res) => {
     try {
       const { nemAddress = '', nemAddressChallenge, signedMessage } = req.body;
-      const updatedNemAddress = nemAddress.toUpperCase().replace(/-/g, '');
-      const user = await User.findById(req.user._id, 'credit nemAddress nemAddressVerified').exec();
-      const existingNemAddress = user.nemAddress;
-      const addressChanged = updatedNemAddress !== existingNemAddress;
-
-      if (addressChanged) {
-        const addressExists = await User.exists({ nemAddress, nemAddressVerified: true });
-
-        if (addressExists) {
-          throw new Error('NEM addresses cannot be registered for more than one account. Please use another address.');
-        }
-
-        if (!updatedNemAddress) {
-          await Release.updateMany({ user: user._id }, { $set: { published: false } }).exec();
-        }
-        user.nemAddress = updatedNemAddress;
-        user.nemAddressChallenge = humanId();
-        user.nemAddressVerified = false;
-        user.credits = 0;
-      }
-
-      if (updatedNemAddress && signedMessage) {
-        const parsedMessage = JSON.parse(signedMessage);
-        const messageIsValid = checkSignedMessage(nemAddress, nemAddressChallenge, parsedMessage);
-        user.nemAddressVerified = messageIsValid;
-        if (!messageIsValid) throw new Error('This message is not valid.');
-        user.nemAddressChallenge = undefined;
-      }
-
-      if (updatedNemAddress && user.nemAddressVerified) {
-        const credits = await fetchMosaics(updatedNemAddress);
-        user.credits = credits;
-      }
-
-      await user.save();
-      res.send(user.toJSON());
+      const user = await setUserNemAddress({ userId: req.user._id, nemAddress, nemAddressChallenge, signedMessage });
+      res.send(user);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
@@ -130,36 +40,18 @@ module.exports = app => {
 
   app.get('/api/user/credits', requireLogin, async (req, res) => {
     try {
-      const user = await User.findById(req.user._id, 'credits nemAddress nemAddressVerified').exec();
-      if (!user) return res.end();
-      const { nemAddress, nemAddressVerified } = user;
-
-      if (nemAddress && nemAddress.length && nemAddressVerified) {
-        user.credits = await fetchMosaics(nemAddress);
-        await user.save();
-        return res.status(200).send({ credits: user.toJSON().credits });
-      }
-
-      res.end();
+      const credits = await getUserCredits(req.user._id);
+      if (!credits) return res.end();
+      res.send(credits);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
   });
 
-  app.get('/api/user/credits/buy', requireLogin, async (req, res) => {
+  app.get('/api/user/credits/purchase', requireLogin, async (req, res) => {
     try {
       req.session.productData = null;
-      const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
-      if (!xemPriceUsd) throw new Error('Price information unavailable.');
-      const usdInXem = 1 / xemPriceUsd;
-
-      const productData = PRODUCTS.map(product => {
-        product.priceUsd = (product.quantity * product.unitPrice).toString();
-        product.priceXem = Number.parseFloat((product.quantity * product.unitPrice * usdInXem).toFixed(6));
-        product.priceRawXem = Number.parseInt((product.quantity * product.unitPrice * usdInXem * 10 ** 6).toFixed());
-        return product;
-      });
-
+      const productData = await creditPricing();
       req.session.productData = productData;
       res.send(productData);
     } catch (error) {
@@ -167,78 +59,34 @@ module.exports = app => {
     }
   });
 
-  app.post('/api/user/credits/buy', requireLogin, async (req, res) => {
-    const { sku } = req.body;
-    const { productData } = req.session;
-    const user = await User.findById(req.user._id, 'auth.idHash').exec();
-    if (!user) return res.status(401).end();
+  app.post('/api/user/credits/purchase', requireLogin, async (req, res) => {
+    try {
+      const { sku } = req.body;
+      const { productData } = req.session;
+      const { nonce, paymentId, priceRawXem, priceXem } = await creditPurchase({
+        userId: req.user._id,
+        sku,
+        productData
+      });
 
-    const {
-      _id: userId,
-      auth: { idHash }
-    } = user;
-
-    const nonce = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.createHash('sha256');
-    const paymentId = hash.update(nonce).update(idHash).digest('hex').substring(0, 32);
-    const { priceXem, priceRawXem } = productData.find(product => product.sku === sku);
-
-    await Payment.create({
-      dateCreated: Date.now(),
-      nonce,
-      priceRawXem,
-      paymentId,
-      sku,
-      user: userId
-    });
-
-    req.session.nonce = nonce;
-    req.session.paymentId = paymentId;
-    req.session.priceRawXem = priceRawXem;
-    res.send({ nonce, PAYMENT_ADDRESS, paymentId, priceXem });
+      req.session.nonce = nonce;
+      req.session.paymentId = paymentId;
+      req.session.priceRawXem = priceRawXem;
+      res.send({ nonce, PAYMENT_ADDRESS, paymentId, priceXem });
+    } catch (error) {
+      res.status(401).send({ error: 'We could not create your purchase.' });
+    }
   });
 
   app.post('/api/user/credits/confirm', requireLogin, async (req, res) => {
     try {
+      const { clientId, cnonce } = req.body;
       const { nonce, paymentId } = req.session;
       const userId = req.user._id;
-      const user = await User.findById(userId, 'auth.idHash').exec();
-      const { idHash } = user.auth;
-      const { clientId, cnonce } = req.body;
-      const hash = crypto.createHash('sha256');
-      const hashed = hash.update(cnonce).update(idHash).update(nonce).update(paymentId).digest('hex');
-
-      if (hashed !== clientId) {
-        return res.status(401).json({ error: 'Not authorised.' });
-      }
-
-      const paymentInfo = await Payment.findOne({ nonce, paymentId }, 'priceRawXem sku', { lean: true }).exec();
-      if (!paymentInfo) return res.status(401).json({ error: 'Payment session expired. Please begin a new session.' });
-      const { priceRawXem, sku } = paymentInfo;
-      const { transactions, amountPaid } = await fetchTransactions(PAYMENT_ADDRESS, paymentId);
-
-      let hasPaid = false;
-      if (amountPaid >= priceRawXem) {
-        hasPaid = true;
-
-        await CreditPayment.create({
-          user: userId,
-          purchaseDate: Date.now(),
-          sku,
-          paymentId,
-          transactions
-        });
-
-        await Payment.findByIdAndDelete(paymentInfo._id).exec();
-        const [tx] = transactions;
-        const { signer } = tx.transaction;
-        const sender = nem.utils.format.pubToAddress(signer, NEM_NETWORK_ID);
-        publishToQueue('', QUEUE_CREDITS, { job: 'sendCredits', sender, sku, userId });
-      }
-
-      res.send({ hasPaid, transactions });
+      const paymentDetails = await creditConfirmation({ userId, clientId, cnonce, nonce, paymentId });
+      res.send(paymentDetails);
     } catch (error) {
-      res.status(500).send({ error: error.message });
+      res.status(401).send({ error: error.message });
     }
   });
 };

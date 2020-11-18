@@ -16,7 +16,7 @@ const PurchaseCredits = ({ setShowPaymentModal }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    axios('/api/user/credits/buy')
+    axios('/api/user/credits/purchase')
       .then(res => setProductData(res.data))
       .finally(() => setIsLoading(false));
   }, [setProductData]);
