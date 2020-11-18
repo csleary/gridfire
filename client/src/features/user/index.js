@@ -1,5 +1,4 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
-import { fetchUserFavourites, fetchUserWishList } from 'features/releases';
 import { toastError, toastSuccess, toastWarning } from 'features/toast';
 import axios from 'axios';
 
@@ -16,17 +15,25 @@ const userSlice = createSlice({
     wishList: []
   },
   reducers: {
-    setCredits(state, action) {
-      state.credits = action.payload;
+    addFavouritesItem(state, action) {
+      console.log(action.payload);
+      state.favourites = [action.payload, ...state.favourites];
     },
 
-    setFavourites(state, action) {
-      const { releaseId } = action.payload;
-      if (state.favourites.includes(releaseId)) {
-        state.favourites = state.favourites.filter(id => id !== releaseId);
-      } else {
-        state.favourites.push(action.payload);
-      }
+    removeFavouritesItem(state, action) {
+      state.favourites = state.favourites.filter(({ release }) => release !== action.payload);
+    },
+
+    addWishListItem(state, action) {
+      state.wishList = [action.payload, ...state.wishList];
+    },
+
+    removeWishListItem(state, action) {
+      state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
+    },
+
+    setCredits(state, action) {
+      state.credits = action.payload;
     },
 
     setNemAddress(state, action) {
@@ -38,10 +45,6 @@ const userSlice = createSlice({
 
     updateFavourites(state, action) {
       state.favourites = action.payload;
-    },
-
-    updateWishList(state, action) {
-      state.wishList = action.payload;
     },
 
     updateUser(state, action) {
@@ -71,22 +74,28 @@ const userSlice = createSlice({
   }
 });
 
-const saveToFavourites = releaseId => async dispatch => {
-  const res = await axios.post(`/api/user/favourite/${releaseId}`);
-  const favourites = res.data;
-  dispatch(updateFavourites(favourites));
-  if (favourites.some(rel => rel.releaseId === releaseId)) dispatch(toastSuccess('Added to favourites.'));
-  else dispatch(toastSuccess('Removed from favourites.'));
-  dispatch(fetchUserFavourites());
+const addToFavourites = releaseId => async dispatch => {
+  const res = await axios.post(`/api/user/favourites/${releaseId}`);
+  dispatch(addFavouritesItem(res.data));
+  dispatch(toastSuccess('Added to favourites.'));
 };
 
-const saveToWishList = releaseId => async dispatch => {
+const removeFromFavourites = releaseId => async dispatch => {
+  dispatch(removeFavouritesItem(releaseId));
+  await axios.delete(`/api/user/favourites/${releaseId}`);
+  dispatch(toastSuccess('Removed from favourites.'));
+};
+
+const addToWishList = releaseId => async dispatch => {
   const res = await axios.post(`/api/user/wish-list/${releaseId}`);
-  const wishList = res.data;
-  dispatch(updateWishList(wishList));
-  if (wishList.some(rel => rel.releaseId === releaseId)) dispatch(toastSuccess('Added to wish list.'));
-  else dispatch(toastSuccess('Removed from wish list.'));
-  dispatch(fetchUserWishList());
+  dispatch(addWishListItem(res.data));
+  dispatch(toastSuccess('Added to wish list.'));
+};
+
+const removeFromWishList = releaseId => async dispatch => {
+  dispatch(removeWishListItem(releaseId));
+  await axios.delete(`/api/user/wish-list/${releaseId}`);
+  dispatch(toastSuccess('Removed from wish list.'));
 };
 
 const addNemAddress = values => async dispatch => {
@@ -122,11 +131,12 @@ const fetchUserCredits = () => async dispatch => {
   }
 };
 
-const logOut = callback => async dispatch => {
+const logOut = () => async dispatch => {
   try {
     const res = await axios.get('/api/auth/logout');
-    dispatch(createAction({ type: 'user/logOut' }));
-    callback(res);
+    const action = createAction('user/logOut');
+    dispatch(action());
+    dispatch(toastSuccess(res.data.success));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
   }
@@ -134,13 +144,25 @@ const logOut = callback => async dispatch => {
 
 export default userSlice.reducer;
 export const {
+  addFavouritesItem,
+  addWishListItem,
+  removeFavouritesItem,
+  removeWishListItem,
   setCredits,
   setFavourites,
   setLoading,
   setNemAddress,
   updateFavourites,
-  updateWishList,
   updateUser
 } = userSlice.actions;
 
-export { addNemAddress, fetchUser, fetchUserCredits, logOut, saveToFavourites, saveToWishList };
+export {
+  addNemAddress,
+  addToFavourites,
+  addToWishList,
+  fetchUser,
+  fetchUserCredits,
+  logOut,
+  removeFromFavourites,
+  removeFromWishList
+};

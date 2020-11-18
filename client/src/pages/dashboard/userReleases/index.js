@@ -12,7 +12,7 @@ function UserReleases() {
   const dispatch = useDispatch();
   const { userReleases, favCounts } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
-  const [salesData, setSalesData] = useState();
+  const [salesData, setSalesData] = useState([]);
 
   useEffect(() => {
     axios.get('/api/sales').then(res => setSalesData(res.data));
@@ -37,10 +37,8 @@ function UserReleases() {
   const renderUserReleases = () =>
     userReleases.map(release => {
       const releaseId = release._id;
-      const sales = salesData?.find(sale => sale.releaseId === releaseId);
-      return (
-        <UserRelease key={releaseId} numSold={sales?.purchases.length} release={release} favs={favCounts[releaseId]} />
-      );
+      const numSold = salesData.find(({ _id }) => _id === releaseId)?.sum;
+      return <UserRelease key={releaseId} numSold={numSold} release={release} favs={favCounts[releaseId]} />;
     });
 
   if (isLoading) {

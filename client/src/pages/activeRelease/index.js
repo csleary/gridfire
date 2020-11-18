@@ -33,7 +33,7 @@ const ActiveRelease = () => {
   const { purchases } = useSelector(state => state.user, shallowEqual);
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
-  const isInCollection = purchases?.some(purchase => purchase.releaseId === releaseId);
+  const isInCollection = purchases.some(sale => sale.release === releaseId);
 
   const {
     artist,

@@ -7,15 +7,12 @@ import Summary from './summary';
 import Transactions from './transactions';
 import styles from './payments.module.css';
 import { useApi } from 'hooks/useApi';
-// import { useSelector } from 'react-redux';
 import withDownload from './withDownload';
 
 const Download = withDownload(DownloadButton);
 
 const Payments = ({ artistName, paymentHash, price, releaseId, releaseTitle }) => {
   const paymentData = useMemo(() => ({ releaseId, paymentHash }), [releaseId, paymentHash]);
-  // const { purchases } = useSelector(state => state.user);
-  // const previousPurchase = purchases.find(purchase => purchase.releaseId === releaseId);
 
   const initialData = {
     hasPurchased: false,

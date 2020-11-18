@@ -2,13 +2,12 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 const Artist = mongoose.model('artists');
 
-const createArtist = async (artistName, releaseId, userId, suffix = '') =>
+const createArtist = async (artistName, userId, suffix = '') =>
   Artist.create(
     [
       {
         name: artistName,
         slug: slugify(`${artistName}${suffix}`, { lower: true }),
-        releases: [releaseId],
         user: userId,
         dateCreated: Date.now()
       }
@@ -24,7 +23,7 @@ const createArtist = async (artistName, releaseId, userId, suffix = '') =>
         newSuffix = `-${Number.parseInt(suffix.split('-').pop()) + 1}`;
       }
 
-      return createArtist(artistName, releaseId, userId, newSuffix);
+      return createArtist(artistName, userId, newSuffix);
     }
 
     throw error;

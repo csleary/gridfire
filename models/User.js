@@ -19,38 +19,9 @@ const userSchema = new Schema(
     nemAddress: { type: String, default: '' },
     nemAddressChallenge: String,
     nemAddressVerified: { type: Boolean, default: false },
-    credits: { type: Number, default: 0 },
-    creditPurchases: [
-      {
-        purchaseDate: Date,
-        sku: String,
-        paymentId: String,
-        transactions: Array
-      }
-    ],
-    purchases: [
-      {
-        releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
-        purchaseDate: Date,
-        purchaseRef: { type: Schema.Types.ObjectId, ref: 'Sale.purchase' },
-        transactions: Array
-      }
-    ],
-    favourites: [
-      {
-        releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
-        dateAdded: { type: Date }
-      }
-    ],
-    wishList: [
-      {
-        releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
-        dateAdded: { type: Date }
-      }
-    ],
-    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }]
+    credits: { type: Number, default: 0 }
   },
-  { usePushEach: true, toJSON: { versionKey: false } }
+  { toJSON: { versionKey: false } }
 );
 
 userSchema.pre('save', async function (next) {

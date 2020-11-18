@@ -10,10 +10,13 @@ var io = require('socket.io')(server);
 app.set('socketio', io);
 
 require('./models/Artist');
-require('./models/User');
+require('./models/CreditPayment');
+require('./models/Favourite');
+require('./models/Payment');
 require('./models/Release');
 require('./models/Sale');
-require('./models/Payment');
+require('./models/User');
+require('./models/Wish');
 require('./services/passport');
 
 mongoose

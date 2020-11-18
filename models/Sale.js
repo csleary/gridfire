@@ -1,17 +1,14 @@
 const mongoose = require('mongoose');
-
 const { Schema } = mongoose;
 
 const saleSchema = new Schema({
-  releaseId: { type: Schema.Types.ObjectId, ref: 'Release' },
-  purchases: [
-    {
-      purchaseDate: Date,
-      amountPaid: Number,
-      buyer: { type: Schema.Types.ObjectId, ref: 'User' },
-      buyerAddress: String
-    }
-  ]
+  purchaseDate: Date,
+  release: { type: Schema.Types.ObjectId, ref: 'Release' },
+  amountPaid: Number,
+  transactions: { type: Array },
+  user: { type: Schema.Types.ObjectId, ref: 'User' },
+  userAddress: String
 });
 
+saleSchema.index({ user: 1, release: 1 });
 mongoose.model('sales', saleSchema);

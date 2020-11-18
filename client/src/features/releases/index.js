@@ -82,7 +82,7 @@ const releaseSlice = createSlice({
     setUserReleaseFavs(state, action) {
       const { releases } = action.payload;
       releases.forEach(rel => {
-        state.favCounts[rel._id] = rel.favs;
+        state.favCounts[rel._id] = rel.sum;
       });
     },
 
@@ -129,9 +129,9 @@ const deleteRelease = (releaseId, releaseTitle = 'release') => async dispatch =>
   }
 };
 
-const fetchArtistCatalogue = (artistId, artistSlug) => async dispatch => {
+const fetchArtistCatalogue = (artistId = null, artistSlug = null) => async dispatch => {
   dispatch(setIsLoading(true));
-  const res = await axios.get(`/api/catalogue/${artistId}`, { params: { artistId, artistSlug } });
+  const res = await axios.get(`/api/catalogue/${artistSlug || artistId}`);
   dispatch(setArtistCatalogue(res.data));
 };
 

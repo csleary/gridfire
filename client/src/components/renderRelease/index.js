@@ -98,6 +98,7 @@ const RenderRelease = props => {
 };
 
 RenderRelease.propTypes = {
+  className: PropTypes.string,
   release: PropTypes.object,
   showArtist: PropTypes.bool,
   showTitle: PropTypes.bool,

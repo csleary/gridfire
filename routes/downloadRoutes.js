@@ -9,14 +9,13 @@ const { generateToken } = require('../controllers/tokenController');
 const requireLogin = require('../middlewares/requireLogin');
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
-const User = mongoose.model('users');
+const Sale = mongoose.model('sales');
 
 module.exports = app => {
   // Fetch Download Token
   app.post('/api/download', requireLogin, async (req, res) => {
     const { releaseId } = req.body;
-    const user = await User.findById(req.user._id).exec();
-    const hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
+    const hasPurchased = await Sale.exists({ user: req.user._id, release: releaseId });
 
     if (hasPurchased) {
       const token = generateToken({ releaseId });

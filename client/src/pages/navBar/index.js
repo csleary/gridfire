@@ -1,7 +1,6 @@
-import { Link, NavLink, useHistory } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { fetchUser, logOut } from 'features/user';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import DashNav from './dashNav';
 import Dropdown from 'components/dropdown';
@@ -9,13 +8,12 @@ import FontAwesome from 'react-fontawesome';
 import Logo from './logo';
 import SearchBar from './searchBar';
 import classnames from 'classnames';
+import { logOut } from 'features/user';
 import styles from './navBar.module.css';
 import throttle from 'lodash.throttle';
-import { toastSuccess } from 'features/toast';
 
 const NavBar = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
   const navBar = useRef();
   const [showLogo, setShowLogo] = useState(false);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
@@ -37,15 +35,7 @@ const NavBar = () => {
   }, [handleScroll]);
 
   const handleLogout = () => {
-    dispatch(
-      logOut(res => {
-        history.push('/login');
-        batch(() => {
-          dispatch(fetchUser());
-          dispatch(toastSuccess(res.data.success));
-        });
-      })
-    );
+    dispatch(logOut());
   };
 
   const logoClassNames = classnames(styles.logoLink, {

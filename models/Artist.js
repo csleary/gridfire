@@ -12,7 +12,6 @@ const artistSchema = new Schema({
   slug: { type: String, trim: true },
   biography: { type: String, trim: true },
   links: [linkSchema],
-  releases: [{ type: Schema.Types.ObjectId, ref: 'Release' }],
   dateCreated: { type: Date },
   dateUpdated: { type: Date }
 });

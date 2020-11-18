@@ -3,7 +3,6 @@ const busboy = require('connect-busboy');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const path = require('path');
-const sax = require('sax');
 const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = require('../config/constants');
 const { publishToQueue } = require('../services/rabbitMQ/publisher');
 const releaseOwner = require('../middlewares/releaseOwner');

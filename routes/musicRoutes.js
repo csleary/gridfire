@@ -3,70 +3,71 @@ const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 const { AWS_REGION } = require('../config/constants');
 const Artist = mongoose.model('artists');
+const Favourite = mongoose.model('favourites');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
-const User = mongoose.model('users');
+const Wish = mongoose.model('wishlist');
 aws.config.update({ region: AWS_REGION });
 
 module.exports = app => {
   // Fetch user collection
   app.get('/api/user/collection/', requireLogin, async (req, res) => {
-    const { purchases } = req.user;
-    const releaseIds = purchases.map(release => release.releaseId);
-    const releases = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
-      lean: true,
-      sort: '-purchaseDate'
-    }).exec();
-    res.send(releases);
+    const collection = await Sale.find({ user: req.user._id }, '', { lean: true, sort: '-purchaseDate' })
+      .populate({
+        path: 'release',
+        model: Release,
+        options: { lean: true },
+        select: 'artistName artwork releaseTitle trackList._id trackList.trackTitle'
+      })
+      .exec();
+
+    res.send(collection);
   });
 
   // Fetch user favourites
   app.get('/api/user/favourites/', requireLogin, async (req, res) => {
-    const user = await User.findById(req.user._id, 'favourites', { lean: true }).exec();
-    const releaseIds = user.favourites.map(rel => rel.releaseId);
-    const userFavourites = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
+    const userFavourites = await Favourite.find({ user: req.user._id }, '', {
       lean: true,
-      sort: '-releaseDate'
-    }).exec();
+      sort: '-release.releaseDate'
+    })
+      .populate({
+        path: 'release',
+        match: { published: true },
+        model: Release,
+        options: { lean: true },
+        select: 'artistName artwork releaseTitle trackList._id trackList.trackTitle'
+      })
+      .exec();
+
     res.send(userFavourites);
   });
 
   // Fetch user wish list
   app.get('/api/user/wish-list/', requireLogin, async (req, res) => {
-    const user = await User.findById(req.user._id, 'wishList', { lean: true }).exec();
-    const releaseIds = user.wishList.map(rel => rel.releaseId);
-    const userWishList = await Release.find({ _id: { $in: releaseIds } }, '-__v', {
-      lean: true,
-      sort: '-releaseDate'
-    }).exec();
+    const userWishList = await Wish.find({ user: req.user._id }, '', { lean: true, sort: '-release.releaseDate' })
+      .populate({
+        path: 'release',
+        match: { published: true },
+        model: Release,
+        options: { lean: true },
+        select: 'artistName artwork releaseTitle trackList._id trackList.trackTitle'
+      })
+      .exec();
+
     res.send(userWishList);
   });
 
   // Fetch artist catalogue
-  app.get('/api/catalogue/:artistId', async (req, res) => {
-    const { artistId } = req.params;
-    const { artistSlug } = req.query;
+  app.get('/api/catalogue/:artistIdOrSlug', async (req, res) => {
+    const { artistIdOrSlug } = req.params;
+    const { isValidObjectId, Types } = mongoose;
+    const { ObjectId } = Types;
 
-    let catalogue;
-    if (artistSlug) {
-      catalogue = await Artist.findOne({ slug: artistSlug })
-        .populate({
-          path: 'releases',
-          match: { published: true },
-          model: Release,
-          options: { lean: true, sort: '-releaseDate' }
-        })
-        .exec();
-    } else {
-      catalogue = await Artist.findById(artistId)
-        .populate({
-          path: 'releases',
-          match: { published: true },
-          model: Release,
-          options: { lean: true, sort: '-releaseDate' }
-        })
-        .exec();
-    }
+    const [catalogue] = await Artist.aggregate([
+      { $match: isValidObjectId(artistIdOrSlug) ? { _id: ObjectId(artistIdOrSlug) } : { slug: artistIdOrSlug } },
+      { $lookup: { from: 'releases', localField: '_id', foreignField: 'artist', as: 'releases' } },
+      { $sort: { releaseDate: -1 } }
+    ]).exec();
 
     res.send(catalogue);
   });
@@ -96,10 +97,13 @@ module.exports = app => {
   // Fetch release sales figures
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ user: req.user._id });
-    const releaseIds = releases.map(release => release._id);
-    const sales = await Sale.find({ releaseId: { $in: releaseIds } }, '-__v', {
-      lean: true
-    }).exec();
+
+    const sales = await Sale.aggregate([
+      { $match: { release: { $in: releases.map(({ _id }) => _id) } } },
+      { $group: { _id: '$release', sum: { $sum: 1 } } },
+      { $sort: { sum: -1 } }
+    ]).exec();
+
     res.send(sales);
   });
 
@@ -111,10 +115,7 @@ module.exports = app => {
 
   // Fetch user releases
   app.get('/api/user/releases/', requireLogin, async (req, res) => {
-    const releases = await Release.find({ user: req.user._id }, '-__v', {
-      lean: true,
-      sort: '-releaseDate'
-    }).exec();
+    const releases = await Release.find({ user: req.user._id }, '-__v', { lean: true, sort: '-releaseDate' }).exec();
     res.send(releases);
   });
 
@@ -124,11 +125,9 @@ module.exports = app => {
       const userId = req.user._id;
       const releases = await Release.find({ user: userId }, '_id', { lean: true }).exec();
 
-      const releaseFavs = await User.aggregate([
-        { $match: { 'favourites.releaseId': { $in: releases.map(rel => rel._id) } } },
-        { $group: { _id: { releaseId: '$favourites.releaseId' } } },
-        { $unwind: '$_id.releaseId' },
-        { $group: { _id: '$_id.releaseId', favs: { $sum: 1 } } }
+      const releaseFavs = await Favourite.aggregate([
+        { $match: { release: { $in: releases.map(({ _id }) => _id) } } },
+        { $group: { _id: '$release', sum: { $sum: 1 } } }
       ]).exec();
 
       res.send({ releases: releaseFavs });
@@ -140,39 +139,44 @@ module.exports = app => {
   // Search releases
   app.get('/api/search', async (req, res) => {
     const { searchQuery } = req.query;
-    const results = await Release.find({ published: true, $text: { $search: searchQuery } }, '-__v', {
-      lean: true,
-      limit: 50
-    }).exec();
+    const results = await Release.find(
+      { published: true, $text: { $search: searchQuery } },
+      'artistName artwork releaseTitle trackList._id trackList.trackTitle',
+      { lean: true, limit: 50 }
+    ).exec();
 
     res.send(results);
   });
 
   // Add release to user favourites
-  app.post('/api/user/favourite/:releaseId', requireLogin, async (req, res) => {
-    const { releaseId } = req.params;
-    const userId = req.user._id;
-    const favExists = await User.exists({ _id: userId, 'favourites.releaseId': releaseId });
+  app.post('/api/user/favourites/:releaseId', requireLogin, async (req, res) => {
+    const { releaseId: release } = req.params;
+    const user = req.user._id;
+    const favourite = await Favourite.create({ release, dateAdded: Date.now(), user });
+    res.send(favourite.toJSON());
+  });
 
-    const update = favExists
-      ? { $pull: { favourites: { releaseId } } }
-      : { $addToSet: { favourites: { releaseId, dateAdded: Date.now() } } };
-
-    const user = await User.findByIdAndUpdate(userId, update, { new: true, select: { favourites: 1 } }).exec();
-    res.send(user.toJSON().favourites);
+  // Remove release from user favourites
+  app.delete('/api/user/favourites/:releaseId', requireLogin, async (req, res) => {
+    const { releaseId: release } = req.params;
+    const user = req.user._id;
+    await Favourite.findOneAndDelete({ release, user });
+    res.end();
   });
 
   // Add release to user wish list
   app.post('/api/user/wish-list/:releaseId', requireLogin, async (req, res) => {
-    const { releaseId } = req.params;
-    const userId = req.user._id;
-    const releaseExists = await User.exists({ _id: userId, 'wishList.releaseId': releaseId });
+    const { releaseId: release } = req.params;
+    const user = req.user._id;
+    const wishlistItem = await Wish.create({ release, dateAdded: Date.now(), user });
+    res.send(wishlistItem.toJSON());
+  });
 
-    const update = releaseExists
-      ? { $pull: { wishList: { releaseId } } }
-      : { $addToSet: { wishList: { releaseId, dateAdded: Date.now() } } };
-
-    const user = await User.findByIdAndUpdate(userId, update, { new: true, select: { wishList: 1 } }).exec();
-    res.send(user.toJSON().wishList);
+  // Remove release from user wish list
+  app.delete('/api/user/wish-list/:releaseId', requireLogin, async (req, res) => {
+    const { releaseId: release } = req.params;
+    const user = req.user._id;
+    await Wish.findOneAndDelete({ release, user });
+    res.end();
   });
 };

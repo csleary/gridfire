@@ -9,7 +9,7 @@ module.exports = app => {
   app.get('/api/artists', requireLogin, async (req, res) => {
     try {
       const userId = req.user._id;
-      const artists = await Artist.find({ user: userId }, '-releases -__v', { lean: true }).exec();
+      const artists = await Artist.find({ user: userId }, '-__v', { lean: true }).exec();
       res.send(artists);
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -22,7 +22,7 @@ module.exports = app => {
       const { name, slug, biography, links } = req.body;
 
       // If slug string length is zero, set it to null to satisfy the unique index.
-      const { releases, ...rest } = await Artist.findOneAndUpdate(
+      const artist = await Artist.findOneAndUpdate(
         { _id: req.params.artistId, user: userId },
         {
           name,
@@ -33,8 +33,8 @@ module.exports = app => {
         { fields: { __v: 0 }, lean: true, new: true }
       ).exec();
 
-      await Release.updateMany({ _id: { $in: releases }, user: userId }, { artistName: name }).exec();
-      res.send({ ...rest });
+      await Release.updateMany({ artist: req.params.artistId, user: userId }, { artistName: name }).exec();
+      res.send(artist);
     } catch (error) {
       if (error.codeName === 'DuplicateKey') {
         return res.send({

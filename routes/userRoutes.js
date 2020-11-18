@@ -11,6 +11,7 @@ const { humanId } = require('human-id');
 const requireLogin = require('../middlewares/requireLogin');
 const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
+const CreditPayment = mongoose.model('credit-payments');
 const Payment = mongoose.model('payments');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
@@ -18,8 +19,16 @@ const User = mongoose.model('users');
 const { publishToQueue } = require(__basedir + '/services/rabbitMQ/publisher');
 
 module.exports = app => {
-  app.get('/api/user', (req, res) => {
-    res.send(req.user);
+  app.get('/api/user', async (req, res) => {
+    const [user] = await User.aggregate([
+      { $match: { _id: req.user._id } },
+      { $lookup: { from: 'favourites', localField: '_id', foreignField: 'user', as: 'favourites' } },
+      { $lookup: { from: 'wishlists', localField: '_id', foreignField: 'user', as: 'wishList' } },
+      { $lookup: { from: 'sales', localField: '_id', foreignField: 'user', as: 'purchases' } },
+      { $project: { __v: 0 } }
+    ]).exec();
+
+    res.send(user);
   });
 
   app.post('/api/user/transactions', requireLogin, async (req, res) => {
@@ -27,34 +36,37 @@ module.exports = app => {
       const { releaseId, paymentHash } = req.body;
       const { price } = req.session;
       const { _id: custUserId, nemAddress: custNemAddress } = req.user;
-      const user = await User.findById(custUserId, 'purchases').exec();
       const release = await Release.findById(releaseId, 'user', { lean: true }).exec();
       const artist = await User.findById(release.user, 'nemAddress', { lean: true }).exec();
       const paymentAddress = artist.nemAddress;
-      let hasPurchased = user.purchases.some(purchase => purchase.releaseId.equals(releaseId));
+      let [sale] = await Sale.find({ user: custUserId, release: releaseId }, 'amountPaid transactions', { lean: true });
+      let hasPurchased = Boolean(sale);
+      console.log(sale);
+      console.log(hasPurchased);
+
+      if (hasPurchased) {
+        return res.send({
+          remaining: '0',
+          hasPurchased,
+          nemNode: '',
+          amountPaid: sale.amountPaid.toFixed(6),
+          releaseId,
+          transactions: sale.transactions
+        });
+      }
+
       const { transactions, nemNode, amountPaid } = await fetchTransactions(paymentAddress, paymentHash);
 
       if (amountPaid >= price && !hasPurchased) {
-        const saleId = mongoose.Types.ObjectId();
-
-        const newSale = {
-          _id: saleId,
+        await Sale.create({
           purchaseDate: Date.now(),
+          release: releaseId,
           amountPaid,
-          buyer: custUserId,
-          buyerAddress: custNemAddress
-        };
-
-        await Sale.findOneAndUpdate({ releaseId }, { $addToSet: { purchases: newSale } }, { upsert: true }).exec();
-
-        user.purchases.push({
-          purchaseDate: Date.now(),
-          releaseId,
-          purchaseRef: saleId,
-          transactions
+          transactions,
+          user: custUserId,
+          userAddress: custNemAddress
         });
 
-        await user.save();
         hasPurchased = true;
       }
 
@@ -67,10 +79,7 @@ module.exports = app => {
         transactions
       });
     } catch (error) {
-      if (error.data) {
-        return res.status(500).send({ error: error.data.message });
-      }
-
+      if (error.data) return res.status(500).send({ error: error.data.message });
       res.status(500).send({ error: error.message });
     }
   });
@@ -212,20 +221,13 @@ module.exports = app => {
       if (amountPaid >= priceRawXem) {
         hasPaid = true;
 
-        await User.findByIdAndUpdate(
-          userId,
-          {
-            $push: {
-              creditPurchases: {
-                purchaseDate: Date.now(),
-                sku,
-                paymentId,
-                transactions
-              }
-            }
-          },
-          { new: true }
-        ).exec();
+        await CreditPayment.create({
+          user: userId,
+          purchaseDate: Date.now(),
+          sku,
+          paymentId,
+          transactions
+        });
 
         await Payment.findByIdAndDelete(paymentInfo._id).exec();
         const [tx] = transactions;

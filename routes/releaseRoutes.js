@@ -156,7 +156,7 @@ module.exports = app => {
   app.get('/api/release/:releaseId/favourites', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId } = req.params;
-      const favCount = await User.where({ 'favourites.releaseId': releaseId }).countDocuments().exec();
+      const favCount = await User.where({ 'favourites.releaseId': releaseId }).countDocuments().exec(); // TODO
       res.send({ releaseId, favCount });
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -279,11 +279,7 @@ module.exports = app => {
       if (!existingArtistId) {
         [artist] = await createArtist(artistName, releaseId, userId);
       } else {
-        artist = await Artist.findByIdAndUpdate(
-          existingArtistId,
-          { $addToSet: { releases: releaseId } },
-          { fields: { name: 1 }, lean: true, new: true }
-        ).exec();
+        artist = await Artist.findById(existingArtistId, 'name', { lean: true, new: true }).exec();
       }
 
       const artistId = artist._id;
@@ -308,7 +304,6 @@ module.exports = app => {
         track.trackTitle = trackList.find(update => update._id.toString() === track._id.toString()).trackTitle;
       });
 
-      await User.findByIdAndUpdate(userId, { $addToSet: { artists: artistId } }).exec();
       const updatedRelease = await release.save();
       res.send(updatedRelease.toJSON());
     } catch (error) {

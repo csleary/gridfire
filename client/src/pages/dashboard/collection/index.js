@@ -15,7 +15,7 @@ const Collection = () => {
     dispatch(fetchCollection()).then(() => setLoading(false));
   }, [collection.length, dispatch]);
 
-  const renderReleases = collection.map(release => (
+  const renderReleases = collection.map(({ release }) => (
     <RenderRelease key={release._id} release={release} type="collection" />
   ));
 
