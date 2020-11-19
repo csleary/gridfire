@@ -21,10 +21,12 @@ const ArtistMenu = field => {
   const defaultLabel = showNewArtistName ? 'New artist' : 'Select an artist…';
 
   useEffect(() => {
-    if (!artistCount) {
-      dispatch(fetchArtists());
-    }
-  }, [dispatch, artistCount]);
+    dispatch(fetchArtists()).then(() => {
+      if (!artistCount) {
+        setShowNewArtist(true);
+      }
+    });
+  }, [artistCount, dispatch, setShowNewArtist]);
 
   return (
     <fieldset className={styles.field}>

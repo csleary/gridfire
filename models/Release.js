@@ -25,11 +25,13 @@ const releaseSchema = new Schema(
         trackTitle: { type: String, trim: true },
         status: { type: String, default: 'pending' },
         duration: { type: Number, trim: true },
-        mpd: { type: Buffer },
-        initRange: { type: String },
-        segmentList: { type: Array },
         dateCreated: { type: Date },
-        dateUpdated: { type: Date }
+        dateUpdated: { type: Date },
+        mpd: { type: Buffer },
+        segmentDuration: { type: Number },
+        segmentTimescale: { type: Number },
+        segmentList: { type: Array },
+        initRange: { type: String }
       }
     ],
     tags: [String],
@@ -54,7 +56,13 @@ releaseSchema.post('save', release => {
 releaseSchema.set('toJSON', { versionKey: false });
 
 releaseSchema.options.toJSON.transform = function (doc, ret) {
-  ret.trackList.forEach(track => delete track.mpd);
+  ret.trackList.forEach(track => {
+    delete track.mpd;
+    delete track.segmentDuration;
+    delete track.segmentTimescale;
+    delete track.segmentList;
+    delete track.initRange;
+  });
   return ret;
 };
 

@@ -24,26 +24,32 @@ module.exports = app => {
     }
   });
 
-  // Fetch Init Range and Segment List
+  // Fetch Init Range
   app.get('/api/:releaseId/:trackId/init', async (req, res) => {
     const { releaseId, trackId } = req.params;
-    const s3 = new aws.S3();
     const release = await Release.findById(releaseId, 'trackList').exec();
-    const { duration, initRange, segmentList } = release.trackList.id(trackId);
-    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}.mp4` };
+    const { duration, initRange } = release.trackList.id(trackId);
+    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}/${trackId}.mp4` };
+    const s3 = new aws.S3();
     const url = s3.getSignedUrl('getObject', mp4Params);
-    res.send({ duration, initRange, segmentList, url });
+    res.send({ duration, url, range: initRange });
   });
 
   // Fetch Segment
-  app.get('/api/:releaseId/:trackId/segment', async (req, res) => {
+  app.get('/api/:releaseId/:trackId/stream', async (req, res) => {
     const { releaseId, trackId } = req.params;
+    const { time, type } = req.query;
+    const release = await Release.findById(releaseId, 'trackList').exec();
+    const { segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
+    const segmentTime = Number.parseFloat(time) / (segmentDuration / segmentTimescale);
+    const indexLookup = { 0: 0, 1: Math.ceil(segmentTime), 2: Math.floor(segmentTime) };
+    const index = indexLookup[type];
+    const range = segmentList[index];
+    const end = index + 1 === segmentList.length;
+    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}/${trackId}.mp4` };
     const s3 = new aws.S3();
-    const mp4List = await s3.listObjectsV2({ Bucket: BUCKET_OPT, Prefix: `mp4/${releaseId}/${trackId}` }).promise();
-    const [{ Key }] = mp4List.Contents;
-    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key };
-    const mp4Url = s3.getSignedUrl('getObject', mp4Params);
-    res.send(mp4Url);
+    const url = s3.getSignedUrl('getObject', mp4Params);
+    res.send({ url, range, end });
   });
 
   // Delete Track

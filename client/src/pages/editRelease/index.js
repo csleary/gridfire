@@ -56,7 +56,6 @@ class EditRelease extends Component {
         return this.props.history.push('/dashboard/nem-address');
       }
 
-      this.props.initialize({ releaseDate: new Date(Date.now()).toISOString() });
       this.setState({ isLoading: false });
     }
   }
@@ -116,7 +115,8 @@ class EditRelease extends Component {
   };
 
   onSubmit = async values => {
-    await this.props.updateRelease(values);
+    const { _id: releaseId } = this.props.release;
+    await this.props.updateRelease({ releaseId, ...values });
     const releaseTitle = this.props.release.releaseTitle;
     this.props.toastSuccess(`${releaseTitle ? `\u2018${releaseTitle}\u2019` : 'Release'} saved!`);
     this.props.history.push('/dashboard');

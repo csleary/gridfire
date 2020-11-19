@@ -4,6 +4,7 @@ import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { fetchCollection } from 'features/releases';
 import { frontPage } from './collection.module.css';
+import { nanoid } from '@reduxjs/toolkit';
 
 const Collection = () => {
   const dispatch = useDispatch();
@@ -16,7 +17,7 @@ const Collection = () => {
   }, [collection.length, dispatch]);
 
   const renderReleases = collection.map(({ release }) => (
-    <RenderRelease key={release._id} release={release} type="collection" />
+    <RenderRelease key={release?._id ?? nanoid()} release={release} type="collection" />
   ));
 
   if (isLoading) {

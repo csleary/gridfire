@@ -56,7 +56,11 @@ module.exports = app => {
         });
       }
 
-      const release = await Release.create({ user: userId, dateCreated: Date.now() });
+      const release = await Release.create({
+        user: userId,
+        dateCreated: Date.now(),
+        releaseDate: Date.now()
+      });
       res.send(release.toJSON());
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -67,24 +71,13 @@ module.exports = app => {
   app.delete('/api/release/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     try {
       const { releaseId } = req.params;
-      const userId = req.user._id;
 
       // Delete from db
+      const { artist } = await Release.findById(releaseId, 'artist').exec();
       const deleteRelease = await Release.findByIdAndRemove(releaseId).exec();
-
-      const artistPullRelease = await Artist.findOneAndUpdate(
-        { releases: releaseId, user: userId },
-        { $pull: { releases: releaseId } },
-        { fields: { releases: 1 }, lean: true, new: true }
-      ).exec();
-
+      const artistHasReleases = await Release.exists({ artist });
       let deleteArtist;
-      let deleteArtistFromUser;
-      if (artistPullRelease && !artistPullRelease.releases.length) {
-        const artistId = artistPullRelease._id;
-        deleteArtist = Artist.findByIdAndRemove(artistId).exec();
-        deleteArtistFromUser = User.findByIdAndUpdate(req.user._id, { $pull: { artists: artistId } }).exec();
-      }
+      if (!artistHasReleases) deleteArtist = Artist.findByIdAndRemove(artist).exec();
 
       // Delete audio from S3
       const s3 = new aws.S3();
@@ -136,16 +129,7 @@ module.exports = app => {
         deleteS3Img = s3.deleteObject(deleteImgParams).promise();
       }
 
-      const [{ _id }] = await Promise.all([
-        deleteRelease,
-        artistPullRelease,
-        deleteArtist,
-        deleteArtistFromUser,
-        deleteS3Src,
-        deleteS3Opt,
-        deleteS3Img
-      ]);
-
+      const [{ _id }] = await Promise.all([deleteRelease, deleteArtist, deleteS3Src, deleteS3Opt, deleteS3Img]);
       res.send(_id);
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -256,7 +240,6 @@ module.exports = app => {
   // Update Release
   app.put('/api/release', requireLogin, async (req, res) => {
     try {
-      const releaseId = req.body._id;
       const userId = req.user._id;
 
       const {
@@ -270,20 +253,21 @@ module.exports = app => {
         price,
         recordLabel,
         releaseDate,
+        releaseId,
         releaseTitle,
         tags,
         trackList
       } = req.body;
 
       let artist;
-      if (!existingArtistId) {
-        [artist] = await createArtist(artistName, releaseId, userId);
+      if (existingArtistId) {
+        artist = await Artist.findById(existingArtistId, 'name', { lean: true }).exec();
       } else {
-        artist = await Artist.findById(existingArtistId, 'name', { lean: true, new: true }).exec();
+        [artist] = await createArtist(artistName, userId);
       }
 
       const artistId = artist._id;
-      const release = await Release.findById(releaseId);
+      const release = await Release.findById(releaseId).exec();
 
       release.artist = artistId;
       release.artistName = artist.name;
@@ -301,7 +285,7 @@ module.exports = app => {
       release.tags = tags;
 
       release.trackList.forEach(track => {
-        track.trackTitle = trackList.find(update => update._id.toString() === track._id.toString()).trackTitle;
+        track.trackTitle = trackList.find(update => track._id.equals(update._id)).trackTitle;
       });
 
       const updatedRelease = await release.save();

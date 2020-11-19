@@ -1,7 +1,7 @@
 .player {
-  background: hsla(233, 10%, 10%, 1);
+  background: var(--charcoal);
   bottom: 0;
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   font-size: 2rem;
   position: fixed;
   text-align: center;
@@ -18,7 +18,7 @@
 }
 
 .hide {
-  color: hsla(233, 10%, 50%, 1);
+  color: var(--light-grey);
   font-size: 1.5rem;
 }
 
@@ -56,28 +56,36 @@
   outline: none;
 }
 
-.progress {
-  background: hsla(233, 10%, 50%, 1);
-  height: 100%;
-  transition: 0.125s cubic-bezier(0.2, 0.8, 0.4, 1);
-  width: 0;
-}
-
 .seek {
   height: 4px;
+  position: relative;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   width: 100%;
 }
 
+.buffered {
+  background: var(--mid-grey);
+  height: 100%;
+  left: 0;
+  position: absolute;
+}
+
+.progress {
+  background: var(--light-grey);
+  height: 100%;
+  position: absolute;
+  transition: 0.125s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+
 .player:hover .seek {
-  background: hsla(233, 10%, 20%, 1);
+  background: var(--dark-grey);
   cursor: pointer;
   height: 8px;
   margin-top: 6px;
 }
 
 .player:hover .progress {
-  background: #18cdca;
+  background: var(--cyan);
 }
 
 .trackInfo {

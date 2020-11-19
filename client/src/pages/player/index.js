@@ -18,16 +18,15 @@ class Player extends Component {
 
     this.state = {
       autoStartDisabled: false,
+      bufferRanges: [],
       bufferReachedEnd: false,
       elapsedTime: '',
       isBuffering: false,
       isReady: false,
-      isSeeking: false,
       showRemaining: false
     };
 
     this.audioPlayerRef = createRef();
-    this.isNewTrack = false;
     this.mediaSource = null;
     this.seekBarRef = createRef();
     this.shouldSetDuration = false;
@@ -47,8 +46,15 @@ class Player extends Component {
       );
     }
 
-    this.mediaSource = new MediaSource();
     const audioPlayer = this.audioPlayerRef.current;
+    const supportsHls =
+      audioPlayer.canPlayType('application/vnd.apple.mpegURL') || audioPlayer.canPlayType('application/x-mpegURL');
+
+    if (supportsHls === 'probably' || supportsHls === 'maybe') {
+      console.log('Using HLS.');
+    }
+
+    this.mediaSource = new MediaSource();
     audioPlayer.src = URL.createObjectURL(this.mediaSource);
     this.mediaSource.addEventListener('sourceopen', this.handleSourceOpen);
     audioPlayer.addEventListener('loadstart', () => this.setState({ isReady: false }));
@@ -63,15 +69,19 @@ class Player extends Component {
     if (this.props.player.trackId && this.props.player.trackId !== prevProps.player.trackId) {
       this.audioPlayerRef.current.pause();
       this.queue.length = 0;
-      this.isNewTrack = true;
-      if (this.mediaSource.duration) this.sourceBuffer.remove(0, this.mediaSource.duration);
-      this.setState({ bufferReachedEnd: false, percentComplete: 0, isReady: false });
-      await this.fetchInitSegment();
-      const buffer = await this.fetchSegment();
-      this.audioPlayerRef.current.currentTime = 0;
-      this.handleUpdateBuffer();
-      this.handleAppendBuffer(buffer);
-      this.handlePlay();
+
+      if (this.mediaSource.duration && !this.sourceBuffer.updating) {
+        this.sourceBuffer.remove(0, this.mediaSource.duration);
+      }
+
+      this.setState({ isBuffering: true, bufferReachedEnd: false, percentComplete: 0, isReady: false }, async () => {
+        await this.fetchInitSegment();
+        const buffer = await this.fetchSegment(0, 0);
+        this.audioPlayerRef.current.currentTime = 0;
+        this.handleUpdateBuffer();
+        this.handleAppendBuffer(buffer);
+        this.handlePlay();
+      });
     }
   }
 
@@ -81,73 +91,70 @@ class Player extends Component {
     }
   }
 
-  handleBufferUpdateEnd = () => {
-    if (this.shouldUpdateBuffer) {
-      this.handleUpdateBuffer();
-    } else if (this.shouldSetDuration) {
-      this.handleUpdateDuration();
-    } else if (this.queue.length) {
-      this.sourceBuffer.appendBuffer(this.queue.shift());
-    }
-
-    this.setState({ isSeeking: false, isBuffering: false });
+  handleSourceOpen = () => {
+    const audioPlayer = this.audioPlayerRef.current;
+    URL.revokeObjectURL(audioPlayer.src);
+    this.sourceBuffer = this.mediaSource.addSourceBuffer(MIME_TYPE);
+    this.sourceBuffer.addEventListener('updateend', this.handleUpdateEnd);
   };
 
-  handleSeeking = () => {
+  handleUpdateEnd = e => {
+    const { buffered } = e.target;
+    const bufferRanges = [];
+
+    for (let i = 0; i < buffered.length; i++) {
+      bufferRanges.push([buffered.start(i), buffered.end(i)]);
+    }
+
+    if (this.shouldSetDuration) return this.handleUpdateDuration();
+    if (this.queue.length) return this.sourceBuffer.appendBuffer(this.queue.shift());
+    this.setState({ bufferRanges, isBuffering: false });
+  };
+
+  handleSeeking = async () => {
     const { currentTime } = this.audioPlayerRef.current;
-    let isBuffered;
+    if (!currentTime) return;
+    let isBuffered = false;
 
     for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
       if (currentTime >= this.sourceBuffer.buffered.start(i) && currentTime < this.sourceBuffer.buffered.end(i)) {
         isBuffered = true;
-        break;
       }
-
-      isBuffered = false;
     }
 
-    if (!isBuffered && !this.isNewTrack) {
-      this.currentSegment = Math.floor(currentTime / 15);
-
-      this.setState({ bufferReachedEnd: false, isReady: false, isSeeking: true, isBuffering: true }, async () => {
-        const buffer = await this.fetchSegment();
+    if (!isBuffered && !this.state.isBuffering) {
+      this.setState({ isBuffering: true, isReady: false }, async () => {
+        const buffer = await this.fetchSegment(currentTime, 2);
         this.handleAppendBuffer(buffer);
       });
     }
   };
 
-  handleSourceOpen = () => {
-    const audioPlayer = this.audioPlayerRef.current;
-    URL.revokeObjectURL(audioPlayer.src);
-    this.sourceBuffer = this.mediaSource.addSourceBuffer(MIME_TYPE);
-    this.sourceBuffer.addEventListener('updateend', this.handleBufferUpdateEnd);
-  };
-
-  handleTimeUpdate = () => {
+  handleTimeUpdate = async () => {
     const { currentTime } = this.audioPlayerRef.current;
-    const percentComplete = (currentTime / this.mediaSource.duration) * 100;
+    const percentComplete = currentTime / this.mediaSource.duration;
+    let needsBuffer = false;
 
     if (this.state.bufferReachedEnd && this.state.percentComplete === percentComplete) {
       return this.handleTrackEnded();
     }
 
-    let needsBuffer = false;
     for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
       if (
         currentTime > this.sourceBuffer.buffered.start(i) &&
         currentTime > this.sourceBuffer.buffered.end(i) - 5 &&
+        currentTime < this.sourceBuffer.buffered.end(i) &&
         !this.state.bufferReachedEnd &&
         !this.state.isBuffering &&
         !this.state.isSeeking
       ) {
         needsBuffer = true;
-        break;
       }
     }
 
     if (needsBuffer) {
       this.setState({ isBuffering: true }, async () => {
-        const buffer = await this.fetchSegment();
+        const buffer = await this.fetchSegment(currentTime, 1);
         this.handleAppendBuffer(buffer);
       });
     }
@@ -155,28 +162,25 @@ class Player extends Component {
     const mins = Math.floor(currentTime / 60);
     const secs = Math.floor(currentTime % 60);
     const remainingTime = Math.floor(this.mediaSource.duration - currentTime || 0);
+    const remainingMins = Math.floor(remainingTime / 60);
+    const remainingSecs = (remainingTime % 60).toString(10).padStart(2, '0');
 
     this.setState({
       elapsedTime: `${mins}:${secs.toString(10).padStart(2, '0')}`,
-      remainingTime: `-${remainingTime / 60}:${(remainingTime % 60).toString(10).padStart(2, '0')}`,
+      remainingTime: `-${remainingMins}:${remainingSecs}`,
       percentComplete
     });
   };
 
   handleUpdateBuffer = () => {
-    if (this.sourceBuffer.updating) return (this.shouldUpdateBuffer = true);
     const oldDuration = Number.isFinite(this.mediaSource.duration) ? this.mediaSource.duration : 0;
-    const newDuration = this.trackDuration;
-
-    if (newDuration < oldDuration) {
-      this.sourceBuffer.remove(newDuration, oldDuration);
+    if (this.trackDuration < oldDuration) {
+      this.sourceBuffer.remove(this.trackDuration, oldDuration);
       this.shouldSetDuration = true;
-      this.shouldUpdateBuffer = false;
-      return;
+    } else {
+      this.mediaSource.duration = this.trackDuration;
     }
 
-    this.mediaSource.duration = newDuration;
-    this.shouldSetDuration = false;
     this.shouldUpdateBuffer = false;
   };
 
@@ -204,33 +208,23 @@ class Player extends Component {
 
   fetchInitSegment = async () => {
     const { releaseId, trackId } = this.props.player;
-    const res = await axios.get(`/api/${releaseId}/${trackId}/init`);
-    this.segmentList = res.data.segmentList;
-    const range = res.data.initRange;
-    const initConfig = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
-    const init = await axios.get(res.data.url, initConfig);
-    this.initSegment = new Uint8Array(init.data);
-    this.currentSegment = 0;
-    this.trackDuration = res.data.duration;
-    this.isNewTrack = false;
+    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/init`);
+    const { duration, url, range } = resUrl.data;
+    const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+    const resBuffer = await axios.get(url, config);
+    this.initSegment = new Uint8Array(resBuffer.data);
+    this.trackDuration = duration;
   };
 
-  fetchSegment = async () => {
+  fetchSegment = async (time, type) => {
     const { releaseId, trackId } = this.props.player;
-    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/segment`);
-    const segmentUrl = resUrl.data;
-    const range = this.segmentList[this.currentSegment];
-    const segmentConfig = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
-    const res = await axios.get(segmentUrl, segmentConfig);
-    const segment = new Uint8Array(res.data);
+    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/stream`, { params: { time, type } });
+    const { url, range, end } = resUrl.data;
+    const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+    const resBuffer = await axios.get(url, config);
+    const segment = new Uint8Array(resBuffer.data);
     const buffer = new Uint8Array([...this.initSegment, ...segment]);
-
-    if (this.currentSegment < this.segmentList.length - 1) {
-      this.currentSegment++;
-    } else {
-      this.setState({ bufferReachedEnd: true });
-    }
-
+    if (end) this.setState({ bufferReachedEnd: true });
     return buffer;
   };
 
@@ -280,10 +274,8 @@ class Player extends Component {
   };
 
   stopAudio = () => {
-    this.setState({ bufferReachedEnd: false });
     this.audioPlayerRef.current.pause();
     this.audioPlayerRef.current.currentTime = 0;
-    this.currentSegment = 0;
     this.props.playerStop();
   };
 
@@ -297,7 +289,12 @@ class Player extends Component {
       <div className={playerClassNames}>
         <audio id="player" ref={this.audioPlayerRef} />
         <div className={styles.seek} onClick={this.handleSeek} ref={this.seekBarRef} role="button" tabIndex="-1">
-          <div className={styles.progress} style={{ width: `${this.state.percentComplete}%` }} />
+          {this.state.bufferRanges.map(([start, end]) => {
+            const left = (start / this.mediaSource.duration) * 100;
+            const width = ((end - start) / this.mediaSource.duration) * 100;
+            return <div className={styles.buffered} key={start} style={{ left: `${left}%`, width: `${width}%` }}></div>;
+          })}
+          <div className={styles.progress} style={{ width: `${this.state.percentComplete * 100}%` }} />
         </div>
         <div className="container-fluid">
           <div className={`${styles.interface} row no-gutters`}>

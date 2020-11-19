@@ -23,7 +23,7 @@
   opacity: 1;
 }
 
-button.delete {
+.delete {
   background: none;
   flex-direction: row;
   margin: 1.5rem;
@@ -34,12 +34,15 @@ button.delete {
   transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-button.delete:hover:not(:disabled) {
+.delete:hover:not(:disabled) {
   background: none;
-  color: var(--off-white);
 }
 
-.icon:hover:not(:disabled) {
+.delete .icon {
+  color: var(--lighter-grey);
+}
+
+.delete:hover:not(:disabled) .icon:hover:not(:disabled) {
   transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
   color: var(--off-white);
 }

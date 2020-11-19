@@ -45,6 +45,7 @@ const RenderArtwork = props => {
               iconClassName={styles.icon}
               icon="trash"
               onClick={handleDeleteArtwork}
+              title="Delete the artwork (will take your track offline)."
               type="button"
             />
           </div>

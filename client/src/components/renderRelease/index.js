@@ -15,11 +15,20 @@ import withDownload from 'pages/payment/payments/withDownload';
 
 const DownloadButton = withDownload(OverlayDownloadButton);
 
-const RenderRelease = props => {
-  const { className, release, showArtist = true, showTitle = true, type } = props;
+const RenderRelease = ({ className, release, showArtist = true, showTitle = true, type }) => {
   const dispatch = useDispatch();
   const { player } = useSelector(state => state, shallowEqual);
-  const { _id: releaseId, artist, artistName, artwork, releaseTitle, trackList } = release;
+
+  if (!release) {
+    return (
+      <div className={classnames(styles.art, { [className]: Boolean(className) })}>
+        <img alt={'Release unavailable.'} className={styles.image} src={placeholder} />
+        <div className={styles.unavailable}>Release not available</div>
+      </div>
+    );
+  }
+
+  const { _id: releaseId, artist, artistName, artwork = {}, releaseTitle, trackList } = release;
 
   const handlePlayTrack = () => {
     const [{ _id: trackId, trackTitle }] = trackList;
@@ -32,17 +41,6 @@ const RenderRelease = props => {
     });
   };
 
-  const showCollectionDownload = () => {
-    if (type === 'collection') {
-      return (
-        <>
-          <DownloadButton artistName={artistName} format="mp3" releaseId={releaseId} releaseTitle={releaseTitle} />
-          <DownloadButton artistName={artistName} format="flac" releaseId={releaseId} releaseTitle={releaseTitle} />
-        </>
-      );
-    }
-  };
-
   return (
     <div
       className={classnames(styles.art, { [className]: Boolean(className) })}
@@ -53,7 +51,7 @@ const RenderRelease = props => {
         alt={`${artistName} - ${releaseTitle}`}
         className={`${styles.image} lazyload`}
         data-sizes="auto"
-        data-src={artwork.status === 'stored' ? `${CLOUD_URL}/${releaseId}.jpg` : null}
+        data-src={artwork.status === 'stored' ? `${CLOUD_URL}/${releaseId}.jpg` : placeholder}
       />
       <img alt={`${artistName} - ${releaseTitle}`} className={styles.placeholder} src={placeholder} />
       <div className={styles.overlay} title={`${artistName} - ${releaseTitle}`}>
@@ -81,7 +79,12 @@ const RenderRelease = props => {
           >
             <FontAwesome className={`${styles.icon} info m-auto`} name="info-circle" />
           </Link>
-          {showCollectionDownload()}
+          {type === 'collection' ? (
+            <>
+              <DownloadButton artistName={artistName} format="mp3" releaseId={releaseId} releaseTitle={releaseTitle} />
+              <DownloadButton artistName={artistName} format="flac" releaseId={releaseId} releaseTitle={releaseTitle} />
+            </>
+          ) : null}
         </div>
         {showTitle ? (
           <Link

@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
 const { publishToQueue } = require(__basedir + '/services/rabbitMQ/publisher');
 const CreditPayment = mongoose.model('credit-payments');
-const Payment = mongoose.model('payments');
+const PaymentSession = mongoose.model('payment-sessions');
 const Release = mongoose.model('releases');
 const Sale = mongoose.model('sales');
 const User = mongoose.model('users');
@@ -102,7 +102,7 @@ const creditPurchase = async ({ userId, sku, productData }) => {
   const paymentId = hash.update(nonce).update(idHash).digest('hex').substring(0, 32);
   const { priceXem, priceRawXem } = productData.find(product => product.sku === sku);
 
-  await Payment.create({
+  await PaymentSession.create({
     dateCreated: Date.now(),
     nonce,
     priceRawXem,
@@ -120,7 +120,7 @@ const creditConfirmation = async ({ userId, clientId, cnonce, nonce, paymentId }
   const hash = crypto.createHash('sha256');
   const hashed = hash.update(cnonce).update(idHash).update(nonce).update(paymentId).digest('hex');
   if (hashed !== clientId) throw new Error('Not authorised.');
-  const paymentInfo = await Payment.findOne({ nonce, paymentId }, 'priceRawXem sku', { lean: true }).exec();
+  const paymentInfo = await PaymentSession.findOne({ nonce, paymentId }, 'priceRawXem sku', { lean: true }).exec();
   if (!paymentInfo) throw new Error('Payment session expired. Please begin a new session.');
   const { priceRawXem, sku } = paymentInfo;
   const { transactions, amountPaid } = await fetchTransactions(PAYMENT_ADDRESS, paymentId);
@@ -137,7 +137,7 @@ const creditConfirmation = async ({ userId, clientId, cnonce, nonce, paymentId }
       transactions
     });
 
-    await Payment.findByIdAndDelete(paymentInfo._id).exec();
+    await PaymentSession.findByIdAndDelete(paymentInfo._id).exec();
     const [tx] = transactions;
     const { signer } = tx.transaction;
     const sender = nem.utils.format.pubToAddress(signer, NEM_NETWORK_ID);

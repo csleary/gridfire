@@ -12,7 +12,7 @@ app.set('socketio', io);
 require('./models/Artist');
 require('./models/CreditPayment');
 require('./models/Favourite');
-require('./models/Payment');
+require('./models/PaymentSession');
 require('./models/Release');
 require('./models/Sale');
 require('./models/User');

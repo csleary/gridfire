@@ -64,6 +64,11 @@ const work = async () => {
     const segmentList = [];
 
     parser.onopentag = node => {
+      if (node.name === 'SegmentList') {
+        trackDoc.segmentDuration = node.attributes.duration;
+        trackDoc.segmentTimescale = node.attributes.timescale;
+      }
+
       if (node.name === 'Initialization') {
         trackDoc.initRange = node.attributes.range;
       }
@@ -81,27 +86,27 @@ const work = async () => {
 
     // Upload AAC, playlists
     const mp4Audio = fs.createReadStream(mp4Path);
-    const m3u8Master = fsPromises.readFile(path.join(playlistDir, 'master.m3u8'));
-    const m3u8Media = fsPromises.readFile(path.join(playlistDir, 'audio-und-mp4a.m3u8'));
+    const m3u8Master = await fsPromises.readFile(path.join(playlistDir, 'master.m3u8'));
+    const m3u8Media = await fsPromises.readFile(path.join(playlistDir, 'audio-und-mp4a.m3u8'));
 
     const mp4Params = {
       Bucket: BUCKET_OPT,
       ContentType: 'audio/mp4',
-      Key: `mp4/${releaseId}/${trackId}.mp4`,
+      Key: `mp4/${releaseId}/${trackId}/${trackId}.mp4`,
       Body: mp4Audio
     };
 
     const m3u8MasterParams = {
       Bucket: BUCKET_OPT,
       ContentType: 'application/x-mpegURL',
-      Key: `mp4/${releaseId}/master.m3u8`,
+      Key: `mp4/${releaseId}/${trackId}/master.m3u8`,
       Body: m3u8Master
     };
 
     const m3u8MediaParams = {
       Bucket: BUCKET_OPT,
       ContentType: 'application/x-mpegURL',
-      Key: `mp4/${releaseId}/audio-und-mp4a.m3u8`,
+      Key: `mp4/${releaseId}/${trackId}/audio-und-mp4a.m3u8`,
       Body: m3u8Media
     };
 

@@ -16,7 +16,6 @@ const userSlice = createSlice({
   },
   reducers: {
     addFavouritesItem(state, action) {
-      console.log(action.payload);
       state.favourites = [action.payload, ...state.favourites];
     },
 

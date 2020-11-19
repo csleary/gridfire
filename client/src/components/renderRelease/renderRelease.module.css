@@ -119,6 +119,19 @@ a.releaseTitle {
   transition: 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.unavailable {
+  bottom: 0;
+  color: var(--mid-grey);
+  font-size: 1.2rem;
+  font-weight: 700;
+  left: 0;
+  padding: 0.75rem 1.25rem;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 @media (min-width: 1600px) {
   .overlay {
     font-size: 5rem;
