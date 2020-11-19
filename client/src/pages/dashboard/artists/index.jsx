@@ -151,7 +151,7 @@ const Artists = () => {
                   </div>
                 </fieldset>
               </section>
-              <section>
+              <section className={styles.section}>
                 <fieldset className={styles.fields}>
                   <label className={styles.label} htmlFor="biography">
                     <h5 className={styles.h5}>Biography</h5>
@@ -169,7 +169,7 @@ const Artists = () => {
                   {errors.biography ? <div className={styles.error}>{errors.biography}</div> : null}
                 </fieldset>
               </section>
-              <section>
+              <section className={styles.section}>
                 <h5 className={styles.h5}>Links</h5>
                 {activeArtist.links?.map(({ _id: linkId, title, uri }) => (
                   <fieldset className={styles.links} key={linkId}>

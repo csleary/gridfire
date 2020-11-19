@@ -92,7 +92,7 @@ const work = async () => {
     const mp4Params = {
       Bucket: BUCKET_OPT,
       ContentType: 'audio/mp4',
-      Key: `mp4/${releaseId}/${trackId}/${trackId}.mp4`,
+      Key: `mp4/${releaseId}/${trackId}.mp4`,
       Body: mp4Audio
     };
 

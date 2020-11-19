@@ -29,7 +29,7 @@ module.exports = app => {
     const { releaseId, trackId } = req.params;
     const release = await Release.findById(releaseId, 'trackList').exec();
     const { duration, initRange } = release.trackList.id(trackId);
-    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}/${trackId}.mp4` };
+    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}.mp4` };
     const s3 = new aws.S3();
     const url = s3.getSignedUrl('getObject', mp4Params);
     res.send({ duration, url, range: initRange });
@@ -46,7 +46,7 @@ module.exports = app => {
     const index = indexLookup[type];
     const range = segmentList[index];
     const end = index + 1 === segmentList.length;
-    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}/${trackId}.mp4` };
+    const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}.mp4` };
     const s3 = new aws.S3();
     const url = s3.getSignedUrl('getObject', mp4Params);
     res.send({ url, range, end });
