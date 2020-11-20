@@ -29,6 +29,7 @@
 }
 
 .icon {
+  background: #000;
   color: hsla(233, 10%, 50%, 1);
   left: 1rem;
   pointer-events: none;

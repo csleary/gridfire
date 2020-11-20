@@ -25,17 +25,16 @@ const PaymentMethod = ({ paymentAddress, paymentHash, priceInXem, showManualPaym
           <QRCode paymentAddress={paymentAddress.replace(/-/g, '')} price={priceInXem} idHash={paymentHash} />
         </div>
         <p className="text-center">
-          Please scan the QR code with a NEM mobile wallet app to make your payment:{' '}
+          Scan to pay on{' '}
           <a href="https://itunes.apple.com/us/app/nem-wallet/id1227112677">
             <FontAwesome name="apple" className="mr-1" />
             iOS
           </a>{' '}
-          and{' '}
+          or{' '}
           <a href="https://play.google.com/store/apps/details?id=org.nem.nac.mainnet&hl=en">
             <FontAwesome name="android" className="mr-1" />
             Android
           </a>
-          .
         </p>
       </animated.div>
     )

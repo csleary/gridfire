@@ -4,8 +4,9 @@
 }
 
 .methods {
-  height: 100%;
-  overflow: hidden;
+  flex: 1 1 32rem;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -13,6 +14,12 @@
   display: flex;
   justify-content: center;
   margin-bottom: 2rem;
+}
+
+.text {
+  overflow-x: auto;
+  white-space: nowrap;
+  text-overflow: initial;
 }
 
 .wrapper {
@@ -78,6 +85,22 @@
 
 .confirm {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   margin-top: auto;
+  margin-bottom: -1rem;
+}
+
+.confirm > button {
+  margin-bottom: 1rem;
+  min-width: auto;
+}
+
+.confirm > button:last-of-type {
+  margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  .confirm > button {
+    min-width: 12rem;
+  }
 }

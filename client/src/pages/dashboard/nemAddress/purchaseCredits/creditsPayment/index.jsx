@@ -64,6 +64,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
           item && !isLoading ? (
             <animated.div className={styles.wrapper} style={style}>
               <ReadOnlyTextArea
+                className={styles.text}
                 label={
                   <a
                     href={`https://${explorer}/#/s_account?account=${PAYMENT_ADDRESS?.replace(/-/g, '')}`}
@@ -83,6 +84,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                   ?.join('-')}
               />
               <ReadOnlyTextArea
+                className={styles.text}
                 label={
                   <>
                     Payment message
@@ -95,7 +97,12 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                 tabIndex="0"
                 text={paymentId}
               />
-              <ReadOnlyTextArea label="Payment amount in XEM" text={priceXem?.toFixed(6)} tabIndex="0" />
+              <ReadOnlyTextArea
+                className={styles.text}
+                label="Payment amount in XEM"
+                text={priceXem?.toFixed(6)}
+                tabIndex="0"
+              />
               <span className={styles.remember}>Don&rsquo;t forget to include the message in your transaction.</span>
             </animated.div>
           ) : !isLoading ? (
@@ -109,19 +116,17 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                 />
               </div>
               <p className="text-center">
-                Scan the QR code (
+                Scan to pay on{' '}
                 <a className="mr-2" href="https://itunes.apple.com/us/app/nem-wallet/id1227112677" tabIndex="0">
                   <FontAwesome name="apple" className="mr-1" />
                   iOS
                 </a>
                 <a href="https://play.google.com/store/apps/details?id=org.nem.nac.mainnet&hl=en" tabIndex="0">
-                  <FontAwesome name="android" className="mr-1" />
+                  or <FontAwesome name="android" className="mr-1" />
                   Android
                 </a>
-                ) to make your payment.
-                <br />
-                Confirm your payment on the next screen to receive your tokens.
               </p>
+              <p>Confirm your payment on the next screen to receive your tokens.</p>
               <p>
                 Payment sessions are unique, so please ensure payments are confirmed on the next step to receive your
                 credits.

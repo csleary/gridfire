@@ -81,6 +81,7 @@ const Modal = props => {
             tabIndex="0"
           >
             <animated.div
+              className={styles.content}
               ref={ref => (modalContent.current = ref)}
               onClick={handleContentClick}
               onKeyDown={handleKeyDown}

@@ -2,9 +2,9 @@
   background: var(--charcoal);
   display: flex;
   flex-direction: column;
-  height: 48rem;
-  width: 48rem;
-  padding: 3rem;
+  max-width: 800px;
+  min-height: 900px;
+  padding: 2rem;
 }
 
 .heading {
@@ -12,4 +12,10 @@
   justify-self: flex-start;
   margin-bottom: 2rem;
   text-align: center;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 3rem;
+  }
 }

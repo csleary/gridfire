@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 const slugify = require('slugify');
-
 const Artist = mongoose.model('artists');
 const Release = mongoose.model('releases');
 

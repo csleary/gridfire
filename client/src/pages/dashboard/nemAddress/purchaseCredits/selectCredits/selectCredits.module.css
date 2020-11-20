@@ -1,17 +1,18 @@
 .buttons {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
-  margin: 3rem 0;
+  margin: auto 0;
 }
 
 .button {
-  margin: 0 0.5rem 0 0;
+  margin: 0 0.5rem 2rem 0;
   position: relative;
   white-space: nowrap;
 }
 
 .button:last-child {
-  margin: 0;
+  margin-right: 0;
 }
 
 .button.selected {
@@ -20,6 +21,7 @@
 }
 
 .price {
+  font-size: 1.5rem;
   text-align: center;
   margin-bottom: 3rem;
 }
@@ -45,6 +47,25 @@
 
 .confirm {
   display: flex;
-  justify-content: space-between;
-  margin-top: auto;
+  flex-wrap: wrap;
+  margin-bottom: -1rem;
+}
+
+.confirm > button {
+  margin-bottom: 1rem;
+  min-width: auto;
+}
+
+.confirm > button:last-of-type {
+  margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  .price {
+    font-size: 2rem;
+  }
+
+  .confirm > button {
+    min-width: 12rem;
+  }
 }

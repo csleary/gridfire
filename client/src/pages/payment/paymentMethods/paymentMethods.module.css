@@ -1,7 +1,8 @@
 .methods {
   margin-bottom: 2rem;
   height: 22rem;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 

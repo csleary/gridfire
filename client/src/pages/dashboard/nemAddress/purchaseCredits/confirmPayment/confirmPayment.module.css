@@ -18,7 +18,7 @@
 .check {
   align-items: center;
   display: flex;
-  flex: 1 0 auto;
+  flex: 1 1 32rem;
   flex-direction: column;
   padding: 2rem 0;
 }
@@ -48,12 +48,28 @@
 
 .confirm {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   margin-top: auto;
+  margin-bottom: -1rem;
+}
+
+.confirm > button {
+  margin-bottom: 1rem;
+  min-width: auto;
+}
+
+.confirm > button:last-of-type {
+  margin-left: auto;
 }
 
 .help {
   margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .confirm > button {
+    min-width: 12rem;
+  }
 }
 
 @keyframes blink {
