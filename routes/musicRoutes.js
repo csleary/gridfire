@@ -123,14 +123,13 @@ module.exports = app => {
   app.get('/api/user/releases/favourites', requireLogin, async (req, res) => {
     try {
       const userId = req.user._id;
-      const releases = await Release.find({ user: userId }, '_id', { lean: true }).exec();
-
-      const releaseFavs = await Favourite.aggregate([
-        { $match: { release: { $in: releases.map(({ _id }) => _id) } } },
-        { $group: { _id: '$release', sum: { $sum: 1 } } }
+      const releases = await Release.aggregate([
+        { $match: { user: userId } },
+        { $lookup: { from: 'favourites', localField: '_id', foreignField: 'release', as: 'favourites' } },
+        { $project: { sum: { $count: '$favourites' } } }
       ]).exec();
 
-      res.send({ releases: releaseFavs });
+      res.send({ releases });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

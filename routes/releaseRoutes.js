@@ -9,6 +9,7 @@ const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 
 const Artist = mongoose.model('artists');
+const Favourite = mongoose.model('releases');
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });
@@ -131,17 +132,6 @@ module.exports = app => {
 
       const [{ _id }] = await Promise.all([deleteRelease, deleteArtist, deleteS3Src, deleteS3Opt, deleteS3Img]);
       res.send(_id);
-    } catch (error) {
-      res.status(500).send({ error: error.message });
-    }
-  });
-
-  // Fetch fav count
-  app.get('/api/release/:releaseId/favourites', requireLogin, releaseOwner, async (req, res) => {
-    try {
-      const { releaseId } = req.params;
-      const favCount = await User.where({ 'favourites.releaseId': releaseId }).countDocuments().exec(); // TODO
-      res.send({ releaseId, favCount });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
