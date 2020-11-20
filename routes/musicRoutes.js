@@ -126,7 +126,7 @@ module.exports = app => {
       const releases = await Release.aggregate([
         { $match: { user: userId } },
         { $lookup: { from: 'favourites', localField: '_id', foreignField: 'release', as: 'favourites' } },
-        { $project: { sum: { $count: '$favourites' } } }
+        { $project: { sum: { $size: '$favourites' } } }
       ]).exec();
 
       res.send({ releases });
