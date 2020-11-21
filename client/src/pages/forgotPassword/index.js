@@ -2,6 +2,7 @@ import { Field, reduxForm } from 'redux-form';
 import React, { useRef, useState } from 'react';
 import Button from 'components/button';
 import FontAwesome from 'react-fontawesome';
+import { Helmet } from 'react-helmet';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
@@ -27,6 +28,10 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
 
   return (
     <main className="container">
+      <Helmet>
+        <title>Reset Password</title>
+        <meta name="description" content="Forgotten your login credentials? Reset your password here." />
+      </Helmet>
       <div className="row">
         <div className="col py-3 mb-4">
           <h2 className="text-center mt-4">Reset Password</h2>

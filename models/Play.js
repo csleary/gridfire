@@ -8,5 +8,5 @@ const playSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
-playSchema.index({ user: 1, date: 1, trackId: 1 });
+playSchema.index({ trackId: 1, date: -1, user: 1 });
 mongoose.model('plays', playSchema);

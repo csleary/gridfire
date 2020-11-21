@@ -94,6 +94,22 @@ module.exports = app => {
     res.send({ count });
   });
 
+  // Fetch user releases play counts
+  app.get('/api/plays', requireLogin, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const releases = await Release.aggregate([
+        { $match: { user: userId } },
+        { $lookup: { from: 'plays', localField: '_id', foreignField: 'release', as: 'plays' } },
+        { $project: { sum: { $size: '$plays' } } }
+      ]).exec();
+
+      res.send(releases);
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  });
+
   // Fetch release sales figures
   app.get('/api/sales', requireLogin, async (req, res) => {
     const releases = await Release.find({ user: req.user._id });
@@ -129,7 +145,7 @@ module.exports = app => {
         { $project: { sum: { $size: '$favourites' } } }
       ]).exec();
 
-      res.send({ releases });
+      res.send(releases);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }

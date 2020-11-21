@@ -2,6 +2,7 @@ import { Field, reduxForm } from 'redux-form';
 import React, { useRef } from 'react';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
+import { Helmet } from 'react-helmet';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
@@ -31,6 +32,10 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
 
   return (
     <main className="container">
+      <Helmet>
+        <title>Register</title>
+        <meta name="description" content="Sign up for a nemp3 account." />
+      </Helmet>
       <div className="row">
         <div className="col py-3 mb-4">
           <h2 className="text-center mt-4">Register</h2>

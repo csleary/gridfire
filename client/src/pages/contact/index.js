@@ -2,6 +2,7 @@ import { Field, reduxForm } from 'redux-form';
 import React, { useRef } from 'react';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
+import { Helmet } from 'react-helmet';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
@@ -25,9 +26,17 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
 
   return (
     <main className="container">
+      <Helmet>
+        <title>Contact Us</title>
+        <meta name="description" content="Get in touch with the nemp3 team." />
+      </Helmet>
       <div className="row">
         <div className="col py-3 mb-4">
           <h2 className="text-center mt-4">Contact Us</h2>
+          <p>
+            Please get in touch using the contact form below if you have any queries, suggestions, or need help with
+            anything. We&rsquo;ll be in touch as soon as possible.
+          </p>
           <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="col-md-6 mx-auto">
               <Field

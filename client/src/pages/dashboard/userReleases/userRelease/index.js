@@ -12,7 +12,7 @@ import styles from './userRelease.module.css';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
-function UserRelease({ favs, numSold, release }) {
+function UserRelease({ favs, numSold, plays, release }) {
   const {
     _id: releaseId,
     artist,
@@ -98,13 +98,16 @@ function UserRelease({ favs, numSold, release }) {
             </h6>
           </div>
           <div className={styles.stats}>
-            <h6>
+            <h6 title="Total plays for this release.">
+              {plays}
               <FontAwesome
-                name="heart"
-                className={styles.favs}
-                title="Number of users who have favourited this release."
+                name="play"
+                className={classnames(styles.plays, { [styles.red]: !plays, [styles.green]: plays > 0 })}
               />
-              {favs ?? 0}
+            </h6>
+            <h6 title="Total favourites for this release.">
+              {favs}
+              <FontAwesome name="heart" className={classnames(styles.favs, styles.red)} />
             </h6>
           </div>
         </div>
@@ -148,6 +151,7 @@ function UserRelease({ favs, numSold, release }) {
 UserRelease.propTypes = {
   favs: PropTypes.number,
   numSold: PropTypes.number,
+  plays: PropTypes.number,
   release: PropTypes.object
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUserReleases, fetchUserReleasesFavCounts } from 'features/releases';
+import { fetchUserReleases, fetchUserReleasesFavCounts, fetchUserReleasesPlayCounts } from 'features/releases';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import { Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ import styles from './userReleases.module.css';
 
 function UserReleases() {
   const dispatch = useDispatch();
-  const { userReleases, favCounts } = useSelector(state => state.releases, shallowEqual);
+  const { userReleases, favCounts, playCounts } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState([]);
 
@@ -26,6 +26,7 @@ function UserReleases() {
   useEffect(() => {
     if (!userReleases.length) return;
     dispatch(fetchUserReleasesFavCounts());
+    dispatch(fetchUserReleasesPlayCounts());
   }, [dispatch, userReleases.length]);
 
   const releasesOffline = () => {
@@ -38,7 +39,15 @@ function UserReleases() {
     userReleases.map(release => {
       const releaseId = release._id;
       const numSold = salesData.find(({ _id }) => _id === releaseId)?.sum;
-      return <UserRelease key={releaseId} numSold={numSold} release={release} favs={favCounts[releaseId]} />;
+      return (
+        <UserRelease
+          key={releaseId}
+          numSold={numSold}
+          release={release}
+          favs={favCounts[releaseId]}
+          plays={playCounts[releaseId]}
+        />
+      );
     });
 
   if (isLoading) {

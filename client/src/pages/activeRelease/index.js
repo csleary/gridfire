@@ -9,6 +9,7 @@ import CatNumber from './catNumber';
 import CollectionIndicator from './collectionIndicator';
 import Credits from './credits';
 import FavButton from './favButton';
+import { Helmet } from 'react-helmet';
 import Info from './info';
 import PLine from './pLine';
 import Payment from 'pages/payment';
@@ -63,6 +64,10 @@ const ActiveRelease = () => {
 
   return (
     <main className="container d-flex align-items-center">
+      <Helmet>
+        <title>{`${releaseTitle} | ${artistName}`}</title>
+        <meta name="description" content={`Listen to \u2018${releaseTitle}\u2019 by ${artistName}.`} />
+      </Helmet>
       <div className={`${styles.release} row`}>
         <div className={`${styles.col} col-md-6`}>
           <Artwork />

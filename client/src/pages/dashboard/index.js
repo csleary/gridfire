@@ -1,6 +1,7 @@
 import Artists from './artists';
 import Collection from './collection';
 import Favourites from './favourites';
+import { Helmet } from 'react-helmet';
 import NemAddress from './nemAddress';
 import PasswordUpdate from './passwordUpdate';
 import PropTypes from 'prop-types';
@@ -12,6 +13,13 @@ import WishList from './wishList';
 function Dashboard({ match }) {
   return (
     <>
+      <Helmet>
+        <title>Dashboard</title>
+        <meta
+          name="description"
+          content="Take control of your nemp3 account. Add music, configure your payment details, add artist information and more."
+        />
+      </Helmet>
       <Route exact path={`${match.path}/artists`} component={Artists} />
       <Route exact path={`${match.path}/collection`} component={Collection} />
       <Route exact path={`${match.path}/favourites`} component={Favourites} />

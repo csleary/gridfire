@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
+import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import RenderRelease from 'components/renderRelease';
 import SortReleases from './sortReleases';
@@ -46,16 +47,27 @@ const Home = ({ match }) => {
     }
   }, [dispatch, service]);
 
+  const head = (
+    <Helmet>
+      <title>nemp3</title>
+      <meta name="description" content="Listen to the latest releases on nemp3." />
+    </Helmet>
+  );
+
   if (isLoading) {
     return (
-      <Spinner>
-        <h2>Loading catalogue&hellip;</h2>
-      </Spinner>
+      <>
+        {head}
+        <Spinner>
+          <h2>Loading catalogue&hellip;</h2>
+        </Spinner>
+      </>
     );
   }
 
   return (
     <main className="container-fluid">
+      {head}
       <div className="row">
         <div className="col p-3">
           <SortReleases

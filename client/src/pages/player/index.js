@@ -51,7 +51,7 @@ class Player extends Component {
       audioPlayer.canPlayType('application/vnd.apple.mpegURL') || audioPlayer.canPlayType('application/x-mpegURL');
 
     if (supportsHls === 'probably' || supportsHls === 'maybe') {
-      console.log('Using HLS.');
+      // console.log('Using HLS.');
     }
 
     this.mediaSource = new MediaSource();

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { Helmet } from 'react-helmet';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { fetchArtistCatalogue } from 'features/releases';
@@ -28,6 +29,10 @@ const ArtistPage = () => {
 
   return (
     <main className="container-fluid">
+      <Helmet>
+        <title>{name}</title>
+        <meta name="description" content={`Listen to ${releaseCount} releases by ${name}.`} />
+      </Helmet>
       <div className="row">
         <div className={`${styles.title} col`}>
           <h2 className={styles.artist}>{name}</h2>

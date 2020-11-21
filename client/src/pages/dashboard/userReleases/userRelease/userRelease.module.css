@@ -130,6 +130,26 @@
 }
 
 .favs {
+  margin-left: 0.5rem;
+}
+
+.plays {
+  color: var(--cyan);
+  margin-left: 0.5rem;
+}
+
+.red {
   color: var(--red);
-  margin-right: 0.5rem;
+}
+
+.green {
+  color: var(--green);
+}
+
+.cyan {
+  color: var(--cyan);
+}
+
+.yellow {
+  color: var(--yellow);
 }

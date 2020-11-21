@@ -15,6 +15,8 @@ require('./models/Favourite');
 require('./models/PaymentSession');
 require('./models/Release');
 require('./models/Sale');
+require('./models/Play');
+require('./models/StreamSession');
 require('./models/User');
 require('./models/Wish');
 require('./services/passport');

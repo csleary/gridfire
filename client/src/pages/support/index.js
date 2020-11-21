@@ -1,8 +1,13 @@
+import { Helmet } from 'react-helmet';
 import React from 'react';
 import styles from './support.module.css';
 
 const Support = () => (
   <main className="container">
+    <Helmet>
+      <title>Support and FAQs</title>
+      <meta name="description" content="Read answers to some of our most frequently asked questions." />
+    </Helmet>
     <div className="row mb-5">
       <div className="col py-3 mb-4">
         <h2 className="text-center mt-4">FAQ</h2>

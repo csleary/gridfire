@@ -7,6 +7,7 @@ import AdvancedFields from './advancedFields';
 import ArtistMenu from './artistMenu';
 import Button from 'components/button';
 import { CLOUD_URL } from 'index';
+import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import RenderArtwork from './renderArtwork';
 import RenderReleaseField from './renderReleaseField';
@@ -159,6 +160,13 @@ class EditRelease extends Component {
 
     return (
       <main className="container">
+        <Helmet>
+          <title>{isEditing ? 'Update Release' : 'Add Release'}</title>
+          <meta
+            name="description"
+            content={isEditing ? 'Update your releases on nemp3.' : 'Add a new release to your nemp3 account.'}
+          />
+        </Helmet>
         <div className="row">
           <div className="col mb-5">
             <form>

@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet';
 import QRCode from 'qrcode.react';
 import React from 'react';
 import styles from './about.module.css';
@@ -15,6 +16,10 @@ const paymentData = {
 
 const About = () => (
   <main className="container">
+    <Helmet>
+      <title>About nemp3</title>
+      <meta name="description" content="Learn about the nemp3 music streaming and download platform." />
+    </Helmet>
     <div className="row">
       <div className="col py-3 mb-4">
         <h2 className="text-center mt-4">About nemp3</h2>
