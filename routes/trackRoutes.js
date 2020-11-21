@@ -28,7 +28,6 @@ module.exports = app => {
   // Fetch Init Range
   app.get('/api/:releaseId/:trackId/init', async (req, res) => {
     const { releaseId, trackId } = req.params;
-    const user = req.user._id;
     const release = await Release.findById(releaseId, 'trackList user').exec();
     const { duration, initRange, segmentList } = release.trackList.id(trackId);
     const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}.mp4` };
@@ -36,9 +35,10 @@ module.exports = app => {
     const url = s3.getSignedUrl('getObject', mp4Params);
     res.send({ duration, url, range: initRange });
 
-    if (!release.user.equals(user)) {
+    const { user } = req;
+    if (user && !release.user.equals(user._id)) {
       try {
-        await StreamSession.create({ user, release: releaseId, trackId, segmentsTotal: segmentList.length });
+        await StreamSession.create({ user: user._id, release: releaseId, trackId, segmentsTotal: segmentList.length });
       } catch (error) {
         if (error.code === 11000) return;
         console.error(error);
@@ -50,7 +50,6 @@ module.exports = app => {
   app.get('/api/:releaseId/:trackId/stream', async (req, res) => {
     const { releaseId, trackId } = req.params;
     const { time, type } = req.query;
-    const user = req.user._id;
     const release = await Release.findById(releaseId, 'trackList user').exec();
     const { segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
     const segmentTime = Number.parseFloat(time) / (segmentDuration / segmentTimescale);
@@ -63,9 +62,10 @@ module.exports = app => {
     const url = s3.getSignedUrl('getObject', mp4Params);
     res.send({ url, range, end });
 
-    if (!release.user.equals(user)) {
+    const { user } = req;
+    if (user && !release.user.equals(user._id)) {
       await StreamSession.findOneAndUpdate(
-        { user: req.user._id, trackId },
+        { user: user._id, trackId },
         { $inc: { segmentsFetched: 1 } },
         { new: true }
       ).exec();

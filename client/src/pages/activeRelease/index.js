@@ -65,7 +65,7 @@ const ActiveRelease = () => {
   return (
     <main className="container d-flex align-items-center">
       <Helmet>
-        <title>{`${releaseTitle} | ${artistName}`}</title>
+        <title>{isLoading ? 'Loading…' : `${releaseTitle} | ${artistName}`}</title>
         <meta name="description" content={`Listen to \u2018${releaseTitle}\u2019 by ${artistName}.`} />
       </Helmet>
       <div className={`${styles.release} row`}>

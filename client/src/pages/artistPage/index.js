@@ -30,7 +30,7 @@ const ArtistPage = () => {
   return (
     <main className="container-fluid">
       <Helmet>
-        <title>{name}</title>
+        <title>{isLoading ? 'Loading…' : name}</title>
         <meta name="description" content={`Listen to ${releaseCount} releases by ${name}.`} />
       </Helmet>
       <div className="row">

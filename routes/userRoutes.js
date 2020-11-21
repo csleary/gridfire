@@ -12,6 +12,7 @@ const requireLogin = require('../middlewares/requireLogin');
 
 module.exports = app => {
   app.get('/api/user', async (req, res) => {
+    if (!req.user) return res.end();
     const user = await getUser(req.user._id);
     res.send(user);
   });

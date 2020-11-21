@@ -49,7 +49,6 @@ const userSlice = createSlice({
     updateUser(state, action) {
       const {
         _id,
-        artists,
         auth,
         credits,
         favourites,
@@ -59,7 +58,6 @@ const userSlice = createSlice({
         purchases,
         wishList
       } = action.payload;
-      state.artists = artists;
       state.auth = auth;
       state.credits = credits;
       state.favourites = favourites;
@@ -115,6 +113,7 @@ const addNemAddress = values => async dispatch => {
 const fetchUser = () => async dispatch => {
   try {
     const res = await axios.get('/api/user');
+    if (!res.data) return;
     dispatch(updateUser(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
