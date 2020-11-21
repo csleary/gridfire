@@ -33,12 +33,24 @@ module.exports = app => {
     const mp4Params = { Bucket: BUCKET_OPT, Expires: 15, Key: `mp4/${releaseId}/${trackId}.mp4` };
     const s3 = new aws.S3();
     const url = s3.getSignedUrl('getObject', mp4Params);
+
+    // If user is not logged in, generate a session userId for play tracking.
+    let user = req.user && req.user._id;
+    if (!user) {
+      user = req.session.user || mongoose.Types.ObjectId();
+      req.session.user = user;
+    }
+
     res.send({ duration, url, range: initRange });
 
-    const { user } = req;
-    if (user && !release.user.equals(user._id)) {
+    if (!release.user.equals(user)) {
       try {
-        await StreamSession.create({ user: user._id, release: releaseId, trackId, segmentsTotal: segmentList.length });
+        await StreamSession.create({
+          user,
+          release: releaseId,
+          trackId,
+          segmentsTotal: segmentList.length
+        });
       } catch (error) {
         if (error.code === 11000) return;
         console.error(error);
@@ -62,13 +74,14 @@ module.exports = app => {
     const url = s3.getSignedUrl('getObject', mp4Params);
     res.send({ url, range, end });
 
-    const { user } = req;
-    if (user && !release.user.equals(user._id)) {
-      await StreamSession.findOneAndUpdate(
-        { user: user._id, trackId },
-        { $inc: { segmentsFetched: 1 } },
-        { new: true }
-      ).exec();
+    // If user is not logged in, use the session userId for play tracking.
+    let user = req.user && req.user._id;
+    if (!user) {
+      user = req.session.user;
+    }
+
+    if (!release.user.equals(user)) {
+      await StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }, { new: true }).exec();
     }
   });
 
