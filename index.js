@@ -19,20 +19,34 @@ require('./models/User');
 require('./models/Wish');
 require('./services/passport');
 
-mongoose
-  .connect(keys.mongoURI, {
-    useFindAndModify: false,
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .catch(({ message }) => console.error(message));
+// mongoose.set('debug', true);
+
+const config = {
+  useFindAndModify: false,
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+};
 
 mongoose.connection.on('error', () => {
-  io.emit('error', { message: 'Could not connect to database.' });
+  io.emit('error', { message: 'Database connection error.' });
 });
 
-// mongoose.set('debug', true);
+mongoose.connection.on('disconnected', () => {
+  console.error('Mongoose disconnected. Attempting to reconnect in 5 seconds…');
+  setTimeout(connect, 5000, keys.mongoURI, config);
+});
+
+const connect = async () => {
+  try {
+    await mongoose.connect(keys.mongoURI, config);
+    console.log('Mongoose connected.');
+  } catch ({ message }) {
+    console.error('Mongoose connection error: %s', message);
+  }
+};
+
+connect();
 app.use(bodyParser.json());
 
 app.use(

@@ -15,7 +15,7 @@ const Favourites = () => {
     dispatch(fetchUserFavourites()).then(() => setLoading(false));
   }, [userFavourites.length, dispatch]);
 
-  const renderReleases = userFavourites.map(({ release }) => <RenderRelease key={release._id} release={release} />);
+  const renderReleases = userFavourites.map(fav => <RenderRelease key={fav._id} release={fav.release} />);
 
   if (isLoading) {
     return (

@@ -15,7 +15,7 @@ const WishList = () => {
     dispatch(fetchUserWishList()).then(() => setLoading(false));
   }, [userWishList.length, dispatch]);
 
-  const renderReleases = userWishList.map(({ release }) => <RenderRelease key={release._id} release={release} />);
+  const renderReleases = userWishList.map(wish => <RenderRelease key={wish._id} release={wish.release} />);
 
   if (isLoading) {
     return (

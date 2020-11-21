@@ -1,8 +1,20 @@
+.textCenter {
+  text-align: center;
+}
+
+.mbAuto {
+  margin-bottom: auto;
+}
+
+.mtAuto {
+  margin-top: auto;
+}
+
 .buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  margin: auto 0;
+  margin: 0;
 }
 
 .button {

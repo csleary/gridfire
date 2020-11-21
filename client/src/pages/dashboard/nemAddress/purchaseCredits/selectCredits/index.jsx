@@ -13,8 +13,14 @@ const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, set
 
   return (
     <>
-      <p className="text-center">Help us cover our service costs by purchasing credits.</p>
-      <p className="text-center">Select how many credits you wish to purchase:</p>
+      <p>
+        Help us cover our service costs by purchasing credits &mdash; cryptographic tokens issued on the NEM blockchain.
+        Each token buys you the right to use nemp3 to sell your own music, and can be tranferred or sold at any point.
+        So long as you hold the tokens at the address used by your nemp3 account, you can continue to use the service.
+      </p>
+      <p className={styles.mbAuto}>
+        You will need one credit for every release you wish to sell. Select how many credits you wish to buy:
+      </p>
       {isLoading ? (
         <Spinner wrapperClassName={styles.spinner} />
       ) : (
@@ -42,9 +48,8 @@ const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, set
           </h3>
         </>
       )}
-      <p>
-        After your payment is confirmed, your nemp3 credits will be sent back to this same address. Each token buys you
-        the right to use nemp3 to sell your own music, and is freely transferable at any point.
+      <p className={styles.mtAuto}>
+        After your payment is confirmed, your nemp3 credits will be sent back to this same address.
       </p>
       <div className={styles.confirm}>
         <Button
