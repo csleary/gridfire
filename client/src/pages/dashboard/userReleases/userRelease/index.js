@@ -101,13 +101,14 @@ function UserRelease({ favs, numSold, plays, release }) {
             <h6 title="Total plays for this release.">
               {plays}
               <FontAwesome
+                fixedWidth
                 name="play"
                 className={classnames(styles.plays, { [styles.red]: !plays, [styles.green]: plays > 0 })}
               />
             </h6>
             <h6 title="Total favourites for this release.">
               {favs}
-              <FontAwesome name="heart" className={classnames(styles.favs, styles.red)} />
+              <FontAwesome fixedWidth name="heart" className={classnames(styles.favs, styles.red)} />
             </h6>
           </div>
         </div>
