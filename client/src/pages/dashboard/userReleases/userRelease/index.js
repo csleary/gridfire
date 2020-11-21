@@ -94,7 +94,7 @@ function UserRelease({ favs, numSold, plays, release }) {
                 className={`mr-2 ${numSold ? 'green' : 'red'}`}
                 title="Number of copies sold."
               />
-              {numSold} {numSold ? `cop${numSold > 1 ? 'ies' : 'y'} sold` : 'No sales yet'}
+              {numSold ? `${numSold} cop${numSold > 1 ? 'ies' : 'y'} sold` : 'No sales yet'}
             </h6>
           </div>
           <div className={styles.stats}>
