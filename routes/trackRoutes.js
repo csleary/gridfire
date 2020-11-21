@@ -37,7 +37,12 @@ module.exports = app => {
     res.send({ duration, url, range: initRange });
 
     if (!release.user.equals(user)) {
-      StreamSession.create({ user, release: releaseId, trackId, segmentsTotal: segmentList.length });
+      try {
+        await StreamSession.create({ user, release: releaseId, trackId, segmentsTotal: segmentList.length });
+      } catch (error) {
+        if (error.code === 11000) return;
+        console.error(error);
+      }
     }
   });
 
@@ -59,7 +64,7 @@ module.exports = app => {
     res.send({ url, range, end });
 
     if (!release.user.equals(user)) {
-      StreamSession.findOneAndUpdate(
+      await StreamSession.findOneAndUpdate(
         { user: req.user._id, trackId },
         { $inc: { segmentsFetched: 1 } },
         { new: true }

@@ -25,5 +25,5 @@ streamSessionSchema.post('findOneAndUpdate', async function (stream) {
 });
 
 streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });
-streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 5 });
+streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
 mongoose.model('stream-sessions', streamSessionSchema);

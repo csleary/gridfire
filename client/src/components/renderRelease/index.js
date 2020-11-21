@@ -1,4 +1,5 @@
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { playTrack, playerPause, playerPlay } from 'features/player';
 import { CLOUD_URL } from 'index';
 import FontAwesome from 'react-fontawesome';
 import { Link } from 'react-router-dom';
@@ -8,7 +9,6 @@ import React from 'react';
 import classnames from 'classnames';
 import { fetchRelease } from 'features/releases';
 import placeholder from 'placeholder.svg';
-import { playTrack } from 'features/player';
 import styles from './renderRelease.module.css';
 import { toastInfo } from 'features/toast';
 import withDownload from 'pages/payment/payments/withDownload';
@@ -17,7 +17,7 @@ const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = ({ className, release, showArtist = true, showTitle = true, type }) => {
   const dispatch = useDispatch();
-  const { player } = useSelector(state => state, shallowEqual);
+  const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
 
   if (!release) {
     return (
@@ -31,14 +31,23 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
   const { _id: releaseId, artist, artistName, artwork = {}, releaseTitle, trackList } = release;
 
   const handlePlayTrack = () => {
-    const [{ _id: trackId, trackTitle }] = trackList;
-    if (player.trackId === trackId) return;
+    const audioPlayer = document.getElementById('player');
 
-    batch(() => {
-      dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
-      dispatch(fetchRelease(releaseId));
-      dispatch(toastInfo(`Loading ${artistName} - '${trackTitle}'`));
-    });
+    if (isPlaying && playerReleaseId === releaseId) {
+      audioPlayer.pause();
+      dispatch(playerPause());
+    } else if (playerReleaseId === releaseId) {
+      audioPlayer.play();
+      dispatch(playerPlay());
+    } else {
+      const [{ _id: trackId, trackTitle }] = trackList;
+
+      batch(() => {
+        dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+        dispatch(fetchRelease(releaseId));
+        dispatch(toastInfo(`Loading ${artistName} - '${trackTitle}'`));
+      });
+    }
   };
 
   return (
@@ -70,7 +79,7 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
             onClick={handlePlayTrack}
             title={`Play '${releaseTitle}', by ${artistName}`}
           >
-            <FontAwesome className={styles.icon} name="play" />
+            <FontAwesome className={styles.icon} name={isPlaying && releaseId === playerReleaseId ? 'pause' : 'play'} />
           </button>
           <Link
             className={styles.button}
