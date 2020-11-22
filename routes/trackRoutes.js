@@ -34,7 +34,7 @@ module.exports = app => {
     const s3 = new aws.S3();
     const url = s3.getSignedUrl('getObject', mp4Params);
 
-    // If user is not logged in, generate a session userId for play tracking.
+    // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
     let user = req.user && req.user._id;
     if (!user) {
       user = req.session.user || mongoose.Types.ObjectId();
