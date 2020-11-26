@@ -7,8 +7,10 @@ const {
   getUserTransactions,
   setUserNemAddress
 } = require(__basedir + '/controllers/userController');
-const { PAYMENT_ADDRESS } = require('../config/constants');
-const requireLogin = require('../middlewares/requireLogin');
+
+const { generateToken, verifyToken } = require(__basedir + '/controllers/tokenController');
+const { PAYMENT_ADDRESS } = require(__basedir + '/config/constants');
+const requireLogin = require(__basedir + '/middlewares/requireLogin');
 
 module.exports = app => {
   app.get('/api/user', async (req, res) => {
@@ -51,10 +53,18 @@ module.exports = app => {
 
   app.get('/api/user/credits/purchase', requireLogin, async (req, res) => {
     try {
-      req.session.productData = null;
-      const productData = await creditPricing();
-      req.session.productData = productData;
-      res.send(productData);
+      const creditPricingData = await creditPricing();
+      const creditPricingToken = generateToken({ creditPricingData });
+
+      res.cookie('creditPricing', creditPricingToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 10,
+        SameSite: true,
+        secure: process.env.NODE_ENV === 'production',
+        signed: true
+      });
+
+      res.send(creditPricingData);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
@@ -63,16 +73,26 @@ module.exports = app => {
   app.post('/api/user/credits/purchase', requireLogin, async (req, res) => {
     try {
       const { sku } = req.body;
-      const { productData } = req.session;
+      const creditPricingToken = req.signedCookies.creditPricing;
+      const { creditPricingData } = verifyToken(creditPricingToken);
+
       const { nonce, paymentId, priceRawXem, priceXem } = await creditPurchase({
         userId: req.user._id,
         sku,
-        productData
+        creditPricingData
       });
 
-      req.session.nonce = nonce;
-      req.session.paymentId = paymentId;
-      req.session.priceRawXem = priceRawXem;
+      const creditSessionData = { nonce, paymentId, priceRawXem };
+      const creditSessionToken = generateToken(creditSessionData);
+
+      res.cookie('creditSession', creditSessionToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 10,
+        SameSite: true,
+        secure: process.env.NODE_ENV === 'production',
+        signed: true
+      });
+
       res.send({ nonce, PAYMENT_ADDRESS, paymentId, priceXem });
     } catch (error) {
       res.status(401).send({ error: 'We could not create your purchase.' });
@@ -82,7 +102,8 @@ module.exports = app => {
   app.post('/api/user/credits/confirm', requireLogin, async (req, res) => {
     try {
       const { clientId, cnonce } = req.body;
-      const { nonce, paymentId } = req.session;
+      const creditSessionToken = req.signedCookies.creditSession;
+      const { nonce, paymentId } = verifyToken(creditSessionToken);
       const userId = req.user._id;
       const paymentDetails = await creditConfirmation({ userId, clientId, cnonce, nonce, paymentId });
       res.send(paymentDetails);

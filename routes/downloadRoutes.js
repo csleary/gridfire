@@ -1,11 +1,9 @@
 const aws = require('aws-sdk');
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const { nemp3Secret } = require('../config/keys');
 const { AWS_REGION, BUCKET_MP3 } = require('../config/constants');
 const { zipDownload } = require('../controllers/archiveController');
 const { encodeMp3 } = require('../controllers/encodingController');
-const { generateToken } = require('../controllers/tokenController');
+const { generateToken, verifyToken } = require('../controllers/tokenController');
 const requireLogin = require('../middlewares/requireLogin');
 aws.config.update({ region: AWS_REGION });
 const Release = mongoose.model('releases');
@@ -30,7 +28,7 @@ module.exports = app => {
   app.get('/api/download/:token/check', async (req, res) => {
     const s3 = new aws.S3();
     const [, token] = req.params.token.split(' ');
-    const decoded = jwt.verify(token, nemp3Secret);
+    const decoded = verifyToken(token);
     const { releaseId } = decoded;
     const release = await Release.findById(releaseId).exec();
     const { trackList } = release;
@@ -44,7 +42,7 @@ module.exports = app => {
   app.get('/api/download/:token/:format?', async (req, res) => {
     const format = req.params.format;
     const [, token] = req.params.token.split(' ');
-    const decoded = jwt.verify(token, nemp3Secret);
+    const decoded = verifyToken(token);
     const { releaseId } = decoded;
     const release = await Release.findById(releaseId).exec();
 

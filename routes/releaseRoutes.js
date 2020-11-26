@@ -9,7 +9,6 @@ const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 
 const Artist = mongoose.model('artists');
-const Favourite = mongoose.model('releases');
 const Release = mongoose.model('releases');
 const User = mongoose.model('users');
 aws.config.update({ region: AWS_REGION });

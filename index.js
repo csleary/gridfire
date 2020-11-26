@@ -1,6 +1,7 @@
 global.__basedir = __dirname;
 const app = require('express')();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const keys = require('./config/keys');
 const mongoose = require('mongoose');
@@ -50,6 +51,7 @@ const connect = async () => {
 
 connect();
 app.use(bodyParser.json());
+app.use(cookieParser(keys.cookieKey));
 
 app.use(
   cookieSession({

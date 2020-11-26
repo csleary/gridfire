@@ -93,14 +93,14 @@ const creditPricing = async () => {
   });
 };
 
-const creditPurchase = async ({ userId, sku, productData }) => {
+const creditPurchase = async ({ userId, sku, creditPricingData }) => {
   const user = await User.findById(userId, 'auth.idHash').exec();
   if (!user) throw new Error('User not found or not authorised.');
   const { idHash } = user.auth;
   const nonce = crypto.randomBytes(16).toString('hex');
   const hash = crypto.createHash('sha256');
   const paymentId = hash.update(nonce).update(idHash).digest('hex').substring(0, 32);
-  const { priceXem, priceRawXem } = productData.find(product => product.sku === sku);
+  const { priceXem, priceRawXem } = creditPricingData.find(product => product.sku === sku);
 
   await PaymentSession.create({
     dateCreated: Date.now(),
