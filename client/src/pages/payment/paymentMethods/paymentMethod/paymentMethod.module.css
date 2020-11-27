@@ -1,14 +1,38 @@
+.loader {
+  animation: loader 6s linear infinite;
+  backface-visibility: hidden;
+  background: linear-gradient(45deg, var(--charcoal) 30%, var(--darker-grey) 50%, var(--charcoal) 70%);
+  background-size: 200%;
+  bottom: 0;
+  height: 256px;
+  left: 0;
+  margin: 0 auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 256px;
+}
+
 .qrcode {
   margin-bottom: 0.5rem;
   text-align: center;
 }
 
 .wrapper {
-  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   top: 0;
+}
+
+@keyframes loader {
+  0% {
+    background-position: 200%;
+  }
+
+  100% {
+    background-position: -200%;
+  }
 }

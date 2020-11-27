@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const percentComplete = (loaded, total) => Math.floor((loaded / total) * 100);
 
-const useApi = (initialUrl, initialMethod = 'get', initialData) => {
+const useApi = (_url, options = {}) => {
+  const { method: _method = 'get', data: _data, shouldFetch = true } = options;
   const [isLoading, setLoading] = useState(true);
   const [isFetching, setFetching] = useState(false);
   const [error, setError] = useState('');
@@ -15,7 +16,7 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
   const isMounted = useRef(true);
 
   const fetch = useCallback(
-    async (url = initialUrl, method = initialMethod, data = initialData) => {
+    async (url = _url, method = _method, data = _data) => {
       if (!url) return;
       if (call.current) call.current.cancel();
 
@@ -47,17 +48,19 @@ const useApi = (initialUrl, initialMethod = 'get', initialData) => {
         call.current = null;
       }
     },
-    [initialUrl, initialMethod, initialData]
+    [_url, _method, _data]
   );
 
   useEffect(() => {
-    fetch();
+    if (shouldFetch) {
+      fetch();
+    }
 
     return () => {
       if (call.current) call.current.cancel();
       isMounted.current = false;
     };
-  }, [fetch]);
+  }, [fetch, shouldFetch]);
 
   return {
     fetch,

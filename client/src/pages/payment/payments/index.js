@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { animated, useTransition } from 'react-spring';
+import { animated, config, useTransition } from 'react-spring';
 import DownloadButton from './downloadButton';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
@@ -11,7 +11,7 @@ import withDownload from './withDownload';
 
 const Download = withDownload(DownloadButton);
 
-const Payments = ({ artistName, paymentHash, price, releaseId, releaseTitle }) => {
+const Payments = ({ paymentInfoLoading, artistName, paymentHash, price, releaseId, releaseTitle }) => {
   const paymentData = useMemo(() => ({ releaseId, paymentHash }), [releaseId, paymentHash]);
 
   const initialData = {
@@ -21,14 +21,14 @@ const Payments = ({ artistName, paymentHash, price, releaseId, releaseTitle }) =
     transactions: []
   };
 
-  const { data: payments = initialData, error, fetch, isFetching, isLoading } = useApi(
-    '/api/user/transactions',
-    'post',
-    paymentData
-  );
+  const { data: payments = initialData, error, fetch, isFetching, isLoading } = useApi('/api/user/transactions', {
+    method: 'post',
+    data: paymentData,
+    shouldFetch: !paymentInfoLoading
+  });
 
   const transition = useTransition(isLoading, {
-    config: { mass: 1, tension: 250, friction: 30, clamp: true },
+    config: { ...config.stiff, clamp: true },
     from: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' },
     enter: { opacity: 1, transform: 'translateY(0) scale(1.0)' },
     leave: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' }
@@ -53,11 +53,15 @@ const Payments = ({ artistName, paymentHash, price, releaseId, releaseTitle }) =
     };
   }, [payments, fetch, paymentData]);
 
+  if (paymentInfoLoading) return null;
+
   if (isLoading) {
     return (
-      <Spinner className={styles.spinner} wrapperClassName={styles.wrapper}>
-        <div>Searching for payments&hellip;</div>
-      </Spinner>
+      <div className={styles.loading}>
+        <Spinner className={styles.spinner} wrapperClassName={styles.wrapper}>
+          <div>Searching for payments&hellip;</div>
+        </Spinner>
+      </div>
     );
   }
 

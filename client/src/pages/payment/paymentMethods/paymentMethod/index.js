@@ -1,4 +1,4 @@
-import { animated, useTransition } from 'react-spring';
+import { animated, config, useTransition } from 'react-spring';
 import FontAwesome from 'react-fontawesome';
 import ManualPayment from './manualPayment';
 import PropTypes from 'prop-types';
@@ -6,16 +6,25 @@ import QRCode from 'components/qrCode';
 import React from 'react';
 import styles from './paymentMethod.module.css';
 
-const PaymentMethod = ({ paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
-  const transition = useTransition(showManualPayment, {
-    config: { mass: 1, tension: 250, friction: 30, clamp: true },
+const Loader = () => <div className={styles.loader} />;
+
+const PaymentMethod = ({ isLoading, paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
+  const states = isLoading ? 1 : showManualPayment ? 2 : 3;
+
+  const transition = useTransition(states, {
+    config: { ...config.stiff, clamp: true },
+    initial: { opacity: 0, transform: 'scale(0.95)' },
     from: { opacity: 0, transform: 'scale(0.98)' },
     enter: { opacity: 1, transform: 'scale(1)' },
     leave: { opacity: 0, transform: 'scale(0.98)' }
   });
 
-  return transition((style, item) =>
-    item ? (
+  return transition((style, index) =>
+    index === 1 ? (
+      <animated.div className={styles.wrapper} style={style}>
+        <Loader />
+      </animated.div>
+    ) : index === 2 ? (
       <animated.div className={styles.wrapper} style={style}>
         <ManualPayment paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />
       </animated.div>

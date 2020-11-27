@@ -14,7 +14,7 @@ function Dashboard({ match }) {
   return (
     <>
       <Helmet>
-        <title>Dashboard</title>
+        <title>Dashboard | nemp3</title>
         <meta
           name="description"
           content="Take control of your nemp3 account. Add music, configure your payment details, add artist information and more."

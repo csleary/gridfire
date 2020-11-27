@@ -1,3 +1,28 @@
+.loader {
+  animation: loader 6s linear infinite;
+  backface-visibility: hidden;
+  background: linear-gradient(45deg, var(--charcoal) 30%, var(--darker-grey) 50%, var(--charcoal) 70%);
+  background-size: 200%;
+  border-radius: 10rem;
+  height: 40px;
+  width: 13.5rem;
+}
+
+.item {
+  animation: loader 4s linear infinite;
+  background: linear-gradient(
+    45deg,
+    var(--lighter-grey) 0%,
+    var(--lighter-grey) 30%,
+    #f1f2f3 50%,
+    var(--lighter-grey) 80%
+  );
+  background-size: 200%;
+  border-radius: 0.25rem;
+  height: 18px;
+  margin-top: 4px;
+}
+
 .methods {
   margin-bottom: 2rem;
   height: 22rem;
@@ -42,4 +67,14 @@
 
 .buttons > .selected:hover {
   color: var(--cyan);
+}
+
+@keyframes loader {
+  0% {
+    background-position: 200%;
+  }
+
+  100% {
+    background-position: -200%;
+  }
 }

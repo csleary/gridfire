@@ -7,6 +7,10 @@
   padding: 0;
 }
 
+.loading {
+  margin-top: auto;
+}
+
 .spinner {
   border-width: 0.75rem;
   display: inline-block;
