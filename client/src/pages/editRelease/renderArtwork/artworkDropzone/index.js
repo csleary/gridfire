@@ -1,9 +1,11 @@
+import { faThumbsUp, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
 import { shallowEqual, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ProgressBar from '../../progressBar';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import styles from './artworkDropzone.module.css';
 import { useDropzone } from 'react-dropzone';
 
@@ -13,7 +15,7 @@ const Status = ({ acceptedFiles, artworkUploading, artworkUploadProgress, isDrag
   if (artworkUploading) {
     return (
       <>
-        <FontAwesome name="upload" className="mr-2" />
+        <FontAwesomeIcon icon={faUpload} className="mr-2" />
         Uploading &lsquo;{acceptedFiles[0]?.path}&rsquo;: {artworkUploadProgress}%
       </>
     );
@@ -22,7 +24,7 @@ const Status = ({ acceptedFiles, artworkUploading, artworkUploadProgress, isDrag
   if (isDragReject) {
     return (
       <>
-        <FontAwesome name="times-circle" className="mr-2" />
+        <FontAwesomeIcon icon={faTimesCircle} className="mr-2" />
         Sorry, we don&lsquo;t accept that file type. Please ensure it is a png or jpg image file.
       </>
     );
@@ -31,7 +33,7 @@ const Status = ({ acceptedFiles, artworkUploading, artworkUploadProgress, isDrag
   if (isDragActive) {
     return (
       <>
-        <FontAwesome name="thumbs-o-up" className="mr-2" />
+        <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
         Drop to upload!
       </>
     );
@@ -39,7 +41,7 @@ const Status = ({ acceptedFiles, artworkUploading, artworkUploadProgress, isDrag
 
   return (
     <>
-      <FontAwesome name="upload" className="mr-2" />
+      <FontAwesomeIcon icon={faUpload} className="mr-2" />
       Drop artwork here, or click to select. Must be under 10MB in size and have a minimum dimension of 1000px (will be
       resized and cropped square).
     </>

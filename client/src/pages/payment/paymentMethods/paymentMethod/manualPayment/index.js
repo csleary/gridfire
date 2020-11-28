@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { animated, useTransition } from 'react-spring';
+import { faChevronRight, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import ReadOnlyTextArea from 'components/readOnlyTextArea';
 import styles from './manualPayment.module.css';
@@ -31,7 +32,7 @@ const ManualPayment = props => {
         item % 3 === 0 ? (
           <animated.div className={styles.step} style={style}>
             <h4 className={styles.heading}>
-              <span className="yellow">1.</span> Payment ID
+              <span className={styles.number}>1.</span> Payment ID
             </h4>
             <p>
               Please remember to include the payment ID below in the &lsquo;message&rsquo; field when making your
@@ -39,14 +40,14 @@ const ManualPayment = props => {
             </p>
             <ReadOnlyTextArea text={paymentHash} placeholder="Please log in to see your payment ID" />
             <p className={styles.note} role="alert">
-              <FontAwesome name="exclamation-circle" className="mr-2" />
+              <FontAwesomeIcon icon={faExclamationCircle} className="mr-2" />
               Your payment ID is essential to your purchase. Please don&rsquo;t forget to include this.
             </p>
           </animated.div>
         ) : item % 3 === 1 ? (
           <animated.div className={styles.step} style={style}>
             <h4 className={styles.heading}>
-              <span className="yellow">2.</span> Address
+              <span className={styles.number}>2.</span> Address
             </h4>
             <p>Add the artist&rsquo;s payment address below:</p>
             <ReadOnlyTextArea text={paymentAddress} placeholder="Payment Address" />
@@ -54,7 +55,7 @@ const ManualPayment = props => {
         ) : item % 3 === 2 ? (
           <animated.div className={styles.step} style={style}>
             <h4 className={styles.heading}>
-              <span className="yellow">3.</span> Amount
+              <span className={styles.number}>3.</span> Amount
             </h4>
             <p>Fill in the payment amount {copyPrice} and hit send.</p>
             <ReadOnlyTextArea
@@ -72,7 +73,7 @@ const ManualPayment = props => {
       )}
       <Button
         className={styles.button}
-        icon="chevron-right"
+        icon={faChevronRight}
         iconClassName={styles.icon}
         iconRight
         textLink

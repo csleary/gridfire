@@ -1,7 +1,8 @@
 import React, { Component, createRef } from 'react';
+import { faChevronDown, faStop } from '@fortawesome/free-solid-svg-icons';
 import { playTrack, playerHide, playerPause, playerPlay, playerStop } from 'features/player';
 import { toastError, toastInfo, toastWarning } from 'features/toast';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PlayButton from './playButton';
 import PropTypes from 'prop-types';
 import TrackInfo from './trackInfo';
@@ -300,7 +301,7 @@ class Player extends Component {
           <div className={`${styles.interface} row no-gutters`}>
             <div className={`${styles.controls} col-sm`}>
               <PlayButton isReady={this.state.isReady} playAudio={this.playAudio} />
-              <FontAwesome name="stop" className={styles.playerButton} onClick={this.stopAudio} />
+              <FontAwesomeIcon icon={faStop} className={styles.playerButton} onClick={this.stopAudio} />
               <div
                 className={`${styles.currentTime} align-middle`}
                 onClick={() =>
@@ -316,8 +317,8 @@ class Player extends Component {
             </div>
             <div className={`${styles.trackInfo} col-sm`}>
               <TrackInfo isReady={this.state.isReady} />
-              <FontAwesome
-                name="chevron-circle-down"
+              <FontAwesomeIcon
+                icon={faChevronDown}
                 className={`${styles.playerButton} ${styles.hide}`}
                 onClick={this.hidePlayer}
                 title="Hide player (will stop audio)"

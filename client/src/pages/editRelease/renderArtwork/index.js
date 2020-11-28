@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { deleteArtwork } from 'features/artwork';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import styles from './renderArtwork.module.css';
 
 const RenderArtwork = props => {
@@ -43,7 +44,7 @@ const RenderArtwork = props => {
             <Button
               className={styles.delete}
               iconClassName={styles.icon}
-              icon="trash"
+              icon={faTrashAlt}
               onClick={handleDeleteArtwork}
               title="Delete the artwork (will take your track offline)."
               type="button"

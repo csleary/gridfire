@@ -1,8 +1,9 @@
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from './downloadButton.module.css';
 
 const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparingDownload, releaseTitle }) => {
@@ -26,7 +27,7 @@ const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparin
       {isPreparingDownload && !formatExists ? (
         <>
           <p className={styles.note}>
-            <FontAwesome name="info-circle" className="cyan mr-2" />
+            <FontAwesomeIcon icon={faInfoCircle} className="cyan mr-2" />
             This can take a little while if we don&rsquo;t have your chosen format cached, as we&rsquo;ll freshly
             transcode the release from source, before building your archive.
           </p>

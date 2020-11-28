@@ -1,7 +1,9 @@
-import FontAwesome from 'react-fontawesome';
+import { faExclamationCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
+import { faThumbsUp } from '@fortawesome/free-regular-svg-icons';
 import styles from '../toast.module.css';
 
 const Toast = ({ toast }) => {
@@ -10,15 +12,15 @@ const Toast = ({ toast }) => {
   const toastIcon = () => {
     switch (type) {
       case 'error':
-        return 'exclamation-circle';
+        return faExclamationCircle;
       case 'info':
-        return 'info-circle';
+        return faInfoCircle;
       case 'success':
-        return 'thumbs-o-up';
+        return faThumbsUp;
       case 'warning':
-        return 'exclamation-circle';
+        return faExclamationCircle;
       default:
-        return 'info-circle';
+        return faInfoCircle;
     }
   };
 
@@ -33,7 +35,7 @@ const Toast = ({ toast }) => {
 
   return (
     <div className={classes}>
-      <FontAwesome name={toastIcon()} className="mr-2" />
+      <FontAwesomeIcon icon={toastIcon()} className="mr-2" />
       {message}
     </div>
   );

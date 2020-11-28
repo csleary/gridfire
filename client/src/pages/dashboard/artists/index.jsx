@@ -16,6 +16,7 @@ import Spinner from 'components/spinner';
 import classnames from 'classnames';
 import styles from './artists.module.css';
 import { useHistory } from 'react-router-dom';
+import { faCheck, faLink, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
 const Artists = () => {
   const dispatch = useDispatch();
@@ -103,7 +104,7 @@ const Artists = () => {
                   Artist Name
                   <Button
                     className={styles.artistLink}
-                    icon={'link'}
+                    icon={faLink}
                     onClick={() =>
                       history.push(activeArtist.slug ? `/${activeArtist.slug}` : `/artist/${activeArtistId}`)
                     }
@@ -199,7 +200,7 @@ const Artists = () => {
                     </div>
                     <Button
                       className={styles.linkRemove}
-                      icon="minus-circle"
+                      icon={faMinusCircle}
                       onClick={() => dispatch(removeLink({ artistId: activeArtistId, linkId }))}
                       title="Remove link"
                       size="small"
@@ -212,7 +213,7 @@ const Artists = () => {
                 <Button
                   className={styles.linkAdd}
                   disabled={isAddingLink}
-                  icon="plus-circle"
+                  icon={faPlusCircle}
                   onClick={() => handleAddLink()}
                   title="Add a link"
                   size="small"
@@ -227,7 +228,7 @@ const Artists = () => {
                 )}
               </section>
               <div className={styles.submit}>
-                <Button disabled={isSubmitting || isPristine} icon="check" type="button" onClick={handleSubmit}>
+                <Button disabled={isSubmitting || isPristine} icon={faCheck} type="button" onClick={handleSubmit}>
                   Save
                 </Button>
               </div>

@@ -1,9 +1,10 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { batch, useDispatch } from 'react-redux';
+import { faBomb, faCheckCircle, faKey } from '@fortawesome/free-solid-svg-icons';
 import { useHistory, useParams } from 'react-router-dom';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
@@ -61,7 +62,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field
               component={InputField}
-              icon="key"
+              icon={faKey}
               id="passwordNew"
               label="New Password:"
               name="passwordNew"
@@ -73,7 +74,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
             <Field
               component={InputField}
               id="passwordConfirm"
-              icon="check-circle-o"
+              icon={faCheckCircle}
               label="Confirm New Password:"
               name="passwordConfirm"
               placeholder="New Password"
@@ -83,7 +84,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
             />
             {response?.error && (
               <div className={`alert ${className} text-center`} role="alert">
-                <FontAwesome name="bomb" className="mr-2" />
+                <FontAwesomeIcon icon={faBomb} className="mr-2" />
                 {response.error}
               </div>
             )}

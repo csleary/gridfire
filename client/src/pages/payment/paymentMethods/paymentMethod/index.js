@@ -1,5 +1,6 @@
 import { animated, config, useTransition } from 'react-spring';
-import FontAwesome from 'react-fontawesome';
+import { faAndroid, faApple } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ManualPayment from './manualPayment';
 import PropTypes from 'prop-types';
 import QRCode from 'components/qrCode';
@@ -36,12 +37,12 @@ const PaymentMethod = ({ isLoading, paymentAddress, paymentHash, priceInXem, sho
         <p className="text-center">
           Scan to pay on{' '}
           <a href="https://itunes.apple.com/us/app/nem-wallet/id1227112677">
-            <FontAwesome name="apple" className="mr-1" />
+            <FontAwesomeIcon icon={faApple} className="mr-1" />
             iOS
           </a>{' '}
           or{' '}
           <a href="https://play.google.com/store/apps/details?id=org.nem.nac.mainnet&hl=en">
-            <FontAwesome name="android" className="mr-1" />
+            <FontAwesomeIcon icon={faAndroid} className="mr-1" />
             Android
           </a>
         </p>

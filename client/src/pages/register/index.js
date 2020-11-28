@@ -7,6 +7,8 @@ import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
+import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { fetchUser } from 'features/user';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -43,7 +45,7 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
             <div className="col-md-6 mx-auto">
               <Field
                 component={InputField}
-                icon="envelope-o"
+                icon={faEnvelope}
                 id="email"
                 label="Email Address:"
                 name="email"
@@ -56,7 +58,7 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
                 className="form-control"
                 component={InputField}
                 hint="A strong and unique alphanumeric password recommended."
-                icon="key"
+                icon={faKey}
                 id="password"
                 label="Password:"
                 name="password"

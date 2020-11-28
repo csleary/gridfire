@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import FontAwesome from 'react-fontawesome';
+import { faCopy, faThumbsUp } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styles from './readOnlyTextArea.module.css';
@@ -40,7 +41,7 @@ const ReadOnlyTextArea = ({ className, label = false, placeholder = '', text, ..
         >
           {hasCopied ? (
             <div className={styles.success}>
-              <FontAwesome className={styles.iconSuccess} name="thumbs-up" />
+              <FontAwesomeIcon className={styles.iconSuccess} icon={faThumbsUp} />
               Copied to clipboard!
             </div>
           ) : text ? (
@@ -49,7 +50,7 @@ const ReadOnlyTextArea = ({ className, label = false, placeholder = '', text, ..
             placeholder
           )}
         </div>
-        <FontAwesome className={styles.icon} name="copy" />
+        <FontAwesomeIcon className={styles.icon} icon={faCopy} />
       </div>
     </>
   );

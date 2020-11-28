@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { deleteRelease, publishStatus } from 'features/releases';
+import { faCircle, faCog, faHeart, faPencilAlt, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faEyeSlash, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { toastSuccess, toastWarning } from 'features/toast';
 import Artwork from './artwork';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import StatusIcon from './statusIcon';
 import Title from './title';
@@ -73,24 +75,24 @@ function UserRelease({ favs, numSold, plays, release }) {
         <div className={styles.columns}>
           <div className={styles.details}>
             <h6>
-              <FontAwesome name="circle" className={`mr-2 ${price ? 'cyan' : 'yellow'}`} />
+              <FontAwesomeIcon icon={faCircle} className={`mr-2 ${price ? 'cyan' : 'yellow'}`} />
               {price ? `$${price} USD` : 'Name your price'}
             </h6>
             <h6>
-              <FontAwesome
-                name="circle"
+              <FontAwesomeIcon
+                icon={faCircle}
                 className={`mr-2 ${Date.now() - new Date(releaseDate) > 0 ? 'green' : 'yellow'}`}
               />
               {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
             </h6>
             <h6>
-              <FontAwesome name="circle" className={`mr-2 ${hasAudio() ? 'green' : 'red'}`} />
+              <FontAwesomeIcon icon={faCircle} className={`mr-2 ${hasAudio() ? 'green' : 'red'}`} />
               {trackList.length} Track{trackList.length === 1 ? '' : 's'}
               {trackList.length && !hasAudio() ? ' (incomplete)' : null}
             </h6>
             <h6>
-              <FontAwesome
-                name="circle"
+              <FontAwesomeIcon
+                icon={faCircle}
                 className={`mr-2 ${numSold ? 'green' : 'red'}`}
                 title="Number of copies sold."
               />
@@ -100,32 +102,32 @@ function UserRelease({ favs, numSold, plays, release }) {
           <div className={styles.stats}>
             <h6 title="Total plays for this release.">
               {plays}
-              <FontAwesome
+              <FontAwesomeIcon
                 fixedWidth
-                name="play"
+                icon={faPlay}
                 className={classnames(styles.plays, { [styles.red]: !plays, [styles.green]: plays > 0 })}
               />
             </h6>
             <h6 title="Total favourites for this release.">
               {favs}
-              <FontAwesome fixedWidth name="heart" className={classnames(styles.favs, styles.red)} />
+              <FontAwesomeIcon fixedWidth icon={faHeart} className={classnames(styles.favs, styles.red)} />
             </h6>
           </div>
         </div>
         <div className={styles.buttons}>
           <button onClick={() => history.push(`/release/${releaseId}/edit`)} className={styles.button}>
-            <FontAwesome name="pencil" className="mr-2" />
+            <FontAwesomeIcon icon={faPencilAlt} className="mr-2" />
             Edit
           </button>
           <button disabled={isPublishingRelease} onClick={handlePublishStatus} className={publishButtonClassName}>
             {published ? (
               <>
-                <FontAwesome name="eye-slash" className="mr-2" />
+                <FontAwesomeIcon icon={faEyeSlash} className="mr-2" />
                 Unpublish
               </>
             ) : (
               <>
-                <FontAwesome name="eye" className="mr-2" />
+                <FontAwesomeIcon icon={faEyeSlash} className="mr-2" />
                 Publish
               </>
             )}
@@ -133,12 +135,12 @@ function UserRelease({ favs, numSold, plays, release }) {
           <button className={deleteButtonClassName} disabled={isDeletingRelease} onClick={handleDeleteRelease}>
             {isDeletingRelease ? (
               <>
-                <FontAwesome name="cog" spin className="mr-2" />
+                <FontAwesomeIcon icon={faCog} spin className="mr-2" />
                 Deleting…
               </>
             ) : (
               <>
-                <FontAwesome name="trash" className="mr-2" />
+                <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
                 Delete
               </>
             )}

@@ -1,13 +1,16 @@
 import { Link, NavLink } from 'react-router-dom';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { faCertificate, faPlus, faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import DashNav from './dashNav';
 import Dropdown from 'components/dropdown';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Logo from './logo';
 import SearchBar from './searchBar';
 import classnames from 'classnames';
+import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
 import { logOut } from 'features/user';
 import styles from './navBar.module.css';
 import throttle from 'lodash.throttle';
@@ -64,7 +67,7 @@ const NavBar = () => {
               </li>
               <li>
                 <NavLink to={'/login'} className={styles.link}>
-                  <FontAwesome name="sign-in" className={styles.icon} title="Click to log in." />
+                  <FontAwesomeIcon icon={faSignInAlt} className={styles.icon} title="Click to log in." />
                   <span className={styles.label}>Log In</span>
                 </NavLink>
               </li>
@@ -78,10 +81,10 @@ const NavBar = () => {
               </li>
               <li>
                 <NavLink to={'/release/add/'} className={styles.link} title="Add a new release.">
-                  <FontAwesome name="plus-square" className={styles.icon} />
+                  <FontAwesomeIcon icon={faPlus} className={styles.icon} />
                   <span className={styles.label}>Add Release</span>
-                  <FontAwesome
-                    name="certificate"
+                  <FontAwesomeIcon
+                    icon={faCertificate}
                     className={creditClass}
                     title={`Your nemp3 credit balance is: ${credits}`}
                   />
@@ -93,7 +96,15 @@ const NavBar = () => {
                   closeOnClick
                   dropdownClassName={styles.dropdown}
                   fullWidth
-                  icon={auth.oauthService ?? 'user-circle'}
+                  icon={
+                    auth.oauthService === 'google'
+                      ? faGoogle
+                      : auth.oauthService === 'spotify'
+                      ? faSpotify
+                      : auth.oauthService === 'twitter'
+                      ? faTwitter
+                      : faUserCircle
+                  }
                   iconClassName={styles.icon}
                   offset={0}
                   onClick={() => setMenuIsOpen(!menuIsOpen)}
@@ -108,7 +119,7 @@ const NavBar = () => {
               <li>
                 <Button
                   className={styles.link}
-                  icon="sign-out"
+                  icon={faSignOutAlt}
                   iconClassName={styles.icon}
                   onClick={handleLogout}
                   textLink

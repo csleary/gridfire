@@ -2,8 +2,9 @@ import { Field, formValueSelector, propTypes, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { addNemAddress, fetchUserCredits } from 'features/user';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { faCertificate, faCheck, faMusic, faSync } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from 'components/modal';
 import NemAddressFormField from './nemAddressFormField';
 import PropTypes from 'prop-types';
@@ -119,13 +120,13 @@ let NemAddress = props => {
             />
             {renderVerifyAddressField()}
             <div className="d-flex justify-content-end mb-5">
-              <Button icon="check" type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
+              <Button icon={faCheck} type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
                 {renderButtonLabel()}
               </Button>
             </div>
             <div className="mb-1">
               <span className={creditClassName}>
-                <FontAwesome name="certificate" className="mr-2" />
+                <FontAwesomeIcon icon={faCertificate} className="mr-2" />
                 {nemAddressVerified && credits
                   ? `Your nemp3 credits balance: ${credits}`
                   : nemAddressVerified
@@ -135,7 +136,7 @@ let NemAddress = props => {
               <Button
                 className={styles.update}
                 disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
-                icon="refresh"
+                icon={faSync}
                 onClick={handleUpdateCredits}
                 spin={isCheckingCredits}
                 textLink
@@ -146,7 +147,7 @@ let NemAddress = props => {
               </Button>
             </div>
             <div className={releaseCountClassName}>
-              <FontAwesome name="music" className="mr-2" />
+              <FontAwesomeIcon icon={faMusic} className="mr-2" />
               {`Published releases: ${publishedReleaseCount}`}
             </div>
             <p>
@@ -157,7 +158,7 @@ let NemAddress = props => {
             <div className={styles.buy}>
               <Button
                 className={styles.buyButton}
-                icon="certificate"
+                icon={faCertificate}
                 onClick={() => setShowPaymentModal(true)}
                 type="button"
               >

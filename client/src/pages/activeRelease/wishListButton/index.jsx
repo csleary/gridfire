@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { addToWishList, removeFromWishList } from 'features/user';
+import { faCog, faMagic } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import styles from './wishListButton.module.css';
 import { toastInfo } from 'features/toast';
@@ -30,7 +31,7 @@ const WishListButton = () => {
       }}
       title="Save to wish list."
     >
-      <FontAwesome className={iconClassName} name={loading ? 'cog' : 'magic'} spin={loading} />
+      <FontAwesomeIcon className={iconClassName} icon={loading ? faCog : faMagic} spin={loading} />
       List
     </button>
   );

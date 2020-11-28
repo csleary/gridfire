@@ -3,7 +3,7 @@
 }
 
 .note {
-  color: #ff5349;
+  color: var(--yellow);
   font-weight: 700;
   padding: 0 1rem;
 }
@@ -14,6 +14,10 @@
   left: 0;
   position: absolute;
   right: 0;
+}
+
+.number {
+  color: var(--light-grey);
 }
 
 .button {

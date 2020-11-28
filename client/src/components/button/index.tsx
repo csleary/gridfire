@@ -1,7 +1,9 @@
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import styles from './button.module.css';
 
 interface Props {
@@ -9,7 +11,7 @@ interface Props {
   children?: object;
   className?: string;
   disabled?: boolean;
-  icon?: string;
+  icon?: IconProp;
   iconClassName: string;
   iconRight?: boolean;
   isActive?: boolean;
@@ -68,7 +70,7 @@ const Button = ({
     [styles.rotate]: menuOpen
   });
 
-  const buttonIcon = icon ? <FontAwesome className={iconClassNames} name={icon} fixedWidth /> : null;
+  const buttonIcon = icon ? <FontAwesomeIcon className={iconClassNames} icon={icon} fixedWidth /> : null;
 
   return (
     <button
@@ -85,7 +87,7 @@ const Button = ({
       {icon && !iconRight ? buttonIcon : null}
       {children ? children : text || null}
       {icon && iconRight ? buttonIcon : null}
-      {!textLink && menuOpen !== undefined ? <FontAwesome className={chevronClassNames} name="chevron-down" /> : null}
+      {!textLink && menuOpen !== undefined ? <FontAwesomeIcon className={chevronClassNames} icon={faChevronDown} /> : null}
     </button>
   );
 };
@@ -96,7 +98,7 @@ Button.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   disabled: PropTypes.bool,
-  icon: PropTypes.string,
+  icon: PropTypes.object,
   iconClassName: PropTypes.string,
   iconRight: PropTypes.bool,
   isActive: PropTypes.bool,

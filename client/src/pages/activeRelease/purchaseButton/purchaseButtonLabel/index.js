@@ -1,4 +1,5 @@
-import FontAwesome from 'react-fontawesome';
+import { faCheckCircle, faQrcode } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -6,7 +7,7 @@ const PurchaseButtonLabel = ({ inCollection, price, priceError }) => {
   if (priceError)
     return (
       <>
-        <FontAwesome name="qrcode" className="mr-2" />
+        <FontAwesomeIcon icon={faQrcode} className="mr-2" />
         Unavailable
       </>
     );
@@ -14,7 +15,7 @@ const PurchaseButtonLabel = ({ inCollection, price, priceError }) => {
   if (!price) {
     return (
       <>
-        <FontAwesome name="qrcode" className="mr-2" />
+        <FontAwesomeIcon icon={faQrcode} className="mr-2" />
         Name Your Price
       </>
     );
@@ -23,7 +24,7 @@ const PurchaseButtonLabel = ({ inCollection, price, priceError }) => {
   if (inCollection) {
     return (
       <>
-        <FontAwesome name="check-circle" className="mr-2" />
+        <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
         Transactions
       </>
     );
@@ -31,7 +32,7 @@ const PurchaseButtonLabel = ({ inCollection, price, priceError }) => {
 
   return (
     <>
-      <FontAwesome name="qrcode" className="mr-2" />
+      <FontAwesomeIcon icon={faQrcode} className="mr-2" />
       Purchase
     </>
   );

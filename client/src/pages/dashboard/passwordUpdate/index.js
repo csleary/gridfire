@@ -1,5 +1,6 @@
 import { Field, reduxForm } from 'redux-form';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { faCheckCircle, faKey } from '@fortawesome/free-solid-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import InputField from 'components/inputField';
@@ -45,7 +46,7 @@ const PasswordUpdate = props => {
               <div className="col-md-6 mx-auto">
                 <Field
                   component={InputField}
-                  icon="key"
+                  icon={faKey}
                   id="password"
                   label="Current Password:"
                   name="password"
@@ -56,7 +57,7 @@ const PasswordUpdate = props => {
                 />
                 <Field
                   component={InputField}
-                  icon="check-circle-o"
+                  icon={faCheckCircle}
                   id="passwordNew"
                   label="New Password:"
                   name="passwordNew"
@@ -68,7 +69,7 @@ const PasswordUpdate = props => {
                 <Field
                   component={InputField}
                   id="passwordConfirm"
-                  icon="check-circle"
+                  icon={faCheckCircle}
                   label="Confirm New Password:"
                   name="passwordConfirm"
                   placeholder="New Password"

@@ -1,8 +1,9 @@
 import { CLOUD_URL } from 'index';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { faFile } from '@fortawesome/free-regular-svg-icons';
 import placeholder from 'placeholder.svg';
 import styles from './artwork.module.css';
 
@@ -25,7 +26,7 @@ const Artwork = ({ artistName, artwork, releaseId, releaseTitle }) => {
     <>
       <Link className={styles.art} to={`/release/${releaseId}`}>
         <h6 className="position-absolute m-3">
-          <FontAwesome name="file-image-o" className="mr-2 red" />
+          <FontAwesomeIcon icon={faFile} className="mr-2 red" />
           No artwork uploaded.
         </h6>
         <img alt={artwork && `'${releaseTitle}' Artwork`} className={styles.image} src={placeholder} />

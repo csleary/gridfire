@@ -1,7 +1,8 @@
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { playTrack, playerPlay } from 'features/player';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import styles from './trackList.module.css';
 import { toastInfo } from 'features/toast';
@@ -14,8 +15,10 @@ const TrackList = () => {
 
   return trackList.map(({ _id: trackId, trackTitle }) => {
     const nowPlaying = () => {
-      if (trackId === playerTrackId && isPlaying) return <FontAwesome className={styles.nowPlaying} name="play" />;
-      if (trackId === playerTrackId && isPaused) return <FontAwesome className={styles.nowPlaying} name="pause" />;
+      if (trackId === playerTrackId && isPlaying)
+        return <FontAwesomeIcon className={styles.nowPlaying} icon={faPlay} />;
+      if (trackId === playerTrackId && isPaused)
+        return <FontAwesomeIcon className={styles.nowPlaying} icon={faPause} />;
       return null;
     };
 

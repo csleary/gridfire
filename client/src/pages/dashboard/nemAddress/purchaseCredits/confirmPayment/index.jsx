@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { faBomb, faCheck, faCheckCircle, faChevronLeft, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import Transactions from 'pages/payment/payments/transactions';
@@ -80,7 +81,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       {error ? (
         <div className={styles.error}>
           <h4 className={styles.errorHeading}>
-            <FontAwesome name="bomb" className="mr-2" />
+            <FontAwesomeIcon icon={faBomb} className="mr-2" />
             Error
           </h4>
           <p>{error}</p>
@@ -94,7 +95,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
           {hasPaid ? (
             <div className={styles.thanks}>
               <h4 className="green">
-                <FontAwesome name="check-circle" className="green mr-2" />
+                <FontAwesomeIcon icon={faCheckCircle} className="green mr-2" />
                 Thanks for supporting nemp3!
               </h4>
               <p>Your credits will be sent to your payment address shortly.</p>
@@ -106,7 +107,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
               <Button
                 iconClassName={classnames(styles.icon, { [styles.active]: isUpdating })}
                 disabled={isUpdating}
-                icon="circle"
+                icon={faCircle}
                 onClick={async () => {
                   setIsUpdating(true);
                   await fetchTransactions();
@@ -134,7 +135,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       <div className={styles.confirm}>
         <Button
           disabled={isLoading}
-          icon="chevron-left"
+          icon={faChevronLeft}
           onClick={() => setStage(1)}
           size="large"
           tabIndex="0"
@@ -145,7 +146,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
         </Button>
         <Button
           disabled={isLoading}
-          icon="check"
+          icon={faCheck}
           onClick={() => setShowPaymentModal(false)}
           size="large"
           tabIndex="0"

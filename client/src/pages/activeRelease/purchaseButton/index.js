@@ -1,3 +1,4 @@
+import { faCheckCircle, faQrcode } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -14,7 +15,7 @@ const PurchaseButton = ({ inCollection, price, priceError, releaseId }) => {
   return (
     <div className="d-flex justify-content-center">
       <Link to={priceError ? '#' : `/release/${releaseId}/payment`}>
-        <Button className={buttonClassName} disabled={priceError} icon={inCollection ? 'check-circle' : 'qrcode'}>
+        <Button className={buttonClassName} disabled={priceError} icon={inCollection ? faCheckCircle : faQrcode}>
           {priceError ? 'Unavailable' : !price ? 'Name Your Price' : inCollection ? 'Transactions' : 'Purchase'}
         </Button>
       </Link>

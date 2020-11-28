@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
+import { faCog, faSort } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
 import Dropdown from 'components/dropdown';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import styles from './sortReleases.module.css';
 
@@ -53,7 +54,7 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
           className={styles.sortButton}
           closeOnClick
           dropdownClassName={styles.sortList}
-          icon="sort"
+          icon={faSort}
           iconClassName={styles.sortIcon}
           offset={0}
           text={sortOptions.find(option => option.sortPath === sortPath).title}
@@ -74,7 +75,7 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
         >
           {`(${sortOptions.find(option => option.sortPath === sortPath)[sortOrder.toString()]})`}
         </Button>
-        {isSorting ? <FontAwesome name="cog" spin /> : null}
+        {isSorting ? <FontAwesomeIcon icon={faCog} spin /> : null}
       </div>
     </div>
   );

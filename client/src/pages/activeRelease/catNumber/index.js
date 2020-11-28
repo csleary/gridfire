@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import styles from './catNumber.module.css';
 
 const CatNumber = ({ catNumber }) => {
   if (!catNumber) return null;
 
   return (
     <h6>
-      <span className="yellow" title={'Catalogue number'}>
+      <span className={styles.label} title={'Catalogue number'}>
         Cat.:
       </span>{' '}
       {catNumber}

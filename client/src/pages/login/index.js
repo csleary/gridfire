@@ -1,13 +1,16 @@
 import { Field, reduxForm } from 'redux-form';
 import { Link, useHistory } from 'react-router-dom';
 import React, { useEffect } from 'react';
+import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { fetchUser } from 'features/user';
 import styles from './login.module.css';
 
@@ -50,7 +53,7 @@ const Login = props => {
             <Field
               className="form-control"
               component={InputField}
-              icon="envelope-o"
+              icon={faEnvelope}
               id="email"
               label="Email Address:"
               name="email"
@@ -62,7 +65,7 @@ const Login = props => {
             <Field
               className="form-control"
               component={InputField}
-              icon="key"
+              icon={faKey}
               id="password"
               label="Password:"
               name="password"
@@ -87,15 +90,15 @@ const Login = props => {
         <div className={styles.divider}>Or</div>
         <div className={`${styles.oauth} col-md`}>
           <div className={styles.service}>
-            <FontAwesome className={styles.icon} name="spotify" />
+            <FontAwesomeIcon className={styles.icon} icon={faSpotify} />
             <a href="api/auth/spotify/">Log in with Spotify</a>
           </div>
           <div className={styles.service}>
-            <FontAwesome className={styles.icon} name="twitter" />
+            <FontAwesomeIcon className={styles.icon} icon={faTwitter} />
             <a href="api/auth/twitter/">Log in with Twitter</a>
           </div>
           <div className={styles.service}>
-            <FontAwesome className={styles.icon} name="google" />
+            <FontAwesomeIcon className={styles.icon} icon={faGoogle} />
             <a href="api/auth/google/">Log in with Google</a>
           </div>
         </div>

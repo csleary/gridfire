@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import { nanoid } from '@reduxjs/toolkit';
 import styles from './tags.module.css';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
@@ -100,7 +101,7 @@ const Tags = ({ input: { name, value: tags, onChange }, label }) => {
           title={`Click to delete \u2018${tag}\u2019.`}
         >
           {tag}
-          <FontAwesome className={styles.remove} name="times" />
+          <FontAwesomeIcon className={styles.remove} icon={faTimes} />
         </div>
       ))}
     </div>

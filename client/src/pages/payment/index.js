@@ -3,6 +3,7 @@ import PaymentMethods from './paymentMethods';
 import Payments from './payments';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import styles from './payment.module.css';
 import { toastError } from 'features/toast';
 import { useApi } from 'hooks/useApi';
@@ -28,7 +29,7 @@ const Payment = props => {
     <>
       <Button
         className={styles.back}
-        icon={'chevron-left'}
+        icon={faChevronLeft}
         onClick={() => history.push(`/release/${releaseId}`)}
         size="small"
         textLink

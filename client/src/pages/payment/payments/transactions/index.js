@@ -1,4 +1,5 @@
-import FontAwesome from 'react-fontawesome';
+import { faBomb, faListOl } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Transaction from './transaction';
@@ -10,7 +11,7 @@ const Transactions = ({ transactions, error }) => {
     return (
       <div className={styles.transactions}>
         <div className="alert alert-danger text-center" role="alert">
-          <FontAwesome name="bomb" className="mr-2" />
+          <FontAwesomeIcon icon={faBomb} className="mr-2" />
           Sorry, we encountered an error while checking for transactions. {error}
         </div>
       </div>
@@ -21,12 +22,12 @@ const Transactions = ({ transactions, error }) => {
     return (
       <div className={styles.transactions}>
         <h5 className={styles.heading}>
-          <FontAwesome name="list-ol" className="yellow mr-3" />
+          <FontAwesomeIcon icon={faListOl} className="yellow mr-3" />
           {transactions.length} confirmed transaction
           {transactions.length > 1 ? 's' : null}:
         </h5>
         <div className={styles.grid}>
-          <div className="yellow">#</div>
+          <div className={styles.index}>#</div>
           <div>Payment Date</div>
           <div>Amount</div>
           {transactions.map((tx, index) => (

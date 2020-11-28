@@ -2,6 +2,7 @@ import { Field, FieldArray, formValueSelector, propTypes, reduxForm } from 'redu
 import React, { Component } from 'react';
 import { addNewRelease, deleteRelease, publishStatus, updateRelease } from 'features/releases';
 import { deleteArtwork, uploadArtwork } from 'features/artwork';
+import { faCheck, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import AdvancedFields from './advancedFields';
 import ArtistMenu from './artistMenu';
@@ -146,7 +147,7 @@ class EditRelease extends Component {
     const submitButton = (
       <div className={styles.submit}>
         <Button
-          icon="check"
+          icon={faCheck}
           type="button"
           disabled={invalid || pristine || submitting}
           onClick={this.props.handleSubmit(this.onSubmit)}
@@ -224,7 +225,7 @@ class EditRelease extends Component {
                     type="number"
                   />
                   <Button
-                    icon={this.state.showAdditionalInfo ? 'chevron-circle-up' : 'chevron-circle-down'}
+                    icon={this.state.showAdditionalInfo ? faChevronUp : faChevronDown}
                     onClick={() => this.setState({ showAdditionalInfo: !this.state.showAdditionalInfo })}
                     title="Show more release details."
                     size="small"

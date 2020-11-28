@@ -59,7 +59,7 @@ module.exports = app => {
       res.cookie('creditPricing', creditPricingToken, {
         httpOnly: true,
         maxAge: 1000 * 60 * 10,
-        sameSite: true,
+        sameSite: 'Strict',
         secure: process.env.NODE_ENV === 'production',
         signed: true
       });
@@ -88,7 +88,7 @@ module.exports = app => {
       res.cookie('creditSession', creditSessionToken, {
         httpOnly: true,
         maxAge: 1000 * 60 * 10,
-        sameSite: true,
+        sameSite: 'Strict',
         secure: process.env.NODE_ENV === 'production',
         signed: true
       });

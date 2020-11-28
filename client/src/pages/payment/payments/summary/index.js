@@ -1,4 +1,5 @@
-import FontAwesome from 'react-fontawesome';
+import { faCircle, faServer } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Underpaid from './underPaid';
@@ -29,11 +30,11 @@ const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
       <Underpaid payments={payments} price={price} />
       <div className={styles.refresh}>
         <div className={styles.button}>
-          <FontAwesome name="circle" className={iconClassNames} />
+          <FontAwesomeIcon icon={faCircle} className={iconClassNames} />
           Scan
         </div>
         <div className={styles.node} title="Last used NIS Node">
-          <FontAwesome name="server" className={styles.icon} /> {formattedNodeName}
+          <FontAwesomeIcon icon={faServer} className={styles.icon} /> {formattedNodeName}
         </div>
       </div>
     </button>

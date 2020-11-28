@@ -1,4 +1,6 @@
-import FontAwesome from 'react-fontawesome';
+import { faCog, faPlusCircle, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsUp, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -8,7 +10,7 @@ const AudioDropzoneLabel = props => {
   if (isDragReject && !isUploading) {
     return (
       <>
-        <FontAwesome name="times-circle" className="mr-2" />
+        <FontAwesomeIcon icon={faTimesCircle} className="mr-2" />
         File not accepted!
       </>
     );
@@ -17,7 +19,7 @@ const AudioDropzoneLabel = props => {
   if (isDragActive && !isUploading) {
     return (
       <>
-        <FontAwesome name="thumbs-o-up" className="mr-2" />
+        <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
         Drop it in!
       </>
     );
@@ -26,7 +28,7 @@ const AudioDropzoneLabel = props => {
   if (isUploading) {
     return (
       <>
-        <FontAwesome name="cog" spin className="mr-2" />
+        <FontAwesomeIcon icon={faCog} spin className="mr-2" />
         {audioUploadProgress?.toString(10).padStart(2, '0')}%
       </>
     );
@@ -35,7 +37,7 @@ const AudioDropzoneLabel = props => {
   if (isEncoding) {
     return (
       <>
-        <FontAwesome name="cog" spin className="mr-2" />
+        <FontAwesomeIcon icon={faCog} spin className="mr-2" />
         Encoding
       </>
     );
@@ -44,7 +46,7 @@ const AudioDropzoneLabel = props => {
   if (isTranscoding) {
     return (
       <>
-        <FontAwesome name="cog" spin className="mr-2" />
+        <FontAwesomeIcon icon={faCog} spin className="mr-2" />
         Transcoding
       </>
     );
@@ -53,7 +55,7 @@ const AudioDropzoneLabel = props => {
   if (isStored) {
     return (
       <>
-        <FontAwesome name="refresh" className="mr-2" />
+        <FontAwesomeIcon icon={faSyncAlt} className="mr-2" />
         Replace Audio
       </>
     );
@@ -61,7 +63,7 @@ const AudioDropzoneLabel = props => {
 
   return (
     <>
-      <FontAwesome name="plus-circle" className="mr-2" />
+      <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
       Add Audio
     </>
   );

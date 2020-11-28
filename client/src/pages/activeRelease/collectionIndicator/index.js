@@ -1,7 +1,8 @@
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import styles from './collectionIndicator.module.css';
 
 const CollectionIndicator = ({ inCollection }) => {
@@ -11,7 +12,7 @@ const CollectionIndicator = ({ inCollection }) => {
     <>
       <Link to={'/dashboard/collection'}>
         <div className={styles.collection} />
-        <FontAwesome className={styles.check} name="check" title="This release is in your collection." />
+        <FontAwesomeIcon className={styles.check} icon={faCheck} title="This release is in your collection." />
       </Link>
     </>
   );

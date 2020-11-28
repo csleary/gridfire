@@ -6,7 +6,7 @@ const CLine = ({ cLine }) => {
   if (!cLine) return null;
 
   return (
-    <div className={`${styles.copyright} yellow`}>
+    <div className={styles.copyright}>
       &copy; {cLine.year} {cLine.owner}
     </div>
   );

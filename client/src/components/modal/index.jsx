@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { animated, useTransition } from 'react-spring';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import styles from './modal.module.css';
 
 const Modal = props => {
@@ -89,9 +90,9 @@ const Modal = props => {
             >
               {props.children}
               {showClose ? (
-                <FontAwesome
+                <FontAwesomeIcon
                   className={styles.closeIcon}
-                  name="times"
+                  icon={faTimes}
                   onClick={handleClick}
                   onKeyDown={handleCloseIconKeyDown}
                   tabIndex="0"

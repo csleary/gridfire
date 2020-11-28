@@ -1,3 +1,9 @@
+.icon {
+  color: var(--light-grey);
+  margin-bottom: 0.5rem;
+  margin-top: 1.5rem;
+}
+
 .info {
   white-space: pre-line;
 }

@@ -1,5 +1,14 @@
+import {
+  faArchive,
+  faCheckCircle,
+  faExclamationCircle,
+  faHeadphonesAlt,
+  faHeart,
+  faKey,
+  faMagic
+} from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -13,13 +22,13 @@ const DashNav = () => {
     <>
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard/artists'}>
-          <FontAwesome name="archive" className={styles.icon} />
+          <FontAwesomeIcon icon={faArchive} className={styles.icon} />
           Artists
         </NavLink>
       </li>
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard'}>
-          <FontAwesome name="headphones" className={styles.icon} />
+          <FontAwesomeIcon icon={faHeadphonesAlt} className={styles.icon} />
           Releases
         </NavLink>
       </li>
@@ -30,8 +39,8 @@ const DashNav = () => {
       ></li>
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard/nem-address'}>
-          <FontAwesome
-            name={user.nemAddress ? 'check-circle' : 'exclamation-circle'}
+          <FontAwesomeIcon
+            icon={user.nemAddress ? faCheckCircle : faExclamationCircle}
             className={classnames(styles.icon, { [styles.error]: !user.nemAddress })}
           />
           Payment
@@ -40,26 +49,26 @@ const DashNav = () => {
       {user.auth.isLocal ? (
         <li>
           <NavLink className={styles.link} strict exact to={'/dashboard/password-update'}>
-            <FontAwesome name="key" className={styles.icon} />
+            <FontAwesomeIcon icon={faKey} className={styles.icon} />
             Password
           </NavLink>
         </li>
       ) : null}
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard/collection'}>
-          <FontAwesome name="archive" className={styles.icon} />
+          <FontAwesomeIcon icon={faArchive} className={styles.icon} />
           Collection
         </NavLink>
       </li>
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard/favourites'}>
-          <FontAwesome name="heart" className={styles.icon} />
+          <FontAwesomeIcon icon={faHeart} className={styles.icon} />
           Faves
         </NavLink>
       </li>
       <li>
         <NavLink className={styles.link} strict exact to={'/dashboard/wish-list'}>
-          <FontAwesome name="magic" className={styles.icon} />
+          <FontAwesomeIcon icon={faMagic} className={styles.icon} />
           List
         </NavLink>
       </li>

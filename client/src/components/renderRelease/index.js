@@ -1,7 +1,8 @@
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { faInfoCircle, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { playTrack, playerPause, playerPlay } from 'features/player';
 import { CLOUD_URL } from 'index';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import OverlayDownloadButton from './overlayDownloadButton';
 import PropTypes from 'prop-types';
@@ -79,14 +80,17 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
             onClick={handlePlayTrack}
             title={`Play '${releaseTitle}', by ${artistName}`}
           >
-            <FontAwesome className={styles.icon} name={isPlaying && releaseId === playerReleaseId ? 'pause' : 'play'} />
+            <FontAwesomeIcon
+              className={styles.icon}
+              icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
+            />
           </button>
           <Link
             className={styles.button}
             title={`More information on '${releaseTitle}', by ${artistName}`}
             to={`/release/${releaseId}`}
           >
-            <FontAwesome className={`${styles.icon} info m-auto`} name="info-circle" />
+            <FontAwesomeIcon className={`${styles.icon} info m-auto`} icon={faInfoCircle} />
           </Link>
           {type === 'collection' ? (
             <>

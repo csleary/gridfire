@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { animated, useTransition } from 'react-spring';
+import { faAndroid, faApple } from '@fortawesome/free-brands-svg-icons';
+import {
+  faChevronLeft,
+  faChevronRight,
+  faExclamationTriangle,
+  faExternalLinkAlt
+} from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import QRCode from 'components/qrCode';
 import ReadOnlyTextArea from 'components/readOnlyTextArea';
@@ -74,7 +81,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                     title="View this address on an explorer."
                   >
                     Payment address
-                    <FontAwesome className={styles.icon} name="external-link" />
+                    <FontAwesomeIcon className={styles.icon} icon={faExternalLinkAlt} />
                   </a>
                 }
                 tabIndex="0"
@@ -89,7 +96,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
                   <>
                     Payment message
                     <span className={styles.important}>
-                      <FontAwesome className={styles.icon} name="exclamation-triangle" />
+                      <FontAwesomeIcon className={styles.icon} icon={faExclamationTriangle} />
                       Important!
                     </span>
                   </>
@@ -118,11 +125,11 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
               <p className="text-center">
                 Scan to pay on{' '}
                 <a className="mr-2" href="https://itunes.apple.com/us/app/nem-wallet/id1227112677" tabIndex="0">
-                  <FontAwesome name="apple" className="mr-1" />
+                  <FontAwesomeIcon icon={faApple} className="mr-1" />
                   iOS
                 </a>
                 <a href="https://play.google.com/store/apps/details?id=org.nem.nac.mainnet&hl=en" tabIndex="0">
-                  or <FontAwesome name="android" className="mr-1" />
+                  or <FontAwesomeIcon icon={faAndroid} className="mr-1" />
                   Android
                 </a>
               </p>
@@ -140,7 +147,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
       <div className={styles.confirm}>
         <Button
           disabled={isLoading}
-          icon="chevron-left"
+          icon={faChevronLeft}
           onClick={() => setStage(1)}
           size="large"
           tabIndex="0"
@@ -150,7 +157,7 @@ const CreditsPayment = ({ paymentData, productData, sku, setPaymentData, setStag
         </Button>
         <Button
           disabled={isLoading}
-          icon="chevron-right"
+          icon={faChevronRight}
           iconRight
           onClick={() => setStage(3)}
           size="large"

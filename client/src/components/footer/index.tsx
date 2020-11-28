@@ -1,8 +1,9 @@
 import { shallowEqual, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { RootState } from 'index';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 import styles from './footer.module.css';
 
 const today = new Date();
@@ -29,7 +30,7 @@ const Footer = () => {
             <li>
               <a href="https://nem.io/" title="Visit the official NEM site.">
                 NEM
-                <FontAwesome name="external-link" className={styles.icon} />
+                <FontAwesomeIcon icon={faExternalLinkAlt} className={styles.icon} />
               </a>
             </li>
           </ul>

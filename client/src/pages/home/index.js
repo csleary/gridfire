@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import RenderRelease from 'components/renderRelease';
 import SortReleases from './sortReleases';
 import Spinner from 'components/spinner';
+import { faSync } from '@fortawesome/free-solid-svg-icons';
 import { fetchCatalogue } from 'features/releases';
 import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
@@ -86,7 +87,7 @@ const Home = ({ match }) => {
             <Button
               className={styles.button}
               disabled={isFetching || reachedEndOfCat}
-              icon={reachedEndOfCat ? null : 'refresh'}
+              icon={reachedEndOfCat ? null : faSync}
               onClick={() => handleFetchCatalogue(sortPath, sortOrder, true)}
               size="small"
               spin={isFetching}

@@ -1,5 +1,6 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useRef } from 'react';
+import { faComment, faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { Helmet } from 'react-helmet';
@@ -7,6 +8,7 @@ import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch } from 'react-redux';
 
 const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
@@ -41,7 +43,7 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
             <div className="col-md-6 mx-auto">
               <Field
                 component={InputField}
-                icon="envelope-o"
+                icon={faEnvelope}
                 id="email"
                 label="Email Address:"
                 name="email"
@@ -51,7 +53,7 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
               />
               <Field
                 component={InputField}
-                icon="commenting"
+                icon={faComment}
                 id="message"
                 label="Your Message:"
                 name="message"
@@ -70,7 +72,7 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
                 }}
               />
               <div className="d-flex justify-content-end">
-                <Button className="my-3" icon={'check'} type="submit" disabled={invalid || pristine || submitting}>
+                <Button className="my-3" icon={faCheck} type="submit" disabled={invalid || pristine || submitting}>
                   Send Message
                 </Button>
               </div>

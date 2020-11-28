@@ -1,12 +1,14 @@
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { faCalendar } from '@fortawesome/free-regular-svg-icons';
 import moment from 'moment';
+import styles from './releaseDate.module.css';
 
 const ReleaseDate = ({ releaseDate }) => {
   return (
     <h6>
-      <FontAwesome name="calendar-o" className="mr-2 yellow" title="Release date" />
+      <FontAwesomeIcon icon={faCalendar} className={styles.icon} title="Release date" />
       {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
     </h6>
   );

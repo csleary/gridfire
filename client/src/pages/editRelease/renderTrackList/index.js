@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { addTrack, deleteTrack, moveTrack } from 'features/tracks';
+import { faCog, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import PropTypes from 'prop-types';
@@ -93,7 +94,7 @@ function RenderTrackList(props) {
       </ul>
       <Button
         disabled={addingTrack}
-        icon={addingTrack ? 'circle-o-notch' : 'plus-circle'}
+        icon={addingTrack ? faCog : faPlusCircle}
         onClick={handleAddTrack}
         title="Add Track"
         size="small"

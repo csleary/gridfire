@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { faArrowDown, faArrowUp, faCog, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faFileArchive, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import { Field } from 'redux-form';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ProgressBar from 'pages/editRelease/progressBar';
 import PropTypes from 'prop-types';
 import RenderTrackInput from 'pages/editRelease/renderTrackInput';
@@ -79,25 +81,25 @@ const RenderTrack = props => {
       <div className={styles.wrapper}>
         {hasError ? (
           <span className={styles.statusError}>
-            <FontAwesome name="exclamation-triangle" className={styles.iconStatus} />
+            <FontAwesomeIcon icon={faExclamationTriangle} className={styles.iconStatus} />
             An error occurred processing audio for this track. Please either re-upload or delete this track.
           </span>
         ) : null}
         {isUploading ? (
           <span className={styles.status}>
-            <FontAwesome name="cog" spin className={styles.iconStatus} />
+            <FontAwesomeIcon icon={faCog} spin className={styles.iconStatus} />
             Uploading…
           </span>
         ) : null}
         {isTranscoding ? (
           <span className={styles.status}>
-            <FontAwesome name="cog" spin className={styles.iconStatus} />
+            <FontAwesomeIcon icon={faCog} spin className={styles.iconStatus} />
             Transcoding…
           </span>
         ) : null}
         {isEncoding ? (
           <span className={styles.status}>
-            <FontAwesome name="file-archive-o" className={styles.iconStatus} />
+            <FontAwesomeIcon icon={faFileArchive} className={styles.iconStatus} />
             Encoding…
           </span>
         ) : null}
@@ -105,7 +107,7 @@ const RenderTrack = props => {
           <Button
             className={styles.button}
             disabled={Boolean(isMoving)}
-            icon="arrow-down"
+            icon={faArrowDown}
             iconClassName={styles.icon}
             onClick={() => handleMoveTrack(fields.swap, releaseId, index, 1)}
             size="small"
@@ -119,7 +121,7 @@ const RenderTrack = props => {
           <Button
             className={styles.button}
             disabled={Boolean(isMoving)}
-            icon="arrow-up"
+            icon={faArrowUp}
             iconClassName={styles.icon}
             onClick={() => handleMoveTrack(fields.swap, releaseId, index, -1)}
             size="small"
@@ -132,7 +134,7 @@ const RenderTrack = props => {
         <Button
           className={deleteButtonClassNames}
           disabled={isDeleting}
-          icon={isDeleting ? 'circle-o-notch' : 'trash'}
+          icon={isDeleting ? faCog : faTrashAlt}
           iconClassName={styles.deleteIcon}
           onClick={() => handleDeleteTrack(fields.remove, trackId, index, trackTitle)}
           size="small"

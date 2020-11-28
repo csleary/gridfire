@@ -1,9 +1,10 @@
 import 'lazysizes';
 import 'lazysizes/plugins/attrchange/ls.attrchange';
+import { faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { playTrack, playerPause, playerPlay } from 'features/player';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { CLOUD_URL } from 'index';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import placeholder from 'placeholder.svg';
 import styles from './artwork.module.css';
@@ -51,9 +52,9 @@ const Artwork = () => {
         title={`${artistName} - ${releaseTitle}`}
       >
         {isPlaying && releaseId === playerReleaseId ? (
-          <FontAwesome className="" name="pause" />
+          <FontAwesomeIcon className="" icon={faPause} />
         ) : (
-          <FontAwesome className={styles.play} name="play" />
+          <FontAwesomeIcon className={styles.play} icon={faPlay} />
         )}
       </div>
     </div>

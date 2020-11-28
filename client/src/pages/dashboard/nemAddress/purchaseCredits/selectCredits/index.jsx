@@ -4,6 +4,7 @@ import React from 'react';
 import Spinner from 'components/spinner';
 import classnames from 'classnames';
 import styles from './selectCredits.module.css';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, setShowPaymentModal }) => {
   const selectedProduct = productData.find(product => product.sku === sku) || {};
@@ -64,7 +65,7 @@ const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, set
         </Button>
         <Button
           disabled={isLoading}
-          icon="chevron-right"
+          icon={faChevronRight}
           iconRight
           onClick={() => setStage(2)}
           size="large"

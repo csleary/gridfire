@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import Spinner from 'components/spinner';
 import UserRelease from './userRelease';
 import axios from 'axios';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from './userReleases.module.css';
 
 function UserReleases() {
@@ -70,7 +71,7 @@ function UserReleases() {
             </p>
             <div className="d-flex justify-content-center">
               <Link title="Add Release" role="button" to={'/release/add/'}>
-                <Button className={styles.addRelease} icon="plus-circle" style={{ marginTop: '2rem' }}>
+                <Button className={styles.addRelease} icon={faPlusCircle} style={{ marginTop: '2rem' }}>
                   Add Release
                 </Button>
               </Link>
@@ -91,7 +92,7 @@ function UserReleases() {
           </h3>
           <ul className={styles.releases}>{renderUserReleases()}</ul>
           <Link title="Add Release" role="button" to={'/release/add/'}>
-            <Button className={styles.addRelease} icon="plus-circle">
+            <Button className={styles.addRelease} icon={faPlusCircle}>
               Add Release
             </Button>
           </Link>

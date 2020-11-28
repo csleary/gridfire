@@ -1,4 +1,4 @@
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import classnames from 'classnames';
 import styles from './inputField.module.css';
@@ -23,7 +23,7 @@ const InputField = field => {
   return (
     <div className="form-group">
       <label htmlFor={id}>
-        <FontAwesome name={icon} className={iconClassNames} />
+        <FontAwesomeIcon icon={icon} className={iconClassNames} />
         {label}
       </label>
       {type === 'textarea' ? (

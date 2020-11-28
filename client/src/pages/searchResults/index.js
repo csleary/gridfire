@@ -4,6 +4,7 @@ import React from 'react';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { clearResults } from 'features/search';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { frontPage } from 'pages/home/home.module.css';
 import styles from './searchResults.module.css';
 
@@ -24,7 +25,7 @@ const SearchResults = () => {
           </h3>
           <div className={frontPage}>{renderReleases}</div>
           {resultsNum ? (
-            <Button className={styles.clear} icon="times" onClick={() => dispatch(clearResults())} size="small">
+            <Button className={styles.clear} icon={faTimes} onClick={() => dispatch(clearResults())} size="small">
               Clear
             </Button>
           ) : null}

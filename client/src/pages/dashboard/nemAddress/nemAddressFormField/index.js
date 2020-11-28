@@ -1,4 +1,5 @@
-import FontAwesome from 'react-fontawesome';
+import { faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
@@ -34,24 +35,18 @@ const NemAddressFormField = ({
   const renderAddressStatus = () => {
     if (nemAddress && !nemAddressVerified) {
       return (
-        <span
-          className={styles.unconfirmed}
-          title="Please sign a message to verify your address."
-        >
+        <span className={styles.unconfirmed} title="Please sign a message to verify your address.">
           Unverified
-          <FontAwesome name="exclamation-circle" className="ml-2" />
+          <FontAwesomeIcon icon={faExclamationCircle} className="ml-2" />
         </span>
       );
     }
 
     if (nemAddress && nemAddressVerified) {
       return (
-        <span
-          className={styles.confirmed}
-          title="Thank you for verifying your address."
-        >
+        <span className={styles.confirmed} title="Thank you for verifying your address.">
           Verified
-          <FontAwesome name="check-circle" className="ml-2" />
+          <FontAwesomeIcon icon={faCheckCircle} className="ml-2" />
         </span>
       );
     }
@@ -61,17 +56,11 @@ const NemAddressFormField = ({
     <div className={formGroupClassNames}>
       <label htmlFor={id}>{label}</label>
       {id === 'nemAddress' && renderAddressStatus()}
-      <FormInputs
-        {...input}
-        className={inputClassNames}
-        id={id}
-        placeholder={placeholder}
-        type={type}
-      />
+      <FormInputs {...input} className={inputClassNames} id={id} placeholder={placeholder} type={type} />
       <small className="form-text text-muted">{hint}</small>
       {touched && error && (
         <div className="invalid-feedback">
-          <FontAwesome name="exclamation-circle" className="mr-2" />
+          <FontAwesomeIcon icon={faExclamationCircle} className="mr-2" />
           {error}
         </div>
       )}

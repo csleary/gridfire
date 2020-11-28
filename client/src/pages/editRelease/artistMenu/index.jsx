@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Dropdown from 'components/dropdown';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { fetchArtists } from 'features/artists';
 import styles from './artistMenu.module.css';
 
@@ -55,7 +56,7 @@ const ArtistMenu = field => {
         ))}
         <li className={styles.create} key={'create'}>
           <button className={styles.artist} onClick={() => setShowNewArtist(true)}>
-            <FontAwesome name="plus-circle" className="mr-2" />
+            <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
             Create new artist…
           </button>
         </li>

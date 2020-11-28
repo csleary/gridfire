@@ -1,8 +1,9 @@
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { clearResults, searchReleases } from 'features/search';
+import { faCog, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import debounce from 'lodash.debounce';
 import styles from './searchBar.module.css';
@@ -130,21 +131,21 @@ const SearchBar = () => {
         >
           <ul className={styles.list}>{renderResults()}</ul>
         </div>
-        <FontAwesome
+        <FontAwesomeIcon
           className={styles.icon}
           onClick={handleSearchFocus}
           onMouseDown={e => e.preventDefault()}
           onMouseUp={handleSearchFocus}
           onTouchStart={handleSearchFocus}
-          name="search"
+          icon={faSearch}
           title="Search all available releases."
         />
-        <FontAwesome
+        <FontAwesomeIcon
           className={clearSearchClassNames}
           onClick={handleClearSearch}
           onMouseDown={e => e.preventDefault()}
           onMouseUp={handleClearSearch}
-          name={isSearching ? 'circle-o-notch' : 'times'}
+          icon={isSearching ? faCog : faTimes}
           spin={isSearching}
         />
         <input

@@ -1,12 +1,14 @@
 import { Field, reduxForm } from 'redux-form';
 import React, { useRef, useState } from 'react';
+import { faEnvelope, faThumbsUp } from '@fortawesome/free-regular-svg-icons';
 import Button from 'components/button';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Helmet } from 'react-helmet';
 import InputField from 'components/inputField';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
+import { faBomb } from '@fortawesome/free-solid-svg-icons';
 import styles from './forgotPassword.module.css';
 
 const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
@@ -43,7 +45,7 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
             <div className="col-md-6 mx-auto">
               <Field
                 component={InputField}
-                icon="envelope-o"
+                icon={faEnvelope}
                 id="email"
                 label="Email Address:"
                 name="email"
@@ -54,8 +56,8 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
               />
               {response ? (
                 <div className={`alert ${className} text-center`} role="alert">
-                  {response.success ? <FontAwesome name="thumbs-up" className="mr-2" /> : null}
-                  {response.error ? <FontAwesome name="bomb" className="mr-2" /> : null}
+                  {response.success ? <FontAwesomeIcon icon={faThumbsUp} className="mr-2" /> : null}
+                  {response.error ? <FontAwesomeIcon icon={faBomb} className="mr-2" /> : null}
                   {response.success || response.error}
                 </div>
               ) : null}

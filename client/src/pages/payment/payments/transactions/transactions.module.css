@@ -13,3 +13,7 @@
   border-bottom: 1px solid hsla(233, 10%, 20%, 1);
   padding-bottom: 0.625rem;
 }
+
+.index {
+  color: var(--lighter-grey);
+}

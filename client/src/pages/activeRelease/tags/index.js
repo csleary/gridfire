@@ -1,6 +1,8 @@
 import { animated, config, useTrail } from 'react-spring';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
+import { faTags } from '@fortawesome/free-solid-svg-icons';
 import { nanoid } from '@reduxjs/toolkit';
 import { searchReleases } from 'features/search';
 import styles from './tags.module.css';
@@ -24,7 +26,7 @@ const Tags = () => {
 
   return (
     <>
-      <h6 className={styles.title}>Tags</h6>
+      <FontAwesomeIcon className={styles.icon} icon={faTags} />
       <div className={styles.tags}>
         {trail.map((style, index) => {
           const tag = tags[index];

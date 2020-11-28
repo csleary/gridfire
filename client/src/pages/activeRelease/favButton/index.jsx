@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { addToFavourites, removeFromFavourites } from 'features/user';
+import { faCog, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
+import { faHeart as heartOutline } from '@fortawesome/free-regular-svg-icons';
 import styles from './favButton.module.css';
 import { toastInfo } from 'features/toast';
 
@@ -30,7 +32,11 @@ const FavButton = () => {
       }}
       title="Save to favourites."
     >
-      <FontAwesome className={iconClassName} name={loading ? 'cog' : isInFaves ? 'heart' : 'heart-o'} spin={loading} />
+      <FontAwesomeIcon
+        className={iconClassName}
+        icon={loading ? faCog : isInFaves ? faHeart : heartOutline}
+        spin={loading}
+      />
       Fave
     </button>
   );
