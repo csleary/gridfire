@@ -1,8 +1,8 @@
-.credits {
-  white-space: pre-line;
-}
-
 .label {
   color: var(--lighter-grey);
   margin-top: 1.5rem;
+}
+
+.credits {
+  white-space: pre-line;
 }

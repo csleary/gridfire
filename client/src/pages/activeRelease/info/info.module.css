@@ -1,6 +1,5 @@
-.icon {
-  color: var(--light-grey);
-  margin-bottom: 0.5rem;
+.label {
+  color: var(--lighter-grey);
   margin-top: 1.5rem;
 }
 

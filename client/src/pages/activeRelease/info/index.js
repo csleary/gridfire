@@ -1,7 +1,5 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from './info.module.css';
 
 const Info = ({ info }) => {
@@ -9,7 +7,7 @@ const Info = ({ info }) => {
 
   return (
     <>
-      <FontAwesomeIcon className={styles.icon} icon={faInfoCircle} />
+      <h6 className={styles.label}>Info</h6>
       <p className={styles.info}>{info}</p>
     </>
   );

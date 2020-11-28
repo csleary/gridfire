@@ -39,7 +39,8 @@ function UserReleases() {
   const renderUserReleases = () =>
     userReleases.map(release => {
       const releaseId = release._id;
-      const numSold = salesData.find(({ _id }) => _id === releaseId)?.sum;
+      const numSold = salesData.find(({ _id }) => _id === releaseId)?.sum ?? 0;
+
       return (
         <UserRelease
           key={releaseId}
