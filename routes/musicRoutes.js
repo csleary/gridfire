@@ -75,7 +75,7 @@ module.exports = app => {
                 $expr: { $and: [{ $eq: ['$artist', '$$artistId'] }, { $eq: ['$published', true] }] }
               }
             },
-            { $sort: { releaseDate: 1 } }
+            { $sort: { releaseDate: -1 } }
           ],
           as: 'releases'
         }
