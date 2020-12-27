@@ -68,70 +68,65 @@ function UserRelease({ favs, numSold, plays, release }) {
         <div className={styles.columns}>
           <div className={styles.details}>
             <h6>
-              <FontAwesomeIcon icon={faCircle} className={classnames(styles.price, { [styles.green]: price > 0 })} />
+              <FontAwesomeIcon className={classnames(styles.price, { [styles.green]: price > 0 })} icon={faCircle} />
               {price > 0 ? `$${price} USD` : 'Name your price'}
             </h6>
             <h6>
               <FontAwesomeIcon
-                icon={faCircle}
                 className={classnames(styles.releaseDate, { [styles.yellow]: new Date(releaseDate) - Date.now() > 0 })}
+                icon={faCircle}
               />
               {moment(new Date(releaseDate)).format('Do of MMM, YYYY')}
             </h6>
             <h6>
-              <FontAwesomeIcon icon={faCircle} className={classnames(styles.audio, { [styles.green]: hasAudio })} />
+              <FontAwesomeIcon className={classnames(styles.audio, { [styles.green]: hasAudio })} icon={faCircle} />
               {trackList.length} Track{trackList.length === 1 ? '' : 's'}
               {trackList.length && !hasAudio ? ' (incomplete)' : null}
             </h6>
             <h6>
               <FontAwesomeIcon
-                icon={faCircle}
                 className={classnames(styles.sales, { [styles.green]: numSold })}
+                icon={faCircle}
                 title="Number of copies sold."
               />
-              {`${numSold} Sold`}
+              {numSold} Sold
             </h6>
           </div>
           <div className={styles.stats}>
             <h6 title="Total plays for this release.">
               {plays}
               <FontAwesomeIcon
+                className={classnames(styles.plays, { [styles.green]: plays > 0 })}
                 fixedWidth
                 icon={faPlay}
-                className={classnames(styles.plays, { [styles.green]: plays > 0 })}
               />
             </h6>
             <h6 title="Total favourites for this release.">
               {favs}
               <FontAwesomeIcon
+                className={classnames(styles.favs, { [styles.red]: favs > 0 })}
                 fixedWidth
                 icon={faHeart}
-                className={classnames(styles.favs, { [styles.red]: favs > 0 })}
               />
             </h6>
           </div>
         </div>
         <div className={styles.buttons}>
           <button onClick={() => history.push(`/release/${releaseId}/edit`)} className={styles.button}>
-            <FontAwesomeIcon icon={faPencilAlt} className="mr-2" />
+            <FontAwesomeIcon className="mr-2" icon={faPencilAlt} />
             Edit
           </button>
           <button
+            className={classnames(styles.publishButton, { [styles.unpublished]: !published })}
             disabled={isPublishingRelease}
             onClick={handlePublishStatus}
-            className={classnames(styles.publishButton, { [styles.unpublished]: !published })}
           >
-            {published ? (
-              <>
-                <FontAwesomeIcon icon={faEyeSlash} className="mr-2" />
-                Unpublish
-              </>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faEye} className="mr-2" />
-                Publish
-              </>
-            )}
+            <FontAwesomeIcon
+              className="mr-2"
+              icon={isPublishingRelease ? faCog : published ? faEyeSlash : faEye}
+              spin={isPublishingRelease}
+            />
+            {published ? 'Unpublish' : 'Publish'}
           </button>
           <button
             className={classnames(styles.deleteButton, { [styles.deleting]: isDeletingRelease })}

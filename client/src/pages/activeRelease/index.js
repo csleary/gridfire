@@ -21,7 +21,7 @@ import ReleaseDate from './releaseDate';
 import Tags from './tags';
 import TrackList from './trackList';
 import WishListButton from './wishListButton';
-import classNames from 'classnames';
+import classnames from 'classnames';
 import { fetchUser } from 'features/user';
 import { fetchXemPrice } from 'features/nem';
 import styles from 'pages/activeRelease/activeRelease.module.css';
@@ -31,9 +31,9 @@ const ActiveRelease = () => {
   const { releaseId } = useParams();
   const trailRef = useRef();
   const { path } = useRouteMatch();
-  const { purchases } = useSelector(state => state.user, shallowEqual);
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
+  const { purchases } = useSelector(state => state.user, shallowEqual);
   const isInCollection = purchases.some(sale => sale.release === releaseId);
 
   const {
@@ -51,7 +51,7 @@ const ActiveRelease = () => {
     trackList
   } = release;
 
-  const trackListClassName = classNames({ [styles.columns]: trackList?.length > 10 });
+  const trackListClassName = classnames({ [styles.columns]: trackList?.length > 10 });
 
   useEffect(() => {
     if (releaseId !== release._id) dispatch(setIsLoading(true));
@@ -63,20 +63,20 @@ const ActiveRelease = () => {
   }, [dispatch, release._id, releaseId]);
 
   return (
-    <main className="container d-flex align-items-center">
+    <main className={classnames(styles.root, 'container')}>
       <Helmet>
         <title>{isLoading ? 'Loading…' : `${releaseTitle} | ${artistName}`}</title>
         <meta name="description" content={`Listen to \u2018${releaseTitle}\u2019 by ${artistName}.`} />
       </Helmet>
-      <div className={`${styles.release} row`}>
-        <div className={`${styles.col} col-md-6`}>
+      <div className={classnames(styles.release, 'row')}>
+        <div className={classnames(styles.col, 'col-md-6')}>
           <Artwork />
           <div className={styles.buttons}>
             <FavButton />
             <WishListButton />
           </div>
         </div>
-        <div className={`${styles.info} col-md-6`}>
+        <div className={classnames(styles.info, 'col-md-6')}>
           <CollectionIndicator inCollection={isInCollection} />
           <h2 className={styles.title}>{releaseTitle}</h2>
           <h4 className={styles.name}>

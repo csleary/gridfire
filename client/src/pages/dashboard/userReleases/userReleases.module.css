@@ -10,6 +10,11 @@
   padding: 0;
 }
 
+.wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 @media (min-width: 576px) {
   .releases {
     grid-template-columns: repeat(2, 1fr);

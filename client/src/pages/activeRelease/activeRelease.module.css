@@ -1,3 +1,8 @@
+.root {
+  align-items: center;
+  display: flex;
+}
+
 .columns {
   columns: 2 16rem;
 }

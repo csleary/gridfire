@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { fetchUserReleases, fetchUserReleasesFavCounts, fetchUserReleasesPlayCounts } from 'features/releases';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import { Link } from 'react-router-dom';
 import Spinner from 'components/spinner';
@@ -14,6 +14,7 @@ function UserReleases() {
   const { userReleases, favCounts, playCounts } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const [salesData, setSalesData] = useState([]);
+  const offlineCount = userReleases.filter(release => release.published === false).length;
 
   useEffect(() => {
     axios.get('/api/sales').then(res => setSalesData(res.data));
@@ -21,36 +22,19 @@ function UserReleases() {
 
   useEffect(() => {
     if (!userReleases.length) setLoading(true);
+  }, [userReleases.length]);
+
+  useEffect(() => {
     dispatch(fetchUserReleases()).then(() => setLoading(false));
-  }, [dispatch, userReleases.length]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!userReleases.length) return;
-    dispatch(fetchUserReleasesFavCounts());
-    dispatch(fetchUserReleasesPlayCounts());
-  }, [dispatch, userReleases.length]);
-
-  const releasesOffline = () => {
-    if (!userReleases) return;
-    const offline = userReleases.filter(release => release.published === false);
-    return offline.length;
-  };
-
-  const renderUserReleases = () =>
-    userReleases.map(release => {
-      const releaseId = release._id;
-      const numSold = salesData.find(({ _id }) => _id === releaseId)?.sum ?? 0;
-
-      return (
-        <UserRelease
-          key={releaseId}
-          numSold={numSold}
-          release={release}
-          favs={favCounts[releaseId]}
-          plays={playCounts[releaseId]}
-        />
-      );
+    batch(() => {
+      dispatch(fetchUserReleasesFavCounts());
+      dispatch(fetchUserReleasesPlayCounts());
     });
+  }, [dispatch, userReleases.length]);
 
   if (isLoading) {
     return (
@@ -70,7 +54,7 @@ function UserReleases() {
               You don&rsquo;t currently have any releases for sale. Please hit the button below to add your first
               release.
             </p>
-            <div className="d-flex justify-content-center">
+            <div className={styles.wrapper}>
               <Link title="Add Release" role="button" to={'/release/add/'}>
                 <Button className={styles.addRelease} icon={faPlusCircle} style={{ marginTop: '2rem' }}>
                   Add Release
@@ -89,9 +73,24 @@ function UserReleases() {
         <div className="col py-3">
           <h3 className="text-center">
             You have {userReleases.length} release
-            {userReleases.length > 1 ? 's' : ''} {releasesOffline() ? ` (${releasesOffline()} offline)` : null}
+            {userReleases.length > 1 ? 's' : ''} {offlineCount ? ` (${offlineCount} offline)` : null}
           </h3>
-          <ul className={styles.releases}>{renderUserReleases()}</ul>
+          <ul className={styles.releases}>
+            {userReleases.map(release => {
+              const releaseId = release._id;
+              const numSold = salesData.find(({ _id }) => _id === releaseId)?.sum ?? 0;
+
+              return (
+                <UserRelease
+                  key={releaseId}
+                  numSold={numSold}
+                  release={release}
+                  favs={favCounts[releaseId]}
+                  plays={playCounts[releaseId]}
+                />
+              );
+            })}
+          </ul>
           <Link title="Add Release" role="button" to={'/release/add/'}>
             <Button className={styles.addRelease} icon={faPlusCircle}>
               Add Release

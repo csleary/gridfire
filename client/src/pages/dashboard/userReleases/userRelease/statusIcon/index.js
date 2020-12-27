@@ -9,7 +9,7 @@ const StatusIcon = ({ published, releaseTitle }) => {
     <div className={styles.status}>
       <FontAwesomeIcon
         icon={published ? faCheckCircle : faExclamationCircle}
-        className={published ? styles.cyan : styles.yellow}
+        className={published ? styles.green : styles.yellow}
         title={
           published
             ? `'${releaseTitle}' is live and available for purchase.`

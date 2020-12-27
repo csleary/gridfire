@@ -65,23 +65,30 @@ module.exports = app => {
 
     const [catalogue] = await Artist.aggregate([
       { $match: isValidObjectId(artistIdOrSlug) ? { _id: ObjectId(artistIdOrSlug) } : { slug: artistIdOrSlug } },
-      { $lookup: { from: 'releases', localField: '_id', foreignField: 'artist', as: 'releases' } },
+      {
+        $lookup: {
+          from: 'releases',
+          let: { artistId: '$_id', releaseDate: '$releaseDate' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $and: [{ $eq: ['$artist', '$$artistId'] }, { $eq: ['$published', true] }] }
+              }
+            },
+            { $sort: { releaseDate: 1 } }
+          ],
+          as: 'releases'
+        }
+      },
       {
         $project: {
           name: 1,
           slug: 1,
           biography: 1,
           links: 1,
-          releases: {
-            $filter: {
-              input: '$releases',
-              as: 'release',
-              cond: { $eq: ['$$release.published', true] }
-            }
-          }
+          releases: 1
         }
-      },
-      { $sort: { 'releases.releaseDate': -1 } }
+      }
     ]).exec();
 
     res.send(catalogue);
