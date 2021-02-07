@@ -68,7 +68,7 @@ module.exports = app => {
       {
         $lookup: {
           from: 'releases',
-          let: { artistId: '$_id', releaseDate: '$releaseDate' },
+          let: { artistId: '$_id' },
           pipeline: [
             {
               $match: {
