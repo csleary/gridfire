@@ -15,8 +15,8 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id, '-__v -auth.password', { lean: true }).exec();
-  done(null, user);
+  const user = await User.findById(id, '-__v -auth.password').exec();
+  done(null, user.toJSON());
 });
 
 const idHash = emailAddress => {
@@ -67,7 +67,6 @@ const localRegister = async (req, email, password, done) => {
           email,
           password,
           idHash: idHash(email),
-          isLocal: true,
           dateCreated: Date.now(),
           lastLogin: Date.now()
         }
@@ -122,7 +121,6 @@ const loginGoogle = async (accessToken, refreshToken, profile, done) => {
         oauthId: profile.id,
         email,
         idHash: idHash(email),
-        isLocal: false,
         dateCreated: Date.now(),
         lastLogin: Date.now()
       }
@@ -150,7 +148,6 @@ const loginSpotify = async (accessToken, refreshToken, expires_in, profile, done
         oauthId: profile.id,
         email,
         idHash: idHash(email),
-        isLocal: false,
         dateCreated: Date.now(),
         lastLogin: Date.now()
       }
@@ -199,7 +196,6 @@ const loginTwitter = async (token, tokenSecret, profile, done) => {
         oauthId: profile.id,
         email,
         idHash: idHash(email),
-        isLocal: false,
         dateCreated: Date.now(),
         lastLogin: Date.now()
       }

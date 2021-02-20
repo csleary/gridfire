@@ -46,7 +46,7 @@ const DashNav = () => {
           Payment
         </NavLink>
       </li>
-      {user.auth.isLocal ? (
+      {!user.auth.oauthId ? (
         <li>
           <NavLink className={styles.link} strict exact to={'/dashboard/password-update'}>
             <FontAwesomeIcon icon={faKey} className={styles.icon} />

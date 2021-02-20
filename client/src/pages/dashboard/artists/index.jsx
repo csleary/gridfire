@@ -31,8 +31,11 @@ const Artists = () => {
 
   useEffect(() => {
     if (!artists.length) dispatch(setIsLoading(true));
-    dispatch(fetchArtists()).then(() => dispatch(setIsLoading(false)));
   }, [artists.length, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchArtists()).then(() => dispatch(setIsLoading(false)));
+  }, [dispatch]);
 
   const handleChange = e => {
     dispatch(setIsPristine(false));

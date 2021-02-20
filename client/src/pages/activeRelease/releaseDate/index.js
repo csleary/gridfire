@@ -6,6 +6,8 @@ import moment from 'moment';
 import styles from './releaseDate.module.css';
 
 const ReleaseDate = ({ releaseDate }) => {
+  if (!releaseDate) return null;
+
   return (
     <h6>
       <FontAwesomeIcon icon={faCalendar} className={styles.icon} title="Release date" />

@@ -1,6 +1,6 @@
 global.__basedir = __dirname;
 const express = require('express');
-const app = require('express');
+const app = express();
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const keys = require('./config/keys');
@@ -31,23 +31,22 @@ const config = {
   useUnifiedTopology: true
 };
 
-mongoose.connection.on('error', () => {
-  io.emit('error', { message: 'Database connection error.' });
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.error('Mongoose disconnected. Attempting to reconnect in 5 seconds…');
-  setTimeout(connect, 5000, keys.mongoURI, config);
-});
-
 const connect = async () => {
   try {
     await mongoose.connect(keys.mongoURI, config);
-    console.log('Mongoose connected.');
   } catch ({ message }) {
     console.error('Mongoose connection error: %s', message);
   }
 };
+
+const db = mongoose.connection;
+db.once('open', () => console.log('Mongoose connected.'));
+db.on('error', () => io.emit('error', { message: 'Database connection error.' }));
+
+db.on('disconnected', () => {
+  console.error('Mongoose disconnected. Attempting to reconnect in 5 seconds…');
+  setTimeout(connect, 5000, keys.mongoURI, config);
+});
 
 connect();
 app.use(express.json());

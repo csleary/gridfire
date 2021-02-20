@@ -8,7 +8,6 @@ const userSchema = new Schema(
       email: { type: String, trim: true },
       oauthService: String,
       oauthId: String,
-      isLocal: Boolean,
       password: String,
       idHash: String,
       resetToken: String,
@@ -21,7 +20,7 @@ const userSchema = new Schema(
     nemAddressVerified: { type: Boolean, default: false },
     credits: { type: Number, default: 0 }
   },
-  { toJSON: { versionKey: false } }
+  { toJSON: { versionKey: false, virtuals: true } }
 );
 
 userSchema.pre('save', async function (next) {
@@ -43,5 +42,9 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.auth.password);
 };
+
+userSchema.virtual('isLocal').get(function () {
+  return this.password && !this.oauthId && !this.oauthService;
+});
 
 mongoose.model('users', userSchema);

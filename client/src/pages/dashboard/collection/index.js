@@ -13,8 +13,11 @@ const Collection = () => {
 
   useEffect(() => {
     if (!collection.length) setLoading(true);
+  }, [collection.length]);
+
+  useEffect(() => {
     dispatch(fetchCollection()).then(() => setLoading(false));
-  }, [collection.length, dispatch]);
+  }, [dispatch]);
 
   const renderReleases = collection.map(({ release }) => (
     <RenderRelease key={release?._id ?? nanoid()} release={release} type="collection" />

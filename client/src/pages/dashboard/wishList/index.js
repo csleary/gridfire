@@ -12,8 +12,11 @@ const WishList = () => {
 
   useEffect(() => {
     if (!userWishList.length) setLoading(true);
+  }, [userWishList.length]);
+
+  useEffect(() => {
     dispatch(fetchUserWishList()).then(() => setLoading(false));
-  }, [userWishList.length, dispatch]);
+  }, [dispatch]);
 
   const renderReleases = userWishList.map(wish => <RenderRelease key={wish._id} release={wish.release} />);
 

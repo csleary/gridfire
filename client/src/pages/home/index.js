@@ -35,11 +35,12 @@ const Home = ({ match }) => {
   );
 
   useEffect(() => {
-    if (!catalogue.length) {
-      setLoading(true);
-      handleFetchCatalogue().then(() => setLoading(false));
-    }
-  }, [catalogue.length, handleFetchCatalogue]);
+    if (!catalogue.length) setLoading(true);
+  }, [catalogue.length]);
+
+  useEffect(() => {
+    handleFetchCatalogue().then(() => setLoading(false));
+  }, [handleFetchCatalogue]);
 
   useEffect(() => {
     if (service) {

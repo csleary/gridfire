@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useRef } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { fetchRelease, setIsLoading } from 'features/releases';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Artwork from './artwork';
 import CLine from './cLine';
 import CatNumber from './catNumber';
@@ -51,16 +51,20 @@ const ActiveRelease = () => {
     trackList
   } = release;
 
-  const trackListClassName = classnames({ [styles.columns]: trackList?.length > 10 });
-
   useEffect(() => {
     if (releaseId !== release._id) dispatch(setIsLoading(true));
-    batch(() => {
-      dispatch(fetchUser());
-      dispatch(fetchXemPrice());
-      dispatch(fetchRelease(releaseId)).then(() => dispatch(setIsLoading(false)));
-    });
   }, [dispatch, release._id, releaseId]);
+
+  useEffect(() => {
+    dispatch(fetchRelease(releaseId)).then(() => dispatch(setIsLoading(false)));
+  }, [dispatch, releaseId]);
+
+  useEffect(() => {
+    dispatch(fetchUser());
+    dispatch(fetchXemPrice());
+  }, [dispatch]);
+
+  const trackListClassName = classnames({ [styles.columns]: trackList?.length > 10 });
 
   return (
     <main className={classnames(styles.root, 'container')}>
@@ -93,12 +97,14 @@ const ActiveRelease = () => {
                   <TrackList />
                 </ol>
               </div>
-              <PurchaseButton
-                inCollection={isInCollection}
-                price={price}
-                priceError={priceError}
-                releaseId={releaseId}
-              />
+              {isLoading ? null : (
+                <PurchaseButton
+                  inCollection={isInCollection}
+                  price={price}
+                  priceError={priceError}
+                  releaseId={releaseId}
+                />
+              )}
               <ReleaseDate releaseDate={releaseDate} />
               <RecordLabel recordLabel={recordLabel} />
               <CatNumber catNumber={catNumber} />
