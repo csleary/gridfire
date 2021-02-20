@@ -97,12 +97,13 @@ module.exports = app => {
   // Fetch site catalogue
   app.get('/api/catalogue/', async (req, res) => {
     try {
-      const { catalogueLimit, catalogueSkip, sortPath, sortOrder } = req.query;
+      const { catalogueLimit, catalogueSkip, sortBy, sortOrder } = req.query;
 
       const releases = await Release.find({ published: true }, '-__v', {
+        limit: parseInt(catalogueLimit),
         skip: parseInt(catalogueSkip),
-        limit: parseInt(catalogueLimit)
-      }).sort({ [sortPath]: sortOrder });
+        sort: { [sortBy]: parseInt(sortOrder) }
+      });
 
       res.send(releases);
     } catch (error) {

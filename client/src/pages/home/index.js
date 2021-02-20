@@ -20,27 +20,30 @@ const Home = ({ match }) => {
   );
 
   const dispatch = useDispatch();
-  const [isFetching, setFetching] = useState(false);
-  const [isLoading, setLoading] = useState(false);
-  const [sortPath, setSortPath] = useState('dateCreated');
-  const [sortOrder, setSortOrder] = useState(-1);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentSortPath, setCurrentSortPath] = useState('dateCreated');
+  const [currentSortOrder, setCurrentSortOrder] = useState(-1);
 
   const handleFetchCatalogue = useCallback(
-    async (path = sortPath, order = sortOrder, isPaging = false) => {
-      setFetching(true);
-      await dispatch(fetchCatalogue(catalogueLimit, catalogueSkip, path, order, isPaging));
-      setFetching(false);
+    async ({ sortBy = currentSortPath, sortOrder = currentSortOrder, isPaging = false } = {}) => {
+      setIsFetching(true);
+      dispatch(fetchCatalogue({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging })).then(() =>
+        setIsFetching(false)
+      );
     },
-    [catalogueLimit, catalogueSkip, dispatch, sortOrder, sortPath]
+    [catalogueLimit, catalogueSkip, dispatch, currentSortOrder, currentSortPath]
   );
 
   useEffect(() => {
-    if (!catalogue.length) setLoading(true);
+    if (!catalogue.length) setIsLoading(true);
   }, [catalogue.length]);
 
   useEffect(() => {
-    handleFetchCatalogue().then(() => setLoading(false));
-  }, [handleFetchCatalogue]);
+    handleFetchCatalogue().then(() => {
+      setIsLoading(false);
+    });
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     if (service) {
@@ -74,10 +77,10 @@ const Home = ({ match }) => {
         <div className="col p-3">
           <SortReleases
             handleFetchCatalogue={handleFetchCatalogue}
-            sortPath={sortPath}
-            setSortPath={setSortPath}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
+            currentSortPath={currentSortPath}
+            setCurrentSortPath={setCurrentSortPath}
+            currentSortOrder={currentSortOrder}
+            setCurrentSortOrder={setCurrentSortOrder}
           />
           <div className={styles.frontPage}>
             {catalogue.map(release => (
@@ -89,7 +92,9 @@ const Home = ({ match }) => {
               className={styles.button}
               disabled={isFetching || reachedEndOfCat}
               icon={reachedEndOfCat ? null : faSync}
-              onClick={() => handleFetchCatalogue(sortPath, sortOrder, true)}
+              onClick={() =>
+                handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true })
+              }
               size="small"
               spin={isFetching}
             >

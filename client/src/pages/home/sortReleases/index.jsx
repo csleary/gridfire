@@ -29,22 +29,28 @@ const sortOptions = [
   { title: 'Price', sortPath: 'price', '-1': 'Desc.', 1: 'Asc.' }
 ];
 
-const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, setSortOrder }) => {
+const SortReleases = ({
+  handleFetchCatalogue,
+  currentSortOrder,
+  currentSortPath,
+  setCurrentSortOrder,
+  setCurrentSortPath
+}) => {
   const sortRef = useRef();
-  const [isSorting, setSorting] = useState(false);
+  const [isSorting, setIsSorting] = useState(false);
 
-  const handleSortPath = async path => {
-    setSorting(true);
-    await handleFetchCatalogue(path, sortOrder);
-    setSortPath(path);
-    setSorting(false);
+  const handleSortPath = async sortBy => {
+    setIsSorting(true);
+    await handleFetchCatalogue({ sortBy, sortOrder: currentSortOrder });
+    setCurrentSortPath(sortBy);
+    setIsSorting(false);
   };
 
-  const handleSortOrder = async order => {
-    setSorting(true);
-    await handleFetchCatalogue(sortPath, order);
-    setSortOrder(order);
-    setSorting(false);
+  const handleSortOrder = async sortOrder => {
+    setIsSorting(true);
+    await handleFetchCatalogue({ sortBy: currentSortPath, sortOrder });
+    setCurrentSortOrder(sortOrder);
+    setIsSorting(false);
   };
 
   return (
@@ -57,7 +63,7 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
           icon={faSort}
           iconClassName={styles.sortIcon}
           offset={0}
-          text={sortOptions.find(option => option.sortPath === sortPath).title}
+          text={sortOptions.find(option => option.sortPath === currentSortPath).title}
           textLink
           title="Sort releases."
         >
@@ -70,10 +76,10 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
         <Button
           className={styles.sortButton}
           disabled={isSorting}
-          onClick={() => handleSortOrder(sortOrder * -1)}
+          onClick={() => handleSortOrder(currentSortOrder * -1)}
           textLink
         >
-          {`(${sortOptions.find(option => option.sortPath === sortPath)[sortOrder.toString()]})`}
+          {`(${sortOptions.find(option => option.sortPath === currentSortPath)[currentSortOrder.toString()]})`}
         </Button>
         {isSorting ? <FontAwesomeIcon icon={faCog} spin /> : null}
       </div>
@@ -83,10 +89,10 @@ const SortReleases = ({ handleFetchCatalogue, sortPath, setSortPath, sortOrder, 
 
 SortReleases.propTypes = {
   handleFetchCatalogue: PropTypes.func,
-  sortPath: PropTypes.string,
-  setSortPath: PropTypes.func,
-  sortOrder: PropTypes.number,
-  setSortOrder: PropTypes.func
+  currentSortPath: PropTypes.string,
+  setCurrentSortPath: PropTypes.func,
+  currentSortOrder: PropTypes.number,
+  setCurrentSortOrder: PropTypes.func
 };
 
 export default SortReleases;

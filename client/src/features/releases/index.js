@@ -141,13 +141,13 @@ const fetchArtistCatalogue = (artistId = null, artistSlug = null) => async dispa
   dispatch(setArtistCatalogue(res.data));
 };
 
-const fetchCatalogue = (catalogueLimit, catalogueSkip, sortPath, sortOrder, isPaging = false) => async dispatch => {
+const fetchCatalogue = ({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging = false }) => async dispatch => {
   try {
     const res = await axios.get('/api/catalogue/', {
       params: {
         catalogueLimit,
         catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
-        sortPath,
+        sortBy,
         sortOrder
       }
     });
