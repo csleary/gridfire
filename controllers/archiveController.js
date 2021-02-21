@@ -17,14 +17,14 @@ const zipDownload = async (res, release, format) => {
   archive.pipe(res);
 
   for (const track of trackList) {
-    const { _id: trackId, title } = track;
+    const { _id: trackId, trackTitle } = track;
     const { Contents, KeyCount } = await s3.listObjectsV2({ Bucket, Prefix: `${releaseId}/${trackId}` }).promise();
     if (!KeyCount) throw new Error('Track not found for archiving.');
     const [{ Key }] = Contents;
     const ext = Key.substring(Key.lastIndexOf('.'));
     const trackNumber = trackList.findIndex(({ _id }) => _id === trackId) + 1;
     const trackSrc = s3.getObject({ Bucket, Key }).createReadStream();
-    archive.append(trackSrc, { name: `${trackNumber.toString(10).padStart(2, '0')} ${title}${ext}` });
+    archive.append(trackSrc, { name: `${trackNumber.toString(10).padStart(2, '0')} ${trackTitle}${ext}` });
   }
 
   const { Contents, KeyCount } = await s3.listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId }).promise();
