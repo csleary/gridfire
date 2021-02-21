@@ -13,6 +13,7 @@ const releaseSlice = createSlice({
     catalogueLimit: 12,
     catalogueSkip: 0,
     collection: [],
+    formatExists: {},
     paymentAddress: '',
     priceInXem: '',
     reachedEndOfCat: false,
@@ -66,6 +67,11 @@ const releaseSlice = createSlice({
 
     setActiveRelease(state, action) {
       state.activeRelease = action.payload;
+    },
+
+    setFormatExists(state, action) {
+      const { exists, format, releaseId } = action.payload;
+      state.formatExists = { ...state.formatExists, [releaseId]: { [format]: exists } };
     },
 
     setIsLoading(state, action) {
@@ -254,6 +260,7 @@ export const {
   setCatalogue,
   setCollection,
   setDeleteRelease,
+  setFormatExists,
   setIsLoading,
   setReleasePurchaseInfo,
   setUserFavourites,

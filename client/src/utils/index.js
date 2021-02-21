@@ -1,13 +1,12 @@
 import axios from 'axios';
 
 const checkFormatMp3 = async token => {
-  const res = await axios.get(`/api/download/${token}/check`);
-  return res.data;
+  return axios.get('/api/download/check', { headers: { Authorization: `Bearer ${token}` } });
 };
 
 const fetchDownloadToken = async releaseId => {
   const res = await axios.post('/api/download', { releaseId });
-  return res.headers.authorization;
+  return res.headers.authorization.split(' ')[1];
 };
 
 export { checkFormatMp3, fetchDownloadToken };

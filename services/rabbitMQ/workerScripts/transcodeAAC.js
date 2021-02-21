@@ -52,7 +52,19 @@ const work = async () => {
     // Transcode FLAC to AAC
     mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
     const flacData = fs.createReadStream(flacPath);
-    await encodeAacFrag(flacData, mp4Path);
+
+    const onProgress = ({ targetSize, timemark }) => {
+      const [hours, mins, seconds] = timemark.split(':');
+      const [s] = seconds.split('.');
+      const h = hours !== '00' ? `${hours}:` : '';
+
+      parentPort.postMessage({
+        message: `Encoding at track time: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        userId
+      });
+    };
+
+    await encodeAacFrag(flacData, mp4Path, onProgress);
     playlistDir = path.join(TEMP_PATH, trackId);
 
     // Create and parse mpd
@@ -119,14 +131,7 @@ const work = async () => {
     trackDoc.status = 'stored';
     trackDoc.dateUpdated = Date.now();
     await release.save();
-
-    parentPort.postMessage({
-      type: 'EncodingCompleteAAC',
-      trackId,
-      trackName,
-      userId
-    });
-
+    parentPort.postMessage({ type: 'EncodingCompleteAAC', trackId, trackName, userId });
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
     await db.disconnect();

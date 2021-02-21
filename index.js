@@ -76,7 +76,30 @@ require('./routes/trackRoutes')(app);
 require('./routes/userRoutes')(app);
 require('./routes/socketRoutes')(app);
 
+const logErrors = (error, req, res, next) => {
+  console.error(error);
+  next(error);
+};
+
+const clientErrorHandler = (error, req, res, next) => {
+  if (req.xhr) {
+    console.error('Error processing client request: %s', req.headers.host);
+    res.status(500).send({ error: 'An API server error occurred.' });
+  } else {
+    next(error);
+  }
+};
+
+const errorHandler = (error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  res.status(500).send({ error });
+};
+
+app.use(logErrors);
+app.use(clientErrorHandler);
+app.use(errorHandler);
+
 process.on('uncaughtException', error => {
-  console.error(`There was an uncaught error: ${error}`);
-  process.exit(1);
+  console.error(`Uncaught error: ${error.message}`);
+  if (process.env.NODE_ENV === 'production') process.exit(1);
 });

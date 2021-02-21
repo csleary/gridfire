@@ -5,8 +5,8 @@
   "repository": "https://github.com/csleary/nemp3",
   "main": "index.tsx",
   "engines": {
-    "node": "15.8.0",
-    "npm": "7.5.1"
+    "node": "14",
+    "npm": "6"
   },
   "scripts": {
     "start": "node index.tsx",

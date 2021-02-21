@@ -12,9 +12,6 @@ import { fetchRelease } from 'features/releases';
 import placeholder from 'placeholder.svg';
 import styles from './renderRelease.module.css';
 import { toastInfo } from 'features/toast';
-import withDownload from 'pages/payment/payments/withDownload';
-
-const DownloadButton = withDownload(OverlayDownloadButton);
 
 const RenderRelease = ({ className, release, showArtist = true, showTitle = true, type }) => {
   const dispatch = useDispatch();
@@ -94,8 +91,18 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
           </Link>
           {type === 'collection' ? (
             <>
-              <DownloadButton artistName={artistName} format="mp3" releaseId={releaseId} releaseTitle={releaseTitle} />
-              <DownloadButton artistName={artistName} format="flac" releaseId={releaseId} releaseTitle={releaseTitle} />
+              <OverlayDownloadButton
+                artistName={artistName}
+                format="mp3"
+                releaseId={releaseId}
+                releaseTitle={releaseTitle}
+              />
+              <OverlayDownloadButton
+                artistName={artistName}
+                format="flac"
+                releaseId={releaseId}
+                releaseTitle={releaseTitle}
+              />
             </>
           ) : null}
         </div>

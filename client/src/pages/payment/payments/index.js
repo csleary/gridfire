@@ -7,19 +7,10 @@ import Summary from './summary';
 import Transactions from './transactions';
 import styles from './payments.module.css';
 import { useApi } from 'hooks/useApi';
-import withDownload from './withDownload';
-
-const Download = withDownload(DownloadButton);
 
 const Payments = ({ paymentInfoLoading, artistName, paymentHash, price, releaseId, releaseTitle }) => {
   const paymentData = useMemo(() => ({ releaseId, paymentHash }), [releaseId, paymentHash]);
-
-  const initialData = {
-    hasPurchased: false,
-    nemNode: '',
-    amountPaid: 0,
-    transactions: []
-  };
+  const initialData = { hasPurchased: false, nemNode: '', amountPaid: 0, transactions: [] };
 
   const { data: payments = initialData, error, fetch, isFetching, isLoading } = useApi('/api/user/transactions', {
     method: 'post',
@@ -71,7 +62,7 @@ const Payments = ({ paymentInfoLoading, artistName, paymentHash, price, releaseI
     (style, item) =>
       !item && (
         <animated.div className={styles.payments} style={style}>
-          <Download
+          <DownloadButton
             artistName={artistName}
             format="mp3"
             hasPurchased={hasPurchased}

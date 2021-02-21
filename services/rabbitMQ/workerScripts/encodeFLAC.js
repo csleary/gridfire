@@ -38,7 +38,19 @@ const encodeFlac = async () => {
     parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
     const readFile = fs.createReadStream(filePath);
     const flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
-    await encodeFlacStream(readFile, flacPath);
+
+    const onProgress = ({ targetSize, timemark }) => {
+      const [hours, mins, seconds] = timemark.split(':');
+      const [s] = seconds.split('.');
+      const h = hours !== '00' ? `${hours}:` : '';
+
+      parentPort.postMessage({
+        message: `Encoding at track time: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        userId
+      });
+    };
+
+    await encodeFlacStream(readFile, flacPath, onProgress);
     const readFlac = fs.createReadStream(flacPath);
     const Key = `${releaseId}/${trackId}.flac`;
     const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };

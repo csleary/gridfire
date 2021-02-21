@@ -1,9 +1,9 @@
+import { setFormatExists, updateActiveRelease } from 'features/releases';
 import { setTranscodingComplete, setUploadProgress } from 'features/tracks';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import { batch } from 'react-redux';
 import io from 'socket.io-client';
 import { setArtworkUploading } from 'features/artwork';
-import { updateActiveRelease } from 'features/releases';
 
 let socket;
 if (process.env.REACT_APP_NODE_ENV === 'development') {
@@ -46,6 +46,12 @@ const socketMiddleware = ({ dispatch, getState }) => {
     batch(() => {
       dispatch(toastSuccess(`Transcoding ${trackName} to aac complete.`));
       dispatch(setTranscodingComplete(trackId));
+    });
+  });
+
+  socket.on('EncodingCompleteMP3', ({ releaseId, format, exists }) => {
+    batch(() => {
+      dispatch(setFormatExists({ releaseId, format, exists }));
     });
   });
 

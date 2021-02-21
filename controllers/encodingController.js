@@ -2,7 +2,7 @@ const aws = require('aws-sdk');
 const { BUCKET_MP3, BUCKET_SRC } = require('../config/constants');
 const ffmpeg = require('fluent-ffmpeg');
 
-const encodeAacFrag = (downloadSrc, outputAudio) =>
+const encodeAacFrag = (downloadSrc, outputAudio, onProgress) =>
   new Promise((resolve, reject) => {
     ffmpeg(downloadSrc)
       // .audioCodec('libfdk_aac')
@@ -13,9 +13,7 @@ const encodeAacFrag = (downloadSrc, outputAudio) =>
       // .on('codecData', ({ duration }) => {
       //   postMessage(duration);
       // })
-      // .on('progress', ({ percent }) => {
-      //   postMessage(percent);
-      // })
+      .on('progress', onProgress)
       .on('stderr', () => {})
       .on('error', error => reject(error.message))
       .output(outputAudio)
@@ -25,49 +23,50 @@ const encodeAacFrag = (downloadSrc, outputAudio) =>
       .run();
   });
 
-const encodeFlacStream = (stream, outputPath) =>
+const encodeFlacStream = (stream, outputPath, onProgress) =>
   new Promise((resolve, reject) => {
     ffmpeg(stream)
       .audioCodec('flac')
       .audioChannels(2)
       .toFormat('flac')
+      .on('progress', onProgress)
       .outputOptions('-compression_level 5')
       .on('end', resolve)
       .on('error', error => reject(error.toString()))
       .save(outputPath);
   });
 
-const encodeMp3 = async release => {
-  try {
-    const s3 = new aws.S3();
-    const { trackList } = release;
-    const releaseId = release._id.toString();
-    const data = await s3.listObjectsV2({ Bucket: BUCKET_SRC, Prefix: releaseId }).promise();
+const encodeMp3 = async (release, onProgress) => {
+  const { _id: releaseId, trackList } = release;
+  const s3 = new aws.S3();
 
-    for (const s3Track of data.Contents) {
-      const { Key } = s3Track;
-      const trackId = trackList.find(track => Key.includes(track._id))._id;
-      const trackSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
+  for (const track of trackList) {
+    const { _id: trackId } = track;
+    const { Contents, KeyCount } = await s3
+      .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: `${releaseId}/${trackId}` })
+      .promise();
 
-      const encode = ffmpeg(trackSrc)
-        .audioCodec('libmp3lame')
-        .toFormat('mp3')
-        .outputOptions('-q:a 0')
-        .on('error', encodingError => {
-          throw `Transcoding error: ${encodingError.message}`;
-        });
+    if (!KeyCount) throw 'Track not found for encoding.';
+    const [{ Key }] = Contents;
+    const trackSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
 
-      const uploadParams = {
-        Bucket: BUCKET_MP3,
-        ContentType: 'audio/mp3',
-        Key: `${releaseId}/${trackId}.mp3`,
-        Body: encode.pipe()
-      };
+    const encode = ffmpeg(trackSrc)
+      .audioCodec('libmp3lame')
+      .toFormat('mp3')
+      .on('progress', onProgress)
+      .outputOptions('-q:a 0')
+      .on('error', encodingError => {
+        throw new Error(`Mp3 transcoding error: ${encodingError.message}`);
+      });
 
-      await s3.upload(uploadParams).promise();
-    }
-  } catch (error) {
-    throw new Error(error);
+    const uploadParams = {
+      Bucket: BUCKET_MP3,
+      ContentType: 'audio/mp3',
+      Key: `${releaseId}/${trackId}.mp3`,
+      Body: encode.pipe()
+    };
+
+    await s3.upload(uploadParams).promise();
   }
 };
 

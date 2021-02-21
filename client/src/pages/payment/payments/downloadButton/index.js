@@ -1,12 +1,14 @@
+import { faCloudDownloadAlt, faCog, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from './downloadButton.module.css';
+import { useDownload } from 'hooks/useDownload';
 
-const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparingDownload, releaseTitle }) => {
+const DownloadButton = ({ hasPurchased, ...rest }) => {
+  const { anchorRef, downloadUrl, formatExists, handleDownload, isPreparingDownload, releaseTitle } = useDownload(rest);
   if (!hasPurchased) return null;
 
   return (
@@ -14,7 +16,7 @@ const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparin
       <Button
         className={styles.button}
         disabled={isPreparingDownload === true}
-        icon={isPreparingDownload ? 'cog' : 'download'}
+        icon={isPreparingDownload ? faCog : faCloudDownloadAlt}
         onClick={handleDownload}
         spin={isPreparingDownload}
       >
@@ -37,6 +39,9 @@ const DownloadButton = ({ formatExists, handleDownload, hasPurchased, isPreparin
           </p>
         </>
       ) : null}
+      <a download href={downloadUrl} ref={ref => (anchorRef.current = ref)} style={{ display: 'none' }}>
+        Download
+      </a>
     </div>
   );
 };

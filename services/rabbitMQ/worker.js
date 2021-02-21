@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-require('../../models/Release');
+require(__basedir + '/models/Release');
 const Release = mongoose.model('releases');
 const { publishToQueue } = require('./publisher');
+const socketMessage = require('./socketMessage');
 
 const handleWork = (io, workerPool, workerData, workerScript) =>
   new Promise((resolve, reject) => {
-    const ioEmit = require('./ioEmit')(io);
+    const emit = socketMessage(io);
 
     workerPool.acquire(workerScript, { workerData }, (poolError, worker) => {
       if (poolError) reject(poolError.message);
@@ -15,13 +16,13 @@ const handleWork = (io, workerPool, workerData, workerScript) =>
 
         if (type === 'updateActiveRelease') {
           const release = await Release.findById(message.releaseId, '-__v', { lean: true });
-          ioEmit('updateActiveRelease', { userId: release.user.toString(), release });
+          emit('updateActiveRelease', { userId: release.user.toString(), release });
         } else if (type === 'publishToQueue') {
           publishToQueue('', queue, message);
         } else if (type) {
-          ioEmit(type, message);
+          emit(type, message);
         } else {
-          ioEmit('workerMessage', message);
+          emit('workerMessage', message);
         }
       });
 
