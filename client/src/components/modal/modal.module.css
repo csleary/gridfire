@@ -24,9 +24,10 @@
 }
 
 .closeIcon {
+  font-size: 2rem;
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: 2rem;
+  right: 2rem;
   transition: color 100ms ease-in;
 }
 

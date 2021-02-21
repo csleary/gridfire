@@ -1,10 +1,11 @@
 .container {
   background: var(--charcoal);
+  border-radius: 1rem;
   display: flex;
   flex-direction: column;
   max-width: 800px;
   min-height: 900px;
-  padding: 2rem;
+  padding: 3rem;
 }
 
 .heading {

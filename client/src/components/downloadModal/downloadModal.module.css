@@ -1,0 +1,59 @@
+.root {
+  background: var(--charcoal);
+  border-radius: 1rem;
+  max-height: 64rem;
+  max-width: 64rem;
+  padding: 3rem;
+}
+
+.heading {
+  align-items: center;
+  justify-self: flex-start;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.card {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.wrapper {
+  flex: 1 1 50%;
+}
+
+.image {
+  background: #000;
+  overflow: hidden;
+  padding-top: 100%;
+  position: relative;
+}
+
+.image > img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.buttons {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  justify-content: space-evenly;
+  padding: 3rem;
+}
+
+.button {
+  display: block;
+  min-width: 16rem;
+  padding: 1rem;
+}
+
+.button:last-of-type {
+  margin-bottom: 0;
+}

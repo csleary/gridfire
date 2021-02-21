@@ -90,6 +90,11 @@
   transform: scale(1.2);
 }
 
+.download {
+  composes: button;
+  flex-grow: 1;
+}
+
 .label {
   font-size: 1.2rem;
   font-weight: bold;

@@ -90,20 +90,7 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
             <FontAwesomeIcon className={`${styles.icon} info m-auto`} icon={faInfoCircle} />
           </Link>
           {type === 'collection' ? (
-            <>
-              <OverlayDownloadButton
-                artistName={artistName}
-                format="mp3"
-                releaseId={releaseId}
-                releaseTitle={releaseTitle}
-              />
-              <OverlayDownloadButton
-                artistName={artistName}
-                format="flac"
-                releaseId={releaseId}
-                releaseTitle={releaseTitle}
-              />
-            </>
+            <OverlayDownloadButton artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
           ) : null}
         </div>
         {showTitle ? (

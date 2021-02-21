@@ -43,7 +43,7 @@ const Modal = props => {
   };
 
   const handleContentClick = e => {
-    e.stopPropagation();
+    if (e.currentTarget !== e.target) e.stopPropagation();
   };
 
   const handleKeyDown = e => {
@@ -89,17 +89,17 @@ const Modal = props => {
               style={{ transform }}
             >
               {props.children}
-              {showClose ? (
-                <FontAwesomeIcon
-                  className={styles.closeIcon}
-                  icon={faTimes}
-                  onClick={handleClick}
-                  onKeyDown={handleCloseIconKeyDown}
-                  tabIndex="0"
-                  title="Close this dialog box."
-                />
-              ) : null}
             </animated.div>
+            {showClose ? (
+              <FontAwesomeIcon
+                className={styles.closeIcon}
+                icon={faTimes}
+                onClick={handleClick}
+                onKeyDown={handleCloseIconKeyDown}
+                tabIndex="0"
+                title="Close this dialog box."
+              />
+            ) : null}
           </animated.div>
         )
     ),

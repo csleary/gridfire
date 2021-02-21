@@ -17,7 +17,7 @@ const DownloadButton = ({ hasPurchased, ...rest }) => {
         className={styles.button}
         disabled={isPreparingDownload === true}
         icon={isPreparingDownload ? faCog : faCloudDownloadAlt}
-        onClick={handleDownload}
+        onClick={() => handleDownload()}
         spin={isPreparingDownload}
       >
         {isPreparingDownload ? 'Preparing download…' : 'Download (mp3)'}

@@ -8,7 +8,7 @@ import styles from './button.module.css';
 
 interface Props {
   autoFocus?: boolean;
-  children?: object;
+  children?: Object;
   className?: string;
   disabled?: boolean;
   icon?: IconProp;
@@ -21,7 +21,7 @@ interface Props {
   buttonRef?: string;
   size?: string;
   spin?: boolean;
-  style?: object;
+  style?: Object;
   text?: string;
   textLink?: boolean;
   title?: string;

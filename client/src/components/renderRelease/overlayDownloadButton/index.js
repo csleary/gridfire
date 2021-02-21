@@ -1,39 +1,32 @@
+import React, { useState } from 'react';
+import DownloadModal from 'components/downloadModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Modal from 'components/modal';
 import PropTypes from 'prop-types';
-import React from 'react';
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faCloudDownloadAlt } from '@fortawesome/free-solid-svg-icons';
 import styles from '../renderRelease.module.css';
-import { useDownload } from 'hooks/useDownload';
 
-const OverlayDownloadButton = ({ artistName, format, releaseId, releaseTitle }) => {
-  const { anchorRef, downloadUrl, handleDownload } = useDownload({
-    artistName,
-    format,
-    releaseId,
-    releaseTitle
-  });
+const OverlayDownloadButton = ({ artistName, releaseId, releaseTitle }) => {
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <>
       <button
-        className={styles.button}
-        format={format}
-        onClick={handleDownload}
-        title={`Download ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`}
+        className={styles.download}
+        onClick={() => setShowModal(true)}
+        title={`Download ${artistName} - \u2018${releaseTitle}\u2019`}
       >
-        <FontAwesomeIcon className={styles.icon} icon={faDownload} />
-        <div className={`${styles.label} text-center`}>{format.toUpperCase()}</div>
+        <FontAwesomeIcon className={styles.icon} icon={faCloudDownloadAlt} />
       </button>
-      <a download href={downloadUrl} ref={ref => (anchorRef.current = ref)} style={{ display: 'none' }}>
-        Download
-      </a>
+      <Modal closeModal={() => setShowModal(false)} isOpen={showModal}>
+        <DownloadModal artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
+      </Modal>
     </>
   );
 };
 
 OverlayDownloadButton.propTypes = {
   artistName: PropTypes.string,
-  format: PropTypes.string,
   releaseId: PropTypes.string,
   releaseTitle: PropTypes.string
 };

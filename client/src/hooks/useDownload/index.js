@@ -4,28 +4,30 @@ import { toastError, toastInfo } from 'features/toast';
 import { useEffect, useRef, useState } from 'react';
 import { setFormatExists } from 'features/releases';
 
-const useDownload = ({ artistName, format, releaseId, releaseTitle }) => {
+const useDownload = ({ artistName, releaseId, releaseTitle }) => {
   const dispatch = useDispatch();
   const anchorRef = useRef();
-  const formatExists = useSelector(state => state.releases.formatExists[releaseId]?.[format], shallowEqual);
+  const [currentFormat, setCurrentFormat] = useState('mp3');
   const [downloadUrl, setDownloadUrl] = useState();
   const [isPreparingDownload, setIsPreparingDownload] = useState(false);
+  const formatExists = useSelector(state => state.releases.formatExists[releaseId]?.[currentFormat], shallowEqual);
 
   useEffect(() => {
     if (formatExists && isPreparingDownload) {
       fetchDownloadToken(releaseId).then(downloadToken => {
-        setDownloadUrl(`/api/download/${downloadToken}/${format}`);
+        setDownloadUrl(`/api/download/${downloadToken}/${currentFormat}`);
         anchorRef.current.click();
         setIsPreparingDownload(false);
       });
     }
-  }, [format, formatExists, isPreparingDownload, releaseId]);
+  }, [currentFormat, formatExists, isPreparingDownload, releaseId]);
 
-  const handleDownload = async () => {
+  const handleDownload = async (format = 'mp3') => {
     try {
+      setCurrentFormat(format);
       const downloadToken = await fetchDownloadToken(releaseId);
       if (!downloadToken) return;
-      dispatch(toastInfo(`Fetching download: ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`));
+      dispatch(toastInfo(`Fetching download: ${artistName} - '${releaseTitle}'`));
 
       switch (format) {
         case 'mp3': {
@@ -33,7 +35,7 @@ const useDownload = ({ artistName, format, releaseId, releaseTitle }) => {
 
           if (!res.data.exists) {
             dispatch(setFormatExists({ releaseId, format, exists: false }));
-            dispatch(toastInfo(`Preparing download: ${artistName} - '${releaseTitle}' (${format.toUpperCase()})`));
+            dispatch(toastInfo(`Preparing download: ${artistName} - '${releaseTitle}'`));
             setIsPreparingDownload(true);
             break;
           }
@@ -52,6 +54,7 @@ const useDownload = ({ artistName, format, releaseId, releaseTitle }) => {
           break;
       }
     } catch (error) {
+      console.log(error);
       if (error.response.data.error) {
         return void dispatch(toastError(error.response.data.error));
       }
