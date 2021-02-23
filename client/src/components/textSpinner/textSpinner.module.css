@@ -1,0 +1,12 @@
+.root {
+  display: inline-block;
+  width: 0;
+}
+
+.dots {
+  margin-right: 1rem;
+}
+
+.lines {
+  margin-right: 1rem;
+}

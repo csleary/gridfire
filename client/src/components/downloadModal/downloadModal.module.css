@@ -45,6 +45,7 @@
   flex-direction: column;
   flex: 1 1 50%;
   justify-content: space-evenly;
+  min-height: 20rem;
   padding: 3rem;
 }
 

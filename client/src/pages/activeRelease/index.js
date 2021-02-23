@@ -86,9 +86,7 @@ const ActiveRelease = () => {
           <h4 className={styles.name}>
             <Link to={`/artist/${artist}`}>{artistName}</Link>
           </h4>
-          <h6 className={styles.price}>
-            <Price price={price} priceError={priceError} xemPriceUsd={xemPriceUsd} />
-          </h6>
+          <Price price={price} priceError={priceError} xemPriceUsd={xemPriceUsd} />
           <Switch>
             <PrivateRoute path={`${path}/payment`} component={Payment} />
             <Route path={`${path}`}>

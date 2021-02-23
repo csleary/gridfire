@@ -1,4 +1,28 @@
-.copyright {
+.price {
+  display: flex;
+  align-items: center;
   color: var(--lighter-grey);
-  font-size: 80%;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.price::before,
+.price::after {
+  background: var(--mid-grey);
+  content: '';
+  flex: 1 0 auto;
+  height: 1px;
+}
+.price::before {
+  margin-right: 0.5rem;
+}
+
+.price::after {
+  margin-left: 0.5rem;
+}
+
+@media (min-width: 1600px) {
+  .price {
+    font-size: 1.2rem;
+  }
 }
