@@ -1,16 +1,15 @@
-import { faCircle, faServer } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
+import TextSpinner from 'components/textSpinner';
 import Underpaid from './underPaid';
-import classnames from 'classnames';
+import { faServer } from '@fortawesome/free-solid-svg-icons';
 import styles from './summary.module.css';
 
 const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
   const { hasPurchased, nemNode, amountPaid, transactions } = payments;
   const formattedNodeName = nemNode.replace(/\[([^[\]]*)\]/gi, '');
   if (hasPurchased) return null;
-  const iconClassNames = classnames(styles.icon, { [styles.active]: isFetching });
 
   return (
     <button
@@ -30,7 +29,7 @@ const Summary = ({ fetch, isFetching, paymentData, payments, price }) => {
       <Underpaid payments={payments} price={price} />
       <div className={styles.refresh}>
         <div className={styles.button}>
-          <FontAwesomeIcon icon={faCircle} className={iconClassNames} />
+          <TextSpinner isActive={isFetching} type="nemp3" speed={0.01} className={styles.spinner} />
           Scan
         </div>
         <div className={styles.node} title="Last used NIS Node">

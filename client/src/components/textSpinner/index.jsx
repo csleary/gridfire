@@ -3,8 +3,68 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styles from './textSpinner.module.css';
 
-const TextSpinner = ({ lines }) => {
+const TextSpinner = ({ className, isActive = true, type = 'nemp3', speed = 0.005 }) => {
   const chars = {
+    braille: ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'],
+    circular: [
+      '⢀⠀',
+      '⡀⠀',
+      '⠄⠀',
+      '⢂⠀',
+      '⡂⠀',
+      '⠅⠀',
+      '⢃⠀',
+      '⡃⠀',
+      '⠍⠀',
+      '⢋⠀',
+      '⡋⠀',
+      '⠍⠁',
+      '⢋⠁',
+      '⡋⠁',
+      '⠍⠉',
+      '⠋⠉',
+      '⠋⠉',
+      '⠉⠙',
+      '⠉⠙',
+      '⠉⠩',
+      '⠈⢙',
+      '⠈⡙',
+      '⢈⠩',
+      '⡀⢙',
+      '⠄⡙',
+      '⢂⠩',
+      '⡂⢘',
+      '⠅⡘',
+      '⢃⠨',
+      '⡃⢐',
+      '⠍⡐',
+      '⢋⠠',
+      '⡋⢀',
+      '⠍⡁',
+      '⢋⠁',
+      '⡋⠁',
+      '⠍⠉',
+      '⠋⠉',
+      '⠋⠉',
+      '⠉⠙',
+      '⠉⠙',
+      '⠉⠩',
+      '⠈⢙',
+      '⠈⡙',
+      '⠈⠩',
+      '⠀⢙',
+      '⠀⡙',
+      '⠀⠩',
+      '⠀⢘',
+      '⠀⡘',
+      '⠀⠨',
+      '⠀⢐',
+      '⠀⡐',
+      '⠀⠠',
+      '⠀⢀',
+      '⠀⡀'
+    ],
+    nemp3: ['⠝', '⠑', '⠍', '⠏', '⠒'],
     dots: ['', '.', '..', '...'],
     lines: ['|', '/', '\u2013', '\\']
   };
@@ -12,13 +72,11 @@ const TextSpinner = ({ lines }) => {
   const [count, setCount] = useState(0);
   const requestRef = useRef();
   const previousTimeRef = useRef();
-  const type = lines ? 'lines' : 'dots';
-  const timeFactor = lines ? 0.01 : 0.005;
 
   const draw = time => {
-    if (previousTimeRef.current !== undefined) {
+    if (previousTimeRef.current !== undefined && isActive) {
       const deltaTime = time - previousTimeRef.current;
-      setCount(prevCount => (prevCount + deltaTime * timeFactor) % chars[type].length);
+      setCount(prevCount => (prevCount + deltaTime * speed) % chars[type].length);
     }
 
     previousTimeRef.current = time;
@@ -26,17 +84,20 @@ const TextSpinner = ({ lines }) => {
   };
 
   useEffect(() => {
-    requestRef.current = requestAnimationFrame(draw);
+    if (isActive) requestRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(requestRef.current);
-  }, []); // eslint-disable-line
+  }, [isActive]); // eslint-disable-line
 
   return (
-    <div className={classnames(styles.root, lines ? styles.lines : styles.dots)}>{chars[type][Math.floor(count)]}</div>
+    <div className={classnames(styles.root, { [className]: Boolean(className) })}>{chars[type][Math.floor(count)]}</div>
   );
 };
 
 TextSpinner.propTypes = {
-  lines: PropTypes.string
+  className: PropTypes.string,
+  isActive: PropTypes.bool,
+  type: PropTypes.string,
+  speed: PropTypes.number
 };
 
 export default TextSpinner;

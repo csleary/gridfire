@@ -1,22 +1,18 @@
-.wrapper {
-  align-items: center;
-  display: flex;
-  font-size: 1.25rem;
-  justify-content: center;
-  margin-bottom: 1rem;
-  padding: 0;
-}
-
 .loading {
-  margin-top: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  bottom: 9rem;
+  font-size: 1.25rem;
+  left: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
 }
 
 .spinner {
-  border-width: 0.75rem;
-  display: inline-block;
-  height: 1.5rem !important;
-  margin: 0 0 0 1rem !important;
-  width: 1.5rem !important;
+  color: var(--cyan);
+  margin-right: 0.5rem;
+  width: auto;
 }
 
 .payments {

@@ -19,8 +19,9 @@ const Price = ({ price, priceError, xemPriceUsd }) => {
 
   return (
     <h6 className={styles.price}>
-      ${price} USD (XEM
-      <TextSpinner />)
+      ${price} USD (
+      <TextSpinner type="nemp3" speed={0.01} className={styles.spinner} />
+      XEM)
     </h6>
   );
 };

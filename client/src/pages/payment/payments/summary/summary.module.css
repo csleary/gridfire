@@ -70,6 +70,11 @@
   animation: blink 250ms cubic-bezier(0, 0.15, 0.85, 1) infinite;
 }
 
+.spinner {
+  margin-right: 0.5rem;
+  width: auto;
+}
+
 @keyframes blink {
   from {
     opacity: 0;

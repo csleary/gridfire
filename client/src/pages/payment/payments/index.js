@@ -2,8 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { animated, config, useTransition } from 'react-spring';
 import DownloadButton from './downloadButton';
 import PropTypes from 'prop-types';
-import Spinner from 'components/spinner';
 import Summary from './summary';
+import TextSpinner from 'components/textSpinner';
 import Transactions from './transactions';
 import styles from './payments.module.css';
 import { useApi } from 'hooks/useApi';
@@ -19,7 +19,7 @@ const Payments = ({ paymentInfoLoading, artistName, paymentHash, price, releaseI
   });
 
   const transition = useTransition(isLoading, {
-    config: { ...config.stiff, clamp: true },
+    config: payments.hasPurchased ? { ...config.stiff, clamp: true } : { ...config.slow, clamp: true },
     from: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' },
     enter: { opacity: 1, transform: 'translateY(0) scale(1.0)' },
     leave: { opacity: 0, transform: 'translateY(-0.25rem) scale(0.98)' }
@@ -46,33 +46,27 @@ const Payments = ({ paymentInfoLoading, artistName, paymentHash, price, releaseI
 
   if (paymentInfoLoading) return null;
 
-  if (isLoading) {
-    return (
-      <div className={styles.loading}>
-        <Spinner className={styles.spinner} wrapperClassName={styles.wrapper}>
-          <div>Searching for payments&hellip;</div>
-        </Spinner>
-      </div>
-    );
-  }
-
   const { hasPurchased, transactions } = payments;
 
-  return transition(
-    (style, item) =>
-      !item && (
-        <animated.div className={styles.payments} style={style}>
-          <DownloadButton
-            artistName={artistName}
-            format="mp3"
-            hasPurchased={hasPurchased}
-            releaseId={releaseId}
-            releaseTitle={releaseTitle}
-          />
-          <Summary payments={payments} fetch={fetch} isFetching={isFetching} paymentData={paymentData} price={price} />
-          <Transactions transactions={transactions} error={error} />
-        </animated.div>
-      )
+  return transition((style, item) =>
+    !item ? (
+      <animated.div className={styles.payments} style={style}>
+        <DownloadButton
+          artistName={artistName}
+          format="mp3"
+          hasPurchased={hasPurchased}
+          releaseId={releaseId}
+          releaseTitle={releaseTitle}
+        />
+        <Summary payments={payments} fetch={fetch} isFetching={isFetching} paymentData={paymentData} price={price} />
+        <Transactions transactions={transactions} error={error} />
+      </animated.div>
+    ) : (
+      <animated.div className={styles.loading} style={style}>
+        <TextSpinner isActive={item} type="nemp3" speed={0.01} className={styles.spinner} />
+        Searching for payments&hellip;
+      </animated.div>
+    )
   );
 };
 
