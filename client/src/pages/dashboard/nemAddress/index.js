@@ -1,13 +1,11 @@
-import { Field, formValueSelector, propTypes, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { addNemAddress, fetchUserCredits } from 'features/user';
-import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { faCertificate, faCheck, faMusic } from '@fortawesome/free-solid-svg-icons';
+import { faCertificate, faCheck, faCheckCircle, faExclamationCircle, faMusic } from '@fortawesome/free-solid-svg-icons';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Input from 'components/input';
 import Modal from 'components/modal';
-import NemAddressFormField from './nemAddressFormField';
-import PropTypes from 'prop-types';
 import PurchaseCredits from './purchaseCredits';
 import ReadOnlyTextArea from 'components/readOnlyTextArea';
 import TextSpinner from 'components/textSpinner';
@@ -17,16 +15,33 @@ import nem from 'nem-sdk';
 import styles from './nemAddress.module.css';
 const addressPrefix = process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? 'an \u2018N\u2019' : 'a \u2018T\u2019';
 
-let NemAddress = props => {
+const formatAddress = address =>
+  address
+    .toUpperCase()
+    .replace(/-/g, '')
+    .match(/.{1,6}/g)
+    ?.join('-') || '';
+
+const NemAddress = () => {
+  const [errors, setErrors] = useState({});
   const [isCheckingCredits, setIsCheckingCredits] = useState(false);
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [values, setValues] = useState({ nemAddress: '' });
   const dispatch = useDispatch();
+  const { userReleases } = useSelector(state => state.releases, shallowEqual);
   const { credits, nemAddress, nemAddressChallenge, nemAddressVerified } = useSelector(
     state => state.user,
     shallowEqual
   );
-  const { userReleases } = useSelector(state => state.releases, shallowEqual);
-  const { handleSubmit, invalid, nemAddressField, pristine, submitting } = props;
+
+  const hasErrors = Object.values(errors).some(error => Boolean(error));
+  const hasChanged = values.nemAddress !== nemAddress || values.signedMessage;
+
+  useEffect(() => {
+    if (nemAddress) setValues({ nemAddress });
+  }, [nemAddress]);
 
   useEffect(() => {
     dispatch(fetchUserReleases());
@@ -36,8 +51,31 @@ let NemAddress = props => {
     if (nemAddress && nemAddressVerified) dispatch(fetchUserCredits());
   }, [nemAddress, nemAddressVerified]);
 
-  const onSubmit = values => {
-    dispatch(addNemAddress({ ...values, nemAddressChallenge }));
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setIsPristine(false);
+    setErrors(prev => ({ ...prev, [name]: '' }));
+
+    if (name === 'nemAddress') {
+      return setValues(prev => ({ ...prev, [name]: value.replace(/-/g, '') }));
+    }
+
+    setValues(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    const validationErrors = validate(values);
+
+    if (Object.values(validationErrors).some(error => Boolean(error))) {
+      return setErrors(validationErrors);
+    }
+
+    setIsSubmitting(true);
+    dispatch(addNemAddress({ ...values, nemAddressChallenge })).finally(() => {
+      setIsSubmitting(false);
+      setValues(prev => ({ ...prev, signedMessage: '' }));
+    });
   };
 
   const handleUpdateCredits = () => {
@@ -45,49 +83,7 @@ let NemAddress = props => {
     dispatch(fetchUserCredits()).then(() => setIsCheckingCredits(false));
   };
 
-  const renderVerifyAddressField = () => {
-    if (nemAddress && nemAddressField && !nemAddressVerified) {
-      return (
-        <>
-          <ReadOnlyTextArea label={'Verification message to be signed'} text={nemAddressChallenge} />
-          <Field
-            disabled={submitting}
-            hint="This address has not yet been verified."
-            id="signedMessage"
-            label="Your signed message"
-            name="signedMessage"
-            nemAddress={nemAddress}
-            nemAddressVerified={nemAddressVerified}
-            placeholder={'{ "message": <YOUR_MESSAGE>, "signer": <YOUR_PUBLIC_KEY>, "signature": <YOUR_SIGNATURE> }'}
-            type="text"
-            component={NemAddressFormField}
-            validate={checkNemMessage}
-          />
-          <p>
-            Please copy the verification phrase and create a signed message with it using the desktop wallet app
-            (Services &#8594; Signed message &#8594; Create a signed message). Then copy/paste the results here to
-            verify ownership of your account.
-          </p>
-          <p>Then you&rsquo;re all set to add credit and start selling your music!</p>
-        </>
-      );
-    }
-  };
-
-  const renderButtonLabel = () => {
-    if (nemAddress && nemAddressField && !nemAddressVerified) return 'Verify Address';
-    if (nemAddress && !nemAddressField) return 'Remove Address';
-    return 'Save Address';
-  };
-
-  const publishedReleaseCount = userReleases?.filter(release => release.published === true).length ?? 0;
-  const creditClassName = classnames({ red: !credits, green: credits });
-
-  const releaseCountClassName = classnames('mb-3', {
-    yellow: !publishedReleaseCount,
-    red: credits < publishedReleaseCount,
-    green: publishedReleaseCount && credits >= publishedReleaseCount
-  });
+  const publishedReleaseCount = userReleases?.filter(release => release.published === true).length || 0;
 
   return (
     <main className="container">
@@ -98,43 +94,83 @@ let NemAddress = props => {
             Please add a NEM address if you wish to sell music. You do not need to enter an address if you only plan on
             purchasing music, as payments are made directly from your account to the artist&rsquo;s account.
           </p>
-          <form className={`${styles.form} my-5 py-5`} onSubmit={handleSubmit(onSubmit)}>
-            <Field
-              disabled={submitting}
-              format={address =>
-                address?.length
-                  ? address
-                      ?.toUpperCase()
-                      .replace(/-/g, '')
-                      .match(/.{1,6}/g)
-                      ?.join('-')
-                  : ''
-              }
-              id="nemAddress"
+          <form className={`${styles.form} my-5 py-5`} onSubmit={handleSubmit}>
+            <Input
+              className={styles.address}
+              disabled={isSubmitting}
+              error={errors.nemAddress}
               hint="It doesn&rsquo;t matter whether you include dashes or not."
-              label="Your NEM address"
+              label={
+                <>
+                  <label htmlFor="nemAddress">Your NEM address</label>
+                  {nemAddress && !nemAddressVerified ? (
+                    <span className={styles.unconfirmed} title="Please sign a message to verify your address.">
+                      Unverified
+                      <FontAwesomeIcon icon={faExclamationCircle} className="ml-2" />
+                    </span>
+                  ) : nemAddress && nemAddressVerified ? (
+                    <span className={styles.confirmed} title="Thank you for verifying your address.">
+                      Verified
+                      <FontAwesomeIcon icon={faCheckCircle} className="ml-2" />
+                    </span>
+                  ) : null}
+                </>
+              }
               name="nemAddress"
-              nemAddress={nemAddress}
-              nemAddressVerified={nemAddressVerified}
+              onChange={handleChange}
               placeholder={`NEM Address (should start with ${addressPrefix})`}
               type="text"
-              component={NemAddressFormField}
-              validate={checkNemAddress}
+              value={formatAddress(values.nemAddress)}
             />
-            {renderVerifyAddressField()}
+            {nemAddress && !nemAddressVerified ? (
+              <>
+                <ReadOnlyTextArea label={'Verification message to be signed'} text={nemAddressChallenge} />
+                <Input
+                  disabled={isSubmitting}
+                  element="textarea"
+                  hint="This address has not yet been verified."
+                  label="Your signed message"
+                  name="signedMessage"
+                  onChange={handleChange}
+                  placeholder={
+                    '{ "message": <YOUR_MESSAGE>, "signer": <YOUR_PUBLIC_KEY>, "signature": <YOUR_SIGNATURE> }'
+                  }
+                  type="text"
+                  value={values.signedMessage || ''}
+                />
+                <p>
+                  Please copy the verification phrase and create a signed message with it using the desktop wallet app
+                  (Services &#8594; Signed message &#8594; Create a signed message). Then copy/paste the results here to
+                  verify ownership of your account.
+                </p>
+                <p>Then you&rsquo;re all set to add credit and start selling your music!</p>
+              </>
+            ) : null}
             <div className="d-flex justify-content-end mb-5">
-              <Button icon={faCheck} type="submit" disabled={(nemAddressField && invalid) || pristine || submitting}>
-                {renderButtonLabel()}
+              <Button
+                icon={faCheck}
+                type="submit"
+                disabled={Boolean(hasErrors) || !hasChanged || isPristine || isSubmitting}
+              >
+                {
+                  nemAddress && values.nemAddress && !nemAddressVerified
+                    ? 'Verify Address'
+                    : nemAddress && !values.nemAddress
+                    ? 'Remove Address' // eslint-disable-line
+                    : 'Save Address' // eslint-disable-line
+                }
               </Button>
             </div>
             <div className="mb-1">
-              <span className={creditClassName}>
+              <span className={classnames({ red: !credits, green: credits })}>
                 <FontAwesomeIcon icon={faCertificate} className="mr-2" />
-                {nemAddressVerified && credits
-                  ? `Your nemp3 credits balance: ${credits}`
-                  : nemAddressVerified
-                  ? 'You don\u2019t currently have any credits.'
-                  : 'Please add a verified NEM address to update your credits balance.'}
+                {
+                  nemAddressVerified && credits
+                    ? `Your nemp3 credits balance: ${credits}`
+                    : nemAddressVerified
+                    ? 'You don\u2019t currently have any credits.' // eslint-disable-line
+                    : 'Please add a verified NEM address to update your credits balance.' // eslint-disable-line
+                }
               </span>
               <Button
                 className={styles.update}
@@ -148,7 +184,13 @@ let NemAddress = props => {
                 Update
               </Button>
             </div>
-            <div className={releaseCountClassName}>
+            <div
+              className={classnames('mb-3', {
+                yellow: !publishedReleaseCount,
+                red: credits < publishedReleaseCount,
+                green: publishedReleaseCount && credits >= publishedReleaseCount
+              })}
+            >
               <FontAwesomeIcon icon={faMusic} className="mr-2" />
               {`Published releases: ${publishedReleaseCount}`}
             </div>
@@ -185,38 +227,23 @@ let NemAddress = props => {
   );
 };
 
-const checkNemAddress = address => {
-  if (address && !nem.model.address.isValid(address)) {
+const checkNemAddress = nemAddress => {
+  if (nemAddress && !nem.model.address.isValid(nemAddress)) {
     return 'This doesn\u2019t appear to be a valid NEM address. Please double-check it!';
   }
-  return undefined;
 };
 
-const checkNemMessage = message => {
-  if (!message) {
+const checkNemMessage = signedMessage => {
+  if (!signedMessage) {
     return 'Please paste your message in to verify your NEM address.';
   }
-  return undefined;
 };
 
-NemAddress.propTypes = {
-  ...propTypes,
-  nemAddressField: PropTypes.string
+const validate = values => {
+  const errors = {};
+  errors.nemAddress = checkNemAddress(values.nemAddress);
+  if (values.signedMessage) errors.signedMessage = checkNemMessage(values.signedMessage);
+  return errors;
 };
 
-const fieldSelector = formValueSelector('nemAddressForm');
-
-function mapStateToProps(state) {
-  return {
-    initialValues: state.user,
-    nemAddressField: fieldSelector(state, 'nemAddress')
-  };
-}
-
-NemAddress = reduxForm({
-  enableReinitialize: true,
-  form: 'nemAddressForm'
-})(NemAddress);
-
-NemAddress = connect(mapStateToProps)(NemAddress);
 export default NemAddress;

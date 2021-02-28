@@ -4,7 +4,7 @@ import { faEnvelope, faThumbsUp } from '@fortawesome/free-regular-svg-icons';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Helmet } from 'react-helmet';
-import InputField from 'components/inputField';
+import Input from 'components/input';
 import PropTypes from 'prop-types';
 import RenderRecaptcha from 'components/renderRecaptcha';
 import axios from 'axios';
@@ -44,7 +44,7 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
           <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="col-md-6 mx-auto">
               <Field
-                component={InputField}
+                component={Input}
                 icon={faEnvelope}
                 id="email"
                 label="Email Address:"

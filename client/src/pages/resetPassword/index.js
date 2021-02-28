@@ -5,7 +5,7 @@ import { faBomb, faCheckCircle, faKey } from '@fortawesome/free-solid-svg-icons'
 import { useHistory, useParams } from 'react-router-dom';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import InputField from 'components/inputField';
+import Input from 'components/input';
 import PropTypes from 'prop-types';
 import Spinner from 'components/spinner';
 import axios from 'axios';
@@ -61,7 +61,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
           <p>Please enter your new password here. You&rsquo;ll be logged-in afterwards automatically.</p>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field
-              component={InputField}
+              component={Input}
               icon={faKey}
               id="passwordNew"
               label="New Password:"
@@ -72,7 +72,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
               validate={required}
             />
             <Field
-              component={InputField}
+              component={Input}
               id="passwordConfirm"
               icon={faCheckCircle}
               label="Confirm New Password:"

@@ -3,7 +3,7 @@ import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { faCheckCircle, faKey } from '@fortawesome/free-solid-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
-import InputField from 'components/inputField';
+import Input from 'components/input';
 import PropTypes from 'prop-types';
 import React from 'react';
 import axios from 'axios';
@@ -45,7 +45,7 @@ const PasswordUpdate = props => {
             <div className="form-row">
               <div className="col-md-6 mx-auto">
                 <Field
-                  component={InputField}
+                  component={Input}
                   icon={faKey}
                   id="password"
                   label="Current Password:"
@@ -56,7 +56,7 @@ const PasswordUpdate = props => {
                   validate={required}
                 />
                 <Field
-                  component={InputField}
+                  component={Input}
                   icon={faCheckCircle}
                   id="passwordNew"
                   label="New Password:"
@@ -67,7 +67,7 @@ const PasswordUpdate = props => {
                   validate={required}
                 />
                 <Field
-                  component={InputField}
+                  component={Input}
                   id="passwordConfirm"
                   icon={faCheckCircle}
                   label="Confirm New Password:"

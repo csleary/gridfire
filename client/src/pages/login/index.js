@@ -6,7 +6,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import InputField from 'components/inputField';
+import Input from 'components/input';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
@@ -52,7 +52,7 @@ const Login = props => {
           <form className="mb-5" onSubmit={handleSubmit(onSubmit)}>
             <Field
               className="form-control"
-              component={InputField}
+              component={Input}
               icon={faEnvelope}
               id="email"
               label="Email Address:"
@@ -64,7 +64,7 @@ const Login = props => {
             />
             <Field
               className="form-control"
-              component={InputField}
+              component={Input}
               icon={faKey}
               id="password"
               label="Password:"

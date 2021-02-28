@@ -20,11 +20,11 @@ const NemAddressFormField = ({
   nemAddress,
   nemAddressVerified,
   placeholder,
-  type,
-  meta: { active, error, touched }
+  type
+  // meta: { active, error, touched }
 }) => {
   const formGroupClassNames = classnames('form-group', {
-    invalid: !active && touched && error
+    // invalid: !active && touched && error
   });
 
   const inputClassNames = classnames('form-control', {
@@ -58,12 +58,12 @@ const NemAddressFormField = ({
       {id === 'nemAddress' && renderAddressStatus()}
       <FormInputs {...input} className={inputClassNames} id={id} placeholder={placeholder} type={type} />
       <small className="form-text text-muted">{hint}</small>
-      {touched && error && (
-        <div className="invalid-feedback">
-          <FontAwesomeIcon icon={faExclamationCircle} className="mr-2" />
-          {error}
-        </div>
-      )}
+      {/* {touched && error && ( */}
+      <div className="invalid-feedback">
+        <FontAwesomeIcon icon={faExclamationCircle} className="mr-2" />
+        {/* {error} */}
+      </div>
+      {/* )} */}
     </div>
   );
 };
