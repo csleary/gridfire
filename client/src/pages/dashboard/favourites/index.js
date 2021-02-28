@@ -12,11 +12,11 @@ const Favourites = () => {
 
   useEffect(() => {
     if (!userFavourites.length) setLoading(true);
-  }, [userFavourites.length]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     dispatch(fetchUserFavourites()).then(() => setLoading(false));
-  }, [dispatch]);
+  }, []);
 
   const renderReleases = userFavourites.map(fav => <RenderRelease key={fav._id} release={fav.release} />);
 

@@ -17,7 +17,7 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
 
   const onSubmit = async values => {
     try {
-      const res = await axios.post('/api/contact', values);
+      const res = await axios.post('/api/email/contact', values);
       reset();
       captchaRef.current.getRenderedComponent().reset();
       dispatch(toastSuccess(res.data.success));

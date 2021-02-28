@@ -208,25 +208,35 @@ class Player extends Component {
   };
 
   fetchInitSegment = async () => {
-    const { releaseId, trackId } = this.props.player;
-    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/init`);
-    const { duration, url, range } = resUrl.data;
-    const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
-    const resBuffer = await axios.get(url, config);
-    this.initSegment = new Uint8Array(resBuffer.data);
-    this.trackDuration = duration;
+    try {
+      const { trackId } = this.props.player;
+      const resUrl = await axios.get(`/api/track/${trackId}/init`);
+      const { duration, url, range } = resUrl.data;
+      const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+      const resBuffer = await axios.get(url, config);
+      this.initSegment = new Uint8Array(resBuffer.data);
+      this.trackDuration = duration;
+    } catch (error) {
+      this.props.playerStop();
+      this.props.toastError(error.message || error.toString());
+    }
   };
 
   fetchSegment = async (time, type) => {
-    const { releaseId, trackId } = this.props.player;
-    const resUrl = await axios.get(`/api/${releaseId}/${trackId}/stream`, { params: { time, type } });
-    const { url, range, end } = resUrl.data;
-    const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
-    const resBuffer = await axios.get(url, config);
-    const segment = new Uint8Array(resBuffer.data);
-    const buffer = new Uint8Array([...this.initSegment, ...segment]);
-    if (end) this.setState({ bufferReachedEnd: true });
-    return buffer;
+    try {
+      const { trackId } = this.props.player;
+      const resUrl = await axios.get(`/api/track/${trackId}/stream`, { params: { time, type } });
+      const { url, range, end } = resUrl.data;
+      const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+      const resBuffer = await axios.get(url, config);
+      const segment = new Uint8Array(resBuffer.data);
+      const buffer = new Uint8Array([...this.initSegment, ...segment]);
+      if (end) this.setState({ bufferReachedEnd: true });
+      return buffer;
+    } catch (error) {
+      this.props.playerStop();
+      this.props.toastError(error.message || error.toString());
+    }
   };
 
   handlePause = () => {

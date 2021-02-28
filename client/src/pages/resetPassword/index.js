@@ -25,7 +25,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
     if (!token) return;
 
     try {
-      axios.get(`/api/auth/reset/${token}`).then(() => setIsLoading(false));
+      axios.get(`/api/email/reset/${token}`).then(() => setIsLoading(false));
     } catch (error) {
       setIsLoading(false);
       setResponse(error.response.data);
@@ -34,7 +34,7 @@ const ResetPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) =
 
   const onSubmit = async values => {
     try {
-      const resetReq = await axios.post(`/api/auth/reset/${token}`, values);
+      const resetReq = await axios.post(`/api/email/reset/${token}`, values);
       const email = resetReq.data;
       const loginReq = await axios.post('/api/auth/login', { email, password: values.passwordNew });
       reset();

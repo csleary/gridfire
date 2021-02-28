@@ -12,6 +12,7 @@ const userSlice = createSlice({
     nemAddressChallenge: '',
     nemAddressVerified: false,
     purchases: [],
+    subId: '',
     wishList: []
   },
   reducers: {
@@ -84,14 +85,14 @@ const removeFromFavourites = releaseId => async dispatch => {
 };
 
 const addToWishList = releaseId => async dispatch => {
-  const res = await axios.post(`/api/user/wish-list/${releaseId}`);
+  const res = await axios.post(`/api/user/wishlist/${releaseId}`);
   dispatch(addWishListItem(res.data));
   dispatch(toastSuccess('Added to wish list.'));
 };
 
 const removeFromWishList = releaseId => async dispatch => {
   dispatch(removeWishListItem(releaseId));
-  await axios.delete(`/api/user/wish-list/${releaseId}`);
+  await axios.delete(`/api/user/wishlist/${releaseId}`);
   dispatch(toastSuccess('Removed from wish list.'));
 };
 

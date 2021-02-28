@@ -1,4 +1,5 @@
 import { setFormatExists, updateActiveRelease } from 'features/releases';
+import { setPaymentDetails, setPaymentError, setPaymentReceived, setPaymentUnconfirmed } from 'features/payment';
 import { setTranscodingComplete, setUploadProgress } from 'features/tracks';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import { batch } from 'react-redux';
@@ -16,7 +17,7 @@ const socketMiddleware = ({ dispatch, getState }) => {
   socket.on('connect', () => {
     console.log('[Socket.io] Connected.');
     const userId = getState().user.userId;
-    if (userId) socket.emit('subscribeUser', { userId });
+    if (userId) socket.emit('user/subscribe', { userId });
   });
 
   socket.on('connect_error', error => console.error(error.message));
@@ -78,10 +79,36 @@ const socketMiddleware = ({ dispatch, getState }) => {
     dispatch(toastInfo(message));
   });
 
+  socket.on('payment/error', ({ error }) => {
+    dispatch(setPaymentError({ error }));
+  });
+
+  socket.on('payment/invoice', ({ paymentInfo, priceInRawXem, release }) => {
+    dispatch(setPaymentDetails({ paymentInfo, priceInRawXem, release }));
+  });
+
+  socket.on('payment/received', ({ hasPurchased, transaction }) => {
+    dispatch(setPaymentReceived({ hasPurchased, transaction }));
+  });
+
+  socket.on('payment/unconfirmed', ({ transaction }) => {
+    dispatch(setPaymentUnconfirmed({ transaction }));
+  });
+
   return next => action => {
     if (action.type === 'user/updateUser') {
       const { _id: userId } = action.payload;
-      if (userId) socket.emit('subscribeUser', { userId });
+      if (userId) socket.emit('user/subscribe', { userId });
+    }
+
+    if (action.type === 'payment/subscribe') {
+      const { userId, releaseId } = action.payload;
+      socket.emit('payment/subscribe', { userId, releaseId });
+    }
+
+    if (action.type === 'payment/unsubscribe') {
+      const { userId } = action.payload;
+      socket.emit('payment/unsubscribe', { userId });
     }
 
     return next(action);

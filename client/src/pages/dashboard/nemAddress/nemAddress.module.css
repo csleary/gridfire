@@ -44,6 +44,12 @@
   font-size: 0.875rem;
 }
 
+.spinner {
+  color: var(--cyan);
+  margin-right: 0.5rem;
+  width: auto;
+}
+
 .buy {
   display: flex;
   justify-content: center;

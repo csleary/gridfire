@@ -28,6 +28,7 @@
   flex-direction: column;
   margin: 1rem 0;
   padding: 1rem;
+  position: relative;
 }
 
 .title {

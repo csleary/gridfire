@@ -31,11 +31,11 @@ const Artists = () => {
 
   useEffect(() => {
     if (!artists.length) dispatch(setIsLoading(true));
-  }, [artists.length, dispatch]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     dispatch(fetchArtists()).then(() => dispatch(setIsLoading(false)));
-  }, [dispatch]);
+  }, []); // eslint-disable-line
 
   const handleChange = e => {
     dispatch(setIsPristine(false));

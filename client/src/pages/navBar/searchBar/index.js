@@ -1,5 +1,5 @@
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { clearResults, searchReleases } from 'features/search';
 import { faCog, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -8,10 +8,6 @@ import classNames from 'classnames';
 import debounce from 'lodash.debounce';
 import styles from './searchBar.module.css';
 import { usePrevious } from 'functions';
-
-const handleSearch = debounce((dispatch, searchText) => {
-  dispatch(searchReleases(searchText));
-}, 500);
 
 const SearchBar = () => {
   const dispatch = useDispatch();
@@ -23,19 +19,26 @@ const SearchBar = () => {
   const searchBar = useRef();
 
   const handleKeyDown = e => {
-    if (e.keyCode === 27) {
+    if (e.key === 'Escape') {
       searchBar.current.blur();
       setExpandSearch(false);
     }
   };
 
+  const handleSearch = useCallback(
+    debounce(query => {
+      dispatch(searchReleases(query));
+    }, 500),
+    []
+  );
+
   const previousQuery = usePrevious(searchText);
 
   useEffect(() => {
     if (searchText.length && searchText !== previousQuery) {
-      handleSearch(dispatch, searchText);
+      handleSearch(searchText);
     }
-  }, [dispatch, previousQuery, searchText]);
+  }, [handleSearch, previousQuery, searchText]);
 
   const handleSearchInput = e => {
     setSearchText(e.target.value);

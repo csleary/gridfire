@@ -21,6 +21,7 @@ let BUCKET_SRC = 'nemp3-src';
 let GOOGLE_CALLBACK = 'https://nemp3.app/api/auth/google/callback';
 let GOOGLE_REDIRECT = 'https://nemp3.app/oauth/google';
 let PAYMENT_ADDRESS = 'NC7KCRGLODPZM6F6E64W4AABKLLONP2XY7FNEMP3';
+let SOCKET_HOST = 'https://nemp3.app';
 let SPOTIFY_CALLBACK = 'https://nemp3.app/api/auth/spotify/callback';
 let SPOTIFY_REDIRECT = 'https://nemp3.app/oauth/spotify';
 let TWITTER_CALLBACK = 'https://nemp3.app/api/auth/twitter/callback';
@@ -34,6 +35,7 @@ if (process.env.NODE_ENV === 'development') {
   GOOGLE_REDIRECT = 'http://localhost:3000/oauth/google';
   PAYMENT_ADDRESS = 'TD74GONFLRQVX5Z75TTRQRD22A65K44E6VUH7QSZ';
   RABBIT_HOST = 'localhost';
+  SOCKET_HOST = 'http://localhost:3000';
   SPOTIFY_CALLBACK = '/api/auth/spotify/callback';
   SPOTIFY_REDIRECT = 'http://localhost:3000/oauth/spotify';
   TWITTER_CALLBACK = '/api/auth/twitter/callback';
@@ -65,6 +67,7 @@ module.exports = {
   QUEUE_CREDITS,
   QUEUE_TRANSCODE,
   RABBIT_HOST,
+  SOCKET_HOST,
   SPOTIFY_CALLBACK,
   SPOTIFY_REDIRECT,
   TEMP_PATH,

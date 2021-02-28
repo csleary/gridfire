@@ -25,7 +25,7 @@ function Dashboard({ match }) {
       <Route exact path={`${match.path}/favourites`} component={Favourites} />
       <Route exact path={`${match.path}/nem-address`} component={NemAddress} />
       <Route exact path={`${match.path}/password-update`} component={PasswordUpdate} />
-      <Route exact path={`${match.path}/wish-list`} component={WishList} />
+      <Route exact path={`${match.path}/wishlist`} component={WishList} />
       <Route exact path={match.path} component={UserReleases} />
     </>
   );

@@ -53,16 +53,16 @@ const ActiveRelease = () => {
 
   useEffect(() => {
     if (releaseId !== release._id) dispatch(setIsLoading(true));
-  }, [dispatch, release._id, releaseId]);
+  }, [release._id, releaseId]);
 
   useEffect(() => {
     dispatch(fetchRelease(releaseId)).then(() => dispatch(setIsLoading(false)));
-  }, [dispatch, releaseId]);
+  }, [releaseId]);
 
   useEffect(() => {
     dispatch(fetchUser());
     dispatch(fetchXemPrice());
-  }, [dispatch]);
+  }, []);
 
   const trackListClassName = classnames({ [styles.columns]: trackList?.length > 10 });
 

@@ -1,63 +1,55 @@
+import React, { useEffect } from 'react';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { resetPayment, setIsLoading } from 'features/payment';
 import Button from 'components/button';
 import PaymentMethods from './paymentMethods';
 import Payments from './payments';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createAction } from '@reduxjs/toolkit';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import styles from './payment.module.css';
-import { toastError } from 'features/toast';
-import { useApi } from 'hooks/useApi';
-import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-
-const defaults = { release: {}, paymentInfo: {}, price: '' };
 
 const Payment = props => {
   const { releaseId } = props.match.params;
-  const { data = defaults, error, isLoading } = useApi(`/api/purchase/${releaseId}`);
   const dispatch = useDispatch();
   const history = useHistory();
-  if (error) dispatch(toastError(error));
+  const { userId } = useSelector(state => state.user, shallowEqual);
 
-  const {
-    release: { artistName, releaseTitle },
-    paymentInfo: { paymentAddress, paymentHash },
-    price
-  } = data;
+  useEffect(() => {
+    const subscribe = createAction('payment/subscribe', payload => ({ payload }));
+
+    batch(() => {
+      dispatch(setIsLoading(true));
+      dispatch(subscribe({ releaseId, userId }));
+    });
+  }, [releaseId, userId]);
+
+  useEffect(() => {
+    return () => {
+      const unsubscribe = createAction('payment/unsubscribe', payload => ({ payload }));
+
+      batch(() => {
+        dispatch(unsubscribe({ userId }));
+        dispatch(resetPayment());
+      });
+    };
+  }, []); // eslint-disable-line
 
   return (
     <>
-      <Button
-        className={styles.back}
-        icon={faChevronLeft}
-        onClick={() => history.push(`/release/${releaseId}`)}
-        size="small"
-        textLink
-      >
+      <Button className={styles.back} icon={faChevronLeft} onClick={() => history.goBack()} size="small" textLink>
         Back
       </Button>
       <h2 className={styles.heading}>Payment</h2>
-      <PaymentMethods
-        isLoading={isLoading}
-        paymentAddress={paymentAddress}
-        paymentHash={paymentHash}
-        priceInXem={price}
-      />
-      <Payments
-        artistName={artistName}
-        paymentInfoLoading={isLoading}
-        paymentHash={paymentHash}
-        price={price}
-        releaseId={releaseId}
-        releaseTitle={releaseTitle}
-      />
+      <PaymentMethods />
+      <Payments />
     </>
   );
 };
 
 Payment.propTypes = {
-  match: PropTypes.object,
-  releaseId: PropTypes.string
+  match: PropTypes.object
 };
 
 export default Payment;

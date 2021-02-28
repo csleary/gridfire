@@ -1,0 +1,13 @@
+.root {
+  margin-bottom: 1.5rem;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.paid {
+  color: var(--yellow);
+}

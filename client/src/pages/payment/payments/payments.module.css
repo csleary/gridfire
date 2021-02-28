@@ -1,21 +1,4 @@
-.loading {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  bottom: 9rem;
-  font-size: 1.25rem;
-  left: 0;
-  position: absolute;
-  right: 0;
-  text-align: center;
-}
-
-.spinner {
-  color: var(--cyan);
-  margin-right: 0.5rem;
-  width: auto;
-}
-
-.payments {
+.root {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   margin-top: auto;

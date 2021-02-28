@@ -37,7 +37,7 @@ const trackSlice = createSlice({
 
 const addTrack = releaseId => async dispatch => {
   try {
-    const res = await axios.put(`/api/${releaseId}/add`);
+    const res = await axios.put(`/api/track/${releaseId}/add`);
     dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
@@ -47,7 +47,7 @@ const addTrack = releaseId => async dispatch => {
 const deleteTrack = (releaseId, trackId) => async dispatch => {
   try {
     dispatch(setDeletingStart(trackId));
-    const res = await axios.delete(`/api/${releaseId}/${trackId}`);
+    const res = await axios.delete(`/api/track/${releaseId}/${trackId}`);
     dispatch(setActiveRelease(res.data));
     dispatch(setDeletingComplete(trackId));
   } catch (error) {
@@ -57,7 +57,7 @@ const deleteTrack = (releaseId, trackId) => async dispatch => {
 
 const moveTrack = (releaseId, fromIndex, toIndex) => async dispatch => {
   try {
-    const res = await axios.patch(`/api/${releaseId}/${fromIndex}/${toIndex}`);
+    const res = await axios.patch(`/api/track/${releaseId}/${fromIndex}/${toIndex}`);
     dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
@@ -90,7 +90,7 @@ const uploadAudio = ({ releaseId, trackId, trackName, audioFile, type }) => asyn
       }
     };
 
-    const res = await axios.post('/api/upload/audio', formData, config);
+    const res = await axios.post('/api/track/upload', formData, config);
     return res;
   } catch (error) {
     toastError(error.response.data.error);

@@ -1,0 +1,11 @@
+.root {
+  text-align: center;
+  font-size: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.spinner {
+  color: var(--cyan);
+  margin-right: 0.5rem;
+  width: auto;
+}

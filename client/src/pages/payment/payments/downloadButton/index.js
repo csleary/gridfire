@@ -1,14 +1,23 @@
 import { faCloudDownloadAlt, faCog, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { shallowEqual, useSelector } from 'react-redux';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './downloadButton.module.css';
 import { useDownload } from 'hooks/useDownload';
 
-const DownloadButton = ({ hasPurchased, ...rest }) => {
-  const { anchorRef, downloadUrl, formatExists, handleDownload, isPreparingDownload, releaseTitle } = useDownload(rest);
+const DownloadButton = () => {
+  const { hasPurchased, release } = useSelector(state => state.payment, shallowEqual);
+  const { _id: releaseId, artistName, releaseTitle } = release;
+
+  const { anchorRef, downloadUrl, formatExists, handleDownload, isPreparingDownload } = useDownload({
+    artistName,
+    format: 'mp3',
+    releaseId,
+    releaseTitle
+  });
+
   if (!hasPurchased) return null;
 
   return (
@@ -44,14 +53,6 @@ const DownloadButton = ({ hasPurchased, ...rest }) => {
       </a>
     </div>
   );
-};
-
-DownloadButton.propTypes = {
-  formatExists: PropTypes.bool,
-  handleDownload: PropTypes.func,
-  hasPurchased: PropTypes.bool,
-  isPreparingDownload: PropTypes.bool,
-  releaseTitle: PropTypes.string
 };
 
 export default DownloadButton;

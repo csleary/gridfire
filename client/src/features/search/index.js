@@ -27,7 +27,7 @@ const searchSlice = createSlice({
 
 const searchReleases = searchQuery => async dispatch => {
   dispatch(setSearching({ isSearching: true, searchQuery }));
-  const res = await axios.get('/api/search', { params: { searchQuery } });
+  const res = await axios.get('/api/catalogue/search', { params: { searchQuery } });
   dispatch(setSearchResults(res.data));
   dispatch(setSearching({ isSearching: false, searchQuery }));
   return res;

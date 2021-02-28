@@ -42,9 +42,7 @@ function RenderTrackList(props) {
   const handleDeleteTrack = async (remove, trackId, index, trackTitle) => {
     const hasConfirmed = await handleConfirm(trackTitle);
     if (!hasConfirmed) return;
-    await dispatch(deleteTrack(releaseId, trackId));
-    remove(index);
-    dispatch(toastSuccess(`'${trackTitle}' deleted.`));
+    dispatch(deleteTrack(releaseId, trackId)).then(() => dispatch(toastSuccess(`'${trackTitle}' deleted.`)));
   };
 
   const handleDragStart = index => setDragOrigin(index);

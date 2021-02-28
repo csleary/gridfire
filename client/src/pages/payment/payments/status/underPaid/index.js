@@ -2,11 +2,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './underPaid.module.css';
 
-const Underpaid = ({ payments, price }) => {
-  const { remaining, hasPurchased, amountPaid } = payments;
-  if (parseFloat(amountPaid) > 0 && parseFloat(amountPaid) < parseFloat(price) && !hasPurchased) {
+const Underpaid = ({ amountPaid, priceInRawXem }) => {
+  if (amountPaid > 0 && amountPaid < priceInRawXem) {
+    const remaining = ((priceInRawXem - amountPaid) * 10 ** -6).toFixed(6);
+
     return (
-      <div className={styles.info}>
+      <div className={styles.root}>
         <div>Remaining</div>
         <div className={styles.remaining}> {remaining} XEM </div>
       </div>
@@ -17,8 +18,8 @@ const Underpaid = ({ payments, price }) => {
 };
 
 Underpaid.propTypes = {
-  payments: PropTypes.object,
-  price: PropTypes.string
+  amountPaid: PropTypes.number,
+  priceInRawXem: PropTypes.number
 };
 
 export default Underpaid;

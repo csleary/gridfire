@@ -1,5 +1,6 @@
 import { animated, config, useTransition } from 'react-spring';
 import { faAndroid, faApple } from '@fortawesome/free-brands-svg-icons';
+import { shallowEqual, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ManualPayment from './manualPayment';
 import PropTypes from 'prop-types';
@@ -9,7 +10,9 @@ import styles from './paymentMethod.module.css';
 
 const Loader = () => <div className={styles.loader} />;
 
-const PaymentMethod = ({ isLoading, paymentAddress, paymentHash, priceInXem, showManualPayment }) => {
+const PaymentMethod = ({ showManualPayment }) => {
+  const { isLoading, paymentInfo, priceInRawXem } = useSelector(state => state.payment, shallowEqual);
+  const { paymentAddress = '', paymentHash = '' } = paymentInfo;
   const states = isLoading ? 1 : showManualPayment ? 2 : 3;
 
   const transition = useTransition(states, {
@@ -27,12 +30,20 @@ const PaymentMethod = ({ isLoading, paymentAddress, paymentHash, priceInXem, sho
       </animated.div>
     ) : index === 2 ? (
       <animated.div className={styles.wrapper} style={style}>
-        <ManualPayment paymentAddress={paymentAddress} paymentHash={paymentHash} priceInXem={priceInXem} />
+        <ManualPayment
+          paymentAddress={paymentAddress}
+          paymentHash={paymentHash}
+          priceInXem={(priceInRawXem * 10 ** -6).toFixed(6)}
+        />
       </animated.div>
     ) : (
       <animated.div className={styles.wrapper} style={style}>
         <div className={styles.qrcode}>
-          <QRCode paymentAddress={paymentAddress.replace(/-/g, '')} price={priceInXem} idHash={paymentHash} />
+          <QRCode
+            paymentAddress={paymentAddress.replace(/-/g, '')}
+            price={(priceInRawXem * 10 ** -6).toFixed(6)}
+            idHash={paymentHash}
+          />
         </div>
         <p className="text-center">
           Scan to pay on{' '}
@@ -52,9 +63,6 @@ const PaymentMethod = ({ isLoading, paymentAddress, paymentHash, priceInXem, sho
 };
 
 PaymentMethod.propTypes = {
-  paymentAddress: PropTypes.string,
-  paymentHash: PropTypes.string,
-  priceInXem: PropTypes.string,
   showManualPayment: PropTypes.bool
 };
 

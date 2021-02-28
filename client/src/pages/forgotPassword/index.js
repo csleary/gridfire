@@ -18,7 +18,7 @@ const ForgotPassword = ({ handleSubmit, pristine, reset, submitting, invalid }) 
 
   const onSubmit = async values => {
     try {
-      const res = await axios.post('/api/auth/reset', values);
+      const res = await axios.post('/api/email/reset', values);
       setResponse(res.data);
     } catch (error) {
       setResponse(error.response.data);

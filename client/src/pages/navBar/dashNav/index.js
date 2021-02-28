@@ -67,7 +67,7 @@ const DashNav = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard/wish-list'}>
+        <NavLink className={styles.link} strict exact to={'/dashboard/wishlist'}>
           <FontAwesomeIcon icon={faMagic} className={styles.icon} />
           List
         </NavLink>

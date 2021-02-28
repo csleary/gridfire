@@ -13,11 +13,11 @@ const Collection = () => {
 
   useEffect(() => {
     if (!collection.length) setLoading(true);
-  }, [collection.length]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     dispatch(fetchCollection()).then(() => setLoading(false));
-  }, [dispatch]);
+  }, []);
 
   const renderReleases = collection.map(({ release }) => (
     <RenderRelease key={release?._id ?? nanoid()} release={release} type="collection" />

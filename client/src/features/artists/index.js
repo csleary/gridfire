@@ -95,7 +95,7 @@ const artistSlice = createSlice({
 
 const addLink = activeArtistId => async dispatch => {
   try {
-    const res = await axios.patch(`/api/artist/${activeArtistId}/link`);
+    const res = await axios.patch(`/api/artists/${activeArtistId}/link`);
     dispatch(setLink({ artistId: activeArtistId, link: res.data }));
   } catch (error) {
     dispatch(toastError(error.response?.data.error ?? error.toString()));
@@ -117,7 +117,7 @@ const fetchArtists = () => async dispatch => {
 const updateArtist = values => async dispatch => {
   try {
     dispatch(setIsSubmitting(true));
-    const res = await axios.post(`/api/artist/${values._id}`, values);
+    const res = await axios.post(`/api/artists/${values._id}`, values);
 
     if (res.data.error) {
       dispatch(setErrors({ name: res.data.name, value: res.data.value }));

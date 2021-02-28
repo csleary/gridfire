@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { faCertificate, faPlus, faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCertificate, faPlus, faSignInAlt, faSignOutAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
@@ -10,7 +10,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Logo from './logo';
 import SearchBar from './searchBar';
 import classnames from 'classnames';
-import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
 import { logOut } from 'features/user';
 import styles from './navBar.module.css';
 import throttle from 'lodash.throttle';
@@ -29,7 +28,8 @@ const NavBar = () => {
       const scrollPos = window.pageYOffset;
       if (scrollPos < navbarPos) return setShowLogo(false);
       setShowLogo(true);
-    }, 500)
+    }, 500),
+    []
   );
 
   useEffect(() => {

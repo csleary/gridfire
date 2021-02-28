@@ -16,11 +16,11 @@ const ArtistPage = () => {
 
   useEffect(() => {
     if (!releaseCount) setLoading(true);
-  }, [releaseCount]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     dispatch(fetchArtistCatalogue(artistId, artistSlug)).then(() => setLoading(false));
-  }, [dispatch, artistId, artistSlug]);
+  }, [artistId, artistSlug]);
 
   if (isLoading) {
     return (

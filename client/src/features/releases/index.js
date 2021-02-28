@@ -199,7 +199,7 @@ const fetchUserReleasesFavCounts = () => async dispatch => {
 };
 
 const fetchUserReleasesPlayCounts = () => async dispatch => {
-  const res = await axios.get('/api/plays');
+  const res = await axios.get('/api/user/plays');
   dispatch(setUserReleasePlays(res.data));
 };
 
@@ -214,7 +214,7 @@ const fetchUserFavourites = () => async dispatch => {
 
 const fetchUserWishList = () => async dispatch => {
   try {
-    const res = await axios.get('/api/user/wish-list');
+    const res = await axios.get('/api/user/wishlist');
     if (res.data) dispatch(setUserWishList(res.data));
   } catch (error) {
     dispatch(toastError(error.response.data.error));
@@ -234,7 +234,7 @@ const publishStatus = releaseId => async dispatch => {
 
 const purchaseRelease = releaseId => async dispatch => {
   try {
-    const res = await axios.get(`/api/purchase/${releaseId}`);
+    const res = await axios.get(`/api/release/purchase/${releaseId}`);
     if (res.data.error) dispatch(toastError(res.data.error));
     dispatch(setReleasePurchaseInfo(res.data));
   } catch (error) {

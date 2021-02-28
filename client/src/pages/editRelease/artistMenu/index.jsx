@@ -16,18 +16,20 @@ const ArtistMenu = field => {
   } = field;
 
   const dispatch = useDispatch();
-  const { artists } = useSelector(state => state.artists, shallowEqual);
+  const { artists, isLoading } = useSelector(state => state.artists, shallowEqual);
   const artistCount = artists?.length;
   const selectedArtist = artists?.find(({ _id: artistId }) => value === artistId);
   const defaultLabel = showNewArtistName ? 'New artist' : 'Select an artist…';
 
   useEffect(() => {
-    dispatch(fetchArtists()).then(() => {
-      if (!artistCount) {
-        setShowNewArtist(true);
-      }
-    });
-  }, [artistCount, dispatch, setShowNewArtist]);
+    dispatch(fetchArtists());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!isLoading && !artistCount && !showNewArtistName) {
+      setShowNewArtist(true);
+    }
+  }, [artistCount, isLoading, setShowNewArtist, showNewArtistName]);
 
   return (
     <fieldset className={styles.field}>

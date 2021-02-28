@@ -44,7 +44,7 @@ const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
 
   try {
     dispatch(setArtworkUploading(true));
-    axios.post('/api/upload/artwork', data, config);
+    axios.post('/api/artwork', data, config);
   } catch (error) {
     dispatch(toastError(error.response.data.error));
   }

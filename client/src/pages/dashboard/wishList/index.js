@@ -12,11 +12,11 @@ const WishList = () => {
 
   useEffect(() => {
     if (!userWishList.length) setLoading(true);
-  }, [userWishList.length]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     dispatch(fetchUserWishList()).then(() => setLoading(false));
-  }, [dispatch]);
+  }, []);
 
   const renderReleases = userWishList.map(wish => <RenderRelease key={wish._id} release={wish.release} />);
 

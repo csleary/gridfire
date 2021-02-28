@@ -3,6 +3,7 @@ import artworkSlice from 'features/artwork';
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import nemSlice from 'features/nem';
+import paymentSlice from 'features/payment';
 import playerSlice from 'features/player';
 import releaseSlice from 'features/releases';
 import searchSlice from 'features/search';
@@ -15,6 +16,7 @@ const appReducer = combineReducers({
   artwork: artworkSlice,
   form: formReducer,
   nem: nemSlice,
+  payment: paymentSlice,
   player: playerSlice,
   releases: releaseSlice,
   search: searchSlice,

@@ -32,7 +32,7 @@ const Login = props => {
     try {
       const res = await axios.post('/api/auth/login', values);
       dispatch(toastSuccess(res.data.success));
-      await dispatch(fetchUser());
+      dispatch(fetchUser());
     } catch (error) {
       dispatch(toastError(error.response.data.error));
       reset();

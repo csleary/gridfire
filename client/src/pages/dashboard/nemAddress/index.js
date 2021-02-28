@@ -2,7 +2,7 @@ import { Field, formValueSelector, propTypes, reduxForm } from 'redux-form';
 import React, { useEffect, useState } from 'react';
 import { addNemAddress, fetchUserCredits } from 'features/user';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { faCertificate, faCheck, faMusic, faSync } from '@fortawesome/free-solid-svg-icons';
+import { faCertificate, faCheck, faMusic } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from 'components/modal';
@@ -10,6 +10,7 @@ import NemAddressFormField from './nemAddressFormField';
 import PropTypes from 'prop-types';
 import PurchaseCredits from './purchaseCredits';
 import ReadOnlyTextArea from 'components/readOnlyTextArea';
+import TextSpinner from 'components/textSpinner';
 import classnames from 'classnames';
 import { fetchUserReleases } from 'features/releases';
 import nem from 'nem-sdk';
@@ -28,18 +29,20 @@ let NemAddress = props => {
   const { handleSubmit, invalid, nemAddressField, pristine, submitting } = props;
 
   useEffect(() => {
-    if (nemAddress && nemAddressVerified) dispatch(fetchUserCredits());
     dispatch(fetchUserReleases());
-  }, [dispatch, nemAddress, nemAddressVerified]);
+  }, []);
 
-  const onSubmit = async values => {
-    await dispatch(addNemAddress({ ...values, nemAddressChallenge }));
+  useEffect(() => {
+    if (nemAddress && nemAddressVerified) dispatch(fetchUserCredits());
+  }, [nemAddress, nemAddressVerified]);
+
+  const onSubmit = values => {
+    dispatch(addNemAddress({ ...values, nemAddressChallenge }));
   };
 
-  const handleUpdateCredits = async () => {
+  const handleUpdateCredits = () => {
     setIsCheckingCredits(true);
-    await dispatch(fetchUserCredits());
-    setIsCheckingCredits(false);
+    dispatch(fetchUserCredits()).then(() => setIsCheckingCredits(false));
   };
 
   const renderVerifyAddressField = () => {
@@ -136,13 +139,12 @@ let NemAddress = props => {
               <Button
                 className={styles.update}
                 disabled={!nemAddress || !nemAddressVerified || isCheckingCredits}
-                icon={faSync}
                 onClick={handleUpdateCredits}
-                spin={isCheckingCredits}
                 textLink
                 title={'Press to recheck your credit.'}
                 type="button"
               >
+                <TextSpinner isActive={isCheckingCredits} type="nemp3" speed={0.01} className={styles.spinner} />
                 Update
               </Button>
             </div>

@@ -76,8 +76,8 @@ const fetchTransactions = async (address, idHash) => {
       const { data } = incoming;
 
       if (data.length) {
-        const recent = filterTransactions(idHash, data);
-        amountPaid += recentPayments(recent);
+        const recent = filterTransactionsByMessage(idHash, data);
+        amountPaid += getPaymentAmount(recent);
         transactions = [...transactions, ...recent];
       }
 
@@ -96,7 +96,7 @@ const fetchTransactions = async (address, idHash) => {
   }
 };
 
-const recentPayments = transactions =>
+const getPaymentAmount = transactions =>
   transactions
     .map(tx => {
       const { amount, otherTrans, type } = tx.transaction;
@@ -105,7 +105,7 @@ const recentPayments = transactions =>
     })
     .reduce((total, current) => total + current, 0);
 
-const filterTransactions = (idHash, transactions = []) =>
+const filterTransactionsByMessage = (idHash, transactions = []) =>
   transactions.filter(tx => {
     if (!tx) return false;
     const { type, message, otherTrans } = tx.transaction;
@@ -155,6 +155,6 @@ module.exports = {
   fetchTransactions,
   fetchXemPrice,
   fetchXemPriceBinance,
-  formatAddress,
-  findNode
+  findNode,
+  formatAddress
 };

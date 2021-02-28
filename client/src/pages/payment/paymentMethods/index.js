@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
 import Button from 'components/button';
 import PaymentMethod from './paymentMethod';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import styles from './paymentMethods.module.css';
 
-const PaymentMethods = ({ isLoading, paymentAddress, paymentHash, priceInXem }) => {
+const PaymentMethods = () => {
+  const { isLoading } = useSelector(state => state.payment, shallowEqual);
   const [showManualPayment, setshowManualPayment] = useState(false);
   const handleshowManualPayment = () => setshowManualPayment(!showManualPayment);
   const qrButton = classNames(styles.select, { [styles.selected]: !showManualPayment });
@@ -28,22 +29,10 @@ const PaymentMethods = ({ isLoading, paymentAddress, paymentHash, priceInXem }) 
         </div>
       )}
       <div className={styles.methods}>
-        <PaymentMethod
-          isLoading={isLoading}
-          paymentAddress={paymentAddress}
-          paymentHash={paymentHash}
-          priceInXem={priceInXem}
-          showManualPayment={showManualPayment}
-        />
+        <PaymentMethod showManualPayment={showManualPayment} />
       </div>
     </>
   );
-};
-
-PaymentMethods.propTypes = {
-  paymentAddress: PropTypes.string,
-  paymentHash: PropTypes.string,
-  priceInXem: PropTypes.string
 };
 
 export default PaymentMethods;

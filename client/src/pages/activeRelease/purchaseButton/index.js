@@ -14,9 +14,9 @@ const PurchaseButton = ({ inCollection, price, priceError, releaseId }) => {
 
   return (
     <div className="d-flex justify-content-center">
-      <Link to={priceError ? '#' : `/release/${releaseId}/payment`}>
+      <Link to={inCollection ? '/dashboard/collection' : priceError ? '#' : `/release/${releaseId}/payment`}>
         <Button className={buttonClassName} disabled={priceError} icon={inCollection ? faCheckCircle : faQrcode}>
-          {priceError ? 'Unavailable' : !price ? 'Name Your Price' : inCollection ? 'Transactions' : 'Purchase'}
+          {priceError ? 'Unavailable' : !price ? 'Name Your Price' : inCollection ? 'Collection' : 'Purchase'}
         </Button>
       </Link>
     </div>

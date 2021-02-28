@@ -37,7 +37,7 @@ const Home = ({ match }) => {
 
   useEffect(() => {
     if (!catalogue.length) setIsLoading(true);
-  }, [catalogue.length]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     handleFetchCatalogue().then(() => {
@@ -50,7 +50,7 @@ const Home = ({ match }) => {
       const serviceName = `${service.charAt(0).toUpperCase()}${service.substring(1)}`;
       dispatch(toastInfo(`You are now logged in using your ${serviceName} account.`));
     }
-  }, [dispatch, service]);
+  }, [service]);
 
   const head = (
     <Helmet>

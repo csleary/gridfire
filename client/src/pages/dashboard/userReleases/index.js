@@ -17,24 +17,25 @@ function UserReleases() {
   const offlineCount = userReleases.filter(release => release.published === false).length;
 
   useEffect(() => {
-    axios.get('/api/sales').then(res => setSalesData(res.data));
+    axios.get('/api/user/sales').then(res => setSalesData(res.data));
   }, []);
 
   useEffect(() => {
     if (!userReleases.length) setLoading(true);
-  }, [userReleases.length]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     dispatch(fetchUserReleases()).then(() => setLoading(false));
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     if (!userReleases.length) return;
+
     batch(() => {
       dispatch(fetchUserReleasesFavCounts());
       dispatch(fetchUserReleasesPlayCounts());
     });
-  }, [dispatch, userReleases.length]);
+  }, [userReleases.length]);
 
   if (isLoading) {
     return (
