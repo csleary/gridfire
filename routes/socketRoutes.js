@@ -1,13 +1,8 @@
-const crypto = require('crypto');
-const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
 const { distinct, filter } = require('rxjs/operators');
-const mongoose = require('mongoose');
+const { matchTransaction, createInvoice, createSale } = require('../controllers/paymentController');
 const nem = require('nem-sdk').default;
-const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
-const User = mongoose.model('users');
-const { matchTransaction } = require('../controllers/paymentController');
 const devEnv = process.env.NODE_ENV === 'development';
+const { format } = nem.utils;
 
 module.exports = (io, socket, rxStomp) => {
   socket.on('user/subscribe', ({ userId }) => {
@@ -16,20 +11,10 @@ module.exports = (io, socket, rxStomp) => {
   });
 
   socket.on('payment/subscribe', async ({ releaseId, userId }) => {
-    const socketId = socket.id;
-
     try {
-      const release = await Release.findById(releaseId, '-__v', { lean: true });
-      const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
-      const priceInXem = release.price / xemPriceUsd;
-      const priceInRawXem = Math.ceil(priceInXem * 10 ** 6);
-      const owner = await User.findById(release.user, 'nemAddress', { lean: true });
-      const customer = await User.findById(userId, 'auth.idHash', { lean: true });
-      const customerIdHash = customer.auth.idHash;
-      const hash = crypto.createHash('sha256');
-      const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 24);
-      const paymentAddress = owner.nemAddress;
-      const paymentInfo = { paymentAddress: nem.utils.format.address(paymentAddress), paymentHash };
+      const socketId = socket.id;
+      const { paymentAddress, paymentHash, priceInRawXem, release } = await createInvoice(releaseId, userId);
+      const paymentInfo = { paymentAddress: format.address(paymentAddress), paymentHash };
       io.to(socketId).emit('payment/invoice', { paymentInfo, priceInRawXem, release });
       const unconfirmedEndpoint = `/unconfirmed/${paymentAddress}`;
       const confirmedEndpoint = `/transactions/${paymentAddress}`;
@@ -62,15 +47,7 @@ module.exports = (io, socket, rxStomp) => {
 
           if (amountPaid >= priceInRawXem) {
             hasPurchased = true;
-
-            await Sale.create({
-              purchaseDate: Date.now(),
-              release: releaseId,
-              amountPaid,
-              transactions,
-              user: userId,
-              userAddress: paymentAddress
-            });
+            await createSale({ amountPaid, paymentAddress, releaseId, transactions, userId });
           }
 
           io.to(socketId).emit('payment/received', { hasPurchased, transaction: confirmed });
@@ -82,7 +59,7 @@ module.exports = (io, socket, rxStomp) => {
         if (devEnv) console.log(`User [${userId}] unsubscribed from payments.`);
       });
     } catch (error) {
-      io.to(socketId).emit('payment/error', { error: error.message || error.toString() });
+      io.to(userId).emit('payment/error', { error: error.message || error.toString() });
     }
   });
 };
