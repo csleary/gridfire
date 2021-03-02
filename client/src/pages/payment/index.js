@@ -37,6 +37,7 @@ const Payment = props => {
 
     const unload = window.addEventListener('beforeunload', handleUnload);
 
+    // Unsubscribe on either navigating away or closing/refreshing the window.
     return () => {
       window.removeEventListener(unload, handleUnload);
       handleUnload();

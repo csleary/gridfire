@@ -24,7 +24,7 @@
 }
 
 .methods {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   height: 22rem;
   overflow-x: hidden;
   overflow-y: auto;
@@ -34,7 +34,7 @@
 .buttons {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .buttons > .select {
