@@ -12,8 +12,6 @@ import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
 
 const Home = ({ match }) => {
-  const { service } = match.params;
-
   const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
     state => state.releases,
     shallowEqual
@@ -24,6 +22,7 @@ const Home = ({ match }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState('dateCreated');
   const [currentSortOrder, setCurrentSortOrder] = useState(-1);
+  const { service } = match.params;
 
   const handleFetchCatalogue = useCallback(
     async ({ sortBy = currentSortPath, sortOrder = currentSortOrder, isPaging = false } = {}) => {
@@ -88,18 +87,20 @@ const Home = ({ match }) => {
             ))}
           </div>
           <div className={styles.wrapper}>
-            <Button
-              className={styles.button}
-              disabled={isFetching || reachedEndOfCat}
-              icon={reachedEndOfCat ? null : faSync}
-              onClick={() =>
-                handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true })
-              }
-              size="small"
-              spin={isFetching}
-            >
-              {reachedEndOfCat ? null : 'Load More'}
-            </Button>
+            {!catalogue.length || reachedEndOfCat ? null : (
+              <Button
+                className={styles.button}
+                disabled={isFetching || reachedEndOfCat}
+                icon={reachedEndOfCat ? null : faSync}
+                onClick={() => {
+                  handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true });
+                }}
+                size="small"
+                spin={isFetching}
+              >
+                Load More
+              </Button>
+            )}
           </div>
         </div>
       </div>

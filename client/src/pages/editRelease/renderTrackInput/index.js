@@ -20,6 +20,7 @@ const RenderTrackInput = props => {
   return (
     <>
       <div className={styles.wrapper}>
+        <div className={styles.grabber}>⠿</div>
         <label className={styles.label} htmlFor={name}>
           {label}
         </label>

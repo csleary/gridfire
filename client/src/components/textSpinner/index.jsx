@@ -72,23 +72,30 @@ const TextSpinner = ({ className, isActive = true, type = 'nemp3', speed = 0.005
   const [count, setCount] = useState(0);
   const requestRef = useRef();
   const previousTimeRef = useRef();
+  const isUnmounting = useRef(false);
 
   const draw = useCallback(
     time => {
-      if (previousTimeRef.current !== undefined && isActive) {
+      if (previousTimeRef.current !== undefined) {
         const deltaTime = time - previousTimeRef.current;
+        if (isUnmounting.current) return;
         setCount(prevCount => (prevCount + deltaTime * speed) % chars[type].length);
       }
 
       previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(draw);
     },
-    [chars, isActive, speed, type]
+    [chars, speed, type]
   );
 
   useEffect(() => {
+    isUnmounting.current = false;
     if (isActive) requestRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(requestRef.current);
+
+    return () => {
+      isUnmounting.current = true;
+      cancelAnimationFrame(requestRef.current);
+    };
   }, [draw, isActive]);
 
   return (

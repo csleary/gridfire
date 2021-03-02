@@ -16,7 +16,7 @@ if (process.env.REACT_APP_NODE_ENV === 'development') {
 const socketMiddleware = ({ dispatch, getState }) => {
   socket.on('connect', () => {
     console.log('[Socket.io] Connected.');
-    const userId = getState().user.userId;
+    const { userId } = getState().user;
     if (userId) socket.emit('user/subscribe', { userId });
   });
 
@@ -107,8 +107,7 @@ const socketMiddleware = ({ dispatch, getState }) => {
     }
 
     if (action.type === 'payment/unsubscribe') {
-      const { userId } = action.payload;
-      socket.emit('payment/unsubscribe', { userId });
+      socket.emit('payment/unsubscribe');
     }
 
     return next(action);

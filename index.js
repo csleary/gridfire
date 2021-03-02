@@ -1,17 +1,17 @@
 global.__basedir = __dirname;
-const { RxStomp } = require('@stomp/rx-stomp');
-const { SOCKET_HOST } = require('./config/constants');
+const { clientErrorHandler, errorHandler, logErrors } = require(__basedir + '/middlewares/errorHandlers');
 const express = require('express');
 const app = express();
 const httpServer = require('http').createServer(app);
+const connectRabbitmq = require(__basedir + '/services/rabbitmq');
+const connectStomp = require(__basedir + '/services/rxstomp');
+const connectSocketio = require(__basedir + '/services/socketio');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
-const { findNode } = require('./controllers/nemController');
 const keys = require('./config/keys');
 const mongoose = require('mongoose');
 const passport = require('passport');
-Object.assign(global, { WebSocket: require('ws') });
-
+global.WebSocket = require('ws');
 require('./models/Artist');
 require('./models/CreditPayment');
 require('./models/Favourite');
@@ -23,9 +23,16 @@ require('./models/StreamSession');
 require('./models/User');
 require('./models/Wish');
 require('./services/passport');
-require('./services/rabbitMQ')(app);
-
-mongoose.set('debug', process.env.NODE_ENV === 'development');
+const artists = require('./routes/artistRoutes');
+const artwork = require('./routes/artworkRoutes');
+const auth = require('./routes/authRoutes');
+const catalogue = require('./routes/catalogueRoutes');
+const download = require('./routes/authRoutes');
+const email = require('./routes/emailRoutes');
+const nem = require('./routes/nemRoutes');
+const release = require('./routes/releaseRoutes');
+const track = require('./routes/trackRoutes');
+const user = require('./routes/userRoutes');
 
 const config = {
   useFindAndModify: false,
@@ -42,9 +49,10 @@ const connect = async () => {
   }
 };
 
+mongoose.set('debug', process.env.NODE_ENV === 'development');
 const db = mongoose.connection;
 db.once('open', () => console.log('Mongoose connected.'));
-db.on('error', () => io.emit('error', { message: 'Database connection error.' }));
+db.on('error', () => app.get('socketio').emit('error', { message: 'Database connection error.' }));
 
 db.on('disconnected', () => {
   console.error('Mongoose disconnected. Attempting to reconnect in 5 seconds…');
@@ -65,17 +73,6 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-const artists = require('./routes/artistRoutes');
-const artwork = require('./routes/artworkRoutes');
-const auth = require('./routes/authRoutes');
-const catalogue = require('./routes/catalogueRoutes');
-const download = require('./routes/authRoutes');
-const email = require('./routes/emailRoutes');
-const nem = require('./routes/nemRoutes');
-const release = require('./routes/releaseRoutes');
-const track = require('./routes/trackRoutes');
-const user = require('./routes/userRoutes');
 app.use('/api/artists', artists);
 app.use('/api/artwork', artwork);
 app.use('/api/auth', auth);
@@ -86,65 +83,19 @@ app.use('/api/nem', nem);
 app.use('/api/release', release);
 app.use('/api/track', track);
 app.use('/api/user', user);
-
-const connectStomp = async () => {
-  const { host: nis } = (await findNode()) || {};
-  const rxStomp = new RxStomp();
-
-  rxStomp.configure({
-    brokerURL: `ws://${nis}:7778/w/messages/websocket`,
-    debug: str => process.env.NODE_ENV === 'development' && console.log('STOMP: ' + str),
-    reconnectDelay: 1000
-  });
-
-  rxStomp.activate();
-  return rxStomp;
-};
-
-const io = require('socket.io')(httpServer, {
-  cors: {
-    origin: SOCKET_HOST,
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
-});
-
-const registerSocketRoutes = require('./routes/socketRoutes');
-
-const onConnection = async socket => {
-  const rxStomp = await connectStomp();
-  registerSocketRoutes(io, socket, rxStomp);
-};
-
-io.on('connection', onConnection);
-app.set('socketio', io);
-
-const logErrors = (error, req, res, next) => {
-  console.error(error);
-  next(error);
-};
-
-const clientErrorHandler = (error, req, res, next) => {
-  if (req.xhr) {
-    console.error('Error processing client request: %s', req.headers.host);
-    res.status(500).send({ error: 'An API server error occurred.' });
-  } else {
-    next(error);
-  }
-};
-
-const errorHandler = (error, req, res, next) => {
-  if (res.headersSent) return next(error);
-  res.status(500).send({ error });
-};
-
 app.use(logErrors);
 app.use(clientErrorHandler);
 app.use(errorHandler);
+connectRabbitmq(app);
 
-process.on('uncaughtException', error => {
-  console.error(`Uncaught error: ${error.message}`);
-  if (process.env.NODE_ENV === 'production') process.exit(1);
+const connectServices = async () => {
+  const rxStomp = await connectStomp();
+  const io = await connectSocketio(httpServer, rxStomp);
+  app.set('rxStomp', rxStomp);
+  app.set('socketio', io);
+};
+
+httpServer.listen(process.env.PORT || 8083, () => {
+  console.log('Express server running.');
+  connectServices();
 });
-
-httpServer.listen(process.env.PORT || 8083, () => console.log('Express server running.'));

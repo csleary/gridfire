@@ -1,34 +1,62 @@
-import { Field, reduxForm } from 'redux-form';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { batch, useDispatch } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { Helmet } from 'react-helmet';
 import Input from 'components/input';
-import PropTypes from 'prop-types';
-import RenderRecaptcha from 'components/renderRecaptcha';
+import Recaptcha from 'components/recaptcha';
 import axios from 'axios';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { fetchUser } from 'features/user';
-import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
-const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
+const Register = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const captchaRef = useRef();
+  const [errors, setErrors] = useState({});
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [values, setValues] = useState({});
+  const hasErrors = Object.values(errors).some(error => Boolean(error));
 
-  const onSubmit = async values => {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setIsPristine(false);
+
+    setErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+
+      return prev;
+    });
+
+    setValues(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const validationErrors = validate(values);
+    if (Object.values(validationErrors).some(error => Boolean(error))) return setErrors(validationErrors);
+    setIsSubmitting(true);
+
     try {
       const res = await axios.post('/api/auth/register', values);
-      dispatch(toastSuccess(res.data.success));
-      reset();
-      captchaRef.current.getRenderedComponent().reset();
-      await dispatch(fetchUser());
-      history.push('/');
+      batch(() => {
+        dispatch(toastSuccess(res.data.success));
+        dispatch(fetchUser()).then(() => history.push('/'));
+      });
+      setValues({});
     } catch (error) {
       dispatch(toastError(error.message.toString() || error.response?.data.error));
-      captchaRef.current.getRenderedComponent().reset();
+      setValues(prev => ({ email: prev.email }));
+    } finally {
+      setIsSubmitting(false);
+      captchaRef.current.reset();
     }
   };
 
@@ -41,44 +69,39 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
       <div className="row">
         <div className="col py-3 mb-4">
           <h2 className="text-center mt-4">Register</h2>
-          <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
+          <form className="form-row mt-5" onSubmit={handleSubmit}>
             <div className="col-md-6 mx-auto">
-              <Field
-                component={Input}
+              <Input
+                error={errors.email}
                 icon={faEnvelope}
-                id="email"
                 label="Email Address:"
                 name="email"
+                onChange={handleChange}
                 placeholder="Email Address"
                 required
                 type="email"
-                validate={required}
+                value={values.email || ''}
               />
-              <Field
-                className="form-control"
-                component={Input}
+              <Input
+                error={errors.password}
                 hint="A strong and unique alphanumeric password recommended."
                 icon={faKey}
-                id="password"
                 label="Password:"
                 name="password"
+                onChange={handleChange}
                 placeholder="Password"
                 required
                 type="password"
-                validate={required}
+                value={values.password || ''}
               />
-              <Field
-                classNames="justify-content-end"
-                component={RenderRecaptcha}
-                forwardRef
-                name="recaptcha"
-                ref={el => {
-                  captchaRef.current = el;
-                }}
-                validate={required}
+              <Recaptcha
+                error={errors.recaptcha}
+                handleChange={handleChange}
+                onError={error => setErrors(prev => ({ ...prev, recaptcha: String(error) }))}
+                captchaRef={captchaRef}
               />
               <div className="d-flex justify-content-end">
-                <Button className="my-3" type="submit" disabled={invalid || pristine || submitting}>
+                <Button className="my-3" type="submit" disabled={hasErrors || isPristine || isSubmitting}>
                   Sign Up
                 </Button>
               </div>
@@ -90,17 +113,12 @@ const Register = ({ handleSubmit, pristine, reset, submitting, invalid }) => {
   );
 };
 
-Register.propTypes = {
-  handleSubmit: PropTypes.func,
-  invalid: PropTypes.bool,
-  pristine: PropTypes.bool,
-  reset: PropTypes.func,
-  submitting: PropTypes.bool
+const validate = ({ email, password, recaptcha }) => {
+  const errors = {};
+  if (!email) errors.email = 'Please enter your email address.';
+  if (!password) errors.password = 'Please enter your password.';
+  if (!recaptcha) errors.recaptcha = 'Please complete the recaptcha.';
+  return errors;
 };
 
-const required = value => {
-  if (value) return;
-  return 'Please enter a value.';
-};
-
-export default reduxForm({ form: 'registerForm' })(Register);
+export default Register;

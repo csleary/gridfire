@@ -16,7 +16,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   const user = await User.findById(id, '-__v -auth.password').exec();
-  done(null, user.toJSON());
+  done(null, user);
 });
 
 const idHash = emailAddress => {

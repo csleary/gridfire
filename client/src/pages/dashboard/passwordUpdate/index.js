@@ -1,35 +1,57 @@
-import { Field, reduxForm } from 'redux-form';
+import React, { useState } from 'react';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { faCheckCircle, faKey } from '@fortawesome/free-solid-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import Input from 'components/input';
-import PropTypes from 'prop-types';
-import React from 'react';
 import axios from 'axios';
 import { fetchUser } from 'features/user';
 import { useHistory } from 'react-router-dom';
 
-const PasswordUpdate = props => {
-  const { handleSubmit, reset, pristine, submitting, invalid } = props;
+const PasswordUpdate = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { email } = useSelector(state => state.user.auth, shallowEqual);
+  const [errors, setErrors] = useState({});
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [values, setValues] = useState({});
+  const hasErrors = Object.values(errors).some(error => Boolean(error));
 
-  const onSubmit = async values => {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setIsPristine(false);
+
+    setErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+
+      return prev;
+    });
+
+    setValues(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const validationErrors = validate(values);
+    if (Object.values(validationErrors).some(error => Boolean(error))) return setErrors(validationErrors);
+    setIsSubmitting(true);
+
     try {
       const res = await axios.post('/api/auth/update', { email, ...values });
-      reset();
-
       batch(() => {
-        dispatch(fetchUser());
         dispatch(toastSuccess(res.data.success));
+        dispatch(fetchUser()).then(() => history.push('/dashboard'));
       });
-
-      history.push('/dashboard');
+      setValues({});
     } catch (error) {
       dispatch(toastError(error.response.data.error.message || error.message.toString()));
-      reset();
+      setIsSubmitting(false);
+      setValues({});
     }
   };
 
@@ -41,44 +63,44 @@ const PasswordUpdate = props => {
           <p className="text-center">
             You can update your password using the form below (unless you&rsquo;ve logged-in with a Google account).
           </p>
-          <form className="my-5" onSubmit={handleSubmit(onSubmit)}>
+          <form className="my-5" onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="col-md-6 mx-auto">
-                <Field
-                  component={Input}
+                <Input
+                  error={errors.password}
                   icon={faKey}
-                  id="password"
                   label="Current Password:"
                   name="password"
+                  onChange={handleChange}
                   placeholder="Current Password"
                   required
                   type="password"
-                  validate={required}
+                  value={values.password || ''}
                 />
-                <Field
-                  component={Input}
+                <Input
+                  error={errors.passwordNew}
                   icon={faCheckCircle}
-                  id="passwordNew"
                   label="New Password:"
                   name="passwordNew"
+                  onChange={handleChange}
                   placeholder="New Password"
                   required
                   type="password"
-                  validate={required}
+                  value={values.passwordNew || ''}
                 />
-                <Field
-                  component={Input}
-                  id="passwordConfirm"
+                <Input
+                  error={errors.passwordConfirm}
                   icon={faCheckCircle}
                   label="Confirm New Password:"
                   name="passwordConfirm"
+                  onChange={handleChange}
                   placeholder="New Password"
                   required
                   type="password"
-                  validate={[required, isMatched]}
+                  value={values.passwordConfirm || ''}
                 />
                 <div className="d-flex justify-content-end mt-4">
-                  <Button type="submit" disabled={invalid || pristine || submitting}>
+                  <Button type="submit" disabled={hasErrors || isPristine || isSubmitting}>
                     Update
                   </Button>
                 </div>
@@ -91,22 +113,17 @@ const PasswordUpdate = props => {
   );
 };
 
-PasswordUpdate.propTypes = {
-  handleSubmit: PropTypes.func,
-  reset: PropTypes.func,
-  pristine: PropTypes.bool,
-  submitting: PropTypes.bool,
-  invalid: PropTypes.bool
+const validate = ({ password, passwordNew, passwordConfirm }) => {
+  const errors = {};
+  if (!password) errors.password = 'Please enter your current password.';
+  if (!passwordNew) errors.passwordNew = 'Please enter your new password.';
+  if (!passwordConfirm) errors.passwordConfirm = 'Please confirm your new password.';
+
+  if (passwordNew !== passwordConfirm) {
+    errors.passwordConfirm = 'The passwords entered do not match. Please double-check them.';
+  }
+
+  return errors;
 };
 
-const required = value => {
-  if (value) return;
-  return 'Please enter a value.';
-};
-
-const isMatched = (value, allValues) => {
-  if (value === allValues.passwordNew) return;
-  return 'The passwords entered do not match. Please double-check them.';
-};
-
-export default reduxForm({ form: 'loginForm' })(PasswordUpdate);
+export default PasswordUpdate;

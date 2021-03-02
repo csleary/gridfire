@@ -1,28 +1,55 @@
-import { Field, reduxForm } from 'redux-form';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { faComment, faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { Helmet } from 'react-helmet';
 import Input from 'components/input';
-import PropTypes from 'prop-types';
-import RenderRecaptcha from 'components/renderRecaptcha';
+import Recaptcha from 'components/recaptcha';
 import axios from 'axios';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch } from 'react-redux';
 
-const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
+const Contact = () => {
   const dispatch = useDispatch();
   const captchaRef = useRef();
+  const [errors, setErrors] = useState({});
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [values, setValues] = useState({});
+  const hasErrors = Object.values(errors).some(error => Boolean(error));
 
-  const onSubmit = async values => {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setIsPristine(false);
+
+    setErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+
+      return prev;
+    });
+
+    setValues(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const validationErrors = validate(values);
+    if (Object.values(validationErrors).some(error => Boolean(error))) return setErrors(validationErrors);
+    setIsSubmitting(true);
+
     try {
       const res = await axios.post('/api/email/contact', values);
-      reset();
-      captchaRef.current.getRenderedComponent().reset();
       dispatch(toastSuccess(res.data.success));
+      setValues({});
     } catch (error) {
       dispatch(toastError(error.response.data.error));
+    } finally {
+      setIsSubmitting(false);
+      captchaRef.current.reset();
     }
   };
 
@@ -39,40 +66,45 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
             Please get in touch using the contact form below if you have any queries, suggestions, or need help with
             anything. We&rsquo;ll be in touch as soon as possible.
           </p>
-          <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
+          <form className="form-row mt-5" onSubmit={handleSubmit}>
             <div className="col-md-6 mx-auto">
-              <Field
-                component={Input}
+              <Input
+                error={errors.email}
                 icon={faEnvelope}
-                id="email"
                 label="Email Address:"
                 name="email"
+                onChange={handleChange}
                 placeholder="Email Address"
                 type="email"
                 required
+                value={values.password || ''}
               />
-              <Field
-                component={Input}
+              <Input
+                error={errors.message}
                 icon={faComment}
-                id="message"
                 label="Your Message:"
                 name="message"
+                onChange={handleChange}
                 placeholder="Enter your message."
                 rows="6"
                 type="textarea"
                 required
+                value={values.password || ''}
               />
-              <Field
-                component={RenderRecaptcha}
-                classNames="justify-content-end"
-                forwardRef
-                name="recaptcha"
-                ref={el => {
-                  captchaRef.current = el;
-                }}
+              <Recaptcha
+                error={errors.recaptcha}
+                handleChange={handleChange}
+                name={'recaptcha'}
+                onError={error => setErrors(prev => ({ ...prev, recaptcha: String(error) }))}
+                captchaRef={captchaRef}
               />
               <div className="d-flex justify-content-end">
-                <Button className="my-3" icon={faCheck} type="submit" disabled={invalid || pristine || submitting}>
+                <Button
+                  className="my-3"
+                  icon={faCheck}
+                  type="submit"
+                  disabled={hasErrors || isPristine || isSubmitting}
+                >
                   Send Message
                 </Button>
               </div>
@@ -84,20 +116,12 @@ const Contact = ({ handleSubmit, invalid, pristine, reset, submitting }) => {
   );
 };
 
-const validate = values => {
+const validate = ({ email, message, recaptcha }) => {
   const errors = {};
-  if (!values.email) errors.email = 'Please enter your email address.';
-  if (!values.message) errors.message = 'Please enter a message.';
-  if (!values.recaptcha) errors.recaptcha = 'Please complete the recaptcha.';
+  if (!email) errors.email = 'Please enter your email address.';
+  if (!message) errors.message = 'Please enter a message.';
+  if (!recaptcha) errors.recaptcha = 'Please complete the recaptcha.';
   return errors;
 };
 
-Contact.propTypes = {
-  handleSubmit: PropTypes.func,
-  invalid: PropTypes.bool,
-  pristine: PropTypes.bool,
-  reset: PropTypes.func,
-  submitting: PropTypes.bool
-};
-
-export default reduxForm({ form: 'contactForm', validate })(Contact);
+export default Contact;

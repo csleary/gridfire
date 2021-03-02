@@ -26,13 +26,20 @@ const Payment = props => {
   }, [releaseId, userId]);
 
   useEffect(() => {
-    return () => {
-      const unsubscribe = createAction('payment/unsubscribe', payload => ({ payload }));
+    const handleUnload = () => {
+      const action = createAction('payment/unsubscribe');
 
       batch(() => {
-        dispatch(unsubscribe({ userId }));
+        dispatch(action());
         dispatch(resetPayment());
       });
+    };
+
+    const unload = window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      window.removeEventListener(unload, handleUnload);
+      handleUnload();
     };
   }, []); // eslint-disable-line
 

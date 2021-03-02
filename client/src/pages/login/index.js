@@ -1,24 +1,26 @@
-import { Field, reduxForm } from 'redux-form';
 import { Link, useHistory } from 'react-router-dom';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Input from 'components/input';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { fetchUser } from 'features/user';
 import styles from './login.module.css';
 
-const Login = props => {
-  const { handleSubmit, pristine, reset, submitting, invalid } = props;
+const Login = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { auth } = useSelector(state => state.user, shallowEqual);
+  const [errors, setErrors] = useState({});
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [values, setValues] = useState({});
+  const hasErrors = Object.values(errors).some(error => Boolean(error));
 
   useEffect(() => {
     if (auth?.email.length && history.location.state) {
@@ -28,14 +30,39 @@ const Login = props => {
     }
   }, [auth, history]);
 
-  const onSubmit = async values => {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setIsPristine(false);
+
+    setErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+
+      return prev;
+    });
+
+    setValues(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const validationErrors = validate(values);
+    if (Object.values(validationErrors).some(error => Boolean(error))) return setErrors(validationErrors);
+    setIsSubmitting(true);
+
     try {
       const res = await axios.post('/api/auth/login', values);
-      dispatch(toastSuccess(res.data.success));
-      dispatch(fetchUser());
+      batch(() => {
+        dispatch(toastSuccess(res.data.success));
+        dispatch(fetchUser()).then(() => setIsSubmitting(false));
+      });
+      setValues({});
     } catch (error) {
       dispatch(toastError(error.response.data.error));
-      reset();
+      setIsSubmitting(false);
     }
   };
 
@@ -49,33 +76,31 @@ const Login = props => {
       <div className="row">
         <div className="col-md mb-5">
           <p>If you already have a nemp3 account, please log in using the form below.</p>
-          <form className="mb-5" onSubmit={handleSubmit(onSubmit)}>
-            <Field
-              className="form-control"
-              component={Input}
+          <form className="mb-5" onSubmit={handleSubmit}>
+            <Input
+              error={errors.email}
               icon={faEnvelope}
-              id="email"
               label="Email Address:"
+              onChange={handleChange}
               name="email"
               placeholder="Email Address"
               required
               type="email"
-              validate={required}
+              value={values.email || ''}
             />
-            <Field
-              className="form-control"
-              component={Input}
+            <Input
+              error={errors.password}
               icon={faKey}
-              id="password"
               label="Password:"
               name="password"
+              onChange={handleChange}
               placeholder="Password"
               required
               type="password"
-              validate={required}
+              value={values.password || ''}
             />
             <div className="d-flex justify-content-center">
-              <Button className="mt-4" type="submit" disabled={invalid || pristine || submitting}>
+              <Button className="mt-4" type="submit" disabled={hasErrors || isPristine || isSubmitting}>
                 Log In
               </Button>
             </div>
@@ -107,17 +132,11 @@ const Login = props => {
   );
 };
 
-Login.propTypes = {
-  handleSubmit: PropTypes.func,
-  invalid: PropTypes.bool,
-  pristine: PropTypes.bool,
-  reset: PropTypes.func,
-  submitting: PropTypes.bool
+const validate = ({ email, password }) => {
+  const errors = {};
+  if (!email) errors.email = 'Please enter your email address.';
+  if (!password) errors.password = 'Please enter your password.';
+  return errors;
 };
 
-const required = value => {
-  if (value) return;
-  return 'Please enter a value.';
-};
-
-export default reduxForm({ form: 'loginForm' })(Login);
+export default Login;

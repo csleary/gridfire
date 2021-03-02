@@ -92,7 +92,7 @@ router.post('/reset', async (req, res) => {
     const user = await User.findOne({ 'auth.email': email });
 
     if (!user) {
-      throw new Error('We cannot find a user with that address.');
+      throw new Error('We could not find a user with that address.');
     }
 
     const token = await crypto.randomBytes(20).toString('hex');
@@ -172,7 +172,7 @@ router.post('/reset/:token', async (req, res) => {
     });
 
     if (!user) {
-      throw new Error('The reset token cannot be found (perhaps it has expired). Please request another reset.');
+      throw new Error('Reset request invalid. Please try resetting again.');
     }
 
     user.auth.password = passwordNew;

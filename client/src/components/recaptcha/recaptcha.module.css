@@ -1,0 +1,16 @@
+.root {
+  margin-bottom: 1rem;
+}
+
+.captcha {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-bottom: 0.25rem;
+  padding-top: 1rem;
+}
+
+.error {
+  color: var(--red);
+  text-align: right;
+}

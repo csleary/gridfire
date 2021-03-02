@@ -5,7 +5,9 @@ import classnames from 'classnames';
 import styles from './input.module.css';
 
 const Input = ({
+  autoFocus,
   className,
+  disabled,
   element,
   error,
   hint,
@@ -45,6 +47,7 @@ const Input = ({
       {element === 'textarea' ? (
         <textarea
           className="form-control"
+          disabled={disabled}
           name={name}
           onChange={onChange}
           placeholder={placeholder}
@@ -54,7 +57,9 @@ const Input = ({
         />
       ) : (
         <input
-          className={classnames('form-control', { [className]: Boolean(className) })}
+          autoFocus={autoFocus}
+          className={classnames('form-control', styles.input, { [className]: Boolean(className) })}
+          disabled={disabled}
           name={name}
           onBlur={onBlur}
           onChange={onChange}
@@ -73,8 +78,10 @@ const Input = ({
 };
 
 Input.propTypes = {
+  autoFocus: PropTypes.bool,
   className: PropTypes.string,
   element: PropTypes.string,
+  disabled: PropTypes.bool,
   error: PropTypes.string,
   hint: PropTypes.string,
   icon: PropTypes.object,

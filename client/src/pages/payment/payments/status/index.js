@@ -5,6 +5,7 @@ import styles from './status.module.css';
 
 const Status = () => {
   const { priceInRawXem, transactions } = useSelector(state => state.payment, shallowEqual);
+  const hasUnconfirmed = transactions.some(({ meta }) => meta.height === 9007199254740991);
 
   const amountPaid = transactions
     .map(({ transaction: { amount, otherTrans, type } }) => (type === 257 ? amount : otherTrans.amount))
@@ -14,7 +15,7 @@ const Status = () => {
     return (
       <div className={styles.root}>
         <div className={styles.info}>
-          <div>Paid</div>
+          <div>Total paid{hasUnconfirmed ? ' (inc. unconfirmed)' : null}:</div>
           <div className={styles.paid}>{(amountPaid / 10 ** 6).toFixed(6)} XEM</div>
         </div>
         <Underpaid amountPaid={amountPaid} priceInRawXem={priceInRawXem} />

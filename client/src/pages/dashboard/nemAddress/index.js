@@ -23,19 +23,18 @@ const formatAddress = address =>
     ?.join('-') || '';
 
 const NemAddress = () => {
-  const [errors, setErrors] = useState({});
-  const [isCheckingCredits, setIsCheckingCredits] = useState(false);
-  const [isPristine, setIsPristine] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [values, setValues] = useState({ nemAddress: '' });
   const dispatch = useDispatch();
   const { userReleases } = useSelector(state => state.releases, shallowEqual);
   const { credits, nemAddress, nemAddressChallenge, nemAddressVerified } = useSelector(
     state => state.user,
     shallowEqual
   );
-
+  const [errors, setErrors] = useState({});
+  const [isCheckingCredits, setIsCheckingCredits] = useState(false);
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [values, setValues] = useState({ nemAddress: '' });
   const hasErrors = Object.values(errors).some(error => Boolean(error));
   const hasChanged = values.nemAddress !== nemAddress || values.signedMessage;
 
@@ -54,7 +53,16 @@ const NemAddress = () => {
   const handleChange = e => {
     const { name, value } = e.target;
     setIsPristine(false);
-    setErrors(prev => ({ ...prev, [name]: '' }));
+
+    setErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+
+      return prev;
+    });
 
     if (name === 'nemAddress') {
       return setValues(prev => ({ ...prev, [name]: value.replace(/-/g, '') }));

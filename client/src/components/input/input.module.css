@@ -5,4 +5,5 @@
 
 .error {
   color: var(--red);
+  margin-top: 0.25rem;
 }
