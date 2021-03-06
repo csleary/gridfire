@@ -8,7 +8,7 @@ const User = mongoose.model('users');
 const { hexMessage } = nem.utils.format;
 
 const createInvoice = async (releaseId, userId) => {
-  const release = await Release.findById(releaseId, '-__v', { lean: true });
+  const release = await Release.findById(releaseId, 'artistName releaseTitle price user', { lean: true });
   const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
   const priceInXem = release.price / xemPriceUsd;
   const priceInRawXem = Math.ceil(priceInXem * 10 ** 6);

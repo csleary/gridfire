@@ -22,7 +22,7 @@ WORKDIR /root/nemp3
 COPY --from=base /root/nemp3 .
 RUN apt-get update -qq \
   && apt-get -y install curl \
-  && curl -sL https://deb.nodesource.com/setup_15.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
   && apt-get -y install \
   libass-dev \
   libvorbis-dev \
@@ -37,7 +37,7 @@ COPY --from=csleary/bento4 /root/bento4 /root/bento4
 COPY --from=csleary/ffmpeg /root/bin /root/bin
 RUN apt-get update -qq \
   && apt-get -y install curl \
-  && curl -sL https://deb.nodesource.com/setup_15.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
   && apt-get -y install \
   git-core \
   libass-dev \
