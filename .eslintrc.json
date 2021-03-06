@@ -23,7 +23,8 @@
       "error",
       2,
       {
-        "SwitchCase": 1
+        "SwitchCase": 1,
+        "flatTernaryExpressions": 1
       }
     ],
     "linebreak-style": ["error", "unix"],

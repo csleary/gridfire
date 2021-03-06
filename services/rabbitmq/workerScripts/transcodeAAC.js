@@ -39,7 +39,7 @@ const work = async () => {
     trackDoc.dateUpdated = Date.now();
     await release.save();
     parentPort.postMessage({ message: 'Transcoding to aac…', userId });
-    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'transcoding', userId });
 
     // Probe for track duration
     flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
@@ -132,7 +132,7 @@ const work = async () => {
     trackDoc.dateUpdated = Date.now();
     await release.save();
     parentPort.postMessage({ type: 'EncodingCompleteAAC', trackId, trackName, userId });
-    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'stored', userId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
     await db.disconnect();
   } catch (error) {
@@ -145,7 +145,7 @@ const work = async () => {
       await db.disconnect();
     }
 
-    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'error', userId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
     process.exit(1);
   }

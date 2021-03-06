@@ -3,6 +3,10 @@
   transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
+.input::placeholder {
+  color: #999;
+}
+
 .error {
   color: var(--red);
   margin-top: 0.25rem;

@@ -4,7 +4,9 @@ const nem = require('nem-sdk').default;
 const devEnv = process.env.NODE_ENV === 'development';
 const { format } = nem.utils;
 
-module.exports = (io, socket, rxStomp) => {
+module.exports = (io, socket) => {
+  const { rxStomp } = socket;
+
   socket.on('user/subscribe', ({ userId }) => {
     socket.join(userId);
     if (devEnv) console.log(`User [${userId}] subscribed to updates.`);

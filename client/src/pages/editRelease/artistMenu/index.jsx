@@ -2,19 +2,12 @@ import React, { useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Dropdown from 'components/dropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import PropTypes from 'prop-types';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { fetchArtists } from 'features/artists';
 import styles from './artistMenu.module.css';
 
-const ArtistMenu = field => {
-  const {
-    input: { name, value, onChange },
-    label,
-    meta: { touched, error },
-    setShowNewArtist,
-    showNewArtistName
-  } = field;
-
+const ArtistMenu = ({ error, label, name, onChange, setShowNewArtist, showNewArtistName, value }) => {
   const dispatch = useDispatch();
   const { artists, isLoading } = useSelector(state => state.artists, shallowEqual);
   const artistCount = artists?.length;
@@ -41,14 +34,14 @@ const ArtistMenu = field => {
         dropdownClassName={styles.dropdown}
         fullWidth
         id={name}
-        text={selectedArtist?.name || defaultLabel}
+        text={showNewArtistName ? defaultLabel : selectedArtist?.name || defaultLabel}
       >
         {artists.map(artist => (
           <li className={styles.listItem} key={artist._id}>
             <button
               className={styles.artist}
               onClick={() => {
-                onChange(artist._id);
+                onChange({ target: { name, value: artist._id } });
                 if (showNewArtistName) setShowNewArtist(false);
               }}
             >
@@ -57,15 +50,31 @@ const ArtistMenu = field => {
           </li>
         ))}
         <li className={styles.create} key={'create'}>
-          <button className={styles.artist} onClick={() => setShowNewArtist(true)}>
+          <button
+            className={styles.artist}
+            onClick={() => {
+              onChange({ target: { name, value: null } });
+              setShowNewArtist(true);
+            }}
+          >
             <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
             Create new artist…
           </button>
         </li>
       </Dropdown>
-      {touched && error ? <div className="invalid-feedback">{error}</div> : null}
+      {error ? <div className="invalid-feedback">{error}</div> : null}
     </fieldset>
   );
+};
+
+ArtistMenu.propTypes = {
+  error: PropTypes.string,
+  label: PropTypes.string,
+  name: PropTypes.string,
+  onChange: PropTypes.func,
+  setShowNewArtist: PropTypes.func,
+  showNewArtistName: PropTypes.bool,
+  value: PropTypes.string
 };
 
 export default ArtistMenu;

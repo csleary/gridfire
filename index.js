@@ -71,6 +71,9 @@ app.use(
   })
 );
 
+app.use(clientErrorHandler);
+app.use(errorHandler);
+app.use(logErrors);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/api/artists', artists);
@@ -83,15 +86,11 @@ app.use('/api/nem', nem);
 app.use('/api/release', release);
 app.use('/api/track', track);
 app.use('/api/user', user);
-app.use(logErrors);
-app.use(clientErrorHandler);
-app.use(errorHandler);
-connectRabbitmq(app);
 
 const connectServices = async () => {
   const rxStomp = await connectStomp();
-  const io = await connectSocketio(httpServer, rxStomp);
-  app.set('rxStomp', rxStomp);
+  const io = connectSocketio(httpServer, rxStomp);
+  connectRabbitmq(io);
   app.set('socketio', io);
 };
 

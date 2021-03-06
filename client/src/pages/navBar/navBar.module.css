@@ -26,14 +26,14 @@
 .root .link {
   color: var(--lighter-grey);
   display: inline-block;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
   padding: 0.5rem 1rem;
 }
 
 .root .link > button {
   color: var(--lighter-grey);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .root .link:hover,

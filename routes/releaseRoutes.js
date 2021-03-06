@@ -21,13 +21,13 @@ router.post('/', requireLogin, async (req, res) => {
     const releases = await Release.find({ user: userId }, '', { lean: true }).exec();
 
     if (!user.nemAddress || !user.nemAddressVerified) {
-      return res.send({
+      return res.json({
         warning: 'Please add and verify your NEM address first. You will need credit to add a release.'
       });
     }
 
     if (user.credits <= releases.length) {
-      return res.send({
+      return res.json({
         warning:
           'Sorry, you don\u2019t have enough credit to add a new release. Please add more nemp3 credits to cover the number of releases you wish to create.'
       });
@@ -43,7 +43,7 @@ router.post('/', requireLogin, async (req, res) => {
       const io = req.app.get('socketio');
       const num = incompleteReleases.length;
       const [release] = incompleteReleases;
-      res.send(release.toJSON());
+      res.json(release.toJSON());
 
       return io.to(userId).emit('notify', {
         type: 'warning',
@@ -58,9 +58,9 @@ router.post('/', requireLogin, async (req, res) => {
       dateCreated: Date.now(),
       releaseDate: Date.now()
     });
-    res.send(release.toJSON());
+    res.json(release.toJSON());
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ error: error.message || error.toString() });
   }
 });
 
@@ -128,13 +128,13 @@ router.delete('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     const [{ _id }] = await Promise.all([deleteRelease, deleteArtist, deleteS3Src, deleteS3Opt, deleteS3Img]);
     res.send(_id);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ error: error.message || error.toString() });
   }
 });
 
 router.get('/:releaseId', async (req, res) => {
   try {
-    const release = await Release.findOne({ _id: req.params.releaseId }, '-trackList.mpd');
+    const release = await Release.findOne({ _id: req.params.releaseId });
 
     if (!release.published && !release.user.equals(req.user._id)) {
       throw new Error('This release is currently unavailable.');
@@ -142,9 +142,9 @@ router.get('/:releaseId', async (req, res) => {
 
     const artist = await User.findOne({ _id: release.user }, 'nemAddress', { lean: true });
     const paymentInfo = { paymentAddress: nem.utils.format.address(artist.nemAddress) };
-    res.send({ release: release.toJSON(), paymentInfo });
+    res.json({ release: release.toJSON(), paymentInfo });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ error: error.message || error.toString() });
   }
 });
 
@@ -166,15 +166,15 @@ router.get('/purchase/:releaseId', requireLogin, async (req, res) => {
     if (!owner.nemAddress) {
       const error = 'NEM payment address not found.';
       const paymentInfo = { paymentAddress: null, paymentHash: null };
-      return res.send({ error, release, paymentInfo, price });
+      return res.json({ error, release, paymentInfo, price });
     }
 
     const hash = crypto.createHash('sha256');
     const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 24);
     const paymentInfo = { paymentAddress: nem.utils.format.address(owner.nemAddress), paymentHash };
-    res.send({ release, paymentInfo, price });
+    res.json({ release, paymentInfo, price });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ error: error.message || error.toString() });
   }
 });
 
@@ -213,9 +213,9 @@ router.patch('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
 
     release.published = !release.published;
     const updatedRelease = await release.save();
-    res.send(updatedRelease.toJSON());
+    res.json(updatedRelease.toJSON());
   } catch (error) {
-    res.status(200).send({ error: error.message });
+    res.status(200).json({ error: error.message });
   }
 });
 
@@ -227,11 +227,13 @@ router.put('/', requireLogin, async (req, res) => {
       artist: existingArtistId,
       artistName,
       catNumber,
-      cLine,
       credits,
       info,
-      pLine,
       price,
+      pubYear,
+      pubName,
+      recYear,
+      recName,
       recordLabel,
       releaseDate,
       releaseId,
@@ -241,7 +243,7 @@ router.put('/', requireLogin, async (req, res) => {
     } = req.body;
 
     let artist;
-    if (existingArtistId) {
+    if (existingArtistId && !artistName) {
       artist = await Artist.findById(existingArtistId, 'name', { lean: true }).exec();
     } else {
       [artist] = await createArtist(artistName, userId);
@@ -259,10 +261,10 @@ router.put('/', requireLogin, async (req, res) => {
     release.recordLabel = recordLabel;
     release.releaseDate = releaseDate;
     release.releaseTitle = releaseTitle;
-    release.pLine.year = pLine && pLine.year;
-    release.pLine.owner = pLine && pLine.owner;
-    release.cLine.year = cLine && cLine.year;
-    release.cLine.owner = cLine && cLine.owner;
+    release.pubYear = pubYear;
+    release.pubName = pubName;
+    release.recYear = recYear;
+    release.recName = recName;
     release.tags = tags;
 
     release.trackList.forEach(track => {
@@ -270,9 +272,9 @@ router.put('/', requireLogin, async (req, res) => {
     });
 
     const updatedRelease = await release.save();
-    res.send(updatedRelease.toJSON());
+    res.json(updatedRelease.toJSON());
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ error: error.message || error.toString() });
   }
 });
 

@@ -64,11 +64,27 @@ router.get('/', async (req, res) => {
   try {
     const { catalogueLimit, catalogueSkip, sortBy, sortOrder } = req.query;
 
-    const releases = await Release.find({ published: true }, '-__v', {
-      limit: parseInt(catalogueLimit),
-      skip: parseInt(catalogueSkip),
-      sort: { [sortBy]: parseInt(sortOrder) }
-    });
+    const releases = await Release.find(
+      { published: true },
+      `
+      -artwork.dateCreated
+      -artwork.dateUpdated 
+      -dateCreated
+      -dateUpdated 
+      -trackList.initRange
+      -trackList.mpd
+      -trackList.segmentDuration
+      -trackList.segmentTimescale
+      -trackList.segmentList
+      -trackList.dateCreated
+      -trackList.dateUpdated
+      `,
+      {
+        limit: parseInt(catalogueLimit),
+        skip: parseInt(catalogueSkip),
+        sort: { [sortBy]: parseInt(sortOrder) }
+      }
+    );
 
     res.send(releases);
   } catch (error) {

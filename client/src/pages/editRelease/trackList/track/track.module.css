@@ -1,4 +1,4 @@
-.track {
+.root {
   background: var(--charcoal);
   border-top: 0;
   border-right: 0;
@@ -11,30 +11,31 @@
   transition: border-color 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
-.track:last-child {
+.root:last-child {
   border-radius: 0;
 }
 
-.track:hover .button,
-.track:active .button {
+.root:hover .button,
+.root:active .button {
   opacity: 1;
   visibility: visible;
 }
 
 .wrapper {
-  align-items: center;
+  align-items: stretch;
   display: flex;
   margin-top: 1rem;
 }
 
 .status {
   color: var(--yellow);
-  font-weight: 700;
-  margin-right: 0.5rem;
+  font-weight: 500;
+  margin-right: 1rem;
 }
 
 .statusError {
   composes: status;
+  align-self: flex-end;
   color: var(--red);
 }
 
@@ -42,10 +43,13 @@
   border: none;
   border-radius: 0.25rem;
   color: var(--light-grey);
-  margin: 0 0 0 0.25rem;
   opacity: 0;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   visibility: hidden;
+}
+
+.button:not(:first-of-type):not(.delete) {
+  margin: 0 0 0 0.25rem;
 }
 
 .button:hover:not(:disabled) {
@@ -67,7 +71,7 @@
 
 .icon {
   color: var(--light-grey);
-  margin-right: 0.5rem;
+  margin-right: 0;
   transition: 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
@@ -82,23 +86,34 @@
 .delete {
   composes: button;
   margin-left: auto;
+  min-width: 8rem;
 }
 
 .delete:hover:not(:disabled) {
   background: var(--red);
-  border-color: var(--red);
   color: var(--off-white);
 }
 
-.deleteIcon {
+.iconDelete {
   composes: icon;
+  margin-right: 0.5rem;
 }
 
-.delete:hover:not(:disabled) .deleteIcon {
+.delete:hover:not(:disabled) .iconDelete {
   color: var(--off-white);
 }
 
 .deleteActive {
+  color: var(--red);
+  opacity: 1;
+  visibility: visible;
+}
+
+.deleteActive .iconDelete {
+  color: var(--red);
+}
+
+.deleteActive:hover {
   background-color: var(--red);
   color: var(--off-white);
   opacity: 1;
@@ -144,4 +159,56 @@
 
 .track:first-child {
   border-radius: 0;
+}
+
+.fields {
+  align-items: center;
+  display: flex;
+}
+
+.fields :global(.form-group) {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.grabber {
+  color: var(--mid-grey);
+  cursor: grab;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.label {
+  color: var(--mid-grey);
+  cursor: grab;
+  font-size: 1.5rem;
+  margin: 0;
+  padding: 0;
+  padding-right: 1rem;
+  user-select: none;
+}
+
+.input {
+  margin: 0;
+}
+
+.invalid {
+  border-color: var(--red);
+}
+
+.feedback {
+  color: var(--red);
+  display: inherit;
+}
+
+.bar {
+  position: absolute;
+  left: 1rem;
+  bottom: 0;
+}
+
+.spinner {
+  text-align: center;
+  margin-right: 0.5rem;
+  width: 1.25rem;
 }

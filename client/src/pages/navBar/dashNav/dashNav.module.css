@@ -10,7 +10,7 @@
 a.link {
   color: var(--lighter-grey);
   display: block;
-  font-weight: 600;
+  font-weight: 500;
   padding: 1rem 1rem;
   text-transform: uppercase;
   transition: color 0.25s ease-in-out;

@@ -18,7 +18,6 @@ class Player extends Component {
     super(props);
 
     this.state = {
-      autoStartDisabled: false,
       bufferRanges: [],
       bufferReachedEnd: false,
       elapsedTime: '',
@@ -52,7 +51,7 @@ class Player extends Component {
       audioPlayer.canPlayType('application/vnd.apple.mpegURL') || audioPlayer.canPlayType('application/x-mpegURL');
 
     if (supportsHls === 'probably' || supportsHls === 'maybe') {
-      // console.log('Using HLS.');
+      console.log('Using HLS.');
     }
 
     this.mediaSource = new MediaSource();
@@ -76,12 +75,19 @@ class Player extends Component {
       }
 
       this.setState({ isBuffering: true, bufferReachedEnd: false, percentComplete: 0, isReady: false }, async () => {
-        await this.fetchInitSegment();
-        const buffer = await this.fetchSegment(0, 0);
-        this.audioPlayerRef.current.currentTime = 0;
-        this.handleUpdateBuffer();
-        this.handleAppendBuffer(buffer);
-        this.handlePlay();
+        try {
+          await this.fetchInitSegment();
+          const buffer = await this.fetchSegment(0, 0);
+          this.audioPlayerRef.current.currentTime = 0;
+          this.updateBuffer();
+          this.appendBuffer(buffer);
+          this.handlePlay();
+        } catch (error) {
+          this.audioPlayerRef.current.pause();
+          this.props.playerStop();
+          this.setState({ isBuffering: false, isReady: true });
+          this.props.toastError(error.message || error.toString());
+        }
       });
     }
   }
@@ -92,6 +98,28 @@ class Player extends Component {
     }
   }
 
+  fetchInitSegment = async () => {
+    const { trackId } = this.props.player;
+    const resUrl = await axios.get(`/api/track/${trackId}/init`);
+    const { duration, url, range } = resUrl.data;
+    const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+    const resBuffer = await axios.get(url, config);
+    this.initSegment = new Uint8Array(resBuffer.data);
+    this.trackDuration = duration;
+  };
+
+  fetchSegment = async (time, type) => {
+    const { trackId } = this.props.player;
+    const resUrl = await axios.get(`/api/track/${trackId}/stream`, { params: { time, type } });
+    const { url, range, end } = resUrl.data;
+    const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
+    const resBuffer = await axios.get(url, config);
+    const segment = new Uint8Array(resBuffer.data);
+    const buffer = new Uint8Array([...this.initSegment, ...segment]);
+    if (end) this.setState({ bufferReachedEnd: true });
+    return buffer;
+  };
+
   handleSourceOpen = () => {
     const audioPlayer = this.audioPlayerRef.current;
     URL.revokeObjectURL(audioPlayer.src);
@@ -99,34 +127,14 @@ class Player extends Component {
     this.sourceBuffer.addEventListener('updateend', this.handleUpdateEnd);
   };
 
-  handleUpdateEnd = e => {
-    const { buffered } = e.target;
-    const bufferRanges = [];
+  handlePlay = () => {
+    const promisePlay = this.audioPlayerRef.current.play();
 
-    for (let i = 0; i < buffered.length; i++) {
-      bufferRanges.push([buffered.start(i), buffered.end(i)]);
-    }
-
-    if (this.shouldSetDuration) return this.handleUpdateDuration();
-    if (this.queue.length) return this.sourceBuffer.appendBuffer(this.queue.shift());
-    this.setState({ bufferRanges, isBuffering: false });
-  };
-
-  handleSeeking = async () => {
-    const { currentTime } = this.audioPlayerRef.current;
-    if (!currentTime) return;
-    let isBuffered = false;
-
-    for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
-      if (currentTime >= this.sourceBuffer.buffered.start(i) && currentTime < this.sourceBuffer.buffered.end(i)) {
-        isBuffered = true;
-      }
-    }
-
-    if (!isBuffered && !this.state.isBuffering) {
-      this.setState({ isBuffering: true, isReady: false }, async () => {
-        const buffer = await this.fetchSegment(currentTime, 2);
-        this.handleAppendBuffer(buffer);
+    if (promisePlay !== undefined) {
+      promisePlay.then(this.props.playerPlay).catch(() => {
+        this.audioPlayerRef.current.pause();
+        this.audioPlayerRef.current.currentTime = 0;
+        this.props.playerStop();
       });
     }
   };
@@ -156,7 +164,7 @@ class Player extends Component {
     if (needsBuffer) {
       this.setState({ isBuffering: true }, async () => {
         const buffer = await this.fetchSegment(currentTime, 1);
-        this.handleAppendBuffer(buffer);
+        this.appendBuffer(buffer);
       });
     }
 
@@ -173,7 +181,63 @@ class Player extends Component {
     });
   };
 
-  handleUpdateBuffer = () => {
+  handleSeeking = async () => {
+    const { currentTime } = this.audioPlayerRef.current;
+    if (!currentTime) return;
+    let isBuffered = false;
+
+    for (let i = 0; i < this.sourceBuffer.buffered.length; i++) {
+      if (currentTime >= this.sourceBuffer.buffered.start(i) && currentTime < this.sourceBuffer.buffered.end(i)) {
+        isBuffered = true;
+      }
+    }
+
+    if (!isBuffered && !this.state.isBuffering) {
+      this.setState({ isBuffering: true, isReady: false }, async () => {
+        const buffer = await this.fetchSegment(currentTime, 2);
+        this.appendBuffer(buffer);
+      });
+    }
+  };
+
+  handleTrackEnded = () => {
+    const { trackList } = this.props.release;
+    const trackIndex = trackList.findIndex(({ trackTitle }) => trackTitle === this.props.player.trackTitle);
+
+    if (trackList[trackIndex + 1]) {
+      const nextTrackId = trackList[trackIndex + 1]._id;
+      return this.loadNextTrack(nextTrackId);
+    }
+
+    this.audioPlayerRef.current.pause();
+    this.audioPlayerRef.current.currentTime = 0;
+    this.props.playerStop();
+  };
+
+  handleUpdateEnd = e => {
+    const { buffered } = e.target;
+    const bufferRanges = [];
+
+    for (let i = 0; i < buffered.length; i++) {
+      bufferRanges.push([buffered.start(i), buffered.end(i)]);
+    }
+
+    if (this.shouldSetDuration) {
+      this.mediaSource.duration = this.trackDuration;
+      this.shouldSetDuration = false;
+      return;
+    }
+
+    if (this.queue.length) return this.sourceBuffer.appendBuffer(this.queue.shift());
+    this.setState({ bufferRanges, isBuffering: false });
+  };
+
+  appendBuffer = buffer => {
+    if (this.sourceBuffer.updating) return this.queue.push(buffer);
+    this.sourceBuffer.appendBuffer(buffer);
+  };
+
+  updateBuffer = () => {
     const oldDuration = Number.isFinite(this.mediaSource.duration) ? this.mediaSource.duration : 0;
     if (this.trackDuration < oldDuration) {
       this.sourceBuffer.remove(this.trackDuration, oldDuration);
@@ -185,89 +249,7 @@ class Player extends Component {
     this.shouldUpdateBuffer = false;
   };
 
-  handleUpdateDuration = () => {
-    this.mediaSource.duration = this.trackDuration;
-    this.shouldSetDuration = false;
-  };
-
-  handleAppendBuffer = buffer => {
-    if (this.sourceBuffer.updating) return this.queue.push(buffer);
-    this.sourceBuffer.appendBuffer(buffer);
-  };
-
-  handleTrackEnded = () => {
-    const { trackList } = this.props.release;
-    const trackIndex = trackList.findIndex(({ trackTitle }) => trackTitle === this.props.player.trackTitle);
-
-    if (trackList[trackIndex + 1]) {
-      const nextTrackId = trackList[trackIndex + 1]._id;
-      return this.nextTrack(nextTrackId);
-    }
-
-    this.stopAudio();
-  };
-
-  fetchInitSegment = async () => {
-    try {
-      const { trackId } = this.props.player;
-      const resUrl = await axios.get(`/api/track/${trackId}/init`);
-      const { duration, url, range } = resUrl.data;
-      const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
-      const resBuffer = await axios.get(url, config);
-      this.initSegment = new Uint8Array(resBuffer.data);
-      this.trackDuration = duration;
-    } catch (error) {
-      this.props.playerStop();
-      this.props.toastError(error.message || error.toString());
-    }
-  };
-
-  fetchSegment = async (time, type) => {
-    try {
-      const { trackId } = this.props.player;
-      const resUrl = await axios.get(`/api/track/${trackId}/stream`, { params: { time, type } });
-      const { url, range, end } = resUrl.data;
-      const config = { headers: { Range: `bytes=${range}` }, responseType: 'arraybuffer' };
-      const resBuffer = await axios.get(url, config);
-      const segment = new Uint8Array(resBuffer.data);
-      const buffer = new Uint8Array([...this.initSegment, ...segment]);
-      if (end) this.setState({ bufferReachedEnd: true });
-      return buffer;
-    } catch (error) {
-      this.props.playerStop();
-      this.props.toastError(error.message || error.toString());
-    }
-  };
-
-  handlePause = () => {
-    this.audioPlayerRef.current.pause();
-    this.props.playerPause();
-  };
-
-  handlePlay = () => {
-    const promisePlay = this.audioPlayerRef.current.play();
-
-    if (promisePlay !== undefined) {
-      promisePlay.then(this.props.playerPlay).catch(error => {
-        this.setState({ autoStartDisabled: true });
-        this.props.toastError(`Playback error: ${error.message}`);
-      });
-    }
-  };
-
-  handleSeek = event => {
-    const x = event.clientX;
-    const width = this.seekBarRef.current.clientWidth;
-    const seekPercent = x / width;
-    this.audioPlayerRef.current.currentTime = this.mediaSource.duration * seekPercent;
-  };
-
-  hidePlayer = () => {
-    this.props.playerHide();
-    this.stopAudio();
-  };
-
-  nextTrack = nextTrackId => {
+  loadNextTrack = nextTrackId => {
     const nextTrack = this.props.release.trackList.find(({ _id }) => _id === nextTrackId);
 
     this.props.playTrack({
@@ -278,16 +260,32 @@ class Player extends Component {
     });
   };
 
-  playAudio = async () => {
-    this.setState({ autoStartDisabled: false });
-    if (this.props.player.isPlaying) return this.handlePause();
+  handlePlayButton = () => {
+    if (this.props.player.isPlaying) {
+      this.audioPlayerRef.current.pause();
+      return this.props.playerPause();
+    }
+
     this.handlePlay();
   };
 
-  stopAudio = () => {
+  handleStop = () => {
     this.audioPlayerRef.current.pause();
     this.audioPlayerRef.current.currentTime = 0;
     this.props.playerStop();
+  };
+
+  handleSeek = event => {
+    const x = event.clientX;
+    const width = this.seekBarRef.current.clientWidth;
+    const seekPercent = x / width;
+    this.audioPlayerRef.current.currentTime = this.mediaSource.duration * seekPercent;
+  };
+
+  handleHidePlayer = () => {
+    this.audioPlayerRef.current.pause();
+    this.props.playerStop();
+    this.props.playerHide();
   };
 
   render() {
@@ -310,8 +308,8 @@ class Player extends Component {
         <div className="container-fluid">
           <div className={`${styles.interface} row no-gutters`}>
             <div className={`${styles.controls} col-sm`}>
-              <PlayButton isReady={this.state.isReady} playAudio={this.playAudio} />
-              <FontAwesomeIcon icon={faStop} className={styles.playerButton} onClick={this.stopAudio} />
+              <PlayButton isReady={this.state.isReady} onClick={this.handlePlayButton} />
+              <FontAwesomeIcon icon={faStop} className={styles.playerButton} fixedWidth onClick={this.handleStop} />
               <div
                 className={`${styles.currentTime} align-middle`}
                 onClick={() =>
@@ -330,7 +328,7 @@ class Player extends Component {
               <FontAwesomeIcon
                 icon={faChevronDown}
                 className={`${styles.playerButton} ${styles.hide}`}
-                onClick={this.hidePlayer}
+                onClick={this.handleHidePlayer}
                 title="Hide player (will stop audio)"
               />
             </div>

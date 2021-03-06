@@ -12,7 +12,7 @@ const Tags = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { tags } = useSelector(state => state.releases.activeRelease, shallowEqual);
-  const keys = tags.map(() => nanoid());
+  const keys = tags.map(() => nanoid(8));
 
   const trail = useTrail(tags.length, {
     config: { ...config.stiff, clamp: true },

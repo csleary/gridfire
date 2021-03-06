@@ -7,18 +7,11 @@ const validate = ({ artist, artistName, price, releaseDate, releaseTitle, trackL
   if (price && price < 0) errors.price = 'Price must be a positive number.';
 
   if (trackList) {
-    const trackListErrors = [];
     trackList.forEach((track, trackIndex) => {
-      const trackErrors = {};
-
       if (!track.trackTitle || !track.trackTitle.trim()) {
-        trackErrors.trackTitle =
-          'Please either enter a track title (with \u2018Untitled\u2019 for tracks with no title), or remove it from the list.';
-        trackListErrors[trackIndex] = trackErrors;
+        errors[`trackList.${trackIndex}.trackTitle`] = 'Please enter a track title.';
       }
     });
-
-    if (trackListErrors.length) errors.trackList = trackListErrors;
   }
   return errors;
 };

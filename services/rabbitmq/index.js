@@ -7,7 +7,7 @@ const startConsumer = require('./consumer');
 const { startPublisher } = require('./publisher');
 const workerPool = new Pool({ max: numCPUs });
 
-const connect = async app => {
+const connect = async io => {
   try {
     const connection = await amqp.connect(`amqp://${rabbitUser}:${rabbitPass}@${RABBIT_HOST}:5672`);
 
@@ -22,7 +22,6 @@ const connect = async app => {
       return setTimeout(connect, 3000);
     });
 
-    const io = app.get('socketio');
     startPublisher(connection);
     startConsumer({ connection, io, workerPool, queue: QUEUE_ARTWORK });
     startConsumer({ connection, io, workerPool, queue: QUEUE_TRANSCODE });

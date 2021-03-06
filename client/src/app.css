@@ -8,18 +8,19 @@
   --off-white: #f0f0f1;
   --yellow: #ffd24d;
   --red: #ff5349;
+  --dark-red: #ff2014;
   --blue: #4f80e1;
   --cyan: #18cdca;
   --green: #00ff80;
   --black: #292c44;
 }
 
-@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans|IBM+Plex+Sans+Condensed&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans+Condensed:wght@300&family=IBM+Plex+Sans:wght@400;500&display=swap');
 
 body {
   background-color: var(--darker-grey);
   color: var(--off-white);
-  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -33,7 +34,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: 'IBM Plex Sans Condensed', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
 }
 
 h2,
@@ -51,14 +52,14 @@ a:focus,
 a:hover,
 a:visited {
   color: var(--cyan);
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
 }
 
 .alert {
   border: 0;
   border-radius: 0.5rem;
-  font-weight: bold;
+  font-weight: 500;
   margin: 1rem 0;
   padding: 0.375rem 0.75rem;
 }
@@ -74,7 +75,7 @@ a:visited {
 }
 
 .bold {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .red {
@@ -96,7 +97,7 @@ a:visited {
 .form-control {
   background: var(--off-white);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   color: var(--mid-grey);
   height: initial;
   transition: 0.25s;
@@ -104,7 +105,7 @@ a:visited {
 
 .form-control:focus {
   background: #fff;
-  box-shadow: 0 0 0 3px var(--mid-grey);
+  box-shadow: 0 0 0.5rem 0.125rem var(--light-grey);
 }
 
 .form-control:disabled {

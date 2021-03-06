@@ -1,66 +1,98 @@
-import { Field } from 'redux-form';
+import Input from 'components/input';
+import PropTypes from 'prop-types';
 import React from 'react';
-import RenderReleaseField from '../renderReleaseField';
 
-const AdvancedFields = () => (
+const AdvancedFields = ({ errors, handleChange, values }) => (
   <>
-    <Field component={RenderReleaseField} label="Record Label" name="recordLabel" type="text" />
-    <Field
-      component={RenderReleaseField}
-      formText="Your own identifier, if you have one."
+    <Input
+      errors={errors.recordLabel}
+      label="Record Label"
+      name="recordLabel"
+      onChange={handleChange}
+      type="text"
+      value={values.recordLabel || ''}
+    />
+    <Input
+      errors={errors.catNumber}
+      hint="Your own identifier, if you have one."
       label="Catalogue Number"
       name="catNumber"
+      onChange={handleChange}
       type="text"
+      value={values.catNumber || ''}
     />
-    <Field
-      component={RenderReleaseField}
-      formText="Notable release information, e.g. press release copy, review quotes, equipment, concepts."
+    <Input
+      errors={errors.info}
+      hint="Notable release information, e.g. press release copy, review quotes, equipment, concepts."
       label="Release Info"
       name="info"
+      onChange={handleChange}
       type="textarea"
+      value={values.info || ''}
     />
-    <Field
-      component={RenderReleaseField}
-      formText="To credit writers, performers, producers, designers and engineers involved."
+    <Input
+      errors={errors.credits}
+      hint="To credit writers, performers, producers, designers and engineers involved."
       label="Credits"
       name="credits"
-      type="textarea"
+      onChange={handleChange}
+      element="textarea"
+      value={values.credits || ''}
     />
     <div className="row p-0">
       <div className="col">
-        <Field component={RenderReleaseField} label="Copyright Year" name="cLine.year" type="number" />
+        <Input
+          errors={errors.pubYear}
+          label="Copyright Year"
+          name="pubYear"
+          onChange={handleChange}
+          type="number"
+          value={values.pubYear || ''}
+        />
       </div>
       <div className="col">
-        <Field
-          component={RenderReleaseField}
-          formText="i.e. Label, publisher or artist/individual."
+        <Input
+          errors={errors.pubName}
+          hint="i.e. Label, publisher or artist/individual."
           label="Copyright Owner"
-          name="cLine.owner"
+          name="pubName"
+          onChange={handleChange}
           type="text"
+          value={values.pubName || ''}
         />
       </div>
     </div>
     <div className="row p-0">
       <div className="col">
-        <Field
-          component={RenderReleaseField}
-          formText="Year first released as a recording."
+        <Input
+          errors={errors.recYear}
+          hint="Year first released as a recording."
           label="Recording Copyright Year"
-          name="pLine.year"
+          name="recYear"
+          onChange={handleChange}
           type="number"
+          value={values.recYear || ''}
         />
       </div>
       <div className="col">
-        <Field
-          component={RenderReleaseField}
-          formText="i.e. Label or artist/individual."
+        <Input
+          errors={errors.recName}
+          hint="i.e. Label or artist/individual."
           label="Recording Copyright Owner"
-          name="pLine.owner"
+          name="recName"
+          onChange={handleChange}
           type="text"
+          value={values.recName || ''}
         />
       </div>
     </div>
   </>
 );
+
+AdvancedFields.propTypes = {
+  errors: PropTypes.object,
+  handleChange: PropTypes.func,
+  values: PropTypes.object
+};
 
 export default AdvancedFields;

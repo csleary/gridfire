@@ -7,7 +7,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { deleteArtwork } from 'features/artwork';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import styles from './renderArtwork.module.css';
+import styles from './artwork.module.css';
 
 const RenderArtwork = props => {
   const { coverArtLoaded, coverArtPreview, handleDeletePreview } = props;

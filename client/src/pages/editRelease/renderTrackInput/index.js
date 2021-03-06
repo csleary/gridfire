@@ -13,9 +13,6 @@ const RenderTrackInput = props => {
     trackId,
     type
   } = props;
-  const inputClasses = classNames('form-control', {
-    [styles.invalid]: touched && error
-  });
 
   return (
     <>
@@ -25,7 +22,6 @@ const RenderTrackInput = props => {
           {label}
         </label>
         <input
-          className={inputClasses}
           onDrop={() => false}
           id={name}
           name="trackTitle"

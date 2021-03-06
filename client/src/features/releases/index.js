@@ -1,10 +1,12 @@
 import { toastError, toastSuccess } from 'features/toast';
 import axios from 'axios';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, nanoid } from '@reduxjs/toolkit';
+const defaultReleaseState = { artwork: {}, releaseDate: '', tags: [], trackList: [] };
 
 const releaseSlice = createSlice({
   name: 'releases',
   initialState: {
+    activeRelease: defaultReleaseState,
     artist: {},
     artworkUploading: false,
     artworkUploadProgress: 0,
@@ -17,19 +19,20 @@ const releaseSlice = createSlice({
     paymentAddress: '',
     priceInXem: '',
     reachedEndOfCat: false,
-    activeRelease: { artwork: {}, releaseDate: '', tags: [], trackList: [] },
+    releaseIdsForDeletion: {},
     userFavourites: [],
     userReleases: [],
     favCounts: {},
     playCounts: {},
-    userWishList: []
+    userWishList: [],
+    versions: {}
   },
   reducers: {
     clearActiveRelease(state) {
-      state.activeRelease = {};
+      state.activeRelease = defaultReleaseState;
     },
 
-    setDeleteRelease(state, action) {
+    removeRelease(state, action) {
       if (state.userReleases) state.userReleases = state.userReleases.filter(release => release._id !== action.payload);
     },
 
@@ -78,6 +81,11 @@ const releaseSlice = createSlice({
       state.isLoading = action.payload;
     },
 
+    setReleaseIdsForDeletion(state, action) {
+      const { releaseId, isDeleting } = action.payload;
+      state.releaseIdsForDeletion = { ...state.releaseIdsForDeletion, [releaseId]: isDeleting };
+    },
+
     setUserFavourites(state, action) {
       state.userFavourites = action.payload;
     },
@@ -102,11 +110,16 @@ const releaseSlice = createSlice({
       state.userWishList = action.payload;
     },
 
-    updateActiveRelease(state, action) {
+    updateTrackStatus(state, action) {
+      const { releaseId, trackId, status } = action.payload;
       const currentId = state.activeRelease?._id;
-      const updatedId = action.payload._id;
-      if (!currentId || currentId === updatedId) {
-        state.activeRelease = action.payload;
+
+      if (!currentId || currentId === releaseId) {
+        state.activeRelease.trackList = state.activeRelease.trackList.map(prevTrack =>
+          prevTrack._id === trackId ? { ...prevTrack, status } : prevTrack
+        );
+
+        state.versions = { ...state.versions, [releaseId]: nanoid(8) };
       }
     },
 
@@ -131,11 +144,16 @@ const addNewRelease = () => async dispatch => {
   }
 };
 
-const deleteRelease = (releaseId, releaseTitle = 'release') => async dispatch => {
+const deleteRelease = (releaseId, releaseTitle = 'release') => async (dispatch, getState) => {
   try {
-    const res = await axios.delete(`/api/release/${releaseId}`);
-    dispatch(setDeleteRelease(res.data));
-    dispatch(toastSuccess(`Successfully deleted ${releaseTitle}.`));
+    if (getState().releases.releaseIdsForDeletion[releaseId]) {
+      dispatch(removeRelease(releaseId));
+      const res = await axios.delete(`/api/release/${releaseId}`);
+      dispatch(toastSuccess(`Successfully deleted ${releaseTitle}.`));
+      dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
+    } else {
+      dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: true }));
+    }
   } catch (error) {
     dispatch(toastError(error.response.data.error));
   }
@@ -253,22 +271,23 @@ const updateRelease = values => async dispatch => {
 
 export const {
   clearActiveRelease,
+  removeRelease,
   setActiveRelease,
   setArtistCatalogue,
   setArtworkUploading,
   setArtworkUploadProgress,
   setCatalogue,
   setCollection,
-  setDeleteRelease,
   setFormatExists,
   setIsLoading,
+  setReleaseIdsForDeletion,
   setReleasePurchaseInfo,
   setUserFavourites,
   setUserReleaseFavs,
   setUserReleasePlays,
   setUserReleases,
   setUserWishList,
-  updateActiveRelease,
+  updateTrackStatus,
   updateUserReleases
 } = releaseSlice.actions;
 

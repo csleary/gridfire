@@ -35,7 +35,7 @@ const encodeFlac = async () => {
       { new: true }
     ).exec();
 
-    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'encoding', userId });
     const readFile = fs.createReadStream(filePath);
     const flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
 
@@ -61,7 +61,7 @@ const encodeFlac = async () => {
     trackDoc.status = 'encoded';
     trackDoc.dateUpdated = Date.now();
     await release.save();
-    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'encoded', userId });
     parentPort.postMessage({ type: 'EncodingCompleteFLAC', trackId, trackName, userId });
 
     parentPort.postMessage({
@@ -86,7 +86,7 @@ const encodeFlac = async () => {
       await db.disconnect();
     }
 
-    parentPort.postMessage({ type: 'updateActiveRelease', releaseId });
+    parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'error', userId });
     process.exit(1);
   }
 };

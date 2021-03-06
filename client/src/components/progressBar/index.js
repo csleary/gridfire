@@ -1,15 +1,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import classnames from 'classnames';
 import styles from './progressBar.module.css';
 
-const ProgressBar = ({ percentComplete, willDisplay }) => {
+const ProgressBar = ({ className, percentComplete, willDisplay }) => {
   if (willDisplay) {
     return (
       <div
-        className={styles.progressBar}
-        style={{
-          width: `${percentComplete}%`
-        }}
+        className={classnames(styles.root, { [className]: Boolean(classnames) })}
+        style={{ width: `${percentComplete}%` }}
       />
     );
   }

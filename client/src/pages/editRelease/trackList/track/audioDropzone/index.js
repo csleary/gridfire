@@ -1,10 +1,11 @@
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastInfo } from 'features/toast';
-import AudioDropzoneLabel from 'pages/editRelease/audioDropzoneLabel';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
+import Status from './status';
 import classNames from 'classnames';
-import { uploadAudio } from 'features/tracks';
+import { cancelUpload, uploadAudio } from 'features/tracks';
+import { updateTrackStatus } from 'features/releases';
 import { useDropzone } from 'react-dropzone';
 import styles from './audioDropzone.module.css';
 
@@ -12,10 +13,11 @@ const AudioDropzone = ({ trackId }) => {
   const dispatch = useDispatch();
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { audioUploadProgress } = useSelector(state => state.tracks, shallowEqual);
+  const [hoverActive, setHoverActive] = useState(false);
   const releaseId = release._id;
   const currentTrack = release.trackList.find(track => track._id === trackId);
   const trackIndex = release.trackList.findIndex(track => track._id === trackId);
-  const { status, trackTitle } = currentTrack;
+  const { status, trackTitle } = currentTrack || {};
   const isStored = status === 'stored';
   const isUploading = status === 'uploading';
   const isEncoding = status === 'encoding';
@@ -23,6 +25,8 @@ const AudioDropzone = ({ trackId }) => {
 
   const handleClick = e => {
     if (isUploading) {
+      dispatch(cancelUpload(trackId));
+      dispatch(updateTrackStatus({ releaseId, trackId, status: 'pending' }));
       e.stopPropagation();
     }
   };
@@ -49,24 +53,26 @@ const AudioDropzone = ({ trackId }) => {
     onDrop: onDropAudio
   });
 
-  const dropzoneClassNames = classNames(styles.dropzone, {
-    [styles.active]: isDragActive && !isDragReject,
-    [styles.uploading]: isUploading || isTranscoding || isEncoding,
-    [styles.disabled]: isUploading || isTranscoding || isEncoding,
-    [styles.complete]: isStored && !isUploading && !isTranscoding && !isEncoding,
-    [styles.rejected]: isDragReject
-  });
-
   return (
     <div
+      onMouseOver={() => setHoverActive(true)}
+      onMouseOut={() => setHoverActive(false)}
       {...getRootProps({
-        className: dropzoneClassNames,
+        className: classNames(styles.root, {
+          [styles.active]: isDragActive && !isDragReject,
+          [styles.cancel]: isUploading && hoverActive,
+          [styles.uploading]: isUploading || isTranscoding || isEncoding,
+          [styles.disabled]: isTranscoding || isEncoding,
+          [styles.complete]: isStored && !isUploading && !isTranscoding && !isEncoding,
+          [styles.rejected]: isDragReject
+        }),
         onClick: handleClick
       })}
     >
       <input {...getInputProps()} />
-      <AudioDropzoneLabel
+      <Status
         audioUploadProgress={audioUploadProgress[trackId]}
+        hoverActive={hoverActive}
         isStored={isStored}
         isDragActive={isDragActive}
         isDragReject={isDragReject}

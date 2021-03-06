@@ -1,5 +1,5 @@
 .playerButton {
-  margin: 0 0.5rem;
+  margin: 0 0.5rem 0 0;
   padding: 0;
   transition: color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
 }

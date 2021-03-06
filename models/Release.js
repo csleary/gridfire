@@ -18,8 +18,10 @@ const releaseSchema = new Schema(
     catNumber: { type: String, trim: true },
     credits: { type: String, trim: true },
     info: { type: String, trim: true },
-    cLine: { year: Number, owner: { type: String, trim: true } },
-    pLine: { year: Number, owner: { type: String, trim: true } },
+    pubYear: { type: String, trim: true },
+    pubName: { type: String, trim: true },
+    recYear: { type: String, trim: true },
+    recName: { type: String, trim: true },
     trackList: [
       {
         trackTitle: { type: String, trim: true },
@@ -53,17 +55,25 @@ releaseSchema.post('save', release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-releaseSchema.set('toJSON', { versionKey: false });
+releaseSchema.set('toJSON', {
+  transform: function (doc, ret) {
+    delete ret.dateCreated;
+    delete ret.dateUpdated;
+    delete ret.artwork.dateCreated;
+    delete ret.artwork.dateUpdated;
 
-releaseSchema.options.toJSON.transform = function (doc, ret) {
-  ret.trackList.forEach(track => {
-    delete track.mpd;
-    delete track.segmentDuration;
-    delete track.segmentTimescale;
-    delete track.segmentList;
-    delete track.initRange;
-  });
-  return ret;
-};
+    ret.trackList.forEach(track => {
+      delete track.dateCreated;
+      delete track.dateUpdated;
+      delete track.initRange;
+      delete track.mpd;
+      delete track.segmentDuration;
+      delete track.segmentList;
+      delete track.segmentTimescale;
+    });
+
+    return ret;
+  }
+});
 
 mongoose.model('releases', releaseSchema);

@@ -8,7 +8,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
-const Tags = ({ input: { name, value: tags, onChange }, label }) => {
+const Tags = ({ handleChange, tags }) => {
   const [tagsInput, setTagsInput] = useState('');
   const [tagsError, setTagsError] = useState('');
 
@@ -29,7 +29,7 @@ const Tags = ({ input: { name, value: tags, onChange }, label }) => {
 
       if (!tag.length) return;
       const update = [...tags, tag];
-      onChange(update);
+      handleChange({ target: { name: 'tags', value: update } });
       setTagsError('');
       setTagsInput('');
     }
@@ -37,13 +37,13 @@ const Tags = ({ input: { name, value: tags, onChange }, label }) => {
 
   const handleRemoveTag = indexToDelete => {
     const update = tags.filter((tag, index) => index !== indexToDelete);
-    onChange(update);
+    handleChange({ target: { name: 'tags', value: update } });
     setTagsError('');
     if (tags.length <= 20) setTagsInput('');
   };
 
   const handleClearTags = () => {
-    onChange([]);
+    handleChange({ target: { name: 'tags', value: [] } });
     setTagsInput('');
     setTagsError('');
   };
@@ -51,8 +51,8 @@ const Tags = ({ input: { name, value: tags, onChange }, label }) => {
   return (
     <div className={styles.tags}>
       <div className="form-group">
-        <label htmlFor={name}>
-          {label}
+        <label htmlFor="tags">
+          Add Tags
           <Button
             className={styles.clear}
             disabled={!tags.length}
@@ -71,7 +71,7 @@ const Tags = ({ input: { name, value: tags, onChange }, label }) => {
         </p>
         <input
           className="form-control"
-          id={name}
+          name="tags"
           onChange={handleTagsInput}
           onKeyPress={handleKeyPress}
           type="text"
@@ -94,7 +94,7 @@ const Tags = ({ input: { name, value: tags, onChange }, label }) => {
       {tags?.map((tag, index) => (
         <div
           className={styles.tag}
-          key={nanoid()}
+          key={nanoid(8)}
           onClick={() => handleRemoveTag(index)}
           role="button"
           tabIndex="-1"

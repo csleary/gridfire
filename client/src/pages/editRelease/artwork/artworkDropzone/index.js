@@ -1,7 +1,7 @@
 import { faThumbsUp, faTimesCircle } from '@fortawesome/free-regular-svg-icons';
 import { shallowEqual, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ProgressBar from '../../progressBar';
+import ProgressBar from 'components/progressBar';
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';

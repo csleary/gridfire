@@ -13,9 +13,11 @@ const Input = ({
   hint,
   icon,
   label,
+  min,
   name,
   onBlur,
   onChange,
+  onDrop,
   onKeyDown,
   placeholder,
   required,
@@ -24,6 +26,7 @@ const Input = ({
   value
 }) => {
   const [isTouched, setIsTouched] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div className="form-group">
@@ -33,7 +36,7 @@ const Input = ({
             <FontAwesomeIcon
               icon={icon}
               className={classnames(styles.icon, {
-                red: isTouched && error,
+                red: !isFocused && error,
                 yellow: isTouched && !error,
                 cyan: !isTouched
               })}
@@ -60,11 +63,19 @@ const Input = ({
           autoFocus={autoFocus}
           className={classnames('form-control', styles.input, { [className]: Boolean(className) })}
           disabled={disabled}
+          min={min}
           name={name}
-          onBlur={onBlur}
+          onBlur={() => {
+            setIsFocused(false);
+            if (onBlur) onBlur();
+          }}
           onChange={onChange}
+          onDrop={onDrop}
           onKeyDown={onKeyDown}
-          onFocus={() => setIsTouched(true)}
+          onFocus={() => {
+            setIsFocused(true);
+            setIsTouched(true);
+          }}
           placeholder={placeholder}
           required={required}
           type={type}
@@ -89,12 +100,13 @@ Input.propTypes = {
   name: PropTypes.string,
   onBlur: PropTypes.func,
   onChange: PropTypes.func,
+  onDrop: PropTypes.func,
   onKeyDown: PropTypes.func,
   placeholder: PropTypes.string,
   required: PropTypes.bool,
   rows: PropTypes.number,
   type: PropTypes.string,
-  value: PropTypes.string
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 };
 
 export default Input;

@@ -1,7 +1,7 @@
 const { SOCKET_HOST } = require(__basedir + '/config/constants');
 const socketio = require('socket.io');
 
-const connectSocketio = async (httpServer, rxStomp) => {
+const connectSocketio = (httpServer, rxStomp) => {
   const io = socketio(httpServer, {
     cors: {
       origin: SOCKET_HOST,
@@ -10,8 +10,13 @@ const connectSocketio = async (httpServer, rxStomp) => {
     }
   });
 
+  io.use((socket, next) => {
+    socket.rxStomp = rxStomp;
+    next();
+  });
+
   const registerSocketRoutes = require(__basedir + '/routes/socketRoutes');
-  const onConnection = async socket => registerSocketRoutes(io, socket, rxStomp);
+  const onConnection = socket => registerSocketRoutes(io, socket);
   io.on('connection', onConnection);
   return io;
 };

@@ -30,11 +30,11 @@
 .error {
   composes: check;
   color: var(--red);
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .errorHeading {
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .icon {

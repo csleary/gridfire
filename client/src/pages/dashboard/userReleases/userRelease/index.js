@@ -10,8 +10,9 @@ import StatusIcon from './statusIcon';
 import Title from './title';
 import classnames from 'classnames';
 import moment from 'moment';
+import { setReleaseIdsForDeletion } from 'features/releases';
 import styles from './userRelease.module.css';
-import { useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 function UserRelease({ favs, numSold, plays, release }) {
@@ -29,25 +30,17 @@ function UserRelease({ favs, numSold, plays, release }) {
 
   const dispatch = useDispatch();
   const history = useHistory();
-  const [isDeletingRelease, setDeletingRelease] = useState(false);
+  const { releaseIdsForDeletion } = useSelector(state => state.releases, shallowEqual);
   const [isPublishingRelease, setPublishingRelease] = useState(false);
 
-  const handleDeleteRelease = async () => {
-    setDeletingRelease(true);
-    const confirmation = await pleaseConfirm(releaseTitle);
-    if (!confirmation) return setDeletingRelease(false);
-    const releaseName = releaseTitle ? `\u2018${releaseTitle}\u2019` : 'untitled release';
-    dispatch(toastWarning(`Deleting ${releaseName}…`));
-    dispatch(deleteRelease(releaseId, releaseName));
+  const cancelDeleteTrack = releaseId => {
+    dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
   };
 
-  const pleaseConfirm = title =>
-    new Promise(resolve => {
-      const confirmation = window.confirm(
-        `Are you sure you want to delete ${title ? `\u2018${title}\u2019` : 'this release'}?`
-      );
-      resolve(confirmation);
-    });
+  const handleDeleteRelease = () => {
+    const releaseName = releaseTitle ? `\u2018${releaseTitle}\u2019` : 'release';
+    dispatch(deleteRelease(releaseId, releaseName));
+  };
 
   const handlePublishStatus = async () => {
     setPublishingRelease(true);
@@ -129,12 +122,13 @@ function UserRelease({ favs, numSold, plays, release }) {
             {published ? 'Unpublish' : 'Publish'}
           </button>
           <button
-            className={classnames(styles.deleteButton, { [styles.deleting]: isDeletingRelease })}
-            disabled={isDeletingRelease}
+            className={classnames(styles.deleteButton, { [styles.deleting]: releaseIdsForDeletion[releaseId] })}
+            onBlur={() => cancelDeleteTrack(releaseId)}
             onClick={handleDeleteRelease}
+            onKeyUp={({ key }) => (key === 'Escape') & cancelDeleteTrack(releaseId)}
           >
-            <FontAwesomeIcon icon={isDeletingRelease ? faCog : faTrashAlt} spin={isDeletingRelease} className="mr-2" />
-            {isDeletingRelease ? 'Deleting…' : 'Delete'}
+            <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
+            {releaseIdsForDeletion[releaseId] ? 'Confirm!' : 'Delete'}
           </button>
         </div>
       </div>

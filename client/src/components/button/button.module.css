@@ -6,7 +6,7 @@
   color: var(--cyan);
   display: inline-flex;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 500;
   justify-content: center;
   letter-spacing: 0.075rem;
   min-width: 12rem;
@@ -76,7 +76,7 @@
   border: 0;
   color: var(--cyan);
   font-size: initial;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0;
   padding: 0;
   text-decoration: none;

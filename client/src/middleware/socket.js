@@ -1,4 +1,4 @@
-import { setFormatExists, updateActiveRelease } from 'features/releases';
+import { setFormatExists, updateTrackStatus } from 'features/releases';
 import { setPaymentDetails, setPaymentError, setPaymentReceived, setPaymentUnconfirmed } from 'features/payment';
 import { setTranscodingComplete, setUploadProgress } from 'features/tracks';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
@@ -71,8 +71,8 @@ const socketMiddleware = ({ dispatch, getState }) => {
     }
   });
 
-  socket.on('updateActiveRelease', ({ release }) => {
-    dispatch(updateActiveRelease(release));
+  socket.on('updateTrackStatus', ({ releaseId, trackId, status }) => {
+    dispatch(updateTrackStatus({ releaseId, trackId, status }));
   });
 
   socket.on('workerMessage', ({ message }) => {

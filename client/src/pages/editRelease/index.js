@@ -1,103 +1,102 @@
-import { Field, FieldArray, formValueSelector, propTypes, reduxForm } from 'redux-form';
-import React, { Component } from 'react';
-import { addNewRelease, deleteRelease, publishStatus, updateRelease } from 'features/releases';
-import { deleteArtwork, uploadArtwork } from 'features/artwork';
-import { faCheck, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
+import React, { useEffect, useRef, useState } from 'react';
+import { addNewRelease, updateRelease } from 'features/releases';
+import { faCheck, faChevronDown, faChevronUp, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { toastError, toastSuccess, toastWarning } from 'features/toast';
+import { useHistory, useParams } from 'react-router-dom';
 import AdvancedFields from './advancedFields';
 import ArtistMenu from './artistMenu';
 import Button from 'components/button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CLOUD_URL } from 'index';
 import { Helmet } from 'react-helmet';
-import PropTypes from 'prop-types';
-import RenderArtwork from './renderArtwork';
-import RenderReleaseField from './renderReleaseField';
-import RenderTrackList from './renderTrackList';
+import Input from 'components/input';
+import Artwork from './artwork';
 import Spinner from 'components/spinner';
 import Tags from './tags';
-import { connect } from 'react-redux';
+import TrackList from './trackList';
+import { createObjectId } from 'utils';
 import { fetchRelease } from 'features/releases';
 import { fetchXemPrice } from 'features/nem';
 import styles from './editRelease.module.css';
-import { uploadAudio } from 'features/tracks';
+import { uploadArtwork } from 'features/artwork';
 import validate from './validate';
-import { withRouter } from 'react-router-dom';
 
-class EditRelease extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isEditing: false,
-      isLoading: true,
-      coverArtLoaded: false,
-      coverArtPreview: false,
-      showAdditionalInfo: false,
-      showNewArtistName: false
-    };
+const EditRelease = () => {
+  const artworkFile = useRef();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { releaseId: releaseIdParam } = useParams();
+  const { activeRelease: release, versions } = useSelector(state => state.releases, shallowEqual);
+  const { xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
+  const [errors, setErrors] = useState({});
+  const [coverArtPreview, setCoverArtPreview] = useState('');
+  const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPristine, setIsPristine] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showNewArtistName, setShowNewArtistName] = useState(false);
+  const [values, setValues] = useState({ tags: [], trackList: [] });
+  const { _id: releaseId, __v: versionKey, artistName, artwork, price, trackList, releaseTitle } = release;
+  const hasErrors = Object.values(errors).some(error => Boolean(error));
 
-    this.artworkFile = null;
-  }
-
-  async componentDidMount() {
-    window.scrollTo(0, 0);
-    this.props.fetchXemPrice();
-    const { releaseId } = this.props.match.params;
-
-    if (releaseId) {
-      this.setState({ isEditing: true });
-      const { artwork } = this.props.release;
-      await this.props.fetchRelease(releaseId);
-      if (artwork?.status === 'stored') this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });
-      this.setState({ isLoading: false });
+  useEffect(() => {
+    if (releaseIdParam) {
+      setIsEditing(true);
+      dispatch(fetchRelease(releaseIdParam)).then(() => setIsLoading(false));
     } else {
-      const res = await this.props.addNewRelease();
-
-      // Check for address or credit issues.
-      if (res?.warning) {
-        this.props.toastWarning(res.warning);
-        return this.props.history.push('/dashboard/nem-address');
-      }
-
-      this.setState({ isLoading: false });
+      setIsEditing(false);
+      dispatch(addNewRelease()).then(res => {
+        if (res?.warning) {
+          dispatch(toastWarning(res.warning));
+          return history.push('/dashboard/nem-address');
+        }
+        setIsLoading(false);
+      });
     }
-  }
+  }, [releaseIdParam]);
 
-  async componentDidUpdate(prevProps) {
-    if (prevProps.match.params.releaseId && !this.props.match.params.releaseId) {
-      this.setState({ isLoading: true });
-      const res = await this.props.addNewRelease();
+  useEffect(() => {
+    if (releaseId) setValues(release);
+    if (artwork?.status === 'stored') setCoverArtPreview(`${CLOUD_URL}/${releaseId}.jpg`);
+    else setCoverArtPreview();
+  }, [releaseId]);
 
-      // Check for address or credit issues.
-      if (res?.warning) {
-        this.props.toastWarning(res.warning);
-        return this.props.history.push('/dashboard/nem-address');
-      }
-
-      this.setState({ coverArtPreview: '', isEditing: false, isLoading: false });
+  useEffect(() => {
+    for (const updatedTrack of release.trackList) {
+      setValues(prev => ({
+        ...prev,
+        trackList: prev.trackList.map(prevTrack => {
+          if (prevTrack._id === updatedTrack._id) return { ...prevTrack, status: updatedTrack.status };
+          return prevTrack;
+        })
+      }));
     }
+  }, [versions[releaseId]]);
 
-    const { _id: releaseId, artwork } = this.props.release;
-    if (prevProps.release._id !== releaseId) {
-      if (artwork?.status === 'stored') this.setState({ coverArtPreview: `${CLOUD_URL}/${releaseId}.jpg` });
-      this.setState({ isLoading: false });
-    }
-  }
+  useEffect(() => {
+    dispatch(fetchXemPrice());
+    window.scrollTo(0, 0);
 
-  async componentWillUnmount() {
-    if (this.artworkFile) window.URL.revokeObjectURL(this.artworkFile.preview);
-  }
+    return () => {
+      if (artworkFile.current) window.URL.revokeObjectURL(artworkFile.current.preview);
+    };
+  }, []);
 
-  onDropArt = (accepted, rejected) => {
+  const onDropArt = (accepted, rejected) => {
     if (rejected.length) {
-      return this.props.toastError(
-        'Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 20MB in size.'
+      return dispatch(
+        toastError(
+          'Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 20MB in size.'
+        )
       );
     }
 
-    this.artworkFile = accepted[0];
-    const releaseId = this.props.release._id;
+    artworkFile.current = accepted[0];
     const image = new Image();
-    image.src = window.URL.createObjectURL(this.artworkFile);
+    image.src = window.URL.createObjectURL(artworkFile.current);
     let height;
     let width;
 
@@ -106,224 +105,202 @@ class EditRelease extends Component {
       width = image.width;
 
       if (height < 1000 || width < 1000) {
-        return this.props.toastError(
-          `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
+        return dispatch(
+          toastError(
+            `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
+          )
         );
       }
 
-      this.setState({ coverArtPreview: image.src });
-      this.props.uploadArtwork(releaseId, this.artworkFile, this.artworkFile.type);
+      setCoverArtPreview(image.src);
+      dispatch(uploadArtwork(releaseId, artworkFile.current, artworkFile.current.type));
     };
   };
 
-  onSubmit = async values => {
-    const { _id: releaseId } = this.props.release;
-    await this.props.updateRelease({ releaseId, ...values });
-    const releaseTitle = this.props.release.releaseTitle;
-    this.props.toastSuccess(`${releaseTitle ? `\u2018${releaseTitle}\u2019` : 'Release'} saved!`);
-    this.props.history.push('/dashboard');
+  const handleChange = (e, trackId) => {
+    const { name, value } = e.target;
+    setIsPristine(false);
+
+    if (trackId) {
+      const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
+
+      setErrors(prev => {
+        if (prev[`trackList.${trackIndex}.${name}`]) {
+          const next = { ...prev };
+          delete next[`trackList.${trackIndex}.${name}`];
+          return next;
+        }
+        return prev;
+      });
+
+      return setValues(prev => ({
+        ...prev,
+        trackList: prev.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
+      }));
+    }
+
+    setErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return prev;
+    });
+
+    setValues(prev => ({ ...prev, [name]: value }));
   };
 
-  renderHeader() {
-    const { isEditing } = this.state;
-    const { releaseTitle } = this.props.release;
-    if (isEditing && releaseTitle) return `Editing \u2018${releaseTitle}\u2019`;
-    else if (isEditing) return 'Editing Release';
-    return 'Add Release';
-  }
+  const handleSubmit = async () => {
+    const errors = validate(values);
+    if (Object.values(errors).length) return setErrors(errors);
+    setIsSubmitting(true);
+    dispatch(updateRelease({ releaseId, ...values })).then(() => {
+      setIsSubmitting(false);
+      setIsPristine(true);
+      dispatch(toastSuccess(`${releaseTitle ? `\u2018${releaseTitle}\u2019` : 'Release'} saved!`));
+      history.push('/dashboard');
+    });
+  };
 
-  renderPriceFormText() {
-    const { price, xemPriceUsd } = this.props;
-    if (!xemPriceUsd) return;
-    if (Number(price) === 0) return 'Name Your Price! Or \u2018free\u2019. Fans will still be able to donate.';
-    if (price) return `Approximately ${(price / xemPriceUsd).toFixed(2)} XEM.`;
-    return 'Set your price in USD (enter \u20180\u2019 for a \u2018Name Your Price\u2019 release).';
-  }
+  const submitButton = (
+    <div className={styles.submit}>
+      <Button icon={faCheck} type="button" disabled={hasErrors || isPristine || isSubmitting} onClick={handleSubmit}>
+        {isEditing ? 'Update Release' : 'Add Release'}
+      </Button>
+    </div>
+  );
 
-  render() {
-    const { invalid, pristine, submitting } = this.props;
-    const { isEditing, isLoading } = this.state;
+  if (isLoading) return <Spinner />;
 
-    const submitButton = (
-      <div className={styles.submit}>
-        <Button
-          icon={faCheck}
-          type="button"
-          disabled={invalid || pristine || submitting}
-          onClick={this.props.handleSubmit(this.onSubmit)}
-        >
-          {isEditing ? 'Update Release' : 'Add Release'}
-        </Button>
-      </div>
-    );
-
-    if (isLoading) return <Spinner />;
-
-    return (
-      <main className="container">
-        <Helmet>
-          <title>{isEditing ? 'Update Release' : 'Add Release'}</title>
-          <meta
-            name="description"
-            content={isEditing ? 'Update your releases on nemp3.' : 'Add a new release to your nemp3 account.'}
-          />
-        </Helmet>
-        <div className="row">
-          <div className="col mb-5">
-            <form>
-              <h2 className={styles.heading}>{this.renderHeader()}</h2>
-              {!isEditing ? (
-                <p>
-                  Please enter your release info below. Artwork and audio will be saved automatically after uploading.
-                </p>
-              ) : null}
-              <div className="row p-0">
-                <div className="col-md mb-4">
-                  {isEditing ? (
-                    <h3>{this.props.release.artistName}</h3>
-                  ) : (
-                    <Field
-                      component={ArtistMenu}
-                      label="Artist Name"
-                      name="artist"
-                      setShowNewArtist={value => this.setState({ showNewArtistName: value })}
-                      showNewArtistName={this.state.showNewArtistName}
-                    />
-                  )}
-                  {this.state.showNewArtistName ? (
-                    <Field
-                      component={RenderReleaseField}
-                      label="New artist name"
-                      name="artistName"
-                      required
-                      type="text"
-                    />
-                  ) : null}
-                  <Field
-                    component={RenderReleaseField}
-                    label="Release Title"
-                    name="releaseTitle"
+  return (
+    <main className="container">
+      <Helmet>
+        <title>{isEditing ? 'Update Release' : 'Add Release'}</title>
+        <meta
+          name="description"
+          content={isEditing ? 'Update your releases on nemp3.' : 'Add a new release to your nemp3 account.'}
+        />
+      </Helmet>
+      <div className="row">
+        <div className="col mb-5">
+          <form>
+            <h2 className={styles.heading}>
+              {isEditing && releaseTitle
+                ? `Editing \u2018${releaseTitle}\u2019`
+                : isEditing
+                ? 'Editing Release'
+                : 'Add Release'}
+            </h2>
+            {!isEditing ? (
+              <p>
+                Please enter your release info below. Artwork and audio will be saved automatically after uploading.
+              </p>
+            ) : null}
+            <div className="row p-0">
+              <div className="col-md mb-4">
+                {isEditing ? (
+                  <h3>{artistName}</h3>
+                ) : (
+                  <ArtistMenu
+                    error={errors.artist}
+                    label="Artist Name"
+                    name="artist"
+                    onChange={handleChange}
+                    setShowNewArtist={setShowNewArtistName}
+                    showNewArtistName={showNewArtistName}
+                    value={values.artist || ''}
+                  />
+                )}
+                {showNewArtistName ? (
+                  <Input
+                    error={errors.artistName}
+                    label="New artist name"
+                    name="artistName"
+                    onChange={handleChange}
                     required
                     type="text"
+                    value={values.artistName || ''}
                   />
-                  <Field
-                    component={RenderReleaseField}
-                    formText="This won't affect the visibility of your release."
-                    label="Release Date"
-                    name="releaseDate"
-                    format={date => date?.split('T')[0] ?? ''}
-                    required
-                    type="date"
-                  />
-                  <Field
-                    component={RenderReleaseField}
-                    formText={this.renderPriceFormText()}
-                    label="Price (USD)"
-                    name="price"
-                    required
-                    min={0}
-                    type="number"
-                  />
-                  <Button
-                    icon={this.state.showAdditionalInfo ? faChevronUp : faChevronDown}
-                    onClick={() => this.setState({ showAdditionalInfo: !this.state.showAdditionalInfo })}
-                    title="Show more release details."
-                    size="small"
-                    style={{ marginBottom: '1rem' }}
-                    type="button"
-                  >
-                    {this.state.showAdditionalInfo ? 'Basic' : 'Advanced'}
-                  </Button>
-                  {this.state.showAdditionalInfo ? <AdvancedFields /> : null}
-                </div>
-                <div className="col-md mb-4">
-                  <RenderArtwork
-                    artworkFile={this.artworkFile}
-                    onArtworkLoad={() => this.setState({ coverArtLoaded: true })}
-                    coverArtLoaded={this.state.coverArtLoaded}
-                    coverArtPreview={this.state.coverArtPreview}
-                    handleDeletePreview={() => this.setState({ coverArtPreview: undefined })}
-                    onDropArt={this.onDropArt}
-                  />
-                  {this.state.showAdditionalInfo ? <Field component={Tags} label="Add Tags" name="tags" /> : null}
-                  {submitButton}
-                </div>
+                ) : null}
+                <Input
+                  error={errors.releaseTitle}
+                  label="Release Title"
+                  name="releaseTitle"
+                  onChange={handleChange}
+                  required
+                  type="text"
+                  value={values.releaseTitle || ''}
+                />
+                <Input
+                  error={errors.releaseDate}
+                  hint="This won't affect the visibility of your release."
+                  label="Release Date"
+                  name="releaseDate"
+                  onChange={handleChange}
+                  required
+                  type="date"
+                  value={(values.releaseDate || new Date(Date.now()).toISOString()).split('T')[0]}
+                />
+                <Input
+                  error={errors.price}
+                  hint={
+                    !xemPriceUsd
+                      ? null
+                      : Number(price) === 0
+                      ? 'Name Your Price! Or \u2018free\u2019. Fans will still be able to donate.'
+                      : price
+                      ? `Approximately ${(price / xemPriceUsd).toFixed(2)} XEM.`
+                      : 'Set your price in USD (enter \u20180\u2019 for a \u2018Name Your Price\u2019 release).'
+                  }
+                  label="Price (USD)"
+                  name="price"
+                  onChange={handleChange}
+                  required
+                  min={0}
+                  type="number"
+                  value={values.price || 0}
+                />
+                <Button
+                  className={styles.showAdvanced}
+                  icon={showAdvanced ? faChevronUp : faChevronDown}
+                  onClick={() => setShowAdvanced(prev => !prev)}
+                  title="Show more release details."
+                  size="small"
+                  type="button"
+                >
+                  {showAdvanced ? 'Basic' : 'Advanced'}
+                </Button>
+                {showAdvanced ? <AdvancedFields errors={errors} handleChange={handleChange} values={values} /> : null}
               </div>
-              <h3 className={styles.trackListTitle}>Track List</h3>
-              <p>
-                Upload formats supported: flac, aiff, wav (bit-depths greater than 24 will be truncated to 24-bit). All
-                formats will be stored in flac format.
-              </p>
-              <p>You can also drag and drop to reorder tracks.</p>
-              <FieldArray
-                change={this.props.change}
-                component={RenderTrackList}
-                name="trackList"
-                onDropAudio={this.onDropAudio}
-              />
-              {submitButton}
-            </form>
-          </div>
+              <div className="col-md mb-4">
+                <Artwork
+                  artworkFile={artworkFile.current}
+                  onArtworkLoad={() => setArtworkIsLoaded(true)}
+                  coverArtLoaded={artworkIsLoaded}
+                  coverArtPreview={coverArtPreview}
+                  handleDeletePreview={() => setCoverArtPreview()}
+                  onDropArt={onDropArt}
+                />
+                {showAdvanced ? <Tags handleChange={handleChange} tags={values.tags || []} /> : null}
+                {trackList.length > 5 ? submitButton : null}
+              </div>
+            </div>
+            <h3 className={styles.trackListTitle}>Track List</h3>
+            <p>Upload formats supported: flac, aiff, wav.</p>
+            <TrackList errors={errors} handleChange={handleChange} setValues={setValues} values={values} />
+            {submitButton}
+            {hasErrors ? (
+              <div className={styles.error}>
+                <FontAwesomeIcon className={styles.icon} icon={faExclamationTriangle} />
+                Please address the errors before saving.
+              </div>
+            ) : null}
+          </form>
         </div>
-      </main>
-    );
-  }
-}
-
-const fieldSelector = formValueSelector('releaseForm');
-
-const mapStateToProps = state => ({
-  artworkUploading: state.artwork.artworkUploading,
-  artworkUploadProgress: state.artwork.artworkUploadProgress,
-  initialValues: state.releases.activeRelease,
-  price: Number(fieldSelector(state, 'price')),
-  release: state.releases.activeRelease,
-  xemPriceUsd: state.nem.xemPriceUsd
-});
-
-EditRelease.propTypes = {
-  ...propTypes,
-  addNewRelease: PropTypes.func,
-  artworkUploading: PropTypes.bool,
-  artworkUploadProgress: PropTypes.number,
-  deleteArtwork: PropTypes.func,
-  deleteRelease: PropTypes.func,
-  fetchRelease: PropTypes.func,
-  fetchXemPrice: PropTypes.func,
-  history: PropTypes.object,
-  match: PropTypes.object,
-  price: PropTypes.number,
-  publishStatus: PropTypes.func,
-  release: PropTypes.object,
-  toastError: PropTypes.func,
-  toastInfo: PropTypes.func,
-  toastWarning: PropTypes.func,
-  toastSuccess: PropTypes.func,
-  updateRelease: PropTypes.func,
-  uploadArtwork: PropTypes.func,
-  uploadAudio: PropTypes.func,
-  xemPriceUsd: PropTypes.number
+      </div>
+    </main>
+  );
 };
 
-const WithForm = reduxForm({
-  enableReinitialize: true,
-  form: 'releaseForm',
-  keepDirtyOnReinitialize: true,
-  validate
-})(EditRelease);
-
-export default connect(mapStateToProps, {
-  addNewRelease,
-  deleteArtwork,
-  deleteRelease,
-  fetchRelease,
-  fetchXemPrice,
-  publishStatus,
-  toastError,
-  toastInfo,
-  toastSuccess,
-  toastWarning,
-  updateRelease,
-  uploadArtwork,
-  uploadAudio
-})(withRouter(WithForm));
+export default EditRelease;
