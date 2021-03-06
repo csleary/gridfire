@@ -77,19 +77,19 @@ const Contact = () => {
                 placeholder="Email Address"
                 type="email"
                 required
-                value={values.password || ''}
+                value={values.email || ''}
               />
               <Input
                 error={errors.message}
                 icon={faComment}
+                element="textarea"
                 label="Your Message:"
                 name="message"
                 onChange={handleChange}
                 placeholder="Enter your message."
                 rows="6"
-                type="textarea"
                 required
-                value={values.password || ''}
+                value={values.message || ''}
               />
               <Recaptcha
                 error={errors.recaptcha}
