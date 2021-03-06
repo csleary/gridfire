@@ -2,18 +2,19 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './pLine.module.css';
 
-const PLine = ({ pLine }) => {
-  if (!pLine) return null;
+const PLine = ({ recName, recYear }) => {
+  if (!recName && !recYear) return null;
 
   return (
     <div className={styles.copyright}>
-      &#8471; {pLine.year} {pLine.owner}
+      &#8471; {recYear} {recName}
     </div>
   );
 };
 
 PLine.propTypes = {
-  pLine: PropTypes.object
+  recName: PropTypes.string,
+  recYear: PropTypes.number
 };
 
 export default PLine;

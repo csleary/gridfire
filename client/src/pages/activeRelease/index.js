@@ -41,10 +41,12 @@ const ActiveRelease = () => {
     artistName,
     catNumber,
     credits,
-    cLine,
     info,
-    pLine,
     price,
+    pubName,
+    pubYear,
+    recName,
+    recYear,
     recordLabel,
     releaseTitle,
     releaseDate,
@@ -108,8 +110,8 @@ const ActiveRelease = () => {
               <CatNumber catNumber={catNumber} />
               <Info info={info} />
               <Credits credits={credits} />
-              <CLine cLine={cLine} />
-              <PLine pLine={pLine} />
+              <CLine pubName={pubName} pubYear={pubYear} />
+              <PLine recName={recName} recYear={recYear} />
               <Tags trailRef={trailRef} />
             </Route>
           </Switch>
