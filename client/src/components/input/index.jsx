@@ -10,6 +10,7 @@ const Input = ({
   disabled,
   element,
   error,
+  format,
   hint,
   icon,
   label,
@@ -52,7 +53,7 @@ const Input = ({
           className="form-control"
           disabled={disabled}
           name={name}
-          onChange={onChange}
+          onChange={e => onChange(e, format)}
           placeholder={placeholder}
           required={required}
           rows={rows}
@@ -69,7 +70,7 @@ const Input = ({
             setIsFocused(false);
             if (onBlur) onBlur();
           }}
-          onChange={onChange}
+          onChange={e => onChange(e, format)}
           onDrop={onDrop}
           onKeyDown={onKeyDown}
           onFocus={() => {

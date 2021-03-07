@@ -53,7 +53,7 @@
 .input {
   background-color: var(--off-white);
   border: 0;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   padding: 0.375rem 0.75rem;
 }
 

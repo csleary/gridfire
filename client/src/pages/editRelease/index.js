@@ -15,7 +15,6 @@ import Artwork from './artwork';
 import Spinner from 'components/spinner';
 import Tags from './tags';
 import TrackList from './trackList';
-import { createObjectId } from 'utils';
 import { fetchRelease } from 'features/releases';
 import { fetchXemPrice } from 'features/nem';
 import styles from './editRelease.module.css';

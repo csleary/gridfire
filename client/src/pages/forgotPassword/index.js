@@ -93,7 +93,7 @@ const ForgotPassword = () => {
               ) : null}
               <Recaptcha
                 error={errors.recaptcha}
-                handleChange={handleChange}
+                onChange={handleChange}
                 name={'recaptcha'}
                 onError={error => setErrors(prev => ({ ...prev, recaptcha: String(error) }))}
                 captchaRef={captchaRef}

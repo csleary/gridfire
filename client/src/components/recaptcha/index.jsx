@@ -4,12 +4,12 @@ import React from 'react';
 import styles from './recaptcha.module.css';
 const sitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
-const Recaptcha = ({ error, handleChange, name = 'recaptcha', onError, captchaRef }) => {
+const Recaptcha = ({ error, onChange, name = 'recaptcha', onError, captchaRef }) => {
   return (
     <div className={styles.root}>
       <div className={styles.captcha}>
         <GoogleRecaptcha
-          onChange={value => handleChange({ target: { name, value } })}
+          onChange={value => onChange({ target: { name, value } })}
           onErrored={onError}
           ref={el => (captchaRef.current = el)}
           sitekey={sitekey}
@@ -23,7 +23,7 @@ const Recaptcha = ({ error, handleChange, name = 'recaptcha', onError, captchaRe
 Recaptcha.propTypes = {
   captchaRef: PropTypes.object,
   error: PropTypes.string,
-  handleChange: PropTypes.func,
+  onChange: PropTypes.func,
   name: PropTypes.string,
   onError: PropTypes.func
 };

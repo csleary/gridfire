@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
+import { Input, useForm } from 'hooks/useForm';
+import React, { useRef } from 'react';
 import { faComment, faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { Helmet } from 'react-helmet';
-import Input from 'components/input';
 import Recaptcha from 'components/recaptcha';
 import axios from 'axios';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -12,46 +12,21 @@ import { useDispatch } from 'react-redux';
 const Contact = () => {
   const dispatch = useDispatch();
   const captchaRef = useRef();
-  const [errors, setErrors] = useState({});
-  const [isPristine, setIsPristine] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [values, setValues] = useState({});
-  const hasErrors = Object.values(errors).some(error => Boolean(error));
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setIsPristine(false);
-
-    setErrors(prev => {
-      if (prev[name]) {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      }
-
-      return prev;
-    });
-
-    setValues(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    const validationErrors = validate(values);
-    if (Object.values(validationErrors).some(error => Boolean(error))) return setErrors(validationErrors);
-    setIsSubmitting(true);
-
+  const onSubmit = async values => {
     try {
       const res = await axios.post('/api/email/contact', values);
       dispatch(toastSuccess(res.data.success));
-      setValues({});
     } catch (error) {
       dispatch(toastError(error.response.data.error));
     } finally {
-      setIsSubmitting(false);
       captchaRef.current.reset();
     }
   };
+
+  const { errors, hasErrors, handleChange, handleSubmit, isPristine, isSubmitting, setErrors, values } = useForm({
+    validate
+  });
 
   return (
     <main className="container">
@@ -66,7 +41,7 @@ const Contact = () => {
             Please get in touch using the contact form below if you have any queries, suggestions, or need help with
             anything. We&rsquo;ll be in touch as soon as possible.
           </p>
-          <form className="form-row mt-5" onSubmit={handleSubmit}>
+          <form className="form-row mt-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="col-md-6 mx-auto">
               <Input
                 error={errors.email}
@@ -87,13 +62,13 @@ const Contact = () => {
                 name="message"
                 onChange={handleChange}
                 placeholder="Enter your message."
-                rows="6"
+                rows={6}
                 required
                 value={values.message || ''}
               />
               <Recaptcha
                 error={errors.recaptcha}
-                handleChange={handleChange}
+                onChange={handleChange}
                 name={'recaptcha'}
                 onError={error => setErrors(prev => ({ ...prev, recaptcha: String(error) }))}
                 captchaRef={captchaRef}
