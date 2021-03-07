@@ -44,6 +44,7 @@ const AdvancedFields = ({ errors, handleChange, values }) => (
         <Input
           errors={errors.pubYear}
           label="Copyright Year"
+          max={new Date().getFullYear()}
           name="pubYear"
           onChange={handleChange}
           type="number"
@@ -68,6 +69,7 @@ const AdvancedFields = ({ errors, handleChange, values }) => (
           errors={errors.recYear}
           hint="Year first released as a recording."
           label="Recording Copyright Year"
+          max={new Date().getFullYear()}
           name="recYear"
           onChange={handleChange}
           type="number"

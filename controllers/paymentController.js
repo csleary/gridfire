@@ -18,7 +18,9 @@ const createInvoice = async (releaseId, userId) => {
   const hash = crypto.createHash('sha256');
   const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 24);
   const paymentAddress = owner.nemAddress;
-  const invoiceRelease = ({ artistName, releaseTitle } = release);
+  const { artistName, releaseTitle } = release;
+  const invoiceRelease = { artistName, releaseTitle };
+  console.log(invoiceRelease);
   return { paymentAddress, paymentHash, priceInRawXem, release: invoiceRelease };
 };
 

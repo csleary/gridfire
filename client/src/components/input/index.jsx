@@ -14,6 +14,7 @@ const Input = ({
   hint,
   icon,
   label,
+  max,
   min,
   name,
   onBlur,
@@ -64,6 +65,7 @@ const Input = ({
           autoFocus={autoFocus}
           className={classnames('form-control', styles.input, { [className]: Boolean(className) })}
           disabled={disabled}
+          max={max}
           min={min}
           name={name}
           onBlur={() => {

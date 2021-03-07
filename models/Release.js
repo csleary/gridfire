@@ -18,9 +18,9 @@ const releaseSchema = new Schema(
     catNumber: { type: String, trim: true },
     credits: { type: String, trim: true },
     info: { type: String, trim: true },
-    pubYear: { type: String, trim: true },
+    pubYear: { type: Number, trim: true },
     pubName: { type: String, trim: true },
-    recYear: { type: String, trim: true },
+    recYear: { type: Number, trim: true },
     recName: { type: String, trim: true },
     trackList: [
       {
