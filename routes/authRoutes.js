@@ -1,4 +1,5 @@
 const { GOOGLE_REDIRECT, SPOTIFY_REDIRECT, TWITTER_REDIRECT } = require('../config/constants');
+const crypto = require('crypto');
 const express = require('express');
 const passport = require('passport');
 const requireLogin = require('../middlewares/requireLogin');
@@ -52,10 +53,36 @@ router.post('/update', requireLogin, (req, res, next) =>
   })(req, res, next)
 );
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/google/callback', passport.authenticate('google'), (req, res) => res.redirect(GOOGLE_REDIRECT));
-router.get('/spotify', passport.authenticate('spotify', { scope: ['user-read-email'] }));
-router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => res.redirect(SPOTIFY_REDIRECT));
+const generateRedirectKey = () => crypto.randomBytes(16).toString('hex');
+
+router.get('/google', (req, res, next) => {
+  const redirectKey = generateRedirectKey();
+  req.session[redirectKey] = req.query.prev;
+  passport.authenticate('google', { scope: ['profile', 'email'], state: redirectKey })(req, res, next);
+});
+
+router.get('/google/callback', passport.authenticate('google'), (req, res) => {
+  const redirectKey = req.query.state;
+  const prev = req.session[redirectKey];
+  delete req.session[redirectKey];
+  if (prev === 'undefined') return res.redirect(GOOGLE_REDIRECT);
+  return res.redirect(`${GOOGLE_REDIRECT}?prev=${prev}`);
+});
+
+router.get('/spotify', (req, res, next) => {
+  const redirectKey = generateRedirectKey();
+  req.session[redirectKey] = req.query.prev;
+  passport.authenticate('spotify', { scope: ['user-read-email'], state: redirectKey })(req, res, next);
+});
+
+router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => {
+  const redirectKey = req.query.state;
+  const prev = req.session[redirectKey];
+  delete req.session[redirectKey];
+  if (prev === 'undefined') return res.redirect(SPOTIFY_REDIRECT);
+  return res.redirect(`${SPOTIFY_REDIRECT}?prev=${prev}`);
+});
+
 router.get('/twitter', passport.authenticate('twitter'));
 router.get('/twitter/callback', passport.authenticate('twitter'), (req, res) => res.redirect(TWITTER_REDIRECT));
 

@@ -20,15 +20,16 @@ const Login = () => {
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [values, setValues] = useState({});
+  const hasEmail = auth?.email.length;
   const hasErrors = Object.values(errors).some(error => Boolean(error));
 
   useEffect(() => {
-    if (auth?.email.length && history.location.state) {
+    if (hasEmail && history.location.state) {
       history.push(history.location.state.from.pathname);
-    } else if (auth?.email.length) {
+    } else if (hasEmail) {
       history.push('/');
     }
-  }, [auth, history]);
+  }, [hasEmail, history]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -116,7 +117,9 @@ const Login = () => {
         <div className={`${styles.oauth} col-md`}>
           <div className={styles.service}>
             <FontAwesomeIcon className={styles.icon} icon={faSpotify} />
-            <a href="api/auth/spotify/">Log in with Spotify</a>
+            <a href={`api/auth/spotify/?prev=${encodeURIComponent(history.location.state?.from.pathname)}`}>
+              Log in with Spotify
+            </a>
           </div>
           <div className={styles.service}>
             <FontAwesomeIcon className={styles.icon} icon={faTwitter} />
@@ -124,7 +127,9 @@ const Login = () => {
           </div>
           <div className={styles.service}>
             <FontAwesomeIcon className={styles.icon} icon={faGoogle} />
-            <a href="api/auth/google/">Log in with Google</a>
+            <a href={`api/auth/google/?prev=${encodeURIComponent(history.location.state?.from.pathname)}`}>
+              Log in with Google
+            </a>
           </div>
         </div>
       </div>

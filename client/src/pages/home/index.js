@@ -10,14 +10,16 @@ import { faSync } from '@fortawesome/free-solid-svg-icons';
 import { fetchCatalogue } from 'features/releases';
 import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const Home = ({ match }) => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
   const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
     state => state.releases,
     shallowEqual
   );
-
-  const dispatch = useDispatch();
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState('dateCreated');
@@ -39,10 +41,10 @@ const Home = ({ match }) => {
   }, []); // eslint-disable-line
 
   useEffect(() => {
-    handleFetchCatalogue().then(() => {
-      setIsLoading(false);
-    });
-  }, []); // eslint-disable-line
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.has('prev')) return history.push(searchParams.get('prev'));
+    handleFetchCatalogue().then(() => setIsLoading(false));
+  }, []);
 
   useEffect(() => {
     if (service) {
