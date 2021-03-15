@@ -26,8 +26,8 @@ const Tags = () => {
 
   return (
     <>
-      <FontAwesomeIcon className={styles.icon} icon={faTags} />
-      <div className={styles.tags}>
+      <div className={styles.root}>
+        <FontAwesomeIcon className={styles.icon} icon={faTags} />
         {trail.map((style, index) => {
           const tag = tags[index];
 
