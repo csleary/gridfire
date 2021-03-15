@@ -198,7 +198,7 @@ const EditRelease = () => {
             ) : null}
             <div className="row p-0">
               <div className="col-md mb-4">
-                {isEditing ? (
+                {isEditing && artistName ? (
                   <h3>{artistName}</h3>
                 ) : (
                   <ArtistMenu

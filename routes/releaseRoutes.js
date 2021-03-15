@@ -243,7 +243,7 @@ router.put('/', requireLogin, async (req, res) => {
     } = req.body;
 
     let artist;
-    if (existingArtistId && !artistName) {
+    if (existingArtistId) {
       artist = await Artist.findById(existingArtistId, 'name', { lean: true }).exec();
     } else {
       [artist] = await createArtist(artistName, userId);

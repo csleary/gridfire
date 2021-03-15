@@ -75,7 +75,16 @@ const Artists = () => {
     <main className="container">
       <div className="row">
         <div className="col mb-5">
-          <h2 className={styles.heading}>Artists</h2>
+          {artists.length ? (
+            <h2 className={styles.heading}>Artists</h2>
+          ) : (
+            <>
+              <h3 className="text-center mt-4">Add a release first</h3>{' '}
+              <p className="text-center">
+                Once you&rsquo;ve added a release you&rsquo;ll then be able to add additional artist info here.
+              </p>
+            </>
+          )}
           {artists.length > 1 ? (
             <>
               <p>Select an artist to edit their details:</p>
