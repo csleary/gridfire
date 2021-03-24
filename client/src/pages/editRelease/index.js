@@ -61,7 +61,7 @@ const EditRelease = () => {
     if (releaseId) setValues(release);
     if (artwork?.status === 'stored') setCoverArtPreview(`${CLOUD_URL}/${releaseId}.jpg`);
     else setCoverArtPreview();
-  }, [releaseId]);
+  }, [releaseId, releaseIdParam]);
 
   useEffect(() => {
     for (const updatedTrack of release.trackList) {
@@ -258,7 +258,7 @@ const EditRelease = () => {
                   required
                   min={0}
                   type="number"
-                  value={values.price || 0}
+                  value={values.price || ''}
                 />
                 <Button
                   className={styles.showAdvanced}
