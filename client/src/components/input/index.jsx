@@ -86,7 +86,7 @@ const Input = ({
         />
       )}
       {hint ? <small className="form-text text-muted">{hint}</small> : null}
-      {isTouched && error ? <div className={styles.error}>{error}</div> : null}
+      {error ? <div className={styles.error}>{error}</div> : null}
     </div>
   );
 };
