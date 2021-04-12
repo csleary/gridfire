@@ -31,7 +31,7 @@ const work = async () => {
     };
 
     await encodeMp3(release, onProgress);
-    parentPort.postMessage({ type: 'EncodingCompleteMP3', exists: true, format: 'mp3', releaseId, userId });
+    parentPort.postMessage({ type: 'encodingCompleteMP3', exists: true, format: 'mp3', releaseId, userId });
     await db.disconnect();
   } catch (error) {
     process.exit(1);

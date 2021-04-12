@@ -13,11 +13,14 @@ module.exports = (io, socket) => {
   });
 
   socket.on('payment/subscribe', async ({ releaseId, userId }) => {
+    const operatorUser = io.to(userId);
+
     try {
       const socketId = socket.id;
       const { paymentAddress, paymentHash, priceInRawXem, release } = await createInvoice(releaseId, userId);
       const paymentInfo = { paymentAddress: format.address(paymentAddress), paymentHash };
-      io.to(socketId).emit('payment/invoice', { paymentInfo, priceInRawXem, release });
+      const operatorSocket = io.to(socketId);
+      operatorSocket.emit('payment/invoice', { paymentInfo, priceInRawXem, release });
       const unconfirmedEndpoint = `/unconfirmed/${paymentAddress}`;
       const confirmedEndpoint = `/transactions/${paymentAddress}`;
 
@@ -28,7 +31,7 @@ module.exports = (io, socket) => {
           distinct(data => JSON.parse(data.body).meta.hash.data),
           filter(data => matchTransaction(data, paymentHash))
         )
-        .subscribe(data => io.to(socketId).emit('payment/unconfirmed', { transaction: JSON.parse(data.body) }));
+        .subscribe(data => operatorSocket.emit('payment/unconfirmed', { transaction: JSON.parse(data.body) }));
 
       // Confirmed subscription
       let amountPaid = 0;
@@ -52,7 +55,7 @@ module.exports = (io, socket) => {
             await createSale({ amountPaid, paymentAddress, releaseId, transactions, userId });
           }
 
-          io.to(socketId).emit('payment/received', { hasPurchased, transaction: confirmed });
+          operatorSocket.emit('payment/received', { hasPurchased, transaction: confirmed });
         });
 
       socket.on('payment/unsubscribe', () => {
@@ -61,7 +64,7 @@ module.exports = (io, socket) => {
         if (devEnv) console.log(`User [${userId}] unsubscribed from payments.`);
       });
     } catch (error) {
-      io.to(userId).emit('payment/error', { error: error.message || error.toString() });
+      operatorUser.emit('payment/error', { error: error.message || error.toString() });
     }
   });
 };

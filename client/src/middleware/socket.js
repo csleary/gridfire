@@ -36,21 +36,21 @@ const socketMiddleware = ({ dispatch, getState }) => {
     });
   });
 
-  socket.on('EncodingCompleteFLAC', ({ trackId, trackName }) => {
+  socket.on('encodingCompleteFLAC', ({ trackId, trackName }) => {
     batch(() => {
       dispatch(setUploadProgress({ trackId, percent: 0 }));
       dispatch(toastSuccess(`Upload complete for ${trackName}!`));
     });
   });
 
-  socket.on('EncodingCompleteAAC', ({ trackId, trackName }) => {
+  socket.on('encodingCompleteAAC', ({ trackId, trackName }) => {
     batch(() => {
       dispatch(toastSuccess(`Transcoding ${trackName} to aac complete.`));
       dispatch(setTranscodingComplete(trackId));
     });
   });
 
-  socket.on('EncodingCompleteMP3', ({ releaseId, format, exists }) => {
+  socket.on('encodingCompleteMP3', ({ releaseId, format, exists }) => {
     batch(() => {
       dispatch(setFormatExists({ releaseId, format, exists }));
     });

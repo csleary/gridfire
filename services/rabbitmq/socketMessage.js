@@ -1,3 +1,4 @@
 module.exports = io => (message, { userId, ...rest }) => {
-  io.to(userId).emit(message, { ...rest });
+  const operatorUser = io.to(userId);
+  operatorUser.emit(message, { ...rest });
 };

@@ -44,8 +44,9 @@ router.post('/', requireLogin, async (req, res) => {
       const num = incompleteReleases.length;
       const [release] = incompleteReleases;
       res.json(release.toJSON());
+      const operatorUser = io.to(userId);
 
-      return io.to(userId).emit('notify', {
+      return operatorUser.emit('notify', {
         type: 'warning',
         message: `It looks like you have ${num} release${
           num !== 1 ? 's' : ''

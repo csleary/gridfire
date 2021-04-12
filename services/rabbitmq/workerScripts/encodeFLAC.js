@@ -55,14 +55,25 @@ const encodeFlac = async () => {
     const Key = `${releaseId}/${trackId}.flac`;
     const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };
     const s3 = new aws.S3();
-    await s3.upload(params).promise();
+
+    await s3
+      .upload(params)
+      .on('httpUploadProgress', event => {
+        const percent = Math.floor((event.loaded / event.total) * 100);
+
+        parentPort.postMessage({
+          message: `Storing ${trackName} (${percent}% complete)…`,
+          userId
+        });
+      })
+      .promise();
 
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = 'encoded';
     trackDoc.dateUpdated = Date.now();
     await release.save();
     parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'encoded', userId });
-    parentPort.postMessage({ type: 'EncodingCompleteFLAC', trackId, trackName, userId });
+    parentPort.postMessage({ type: 'encodingCompleteFLAC', trackId, trackName, userId });
 
     parentPort.postMessage({
       type: 'publishToQueue',

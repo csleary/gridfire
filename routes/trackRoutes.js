@@ -189,6 +189,7 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
   try {
     const io = req.app.get('socketio');
     const userId = req.user._id.toString();
+    const operatorUser = io.to(userId);
     let formData = {};
 
     req.busboy.on('field', (key, value) => {
@@ -226,7 +227,7 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
           { new: true }
         )
           .exec()
-          .then(() => io.to(userId).emit('updateTrackStatus', { releaseId, trackId, status: 'uploaded' }));
+          .then(() => operatorUser.emit('updateTrackStatus', { releaseId, trackId, status: 'uploaded' }));
 
         if ([userId, filePath, releaseId, trackId, trackName].includes(undefined)) {
           throw new Error('Job parameters missing.');
@@ -242,7 +243,7 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
       )
         .exec()
         .then(() => {
-          io.to(userId).emit('updateTrackStatus', { releaseId, trackId, status: 'uploading' });
+          operatorUser.emit('updateTrackStatus', { releaseId, trackId, status: 'uploading' });
         });
 
       file.pipe(write);
