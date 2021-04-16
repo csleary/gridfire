@@ -37,7 +37,6 @@ const work = async () => {
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = 'transcoding';
     trackDoc.dateUpdated = Date.now();
-    await release.save();
     parentPort.postMessage({ message: 'Transcoding to aac…', userId });
     parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'transcoding', userId });
 
@@ -47,7 +46,6 @@ const work = async () => {
     const metadata = await getTrackDuration(probeSrc);
     trackDoc.duration = metadata.format.duration;
     trackDoc.dateUpdated = Date.now();
-    await release.save();
 
     // Transcode FLAC to AAC
     mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
