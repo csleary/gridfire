@@ -16,6 +16,7 @@ const ProgressBar = ({ className, percentComplete, willDisplay }) => {
 };
 
 ProgressBar.propTypes = {
+  className: PropTypes.string,
   percentComplete: PropTypes.number,
   willDisplay: PropTypes.bool
 };

@@ -1,7 +1,7 @@
+import { toastError, toastInfo, toastSuccess } from 'features/toast';
 import axios from 'axios';
 import { createSlice } from '@reduxjs/toolkit';
 import { setActiveRelease } from 'features/releases';
-import { toastError, toastInfo, toastSuccess } from 'features/toast';
 const calls = new Map();
 
 const trackSlice = createSlice({
@@ -69,7 +69,7 @@ const deleteTrack = (releaseId, trackId, trackTitle) => async (dispatch, getStat
   }
 };
 
-const getCancelToken = uploadId => dispatch => {
+const getCancelToken = uploadId => () => {
   const call = axios.CancelToken.source();
   calls.set(uploadId, call);
   return call.token;

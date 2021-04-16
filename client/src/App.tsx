@@ -22,10 +22,10 @@ import SearchResults from 'pages/searchResults';
 import Support from 'pages/support';
 import ToastList from 'components/toastList';
 import { fetchUser } from 'features/user';
-import { useDispatch } from 'react-redux';
 import styles from './App.module.css';
+import { useDispatch } from 'react-redux';
 
-const App = () => {
+const App: React.FC = () => {
   const dispatch = useDispatch();
   dispatch(fetchUser());
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useHistory, useLocation } from 'react-router-dom';
 import Button from 'components/button';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
@@ -10,7 +11,6 @@ import { faSync } from '@fortawesome/free-solid-svg-icons';
 import { fetchCatalogue } from 'features/releases';
 import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
-import { useHistory, useLocation } from 'react-router-dom';
 
 const Home = ({ match }) => {
   const dispatch = useDispatch();

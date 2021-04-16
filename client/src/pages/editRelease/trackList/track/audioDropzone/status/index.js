@@ -89,6 +89,7 @@ const AudioDropzoneLabel = props => {
 AudioDropzoneLabel.propTypes = {
   audioUploadProgress: PropTypes.number,
   hasAudio: PropTypes.bool,
+  hoverActive: PropTypes.bool,
   isDragActive: PropTypes.bool,
   isDragReject: PropTypes.bool,
   isEncoding: PropTypes.bool,

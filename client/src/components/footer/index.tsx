@@ -1,15 +1,15 @@
 import { shallowEqual, useSelector } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { RootState } from 'index';
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import styles from './footer.module.css';
 
 const today = new Date();
 const year = today.getFullYear();
 
-const Footer = () => {
+const Footer: React.FC = () => {
   const user = useSelector((state: RootState) => state.user, shallowEqual);
   const { auth } = user;
 

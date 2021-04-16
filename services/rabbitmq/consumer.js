@@ -13,6 +13,7 @@ const scripts = {
 const startConsumer = async ({ connection, io, workerPool, queue }) => {
   try {
     const consumerChannel = await connection.createChannel();
+
     const processMessage = async message => {
       try {
         const workerData = JSON.parse(message.content.toString());

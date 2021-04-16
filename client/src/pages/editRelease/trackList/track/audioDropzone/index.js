@@ -1,13 +1,13 @@
+import React, { useState } from 'react';
+import { cancelUpload, uploadAudio } from 'features/tracks';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastInfo } from 'features/toast';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
 import Status from './status';
 import classNames from 'classnames';
-import { cancelUpload, uploadAudio } from 'features/tracks';
+import styles from './audioDropzone.module.css';
 import { updateTrackStatus } from 'features/releases';
 import { useDropzone } from 'react-dropzone';
-import styles from './audioDropzone.module.css';
 
 const AudioDropzone = ({ trackId }) => {
   const dispatch = useDispatch();
@@ -45,7 +45,16 @@ const AudioDropzone = ({ trackId }) => {
   };
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
-    accept: 'audio/wav, audio/wave, audio/x-wave, audio/vnd.wave, audio/aiff, audio/x-aiff',
+    accept: [
+      'audio/aiff',
+      'audio/x-aiff',
+      'audio/flac',
+      'audio/x-flac',
+      'audio/wav',
+      'audio/wave',
+      'audio/vnd.wave',
+      'audio/x-wave'
+    ],
     disabled: isTranscoding || isEncoding,
     multiple: false,
     noDragEventsBubbling: true,

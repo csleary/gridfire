@@ -10,13 +10,13 @@ import {
   setValues,
   updateArtist
 } from 'features/artists';
+import { faCheck, faLink, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
 import classnames from 'classnames';
 import styles from './artists.module.css';
 import { useHistory } from 'react-router-dom';
-import { faCheck, faLink, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
 const Artists = () => {
   const dispatch = useDispatch();

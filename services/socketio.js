@@ -7,7 +7,8 @@ const connectSocketio = (httpServer, rxStomp) => {
       origin: SOCKET_HOST,
       methods: ['GET', 'POST'],
       credentials: true
-    }
+    },
+    serveClient: false
   });
 
   io.use((socket, next) => {

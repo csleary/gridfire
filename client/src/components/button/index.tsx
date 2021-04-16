@@ -1,40 +1,39 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import React from 'react';
 import classnames from 'classnames';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import styles from './button.module.css';
 
-interface Props {
+interface ButtonProps {
   autoFocus?: boolean;
-  children?: Object;
+  buttonRef?: React.RefObject<HTMLButtonElement>;
+  children?: React.ReactNode;
   className?: string;
   disabled?: boolean;
-  icon?: IconProp;
-  iconClassName: string;
+  icon?: IconDefinition;
+  iconClassName?: string;
   iconRight?: boolean;
   isActive?: boolean;
   menuOpen?: boolean;
-  onClick: (arg0: any) => CustomEvent;
+  onClick: (e: React.MouseEvent) => React.MouseEvent<HTMLButtonElement>;
   secondary?: boolean;
-  buttonRef?: string;
   size?: string;
   spin?: boolean;
-  style?: Object;
+  style?: React.CSSProperties;
   text?: string;
   textLink?: boolean;
   title?: string;
   type?: 'submit' | 'reset' | 'button';
 }
 
-const Button = ({
+const Button:React.FC<ButtonProps> = ({
   autoFocus = false,
   children,
   className,
   disabled,
   icon,
-  iconClassName,
+  iconClassName = '',
   iconRight,
   isActive,
   menuOpen,
@@ -49,7 +48,7 @@ const Button = ({
   title,
   type,
   ...rest
-}: Props) => {
+}) => {
   const buttonClassNames = classnames(className, {
     [styles.active]: isActive,
     [styles.button]: !textLink,
@@ -92,26 +91,5 @@ const Button = ({
   );
 };
 
-Button.propTypes = {
-  autoFocus: PropTypes.bool,
-  buttonRef: PropTypes.object,
-  children: PropTypes.node,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
-  icon: PropTypes.object,
-  iconClassName: PropTypes.string,
-  iconRight: PropTypes.bool,
-  isActive: PropTypes.bool,
-  menuOpen: PropTypes.bool,
-  onClick: PropTypes.func,
-  secondary: PropTypes.bool,
-  size: PropTypes.string,
-  spin: PropTypes.bool,
-  style: PropTypes.object,
-  text: PropTypes.string,
-  textLink: PropTypes.bool,
-  title: PropTypes.string,
-  type: PropTypes.string
-};
 
 export default Button;

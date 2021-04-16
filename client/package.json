@@ -9,17 +9,9 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@reduxjs/toolkit": "^1.5.0",
-    "@types/classnames": "^2.2.11",
-    "@types/node": "^14.14.31",
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.3",
-    "@types/react-fontawesome": "^1.6.4",
-    "@types/react-redux": "^7.1.16",
-    "@types/react-router-dom": "^5.1.7",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "classnames": "^2.2.6",
-    "eslint-plugin-react": "^7.22.0",
     "lazysizes": "^5.3.0",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
@@ -27,19 +19,18 @@
     "nem-sdk": "^1.6.8",
     "prop-types": "^15.7.2",
     "qrcode.react": "^1.0.1",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-dropzone": "^11.3.2",
     "react-google-recaptcha": "^2.1.0",
     "react-helmet": "^6.1.0",
     "react-redux": "^7.2.2",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.4",
+    "react-scripts": "^4.0.3",
     "react-spring": "^9.0.0-rc.3",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "socket.io-client": "^4.0.1",
-    "typescript": "^4.1.5"
+    "socket.io-client": "^4.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -50,17 +41,15 @@
   "eslintConfig": {
     "extends": [
       "eslint:recommended",
-      "plugin:react/recommended"
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"
     ],
     "parser": "babel-eslint",
     "rules": {
-      "indent": [
-        "error",
-        2,
-        {
-          "SwitchCase": 1
-        }
-      ],
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "indent": "off",
       "linebreak-style": [
         "error",
         "unix"
@@ -75,8 +64,27 @@
       ],
       "sort-imports": [
         "error"
-      ]
-    }
+      ],
+      "template-curly-spacing": "off"
+    },
+    "overrides": [
+      {
+        "files": [
+          "*.ts",
+          "*.tsx"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "rules": {
+          "@typescript-eslint/explicit-function-return-type": [
+            "error",
+            {
+              "allowExpressions": true
+            }
+          ],
+          "react/prop-types": "off"
+        }
+      }
+    ]
   },
   "browserslist": {
     "production": [
@@ -91,8 +99,20 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
+    "@types/classnames": "^2.2.11",
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.37",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "@types/react-fontawesome": "^1.6.4",
     "@types/react-helmet": "^6.1.0",
-    "http-proxy-middleware": "^1.1.1"
+    "@types/react-redux": "^7.1.16",
+    "@types/react-router-dom": "^5.1.7",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.24.0",
+    "eslint-plugin-react": "^7.23.2",
+    "http-proxy-middleware": "^1.1.1",
+    "typescript": "^4.2.4"
   }
 }

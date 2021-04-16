@@ -1,6 +1,4 @@
-import React from 'react';
 import { faArrowDown, faArrowUp, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { shallowEqual, useSelector } from 'react-redux';
 import AudioDropzone from './audioDropzone';
 import Button from 'components/button';
@@ -8,8 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Input from 'components/input';
 import ProgressBar from 'components/progressBar';
 import PropTypes from 'prop-types';
+import React from 'react';
 import TextSpinner from 'components/textSpinner';
 import classNames from 'classnames';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import styles from './track.module.css';
 
 const Track = props => {
@@ -62,7 +62,9 @@ const Track = props => {
       onDragLeave={handleDragLeave}
       onDrop={() => handleDrop(index)}
       onDragEnd={handleDragEnd}
-      onTouchStart={() => {}}
+      onTouchStart={() => {
+        return;
+      }}
     >
       <div className={styles.fields}>
         <div className={styles.grabber}>⠿</div>
@@ -142,8 +144,10 @@ const Track = props => {
 };
 
 Track.propTypes = {
+  cancelDeleteTrack: PropTypes.func,
   dragActive: PropTypes.bool,
   error: PropTypes.bool,
+  errors: PropTypes.object,
   index: PropTypes.number,
   isDragOrigin: PropTypes.bool,
   handleChange: PropTypes.func,

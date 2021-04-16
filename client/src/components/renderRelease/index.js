@@ -52,7 +52,9 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
     <div
       className={classnames(styles.art, { [className]: Boolean(className) })}
       key={releaseId}
-      onTouchStart={() => {}}
+      onTouchStart={() => {
+        return;
+      }}
     >
       <img
         alt={`${artistName} - ${releaseTitle}`}

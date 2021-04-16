@@ -208,9 +208,11 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
         'audio/aiff',
         'audio/x-aiff',
         'audio/flac',
-        'audio/vnd.wav',
+        'audio/x-flac',
         'audio/wav',
-        'audio/x-wav'
+        'audio/wave',
+        'audio/vnd.wave',
+        'audio/x-wave'
       ].includes(mimetype);
 
       if (!accepted) {

@@ -13,8 +13,8 @@ const CLine = ({ pubName, pubYear }) => {
 };
 
 CLine.propTypes = {
-  recName: PropTypes.string,
-  recYear: PropTypes.number
+  pubName: PropTypes.string,
+  pubYear: PropTypes.number
 };
 
 export default CLine;

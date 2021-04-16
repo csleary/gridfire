@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { nanoid } from '@reduxjs/toolkit';
 import styles from './tags.module.css';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
@@ -110,7 +110,9 @@ const Tags = ({ handleChange, tags }) => {
 
 Tags.propTypes = {
   input: PropTypes.object,
-  label: PropTypes.string
+  handleChange: PropTypes.func,
+  label: PropTypes.string,
+  tags: PropTypes.array
 };
 
 export default Tags;

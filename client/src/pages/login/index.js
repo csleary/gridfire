@@ -1,7 +1,7 @@
 import { Link, useHistory } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -33,7 +33,12 @@ const Artwork = () => {
   };
 
   return (
-    <div className={styles.artwork} onTouchStart={() => {}}>
+    <div
+      className={styles.artwork}
+      onTouchStart={() => {
+        return;
+      }}
+    >
       <img
         alt={releaseTitle}
         className={`${styles.image} lazyload`}

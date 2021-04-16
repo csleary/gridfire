@@ -21,6 +21,7 @@ const PlayButton = ({ isReady, onClick }) => {
 
 PlayButton.propTypes = {
   isReady: PropTypes.bool,
+  onClick: PropTypes.func,
   playAudio: PropTypes.func
 };
 

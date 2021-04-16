@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Spinner from 'components/spinner';
 import classnames from 'classnames';
-import styles from './selectCredits.module.css';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import styles from './selectCredits.module.css';
 
 const SelectCredits = ({ productData = [], isLoading, sku, setSku, setStage, setShowPaymentModal }) => {
   const selectedProduct = productData.find(product => product.sku === sku) || {};

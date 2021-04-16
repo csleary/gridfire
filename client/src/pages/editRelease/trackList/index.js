@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { addTrack, setTrackIdsForDeletion, deleteTrack, moveTrack } from 'features/tracks';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { addTrack, deleteTrack, moveTrack, setTrackIdsForDeletion } from 'features/tracks';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import PropTypes from 'prop-types';
 import Track from './track';
 import { createObjectId } from 'utils';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from './trackList.module.css';
 import { toastSuccess } from 'features/toast';
 
-function TrackList({ errors = [], handleChange, setValues, values }) {
+function TrackList({ errors = {}, handleChange, setValues, values }) {
   const dispatch = useDispatch();
   const { activeRelease } = useSelector(state => state.releases, shallowEqual);
   const { trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
@@ -49,8 +49,14 @@ function TrackList({ errors = [], handleChange, setValues, values }) {
   };
 
   const handleDragEnter = index => setDragActive(index);
-  const handleDragOver = () => {};
-  const handleDragLeave = () => {};
+
+  const handleDragOver = () => {
+    return;
+  };
+
+  const handleDragLeave = () => {
+    return;
+  };
 
   const handleMoveTrack = (indexFrom, indexTo, id = releaseId) => {
     const { trackList } = values;
@@ -102,6 +108,7 @@ function TrackList({ errors = [], handleChange, setValues, values }) {
 }
 
 TrackList.propTypes = {
+  errors: PropTypes.object,
   handleChange: PropTypes.func,
   setValues: PropTypes.func,
   values: PropTypes.object

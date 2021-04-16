@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { deleteRelease, publishStatus } from 'features/releases';
 import { faCircle, faCog, faHeart, faPencilAlt, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { faEye, faEyeSlash, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastSuccess, toastWarning } from 'features/toast';
 import Artwork from './artwork';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,7 +13,6 @@ import classnames from 'classnames';
 import moment from 'moment';
 import { setReleaseIdsForDeletion } from 'features/releases';
 import styles from './userRelease.module.css';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 function UserRelease({ favs, numSold, plays, release }) {
@@ -33,8 +33,8 @@ function UserRelease({ favs, numSold, plays, release }) {
   const { releaseIdsForDeletion } = useSelector(state => state.releases, shallowEqual);
   const [isPublishingRelease, setPublishingRelease] = useState(false);
 
-  const cancelDeleteTrack = releaseId => {
-    dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
+  const cancelDeleteTrack = id => {
+    dispatch(setReleaseIdsForDeletion({ releaseId: id, isDeleting: false }));
   };
 
   const handleDeleteRelease = () => {

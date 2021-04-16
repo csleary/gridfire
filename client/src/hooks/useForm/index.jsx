@@ -30,8 +30,8 @@ const useForm = ({ defaultState = {}, validate }) => {
   const handleSubmit = onSubmit => async e => {
     try {
       e.preventDefault();
-      const errors = validate(values);
-      if (Object.values(errors).length) return setErrors(errors);
+      const validationErrors = validate(values);
+      if (Object.values(validationErrors).length) return setErrors(validationErrors);
       setIsSubmitting(true);
       await onSubmit(values);
       setIsPristine(true);

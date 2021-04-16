@@ -1,6 +1,6 @@
+import { createSlice, nanoid } from '@reduxjs/toolkit';
 import { toastError, toastSuccess } from 'features/toast';
 import axios from 'axios';
-import { createSlice, nanoid } from '@reduxjs/toolkit';
 const defaultReleaseState = { artwork: {}, releaseDate: '', tags: [], trackList: [] };
 
 const releaseSlice = createSlice({
@@ -148,7 +148,7 @@ const deleteRelease = (releaseId, releaseTitle = 'release') => async (dispatch, 
   try {
     if (getState().releases.releaseIdsForDeletion[releaseId]) {
       dispatch(removeRelease(releaseId));
-      const res = await axios.delete(`/api/release/${releaseId}`);
+      await axios.delete(`/api/release/${releaseId}`);
       dispatch(toastSuccess(`Successfully deleted ${releaseTitle}.`));
       dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
     } else {

@@ -6,12 +6,12 @@ import { toastError, toastSuccess, toastWarning } from 'features/toast';
 import { useHistory, useParams } from 'react-router-dom';
 import AdvancedFields from './advancedFields';
 import ArtistMenu from './artistMenu';
+import Artwork from './artwork';
 import Button from 'components/button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CLOUD_URL } from 'index';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Helmet } from 'react-helmet';
 import Input from 'components/input';
-import Artwork from './artwork';
 import Spinner from 'components/spinner';
 import Tags from './tags';
 import TrackList from './trackList';
@@ -38,7 +38,7 @@ const EditRelease = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showNewArtistName, setShowNewArtistName] = useState(false);
   const [values, setValues] = useState({ tags: [], trackList: [] });
-  const { _id: releaseId, __v: versionKey, artistName, artwork, price, trackList, releaseTitle } = release;
+  const { _id: releaseId, artistName, artwork, price, trackList, releaseTitle } = release;
   const hasErrors = Object.values(errors).some(error => Boolean(error));
 
   useEffect(() => {
@@ -151,8 +151,8 @@ const EditRelease = () => {
   };
 
   const handleSubmit = async () => {
-    const errors = validate(values);
-    if (Object.values(errors).length) return setErrors(errors);
+    const validationErrors = validate(values);
+    if (Object.values(validationErrors).length) return setErrors(validationErrors);
     setIsSubmitting(true);
     dispatch(updateRelease({ releaseId, ...values })).then(() => {
       setIsSubmitting(false);
