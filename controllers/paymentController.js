@@ -1,10 +1,9 @@
 const crypto = require('crypto');
 const { fetchXemPrice, fetchXemPriceBinance } = require(__basedir + '/controllers/nemController');
-const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
-const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
-const User = mongoose.model('users');
+const Release = require(__basedir + '/models/Release');
+const Sale = require(__basedir + '/models/Sale');
+const User = require(__basedir + '/models/User');
 const { hexMessage } = nem.utils.format;
 
 const createInvoice = async (releaseId, userId) => {
@@ -20,7 +19,6 @@ const createInvoice = async (releaseId, userId) => {
   const paymentAddress = owner.nemAddress;
   const { artistName, releaseTitle } = release;
   const invoiceRelease = { artistName, releaseTitle };
-  console.log(invoiceRelease);
   return { paymentAddress, paymentHash, priceInRawXem, release: invoiceRelease };
 };
 

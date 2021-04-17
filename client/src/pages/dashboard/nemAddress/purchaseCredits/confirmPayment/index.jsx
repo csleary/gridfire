@@ -35,6 +35,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       const clientId = await createClientId();
       const res = await axios.post('/api/user/credits/confirm', clientId);
       setPayments(res.data);
+      setIsLoading(false);
     } catch (err) {
       if (err.response) {
         setError(err.response.data.error);
@@ -45,7 +46,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       }
       setIsLoading(false);
     }
-  }, [createClientId, setPayments]);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     const updateTxs = async () => {
@@ -74,7 +75,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       window.clearInterval(txInterval);
       clearTimeout(txTimeout);
     };
-  }, [dispatch, fetchTransactions, hasPaid]);
+  }, []); // eslint-disable-line
 
   return (
     <>
