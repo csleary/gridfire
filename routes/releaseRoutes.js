@@ -4,14 +4,13 @@ const aws = require('aws-sdk');
 const { createArtist } = require('../controllers/artistController');
 const crypto = require('crypto');
 const express = require('express');
-const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const router = express.Router();
-const Artist = mongoose.model('artists');
-const Release = mongoose.model('releases');
-const User = mongoose.model('users');
+const Artist = require(__basedir + '/models/Artist');
+const Release = require(__basedir + '/models/Release');
+const User = require(__basedir + '/models/User');
 aws.config.update({ region: AWS_REGION });
 
 router.post('/', requireLogin, async (req, res) => {

@@ -3,14 +3,13 @@ const { checkSignedMessage, fetchMosaics, fetchTransactions, fetchXemPrice, fetc
   '/controllers/nemController');
 const crypto = require('crypto');
 const { humanId } = require('human-id');
-const mongoose = require('mongoose');
 const nem = require('nem-sdk').default;
 const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
-const CreditPayment = mongoose.model('credit-payments');
-const PaymentSession = mongoose.model('payment-sessions');
-const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
-const User = mongoose.model('users');
+const CreditPayment = require(__basedir + '/models/CreditPayment');
+const PaymentSession = require(__basedir + '/models/PaymentSession');
+const Release = require(__basedir + '/models/Release');
+const Sale = require(__basedir + '/models/Sale');
+const User = require(__basedir + '/models/User');
 
 const getUser = async userId => {
   const [user] = await User.aggregate([

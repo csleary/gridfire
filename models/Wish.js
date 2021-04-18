@@ -8,4 +8,5 @@ const wishSchema = new Schema({
 });
 
 wishSchema.index({ user: 1, release: 1 }, { unique: true });
-mongoose.model('wishlist', wishSchema);
+const Wish = mongoose.model('Wish', wishSchema, 'wishlist');
+module.exports = Wish;

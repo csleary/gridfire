@@ -65,6 +65,7 @@ module.exports = (io, socket) => {
         if (devEnv) console.log(`User [${userId}] unsubscribed from payments.`);
       });
     } catch (error) {
+      console.log(error);
       operatorUser.emit('payment/error', { error: error.message || error.toString() });
     }
   });

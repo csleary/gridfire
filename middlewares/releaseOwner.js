@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const Release = mongoose.model('releases');
+const Release = require(__basedir + '/models/Release');
 
 module.exports = async (req, res, next) => {
   const releaseId = req.body.releaseId || req.params.releaseId || req.query.releaseId;

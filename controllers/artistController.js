@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const Artist = mongoose.model('artists');
+const Artist = require(__basedir + '/models/Artist');
 
 const createArtist = async (artistName, userId, suffix = '') =>
   Artist.create(

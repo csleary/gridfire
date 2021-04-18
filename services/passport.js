@@ -7,7 +7,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const SpotifyStrategy = require('passport-spotify').Strategy;
 const TwitterStrategy = require('passport-twitter').Strategy;
-const User = mongoose.model('users');
+const User = require(__basedir + '/models/User');
 const { GOOGLE_CALLBACK, SPOTIFY_CALLBACK, TWITTER_CALLBACK } = require('../config/constants');
 
 passport.serializeUser((user, done) => {

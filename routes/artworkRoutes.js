@@ -3,13 +3,12 @@ const { deleteArtwork } = require(__basedir + '/controllers/artworkController');
 const busboy = require('connect-busboy');
 const express = require('express');
 const fs = require('fs');
-const mongoose = require('mongoose');
 const path = require('path');
 const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
 const releaseOwner = require(__basedir + '/middlewares/releaseOwner');
 const requireLogin = require(__basedir + '/middlewares/requireLogin');
 const router = express.Router();
-const Release = mongoose.model('releases');
+const Release = require(__basedir + '/models/Release');
 
 router.post('/', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 20 } }), async (req, res) => {
   try {

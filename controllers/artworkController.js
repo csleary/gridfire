@@ -1,6 +1,5 @@
 const aws = require('aws-sdk');
-const mongoose = require('mongoose');
-const Release = mongoose.model('releases');
+const Release = require(__basedir + '/models/Release');
 const { AWS_REGION, BUCKET_IMG } = require('../config/constants');
 aws.config.update({ region: AWS_REGION });
 

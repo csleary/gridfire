@@ -9,4 +9,5 @@ const playSchema = new Schema({
 });
 
 playSchema.index({ release: 1, trackId: 1, date: -1, user: 1 });
-mongoose.model('plays', playSchema);
+const Play = mongoose.model('Play', playSchema, 'plays');
+module.exports = Play;

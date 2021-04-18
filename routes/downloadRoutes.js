@@ -2,14 +2,13 @@ const { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } = require('../config/constants
 const { generateToken, verifyToken } = require(__basedir + '/controllers/tokenController');
 const aws = require('aws-sdk');
 const express = require('express');
-const mongoose = require('mongoose');
 const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
 const requireLogin = require(__basedir + '/middlewares/requireLogin');
 const router = express.Router();
 const { zipDownload } = require(__basedir + '/controllers/archiveController');
 aws.config.update({ region: AWS_REGION });
-const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
+const Release = require(__basedir + '/models/Release');
+const Sale = require(__basedir + '/models/Sale');
 
 // Fetch Download Token
 router.post('/', requireLogin, async (req, res) => {

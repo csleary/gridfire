@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 const express = require('express');
 const router = express.Router();
 const slugify = require('slugify');
-const Artist = mongoose.model('artists');
-const Release = mongoose.model('releases');
+const Artist = require(__basedir + '/models/Artist');
+const Release = require(__basedir + '/models/Release');
 
 router.get('/', requireLogin, async (req, res) => {
   try {

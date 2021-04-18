@@ -76,4 +76,5 @@ releaseSchema.set('toJSON', {
   }
 });
 
-mongoose.model('releases', releaseSchema);
+const Release = mongoose.model('Release', releaseSchema, 'releases');
+module.exports = Release;

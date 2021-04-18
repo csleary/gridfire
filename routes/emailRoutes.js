@@ -9,11 +9,10 @@ const {
 } = require('../config/keys');
 const crypto = require('crypto');
 const express = require('express');
-const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const router = express.Router();
 const rp = require('request-promise-native');
-const User = mongoose.model('users');
+const User = require(__basedir + '/models/User');
 
 const defaults = {
   host: smtpHostName,

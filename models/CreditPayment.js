@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const CreditPayment = new Schema({
+const creditPaymentSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User' },
   purchaseDate: Date,
   sku: String,
@@ -9,5 +9,6 @@ const CreditPayment = new Schema({
   transactions: Array
 });
 
-CreditPayment.index({ user: 1 });
-mongoose.model('credit-payments', CreditPayment);
+creditPaymentSchema.index({ user: 1 });
+const CreditPayment = mongoose.model('CreditPayment', creditPaymentSchema, 'credit-payments');
+module.exports = CreditPayment;

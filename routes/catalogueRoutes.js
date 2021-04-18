@@ -3,8 +3,8 @@ const aws = require('aws-sdk');
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
-const Artist = mongoose.model('artists');
-const Release = mongoose.model('releases');
+const Artist = require(__basedir + '/models/Artist');
+const Release = require(__basedir + '/models/Release');
 aws.config.update({ region: AWS_REGION });
 
 router.get('/search', async (req, res) => {

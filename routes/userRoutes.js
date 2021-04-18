@@ -9,14 +9,13 @@ const {
 } = require(__basedir + '/controllers/userController');
 const { generateToken, verifyToken } = require(__basedir + '/controllers/tokenController');
 const express = require('express');
-const mongoose = require('mongoose');
 const { PAYMENT_ADDRESS } = require(__basedir + '/config/constants');
 const requireLogin = require(__basedir + '/middlewares/requireLogin');
 const router = express.Router();
-const Favourite = mongoose.model('favourites');
-const Release = mongoose.model('releases');
-const Sale = mongoose.model('sales');
-const Wish = mongoose.model('wishlist');
+const Favourite = require(__basedir + '/models/Favourite');
+const Release = require(__basedir + '/models/Release');
+const Sale = require(__basedir + '/models/Sale');
+const Wish = require(__basedir + '/models/Wish');
 
 router.get('/', async (req, res) => {
   if (!req.user) return res.end();

@@ -7,6 +7,7 @@ const User = require(__basedir + '/models/User');
 const { hexMessage } = nem.utils.format;
 
 const createInvoice = async (releaseId, userId) => {
+  console.log(Release);
   const release = await Release.findById(releaseId, 'artistName releaseTitle price user', { lean: true });
   const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
   const priceInXem = release.price / xemPriceUsd;

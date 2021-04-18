@@ -1,6 +1,3 @@
-const mongoose = require('mongoose');
-require(__basedir + '/models/Release');
-const Release = mongoose.model('releases');
 const { publishToQueue } = require('./publisher');
 const socketMessage = require('./socketMessage');
 

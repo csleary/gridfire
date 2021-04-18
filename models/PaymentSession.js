@@ -12,4 +12,5 @@ const paymentSessionSchema = new Schema({
 });
 
 paymentSessionSchema.index({ dateCreated: 1 }, { expireAfterSeconds: 60 * 15 });
-mongoose.model('payment-sessions', paymentSessionSchema);
+const PaymentSession = mongoose.model('PaymentSession', paymentSessionSchema, 'payment-sessions');
+module.exports = PaymentSession;

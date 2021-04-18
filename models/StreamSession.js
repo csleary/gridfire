@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Play = mongoose.model('plays');
+const Play = require(__basedir + '/models/Play');
 const { Schema } = mongoose;
 
 const streamSessionSchema = new Schema({
@@ -26,4 +26,6 @@ streamSessionSchema.post('findOneAndUpdate', async function (stream) {
 
 streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });
 streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
-mongoose.model('stream-sessions', streamSessionSchema);
+
+const StreamSession = mongoose.model('StreamSession', streamSessionSchema, 'stream-sessions');
+module.exports = StreamSession;

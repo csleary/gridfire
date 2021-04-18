@@ -9,8 +9,8 @@ const { publishToQueue } = require('../services/rabbitmq/publisher');
 const releaseOwner = require('../middlewares/releaseOwner');
 const requireLogin = require('../middlewares/requireLogin');
 const router = express.Router();
-const Release = mongoose.model('releases');
-const StreamSession = mongoose.model('stream-sessions');
+const Release = require(__basedir + '/models/Release');
+const StreamSession = require(__basedir + '/models/StreamSession');
 aws.config.update({ region: AWS_REGION });
 
 router.put('/:releaseId/add', requireLogin, releaseOwner, async (req, res) => {
