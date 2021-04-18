@@ -25,7 +25,7 @@ const publishToQueue = async (exchange, routingKey, data) => {
     await publisherChannel.publish(exchange, routingKey, message, { persistent: true });
   } catch (error) {
     offlineQueue.push([exchange, routingKey, message]);
-    publisherChannel.connection.close();
+    if (publisherChannel) publisherChannel.connection.close();
   }
 };
 

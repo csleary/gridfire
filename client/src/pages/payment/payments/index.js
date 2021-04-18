@@ -8,7 +8,7 @@ import Transactions from './transactions';
 import styles from './payments.module.css';
 
 const Payments = () => {
-  const { isLoading, hasPurchased } = useSelector(state => state.payment, shallowEqual);
+  const { error, isLoading, hasPurchased, transactions } = useSelector(state => state.payment, shallowEqual);
 
   const transition = useTransition(isLoading, {
     config: hasPurchased ? { ...config.stiff, clamp: true } : { ...config.slow, clamp: true },
@@ -24,7 +24,7 @@ const Payments = () => {
           <DownloadButton />
           <Socket />
           <Status />
-          <Transactions />
+          <Transactions error={error} transactions={transactions} />
         </animated.div>
       )
   );

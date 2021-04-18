@@ -41,7 +41,7 @@ const config = {
   useUnifiedTopology: true
 };
 
-const connect = async () => {
+const connectMongoose = async () => {
   try {
     await mongoose.connect(keys.mongoURI, config);
   } catch ({ message }) {
@@ -49,9 +49,21 @@ const connect = async () => {
   }
 };
 
+const connectServices = async () => {
+  const rxStomp = await connectStomp();
+  const io = connectSocketio(httpServer, rxStomp);
+  connectRabbitmq(io);
+  app.set('socketio', io);
+};
+
 mongoose.set('debug', process.env.NODE_ENV === 'development');
 const db = mongoose.connection;
-db.once('open', () => console.log('Mongoose connected.'));
+
+db.once('open', async () => {
+  console.log('Mongoose connected.');
+  await connectServices();
+});
+
 db.on('error', () => app.get('socketio').emit('error', { message: 'Database connection error.' }));
 
 db.on('disconnected', () => {
@@ -59,7 +71,7 @@ db.on('disconnected', () => {
   setTimeout(connect, 5000, keys.mongoURI, config);
 });
 
-connect();
+connectMongoose();
 app.use(express.json());
 app.use(cookieParser(keys.cookieKey));
 
@@ -87,14 +99,6 @@ app.use('/api/release', release);
 app.use('/api/track', track);
 app.use('/api/user', user);
 
-const connectServices = async () => {
-  const rxStomp = await connectStomp();
-  const io = connectSocketio(httpServer, rxStomp);
-  connectRabbitmq(io);
-  app.set('socketio', io);
-};
-
-httpServer.listen(process.env.PORT || 8083, () => {
+httpServer.listen(process.env.PORT || 8083, async () => {
   console.log('Express server running.');
-  connectServices();
 });

@@ -1,14 +1,12 @@
 import { faBomb, faListOl } from '@fortawesome/free-solid-svg-icons';
-import { shallowEqual, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import PropTypes from 'prop-types';
 import React from 'react';
 import Transaction from './transaction';
 import nem from 'nem-sdk';
 import styles from './transactions.module.css';
 
-const Transactions = () => {
-  const { error, transactions } = useSelector(state => state.payment, shallowEqual);
-
+const Transactions = ({ error, transactions }) => {
   if (error) {
     return (
       <div className={styles.root}>
@@ -47,6 +45,11 @@ const Transactions = () => {
   }
 
   return null;
+};
+
+Transactions.propTypes = {
+  error: PropTypes.string,
+  transactions: PropTypes.array
 };
 
 export default Transactions;

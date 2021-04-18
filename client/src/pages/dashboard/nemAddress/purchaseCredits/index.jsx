@@ -15,11 +15,13 @@ const PurchaseCredits = ({ setShowPaymentModal }) => {
   const [productData, setProductData] = useState([]);
 
   useEffect(() => {
-    setIsLoading(true);
-    axios('/api/user/credits/purchase')
-      .then(res => setProductData(res.data))
-      .finally(() => setIsLoading(false));
-  }, [setProductData]);
+    if (currentStage === 1) {
+      setIsLoading(true);
+      axios('/api/user/credits/purchase')
+        .then(res => setProductData(res.data))
+        .finally(() => setIsLoading(false));
+    }
+  }, [currentStage]);
 
   return (
     <div className={classnames(styles.container, 'container-lg')}>

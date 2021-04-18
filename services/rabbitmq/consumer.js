@@ -15,6 +15,8 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
     const consumerChannel = await connection.createChannel();
 
     const processMessage = async message => {
+      if (message === null) return; // null message fired if consumer was cancelled.
+
       try {
         const workerData = JSON.parse(message.content.toString());
         const workerScript = scripts[workerData.job];

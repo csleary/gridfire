@@ -6,7 +6,7 @@ const { hexMessage } = nem.utils.format;
 
 const queryNodes = async (endpoint, nodesList = defaultNodes) => {
   const randomNode = nodesList[Math.floor(Math.random() * nodesList.length)];
-  const res = await axios(`${randomNode}${endpoint}`).catch(() => false);
+  const res = await axios(`${randomNode}${endpoint}`, { timeout: 5000 }).catch(() => false);
   return res.data;
 };
 

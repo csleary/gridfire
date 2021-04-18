@@ -109,10 +109,12 @@ router.post('/credits/confirm', requireLogin, async (req, res) => {
   try {
     const { clientId, cnonce } = req.body;
     const creditSessionToken = req.signedCookies.creditSession;
+    if (!creditSessionToken) throw new Error('Payment session expired. Please begin a new session.');
     const { nonce, paymentId } = verifyToken(creditSessionToken);
     const userId = req.user._id;
-    const paymentDetails = await creditConfirmation({ userId, clientId, cnonce, nonce, paymentId });
-    res.send(paymentDetails);
+    const { hasPaid = false, transactions } = await creditConfirmation({ userId, clientId, cnonce, nonce, paymentId });
+    if (hasPaid) res.clearCookie('creditSession');
+    res.send({ hasPaid, transactions });
   } catch (error) {
     res.status(401).send({ error: error.message });
   }

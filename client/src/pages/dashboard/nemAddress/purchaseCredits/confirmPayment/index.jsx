@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { faBomb, faCheck, faCheckCircle, faChevronLeft, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
@@ -8,35 +8,41 @@ import Spinner from 'components/spinner';
 import Transactions from 'pages/payment/payments/transactions';
 import axios from 'axios';
 import classnames from 'classnames';
+import { createClientId } from 'utils';
 import { fetchUserCredits } from 'features/user';
 import styles from './confirmPayment.module.css';
 
 const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPaymentModal }) => {
   const dispatch = useDispatch();
+  const call = useRef();
+  const txTimeout = useRef();
   const { idHash } = useSelector(state => state.user.auth, shallowEqual);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [{ hasPaid = false, transactions = [] }, setPayments] = useState({});
 
-  const createClientId = useCallback(async () => {
-    const numbers = window.crypto.getRandomValues(new Uint8Array(16));
-    const cnonce = Array.from(numbers, b => b.toString(16).padStart(2, '0')).join('');
-    const encoder = new TextEncoder();
-    const encoded = encoder.encode(cnonce.concat(idHash).concat(nonce).concat(paymentId));
-    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const clientId = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return { clientId, cnonce };
-  }, [idHash, nonce, paymentId]);
-
   const fetchTransactions = useCallback(async () => {
     try {
-      const clientId = await createClientId();
-      const res = await axios.post('/api/user/credits/confirm', clientId);
+      if (call.current) call.current.cancel();
+      if (txTimeout.current) clearTimeout(txTimeout.current);
+      call.current = axios.CancelToken.source();
+      const clientId = await createClientId({ idHash, nonce, paymentId });
+      setIsUpdating(true);
+      const res = await axios.post('/api/user/credits/confirm', clientId, { cancelToken: call.current.token });
       setPayments(res.data);
-      setIsLoading(false);
+      if (isLoading) setIsLoading(false);
+      setIsUpdating(false);
+
+      if (res.data.hasPaid) {
+        dispatch(fetchUserCredits());
+      } else {
+        txTimeout.current = setTimeout(fetchTransactions, 30000);
+      }
     } catch (err) {
+      setIsLoading(false);
+      if (axios.isCancel(err)) return setIsUpdating(false);
+
       if (err.response) {
         setError(err.response.data.error);
       } else if (err.request) {
@@ -44,36 +50,14 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
       } else {
         setError(String(err));
       }
-      setIsLoading(false);
     }
   }, []); // eslint-disable-line
 
   useEffect(() => {
-    const updateTxs = async () => {
-      if (hasPaid) {
-        window.clearInterval(txInterval);
-        clearTimeout(txTimeout);
-        dispatch(fetchUserCredits());
-      } else {
-        setIsUpdating(true);
-        await fetchTransactions();
-        setIsUpdating(false);
-      }
-    };
-
-    let txInterval;
-    let txTimeout;
-
-    if (!hasPaid) {
-      setIsLoading(true);
-      fetchTransactions().then(() => setIsLoading(false));
-      txInterval = window.setInterval(updateTxs, 30000);
-      txTimeout = setTimeout(txInterval, 30000);
-    }
+    fetchTransactions();
 
     return () => {
-      window.clearInterval(txInterval);
-      clearTimeout(txTimeout);
+      clearTimeout(txTimeout.current);
     };
   }, []); // eslint-disable-line
 
@@ -121,7 +105,7 @@ const ConfirmPayment = ({ paymentData: { nonce, paymentId }, setStage, setShowPa
                 Scan
               </Button>
               <p className={styles.help}>
-                Forgotten to send payment, or need to see the address again? Please start a new payment session.
+                Forgotten to send payment, or need to see the address again? Please restart a new payment session.
               </p>
             </div>
           )}

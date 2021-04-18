@@ -122,11 +122,12 @@ const creditConfirmation = async ({ userId, clientId, cnonce, nonce, paymentId }
   if (hashed !== clientId) throw new Error('Not authorised.');
   const paymentInfo = await PaymentSession.findOne({ nonce, paymentId }, 'priceRawXem sku', { lean: true }).exec();
   if (!paymentInfo) throw new Error('Payment session expired. Please begin a new session.');
-  const { priceRawXem, sku } = paymentInfo;
+  const { _id: paymentSessionId, priceRawXem, sku } = paymentInfo;
   const { transactions, amountPaid } = await fetchTransactions(PAYMENT_ADDRESS, paymentId);
 
   let hasPaid = false;
   if (amountPaid >= priceRawXem) {
+    await PaymentSession.findByIdAndDelete(paymentSessionId).exec();
     hasPaid = true;
 
     await CreditPayment.create({
@@ -137,7 +138,6 @@ const creditConfirmation = async ({ userId, clientId, cnonce, nonce, paymentId }
       transactions
     });
 
-    await PaymentSession.findByIdAndDelete(paymentInfo._id).exec();
     const [tx] = transactions;
     const { signer } = tx.transaction;
     const sender = nem.utils.format.pubToAddress(signer, NEM_NETWORK_ID);

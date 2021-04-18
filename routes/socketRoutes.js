@@ -5,6 +5,7 @@ const devEnv = process.env.NODE_ENV === 'development';
 const { format } = nem.utils;
 
 module.exports = (io, socket) => {
+  console.log('Socket.io server running.');
   const { rxStomp } = socket;
 
   socket.on('user/subscribe', ({ userId }) => {
