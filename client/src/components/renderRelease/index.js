@@ -1,5 +1,5 @@
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { faInfoCircle, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisH, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { playTrack, playerPause, playerPlay } from 'features/player';
 import { CLOUD_URL } from 'index';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -89,7 +89,7 @@ const RenderRelease = ({ className, release, showArtist = true, showTitle = true
             title={`More information on '${releaseTitle}', by ${artistName}`}
             to={`/release/${releaseId}`}
           >
-            <FontAwesomeIcon className={`${styles.icon} info m-auto`} icon={faInfoCircle} />
+            <FontAwesomeIcon className={`${styles.icon} info m-auto`} icon={faEllipsisH} />
           </Link>
           {type === 'collection' ? (
             <OverlayDownloadButton artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
