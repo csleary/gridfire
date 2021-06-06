@@ -1,20 +1,19 @@
 const { AWS_REGION, BUCKET_SRC, TEMP_PATH } = require('../../../config/constants');
 const { QUEUE_TRANSCODE } = require('../../../config/constants');
 const { parentPort, workerData } = require('worker_threads');
+const Release = require('../../../models/Release');
 const aws = require('aws-sdk');
 const { encodeFlacStream } = require('../../../controllers/encodingController');
 const fs = require('fs');
-const fsPromises = require('fs').promises;
+const fsPromises = fs.promises;
 const keys = require('../../../config/keys');
 const mongoose = require('mongoose');
 const path = require('path');
-require('../../../models/Release');
-
 aws.config.update({ region: AWS_REGION });
-const Release = mongoose.model('releases');
 
 const encodeFlac = async () => {
   const { filePath, releaseId, trackId, trackName, userId } = workerData;
+
   let db;
   let release;
   let trackDoc;
@@ -88,8 +87,6 @@ const encodeFlac = async () => {
     await fsPromises.unlink(filePath);
     await db.disconnect();
   } catch (error) {
-    console.error(error);
-
     if (trackDoc) {
       trackDoc.status = 'error';
       trackDoc.dateUpdated = Date.now();
@@ -98,7 +95,9 @@ const encodeFlac = async () => {
     }
 
     parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'error', userId });
-    process.exit(1);
+    await fsPromises.unlink(filePath).catch(() => {});
+    await db.disconnect();
+    throw error;
   }
 };
 

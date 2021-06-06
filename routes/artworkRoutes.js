@@ -4,14 +4,16 @@ const busboy = require('connect-busboy');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
+// const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
 const releaseOwner = require(__basedir + '/middlewares/releaseOwner');
 const requireLogin = require(__basedir + '/middlewares/requireLogin');
 const router = express.Router();
 const Release = require(__basedir + '/models/Release');
+const uploadArtwork = require(__basedir + '/services/rabbitmq/workerScripts/uploadArtwork');
 
 router.post('/', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 20 } }), async (req, res) => {
   try {
+    const io = req.app.get('socketio');
     let formData = {};
     const userId = req.user._id;
 
@@ -36,8 +38,9 @@ router.post('/', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 20 } }
       }
 
       write.on('finish', () => {
-        publishToQueue('', QUEUE_ARTWORK, { userId, filePath, releaseId, job: 'uploadArtwork' });
-        res.end();
+        uploadArtwork({ userId, filePath, releaseId }, io);
+        // publishToQueue('', QUEUE_ARTWORK, { userId, filePath, releaseId, job: 'uploadArtwork' });
+        // res.end();
       });
     });
 

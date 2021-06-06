@@ -1,9 +1,8 @@
 const { parentPort, workerData } = require('worker_threads');
 const { encodeMp3 } = require('../../../controllers/encodingController');
+const Release = require('../../../models/Release');
 const keys = require('../../../config/keys');
 const mongoose = require('mongoose');
-require('../../../models/Release');
-const Release = mongoose.model('releases');
 
 const work = async () => {
   const { releaseId, userId } = workerData;
@@ -34,7 +33,8 @@ const work = async () => {
     parentPort.postMessage({ type: 'encodingCompleteMP3', exists: true, format: 'mp3', releaseId, userId });
     await db.disconnect();
   } catch (error) {
-    process.exit(1);
+    await db.disconnect();
+    throw error;
   }
 };
 

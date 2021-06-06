@@ -3,6 +3,7 @@
 dev.js
 dkimKey
 dkimKey.pub
+id_rsa
 node_modules/
 scripts/
 upload.sh

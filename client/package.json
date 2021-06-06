@@ -100,7 +100,6 @@
     ]
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.11",
     "@types/jest": "^26.0.22",
     "@types/node": "^14.14.37",
     "@types/react": "^17.0.3",

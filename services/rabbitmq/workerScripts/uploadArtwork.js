@@ -1,26 +1,26 @@
 const { AWS_REGION, BUCKET_IMG } = require('../../../config/constants');
+// const { workerData, parentPort } = require('worker_threads');
+const Release = require('../../../models/Release');
 const aws = require('aws-sdk');
-const keys = require('../../../config/keys');
 const fs = require('fs');
-const fsPromises = require('fs').promises;
-const mongoose = require('mongoose');
+const fsPromises = fs.promises;
+// const keys = require('../../../config/keys');
+// const mongoose = require('mongoose');
 const sharp = require('sharp');
-const { workerData, parentPort } = require('worker_threads');
-require('../../../models/Release');
 aws.config.update({ region: AWS_REGION });
+const s3 = new aws.S3();
 
-const Release = mongoose.model('releases');
+const uploadArtwork = async (workerData, io) => {
+  const { filePath, releaseId, userId } = workerData;
+  const operatorUser = io.to(userId.toString());
 
-const uploadArtwork = async () => {
   try {
-    const { filePath, releaseId, userId } = workerData;
-
-    await mongoose.connect(keys.mongoURI, {
-      useFindAndModify: false,
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    // await mongoose.connect(keys.mongoURI, {
+    //   useFindAndModify: false,
+    //   useCreateIndex: true,
+    //   useNewUrlParser: true,
+    //   useUnifiedTopology: true
+    // });
 
     const release = await Release.findByIdAndUpdate(
       releaseId,
@@ -28,11 +28,12 @@ const uploadArtwork = async () => {
       { new: true }
     ).exec();
 
-    parentPort.postMessage({ message: 'Optimising and storing artwork…', userId });
+    // parentPort.postMessage({ message: 'Optimising and storing artwork…', userId });
+    console.log('workerMessage');
+    operatorUser.emit('workerMessage', { message: 'Optimising and storing artwork…' });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat('jpeg');
     const s3Stream = file.pipe(optimisedImg);
-    const s3 = new aws.S3();
 
     const params = {
       ContentType: 'image/jpeg',
@@ -41,23 +42,24 @@ const uploadArtwork = async () => {
       Key: `${releaseId}.jpg`
     };
 
-    await s3.upload(params).promise();
+    await s3
+      .upload(params)
+      .promise()
+      .catch(error => console.log(error));
+    await release.updateOne({ $set: { 'artwork.status': 'stored', 'artwork.dateUpdated': Date.now() } }).exec();
 
-    await release
-      .updateOne({
-        $set: {
-          'artwork.status': 'stored',
-          'artwork.dateUpdated': Date.now()
-        }
-      })
-      .exec();
+    // parentPort.postMessage({ type: 'artworkUploaded', userId });
+    console.log('artworkUploaded');
+    operatorUser.emit('artworkUploaded');
 
-    parentPort.postMessage({ type: 'artworkUploaded', userId });
     await fsPromises.unlink(filePath);
-    await mongoose.disconnect();
+    // await mongoose.disconnect();
   } catch (error) {
-    throw new Error(error);
+    await fsPromises.unlink(filePath).catch(() => {});
+    // await mongoose.disconnect();
+    throw error;
   }
 };
 
-uploadArtwork();
+// uploadArtwork();
+module.exports = uploadArtwork;

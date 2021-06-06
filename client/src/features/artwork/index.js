@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { batch } from 'react-redux';
 import { createSlice } from '@reduxjs/toolkit';
 import { setActiveRelease } from 'features/releases';
 import { toastError } from 'features/toast';
@@ -46,7 +47,11 @@ const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
     dispatch(setArtworkUploading(true));
     axios.post('/api/artwork', data, config);
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    batch(() => {
+      dispatch(toastError(error.response.data.error));
+      dispatch(setArtworkUploadProgress(0));
+      dispatch(setArtworkUploading(false));
+    });
   }
 };
 

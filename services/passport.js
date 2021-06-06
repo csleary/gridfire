@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const keys = require('../config/keys');
-const mongoose = require('mongoose');
 const passport = require('passport');
 const request = require('request');
 const LocalStrategy = require('passport-local').Strategy;

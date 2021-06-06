@@ -6,8 +6,8 @@ const scripts = {
   encodeFLAC: path.join(__dirname, 'workerScripts', 'encodeFLAC.js'),
   transcodeAAC: path.join(__dirname, 'workerScripts', 'transcodeAAC.js'),
   transcodeMP3: path.join(__dirname, 'workerScripts', 'transcodeMP3.js'),
-  sendCredits: path.join(__dirname, 'workerScripts', 'sendCredits.js'),
-  uploadArtwork: path.join(__dirname, 'workerScripts', 'uploadArtwork.js')
+  sendCredits: path.join(__dirname, 'workerScripts', 'sendCredits.js')
+  // uploadArtwork: path.join(__dirname, 'workerScripts', 'uploadArtwork.js')
 };
 
 const startConsumer = async ({ connection, io, workerPool, queue }) => {

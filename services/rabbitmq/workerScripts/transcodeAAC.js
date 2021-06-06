@@ -1,6 +1,7 @@
 const { AWS_REGION, BUCKET_OPT, TEMP_PATH } = require('../../../config/constants');
 const { encodeAacFrag, getTrackDuration } = require('../../../controllers/encodingController');
 const { parentPort, workerData } = require('worker_threads');
+const Release = require('../../../models/Release');
 const aws = require('aws-sdk');
 const { createMpd } = require('../../../controllers/bento4Controller');
 const fs = require('fs');
@@ -9,9 +10,7 @@ const keys = require('../../../config/keys');
 const mongoose = require('mongoose');
 const path = require('path');
 const sax = require('sax');
-require('../../../models/Release');
 aws.config.update({ region: AWS_REGION });
-const Release = mongoose.model('releases');
 
 const removeTempFiles = async (mp4Path, flacPath, playlistDir) => {
   const dirContents = await fsPromises.readdir(playlistDir);
@@ -134,8 +133,6 @@ const work = async () => {
     await removeTempFiles(mp4Path, flacPath, playlistDir);
     await db.disconnect();
   } catch (error) {
-    console.error(error);
-
     if (trackDoc) {
       trackDoc.status = 'error';
       trackDoc.dateUpdated = Date.now();
@@ -145,7 +142,8 @@ const work = async () => {
 
     parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'error', userId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
-    process.exit(1);
+    await db.disconnect();
+    throw error;
   }
 };
 
