@@ -62,7 +62,7 @@ const ArtistMenu = ({ error, label, name, onChange, setShowNewArtist, showNewArt
           </button>
         </li>
       </Dropdown>
-      {error ? <div className="invalid-feedback">{error}</div> : null}
+      {error ? <div className={styles.error}>{error}</div> : null}
     </fieldset>
   );
 };

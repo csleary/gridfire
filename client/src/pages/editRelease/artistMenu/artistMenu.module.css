@@ -55,3 +55,8 @@
   composes: listItem;
   border-top: 1px dashed var(--light-grey);
 }
+
+.error {
+  color: var(--red);
+  margin-top: 0.25rem;
+}

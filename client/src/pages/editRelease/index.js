@@ -40,6 +40,7 @@ const EditRelease = () => {
   const [values, setValues] = useState({ tags: [], trackList: [] });
   const { _id: releaseId, artistName, artwork, price, trackList, releaseTitle } = release;
   const hasErrors = Object.values(errors).some(error => Boolean(error));
+  console.log(errors);
 
   useEffect(() => {
     if (releaseIdParam) {
@@ -205,7 +206,10 @@ const EditRelease = () => {
                     error={errors.artist}
                     label="Artist Name"
                     name="artist"
-                    onChange={handleChange}
+                    onChange={e => {
+                      setErrors(({ artist, artistName: _artistName, ...rest }) => rest);
+                      handleChange(e);
+                    }}
                     setShowNewArtist={setShowNewArtistName}
                     showNewArtistName={showNewArtistName}
                     value={values.artist || ''}
@@ -216,7 +220,10 @@ const EditRelease = () => {
                     error={errors.artistName}
                     label="New artist name"
                     name="artistName"
-                    onChange={handleChange}
+                    onChange={e => {
+                      setErrors(({ artist, artistName: _artistName, ...rest }) => rest);
+                      handleChange(e);
+                    }}
                     required
                     type="text"
                     value={values.artistName || ''}
