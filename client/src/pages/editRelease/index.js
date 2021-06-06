@@ -123,15 +123,7 @@ const EditRelease = () => {
 
     if (trackId) {
       const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
-
-      setErrors(prev => {
-        if (prev[`trackList.${trackIndex}.${name}`]) {
-          const next = { ...prev };
-          delete next[`trackList.${trackIndex}.${name}`];
-          return next;
-        }
-        return prev;
-      });
+      setErrors(({ [`trackList.${trackIndex}.${name}`]: excludedField, ...rest }) => rest);
 
       return setValues(prev => ({
         ...prev,
@@ -139,15 +131,7 @@ const EditRelease = () => {
       }));
     }
 
-    setErrors(prev => {
-      if (prev[name]) {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      }
-      return prev;
-    });
-
+    setErrors(({ [name]: excludedField, ...rest }) => rest);
     setValues(prev => ({ ...prev, [name]: value }));
   };
 
