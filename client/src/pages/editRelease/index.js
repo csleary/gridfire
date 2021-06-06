@@ -40,7 +40,6 @@ const EditRelease = () => {
   const [values, setValues] = useState({ tags: [], trackList: [] });
   const { _id: releaseId, artistName, artwork, price, trackList, releaseTitle } = release;
   const hasErrors = Object.values(errors).some(error => Boolean(error));
-  console.log(errors);
 
   useEffect(() => {
     if (releaseIdParam) {
@@ -66,11 +65,11 @@ const EditRelease = () => {
 
   useEffect(() => {
     for (const updatedTrack of release.trackList) {
-      setValues(prev => ({
-        ...prev,
-        trackList: prev.trackList.map(prevTrack => {
-          if (prevTrack._id === updatedTrack._id) return { ...prevTrack, status: updatedTrack.status };
-          return prevTrack;
+      setValues(current => ({
+        ...current,
+        trackList: current.trackList.map(currentTrack => {
+          if (currentTrack._id === updatedTrack._id) return { ...currentTrack, status: updatedTrack.status };
+          return currentTrack;
         })
       }));
     }
@@ -123,16 +122,17 @@ const EditRelease = () => {
 
     if (trackId) {
       const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
-      setErrors(({ [`trackList.${trackIndex}.${name}`]: excludedField, ...rest }) => rest);
+      const trackFieldName = `trackList.${trackIndex}.${name}`;
+      setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest);
 
-      return setValues(prev => ({
-        ...prev,
-        trackList: prev.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
+      return setValues(current => ({
+        ...current,
+        trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
       }));
     }
 
     setErrors(({ [name]: excludedField, ...rest }) => rest);
-    setValues(prev => ({ ...prev, [name]: value }));
+    setValues(current => ({ ...current, [name]: value }));
   };
 
   const handleSubmit = async () => {
@@ -191,7 +191,7 @@ const EditRelease = () => {
                     label="Artist Name"
                     name="artist"
                     onChange={e => {
-                      setErrors(({ artist, artistName: _artistName, ...rest }) => rest);
+                      setErrors(({ artist, artistName: excludedField, ...rest }) => rest);
                       handleChange(e);
                     }}
                     setShowNewArtist={setShowNewArtistName}
@@ -205,7 +205,7 @@ const EditRelease = () => {
                     label="New artist name"
                     name="artistName"
                     onChange={e => {
-                      setErrors(({ artist, artistName: _artistName, ...rest }) => rest);
+                      setErrors(({ artist, artistName: excludedField, ...rest }) => rest);
                       handleChange(e);
                     }}
                     required
