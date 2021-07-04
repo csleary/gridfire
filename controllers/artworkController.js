@@ -1,5 +1,8 @@
-const aws = require('aws-sdk');
 const Release = require(__basedir + '/models/Release');
+const aws = require('aws-sdk');
+const fs = require('fs');
+const fsPromises = fs.promises;
+const sharp = require('sharp');
 const { AWS_REGION, BUCKET_IMG } = require('../config/constants');
 aws.config.update({ region: AWS_REGION });
 
@@ -32,6 +35,42 @@ const deleteArtwork = async (releaseId, release) => {
   }
 };
 
-module.exports = {
-  deleteArtwork
+const uploadArtwork = async (workerData, io) => {
+  const s3 = new aws.S3();
+  const { filePath, releaseId, userId } = workerData;
+  const operatorUser = io.to(userId.toString());
+
+  try {
+    const release = await Release.findByIdAndUpdate(
+      releaseId,
+      { $set: { 'artwork.status': 'storing', 'artwork.dateCreated': Date.now() } },
+      { new: true }
+    ).exec();
+
+    operatorUser.emit('workerMessage', { message: 'Optimising and storing artwork…' });
+    const file = fs.createReadStream(filePath);
+    const optimisedImg = sharp().resize(1000, 1000).toFormat('jpeg');
+    const s3Stream = file.pipe(optimisedImg);
+
+    const params = {
+      ContentType: 'image/jpeg',
+      Body: s3Stream,
+      Bucket: BUCKET_IMG,
+      Key: `${releaseId}.jpg`
+    };
+
+    await s3
+      .upload(params)
+      .promise()
+      .catch(error => console.log(error));
+    await release.updateOne({ $set: { 'artwork.status': 'stored', 'artwork.dateUpdated': Date.now() } }).exec();
+
+    operatorUser.emit('artworkUploaded');
+    await fsPromises.unlink(filePath);
+  } catch (error) {
+    await fsPromises.unlink(filePath).catch(() => {});
+    throw error;
+  }
 };
+
+module.exports = { deleteArtwork, uploadArtwork };

@@ -67,10 +67,6 @@ Hot wallet balance: ${hotWalletBalance}
 `;
 
     sendEmail('mail@nemp3.app', 'nemp3 Credits Purchase', body);
-
-    if (status.message === 'SUCCESS') {
-      parentPort.postMessage({ message: '🙌 Credits sent!', userId });
-    }
   } catch (error) {
     console.log(error);
   }

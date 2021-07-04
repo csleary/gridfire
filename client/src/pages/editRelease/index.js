@@ -40,6 +40,7 @@ const EditRelease = () => {
   const [values, setValues] = useState({ tags: [], trackList: [] });
   const { _id: releaseId, artistName, artwork, price, trackList, releaseTitle } = release;
   const hasErrors = Object.values(errors).some(error => Boolean(error));
+  const artworkStatus = artwork?.status;
 
   useEffect(() => {
     if (releaseIdParam) {
@@ -59,9 +60,9 @@ const EditRelease = () => {
 
   useEffect(() => {
     if (releaseId) setValues(release);
-    if (artwork?.status === 'stored') setCoverArtPreview(`${CLOUD_URL}/${releaseId}.jpg`);
-    else setCoverArtPreview();
-  }, [releaseId, releaseIdParam]);
+    if (artworkStatus === 'stored') return setCoverArtPreview(`${CLOUD_URL}/${releaseId}.jpg`);
+    setCoverArtPreview();
+  }, [artworkStatus, releaseId, releaseIdParam]);
 
   useEffect(() => {
     for (const updatedTrack of release.trackList) {

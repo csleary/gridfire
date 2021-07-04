@@ -1,15 +1,13 @@
-const { QUEUE_ARTWORK, TEMP_PATH } = require(__basedir + '/config/constants');
-const { deleteArtwork } = require(__basedir + '/controllers/artworkController');
+const { deleteArtwork, uploadArtwork } = require(__basedir + '/controllers/artworkController');
+const Release = require(__basedir + '/models/Release');
+const { TEMP_PATH } = require(__basedir + '/config/constants');
 const busboy = require('connect-busboy');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-// const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
 const releaseOwner = require(__basedir + '/middlewares/releaseOwner');
 const requireLogin = require(__basedir + '/middlewares/requireLogin');
 const router = express.Router();
-const Release = require(__basedir + '/models/Release');
-const uploadArtwork = require(__basedir + '/services/rabbitmq/workerScripts/uploadArtwork');
 
 router.post('/', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 20 } }), async (req, res) => {
   try {
@@ -37,11 +35,7 @@ router.post('/', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 20 } }
         throw new Error('Job parameters missing.');
       }
 
-      write.on('finish', () => {
-        uploadArtwork({ userId, filePath, releaseId }, io);
-        // publishToQueue('', QUEUE_ARTWORK, { userId, filePath, releaseId, job: 'uploadArtwork' });
-        // res.end();
-      });
+      write.on('finish', () => uploadArtwork({ userId, filePath, releaseId }, io));
     });
 
     req.busboy.on('finish', () => res.end());
