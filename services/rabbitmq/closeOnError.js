@@ -5,4 +5,4 @@ const closeOnError = (connection, error) => {
   return true;
 };
 
-module.exports = closeOnError;
+export default closeOnError;

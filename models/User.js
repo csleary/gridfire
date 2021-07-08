@@ -1,5 +1,5 @@
-const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
+import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const userSchema = new Schema(
@@ -48,4 +48,4 @@ userSchema.virtual('isLocal').get(function () {
 });
 
 const User = mongoose.model('User', userSchema, 'users');
-module.exports = User;
+export default User;

@@ -1,9 +1,9 @@
-const requireLogin = require('../middlewares/requireLogin');
-const express = require('express');
+import requireLogin from '../middlewares/requireLogin.js';
+import express from 'express';
+import slugify from 'slugify';
+import Artist from '../models/Artist.js';
+import Release from '../models/Release.js';
 const router = express.Router();
-const slugify = require('slugify');
-const Artist = require(__basedir + '/models/Artist');
-const Release = require(__basedir + '/models/Release');
 
 router.get('/', requireLogin, async (req, res) => {
   try {
@@ -58,4 +58,4 @@ router.patch('/:artistId/link', requireLogin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

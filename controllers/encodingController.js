@@ -1,6 +1,6 @@
-const aws = require('aws-sdk');
-const { BUCKET_MP3, BUCKET_SRC } = require('../config/constants');
-const ffmpeg = require('fluent-ffmpeg');
+import aws from 'aws-sdk';
+import { BUCKET_MP3, BUCKET_SRC } from '../config/constants.js';
+import ffmpeg from 'fluent-ffmpeg';
 
 const encodeAacFrag = (downloadSrc, outputAudio, onProgress) =>
   new Promise((resolve, reject) => {
@@ -80,9 +80,4 @@ const getTrackDuration = probeSrc =>
     })
   );
 
-module.exports = {
-  encodeAacFrag,
-  encodeFlacStream,
-  encodeMp3,
-  getTrackDuration
-};
+export { encodeAacFrag, encodeFlacStream, encodeMp3, getTrackDuration };

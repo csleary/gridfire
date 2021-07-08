@@ -1,11 +1,11 @@
-const { AWS_REGION } = require('../config/constants');
-const aws = require('aws-sdk');
-const express = require('express');
-const mongoose = require('mongoose');
-const router = express.Router();
-const Artist = require(__basedir + '/models/Artist');
-const Release = require(__basedir + '/models/Release');
+import { AWS_REGION } from '../config/constants.js';
+import aws from 'aws-sdk';
+import express from 'express';
+import mongoose from 'mongoose';
+import Artist from '../models/Artist.js';
+import Release from '../models/Release.js';
 aws.config.update({ region: AWS_REGION });
+const router = express.Router();
 
 router.get('/search', async (req, res) => {
   const { searchQuery } = req.query;
@@ -92,4 +92,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

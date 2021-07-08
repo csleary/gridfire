@@ -1,10 +1,11 @@
-const { distinct, filter } = require('rxjs/operators');
-const { matchTransaction, createInvoice, createSale } = require('../controllers/paymentController');
-const nem = require('nem-sdk').default;
+import { distinct, filter } from 'rxjs/operators';
+import { matchTransaction, createInvoice, createSale } from '../controllers/paymentController.js';
+import nemSdk from 'nem-sdk';
 const devEnv = process.env.NODE_ENV === 'development';
+const nem = nemSdk.default;
 const { format } = nem.utils;
 
-module.exports = (io, socket) => {
+export default (io, socket) => {
   console.log('Socket.io server running.');
   const { rxStomp } = socket;
 

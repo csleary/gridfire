@@ -1,9 +1,9 @@
-const { SOCKET_HOST } = require(__basedir + '/config/constants');
-const registerSocketRoutes = require(__basedir + '/routes/socketRoutes');
-const socketio = require('socket.io');
+import { SOCKET_HOST } from '../config/constants.js';
+import { Server } from 'socket.io';
+import registerSocketRoutes from '../routes/socketRoutes.js';
 
 const connectSocketio = (httpServer, rxStomp) => {
-  const io = socketio(httpServer, {
+  const io = new Server(httpServer, {
     cors: {
       origin: SOCKET_HOST,
       methods: ['GET', 'POST'],
@@ -22,4 +22,4 @@ const connectSocketio = (httpServer, rxStomp) => {
   return io;
 };
 
-module.exports = connectSocketio;
+export default connectSocketio;

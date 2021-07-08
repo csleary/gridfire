@@ -1,11 +1,11 @@
-const { QUEUE_ARTWORK, QUEUE_CREDITS, QUEUE_TRANSCODE, RABBIT_HOST } = require('../../config/constants');
-const Pool = require('worker-threads-pool');
-const amqp = require('amqplib');
-const { rabbitUser, rabbitPass } = require('../../config/keys');
-const numCPUs = require('os').cpus().length;
-const startConsumer = require('./consumer');
-const { startPublisher } = require('./publisher');
-const workerPool = new Pool({ max: numCPUs });
+import { QUEUE_ARTWORK, QUEUE_CREDITS, QUEUE_TRANSCODE, RABBIT_HOST } from '../../config/constants.js';
+import { rabbitUser, rabbitPass } from '../../config/keys.js';
+import Pool from 'worker-threads-pool';
+import amqp from 'amqplib';
+import os from 'os';
+import startConsumer from './consumer.js';
+import { startPublisher } from './publisher.js';
+const workerPool = new Pool({ max: os.cpus().length });
 
 const connect = async io => {
   try {
@@ -31,4 +31,4 @@ const connect = async io => {
   }
 };
 
-module.exports = connect;
+export default connect;

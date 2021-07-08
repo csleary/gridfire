@@ -1,15 +1,21 @@
-const { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS, QUEUE_CREDITS } = require(__basedir + '/config/constants');
-const { checkSignedMessage, fetchMosaics, fetchTransactions, fetchXemPrice, fetchXemPriceBinance } = require(__basedir +
-  '/controllers/nemController');
-const crypto = require('crypto');
-const { humanId } = require('human-id');
-const nem = require('nem-sdk').default;
-const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
-const CreditPayment = require(__basedir + '/models/CreditPayment');
-const PaymentSession = require(__basedir + '/models/PaymentSession');
-const Release = require(__basedir + '/models/Release');
-const Sale = require(__basedir + '/models/Sale');
-const User = require(__basedir + '/models/User');
+import { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS, QUEUE_CREDITS } from '../config/constants.js';
+import {
+  checkSignedMessage,
+  fetchMosaics,
+  fetchTransactions,
+  fetchXemPrice,
+  fetchXemPriceBinance
+} from '../controllers/nemController.js';
+import crypto from 'crypto';
+import { humanId } from 'human-id';
+import nemSdk from 'nem-sdk';
+import { publishToQueue } from '../services/rabbitmq/publisher.js';
+import CreditPayment from '../models/CreditPayment.js';
+import PaymentSession from '../models/PaymentSession.js';
+import Release from '../models/Release.js';
+import Sale from '../models/Sale.js';
+import User from '../models/User.js';
+const nem = nemSdk.default;
 
 const getUser = async userId => {
   const [user] = await User.aggregate([
@@ -185,7 +191,7 @@ const setUserNemAddress = async ({ userId, nemAddress, nemAddressChallenge, sign
   return user.toJSON();
 };
 
-module.exports = {
+export {
   creditPricing,
   creditPurchase,
   creditConfirmation,

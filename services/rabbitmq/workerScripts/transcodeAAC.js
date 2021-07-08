@@ -1,16 +1,16 @@
-const { AWS_REGION, BUCKET_OPT, TEMP_PATH } = require('../../../config/constants');
-const { encodeAacFrag, getTrackDuration } = require('../../../controllers/encodingController');
-const { parentPort, workerData } = require('worker_threads');
-const Release = require('../../../models/Release');
-const aws = require('aws-sdk');
-const { createMpd } = require('../../../controllers/bento4Controller');
-const fs = require('fs');
-const fsPromises = fs.promises;
-const keys = require('../../../config/keys');
-const mongoose = require('mongoose');
-const path = require('path');
-const sax = require('sax');
+import { AWS_REGION, BUCKET_OPT, TEMP_PATH } from '../../../config/constants.js';
+import { encodeAacFrag, getTrackDuration } from '../../../controllers/encodingController.js';
+import { parentPort, workerData } from 'worker_threads';
+import Release from '../../../models/Release.js';
+import aws from 'aws-sdk';
+import { createMpd } from '../../../controllers/bento4Controller.js';
+import fs from 'fs';
+import keys from '../../../config/keys.js';
+import mongoose from 'mongoose';
+import path from 'path';
+import sax from 'sax';
 aws.config.update({ region: AWS_REGION });
+const fsPromises = fs.promises;
 
 const removeTempFiles = async (mp4Path, flacPath, playlistDir) => {
   const dirContents = await fsPromises.readdir(playlistDir);

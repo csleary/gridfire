@@ -1,17 +1,18 @@
-const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC } = require('../config/constants');
-const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
-const aws = require('aws-sdk');
-const { createArtist } = require('../controllers/artistController');
-const crypto = require('crypto');
-const express = require('express');
-const nem = require('nem-sdk').default;
-const releaseOwner = require('../middlewares/releaseOwner');
-const requireLogin = require('../middlewares/requireLogin');
-const router = express.Router();
-const Artist = require(__basedir + '/models/Artist');
-const Release = require(__basedir + '/models/Release');
-const User = require(__basedir + '/models/User');
+import { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC } from '../config/constants.js';
+import { fetchXemPrice, fetchXemPriceBinance } from '../controllers/nemController.js';
+import Artist from '../models/Artist.js';
+import Release from '../models/Release.js';
+import User from '../models/User.js';
+import aws from 'aws-sdk';
+import { createArtist } from '../controllers/artistController.js';
+import crypto from 'crypto';
+import express from 'express';
+import nemSdk from 'nem-sdk';
+import releaseOwner from '../middlewares/releaseOwner.js';
+import requireLogin from '../middlewares/requireLogin.js';
 aws.config.update({ region: AWS_REGION });
+const nem = nemSdk.default;
+const router = express.Router();
 
 router.post('/', requireLogin, async (req, res) => {
   try {
@@ -278,4 +279,4 @@ router.put('/', requireLogin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

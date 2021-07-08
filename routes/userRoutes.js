@@ -1,4 +1,4 @@
-const {
+import {
   creditPricing,
   creditPurchase,
   creditConfirmation,
@@ -6,16 +6,16 @@ const {
   getUserCredits,
   getUserTransactions,
   setUserNemAddress
-} = require(__basedir + '/controllers/userController');
-const { generateToken, verifyToken } = require(__basedir + '/controllers/tokenController');
-const express = require('express');
-const { PAYMENT_ADDRESS } = require(__basedir + '/config/constants');
-const requireLogin = require(__basedir + '/middlewares/requireLogin');
+} from '../controllers/userController.js';
+import { generateToken, verifyToken } from '../controllers/tokenController.js';
+import Favourite from '../models/Favourite.js';
+import { PAYMENT_ADDRESS } from '../config/constants.js';
+import Release from '../models/Release.js';
+import Sale from '../models/Sale.js';
+import Wish from '../models/Wish.js';
+import express from 'express';
+import requireLogin from '../middlewares/requireLogin.js';
 const router = express.Router();
-const Favourite = require(__basedir + '/models/Favourite');
-const Release = require(__basedir + '/models/Release');
-const Sale = require(__basedir + '/models/Sale');
-const Wish = require(__basedir + '/models/Wish');
 
 router.get('/', async (req, res) => {
   if (!req.user) return res.end();
@@ -242,4 +242,4 @@ router.delete('/wishlist/:releaseId', requireLogin, async (req, res) => {
   res.end();
 });
 
-module.exports = router;
+export default router;

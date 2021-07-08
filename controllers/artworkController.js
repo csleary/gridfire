@@ -1,10 +1,10 @@
-const Release = require(__basedir + '/models/Release');
-const aws = require('aws-sdk');
-const fs = require('fs');
-const fsPromises = fs.promises;
-const sharp = require('sharp');
-const { AWS_REGION, BUCKET_IMG } = require('../config/constants');
+import { AWS_REGION, BUCKET_IMG } from '../config/constants.js';
+import Release from '../models/Release.js';
+import aws from 'aws-sdk';
+import fs from 'fs';
+import sharp from 'sharp';
 aws.config.update({ region: AWS_REGION });
+const fsPromises = fs.promises;
 
 const deleteArtwork = async (releaseId, release) => {
   release.updateOne({ $set: { 'artwork.status': 'deleting', 'artwork.dateUpdated': Date.now() } }).exec();
@@ -73,4 +73,4 @@ const uploadArtwork = async (workerData, io) => {
   }
 };
 
-module.exports = { deleteArtwork, uploadArtwork };
+export { deleteArtwork, uploadArtwork };

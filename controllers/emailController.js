@@ -1,5 +1,5 @@
-const { nemp3EmailGeneral, dkimKey, smtpHostName, smtpPassword, smtpUsername } = require('../config/keys');
-const nodemailer = require('nodemailer');
+import { nemp3EmailGeneral, dkimKey, smtpHostName, smtpPassword, smtpUsername } from '../config/keys';
+import nodemailer from 'nodemailer';
 
 const defaults = {
   host: smtpHostName,
@@ -33,4 +33,4 @@ const sendEmail = (recipient, subject, body) =>
     });
   });
 
-module.exports = { sendEmail };
+export { sendEmail };

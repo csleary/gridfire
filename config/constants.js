@@ -1,5 +1,6 @@
-const nem = require('nem-sdk').default;
-const path = require('path');
+import nemSdk from 'nem-sdk';
+import path from 'path';
+const nem = nemSdk.default;
 
 const AWS_REGION = 'us-east-1';
 const BENTO4_DIR = process.env.BENTO4_DIR;
@@ -7,7 +8,7 @@ const BUCKET_MP3 = 'nemp3-mp3';
 const QUEUE_ARTWORK = 'artwork';
 const QUEUE_CREDITS = 'credits';
 const QUEUE_TRANSCODE = 'transcode';
-const TEMP_PATH = path.join(__dirname, '../tmp');
+const TEMP_PATH = path.resolve('../tmp');
 
 const PRODUCTS = [
   { sku: '01NPC', label: '1 Credit', quantity: 1, unitPrice: 15 },
@@ -50,7 +51,7 @@ if (process.env.NEM_NETWORK === 'testnet') {
   NEM_NODES = ['95.216.73.245', '95.216.73.243', '23.228.67.85'];
 }
 
-module.exports = {
+export {
   AWS_REGION,
   BENTO4_DIR,
   BUCKET_IMG,

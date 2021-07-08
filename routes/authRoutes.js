@@ -1,8 +1,8 @@
-const { GOOGLE_REDIRECT, SPOTIFY_REDIRECT, TWITTER_REDIRECT } = require('../config/constants');
-const crypto = require('crypto');
-const express = require('express');
-const passport = require('passport');
-const requireLogin = require('../middlewares/requireLogin');
+import { GOOGLE_REDIRECT, SPOTIFY_REDIRECT, TWITTER_REDIRECT } from '../config/constants.js';
+import crypto from 'crypto';
+import express from 'express';
+import passport from 'passport';
+import requireLogin from '../middlewares/requireLogin.js';
 const router = express.Router();
 
 router.post('/login', (req, res, next) =>
@@ -92,4 +92,4 @@ router.get('/logout', (req, res) => {
   res.send({ success: 'Thanks for visiting. You are now logged out.' });
 });
 
-module.exports = router;
+export default router;

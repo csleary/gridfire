@@ -1,9 +1,10 @@
-const { parentPort, workerData } = require('worker_threads');
-const { fetchMosaics, findNode } = require('../../../controllers/nemController');
-const { privKey } = require('../../../config/keys');
-const { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS } = require('../../../config/constants');
-const nem = require('nem-sdk').default;
-const { sendEmail } = require('../../../controllers/emailController');
+import { NEM_NETWORK_ID, PAYMENT_ADDRESS, PRODUCTS } from '../../../config/constants.js';
+import { fetchMosaics, findNode } from '../../../controllers/nemController.js';
+import { privKey } from '../../../config/keys.js';
+import nemSdk from 'nem-sdk';
+import { sendEmail } from '../../../controllers/emailController.js';
+import { workerData } from 'worker_threads';
+const nem = nemSdk.default;
 
 const sendCredits = async () => {
   const { sender, sku, userId } = workerData;

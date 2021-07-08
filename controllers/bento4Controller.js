@@ -1,5 +1,5 @@
-const { execSync } = require('child_process');
-const { BENTO4_DIR } = require('../config/constants');
+import { execSync } from 'child_process';
+import { BENTO4_DIR } from '../config/constants';
 
 const createMpd = (audioFile, trackId, outputPath) =>
   execSync(
@@ -15,4 +15,4 @@ const createMpd = (audioFile, trackId, outputPath) =>
     ${audioFile}`
   );
 
-module.exports = { createMpd };
+export { createMpd };

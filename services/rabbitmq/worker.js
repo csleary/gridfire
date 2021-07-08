@@ -1,5 +1,5 @@
-const { publishToQueue } = require('./publisher');
-const socketMessage = require('./socketMessage');
+import { publishToQueue } from './publisher.js';
+import socketMessage from './socketMessage.js';
 
 const handleWork = (io, workerPool, workerData, workerScript) =>
   new Promise((resolve, reject) => {
@@ -35,4 +35,4 @@ const handleWork = (io, workerPool, workerData, workerScript) =>
     });
   });
 
-module.exports = handleWork;
+export default handleWork;

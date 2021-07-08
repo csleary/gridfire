@@ -1,5 +1,5 @@
-const { fetchXemPrice, fetchXemPriceBinance } = require('../controllers/nemController');
-const express = require('express');
+import { fetchXemPrice, fetchXemPriceBinance } from '../controllers/nemController.js';
+import express from 'express';
 const router = express.Router();
 
 router.get('/price', async (req, res) => {
@@ -18,4 +18,4 @@ router.get('/price', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

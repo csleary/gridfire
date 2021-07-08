@@ -1,12 +1,12 @@
-const closeOnError = require('./closeOnError');
-const handleWork = require('./worker');
-const path = require('path');
+import closeOnError from './closeOnError.js';
+import handleWork from './worker.js';
+import path from 'path';
 
 const scripts = {
-  encodeFLAC: path.join(__dirname, 'workerScripts', 'encodeFLAC.js'),
-  transcodeAAC: path.join(__dirname, 'workerScripts', 'transcodeAAC.js'),
-  transcodeMP3: path.join(__dirname, 'workerScripts', 'transcodeMP3.js'),
-  sendCredits: path.join(__dirname, 'workerScripts', 'sendCredits.js')
+  encodeFLAC: path.resolve('workerScripts', 'encodeFLAC.js'),
+  transcodeAAC: path.resolve('workerScripts', 'transcodeAAC.js'),
+  transcodeMP3: path.resolve('workerScripts', 'transcodeMP3.js'),
+  sendCredits: path.resolve('workerScripts', 'sendCredits.js')
 };
 
 const startConsumer = async ({ connection, io, workerPool, queue }) => {
@@ -46,4 +46,4 @@ const startConsumer = async ({ connection, io, workerPool, queue }) => {
   }
 };
 
-module.exports = startConsumer;
+export default startConsumer;

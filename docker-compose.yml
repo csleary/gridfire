@@ -15,7 +15,6 @@ services:
       - '8083:8083'
     restart: always
     tmpfs: /root/nemp3/tmp
-
   mongo:
     command: mongod --auth
     container_name: mongo
@@ -29,7 +28,6 @@ services:
     restart: always
     volumes:
       - data-volume:/data/db
-
   rabbit:
     container_name: rabbit
     environment:
@@ -46,10 +44,8 @@ services:
     ports:
       - '15672:15672'
     restart: always
-
 networks:
   internal:
     driver: bridge
-
 volumes:
   data-volume:

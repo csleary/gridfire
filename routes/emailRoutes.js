@@ -1,4 +1,4 @@
-const {
+import {
   nemp3EmailContact,
   nemp3EmailSupport,
   dkimKey,
@@ -6,13 +6,13 @@ const {
   smtpHostName,
   smtpPassword,
   smtpUsername
-} = require('../config/keys');
-const crypto = require('crypto');
-const express = require('express');
-const nodemailer = require('nodemailer');
+} from '../config/keys.js';
+import crypto from 'crypto';
+import express from 'express';
+import nodemailer from 'nodemailer';
+import rp from 'request-promise-native';
+import User from '../models/User.js';
 const router = express.Router();
-const rp = require('request-promise-native');
-const User = require(__basedir + '/models/User');
 
 const defaults = {
   host: smtpHostName,
@@ -205,4 +205,4 @@ The nemp3 team`
   }
 });
 
-module.exports = router;
+export default router;

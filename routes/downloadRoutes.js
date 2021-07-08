@@ -1,14 +1,14 @@
-const { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } = require('../config/constants');
-const { generateToken, verifyToken } = require(__basedir + '/controllers/tokenController');
-const aws = require('aws-sdk');
-const express = require('express');
-const { publishToQueue } = require(__basedir + '/services/rabbitmq/publisher');
-const requireLogin = require(__basedir + '/middlewares/requireLogin');
-const router = express.Router();
-const { zipDownload } = require(__basedir + '/controllers/archiveController');
+import { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } from '../config/constants.js';
+import { generateToken, verifyToken } from '../controllers/tokenController.js';
+import Release from '../models/Release.js';
+import Sale from '../models/Sale.js';
+import aws from 'aws-sdk';
+import express from 'express';
+import { publishToQueue } from '../services/rabbitmq/publisher.js';
+import requireLogin from '../middlewares/requireLogin.js';
+import { zipDownload } from '../controllers/archiveController.js';
 aws.config.update({ region: AWS_REGION });
-const Release = require(__basedir + '/models/Release');
-const Sale = require(__basedir + '/models/Sale');
+const router = express.Router();
 
 // Fetch Download Token
 router.post('/', requireLogin, async (req, res) => {
@@ -69,4 +69,4 @@ router.get('/:token/:format?', requireLogin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

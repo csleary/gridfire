@@ -124,7 +124,7 @@ const EditRelease = () => {
     if (trackId) {
       const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
       const trackFieldName = `trackList.${trackIndex}.${name}`;
-      setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest);
+      setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest); // eslint-disable-line
 
       return setValues(current => ({
         ...current,
@@ -132,7 +132,7 @@ const EditRelease = () => {
       }));
     }
 
-    setErrors(({ [name]: excludedField, ...rest }) => rest);
+    setErrors(({ [name]: excludedField, ...rest }) => rest); // eslint-disable-line
     setValues(current => ({ ...current, [name]: value }));
   };
 
@@ -192,7 +192,7 @@ const EditRelease = () => {
                     label="Artist Name"
                     name="artist"
                     onChange={e => {
-                      setErrors(({ artist, artistName: excludedField, ...rest }) => rest);
+                      setErrors(({ artist, artistName: excludedField, ...rest }) => rest); // eslint-disable-line
                       handleChange(e);
                     }}
                     setShowNewArtist={setShowNewArtistName}
@@ -206,7 +206,7 @@ const EditRelease = () => {
                     label="New artist name"
                     name="artistName"
                     onChange={e => {
-                      setErrors(({ artist, artistName: excludedField, ...rest }) => rest);
+                      setErrors(({ artist, artistName: excludedField, ...rest }) => rest); // eslint-disable-line
                       handleChange(e);
                     }}
                     required

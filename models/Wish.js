@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const wishSchema = new Schema({
@@ -9,4 +9,4 @@ const wishSchema = new Schema({
 
 wishSchema.index({ user: 1, release: 1 }, { unique: true });
 const Wish = mongoose.model('Wish', wishSchema, 'wishlist');
-module.exports = Wish;
+export default Wish;

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Play = require(__basedir + '/models/Play');
+import mongoose from 'mongoose';
+import Play from './Play.js';
 const { Schema } = mongoose;
 
 const streamSessionSchema = new Schema({
@@ -28,4 +28,4 @@ streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });
 streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
 
 const StreamSession = mongoose.model('StreamSession', streamSessionSchema, 'stream-sessions');
-module.exports = StreamSession;
+export default StreamSession;

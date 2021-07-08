@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const releaseSchema = new Schema(
@@ -77,4 +77,4 @@ releaseSchema.set('toJSON', {
 });
 
 const Release = mongoose.model('Release', releaseSchema, 'releases');
-module.exports = Release;
+export default Release;

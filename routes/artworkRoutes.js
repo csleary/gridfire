@@ -1,12 +1,12 @@
-const { deleteArtwork, uploadArtwork } = require(__basedir + '/controllers/artworkController');
-const Release = require(__basedir + '/models/Release');
-const { TEMP_PATH } = require(__basedir + '/config/constants');
-const busboy = require('connect-busboy');
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const releaseOwner = require(__basedir + '/middlewares/releaseOwner');
-const requireLogin = require(__basedir + '/middlewares/requireLogin');
+import { deleteArtwork, uploadArtwork } from '../controllers/artworkController.js';
+import Release from '../models/Release.js';
+import { TEMP_PATH } from '../config/constants.js';
+import busboy from 'connect-busboy';
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import releaseOwner from '../middlewares/releaseOwner.js';
+import requireLogin from '../middlewares/requireLogin.js';
 const router = express.Router();
 
 router.post('/', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 20 } }), async (req, res) => {
@@ -56,4 +56,4 @@ router.delete('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

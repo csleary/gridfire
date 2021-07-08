@@ -1,6 +1,6 @@
-const archiver = require('archiver');
-const aws = require('aws-sdk');
-const { AWS_REGION, BUCKET_IMG, BUCKET_MP3, BUCKET_SRC } = require('../config/constants');
+import archiver from 'archiver';
+import aws from 'aws-sdk';
+import { AWS_REGION, BUCKET_IMG, BUCKET_MP3, BUCKET_SRC } from '../config/constants.js';
 aws.config.update({ region: AWS_REGION });
 
 const zipDownload = async (res, release, format) => {
@@ -35,4 +35,4 @@ const zipDownload = async (res, release, format) => {
   await archive.finalize();
 };
 
-module.exports = { zipDownload };
+export { zipDownload };

@@ -1,6 +1,7 @@
-const axios = require('axios');
-const nem = require('nem-sdk').default;
-const { NEM_NETWORK_ID, NEM_NODES } = require('../config/constants');
+import axios from 'axios';
+import nemSdk from 'nem-sdk';
+import { NEM_NETWORK_ID, NEM_NODES } from '../config/constants.js';
+const nem = nemSdk.default;
 const defaultNodes = NEM_NODES.map(node => `http://${node}:7890`);
 const { hexMessage } = nem.utils.format;
 
@@ -149,7 +150,7 @@ const formatAddress = address =>
     .match(/.{1,6}/g)
     .join('-');
 
-module.exports = {
+export {
   checkSignedMessage,
   fetchMosaics,
   fetchTransactions,

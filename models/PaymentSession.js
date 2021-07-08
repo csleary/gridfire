@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const paymentSessionSchema = new Schema({
@@ -13,4 +12,4 @@ const paymentSessionSchema = new Schema({
 
 paymentSessionSchema.index({ dateCreated: 1 }, { expireAfterSeconds: 60 * 15 });
 const PaymentSession = mongoose.model('PaymentSession', paymentSessionSchema, 'payment-sessions');
-module.exports = PaymentSession;
+export default PaymentSession;

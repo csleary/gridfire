@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const linkSchema = new Schema({
@@ -36,4 +36,4 @@ artistSchema.post('save', release => {
 
 artistSchema.set('toJSON', { versionKey: false });
 const Artist = mongoose.model('Artist', artistSchema, 'artists');
-module.exports = Artist;
+export default Artist;

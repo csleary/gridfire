@@ -1,17 +1,17 @@
-const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = require('../config/constants');
-const aws = require('aws-sdk');
-const busboy = require('connect-busboy');
-const express = require('express');
-const fs = require('fs');
-const mongoose = require('mongoose');
-const path = require('path');
-const { publishToQueue } = require('../services/rabbitmq/publisher');
-const releaseOwner = require('../middlewares/releaseOwner');
-const requireLogin = require('../middlewares/requireLogin');
-const router = express.Router();
-const Release = require(__basedir + '/models/Release');
-const StreamSession = require(__basedir + '/models/StreamSession');
+import { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } from '../config/constants.js';
+import Release from '../models/Release.js';
+import StreamSession from '../models/StreamSession.js';
+import aws from 'aws-sdk';
+import busboy from 'connect-busboy';
+import express from 'express';
+import fs from 'fs';
+import mongoose from 'mongoose';
+import path from 'path';
+import { publishToQueue } from '../services/rabbitmq/publisher.js';
+import releaseOwner from '../middlewares/releaseOwner.js';
+import requireLogin from '../middlewares/requireLogin.js';
 aws.config.update({ region: AWS_REGION });
+const router = express.Router();
 
 router.put('/:releaseId/add', requireLogin, releaseOwner, async (req, res) => {
   try {
@@ -258,4 +258,4 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
   }
 });
 
-module.exports = router;
+export default router;

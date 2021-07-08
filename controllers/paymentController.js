@@ -1,13 +1,13 @@
-const crypto = require('crypto');
-const { fetchXemPrice, fetchXemPriceBinance } = require(__basedir + '/controllers/nemController');
-const nem = require('nem-sdk').default;
-const Release = require(__basedir + '/models/Release');
-const Sale = require(__basedir + '/models/Sale');
-const User = require(__basedir + '/models/User');
+import crypto from 'crypto';
+import { fetchXemPrice, fetchXemPriceBinance } from '../controllers/nemController.js';
+import nemSdk from 'nem-sdk';
+import Release from '../models/Release.js';
+import Sale from '../models/Sale.js';
+import User from '../models/User.js';
+const nem = nemSdk.default;
 const { hexMessage } = nem.utils.format;
 
 const createInvoice = async (releaseId, userId) => {
-  console.log(Release);
   const release = await Release.findById(releaseId, 'artistName releaseTitle price user', { lean: true });
   const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
   const priceInXem = release.price / xemPriceUsd;
@@ -44,4 +44,4 @@ const matchTransaction = (data, paymentHash) => {
   return decodedMessage === paymentHash;
 };
 
-module.exports = { createInvoice, createSale, matchTransaction };
+export { createInvoice, createSale, matchTransaction };

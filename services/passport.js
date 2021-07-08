@@ -1,13 +1,22 @@
-const crypto = require('crypto');
-const keys = require('../config/keys');
-const passport = require('passport');
-const request = require('request');
-const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const SpotifyStrategy = require('passport-spotify').Strategy;
-const TwitterStrategy = require('passport-twitter').Strategy;
-const User = require(__basedir + '/models/User');
-const { GOOGLE_CALLBACK, SPOTIFY_CALLBACK, TWITTER_CALLBACK } = require('../config/constants');
+import { GOOGLE_CALLBACK, SPOTIFY_CALLBACK, TWITTER_CALLBACK } from '../config/constants.js';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as SpotifyStrategy } from 'passport-spotify';
+import { Strategy as TwitterStrategy } from 'passport-twitter';
+import User from '../models/User.js';
+import crypto from 'crypto';
+import {
+  googleClientId,
+  googleClientSecret,
+  nemp3Secret,
+  recaptchaSecretKey,
+  spotifyClientId,
+  spotifyClientSecret,
+  twitterConsumerKey,
+  twitterConsumerSecret
+} from '../config/keys.js';
+import passport from 'passport';
+import request from 'request';
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -20,7 +29,7 @@ passport.deserializeUser(async (id, done) => {
 
 const idHash = emailAddress => {
   const hash = crypto.createHash('sha256');
-  return hash.update(emailAddress).update(keys.nemp3Secret).digest('hex').substring(0, 32);
+  return hash.update(emailAddress).update(nemp3Secret).digest('hex').substring(0, 32);
 };
 
 const localLogin = async (email, password, done) => {
@@ -47,7 +56,7 @@ const localLogin = async (email, password, done) => {
 
 const localRegister = async (req, email, password, done) => {
   const url = 'https://www.google.com/recaptcha/api/siteverify';
-  const data = { form: { secret: keys.recaptchaSecretKey, response: req.body.recaptcha } };
+  const data = { form: { secret: recaptchaSecretKey, response: req.body.recaptcha } };
 
   try {
     request.post(url, data, async (error, response, body) => {
@@ -163,8 +172,8 @@ passport.use('local-register', new LocalStrategy({ usernameField: 'email', passR
 passport.use('local-update', new LocalStrategy({ usernameField: 'email', passReqToCallback: true }, localUpdate));
 
 const googleConfig = {
-  clientID: keys.googleClientId,
-  clientSecret: keys.googleClientSecret,
+  clientID: googleClientId,
+  clientSecret: googleClientSecret,
   callbackURL: GOOGLE_CALLBACK,
   proxy: true
 };
@@ -172,8 +181,8 @@ const googleConfig = {
 passport.use(new GoogleStrategy(googleConfig, loginGoogle));
 
 const spotifyConfig = {
-  clientID: keys.spotifyClientId,
-  clientSecret: keys.spotifyClientSecret,
+  clientID: spotifyClientId,
+  clientSecret: spotifyClientSecret,
   callbackURL: SPOTIFY_CALLBACK
 };
 
@@ -209,8 +218,8 @@ const loginTwitter = async (token, tokenSecret, profile, done) => {
 passport.use(
   new TwitterStrategy(
     {
-      consumerKey: keys.twitterConsumerKey,
-      consumerSecret: keys.twitterConsumerSecret,
+      consumerKey: twitterConsumerKey,
+      consumerSecret: twitterConsumerSecret,
       includeEmail: true,
       callbackURL: TWITTER_CALLBACK
     },

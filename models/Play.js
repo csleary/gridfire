@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const playSchema = new Schema({
@@ -10,4 +10,5 @@ const playSchema = new Schema({
 
 playSchema.index({ release: 1, trackId: 1, date: -1, user: 1 });
 const Play = mongoose.model('Play', playSchema, 'plays');
-module.exports = Play;
+
+export default Play;

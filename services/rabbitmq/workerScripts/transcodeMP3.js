@@ -1,8 +1,8 @@
-const { parentPort, workerData } = require('worker_threads');
-const { encodeMp3 } = require('../../../controllers/encodingController');
-const Release = require('../../../models/Release');
-const keys = require('../../../config/keys');
-const mongoose = require('mongoose');
+import { parentPort, workerData } from 'worker_threads';
+import Release from '../../../models/Release.js';
+import { encodeMp3 } from '../../../controllers/encodingController.js';
+import keys from '../../../config/keys.js';
+import mongoose from 'mongoose';
 
 const work = async () => {
   const { releaseId, userId } = workerData;

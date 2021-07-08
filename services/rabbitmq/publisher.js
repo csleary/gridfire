@@ -1,4 +1,4 @@
-const closeOnError = require('./closeOnError');
+import closeOnError from './closeOnError.js';
 
 let publisherChannel;
 const offlineQueue = [];
@@ -29,7 +29,4 @@ const publishToQueue = async (exchange, routingKey, data) => {
   }
 };
 
-module.exports = {
-  startPublisher,
-  publishToQueue
-};
+export { startPublisher, publishToQueue };

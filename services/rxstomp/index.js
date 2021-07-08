@@ -1,5 +1,5 @@
-const { RxStomp } = require('@stomp/rx-stomp');
-const { findNode } = require(__basedir + '/controllers/nemController');
+import { RxStomp } from '@stomp/rx-stomp';
+import { findNode } from '../../controllers/nemController.js';
 
 const connectStomp = async () => {
   const { host: nis } = await findNode();
@@ -16,4 +16,4 @@ const connectStomp = async () => {
   return rxStomp;
 };
 
-module.exports = connectStomp;
+export default connectStomp;

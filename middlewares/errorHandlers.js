@@ -22,4 +22,4 @@ process.on('uncaughtException', error => {
   if (process.env.NODE_ENV === 'production') process.exit(1);
 });
 
-module.exports = { clientErrorHandler, errorHandler, logErrors };
+export { clientErrorHandler, errorHandler, logErrors };
