@@ -1,7 +1,7 @@
 import { parentPort, workerData } from 'worker_threads';
 import Release from '../../../models/Release.js';
 import { encodeMp3 } from '../../../controllers/encodingController.js';
-import keys from '../../../config/keys.js';
+import { mongoURI } from '../../../config/keys.js';
 import mongoose from 'mongoose';
 
 const work = async () => {
@@ -9,7 +9,7 @@ const work = async () => {
   let db;
 
   try {
-    db = await mongoose.connect(keys.mongoURI, {
+    db = await mongoose.connect(mongoURI, {
       useFindAndModify: false,
       useCreateIndex: true,
       useNewUrlParser: true,

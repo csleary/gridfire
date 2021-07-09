@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { BENTO4_DIR } from '../config/constants';
+import { BENTO4_DIR } from '../config/constants.js';
 
 const createMpd = (audioFile, trackId, outputPath) =>
   execSync(

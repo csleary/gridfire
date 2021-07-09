@@ -8,7 +8,7 @@ const BUCKET_MP3 = 'nemp3-mp3';
 const QUEUE_ARTWORK = 'artwork';
 const QUEUE_CREDITS = 'credits';
 const QUEUE_TRANSCODE = 'transcode';
-const TEMP_PATH = path.resolve('../tmp');
+const TEMP_PATH = process.env.TEMP_PATH;
 
 const PRODUCTS = [
   { sku: '01NPC', label: '1 Credit', quantity: 1, unitPrice: 15 },

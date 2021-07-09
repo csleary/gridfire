@@ -2,11 +2,13 @@ import closeOnError from './closeOnError.js';
 import handleWork from './worker.js';
 import path from 'path';
 
+const scriptsPath = path.resolve('services', 'rabbitmq', 'workerScripts');
+
 const scripts = {
-  encodeFLAC: path.resolve('workerScripts', 'encodeFLAC.js'),
-  transcodeAAC: path.resolve('workerScripts', 'transcodeAAC.js'),
-  transcodeMP3: path.resolve('workerScripts', 'transcodeMP3.js'),
-  sendCredits: path.resolve('workerScripts', 'sendCredits.js')
+  encodeFLAC: path.resolve(scriptsPath, 'encodeFLAC.js'),
+  transcodeAAC: path.resolve(scriptsPath, 'transcodeAAC.js'),
+  transcodeMP3: path.resolve(scriptsPath, 'transcodeMP3.js'),
+  sendCredits: path.resolve(scriptsPath, 'sendCredits.js')
 };
 
 const startConsumer = async ({ connection, io, workerPool, queue }) => {

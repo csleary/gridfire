@@ -5,7 +5,7 @@ import Release from '../../../models/Release.js';
 import aws from 'aws-sdk';
 import { encodeFlacStream } from '../../../controllers/encodingController.js';
 import fs from 'fs';
-import keys from '../../../config/keys.js';
+import { mongoURI } from '../../../config/keys.js';
 import mongoose from 'mongoose';
 import path from 'path';
 aws.config.update({ region: AWS_REGION });
@@ -19,7 +19,7 @@ const encodeFlac = async () => {
   let trackDoc;
 
   try {
-    db = await mongoose.connect(keys.mongoURI, {
+    db = await mongoose.connect(mongoURI, {
       useFindAndModify: false,
       useCreateIndex: true,
       useNewUrlParser: true,

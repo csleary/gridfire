@@ -5,7 +5,7 @@ import Release from '../../../models/Release.js';
 import aws from 'aws-sdk';
 import { createMpd } from '../../../controllers/bento4Controller.js';
 import fs from 'fs';
-import keys from '../../../config/keys.js';
+import { mongoURI } from '../../../config/keys.js';
 import mongoose from 'mongoose';
 import path from 'path';
 import sax from 'sax';
@@ -25,7 +25,7 @@ const work = async () => {
   let db, release, trackDoc, mp4Path, flacPath, playlistDir;
 
   try {
-    db = await mongoose.connect(keys.mongoURI, {
+    db = await mongoose.connect(mongoURI, {
       useFindAndModify: false,
       useCreateIndex: true,
       useNewUrlParser: true,
