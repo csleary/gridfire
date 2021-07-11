@@ -91,7 +91,7 @@ const NemAddress = () => {
     dispatch(fetchUserCredits()).then(() => setIsCheckingCredits(false));
   };
 
-  const publishedReleaseCount = userReleases?.filter(release => release.published === true).length || 0;
+  const releaseCount = userReleases.length;
 
   return (
     <main className="container">
@@ -176,7 +176,7 @@ const NemAddress = () => {
                   nemAddressVerified && credits
                     ? `Your nemp3 credits balance: ${credits}`
                     : nemAddressVerified
-                    ? 'You don\u2019t currently have any credits.' // eslint-disable-line
+                    ? 'You don\u2019t currently have any credits at this address.' // eslint-disable-line
                     : 'Please add a verified NEM address to update your credits balance.' // eslint-disable-line
                 }
               </span>
@@ -194,18 +194,24 @@ const NemAddress = () => {
             </div>
             <div
               className={classnames('mb-3', {
-                yellow: !publishedReleaseCount,
-                red: credits < publishedReleaseCount,
-                green: publishedReleaseCount && credits >= publishedReleaseCount
+                yellow: credits < releaseCount,
+                red: !releaseCount,
+                green: releaseCount && credits >= releaseCount
               })}
             >
               <FontAwesomeIcon icon={faMusic} className="mr-2" />
-              {`Published releases: ${publishedReleaseCount}`}
+              Your release count: {releaseCount}
             </div>
             <p>
-              As you have {publishedReleaseCount ? publishedReleaseCount : 'no'} published release
-              {publishedReleaseCount === 1 ? '' : 's'}, you need to maintain a credit balance of at least{' '}
-              {publishedReleaseCount + 1} to be able to publish a new release or activate future powerups.
+              Your credits balance needs to at least match your release count in order to be able to add new releases.{' '}
+              {releaseCount - credits > 0 ? (
+                <>
+                  As you have {releaseCount ? releaseCount : 'no'} release
+                  {releaseCount === 1 ? '' : 's'}, you need to purchase at least another{' '}
+                  {releaseCount - credits === 1 ? 'credit' : `${releaseCount - credits} credits`} to be able to add a
+                  new release.
+                </>
+              ) : null}
             </p>
             <div className={styles.buy}>
               <Button

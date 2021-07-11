@@ -168,6 +168,7 @@ const setUserNemAddress = async ({ userId, nemAddress, nemAddressChallenge, sign
     if (!updatedNemAddress) {
       await Release.updateMany({ user: user._id }, { $set: { published: false } }).exec();
     }
+
     user.nemAddress = updatedNemAddress;
     user.nemAddressChallenge = humanId();
     user.nemAddressVerified = false;

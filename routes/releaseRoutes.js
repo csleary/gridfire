@@ -26,7 +26,7 @@ router.post('/', requireLogin, async (req, res) => {
       });
     }
 
-    if (user.credits <= releases.length) {
+    if (releases.length > user.credits) {
       return res.json({
         warning:
           'Sorry, you don\u2019t have enough credit to add a new release. Please add more nemp3 credits to cover the number of releases you wish to create.'
