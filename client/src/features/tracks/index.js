@@ -8,9 +8,11 @@ const trackSlice = createSlice({
   name: 'tracks',
   initialState: {
     audioUploadProgress: {},
+    encodingProgressFLAC: {},
     uploadCancelled: false,
+    storingProgressFLAC: {},
     trackIdsForDeletion: {},
-    isTranscoding: []
+    transcodingProgressAAC: {}
   },
   reducers: {
     cancelUpload(state, action) {
@@ -25,22 +27,52 @@ const trackSlice = createSlice({
       state.uploadProgress = { ...state.audioUploadProgress, [trackId]: 0 };
     },
 
+    setEncodingComplete(state, action) {
+      const { trackId } = action.payload;
+      const { [trackId]: encoded, ...encoding } = state.encodingProgressFLAC; // eslint-disable-line
+      state.encodingProgressFLAC = { ...encoding };
+      const { [trackId]: stored, ...storing } = state.storingProgressFLAC; // eslint-disable-line
+      state.storingProgressFLAC = { ...storing };
+    },
+
+    setEncodingProgressFLAC(state, action) {
+      const { message, trackId } = action.payload;
+      state.encodingProgressFLAC = {
+        ...state.encodingProgressFLAC,
+        [trackId]: { message }
+      };
+    },
+
+    setStoringProgressFLAC(state, action) {
+      const { message, trackId } = action.payload;
+      state.storingProgressFLAC = {
+        ...state.storingProgressFLAC,
+        [trackId]: { message }
+      };
+    },
+
     setTrackIdsForDeletion(state, action) {
       const { trackId, isDeleting } = action.payload;
       state.trackIdsForDeletion = { ...state.trackIdsForDeletion, [trackId]: isDeleting };
     },
 
     setTranscodingComplete(state, action) {
-      state.isTranscoding = state.isTranscoding.filter(id => id !== action.payload);
+      const { trackId } = action.payload;
+      const { [trackId]: track, ...rest } = state.transcodingProgressAAC; // eslint-disable-line
+      state.transcodingProgressAAC = { ...rest };
     },
 
-    setTranscodingStart(state, action) {
-      state.isTranscoding = [...state.isTranscoding, action.payload.trackId];
+    setTranscodingProgressAAC(state, action) {
+      const { message, trackId } = action.payload;
+      state.transcodingProgressAAC = {
+        ...state.transcodingProgressAAC,
+        [trackId]: { message }
+      };
     },
 
     setUploadProgress(state, action) {
       const { trackId, percent } = action.payload;
-      state.audioUploadProgress[trackId] = percent;
+      state.audioUploadProgress = { ...state.audioUploadProgress, [trackId]: percent };
     }
   }
 });
@@ -85,53 +117,49 @@ const moveTrack = (releaseId, fromIndex, toIndex) => async dispatch => {
   }
 };
 
-const transcodeAudio = (releaseId, trackId, trackName) => async dispatch => {
-  try {
-    dispatch(setTranscodingStart({ releaseId, trackId, trackName }));
-  } catch (error) {
-    dispatch(toastError(error.response.data.error));
-    dispatch(setTranscodingComplete(trackId));
-  }
-};
+const uploadAudio =
+  ({ releaseId, trackId, trackName, audioFile, type }) =>
+  async dispatch => {
+    try {
+      const formData = new FormData();
+      formData.append('type', type);
+      formData.append('releaseId', releaseId);
+      formData.append('trackId', trackId);
+      formData.append('trackName', trackName);
+      formData.append('file', audioFile, audioFile.name);
+      const cancelToken = dispatch(getCancelToken(trackId));
 
-const uploadAudio = ({ releaseId, trackId, trackName, audioFile, type }) => async dispatch => {
-  try {
-    const formData = new FormData();
-    formData.append('type', type);
-    formData.append('releaseId', releaseId);
-    formData.append('trackId', trackId);
-    formData.append('trackName', trackName);
-    formData.append('file', audioFile, audioFile.name);
-    const cancelToken = dispatch(getCancelToken(trackId));
+      const config = {
+        onUploadProgress: event => {
+          const percent = Math.floor((event.loaded / event.total) * 100);
+          dispatch(setUploadProgress({ trackId, percent }));
+        },
+        cancelToken
+      };
 
-    const config = {
-      onUploadProgress: event => {
-        const percent = Math.floor((event.loaded / event.total) * 100);
-        dispatch(setUploadProgress({ trackId, percent }));
-      },
-      cancelToken
-    };
+      await axios.post('/api/track/upload', formData, config);
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        return toastInfo('Upload cancelled.');
+      }
 
-    await axios.post('/api/track/upload', formData, config);
-  } catch (error) {
-    if (axios.isCancel(error)) {
-      return toastInfo('Upload cancelled.');
+      toastError(error.response.data.error);
+      dispatch(setUploadProgress({ trackId, percent: 0 }));
     }
-
-    toastError(error.response.data.error);
-    dispatch(setUploadProgress({ trackId, percent: 0 }));
-  }
-};
+  };
 
 export const {
   cancelUpload,
   setDeletingComplete,
   setDeletingStart,
+  setEncodingComplete,
+  setEncodingProgressFLAC,
+  setStoringProgressFLAC,
   setTrackIdsForDeletion,
   setTranscodingComplete,
-  setTranscodingStart,
+  setTranscodingProgressAAC,
   setUploadProgress
 } = trackSlice.actions;
 
-export { addTrack, deleteTrack, getCancelToken, moveTrack, transcodeAudio, uploadAudio };
+export { addTrack, deleteTrack, getCancelToken, moveTrack, uploadAudio };
 export default trackSlice.reducer;

@@ -219,7 +219,7 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
         throw new Error('File type not recognised. Needs to be flac/aiff/wav.');
       }
 
-      const filePath = path.join(TEMP_PATH, trackId);
+      const filePath = path.resolve(TEMP_PATH, trackId);
       const write = fs.createWriteStream(filePath, { autoClose: true });
 
       write.on('finish', () => {

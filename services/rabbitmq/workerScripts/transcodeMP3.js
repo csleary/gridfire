@@ -24,13 +24,13 @@ const work = async () => {
       const h = hours !== '00' ? `${hours}:` : '';
 
       parentPort.postMessage({
-        message: `Encoding mp3 at track time: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        message: `Transcoded MP3: ${h}${mins}:${s} (${targetSize}kB complete)`,
         userId
       });
     };
 
     await encodeMp3(release, onProgress);
-    parentPort.postMessage({ type: 'encodingCompleteMP3', exists: true, format: 'mp3', releaseId, userId });
+    parentPort.postMessage({ type: 'transcodingCompleteMP3', exists: true, format: 'mp3', releaseId, userId });
     await db.disconnect();
   } catch (error) {
     await db.disconnect();

@@ -56,7 +56,9 @@ const work = async () => {
       const h = hours !== '00' ? `${hours}:` : '';
 
       parentPort.postMessage({
-        message: `Encoding at track time: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        message: `Transcoded AAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        trackId,
+        type: 'transcodingProgressAAC',
         userId
       });
     };
@@ -128,7 +130,7 @@ const work = async () => {
     trackDoc.status = 'stored';
     trackDoc.dateUpdated = Date.now();
     await release.save();
-    parentPort.postMessage({ type: 'encodingCompleteAAC', trackId, trackName, userId });
+    parentPort.postMessage({ type: 'transcodingCompleteAAC', trackId, trackName, userId });
     parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'stored', userId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
     await db.disconnect();

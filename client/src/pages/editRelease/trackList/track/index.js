@@ -32,7 +32,13 @@ const Track = props => {
   } = props;
 
   const { activeRelease } = useSelector(state => state.releases, shallowEqual);
-  const { audioUploadProgress, trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
+  const {
+    audioUploadProgress,
+    trackIdsForDeletion,
+    encodingProgressFLAC,
+    storingProgressFLAC,
+    transcodingProgressAAC
+  } = useSelector(state => state.tracks, shallowEqual);
   const releaseId = activeRelease._id;
   const trackListLength = activeRelease.trackList.length;
   const hasError = status === 'error' || errors[`trackList.${index}.audio`];
@@ -99,7 +105,13 @@ const Track = props => {
               type={isUploading ? 'lines' : isEncoding ? 'nemp3' : 'braille'}
               speed={0.01}
             />
-            {isUploading ? 'Uploading…' : isEncoding ? 'Encoding…' : isTranscoding ? 'Transcoding…' : null}
+            {isUploading
+              ? 'Uploading…'
+              : isEncoding
+              ? storingProgressFLAC[trackId]?.message ?? encodingProgressFLAC[trackId]?.message ?? 'Encoding…'
+              : isTranscoding
+              ? transcodingProgressAAC[trackId]?.message ?? 'Transcoding…'
+              : null}
           </span>
         ) : null}
         {index < trackListLength - 1 ? (

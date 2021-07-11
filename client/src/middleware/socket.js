@@ -1,6 +1,13 @@
+import {
+  setEncodingComplete,
+  setEncodingProgressFLAC,
+  setStoringProgressFLAC,
+  setTranscodingComplete,
+  setTranscodingProgressAAC,
+  setUploadProgress
+} from 'features/tracks';
 import { setFormatExists, updateTrackStatus } from 'features/releases';
 import { setPaymentDetails, setPaymentError, setPaymentReceived, setPaymentUnconfirmed } from 'features/payment';
-import { setTranscodingComplete, setUploadProgress } from 'features/tracks';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import { batch } from 'react-redux';
 import io from 'socket.io-client';
@@ -36,21 +43,40 @@ const socketMiddleware = ({ dispatch, getState }) => {
     });
   });
 
+  socket.on('encodingProgressFLAC', ({ message, trackId }) => {
+    batch(() => {
+      dispatch(setEncodingProgressFLAC({ message, trackId }));
+    });
+  });
+
   socket.on('encodingCompleteFLAC', ({ trackId, trackName }) => {
     batch(() => {
+      dispatch(setEncodingComplete({ trackId }));
       dispatch(setUploadProgress({ trackId, percent: 0 }));
-      dispatch(toastSuccess(`Upload complete for ${trackName}!`));
+      dispatch(toastSuccess(`Upload complete for ${trackName}.`));
     });
   });
 
-  socket.on('encodingCompleteAAC', ({ trackId, trackName }) => {
+  socket.on('storingProgressFLAC', ({ message, trackId }) => {
     batch(() => {
-      dispatch(toastSuccess(`Transcoding ${trackName} to aac complete.`));
-      dispatch(setTranscodingComplete(trackId));
+      dispatch(setStoringProgressFLAC({ message, trackId }));
     });
   });
 
-  socket.on('encodingCompleteMP3', ({ releaseId, format, exists }) => {
+  socket.on('transcodingProgressAAC', ({ message, trackId }) => {
+    batch(() => {
+      dispatch(setTranscodingProgressAAC({ message, trackId }));
+    });
+  });
+
+  socket.on('transcodingCompleteAAC', ({ trackId, trackName }) => {
+    batch(() => {
+      dispatch(toastSuccess(`Transcoding complete. ${trackName} is ready to be published!`));
+      dispatch(setTranscodingComplete({ trackId }));
+    });
+  });
+
+  socket.on('transcodingCompleteMP3', ({ releaseId, format, exists }) => {
     batch(() => {
       dispatch(setFormatExists({ releaseId, format, exists }));
     });

@@ -36,7 +36,7 @@ const encodeFlac = async () => {
 
     parentPort.postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'encoding', userId });
     const readFile = fs.createReadStream(filePath);
-    const flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
+    const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
 
     const onProgress = ({ targetSize, timemark }) => {
       const [hours, mins, seconds] = timemark.split(':');
@@ -44,7 +44,9 @@ const encodeFlac = async () => {
       const h = hours !== '00' ? `${hours}:` : '';
 
       parentPort.postMessage({
-        message: `Encoding at track time: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        message: `Encoded FLAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
+        trackId,
+        type: 'encodingProgressFLAC',
         userId
       });
     };
@@ -61,7 +63,9 @@ const encodeFlac = async () => {
         const percent = Math.floor((event.loaded / event.total) * 100);
 
         parentPort.postMessage({
-          message: `Storing ${trackName} (${percent}% complete)…`,
+          message: `Saving FLAC (${percent}% complete)`,
+          trackId,
+          type: 'storingProgressFLAC',
           userId
         });
       })
