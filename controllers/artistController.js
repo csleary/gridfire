@@ -7,8 +7,7 @@ const createArtist = async (artistName, userId, suffix = '') =>
       {
         name: artistName,
         slug: slugify(`${artistName}${suffix}`, { lower: true }),
-        user: userId,
-        dateCreated: Date.now()
+        user: userId
       }
     ],
     { fields: { _id: 1 }, lean: true, new: true }

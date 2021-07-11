@@ -20,7 +20,6 @@ function TrackList({ errors = {}, handleChange, setValues, values }) {
   const handleAddTrack = async () => {
     const newTrack = {
       _id: createObjectId(),
-      dateCreated: Date.now(),
       status: 'pending',
       trackTitle: ''
     };

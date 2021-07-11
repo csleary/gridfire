@@ -12,7 +12,6 @@ const userSchema = new Schema(
       idHash: String,
       resetToken: String,
       resetExpire: Date,
-      dateCreated: Date,
       lastLogin: Date
     },
     nemAddress: { type: String, default: '' },
@@ -20,7 +19,7 @@ const userSchema = new Schema(
     nemAddressVerified: { type: Boolean, default: false },
     credits: { type: Number, default: 0 }
   },
-  { toJSON: { versionKey: false, virtuals: true } }
+  { timestamps: true, toJSON: { versionKey: false, virtuals: true } }
 );
 
 userSchema.pre('save', async function (next) {

@@ -75,7 +75,6 @@ const localRegister = async (req, email, password, done) => {
           email,
           password,
           idHash: idHash(email),
-          dateCreated: Date.now(),
           lastLogin: Date.now()
         }
       });
@@ -129,7 +128,6 @@ const loginGoogle = async (accessToken, refreshToken, profile, done) => {
         oauthId: profile.id,
         email,
         idHash: idHash(email),
-        dateCreated: Date.now(),
         lastLogin: Date.now()
       }
     });
@@ -156,7 +154,6 @@ const loginSpotify = async (accessToken, refreshToken, expires_in, profile, done
         oauthId: profile.id,
         email,
         idHash: idHash(email),
-        dateCreated: Date.now(),
         lastLogin: Date.now()
       }
     });
@@ -204,7 +201,6 @@ const loginTwitter = async (token, tokenSecret, profile, done) => {
         oauthId: profile.id,
         email,
         idHash: idHash(email),
-        dateCreated: Date.now(),
         lastLogin: Date.now()
       }
     });

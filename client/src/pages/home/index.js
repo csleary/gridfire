@@ -22,7 +22,7 @@ const Home = ({ match }) => {
   );
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentSortPath, setCurrentSortPath] = useState('dateCreated');
+  const [currentSortPath, setCurrentSortPath] = useState('createdAt');
   const [currentSortOrder, setCurrentSortOrder] = useState(-1);
   const { service } = match.params;
 

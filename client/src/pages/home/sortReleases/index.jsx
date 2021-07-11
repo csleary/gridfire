@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import styles from './sortReleases.module.css';
 
 const sortOptions = [
-  { title: 'Date Added', sortPath: 'dateCreated', 1: 'Old', '-1': 'New' },
+  { title: 'Date Added', sortPath: 'createdAt', 1: 'Old', '-1': 'New' },
   {
     title: 'Release Date',
     sortPath: 'releaseDate',

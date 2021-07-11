@@ -69,15 +69,15 @@ router.get('/', async (req, res) => {
       `
       -artwork.dateCreated
       -artwork.dateUpdated 
-      -dateCreated
-      -dateUpdated 
+      -createdAt
+      -updatedAt
       -trackList.initRange
       -trackList.mpd
       -trackList.segmentDuration
       -trackList.segmentTimescale
       -trackList.segmentList
-      -trackList.dateCreated
-      -trackList.dateUpdated
+      -trackList.createdAt
+      -trackList.updatedAt
       `,
       {
         limit: parseInt(catalogueLimit),

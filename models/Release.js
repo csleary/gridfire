@@ -1,6 +1,20 @@
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
+const trackSchema = new Schema(
+  {
+    trackTitle: { type: String, trim: true },
+    status: { type: String, default: 'pending' },
+    duration: { type: Number, trim: true },
+    mpd: { type: Buffer },
+    segmentDuration: { type: Number },
+    segmentTimescale: { type: Number },
+    segmentList: { type: Array },
+    initRange: { type: String }
+  },
+  { timestamps: true }
+);
+
 const releaseSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -22,26 +36,11 @@ const releaseSchema = new Schema(
     pubName: { type: String, trim: true },
     recYear: { type: Number, trim: true },
     recName: { type: String, trim: true },
-    trackList: [
-      {
-        trackTitle: { type: String, trim: true },
-        status: { type: String, default: 'pending' },
-        duration: { type: Number, trim: true },
-        dateCreated: { type: Date },
-        dateUpdated: { type: Date },
-        mpd: { type: Buffer },
-        segmentDuration: { type: Number },
-        segmentTimescale: { type: Number },
-        segmentList: { type: Array },
-        initRange: { type: String }
-      }
-    ],
+    trackList: [trackSchema],
     tags: [String],
-    dateCreated: { type: Date },
-    dateUpdated: { type: Date },
     published: { type: Boolean, default: false }
   },
-  { usePushEach: true }
+  { timestamps: true, usePushEach: true }
 );
 
 releaseSchema.index({
@@ -57,19 +56,19 @@ releaseSchema.post('save', release => {
 
 releaseSchema.set('toJSON', {
   transform: function (doc, ret) {
-    delete ret.dateCreated;
-    delete ret.dateUpdated;
+    delete ret.createdAt;
+    delete ret.updatedAt;
     delete ret.artwork.dateCreated;
     delete ret.artwork.dateUpdated;
 
     ret.trackList.forEach(track => {
-      delete track.dateCreated;
-      delete track.dateUpdated;
+      delete track.createdAt;
       delete track.initRange;
       delete track.mpd;
       delete track.segmentDuration;
       delete track.segmentList;
       delete track.segmentTimescale;
+      delete track.updatedAt;
     });
 
     return ret;

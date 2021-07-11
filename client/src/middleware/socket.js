@@ -70,7 +70,7 @@ const socketMiddleware = ({ dispatch, getState }) => {
 
   socket.on('transcodingCompleteAAC', ({ trackId, trackName }) => {
     batch(() => {
-      dispatch(toastSuccess(`Transcoding complete. ${trackName} is ready to be published!`));
+      dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`));
       dispatch(setTranscodingComplete({ trackId }));
     });
   });

@@ -56,7 +56,6 @@ router.post('/', requireLogin, async (req, res) => {
 
     const release = await Release.create({
       user: userId,
-      dateCreated: Date.now(),
       releaseDate: Date.now()
     });
     res.json(release.toJSON());

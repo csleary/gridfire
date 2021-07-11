@@ -6,15 +6,16 @@ const linkSchema = new Schema({
   uri: { type: String, trim: true, default: '' }
 });
 
-const artistSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User' },
-  name: { type: String, trim: true },
-  slug: { type: String, trim: true },
-  biography: { type: String, trim: true },
-  links: [linkSchema],
-  dateCreated: { type: Date },
-  dateUpdated: { type: Date }
-});
+const artistSchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String, trim: true },
+    slug: { type: String, trim: true },
+    biography: { type: String, trim: true },
+    links: [linkSchema]
+  },
+  { timestamps: true }
+);
 
 artistSchema.index(
   { slug: 1 },
