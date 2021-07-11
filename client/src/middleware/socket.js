@@ -49,11 +49,10 @@ const socketMiddleware = ({ dispatch, getState }) => {
     });
   });
 
-  socket.on('encodingCompleteFLAC', ({ trackId, trackName }) => {
+  socket.on('encodingCompleteFLAC', ({ trackId }) => {
     batch(() => {
       dispatch(setEncodingComplete({ trackId }));
       dispatch(setUploadProgress({ trackId, percent: 0 }));
-      dispatch(toastSuccess(`Upload complete for ${trackName}.`));
     });
   });
 
