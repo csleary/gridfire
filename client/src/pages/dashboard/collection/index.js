@@ -3,8 +3,8 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { fetchCollection } from 'features/releases';
-import { frontPage } from './collection.module.css';
 import { nanoid } from '@reduxjs/toolkit';
+import styles from './collection.module.css';
 
 const Collection = () => {
   const dispatch = useDispatch();
@@ -55,7 +55,7 @@ const Collection = () => {
             Your Collection ({collection.length} release
             {collection.length > 1 ? 's' : ''})
           </h3>
-          <div className={frontPage}>{renderReleases}</div>
+          <div className={styles.frontPage}>{renderReleases}</div>
         </div>
       </div>
     </main>

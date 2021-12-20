@@ -13,7 +13,7 @@ import classnames from 'classnames';
 import moment from 'moment';
 import { setReleaseIdsForDeletion } from 'features/releases';
 import styles from './userRelease.module.css';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function UserRelease({ favs, numSold, plays, release }) {
   const {
@@ -29,7 +29,7 @@ function UserRelease({ favs, numSold, plays, release }) {
   } = release;
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { releaseIdsForDeletion } = useSelector(state => state.releases, shallowEqual);
   const [isPublishingRelease, setPublishingRelease] = useState(false);
 
@@ -105,7 +105,7 @@ function UserRelease({ favs, numSold, plays, release }) {
           </div>
         </div>
         <div className={styles.buttons}>
-          <button onClick={() => history.push(`/release/${releaseId}/edit`)} className={styles.button}>
+          <button onClick={() => navigate(`/release/${releaseId}/edit`)} className={styles.button}>
             <FontAwesomeIcon className="mr-2" icon={faPencilAlt} />
             Edit
           </button>

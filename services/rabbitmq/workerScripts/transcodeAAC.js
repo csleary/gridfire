@@ -25,13 +25,7 @@ const work = async () => {
   let db, release, trackDoc, mp4Path, flacPath, playlistDir;
 
   try {
-    db = await mongoose.connect(mongoURI, {
-      useFindAndModify: false,
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-
+    db = await mongoose.connect(mongoURI);
     release = await Release.findById(releaseId).exec();
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = 'transcoding';

@@ -9,13 +9,7 @@ const work = async () => {
   let db;
 
   try {
-    db = await mongoose.connect(mongoURI, {
-      useFindAndModify: false,
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-
+    db = await mongoose.connect(mongoURI);
     const release = await Release.findById(releaseId, 'trackList', { lean: true }).exec();
 
     const onProgress = ({ targetSize, timemark }) => {

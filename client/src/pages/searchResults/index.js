@@ -5,8 +5,8 @@ import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { clearResults } from 'features/search';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { frontPage } from 'pages/home/home.module.css';
-import styles from './searchResults.module.css';
+import homeStyles from 'pages/home/home.module.css';
+import searchStyles from './searchResults.module.css';
 
 const SearchResults = () => {
   const dispatch = useDispatch();
@@ -23,9 +23,9 @@ const SearchResults = () => {
             {searchQuery}
             &rsquo;.
           </h3>
-          <div className={frontPage}>{renderReleases}</div>
+          <div className={homeStyles.frontPage}>{renderReleases}</div>
           {resultsNum ? (
-            <Button className={styles.clear} icon={faTimes} onClick={() => dispatch(clearResults())} size="small">
+            <Button className={searchStyles.clear} icon={faTimes} onClick={() => dispatch(clearResults())} size="small">
               Clear
             </Button>
           ) : null}

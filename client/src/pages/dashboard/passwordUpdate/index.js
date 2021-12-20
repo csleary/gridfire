@@ -6,11 +6,11 @@ import Button from 'components/button';
 import Input from 'components/input';
 import axios from 'axios';
 import { fetchUser } from 'features/user';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const PasswordUpdate = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { email } = useSelector(state => state.user.auth, shallowEqual);
   const [errors, setErrors] = useState({});
   const [isPristine, setIsPristine] = useState(true);
@@ -45,7 +45,7 @@ const PasswordUpdate = () => {
       const res = await axios.post('/api/auth/update', { email, ...values });
       batch(() => {
         dispatch(toastSuccess(res.data.success));
-        dispatch(fetchUser()).then(() => history.push('/dashboard'));
+        dispatch(fetchUser()).then(() => navigate('/dashboard'));
       });
       setValues({});
     } catch (error) {

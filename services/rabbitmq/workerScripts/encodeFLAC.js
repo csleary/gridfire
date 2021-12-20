@@ -19,13 +19,7 @@ const encodeFlac = async () => {
   let trackDoc;
 
   try {
-    db = await mongoose.connect(mongoURI, {
-      useFindAndModify: false,
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-
+    db = await mongoose.connect(mongoURI);
     parentPort.postMessage({ message: 'Encoding flac…', userId });
 
     release = await Release.findOneAndUpdate(

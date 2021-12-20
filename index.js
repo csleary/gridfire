@@ -40,16 +40,9 @@ const io = connectSocketio(server, rxStomp);
 app.set('socketio', io);
 await connectRabbitmq(io).catch(error => console.error(error));
 
-const mongooseConfig = {
-  useFindAndModify: false,
-  useCreateIndex: true,
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-};
-
 const connectMongoose = async () => {
   try {
-    await mongoose.connect(mongoURI, mongooseConfig);
+    await mongoose.connect(mongoURI);
   } catch ({ message }) {
     console.error('Mongoose connection error: %s', message);
   }

@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useRef } from 'react';
-import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { fetchRelease, setIsLoading } from 'features/releases';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Artwork from './artwork';
@@ -30,7 +30,6 @@ const ActiveRelease = () => {
   const dispatch = useDispatch();
   const { releaseId } = useParams();
   const trailRef = useRef();
-  const { path } = useRouteMatch();
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { priceError, xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
   const { purchases } = useSelector(state => state.user, shallowEqual);
@@ -89,32 +88,44 @@ const ActiveRelease = () => {
             <Link to={`/artist/${artist}`}>{artistName}</Link>
           </h4>
           <Price price={price} priceError={priceError} xemPriceUsd={xemPriceUsd} />
-          <Switch>
-            <PrivateRoute path={`${path}/payment`} component={Payment} />
-            <Route path={`${path}`}>
-              <div className={trackListClassName}>
-                <ol className={styles.trackList}>
-                  <TrackList />
-                </ol>
-              </div>
-              {isLoading ? null : (
-                <PurchaseButton
-                  inCollection={isInCollection}
-                  price={price}
-                  priceError={priceError}
-                  releaseId={releaseId}
-                />
-              )}
-              <ReleaseDate releaseDate={releaseDate} />
-              <RecordLabel recordLabel={recordLabel} />
-              <CatNumber catNumber={catNumber} />
-              <Info info={info} />
-              <Credits credits={credits} />
-              <CLine pubName={pubName} pubYear={pubYear} />
-              <PLine recName={recName} recYear={recYear} />
-              <Tags trailRef={trailRef} />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route
+              path="/payment"
+              element={
+                <PrivateRoute>
+                  <Payment />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <>
+                  <div className={trackListClassName}>
+                    <ol className={styles.trackList}>
+                      <TrackList />
+                    </ol>
+                  </div>
+                  {isLoading ? null : (
+                    <PurchaseButton
+                      inCollection={isInCollection}
+                      price={price}
+                      priceError={priceError}
+                      releaseId={releaseId}
+                    />
+                  )}
+                  <ReleaseDate releaseDate={releaseDate} />
+                  <RecordLabel recordLabel={recordLabel} />
+                  <CatNumber catNumber={catNumber} />
+                  <Info info={info} />
+                  <Credits credits={credits} />
+                  <CLine pubName={pubName} pubYear={pubYear} />
+                  <PLine recName={recName} recYear={recYear} />
+                  <Tags trailRef={trailRef} />
+                </>
+              }
+            ></Route>
+          </Routes>
         </div>
       </div>
     </main>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { batch, useDispatch } from 'react-redux';
 import { faBomb, faCheckCircle, faKey } from '@fortawesome/free-solid-svg-icons';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Input from 'components/input';
@@ -13,7 +13,7 @@ import { toastSuccess } from 'features/toast';
 
 const ResetPassword = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useParams();
   const { token } = params;
   const [isLoading, setIsLoading] = useState();
@@ -64,7 +64,7 @@ const ResetPassword = () => {
       const loginReq = await axios.post('/api/auth/login', { email, password: values.passwordNew });
       batch(() => {
         dispatch(toastSuccess(loginReq.data.success));
-        dispatch(fetchUser()).then(() => history.push('/'));
+        dispatch(fetchUser()).then(() => navigate('/'));
       });
     } catch (error) {
       setResponse(error.response.data);

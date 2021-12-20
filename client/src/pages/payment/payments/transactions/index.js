@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Transaction from './transaction';
-import nem from 'nem-sdk';
+// import nem from 'nem-sdk';
 import styles from './transactions.module.css';
 
 const Transactions = ({ error, transactions }) => {
@@ -32,7 +32,8 @@ const Transactions = ({ error, transactions }) => {
           {transactions.map(({ meta, transaction }, index) => (
             <Transaction
               amount={(transaction.amount / 10 ** 6).toFixed(6)}
-              date={nem.utils.format.nemDate(transaction.timeStamp)}
+              // date={nem.utils.format.nemDate(transaction.timeStamp)}
+              date=""
               index={String(index + 1)}
               key={meta.hash.data}
               meta={meta}

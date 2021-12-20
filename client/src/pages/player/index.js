@@ -10,7 +10,7 @@ import axios from 'axios';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import styles from './player.module.css';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 const MIME_TYPE = 'audio/mp4; codecs="mp4a.40.2"';
 
 class Player extends Component {
@@ -369,4 +369,4 @@ export default connect(mapStateToProps, {
   toastError,
   toastInfo,
   toastWarning
-})(withRouter(Player));
+})(Player);

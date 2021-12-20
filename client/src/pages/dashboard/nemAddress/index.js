@@ -11,7 +11,7 @@ import ReadOnlyTextArea from 'components/readOnlyTextArea';
 import TextSpinner from 'components/textSpinner';
 import classnames from 'classnames';
 import { fetchUserReleases } from 'features/releases';
-import nem from 'nem-sdk';
+// import nem from 'nem-sdk';
 import styles from './nemAddress.module.css';
 const addressPrefix = process.env.REACT_APP_NEM_NETWORK === 'mainnet' ? 'an \u2018N\u2019' : 'a \u2018T\u2019';
 
@@ -241,11 +241,11 @@ const NemAddress = () => {
   );
 };
 
-const checkNemAddress = nemAddress => {
-  if (nemAddress && !nem.model.address.isValid(nemAddress)) {
-    return 'This doesn\u2019t appear to be a valid NEM address. Please double-check it!';
-  }
-};
+// const checkNemAddress = () => {
+// if (nemAddress && !nem.model.address.isValid(nemAddress)) {
+//   return 'This doesn\u2019t appear to be a valid NEM address. Please double-check it!';
+// }
+// };
 
 const checkNemMessage = signedMessage => {
   if (!signedMessage) {
@@ -255,7 +255,7 @@ const checkNemMessage = signedMessage => {
 
 const validate = values => {
   const errors = {};
-  errors.nemAddress = checkNemAddress(values.nemAddress);
+  // errors.nemAddress = checkNemAddress(values.nemAddress);
   if (values.signedMessage) errors.signedMessage = checkNemMessage(values.signedMessage);
   return errors;
 };

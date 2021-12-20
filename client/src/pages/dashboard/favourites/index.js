@@ -3,7 +3,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { fetchUserFavourites } from 'features/releases';
-import { grid } from './favourites.module.css';
+import styles from './favourites.module.css';
 
 const Favourites = () => {
   const dispatch = useDispatch();
@@ -46,7 +46,7 @@ const Favourites = () => {
       <div className="row">
         <div className="col py-3">
           <h3 className="text-center">Favourites</h3>
-          <div className={grid}>{renderReleases}</div>
+          <div className={styles.grid}>{renderReleases}</div>
         </div>
       </div>
     </main>

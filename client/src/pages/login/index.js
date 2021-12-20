@@ -1,4 +1,4 @@
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
@@ -14,7 +14,8 @@ import styles from './login.module.css';
 
 const Login = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { auth } = useSelector(state => state.user, shallowEqual);
   const [errors, setErrors] = useState({});
   const [isPristine, setIsPristine] = useState(true);
@@ -24,10 +25,10 @@ const Login = () => {
   const hasErrors = Object.values(errors).some(error => Boolean(error));
 
   useEffect(() => {
-    if (hasEmail && history.location.state) {
-      history.push(history.location.state.from.pathname);
+    if (hasEmail && location.state) {
+      navigate(location.state.from.pathname);
     } else if (hasEmail) {
-      history.push('/');
+      navigate('/');
     }
   }, [hasEmail, history]);
 
@@ -117,7 +118,7 @@ const Login = () => {
         <div className={`${styles.oauth} col-md`}>
           <div className={styles.service}>
             <FontAwesomeIcon className={styles.icon} icon={faSpotify} />
-            <a href={`api/auth/spotify/?prev=${encodeURIComponent(history.location.state?.from.pathname)}`}>
+            <a href={`api/auth/spotify/?prev=${encodeURIComponent(location.state?.from.pathname)}`}>
               Log in with Spotify
             </a>
           </div>
@@ -127,7 +128,7 @@ const Login = () => {
           </div>
           <div className={styles.service}>
             <FontAwesomeIcon className={styles.icon} icon={faGoogle} />
-            <a href={`api/auth/google/?prev=${encodeURIComponent(history.location.state?.from.pathname)}`}>
+            <a href={`api/auth/google/?prev=${encodeURIComponent(location.state?.from.pathname)}`}>
               Log in with Google
             </a>
           </div>

@@ -21,13 +21,13 @@ const DashNav = () => {
   return (
     <>
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard/artists'}>
+        <NavLink className={styles.link} end to={'/dashboard/artists'}>
           <FontAwesomeIcon icon={faArchive} className={styles.icon} />
           Artists
         </NavLink>
       </li>
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard'}>
+        <NavLink className={styles.link} end to={'/dashboard'}>
           <FontAwesomeIcon icon={faHeadphonesAlt} className={styles.icon} />
           Releases
         </NavLink>
@@ -38,7 +38,7 @@ const DashNav = () => {
         }
       ></li>
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard/nem-address'}>
+        <NavLink className={styles.link} end to={'/dashboard/nem-address'}>
           <FontAwesomeIcon
             icon={user.nemAddress ? faCheckCircle : faExclamationCircle}
             className={classnames(styles.icon, { [styles.error]: !user.nemAddress })}
@@ -48,26 +48,26 @@ const DashNav = () => {
       </li>
       {!user.auth.oauthId ? (
         <li>
-          <NavLink className={styles.link} strict exact to={'/dashboard/password-update'}>
+          <NavLink className={styles.link} end to={'/dashboard/password-update'}>
             <FontAwesomeIcon icon={faKey} className={styles.icon} />
             Password
           </NavLink>
         </li>
       ) : null}
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard/collection'}>
+        <NavLink className={styles.link} end to={'/dashboard/collection'}>
           <FontAwesomeIcon icon={faArchive} className={styles.icon} />
           Collection
         </NavLink>
       </li>
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard/favourites'}>
+        <NavLink className={styles.link} end to={'/dashboard/favourites'}>
           <FontAwesomeIcon icon={faHeart} className={styles.icon} />
           Faves
         </NavLink>
       </li>
       <li>
-        <NavLink className={styles.link} strict exact to={'/dashboard/wishlist'}>
+        <NavLink className={styles.link} end to={'/dashboard/wishlist'}>
           <FontAwesomeIcon icon={faMagic} className={styles.icon} />
           List
         </NavLink>

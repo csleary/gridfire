@@ -8,12 +8,12 @@ import PropTypes from 'prop-types';
 import { createAction } from '@reduxjs/toolkit';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import styles from './payment.module.css';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Payment = props => {
   const { releaseId } = props.match.params;
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { userId } = useSelector(state => state.user, shallowEqual);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Payment = props => {
 
   return (
     <>
-      <Button className={styles.back} icon={faChevronLeft} onClick={() => history.goBack()} size="small" textLink>
+      <Button className={styles.back} icon={faChevronLeft} onClick={() => navigate(-1)} size="small" textLink>
         Back
       </Button>
       <h2 className={styles.heading}>Payment</h2>

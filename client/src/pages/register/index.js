@@ -9,11 +9,11 @@ import axios from 'axios';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { fetchUser } from 'features/user';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const captchaRef = useRef();
   const [errors, setErrors] = useState({});
   const [isPristine, setIsPristine] = useState(true);
@@ -48,7 +48,7 @@ const Register = () => {
       const res = await axios.post('/api/auth/register', values);
       batch(() => {
         dispatch(toastSuccess(res.data.success));
-        dispatch(fetchUser()).then(() => history.push('/'));
+        dispatch(fetchUser()).then(() => navigate('/'));
       });
       setValues({});
     } catch (error) {

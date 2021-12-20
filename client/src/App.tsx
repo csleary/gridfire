@@ -1,6 +1,6 @@
 import './app.css';
 import 'lazysizes';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import About from 'pages/about';
 import ActiveRelease from 'pages/activeRelease';
 import ArtistPage from 'pages/artistPage';
@@ -34,24 +34,45 @@ const App: React.FC = () => {
       <div className={styles.wrapper}>
         <Header />
         <NavBar />
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route path="/oauth/:service" component={Home} />
-          <Route path="/register" component={Register} />
-          <Route path="/login" component={Login} />
-          <Route exact path="/reset" component={ForgotPassword} />
-          <Route exact path="/reset/:token" component={ResetPassword} />
-          <Route path="/search" component={SearchResults} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/support" component={Support} />
-          <PrivateRoute exact path="/release/add/" component={EditRelease} />
-          <PrivateRoute exact path="/release/:releaseId/edit" component={EditRelease} />
-          <Route path="/release/:releaseId" component={ActiveRelease} />
-          <Route path="/artist/:artistId" component={ArtistPage} />
-          <PrivateRoute path="/dashboard" component={Dashboard} />
-          <Route exact path="/:artistSlug" component={ArtistPage} />
-        </Switch>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/oauth/:service" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset" element={<ForgotPassword />} />
+          <Route path="/reset/:token" element={<ResetPassword />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/support" element={<Support />} />
+          <Route
+            path="/release/add/"
+            element={
+              <PrivateRoute>
+                <EditRelease />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/release/:releaseId/edit"
+            element={
+              <PrivateRoute>
+                <EditRelease />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/release/:releaseId" element={<ActiveRelease />} />
+          <Route path="/artist/:artistId" element={<ArtistPage />} />
+          <Route
+            path="/dashboard*"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/:artistSlug" element={<ArtistPage />} />
+        </Routes>
         <Footer />
         <Player />
         <ToastList />

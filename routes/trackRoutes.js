@@ -1,8 +1,8 @@
 import { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } from '../config/constants.js';
+import Busboy from 'busboy';
 import Release from '../models/Release.js';
 import StreamSession from '../models/StreamSession.js';
 import aws from 'aws-sdk';
-import busboy from 'connect-busboy';
 import express from 'express';
 import fs from 'fs';
 import mongoose from 'mongoose';
@@ -193,18 +193,20 @@ router.get('/upload', requireLogin, releaseOwner, async (req, res) => {
   }
 });
 
-router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 200 } }), async (req, res) => {
+router.post('/upload', requireLogin, async (req, res) => {
   try {
-    const io = req.app.get('socketio');
-    const userId = req.user._id.toString();
+    const { app, headers, user } = req;
+    const userId = user._id.toString();
+    const io = app.get('socketio');
     const operatorUser = io.to(userId);
-    let formData = {};
+    const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 200 } });
+    const formData = {};
 
-    req.busboy.on('field', (key, value) => {
+    busboy.on('field', (key, value) => {
       formData[key] = value;
     });
 
-    req.busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
+    busboy.on('file', async (filename, file, { mimeType }) => {
       const { releaseId, trackId, trackName } = formData;
 
       if (releaseId) {
@@ -221,7 +223,7 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
         'audio/wave',
         'audio/vnd.wave',
         'audio/x-wave'
-      ].includes(mimetype);
+      ].includes(mimeType);
 
       if (!accepted) {
         throw new Error('File type not recognised. Needs to be flac/aiff/wav.');
@@ -259,10 +261,11 @@ router.post('/upload', requireLogin, busboy({ limits: { fileSize: 1024 * 1024 * 
       file.pipe(write);
     });
 
-    req.busboy.on('finish', () => res.sendStatus(200));
-    req.pipe(req.busboy);
+    busboy.on('finish', () => res.sendStatus(200));
+    req.pipe(busboy);
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    console.log(error.toString());
+    res.status(500).json({ error: 'Encountered an error attempting to upload this file.' });
   }
 });
 

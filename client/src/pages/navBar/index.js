@@ -13,11 +13,11 @@ import classnames from 'classnames';
 import { logOut } from 'features/user';
 import styles from './navBar.module.css';
 import throttle from 'lodash.throttle';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const navBar = useRef();
   const [showLogo, setShowLogo] = useState(false);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
@@ -40,7 +40,7 @@ const NavBar = () => {
   }, [handleScroll]);
 
   const handleLogout = () => {
-    dispatch(logOut()).then(() => history.push('/'));
+    dispatch(logOut()).then(() => navigate('/'));
   };
 
   const logoClassNames = classnames(styles.logoLink, {

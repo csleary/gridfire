@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Button from 'components/button';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
@@ -12,9 +12,9 @@ import { fetchCatalogue } from 'features/releases';
 import styles from './home.module.css';
 import { toastInfo } from 'features/toast';
 
-const Home = ({ match }) => {
+const Home = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
     state => state.releases,
@@ -24,7 +24,7 @@ const Home = ({ match }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState('createdAt');
   const [currentSortOrder, setCurrentSortOrder] = useState(-1);
-  const { service } = match.params;
+  const { service } = useParams();
 
   const handleFetchCatalogue = useCallback(
     async ({ sortBy = currentSortPath, sortOrder = currentSortOrder, isPaging = false } = {}) => {
@@ -42,7 +42,7 @@ const Home = ({ match }) => {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.has('prev')) return history.push(searchParams.get('prev'));
+    if (searchParams.has('prev')) return navigate(searchParams.get('prev'));
     handleFetchCatalogue().then(() => setIsLoading(false));
   }, []);
 

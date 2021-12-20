@@ -16,11 +16,11 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import classnames from 'classnames';
 import styles from './artists.module.css';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Artists = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { activeArtistId, artists, errors, isLoading, isPristine, isSubmitting } = useSelector(
     state => state.artists,
     shallowEqual
@@ -117,9 +117,7 @@ const Artists = () => {
                   <Button
                     className={styles.artistLink}
                     icon={faLink}
-                    onClick={() =>
-                      history.push(activeArtist.slug ? `/${activeArtist.slug}` : `/artist/${activeArtistId}`)
-                    }
+                    onClick={() => navigate(activeArtist.slug ? `/${activeArtist.slug}` : `/artist/${activeArtistId}`)}
                     title="Visit artist page."
                     size="small"
                     type="button"

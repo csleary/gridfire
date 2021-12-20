@@ -3,7 +3,7 @@ import { addNewRelease, updateRelease } from 'features/releases';
 import { faCheck, faChevronDown, faChevronUp, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess, toastWarning } from 'features/toast';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AdvancedFields from './advancedFields';
 import ArtistMenu from './artistMenu';
 import Artwork from './artwork';
@@ -24,7 +24,7 @@ import validate from './validate';
 const EditRelease = () => {
   const artworkFile = useRef();
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
   const { activeRelease: release, versions } = useSelector(state => state.releases, shallowEqual);
   const { xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
@@ -51,7 +51,7 @@ const EditRelease = () => {
       dispatch(addNewRelease()).then(res => {
         if (res?.warning) {
           dispatch(toastWarning(res.warning));
-          return history.push('/dashboard/nem-address');
+          return navigate('/dashboard/nem-address');
         }
         setIsLoading(false);
       });
@@ -144,7 +144,7 @@ const EditRelease = () => {
       setIsSubmitting(false);
       setIsPristine(true);
       dispatch(toastSuccess(`${releaseTitle ? `\u2018${releaseTitle}\u2019` : 'Release'} saved!`));
-      history.push('/dashboard');
+      navigate('/dashboard');
     });
   };
 
