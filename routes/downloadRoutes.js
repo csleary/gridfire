@@ -4,7 +4,7 @@ import Release from '../models/Release.js';
 import Sale from '../models/Sale.js';
 import aws from 'aws-sdk';
 import express from 'express';
-import { publishToQueue } from '../services/rabbitmq/publisher.js';
+import { publishToQueue } from '../controllers/amqp/publisher.js';
 import requireLogin from '../middlewares/requireLogin.js';
 import { zipDownload } from '../controllers/archiveController.js';
 aws.config.update({ region: AWS_REGION });
@@ -25,7 +25,7 @@ router.post('/', requireLogin, async (req, res) => {
       res.status(401).send({ error: 'Not authorised.' });
     }
   } catch (error) {
-    res.status(500).send({ error: error.message || error.toString() });
+    res.status(400).send({ error: error.message || error.toString() });
   }
 });
 
@@ -47,7 +47,7 @@ router.get('/check', requireLogin, async (req, res) => {
     publishToQueue('', QUEUE_TRANSCODE, { job: 'transcodeMP3', releaseId, userId });
     res.json({ exists: false });
   } catch (error) {
-    res.status(500).send({ error: error.message || error.toString() });
+    res.status(400).send({ error: error.message || error.toString() });
   }
 });
 

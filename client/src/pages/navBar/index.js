@@ -1,7 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { faCertificate, faPlus, faSignInAlt, faSignOutAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { faEthereum, faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faPlus, faSignInAlt, faSignOutAlt, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import Button from 'components/button';
 import DashNav from './dashNav';
@@ -9,20 +9,25 @@ import Dropdown from 'components/dropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Logo from './logo';
 import SearchBar from './searchBar';
+import { Web3Context } from 'index';
 import classnames from 'classnames';
 import { logOut } from 'features/user';
+import { setAccount } from 'features/web3';
 import styles from './navBar.module.css';
 import throttle from 'lodash.throttle';
 import { useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
+  const provider = useContext(Web3Context);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const navBar = useRef();
   const [showLogo, setShowLogo] = useState(false);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const { user } = useSelector(state => state, shallowEqual);
-  const { auth, credits, isLoading } = user;
+  const { user, web3 } = useSelector(state => state, shallowEqual);
+  const { auth, isLoading } = user;
+  const { account = '', isConnected } = web3 || {};
+  const shortAccount = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : '';
 
   const handleScroll = useCallback(
     throttle(() => {
@@ -47,13 +52,13 @@ const NavBar = () => {
     [styles.show]: showLogo
   });
 
-  const creditClass = classnames(styles.credit, {
-    cyan: credits > 1,
-    yellow: credits === 1,
-    red: !credits
-  });
-
   if (isLoading) return null;
+
+  const handleConnect = async () => {
+    const accounts = await provider.send('eth_requestAccounts', []);
+    const [firstAccount] = accounts || [];
+    dispatch(setAccount(firstAccount));
+  };
 
   return (
     <nav className={styles.root} ref={navBar}>
@@ -81,15 +86,31 @@ const NavBar = () => {
                   <Logo class={styles.logo} />
                 </Link>
               </li>
+              {isConnected ? (
+                <li>
+                  <span className={styles.info} title={account}>
+                    <FontAwesomeIcon icon={faEthereum} className="mr-2" />
+                    {shortAccount}
+                  </span>
+                </li>
+              ) : (
+                <li>
+                  <Button className={styles.link} iconClassName={styles.icon} onClick={handleConnect} textLink>
+                    <FontAwesomeIcon
+                      icon={faEthereum}
+                      className={styles.icon}
+                      title="Connect to your Ethereum account."
+                    />
+                    <span className={styles.label} title="Connect to your Ethereum account.">
+                      Connect
+                    </span>
+                  </Button>
+                </li>
+              )}
               <li>
                 <NavLink to={'/release/add/'} className={styles.link} title="Add a new release.">
                   <FontAwesomeIcon icon={faPlus} className={styles.icon} />
                   <span className={styles.label}>Add Release</span>
-                  <FontAwesomeIcon
-                    icon={faCertificate}
-                    className={creditClass}
-                    title={`Your nemp3 credit balance is: ${credits}`}
-                  />
                 </NavLink>
               </li>
               <li>

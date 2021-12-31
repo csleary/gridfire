@@ -7,7 +7,7 @@ import {
   setUploadProgress
 } from 'features/tracks';
 import { setFormatExists, updateTrackStatus } from 'features/releases';
-import { setPaymentDetails, setPaymentError, setPaymentReceived, setPaymentUnconfirmed } from 'features/payment';
+// import { setPaymentDetails, setPaymentError, setPaymentReceived, setPaymentUnconfirmed } from 'features/payment';
 import { toastError, toastInfo, toastSuccess, toastWarning } from 'features/toast';
 import { batch } from 'react-redux';
 import io from 'socket.io-client';
@@ -20,13 +20,8 @@ if (process.env.REACT_APP_NODE_ENV === 'development') {
   socket = io();
 }
 
-const socketMiddleware = ({ dispatch, getState }) => {
-  socket.on('connect', () => {
-    console.log('[Socket.io] Connected.');
-    const { userId } = getState().user;
-    if (userId) socket.emit('user/subscribe', { userId });
-  });
-
+const socketMiddleware = ({ dispatch }) => {
+  socket.on('connect', () => console.log('[Socket.io] Connected.'));
   socket.on('connect_error', error => console.error(error.message));
   socket.on('connect_timeout', () => console.error('[Socket.io] Connection attempt timed out.'));
   socket.on('reconnect_attempt', () => console.error('[Socket.io] Attempting to reconnect…'));
@@ -44,40 +39,13 @@ const socketMiddleware = ({ dispatch, getState }) => {
   });
 
   socket.on('encodingProgressFLAC', ({ message, trackId }) => {
-    batch(() => {
-      dispatch(setEncodingProgressFLAC({ message, trackId }));
-    });
+    dispatch(setEncodingProgressFLAC({ message, trackId }));
   });
 
   socket.on('encodingCompleteFLAC', ({ trackId }) => {
     batch(() => {
       dispatch(setEncodingComplete({ trackId }));
       dispatch(setUploadProgress({ trackId, percent: 0 }));
-    });
-  });
-
-  socket.on('storingProgressFLAC', ({ message, trackId }) => {
-    batch(() => {
-      dispatch(setStoringProgressFLAC({ message, trackId }));
-    });
-  });
-
-  socket.on('transcodingProgressAAC', ({ message, trackId }) => {
-    batch(() => {
-      dispatch(setTranscodingProgressAAC({ message, trackId }));
-    });
-  });
-
-  socket.on('transcodingCompleteAAC', ({ trackId, trackName }) => {
-    batch(() => {
-      dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`));
-      dispatch(setTranscodingComplete({ trackId }));
-    });
-  });
-
-  socket.on('transcodingCompleteMP3', ({ releaseId, format, exists }) => {
-    batch(() => {
-      dispatch(setFormatExists({ releaseId, format, exists }));
     });
   });
 
@@ -96,6 +64,25 @@ const socketMiddleware = ({ dispatch, getState }) => {
     }
   });
 
+  socket.on('storingProgressFLAC', ({ message, trackId }) => {
+    dispatch(setStoringProgressFLAC({ message, trackId }));
+  });
+
+  socket.on('transcodingProgressAAC', ({ message, trackId }) => {
+    dispatch(setTranscodingProgressAAC({ message, trackId }));
+  });
+
+  socket.on('transcodingCompleteAAC', ({ trackId, trackName }) => {
+    batch(() => {
+      dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`));
+      dispatch(setTranscodingComplete({ trackId }));
+    });
+  });
+
+  socket.on('transcodingCompleteMP3', ({ releaseId, format, exists }) => {
+    dispatch(setFormatExists({ releaseId, format, exists }));
+  });
+
   socket.on('updateTrackStatus', ({ releaseId, trackId, status }) => {
     dispatch(updateTrackStatus({ releaseId, trackId, status }));
   });
@@ -104,35 +91,10 @@ const socketMiddleware = ({ dispatch, getState }) => {
     dispatch(toastInfo(message));
   });
 
-  socket.on('payment/error', ({ error }) => {
-    dispatch(setPaymentError({ error }));
-  });
-
-  socket.on('payment/invoice', ({ paymentInfo, priceInRawXem, release }) => {
-    dispatch(setPaymentDetails({ paymentInfo, priceInRawXem, release }));
-  });
-
-  socket.on('payment/received', ({ hasPurchased, transaction }) => {
-    dispatch(setPaymentReceived({ hasPurchased, transaction }));
-  });
-
-  socket.on('payment/unconfirmed', ({ transaction }) => {
-    dispatch(setPaymentUnconfirmed({ transaction }));
-  });
-
   return next => action => {
     if (action.type === 'user/updateUser') {
       const { _id: userId } = action.payload;
       if (userId) socket.emit('user/subscribe', { userId });
-    }
-
-    if (action.type === 'payment/subscribe') {
-      const { userId, releaseId } = action.payload;
-      socket.emit('payment/subscribe', { userId, releaseId });
-    }
-
-    if (action.type === 'payment/unsubscribe') {
-      socket.emit('payment/unsubscribe');
     }
 
     return next(action);

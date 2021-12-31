@@ -42,7 +42,7 @@ router.post('/', requireLogin, async (req, res) => {
     busboy.on('finish', () => res.end());
     req.pipe(busboy);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(400).send({ error: error.message });
   }
 });
 
@@ -53,7 +53,7 @@ router.delete('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     const updated = await deleteArtwork(releaseId, release);
     res.send(updated);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(400).send({ error: error.message });
   }
 });
 

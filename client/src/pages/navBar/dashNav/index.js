@@ -1,23 +1,12 @@
-import {
-  faArchive,
-  faCheckCircle,
-  faExclamationCircle,
-  faHeadphonesAlt,
-  faHeart,
-  faKey,
-  faMagic
-} from '@fortawesome/free-solid-svg-icons';
-import { shallowEqual, useSelector } from 'react-redux';
+import { faArchive, faHeadphonesAlt, faHeart, faMagic } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
-import classnames from 'classnames';
+import { faEthereum } from '@fortawesome/free-brands-svg-icons';
 import styles from './dashNav.module.css';
 
 const DashNav = () => {
-  const { user } = useSelector(state => state, shallowEqual);
-
   return (
     <>
       <li>
@@ -32,28 +21,12 @@ const DashNav = () => {
           Releases
         </NavLink>
       </li>
-      <li
-        title={
-          user.nemAddress ? 'Your NEM payment address.' : 'You don\u2019t currently have a NEM payment address saved.'
-        }
-      ></li>
       <li>
-        <NavLink className={styles.link} end to={'/dashboard/nem-address'}>
-          <FontAwesomeIcon
-            icon={user.nemAddress ? faCheckCircle : faExclamationCircle}
-            className={classnames(styles.icon, { [styles.error]: !user.nemAddress })}
-          />
+        <NavLink className={styles.link} end to={'/dashboard/address'}>
+          <FontAwesomeIcon icon={faEthereum} className={styles.icon} />
           Payment
         </NavLink>
       </li>
-      {!user.auth.oauthId ? (
-        <li>
-          <NavLink className={styles.link} end to={'/dashboard/password-update'}>
-            <FontAwesomeIcon icon={faKey} className={styles.icon} />
-            Password
-          </NavLink>
-        </li>
-      ) : null}
       <li>
         <NavLink className={styles.link} end to={'/dashboard/collection'}>
           <FontAwesomeIcon icon={faArchive} className={styles.icon} />

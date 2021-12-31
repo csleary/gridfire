@@ -7,9 +7,10 @@ import express from 'express';
 import fs from 'fs';
 import mongoose from 'mongoose';
 import path from 'path';
-import { publishToQueue } from '../services/rabbitmq/publisher.js';
+import { publishToQueue } from '../controllers/amqp/publisher.js';
 import releaseOwner from '../middlewares/releaseOwner.js';
 import requireLogin from '../middlewares/requireLogin.js';
+
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.put('/:releaseId/add', requireLogin, releaseOwner, async (req, res) => {
     const updatedRelease = await release.save();
     res.send(updatedRelease.toJSON());
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
@@ -54,7 +55,7 @@ router.get('/:trackId/init', async (req, res) => {
       });
     } catch (error) {
       if (error.code === 11000) return;
-      res.status(500).json({ error: error.message || error.toString() });
+      res.status(400).json({ error: error.message || error.toString() });
     }
   }
 });
@@ -86,7 +87,7 @@ router.get('/:trackId/stream', async (req, res) => {
       await StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }, { new: true }).exec();
     }
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
@@ -149,7 +150,7 @@ router.delete('/:releaseId/:trackId', requireLogin, releaseOwner, async (req, re
         throw new Error(error);
       });
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
@@ -161,7 +162,7 @@ router.patch('/:releaseId/:from/:to', requireLogin, releaseOwner, async (req, re
     const updatedRelease = await release.save();
     res.send(updatedRelease.toJSON());
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(400).send({ error: error.message });
   }
 });
 
@@ -189,7 +190,7 @@ router.get('/upload', requireLogin, releaseOwner, async (req, res) => {
     const audioUploadUrl = s3.getSignedUrl('putObject', params);
     res.send(audioUploadUrl);
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
@@ -265,7 +266,7 @@ router.post('/upload', requireLogin, async (req, res) => {
     req.pipe(busboy);
   } catch (error) {
     console.log(error.toString());
-    res.status(500).json({ error: 'Encountered an error attempting to upload this file.' });
+    res.status(400).json({ error: 'Encountered an error attempting to upload this file.' });
   }
 });
 

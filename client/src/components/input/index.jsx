@@ -53,6 +53,7 @@ const Input = ({
         <textarea
           className="form-control"
           disabled={disabled}
+          id={name}
           name={name}
           onChange={e => onChange(e, format)}
           placeholder={placeholder}
@@ -65,6 +66,7 @@ const Input = ({
           autoFocus={autoFocus}
           className={classnames('form-control', styles.input, { [className]: Boolean(className) })}
           disabled={disabled}
+          id={name}
           max={max}
           min={min}
           name={name}

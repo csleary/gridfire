@@ -9,7 +9,6 @@ const zipDownload = async (res, release, format) => {
   const releaseId = release._id.toString();
   const s3 = new aws.S3();
   const archive = archiver('zip');
-  // archive.on('progress', ({ entries, fs }) => {});
   archive.on('end', () => {});
   archive.on('warning', () => {});
   archive.on('error', () => {});

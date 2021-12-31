@@ -55,8 +55,8 @@ const Home = () => {
 
   const head = (
     <Helmet>
-      <title>nemp3</title>
-      <meta name="description" content="Listen to the latest releases on nemp3." />
+      <title>GridFire</title>
+      <meta name="description" content="Listen to the latest releases on GridFire." />
     </Helmet>
   );
 

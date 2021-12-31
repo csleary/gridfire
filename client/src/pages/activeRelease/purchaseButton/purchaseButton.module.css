@@ -5,6 +5,6 @@
 .disabled,
 .disabled:hover {
   opacity: 0.5;
-  margin: 2rem auto;
+  margin: 3rem auto;
   pointer-events: none;
 }

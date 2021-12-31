@@ -88,7 +88,7 @@ router.get('/', async (req, res) => {
 
     res.send(releases);
   } catch (error) {
-    res.status(500).send({ error: 'Music catalogue could not be fetched.' });
+    res.status(400).send({ error: 'Music catalogue could not be fetched.' });
   }
 });
 
