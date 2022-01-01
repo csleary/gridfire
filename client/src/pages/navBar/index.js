@@ -25,7 +25,7 @@ const NavBar = () => {
   const [showLogo, setShowLogo] = useState(false);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { user, web3 } = useSelector(state => state, shallowEqual);
-  const { auth, isLoading } = user;
+  const { auth } = user;
   const { account = '', isConnected } = web3 || {};
   const shortAccount = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : '';
 
@@ -51,8 +51,6 @@ const NavBar = () => {
   const logoClassNames = classnames(styles.logoLink, {
     [styles.show]: showLogo
   });
-
-  if (isLoading) return null;
 
   const handleConnect = async () => {
     const accounts = await provider.send('eth_requestAccounts', []);

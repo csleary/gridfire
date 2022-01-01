@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { setIsLoading, updateUser } from 'features/user';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
@@ -9,7 +10,6 @@ import classNames from 'classnames';
 import { faEthereum } from '@fortawesome/free-brands-svg-icons';
 import { setAccount } from 'features/web3';
 import styles from './login.module.css';
-import { updateUser } from 'features/user';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -46,6 +46,7 @@ const Login = () => {
       const signature = await signer.signMessage(message);
       const user = await checkMessage({ address, message, signature });
       dispatch(updateUser(user));
+      dispatch(setIsLoading(false));
       dispatch(toastSuccess('You are now logged in with your Ether wallet.'));
       navigate('/');
     } catch (error) {
@@ -84,13 +85,16 @@ const Login = () => {
         </div>
       </div>
       <div className="row">
-        <div className={classNames(styles.oauth, 'col-md')}>
-          <div className={styles.service}>
-            <FontAwesomeIcon className={styles.icon} icon={faEthereum} />
-            <Button className={styles.button} onClick={handleWeb3Login}>
-              Log in with your Ethereum wallet
-            </Button>
+        <div className="col">
+          <div className={styles.oauth}>
+            <div className={styles.service}>
+              <FontAwesomeIcon className={styles.icon} icon={faEthereum} />
+              <Button className={styles.button} onClick={handleWeb3Login}>
+                Log in with your Ethereum wallet
+              </Button>
+            </div>
           </div>
+          <p>Welcome to GridFire. Please use your web3 account to log in (e.g. via Metamask).</p>
         </div>
       </div>
     </main>

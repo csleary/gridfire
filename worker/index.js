@@ -21,12 +21,12 @@ const amqpConnect = async () => {
   try {
     const url = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBIT_HOST}:5672`;
     const connection = await amqp.connect(url);
-    console.log('[AMQP] Connected.');
-    connection.on('error', error => console.error(`[AMQP] error: ${error.message}`));
+    console.log('[Worker] [AMQP] Connected.');
+    connection.on('error', error => console.error(`[Worker] [AMQP] error: ${error.message}`));
 
     connection.on('close', error => {
       if (amqpConnection.isFatalError(error)) return console.log('[AMQP] Connection closed.');
-      console.error('[AMQP] Connection closed. Reconnecting…');
+      console.error('[Worker] [AMQP] Connection closed. Reconnecting…');
       return setTimeout(connect, 3000);
     });
 

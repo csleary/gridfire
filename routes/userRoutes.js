@@ -2,7 +2,7 @@ import { getUser, setPaymentAddress } from '../controllers/userController.js';
 import Favourite from '../models/Favourite.js';
 import Release from '../models/Release.js';
 import Sale from '../models/Sale.js';
-import Wish from '../models/Wish.js';
+import Wishlist from '../models/Wishlist.js';
 import express from 'express';
 import requireLogin from '../middlewares/requireLogin.js';
 
@@ -136,7 +136,7 @@ router.post('/transactions', requireLogin, async (req, res) => {
 });
 
 router.get('/wishlist/', requireLogin, async (req, res) => {
-  const userWishList = await Wish.find({ user: req.user._id }, '', { lean: true, sort: '-release.releaseDate' })
+  const userWishList = await Wishlist.find({ user: req.user._id }, '', { lean: true, sort: '-release.releaseDate' })
     .populate({
       path: 'release',
       match: { published: true },
@@ -152,14 +152,14 @@ router.get('/wishlist/', requireLogin, async (req, res) => {
 router.post('/wishlist/:releaseId', requireLogin, async (req, res) => {
   const { releaseId: release } = req.params;
   const user = req.user._id;
-  const wishlistItem = await Wish.create({ release, dateAdded: Date.now(), user });
+  const wishlistItem = await Wishlist.create({ release, dateAdded: Date.now(), user });
   res.send(wishlistItem.toJSON());
 });
 
 router.delete('/wishlist/:releaseId', requireLogin, async (req, res) => {
   const { releaseId: release } = req.params;
   const user = req.user._id;
-  await Wish.findOneAndDelete({ release, user });
+  await Wishlist.findOneAndDelete({ release, user });
   res.end();
 });
 

@@ -8,6 +8,7 @@ const userSlice = createSlice({
     auth: undefined,
     credits: 0,
     favourites: [],
+    isLoading: true,
     paymentAddress: '',
     purchases: [],
     wishList: []
@@ -27,6 +28,10 @@ const userSlice = createSlice({
 
     removeWishListItem(state, action) {
       state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
+    },
+
+    setIsLoading(state, action) {
+      state.isLoading = action.payload;
     },
 
     setPaymentAddress(state, action) {
@@ -87,10 +92,11 @@ const addPaymentAddress = values => async dispatch => {
 const fetchUser = () => async dispatch => {
   try {
     const res = await axios.get('/api/user');
-    if (!res.data) return;
-    dispatch(updateUser(res.data));
+    if (res.data) dispatch(updateUser(res.data));
   } catch (error) {
     dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
+  } finally {
+    dispatch(setIsLoading(false));
   }
 };
 
@@ -113,6 +119,7 @@ export const {
   removeFavouritesItem,
   removeWishListItem,
   setFavourites,
+  setIsLoading,
   setLoading,
   setPaymentAddress,
   updateFavourites,
