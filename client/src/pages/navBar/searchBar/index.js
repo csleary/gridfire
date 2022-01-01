@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import debounce from 'lodash.debounce';
 import styles from './searchBar.module.css';
-import { usePrevious } from 'functions';
+import { usePrevious } from 'hooks/usePrevious';
 
 const SearchBar = () => {
   const dispatch = useDispatch();

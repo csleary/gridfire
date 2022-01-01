@@ -1,6 +1,6 @@
 {
-  "short_name": "nemp3",
-  "name": "nemp3",
+  "short_name": "GridFire",
+  "name": "GridFire",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#292c44",
