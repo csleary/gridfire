@@ -1,15 +1,16 @@
 {
-  "name": "nemp3",
+  "name": "gridfire",
   "version": "2.1.0",
-  "description": "A music download store using payment and token assets on the NEM blockchain.",
-  "repository": "https://github.com/csleary/nemp3",
+  "description": "A music download store using cryptocurrency payments.",
+  "repository": "https://github.com/csleary/gridfire",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "server": "nodemon --ignore client/ -r dotenv/config index.js dotenv_config_path=.env",
     "client": "yarn --cwd ./client/ start",
-    "dev": "concurrently \"yarn run server\" \"yarn run client\""
+    "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
+    "ganache": "ganache-cli -d -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\""
   },
   "author": "Christopher Leary",
   "license": "ISC",
@@ -25,18 +26,16 @@
     "dotenv": "^10.0.0",
     "ethers": "^5.5.2",
     "express": "^4.17.1",
+    "form-data": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.2",
     "nodemailer": "^6.4.18",
     "passport": "^0.5.2",
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.9",
     "sharp": "^0.29.3",
     "slugify": "^1.4.5",
-    "socket.io": "^4.0.1",
-    "ws": "^8.3.0"
+    "socket.io": "^4.0.1"
   },
   "devDependencies": {
     "concurrently": "^6.2.0",

@@ -1,4 +1,3 @@
-import { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } from '../config/constants.js';
 import { generateToken, verifyToken } from '../controllers/tokenController.js';
 import Release from '../models/Release.js';
 import Sale from '../models/Sale.js';
@@ -7,6 +6,8 @@ import express from 'express';
 import { publishToQueue } from '../controllers/amqp/publisher.js';
 import requireLogin from '../middlewares/requireLogin.js';
 import { zipDownload } from '../controllers/archiveController.js';
+
+const { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 

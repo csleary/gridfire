@@ -4,14 +4,14 @@ module.exports = app => {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'http://localhost:8083'
+      target: 'http://localhost:5000'
     })
   );
 
   app.use(
     '/socket.io',
     createProxyMiddleware({
-      target: 'http://localhost:8083'
+      target: 'http://localhost:5000'
     })
   );
 };

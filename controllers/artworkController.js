@@ -1,9 +1,9 @@
-import { AWS_REGION, BUCKET_IMG } from '../config/constants.js';
 import Release from '../models/Release.js';
 import aws from 'aws-sdk';
 import fs from 'fs';
 import sharp from 'sharp';
 
+const { AWS_REGION, BUCKET_IMG } = process.env;
 aws.config.update({ region: AWS_REGION });
 const fsPromises = fs.promises;
 

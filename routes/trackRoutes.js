@@ -1,4 +1,3 @@
-import { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } from '../config/constants.js';
 import Busboy from 'busboy';
 import Release from '../models/Release.js';
 import StreamSession from '../models/StreamSession.js';
@@ -11,6 +10,7 @@ import { publishToQueue } from '../controllers/amqp/publisher.js';
 import releaseOwner from '../middlewares/releaseOwner.js';
 import requireLogin from '../middlewares/requireLogin.js';
 
+const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 

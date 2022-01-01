@@ -1,6 +1,7 @@
-import { SOCKET_HOST } from '../config/constants.js';
 import { Server } from 'socket.io';
 import registerSocketRoutes from '../routes/socketRoutes.js';
+
+const { SOCKET_HOST } = process.env;
 
 const connect = server => {
   const io = new Server(server, {
@@ -10,6 +11,7 @@ const connect = server => {
 
   const onConnection = socket => registerSocketRoutes(io, socket);
   io.on('connection', onConnection);
+  io.on('close', () => console.log('[Socket.io] Closed.'));
   return io;
 };
 

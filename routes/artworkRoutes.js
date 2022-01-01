@@ -1,12 +1,13 @@
 import { deleteArtwork, uploadArtwork } from '../controllers/artworkController.js';
 import Busboy from 'busboy';
 import Release from '../models/Release.js';
-import { TEMP_PATH } from '../config/constants.js';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import releaseOwner from '../middlewares/releaseOwner.js';
 import requireLogin from '../middlewares/requireLogin.js';
+
+const { TEMP_PATH } = process.env;
 const router = express.Router();
 
 router.post('/', requireLogin, async (req, res) => {

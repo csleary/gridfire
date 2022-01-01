@@ -1,9 +1,10 @@
-import { nemp3Secret } from '../config/keys.js';
 import User from '../models/User.js';
 import crypto from 'crypto';
 import { ethers } from 'ethers';
 import passport from 'passport';
 import passportCustom from 'passport-custom';
+
+const { NEMP3_SECRET } = process.env;
 const CustomStrategy = passportCustom.Strategy;
 
 passport.serializeUser((user, done) => {
@@ -17,7 +18,7 @@ passport.deserializeUser(async (id, done) => {
 
 const idHash = userToken => {
   const hash = crypto.createHash('sha256');
-  return hash.update(userToken).update(nemp3Secret).digest('hex');
+  return hash.update(userToken).update(NEMP3_SECRET).digest('hex');
 };
 
 const loginWeb3 = async (req, done) => {

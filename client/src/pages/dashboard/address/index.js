@@ -1,16 +1,13 @@
 import { Contract, ethers } from 'ethers';
 import React, { useContext, useEffect, useState } from 'react';
-import { faCertificate, faCheck, faCheckCircle, faExclamationCircle, faMusic } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastInfo, toastSuccess } from 'features/toast';
 import Button from 'components/button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import GridFirePayment from 'contracts/GridFirePayment.json';
 import Input from 'components/input';
-import TextSpinner from 'components/textSpinner';
 import { Web3Context } from 'index';
 import { addPaymentAddress } from 'features/user';
-import classnames from 'classnames';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { fetchUserReleases } from 'features/releases';
 import styles from './address.module.css';
 
@@ -54,17 +51,18 @@ const Address = () => {
   const handleClaimBalance = async () => {
     try {
       const transactionReceipt = await contract.claim();
-      const confirmedTransaction = await transactionReceipt.wait(0);
-      const { transactionHash } = confirmedTransaction;
-      contract.getBalance(paymentAddress).then(setBalance).catch(console.error);
+      await transactionReceipt.wait(0);
+      contract.getBalance(paymentAddress).then(setBalance);
       dispatch(toastSuccess('Claimed!'));
     } catch (error) {
-      if (ethers.utils.formatEther(balance) === '0.0') {
+      if (ethers.utils.formatUnits(balance, 18) === '0.0') {
         return void dispatch(toastInfo('Nothing to claim.'));
       }
       dispatch(toastError('Could not claim your balance'));
     }
   };
+
+  const balanceIsZero = balance._hex === '0x00';
 
   return (
     <main className="container">
@@ -98,9 +96,9 @@ const Address = () => {
             </div>
             <p>
               Current GridFire balance at this address:{' '}
-              {ethers.utils.formatEther(balance) === '0.0' ? '0' : ethers.utils.formatEther(balance)}
+              {balanceIsZero ? '0.00' : ethers.utils.formatUnits(balance, 'ether')}
             </p>
-            <Button disabled={ethers.utils.formatEther(balance) === '0.0'} type="button" onClick={handleClaimBalance}>
+            <Button disabled={balanceIsZero} type="button" onClick={handleClaimBalance}>
               Claim balance
             </Button>
           </form>

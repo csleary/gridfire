@@ -1,18 +1,20 @@
-import { nemp3EmailGeneral, dkimKey, smtpHostName, smtpPassword, smtpUsername } from '../config/keys';
+import fs from 'fs';
 import nodemailer from 'nodemailer';
 
+const { NEMP3_EMAIL_GENERAL, NEMP3_SMTP_HOST, NEMP3_SMTP_PASSWORD, NEMP3_SMTP_USER } = process.env;
+
 const defaults = {
-  host: smtpHostName,
+  host: NEMP3_SMTP_HOST,
   port: 587,
   secure: false,
   dkim: {
     domainName: 'nemp3.app',
     keySelector: 'nodemailer',
-    privateKey: dkimKey
+    privateKey: fs.readFileSync('dkimKey', 'utf8')
   },
   auth: {
-    user: smtpUsername,
-    pass: smtpPassword
+    user: NEMP3_SMTP_USER,
+    pass: NEMP3_SMTP_PASSWORD
   }
 };
 
@@ -21,7 +23,7 @@ const sendEmail = (recipient, subject, body) =>
     const transporter = nodemailer.createTransport(defaults);
 
     const mailOptions = {
-      from: nemp3EmailGeneral,
+      from: NEMP3_EMAIL_GENERAL,
       to: recipient,
       subject,
       text: body

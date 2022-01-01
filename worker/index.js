@@ -7,8 +7,10 @@ import './models/Release.js';
 const { MONGO_URI, RABBITMQ_USER, RABBIT_HOST, RABBITMQ_PASS } = process.env;
 
 const db = mongoose.connection;
-db.once('open', () => console.log('[Worker] [Mongoose] Connected.'));
+db.once('open', async () => console.log('[Worker] [Mongoose] Connection open.'));
 db.on('error', console.error);
+db.on('disconnected', () => console.log('[Worker] [Mongoose] Disconnected.'));
+db.on('close', () => console.log('[Worker] [Mongoose] Connection closed.'));
 
 db.on('disconnected', () => {
   console.error('[Worker] [Mongoose] Connection error. Attempting to reconnect in 5 seconds…');
@@ -19,14 +21,16 @@ const amqpConnect = async () => {
   try {
     const url = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBIT_HOST}:5672`;
     const connection = await amqp.connect(url);
-    console.log('[Worker] [AMQP] Connected.');
-    connection.on('error', error => console.error('[AMQP] ', error.message));
+    console.log('[AMQP] Connected.');
+    connection.on('error', error => console.error(`[AMQP] error: ${error.message}`));
 
-    connection.on('close', () => {
-      console.error('[Worker] [AMQP] Connection closed. Reconnecting…');
+    connection.on('close', error => {
+      if (amqpConnection.isFatalError(error)) return console.log('[AMQP] Connection closed.');
+      console.error('[AMQP] Connection closed. Reconnecting…');
       return setTimeout(connect, 3000);
     });
 
+    process.once('SIGINT', connection.close.bind(connection));
     startPublisher(connection);
     startConsumer(connection);
   } catch (error) {

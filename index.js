@@ -1,6 +1,4 @@
 import { clientErrorHandler, errorHandler, logErrors } from './middlewares/errorHandlers.js';
-import { cookieKey, mongoURI } from './config/keys.js';
-import WebSocket from 'ws';
 import express from 'express';
 import amqp from './controllers/amqp/index.js';
 import cookieParser from 'cookie-parser';
@@ -29,12 +27,10 @@ import release from './routes/releaseRoutes.js';
 import track from './routes/trackRoutes.js';
 import user from './routes/userRoutes.js';
 
-global.WebSocket = WebSocket;
+const { COOKIE_KEY, MONGO_URI } = process.env;
 
 const app = express();
 const server = createServer(app);
-const port = process.env.PORT || 8083;
-server.listen(port, () => console.log(`[Express] Server running on port ${port || 8083}.`));
 
 // Socket.io
 const io = socketio(server);
@@ -45,20 +41,20 @@ await amqp(io).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
-db.once('open', async () => console.log('[Mongoose] Connected.'));
-db.on('error', () => io.emit('error', { message: '[Mongoose] Connection error.' }));
-
-db.on('disconnected', () => {
-  console.error('[Mongoose] Disconnected. Attempting to reconnect in 5 seconds…');
-  setTimeout(mongoose.connect, 5000, mongoURI);
+db.once('open', async () => console.log('[Mongoose] Connection open.'));
+db.on('disconnected', () => console.log('[Mongoose] Disconnected.'));
+db.on('close', () => console.log('[Mongoose] Connection closed.'));
+db.on('error', error => {
+  console.log(`[Mongoose] Error: ${error.message}`);
+  io.emit('error', { message: 'Database connection error!' });
 });
 
-await mongoose.connect(mongoURI).catch(console.error);
+await mongoose.connect(MONGO_URI).catch(console.error);
 
 // Express
 app.use(express.json());
-app.use(cookieParser(cookieKey));
-app.use(cookieSession({ name: 'nemp3 session', keys: [cookieKey], maxAge: 28 * 24 * 60 * 60 * 1000 }));
+app.use(cookieParser(COOKIE_KEY));
+app.use(cookieSession({ name: 'nemp3 session', keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));
 app.use(clientErrorHandler);
 app.use(errorHandler);
 app.use(logErrors);
@@ -73,3 +69,18 @@ app.use('/api/email', email);
 app.use('/api/release', release);
 app.use('/api/track', track);
 app.use('/api/user', user);
+
+process.on('SIGINT', () => {
+  console.log('[Node] Gracefully shutting down from SIGINT (Ctrl-C)…');
+  mongoose.connection.close(false, () => {
+    io.close(() => {
+      server.close(() => {
+        console.log('[Express] Server closed.');
+        process.exit(0);
+      });
+    });
+  });
+});
+
+const port = process.env.PORT || 5000;
+server.listen(port, () => console.log(`[Express] Server running on port ${port || 5000}.`));

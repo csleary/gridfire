@@ -1,17 +1,15 @@
-import { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC } from '../config/constants.js';
 import Artist from '../models/Artist.js';
 import Release from '../models/Release.js';
 import Sale from '../models/Sale.js';
 import User from '../models/User.js';
 import aws from 'aws-sdk';
 import { createArtist } from '../controllers/artistController.js';
-import crypto from 'crypto';
 import { ethers } from 'ethers';
 import express from 'express';
 import releaseOwner from '../middlewares/releaseOwner.js';
 import requireLogin from '../middlewares/requireLogin.js';
 
-const { NETWORK } = process.env;
+const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC, NETWORK } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
