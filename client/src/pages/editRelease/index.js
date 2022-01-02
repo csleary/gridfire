@@ -3,7 +3,7 @@ import { addNewRelease, updateRelease } from 'features/releases';
 import { faCheck, faChevronDown, faChevronUp, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess, toastWarning } from 'features/toast';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AdvancedFields from './advancedFields';
 import ArtistMenu from './artistMenu';
 import Artwork from './artwork';
@@ -16,7 +16,6 @@ import Spinner from 'components/spinner';
 import Tags from './tags';
 import TrackList from './trackList';
 import { fetchRelease } from 'features/releases';
-import { fetchXemPrice } from 'features/nem';
 import styles from './editRelease.module.css';
 import { uploadArtwork } from 'features/artwork';
 import validate from './validate';
@@ -24,10 +23,9 @@ import validate from './validate';
 const EditRelease = () => {
   const artworkFile = useRef();
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
   const { activeRelease: release, versions } = useSelector(state => state.releases, shallowEqual);
-  const { xemPriceUsd } = useSelector(state => state.nem, shallowEqual);
   const [errors, setErrors] = useState({});
   const [coverArtPreview, setCoverArtPreview] = useState('');
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
@@ -51,7 +49,7 @@ const EditRelease = () => {
       dispatch(addNewRelease()).then(res => {
         if (res?.warning) {
           dispatch(toastWarning(res.warning));
-          return history.push('/dashboard/nem-address');
+          return navigate('/dashboard/nem-address');
         }
         setIsLoading(false);
       });
@@ -77,7 +75,6 @@ const EditRelease = () => {
   }, [versions[releaseId]]);
 
   useEffect(() => {
-    dispatch(fetchXemPrice());
     window.scrollTo(0, 0);
 
     return () => {
@@ -144,7 +141,7 @@ const EditRelease = () => {
       setIsSubmitting(false);
       setIsPristine(true);
       dispatch(toastSuccess(`${releaseTitle ? `\u2018${releaseTitle}\u2019` : 'Release'} saved!`));
-      history.push('/dashboard');
+      navigate('/dashboard');
     });
   };
 
@@ -164,7 +161,7 @@ const EditRelease = () => {
         <title>{isEditing ? 'Update Release' : 'Add Release'}</title>
         <meta
           name="description"
-          content={isEditing ? 'Update your releases on nemp3.' : 'Add a new release to your nemp3 account.'}
+          content={isEditing ? 'Update your releases on GridFire.' : 'Add a new release to your GridFire account.'}
         />
       </Helmet>
       <div className="row">
@@ -236,12 +233,8 @@ const EditRelease = () => {
                 <Input
                   error={errors.price}
                   hint={
-                    !xemPriceUsd
-                      ? null
-                      : Number(price) === 0
+                    Number(price) === 0
                       ? 'Name Your Price! Or \u2018free\u2019. Fans will still be able to donate.'
-                      : price
-                      ? `Approximately ${(price / xemPriceUsd).toFixed(2)} XEM.`
                       : 'Set your price in USD (enter \u20180\u2019 for a \u2018Name Your Price\u2019 release).'
                   }
                   label="Price (USD)"

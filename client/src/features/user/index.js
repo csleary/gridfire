@@ -1,5 +1,5 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
-import { toastError, toastSuccess, toastWarning } from 'features/toast';
+import { toastError, toastSuccess } from 'features/toast';
 import axios from 'axios';
 
 const userSlice = createSlice({
@@ -8,11 +8,9 @@ const userSlice = createSlice({
     auth: undefined,
     credits: 0,
     favourites: [],
-    nemAddress: '',
-    nemAddressChallenge: '',
-    nemAddressVerified: false,
+    isLoading: true,
+    paymentAddress: '',
     purchases: [],
-    subId: '',
     wishList: []
   },
   reducers: {
@@ -32,15 +30,12 @@ const userSlice = createSlice({
       state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
     },
 
-    setCredits(state, action) {
-      state.credits = action.payload;
+    setIsLoading(state, action) {
+      state.isLoading = action.payload;
     },
 
-    setNemAddress(state, action) {
-      state.credits = action.payload.credits;
-      state.nemAddress = action.payload.nemAddress;
-      state.nemAddressChallenge = action.payload.nemAddressChallenge;
-      state.nemAddressVerified = action.payload.nemAddressVerified;
+    setPaymentAddress(state, action) {
+      state.paymentAddress = action.payload;
     },
 
     updateFavourites(state, action) {
@@ -48,23 +43,10 @@ const userSlice = createSlice({
     },
 
     updateUser(state, action) {
-      const {
-        _id,
-        auth,
-        credits,
-        favourites,
-        nemAddress,
-        nemAddressChallenge,
-        nemAddressVerified,
-        purchases,
-        wishList
-      } = action.payload;
+      const { _id, auth, favourites, paymentAddress, purchases, wishList } = action.payload;
       state.auth = auth;
-      state.credits = credits;
       state.favourites = favourites;
-      state.nemAddress = nemAddress;
-      state.nemAddressChallenge = nemAddressChallenge;
-      state.nemAddressVerified = nemAddressVerified;
+      state.paymentAddress = paymentAddress;
       state.purchases = purchases;
       state.wishList = wishList;
       state.userId = _id;
@@ -96,37 +78,25 @@ const removeFromWishList = releaseId => async dispatch => {
   dispatch(toastSuccess('Removed from wish list.'));
 };
 
-const addNemAddress = values => async dispatch => {
+const addPaymentAddress = values => async dispatch => {
   try {
     const res = await axios.post('/api/user/address', values);
-    dispatch(setNemAddress(res.data));
-    if (!values.nemAddress) {
-      dispatch(toastWarning('NEM payment address removed.'));
-    } else {
-      dispatch(toastSuccess('NEM payment address saved.'));
-    }
+    const { paymentAddress } = res.data;
+    dispatch(setPaymentAddress(paymentAddress));
+    dispatch(toastSuccess('Payment address saved.'));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
-    return error.response.data;
+    dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
   }
 };
 
 const fetchUser = () => async dispatch => {
   try {
     const res = await axios.get('/api/user');
-    if (!res.data) return;
-    dispatch(updateUser(res.data));
+    if (res.data) dispatch(updateUser(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
-  }
-};
-
-const fetchUserCredits = () => async dispatch => {
-  try {
-    const res = await axios.get('/api/user/credits');
-    if (res.data?.credits) dispatch(setCredits(res.data.credits));
-  } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
+  } finally {
+    dispatch(setIsLoading(false));
   }
 };
 
@@ -137,30 +107,30 @@ const logOut = () => async dispatch => {
     dispatch(action());
     dispatch(toastSuccess(res.data.success));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
   }
 };
 
 export default userSlice.reducer;
+
 export const {
   addFavouritesItem,
   addWishListItem,
   removeFavouritesItem,
   removeWishListItem,
-  setCredits,
   setFavourites,
+  setIsLoading,
   setLoading,
-  setNemAddress,
+  setPaymentAddress,
   updateFavourites,
   updateUser
 } = userSlice.actions;
 
 export {
-  addNemAddress,
+  addPaymentAddress,
   addToFavourites,
   addToWishList,
   fetchUser,
-  fetchUserCredits,
   logOut,
   removeFromFavourites,
   removeFromWishList

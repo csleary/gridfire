@@ -3,7 +3,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import RenderRelease from 'components/renderRelease';
 import Spinner from 'components/spinner';
 import { fetchUserWishList } from 'features/releases';
-import { grid } from './wishList.module.css';
+import styles from './wishList.module.css';
 
 const WishList = () => {
   const dispatch = useDispatch();
@@ -46,7 +46,7 @@ const WishList = () => {
       <div className="row">
         <div className="col py-3">
           <h3 className="text-center">Wish List</h3>
-          <div className={grid}>{renderReleases}</div>
+          <div className={styles.grid}>{renderReleases}</div>
         </div>
       </div>
     </main>

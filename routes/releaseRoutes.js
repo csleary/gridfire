@@ -1,66 +1,25 @@
-import { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC } from '../config/constants.js';
-import { fetchXemPrice, fetchXemPriceBinance } from '../controllers/nemController.js';
 import Artist from '../models/Artist.js';
 import Release from '../models/Release.js';
+import Sale from '../models/Sale.js';
 import User from '../models/User.js';
 import aws from 'aws-sdk';
 import { createArtist } from '../controllers/artistController.js';
-import crypto from 'crypto';
+import { ethers } from 'ethers';
 import express from 'express';
-import nemSdk from 'nem-sdk';
 import releaseOwner from '../middlewares/releaseOwner.js';
 import requireLogin from '../middlewares/requireLogin.js';
+
+const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC, NETWORK_URL } = process.env;
 aws.config.update({ region: AWS_REGION });
-const nem = nemSdk.default;
 const router = express.Router();
 
 router.post('/', requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
-    const user = await User.findById(userId, '', { lean: true }).exec();
-    const releases = await Release.find({ user: userId }, '', { lean: true }).exec();
-
-    if (!user.nemAddress || !user.nemAddressVerified) {
-      return res.json({
-        warning: 'Please add and verify your NEM address first. You will need credit to add a release.'
-      });
-    }
-
-    if (releases.length > user.credits) {
-      return res.json({
-        warning:
-          'Sorry, you don\u2019t have enough credit to add a new release. Please add more nemp3 credits to cover the number of releases you wish to create.'
-      });
-    }
-
-    const incompleteReleases = await Release.where({
-      releaseTitle: { $exists: false },
-      'artwork.status': 'pending',
-      $where: 'this.trackList.length === 0'
-    }).exec();
-
-    if (incompleteReleases.length >= 3) {
-      const io = req.app.get('socketio');
-      const num = incompleteReleases.length;
-      const [release] = incompleteReleases;
-      res.json(release.toJSON());
-      const operatorUser = io.to(userId);
-
-      return operatorUser.emit('notify', {
-        type: 'warning',
-        message: `It looks like you have ${num} release${
-          num !== 1 ? 's' : ''
-        } in need of completion already. Please complete ${num > 1 ? 'one of these' : 'that'} before creating another.`
-      });
-    }
-
-    const release = await Release.create({
-      user: userId,
-      releaseDate: Date.now()
-    });
+    const release = await Release.create({ user: userId, releaseDate: Date.now() });
     res.json(release.toJSON());
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
@@ -128,7 +87,7 @@ router.delete('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
     const [{ _id }] = await Promise.all([deleteRelease, deleteArtist, deleteS3Src, deleteS3Opt, deleteS3Img]);
     res.send(_id);
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
@@ -140,56 +99,62 @@ router.get('/:releaseId', async (req, res) => {
       throw new Error('This release is currently unavailable.');
     }
 
-    const artist = await User.findOne({ _id: release.user }, 'nemAddress', { lean: true });
-    const paymentInfo = { paymentAddress: nem.utils.format.address(artist.nemAddress) };
-    res.json({ release: release.toJSON(), paymentInfo });
+    res.json({ release: release.toJSON() });
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
 router.get('/purchase/:releaseId', requireLogin, async (req, res) => {
   try {
-    delete req.session.price;
     const { releaseId } = req.params;
+    const alreadyBought = await Sale.exists({ user: req.user._id, release: releaseId });
+    if (alreadyBought) throw new Error('You already own this release.');
     const release = await Release.findById(releaseId, '-__v', { lean: true });
-    const owner = await User.findById(release.user, 'nemAddress', { lean: true });
-    const customer = await User.findById(req.user._id, 'auth.idHash', { lean: true });
-    const customerIdHash = customer.auth.idHash;
+    const owner = await User.findById(release.user, 'auth.account', { lean: true });
+    const paymentAddress = owner.auth.account;
+    res.json({ release, paymentAddress });
+  } catch (error) {
+    res.status(400).json({ error: error.message || error.toString() });
+  }
+});
 
-    const xemPriceUsd = await fetchXemPriceBinance().catch(() => fetchXemPrice());
-    const priceInXem = release.price / xemPriceUsd;
-    const priceInRawXem = Math.ceil(priceInXem * 10 ** 6);
-    req.session.price = priceInRawXem;
-    const price = (priceInRawXem / 10 ** 6).toFixed(6);
+router.post('/purchase/:releaseId', requireLogin, async (req, res) => {
+  try {
+    const user = req.user._id;
+    const { releaseId } = req.params;
+    const { transactionHash } = req.body;
+    const release = await Release.findById(releaseId, 'price', { lean: true });
+    const provider = ethers.getDefaultProvider(NETWORK_URL);
+    const transaction = await provider.waitForTransaction(transactionHash);
+    const { from: buyer, confirmations } = transaction;
 
-    if (!owner.nemAddress) {
-      const error = 'NEM payment address not found.';
-      const paymentInfo = { paymentAddress: null, paymentHash: null };
-      return res.json({ error, release, paymentInfo, price });
+    if (confirmations > 0) {
+      await Sale.create({
+        purchaseDate: Date.now(),
+        release: releaseId,
+        paid: release.price,
+        transaction,
+        user,
+        userAddress: buyer
+      }).catch(error => {
+        if (error.code === 11000) {
+          console.log('already own this');
+        }
+      });
     }
 
-    const hash = crypto.createHash('sha256');
-    const paymentHash = hash.update(release._id.toString()).update(customerIdHash).digest('hex').substring(0, 24);
-    const paymentInfo = { paymentAddress: nem.utils.format.address(owner.nemAddress), paymentHash };
-    res.json({ release, paymentInfo, price });
+    res.sendStatus(200);
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    console.log(error);
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
 router.patch('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const { nemAddress } = req.user;
     const release = await Release.findById(releaseId).exec();
-
-    if (!nemAddress || !nem.model.address.isValid(nemAddress)) {
-      release.updateOne({ published: false }).exec();
-      throw new Error(
-        'Please add a confirmed NEM address to your account before publishing this release (\u2018Payment\u2019 tab).'
-      );
-    }
 
     if (release.artwork.status !== 'stored') {
       release.updateOne({ published: false }).exec();
@@ -274,7 +239,7 @@ router.put('/', requireLogin, async (req, res) => {
     const updatedRelease = await release.save();
     res.json(updatedRelease.toJSON());
   } catch (error) {
-    res.status(500).json({ error: error.message || error.toString() });
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 

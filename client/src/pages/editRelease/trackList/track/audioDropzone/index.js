@@ -39,7 +39,7 @@ const AudioDropzone = ({ trackId }) => {
     const audioFile = accepted[0];
     const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(trackIndex, 10) + 1}`;
     dispatch(toastInfo(`Uploading file \u2018${audioFile.name}\u2019 for ${trackName}.`));
-    dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile, type: audioFile.type })).catch(error =>
+    dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile, mimeType: audioFile.type })).catch(error =>
       dispatch(toastError(`Upload failed! ${error.message}`))
     );
   };

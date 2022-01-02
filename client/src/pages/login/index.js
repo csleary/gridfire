@@ -1,69 +1,73 @@
-import { Link, useHistory } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
-import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { faGoogle, faSpotify, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import React, { useContext, useState } from 'react';
+import { setIsLoading, updateUser } from 'features/user';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { toastError, toastSuccess } from 'features/toast';
 import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Input from 'components/input';
+import { Web3Context } from 'index';
 import axios from 'axios';
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
-import { faKey } from '@fortawesome/free-solid-svg-icons';
-import { fetchUser } from 'features/user';
+import { faEthereum } from '@fortawesome/free-brands-svg-icons';
+import { setAccount } from 'features/web3';
 import styles from './login.module.css';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const provider = useContext(Web3Context);
   const dispatch = useDispatch();
-  const history = useHistory();
-  const { auth } = useSelector(state => state.user, shallowEqual);
-  const [errors, setErrors] = useState({});
-  const [isPristine, setIsPristine] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [values, setValues] = useState({});
-  const hasEmail = auth?.email.length;
-  const hasErrors = Object.values(errors).some(error => Boolean(error));
+  const navigate = useNavigate();
+  const { account, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const [loginError, setLoginError] = useState('');
 
-  useEffect(() => {
-    if (hasEmail && history.location.state) {
-      history.push(history.location.state.from.pathname);
-    } else if (hasEmail) {
-      history.push('/');
-    }
-  }, [hasEmail, history]);
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setIsPristine(false);
-
-    setErrors(prev => {
-      if (prev[name]) {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      }
-
-      return prev;
-    });
-
-    setValues(prev => ({ ...prev, [name]: value }));
+  const getNonce = async () => {
+    const res = await axios.get('api/auth/web3');
+    const { nonce } = res.data;
+    return nonce;
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    const validationErrors = validate(values);
-    if (Object.values(validationErrors).some(error => Boolean(error))) return setErrors(validationErrors);
-    setIsSubmitting(true);
+  const checkMessage = async ({ address, message, signature }) => {
+    const res = await axios.post('api/auth/web3', { address, message, signature });
+    const { user } = res.data;
+    return user;
+  };
 
+  const signInWithWeb3 = async (address = account) => {
+    const signer = provider.getSigner();
+    const nonce = await getNonce();
+    const message = `Hi! Welcome to GridFire.
+      
+      Using your Ether wallet you can safely and securely sign in, without needing an email or password. 'Signing' a message proves you are the owner of the account. This is a free process, costing you no ether, and doesn't require access to the blockchain.
+      
+      We've included a unique, randomly-generated code to ensure that your signature is recent: ${nonce
+        .match(/.{1,8}/g)
+        .join('-')}.`;
+
+    const signature = await signer.signMessage(message);
+    const user = await checkMessage({ address, message, signature });
+    dispatch(updateUser(user));
+    dispatch(setIsLoading(false));
+    dispatch(toastSuccess('You are now logged in with your Ether wallet.'));
+    navigate('/');
+  };
+
+  const handleWeb3Login = async () => {
     try {
-      const res = await axios.post('/api/auth/login', values);
-      batch(() => {
-        dispatch(toastSuccess(res.data.success));
-        dispatch(fetchUser()).then(() => setIsSubmitting(false));
-      });
-      setValues({});
+      setLoginError('');
+      if (isConnected) {
+        await signInWithWeb3();
+      } else {
+        const accounts = await provider.send('eth_requestAccounts', []);
+        const [firstAccount] = accounts || [];
+        dispatch(setAccount(firstAccount));
+        await signInWithWeb3(firstAccount);
+      }
     } catch (error) {
-      dispatch(toastError(error.response.data.error));
-      setIsSubmitting(false);
+      if (error.code === 4001) {
+        return void dispatch(toastError(error.message));
+      }
+
+      setLoginError(
+        'We were unable to start the sign-in process. Do you have a web3 wallet installed (e.g. Metamask)?'
+      );
     }
   };
 
@@ -75,73 +79,24 @@ const Login = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-md mb-5">
-          <p>If you already have a nemp3 account, please log in using the form below.</p>
-          <form className="mb-5" onSubmit={handleSubmit}>
-            <Input
-              error={errors.email}
-              icon={faEnvelope}
-              label="Email Address:"
-              onChange={handleChange}
-              name="email"
-              placeholder="Email Address"
-              required
-              type="email"
-              value={values.email || ''}
-            />
-            <Input
-              error={errors.password}
-              icon={faKey}
-              label="Password:"
-              name="password"
-              onChange={handleChange}
-              placeholder="Password"
-              required
-              type="password"
-              value={values.password || ''}
-            />
-            <div className="d-flex justify-content-center">
-              <Button className="mt-4" type="submit" disabled={hasErrors || isPristine || isSubmitting}>
-                Log In
+        <div className="col">
+          <div className={styles.oauth}>
+            <div className={styles.service}>
+              <FontAwesomeIcon className={styles.icon} icon={faEthereum} />
+              <Button className={styles.button} onClick={handleWeb3Login}>
+                Log in with your Ethereum wallet
               </Button>
             </div>
-          </form>
-          <p>
-            Don&rsquo;t have an account? Please <Link to={'/register'}>sign up here</Link>.
-          </p>
-          <p>
-            If you&rsquo;ve forgotten your password, please <Link to={'/reset'}>reset it here</Link>.
-          </p>
-        </div>
-        <div className={styles.divider}>Or</div>
-        <div className={`${styles.oauth} col-md`}>
-          <div className={styles.service}>
-            <FontAwesomeIcon className={styles.icon} icon={faSpotify} />
-            <a href={`api/auth/spotify/?prev=${encodeURIComponent(history.location.state?.from.pathname)}`}>
-              Log in with Spotify
-            </a>
           </div>
-          <div className={styles.service}>
-            <FontAwesomeIcon className={styles.icon} icon={faTwitter} />
-            <a href="api/auth/twitter/">Log in with Twitter</a>
-          </div>
-          <div className={styles.service}>
-            <FontAwesomeIcon className={styles.icon} icon={faGoogle} />
-            <a href={`api/auth/google/?prev=${encodeURIComponent(history.location.state?.from.pathname)}`}>
-              Log in with Google
-            </a>
-          </div>
+          {loginError ? (
+            <div className="alert alert-danger">{loginError}</div>
+          ) : (
+            <p>Welcome to GridFire. Please use your web3 wallet to log in (e.g. Metamask).</p>
+          )}
         </div>
       </div>
     </main>
   );
-};
-
-const validate = ({ email, password }) => {
-  const errors = {};
-  if (!email) errors.email = 'Please enter your email address.';
-  if (!password) errors.password = 'Please enter your password.';
-  return errors;
 };
 
 export default Login;

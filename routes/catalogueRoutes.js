@@ -1,9 +1,10 @@
-import { AWS_REGION } from '../config/constants.js';
 import aws from 'aws-sdk';
 import express from 'express';
 import mongoose from 'mongoose';
 import Artist from '../models/Artist.js';
 import Release from '../models/Release.js';
+
+const { AWS_REGION } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
@@ -88,7 +89,7 @@ router.get('/', async (req, res) => {
 
     res.send(releases);
   } catch (error) {
-    res.status(500).send({ error: 'Music catalogue could not be fetched.' });
+    res.status(400).send({ error: 'Music catalogue could not be fetched.' });
   }
 });
 

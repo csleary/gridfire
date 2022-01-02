@@ -1,12 +1,13 @@
-import { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } from '../config/constants.js';
 import { generateToken, verifyToken } from '../controllers/tokenController.js';
 import Release from '../models/Release.js';
 import Sale from '../models/Sale.js';
 import aws from 'aws-sdk';
 import express from 'express';
-import { publishToQueue } from '../services/rabbitmq/publisher.js';
+import { publishToQueue } from '../controllers/amqp/publisher.js';
 import requireLogin from '../middlewares/requireLogin.js';
 import { zipDownload } from '../controllers/archiveController.js';
+
+const { AWS_REGION, BUCKET_MP3, QUEUE_TRANSCODE } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.post('/', requireLogin, async (req, res) => {
       res.status(401).send({ error: 'Not authorised.' });
     }
   } catch (error) {
-    res.status(500).send({ error: error.message || error.toString() });
+    res.status(400).send({ error: error.message || error.toString() });
   }
 });
 
@@ -47,7 +48,7 @@ router.get('/check', requireLogin, async (req, res) => {
     publishToQueue('', QUEUE_TRANSCODE, { job: 'transcodeMP3', releaseId, userId });
     res.json({ exists: false });
   } catch (error) {
-    res.status(500).send({ error: error.message || error.toString() });
+    res.status(400).send({ error: error.message || error.toString() });
   }
 });
 

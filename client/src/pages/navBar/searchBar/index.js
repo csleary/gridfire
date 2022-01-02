@@ -1,4 +1,4 @@
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { clearResults, searchReleases } from 'features/search';
 import { faCog, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -7,11 +7,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import debounce from 'lodash.debounce';
 import styles from './searchBar.module.css';
-import { usePrevious } from 'functions';
+import { usePrevious } from 'hooks/usePrevious';
 
 const SearchBar = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const { isSearching, searchQuery, searchResults } = useSelector(state => state.search, shallowEqual);
   const [expandSearch, setExpandSearch] = useState(false);
@@ -71,7 +71,7 @@ const SearchBar = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    history.push('/search');
+    navigate('/search');
   };
 
   const previewClassNames = classNames(styles.preview, {

@@ -32,7 +32,7 @@ const Contact = () => {
     <main className="container">
       <Helmet>
         <title>Contact Us</title>
-        <meta name="description" content="Get in touch with the nemp3 team." />
+        <meta name="description" content="Get in touch with the GridFire team." />
       </Helmet>
       <div className="row">
         <div className="col py-3 mb-4">

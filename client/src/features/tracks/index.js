@@ -118,11 +118,11 @@ const moveTrack = (releaseId, fromIndex, toIndex) => async dispatch => {
 };
 
 const uploadAudio =
-  ({ releaseId, trackId, trackName, audioFile, type }) =>
+  ({ releaseId, trackId, trackName, audioFile, mimeType }) =>
   async dispatch => {
     try {
       const formData = new FormData();
-      formData.append('type', type);
+      formData.append('mimeType', mimeType);
       formData.append('releaseId', releaseId);
       formData.append('trackId', trackId);
       formData.append('trackName', trackName);

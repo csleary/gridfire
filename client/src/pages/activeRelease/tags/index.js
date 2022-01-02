@@ -6,11 +6,11 @@ import { faTags } from '@fortawesome/free-solid-svg-icons';
 import { nanoid } from '@reduxjs/toolkit';
 import { searchReleases } from 'features/search';
 import styles from './tags.module.css';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Tags = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { tags } = useSelector(state => state.releases.activeRelease, shallowEqual);
   const keys = tags.map(() => nanoid(8));
 
@@ -22,7 +22,7 @@ const Tags = () => {
   });
 
   if (!tags.length) return null;
-  const handleTagSearch = tag => dispatch(searchReleases(tag)).then(history.push('/search'));
+  const handleTagSearch = tag => dispatch(searchReleases(tag)).then(navigate('/search'));
 
   return (
     <>

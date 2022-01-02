@@ -1,35 +1,23 @@
-import { Redirect, Route } from 'react-router-dom';
 import { shallowEqual, useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-const PrivateRoute = ({ component: PrivateComponent, ...rest }) => {
+const PrivateRoute = ({ children }) => {
   const { user } = useSelector(state => state, shallowEqual);
+  const { auth, isLoading } = user;
 
-  return (
-    <Route
-      {...rest}
-      render={props => {
-        if (!user.auth) {
-          return (
-            <Redirect
-              to={{
-                pathname: '/login',
-                state: { from: props.location }
-              }}
-            />
-          );
-        }
+  if (!isLoading && !auth) {
+    return <Navigate to={'/login'} />;
+  }
 
-        return <PrivateComponent {...props} />;
-      }}
-    />
-  );
+  if (isLoading) return null;
+
+  return children;
 };
 
 PrivateRoute.propTypes = {
-  component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  location: PropTypes.object
+  children: PropTypes.element
 };
 
 export default PrivateRoute;

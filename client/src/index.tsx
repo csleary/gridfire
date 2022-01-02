@@ -5,19 +5,33 @@ import App from './App';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ethers } from 'ethers';
 import rootReducer from 'features';
 import socketMiddleware from 'middleware/socket';
 
-const CLOUD_URL = `https://${process.env.REACT_APP_CLOUDFRONT}`;
+const { REACT_APP_CLOUDFRONT, REACT_APP_NETWORK_URL } = process.env;
+const CLOUD_URL = `https://${REACT_APP_CLOUDFRONT}`;
+declare const window: any; // eslint-disable-line
 
 const store = configureStore({
   reducer: rootReducer,
   middleware: [...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }), socketMiddleware]
 });
 
+let provider;
+if (window.ethereum) {
+  provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+} else {
+  provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
+}
+
+const Web3Context = React.createContext(provider);
+
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <Web3Context.Provider value={provider}>
+      <App />
+    </Web3Context.Provider>
   </Provider>,
   document.getElementById('root')
 );
@@ -27,5 +41,5 @@ ReactDOM.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-export { CLOUD_URL };
+export { CLOUD_URL, Web3Context };
 export type RootState = ReturnType<typeof store.getState>;

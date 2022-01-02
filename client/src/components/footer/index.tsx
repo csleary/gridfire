@@ -27,29 +27,8 @@ const Footer: React.FC = () => {
             <li>
               <Link to={'/support'}>Support</Link>
             </li>
-            <li>
-              <a href="https://nem.io/" title="Visit the official NEM site.">
-                NEM
-                <FontAwesomeIcon icon={faExternalLinkAlt} className={styles.icon} />
-              </a>
-            </li>
           </ul>
         </div>
-        {!auth ? (
-          <div className="col col-sm-2">
-            <ul className={styles.list}>
-              <li>
-                <Link to={'/login'}>Log In</Link>
-              </li>
-              <li>
-                <Link to={'/register'}>Register</Link>
-              </li>
-              <li>
-                <Link to={'/reset'}>Forgot Password?</Link>
-              </li>
-            </ul>
-          </div>
-        ) : null}
         {auth ? (
           <div className="col col-sm-2">
             <ul className={styles.list}>
@@ -63,7 +42,7 @@ const Footer: React.FC = () => {
                 <Link to={'/dashboard/collection'}>Collection</Link>
               </li>
               <li>
-                <Link to={'/dashboard/nem-address'}>Your NEM Address</Link>
+                <Link to={'/dashboard/address'}>Payment</Link>
               </li>
             </ul>
           </div>
