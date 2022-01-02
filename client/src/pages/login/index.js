@@ -6,7 +6,6 @@ import Button from 'components/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Web3Context } from 'index';
 import axios from 'axios';
-import classNames from 'classnames';
 import { faEthereum } from '@fortawesome/free-brands-svg-icons';
 import { setAccount } from 'features/web3';
 import styles from './login.module.css';
@@ -17,7 +16,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { account, isConnected } = useSelector(state => state.web3, shallowEqual);
-  const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState('');
 
   const getNonce = async () => {
     const res = await axios.get('api/auth/web3');
@@ -32,10 +31,9 @@ const Login = () => {
   };
 
   const signInWithWeb3 = async (address = account) => {
-    try {
-      const signer = provider.getSigner();
-      const nonce = await getNonce();
-      const message = `Hi! Welcome to GridFire.
+    const signer = provider.getSigner();
+    const nonce = await getNonce();
+    const message = `Hi! Welcome to GridFire.
       
       Using your Ether wallet you can safely and securely sign in, without needing an email or password. 'Signing' a message proves you are the owner of the account. This is a free process, costing you no ether, and doesn't require access to the blockchain.
       
@@ -43,23 +41,17 @@ const Login = () => {
         .match(/.{1,8}/g)
         .join('-')}.`;
 
-      const signature = await signer.signMessage(message);
-      const user = await checkMessage({ address, message, signature });
-      dispatch(updateUser(user));
-      dispatch(setIsLoading(false));
-      dispatch(toastSuccess('You are now logged in with your Ether wallet.'));
-      navigate('/');
-    } catch (error) {
-      if (error.code === 4001) {
-        return void dispatch(toastError(error.message));
-      }
-
-      dispatch(toastError(error.toString()));
-    }
+    const signature = await signer.signMessage(message);
+    const user = await checkMessage({ address, message, signature });
+    dispatch(updateUser(user));
+    dispatch(setIsLoading(false));
+    dispatch(toastSuccess('You are now logged in with your Ether wallet.'));
+    navigate('/');
   };
 
   const handleWeb3Login = async () => {
     try {
+      setLoginError('');
       if (isConnected) {
         await signInWithWeb3();
       } else {
@@ -70,10 +62,12 @@ const Login = () => {
       }
     } catch (error) {
       if (error.code === 4001) {
-        return void dispatch(toastError(`${error.message} Please connect to be able to sign in and use the site.`));
+        return void dispatch(toastError(error.message));
       }
 
-      dispatch(toastError(error.toString()));
+      setLoginError(
+        'We were unable to start the sign-in process. Do you have a web3 wallet installed (e.g. Metamask)?'
+      );
     }
   };
 
@@ -94,7 +88,11 @@ const Login = () => {
               </Button>
             </div>
           </div>
-          <p>Welcome to GridFire. Please use your web3 account to log in (e.g. via Metamask).</p>
+          {loginError ? (
+            <div className="alert alert-danger">{loginError}</div>
+          ) : (
+            <p>Welcome to GridFire. Please use your web3 wallet to log in (e.g. Metamask).</p>
+          )}
         </div>
       </div>
     </main>

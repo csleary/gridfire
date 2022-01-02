@@ -34,16 +34,10 @@ const App: React.FC = () => {
     dispatch(fetchUser());
     const signer = provider.getSigner();
 
-    if (signer.provider) {
-      signer
-        .getAddress()
-        .then(address => {
-          dispatch(setAccount(address));
-        })
-        .catch(() => {
-          dispatch(setIsConnected(false));
-        });
-    }
+    signer
+      .getAddress()
+      .then(address => void dispatch(setAccount(address)))
+      .catch(() => void dispatch(setIsConnected(false)));
 
     const handleNetworkChanged = (network: Record<string, unknown>): void => {
       const { chainId, name } = network;

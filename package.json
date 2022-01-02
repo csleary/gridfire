@@ -10,7 +10,7 @@
     "server": "nodemon --ignore client/ -r dotenv/config index.js dotenv_config_path=.env",
     "client": "yarn --cwd ./client/ start",
     "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
-    "ganache": "ganache-cli -d -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\""
+    "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -d -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\""
   },
   "author": "Christopher Leary",
   "license": "ISC",

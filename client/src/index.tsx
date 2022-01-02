@@ -9,7 +9,8 @@ import { ethers } from 'ethers';
 import rootReducer from 'features';
 import socketMiddleware from 'middleware/socket';
 
-const CLOUD_URL = `https://${process.env.REACT_APP_CLOUDFRONT}`;
+const { REACT_APP_CLOUDFRONT, REACT_APP_NETWORK_URL } = process.env;
+const CLOUD_URL = `https://${REACT_APP_CLOUDFRONT}`;
 declare const window: any; // eslint-disable-line
 
 const store = configureStore({
@@ -17,7 +18,13 @@ const store = configureStore({
   middleware: [...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }), socketMiddleware]
 });
 
-const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+let provider;
+if (window.ethereum) {
+  provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+} else {
+  provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
+}
+
 const Web3Context = React.createContext(provider);
 
 ReactDOM.render(

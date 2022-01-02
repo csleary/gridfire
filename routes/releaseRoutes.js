@@ -9,7 +9,7 @@ import express from 'express';
 import releaseOwner from '../middlewares/releaseOwner.js';
 import requireLogin from '../middlewares/requireLogin.js';
 
-const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC, NETWORK } = process.env;
+const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC, NETWORK_URL } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
@@ -125,7 +125,7 @@ router.post('/purchase/:releaseId', requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const { transactionHash } = req.body;
     const release = await Release.findById(releaseId, 'price', { lean: true });
-    const provider = ethers.getDefaultProvider(NETWORK);
+    const provider = ethers.getDefaultProvider(NETWORK_URL);
     const transaction = await provider.waitForTransaction(transactionHash);
     const { from: buyer, confirmations } = transaction;
 

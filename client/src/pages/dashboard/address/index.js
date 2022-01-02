@@ -21,6 +21,7 @@ const Address = () => {
   const [errors, setErrors] = useState({});
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
   const [values, setValues] = useState({ paymentAddress });
   const hasErrors = Object.values(errors).some(error => Boolean(error));
   const hasChanged = values.paymentAddress !== paymentAddress;
@@ -50,6 +51,7 @@ const Address = () => {
 
   const handleClaimBalance = async () => {
     try {
+      setIsClaiming(true);
       const transactionReceipt = await contract.claim();
       await transactionReceipt.wait(0);
       contract.getBalance(paymentAddress).then(setBalance);
@@ -58,7 +60,9 @@ const Address = () => {
       if (ethers.utils.formatUnits(balance, 18) === '0.0') {
         return void dispatch(toastInfo('Nothing to claim.'));
       }
-      dispatch(toastError('Could not claim your balance'));
+      dispatch(toastError(error.message));
+    } finally {
+      setIsClaiming(false);
     }
   };
 
@@ -98,8 +102,8 @@ const Address = () => {
               Current GridFire balance at this address:{' '}
               {balanceIsZero ? '0.00' : ethers.utils.formatUnits(balance, 'ether')}
             </p>
-            <Button disabled={balanceIsZero} type="button" onClick={handleClaimBalance}>
-              Claim balance
+            <Button disabled={isClaiming || balanceIsZero} type="button" onClick={handleClaimBalance}>
+              {isClaiming ? 'Claiming…' : 'Claim balance'}
             </Button>
           </form>
         </div>

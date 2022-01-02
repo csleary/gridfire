@@ -144,43 +144,49 @@ const addNewRelease = () => async dispatch => {
   }
 };
 
-const deleteRelease = (releaseId, releaseTitle = 'release') => async (dispatch, getState) => {
-  try {
-    if (getState().releases.releaseIdsForDeletion[releaseId]) {
-      dispatch(removeRelease(releaseId));
-      await axios.delete(`/api/release/${releaseId}`);
-      dispatch(toastSuccess(`Successfully deleted ${releaseTitle}.`));
-      dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
-    } else {
-      dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: true }));
-    }
-  } catch (error) {
-    dispatch(toastError(error.response.data.error));
-  }
-};
-
-const fetchArtistCatalogue = (artistId = null, artistSlug = null) => async dispatch => {
-  dispatch(setIsLoading(true));
-  const res = await axios.get(`/api/catalogue/${artistSlug || artistId}`);
-  dispatch(setArtistCatalogue(res.data));
-};
-
-const fetchCatalogue = ({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging = false }) => async dispatch => {
-  try {
-    const res = await axios.get('/api/catalogue/', {
-      params: {
-        catalogueLimit,
-        catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
-        sortBy,
-        sortOrder
+const deleteRelease =
+  (releaseId, releaseTitle = 'release') =>
+  async (dispatch, getState) => {
+    try {
+      if (getState().releases.releaseIdsForDeletion[releaseId]) {
+        dispatch(removeRelease(releaseId));
+        await axios.delete(`/api/release/${releaseId}`);
+        dispatch(toastSuccess(`Successfully deleted ${releaseTitle}.`));
+        dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
+      } else {
+        dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: true }));
       }
-    });
-    dispatch(setCatalogue({ catalogue: res.data, isPaging }));
-  } catch (error) {
-    dispatch(setIsLoading(false));
-    dispatch(toastError(error.response.data.error));
-  }
-};
+    } catch (error) {
+      dispatch(toastError(error.response.data.error));
+    }
+  };
+
+const fetchArtistCatalogue =
+  (artistId = null, artistSlug = null) =>
+  async dispatch => {
+    dispatch(setIsLoading(true));
+    const res = await axios.get(`/api/catalogue/${artistSlug || artistId}`);
+    dispatch(setArtistCatalogue(res.data));
+  };
+
+const fetchCatalogue =
+  ({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging = false }) =>
+  async dispatch => {
+    try {
+      const res = await axios.get('/api/catalogue/', {
+        params: {
+          catalogueLimit,
+          catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
+          sortBy,
+          sortOrder
+        }
+      });
+      dispatch(setCatalogue({ catalogue: res.data, isPaging }));
+    } catch (error) {
+      dispatch(setIsLoading(false));
+      dispatch(toastError(error.response?.data?.error));
+    }
+  };
 
 const fetchCollection = () => async dispatch => {
   try {
