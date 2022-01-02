@@ -117,16 +117,8 @@ router.delete('/:releaseId/:trackId', requireLogin, releaseOwner, async (req, re
 
     let deleteS3Opt;
     if (s3OptData.Contents.length) {
-      const deleteOptParams = {
-        Bucket: BUCKET_OPT,
-        Delete: {
-          Objects: s3OptData.Contents.map(track => ({
-            Key: track.Key
-          }))
-        }
-      };
-
-      deleteS3Opt = await s3.deleteObjects(deleteOptParams).promise();
+      const deleteOptParams = { Bucket: BUCKET_OPT, Key: s3OptData.Contents[0].Key };
+      deleteS3Opt = await s3.deleteObject(deleteOptParams).promise();
     }
 
     // Delete from db
