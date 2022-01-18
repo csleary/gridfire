@@ -1,37 +1,28 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const paymentSlice = createSlice({
-  name: 'payment',
+  name: "payment",
   initialState: {
-    error: '',
+    error: "",
     hasPurchased: false,
     isLoading: true,
     release: {},
     paymentInfo: {},
-    priceInRawXem: null,
     transactions: []
   },
   reducers: {
     resetPayment(state) {
-      state.error = '';
+      state.error = "";
       state.hasPurchased = false;
       state.isLoading = false;
       state.release = {};
       state.paymentInfo = {};
-      state.price = '';
+      state.price = "";
       state.transactions = [];
     },
 
     setIsLoading(state, action) {
       state.isLoading = action.payload;
-    },
-
-    setPaymentDetails(state, action) {
-      const { paymentInfo, priceInRawXem, release } = action.payload;
-      state.isLoading = false;
-      state.paymentInfo = paymentInfo;
-      state.priceInRawXem = priceInRawXem;
-      state.release = release;
     },
 
     setPaymentError(state, action) {
@@ -41,9 +32,7 @@ const paymentSlice = createSlice({
     setPaymentReceived(state, action) {
       const { hasPurchased, transaction } = action.payload;
       state.hasPurchased = hasPurchased;
-      state.transactions = state.transactions.map(t =>
-        t.meta.hash.data === transaction.meta.hash.data ? transaction : t
-      );
+      state.transactions = [...state.transactions, transaction];
     },
 
     setPaymentUnconfirmed(state, action) {
@@ -53,13 +42,7 @@ const paymentSlice = createSlice({
   }
 });
 
-export const {
-  resetPayment,
-  setPaymentError,
-  setIsLoading,
-  setPaymentDetails,
-  setPaymentReceived,
-  setPaymentUnconfirmed
-} = paymentSlice.actions;
+export const { resetPayment, setPaymentError, setIsLoading, setPaymentReceived, setPaymentUnconfirmed } =
+  paymentSlice.actions;
 
 export default paymentSlice.reducer;

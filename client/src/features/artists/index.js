@@ -1,12 +1,12 @@
-import { toastError, toastSuccess } from 'features/toast';
-import axios from 'axios';
-import { batch } from 'react-redux';
-import { createSlice } from '@reduxjs/toolkit';
+import { toastError, toastSuccess } from "features/toast";
+import axios from "axios";
+import { batch } from "react-redux";
+import { createSlice } from "@reduxjs/toolkit";
 
 const artistSlice = createSlice({
-  name: 'artists',
+  name: "artists",
   initialState: {
-    activeArtistId: '',
+    activeArtistId: "",
     artists: [],
     errors: {},
     isLoading: false,
@@ -74,8 +74,8 @@ const artistSlice = createSlice({
       const { artistId, name, value } = action.payload;
 
       state.artists = state.artists.map(artist => {
-        if (artist._id === artistId && name.split('.').length === 2) {
-          const [linkId, fieldName] = name.split('.');
+        if (artist._id === artistId && name.split(".").length === 2) {
+          const [linkId, fieldName] = name.split(".");
 
           return {
             ...artist,
@@ -105,11 +105,11 @@ const addLink = activeArtistId => async dispatch => {
 const fetchArtists = () => async dispatch => {
   try {
     dispatch(setIsLoading(true));
-    const res = await axios.get('/api/artists');
+    const res = await axios.get("/api/artists");
     dispatch(setArtists(res.data));
-    dispatch(setIsLoading(false));
   } catch (error) {
     dispatch(toastError(error.response?.data.error));
+  } finally {
     dispatch(setIsLoading(false));
   }
 };
@@ -128,7 +128,7 @@ const updateArtist = values => async dispatch => {
     batch(() => {
       dispatch(setArtist(res.data));
       dispatch(setErrors());
-      dispatch(toastSuccess('Artist saved'));
+      dispatch(toastSuccess("Artist saved"));
       dispatch(setIsSubmitting(false));
       dispatch(setIsPristine(true));
     });

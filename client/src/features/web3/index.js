@@ -1,18 +1,19 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const web3Slice = createSlice({
-  name: 'web3',
+  name: "web3",
   initialState: {
-    account: '',
-    chainId: '',
+    account: "",
+    accountShort: "",
+    chainId: "",
     isConnected: false,
-    networkName: ''
+    networkName: ""
   },
   reducers: {
     setAccount(state, action) {
       const account = action.payload;
       state.account = account;
-      state.isConnected = account ? true : false;
+      state.accountShort = `${account.slice(0, 6)}…${account.slice(-4)}`;
     },
 
     setIsConnected(state, action) {

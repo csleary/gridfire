@@ -1,13 +1,14 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import * as serviceWorker from 'serviceWorker';
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
-import App from './App';
-import { Provider } from 'react-redux';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { ethers } from 'ethers';
-import rootReducer from 'features';
-import socketMiddleware from 'middleware/socket';
+import * as serviceWorker from "serviceWorker";
+import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import App from "./App";
+import { ChakraProvider } from "@chakra-ui/react";
+import { Provider } from "react-redux";
+import React from "react";
+import ReactDOM from "react-dom";
+import { ethers } from "ethers";
+import rootReducer from "features";
+import socketMiddleware from "middleware/socket";
+import theme from "./theme";
 
 const { REACT_APP_CLOUDFRONT, REACT_APP_NETWORK_URL } = process.env;
 const CLOUD_URL = `https://${REACT_APP_CLOUDFRONT}`;
@@ -18,22 +19,19 @@ const store = configureStore({
   middleware: [...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }), socketMiddleware]
 });
 
-let provider;
-if (window.ethereum) {
-  provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-} else {
-  provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
-}
-
+//ethers.providers.AlchemyProvider(chainId, [apiKey]) // For prod
+const provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
 const Web3Context = React.createContext(provider);
 
 ReactDOM.render(
   <Provider store={store}>
     <Web3Context.Provider value={provider}>
-      <App />
+      <ChakraProvider theme={theme}>
+        <App />
+      </ChakraProvider>
     </Web3Context.Provider>
   </Provider>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change

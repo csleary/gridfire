@@ -1,26 +1,27 @@
-import { Link, useLocation } from 'react-router-dom';
-import { shallowEqual, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
-import React from 'react';
-import styles from './trackInfo.module.css';
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { Link, Text } from "@chakra-ui/react";
+import { shallowEqual, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 const TrackInfo = ({ isReady }) => {
   const location = useLocation();
   const { releaseId, artistName, trackTitle } = useSelector(state => state.player, shallowEqual);
-  if (!isReady) return <span>Loading&hellip;</span>;
+  if (!isReady) return <Text>Loading&hellip;</Text>;
 
   if (location.pathname !== `/release/${releaseId}`) {
     return (
-      <Link to={`/release/${releaseId}`}>
-        {artistName} &bull; <em>{trackTitle}</em>
+      <Link as={RouterLink} to={`/release/${releaseId}`}>
+        <Text>
+          {artistName} &bull; <Text as="em">{trackTitle}</Text>
+        </Text>
       </Link>
     );
   }
 
   return (
-    <span className={styles.noLink}>
-      {artistName} &bull; <em>{trackTitle}</em>
-    </span>
+    <Text>
+      {artistName} &bull; <Text as="em">{trackTitle}</Text>
+    </Text>
   );
 };
 

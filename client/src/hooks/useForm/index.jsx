@@ -1,5 +1,4 @@
-import { useState } from 'react';
-export { default as Input } from 'components/input';
+import { useState } from "react";
 
 const useForm = ({ defaultState = {}, validate }) => {
   const [errors, setErrors] = useState({});

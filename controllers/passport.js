@@ -1,10 +1,10 @@
-import User from '../models/User.js';
-import crypto from 'crypto';
-import { ethers } from 'ethers';
-import passport from 'passport';
-import passportCustom from 'passport-custom';
+import User from "../models/User.js";
+import crypto from "crypto";
+import { ethers } from "ethers";
+import passport from "passport";
+import passportCustom from "passport-custom";
 
-const { NEMP3_SECRET } = process.env;
+const { GRIDFIRE_SECRET } = process.env;
 const CustomStrategy = passportCustom.Strategy;
 
 passport.serializeUser((user, done) => {
@@ -12,28 +12,35 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id, '-__v -auth.password').exec();
+  const user = await User.findById(id, "-__v -auth.password").exec();
   done(null, user);
 });
 
 const idHash = userToken => {
-  const hash = crypto.createHash('sha256');
-  return hash.update(userToken).update(NEMP3_SECRET).digest('hex');
+  const hash = crypto.createHash("sha256");
+  return hash.update(userToken).update(GRIDFIRE_SECRET).digest("hex");
 };
 
 const loginWeb3 = async (req, done) => {
   try {
-    const { address, message, signature } = req.body;
-    const outputAddress = ethers.utils.verifyMessage(message, signature);
+    const { address, messageHash } = JSON.parse(req.signedCookies.web3Login);
+    const { message, signature } = req.body;
+    const { keccak256, toUtf8Bytes, verifyMessage } = ethers.utils;
 
-    if (address.toLowerCase() !== outputAddress.toLowerCase()) {
-      return done(null, false, 'Could not verify signature.');
+    if (keccak256(toUtf8Bytes(message)) !== messageHash) {
+      return done(null, false, "Could not verify signature.");
     }
 
-    const existingUser = await User.findOne({ 'auth.account': address }).exec();
+    const outputAddress = verifyMessage(message, signature);
+
+    if (address.toLowerCase() !== outputAddress.toLowerCase()) {
+      return done(null, false, "Could not verify signature.");
+    }
+
+    const existingUser = await User.findOne({ "auth.account": address }).exec();
 
     if (existingUser) {
-      await existingUser.updateOne({ 'auth.lastLogin': Date.now() }).exec();
+      await existingUser.updateOne({ "auth.lastLogin": Date.now() }).exec();
       return done(null, existingUser);
     }
 
@@ -52,4 +59,4 @@ const loginWeb3 = async (req, done) => {
   }
 };
 
-passport.use('web3', new CustomStrategy(loginWeb3));
+passport.use("web3", new CustomStrategy(loginWeb3));

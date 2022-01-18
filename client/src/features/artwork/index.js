@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { batch } from 'react-redux';
-import { createSlice } from '@reduxjs/toolkit';
-import { setActiveRelease } from 'features/releases';
-import { toastError } from 'features/toast';
+import axios from "axios";
+import { batch } from "react-redux";
+import { createSlice } from "@reduxjs/toolkit";
+import { setActiveRelease } from "features/releases";
+import { toastError } from "features/toast";
 
 const artworkSlice = createSlice({
-  name: 'artwork',
+  name: "artwork",
   initialState: {
     artworkUploading: false,
     artworkUploadProgress: 0
@@ -30,22 +30,21 @@ const deleteArtwork = releaseId => async dispatch => {
   }
 };
 
-const uploadArtwork = (releaseId, imgData, type) => async dispatch => {
+const uploadArtwork = (releaseId, file) => async dispatch => {
   const data = new FormData();
-  data.append('releaseId', releaseId);
-  data.append('type', type);
-  data.append('file', imgData);
+  data.append("artworkImageFile", file);
 
   const config = {
     onUploadProgress: event => {
       const progress = (event.loaded / event.total) * 100;
       dispatch(setArtworkUploadProgress(Math.floor(progress)));
+      if (event.loaded === event.total) dispatch(setArtworkUploading(false));
     }
   };
 
   try {
     dispatch(setArtworkUploading(true));
-    axios.post('/api/artwork', data, config);
+    axios.post(`/api/artwork/${releaseId}`, data, config);
   } catch (error) {
     batch(() => {
       dispatch(toastError(error.response.data.error));

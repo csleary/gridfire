@@ -1,48 +1,31 @@
-import Busboy from 'busboy';
-import Release from '../models/Release.js';
-import StreamSession from '../models/StreamSession.js';
-import aws from 'aws-sdk';
-import express from 'express';
-import fs from 'fs';
-import mongoose from 'mongoose';
-import path from 'path';
-import { publishToQueue } from '../controllers/amqp/publisher.js';
-import releaseOwner from '../middlewares/releaseOwner.js';
-import requireLogin from '../middlewares/requireLogin.js';
+import Busboy from "busboy";
+import Release from "../models/Release.js";
+import StreamSession from "../models/StreamSession.js";
+import aws from "aws-sdk";
+import express from "express";
+import fs from "fs";
+import mime from "mime-types";
+import mongoose from "mongoose";
+import path from "path";
+import { publishToQueue } from "../controllers/amqp/publisher.js";
+import requireLogin from "../middlewares/requireLogin.js";
 
 const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
-router.put('/:releaseId/add', requireLogin, releaseOwner, async (req, res) => {
-  try {
-    const { releaseId } = req.params;
-    const { newTrack } = req.body;
-    const release = await Release.findById(releaseId).exec();
-    release.trackList.push(newTrack);
-    const updatedRelease = await release.save();
-    res.send(updatedRelease.toJSON());
-  } catch (error) {
-    res.status(400).json({ error: error.message || error.toString() });
-  }
-});
-
-router.get('/:trackId/init', async (req, res) => {
+router.get("/:trackId/init", async (req, res) => {
   const { trackId } = req.params;
-  const release = await Release.findOne({ 'trackList._id': trackId }, 'trackList.$ user').exec();
+  const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
   const releaseId = release._id;
   const { duration, initRange, segmentList } = release.trackList.id(trackId);
   const mp4Params = { Bucket: BUCKET_OPT, Expires: 10, Key: `mp4/${releaseId}/${trackId}.mp4` };
   const s3 = new aws.S3();
-  const url = s3.getSignedUrl('getObject', mp4Params);
+  const url = s3.getSignedUrl("getObject", mp4Params);
 
   // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
-  let user = req.user && req.user._id;
-  if (!user) {
-    user = req.session.user || mongoose.Types.ObjectId();
-    req.session.user = user;
-  }
-
+  const user = req.user?._id || req.session.user || mongoose.Types.ObjectId();
+  req.session.user = user;
   res.send({ duration, url, range: initRange });
 
   if (!release.user.equals(user)) {
@@ -60,11 +43,11 @@ router.get('/:trackId/init', async (req, res) => {
   }
 });
 
-router.get('/:trackId/stream', async (req, res) => {
+router.get("/:trackId/stream", async (req, res) => {
   try {
     const { trackId } = req.params;
     const { time, type } = req.query;
-    const release = await Release.findOne({ 'trackList._id': trackId }, 'trackList.$ user').exec();
+    const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
     const releaseId = release._id;
     const { segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
     const segmentTime = Number.parseFloat(time) / (segmentDuration / segmentTimescale);
@@ -74,26 +57,31 @@ router.get('/:trackId/stream', async (req, res) => {
     const end = index + 1 === segmentList.length;
     const mp4Params = { Bucket: BUCKET_OPT, Expires: 10, Key: `mp4/${releaseId}/${trackId}.mp4` };
     const s3 = new aws.S3();
-    const url = s3.getSignedUrl('getObject', mp4Params);
+    const url = s3.getSignedUrl("getObject", mp4Params);
     res.send({ url, range, end });
 
     // If user is not logged in, use the session userId for play tracking.
-    let user = req.user && req.user._id;
-    if (!user) {
-      user = req.session.user;
-    }
+    const user = req.user?._id || req.session.user;
 
     if (!release.user.equals(user)) {
       await StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }, { new: true }).exec();
     }
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
-router.delete('/:releaseId/:trackId', requireLogin, releaseOwner, async (req, res) => {
+router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
   try {
     const { releaseId, trackId } = req.params;
+    const user = req.user._id;
+    const release = await Release.findOne({ _id: releaseId, user }).exec();
+    if (!release) return res.sendStatus(403);
+    const trackDoc = release.trackList.id(trackId);
+    if (!trackDoc) return res.sendStatus(200);
+    trackDoc.status = "deleting";
+    await release.save();
 
     // Delete from S3
     const s3 = new aws.S3();
@@ -131,142 +119,104 @@ router.delete('/:releaseId/:trackId', requireLogin, releaseOwner, async (req, re
     }
 
     // Delete from db
-    const deleteTrackDb = new Promise((resolve, reject) => {
-      Release.findById(releaseId).exec((error, release) => {
-        try {
-          if (error) reject(error);
-          release.trackList.id(trackId).remove();
-          if (!release.trackList.length) release.published = false;
-          release.save().then(updatedRelease => resolve(updatedRelease.toJSON()));
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
-
-    Promise.all([deleteTrackDb, deleteS3Src, deleteS3Opt])
-      .then(promised => res.send(promised[0]))
-      .catch(error => {
-        throw new Error(error);
-      });
+    release.trackList.id(trackId).remove();
+    if (!release.trackList.length) release.published = false;
+    const deleteTrackDb = release.save();
+    const [updatedRelease] = await Promise.all([deleteTrackDb, deleteS3Src, deleteS3Opt]);
+    res.json(updatedRelease.toJSON());
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
-router.patch('/:releaseId/:from/:to', requireLogin, releaseOwner, async (req, res) => {
-  try {
-    const { releaseId, from, to } = req.params;
-    const release = await Release.findById(releaseId).exec();
-    release.trackList.splice(to, 0, release.trackList.splice(from, 1)[0]);
-    const updatedRelease = await release.save();
-    res.send(updatedRelease.toJSON());
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-});
-
-router.get('/upload', requireLogin, releaseOwner, async (req, res) => {
+router.get("/upload", requireLogin, async (req, res) => {
   try {
     const { releaseId, trackId, type } = req.query;
-
-    let ext;
-    switch (type) {
-      case 'audio/aiff':
-        ext = '.aiff';
-        break;
-      case 'audio/flac':
-        ext = '.flac';
-        break;
-      case 'audio/wav':
-        ext = '.wav';
-        break;
-      default:
-    }
-
     const s3 = new aws.S3();
+    const ext = mime.extension(type);
     const key = `${releaseId}/${trackId}${ext}`;
     const params = { ContentType: `${type}`, Bucket: BUCKET_SRC, Expires: 30, Key: key };
-    const audioUploadUrl = s3.getSignedUrl('putObject', params);
+    const audioUploadUrl = s3.getSignedUrl("putObject", params);
     res.send(audioUploadUrl);
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
-router.post('/upload', requireLogin, async (req, res) => {
-  try {
-    const { app, headers, user } = req;
-    const userId = user._id.toString();
-    const io = app.get('socketio');
-    const operatorUser = io.to(userId);
-    const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 200 } });
-    const formData = {};
+router.post("/:releaseId/upload", requireLogin, async (req, res) => {
+  let filePath;
 
-    busboy.on('field', (key, value) => {
+  try {
+    const { app, headers, params, user } = req;
+    const { releaseId } = params;
+    const userId = user._id.toString();
+    const formData = {};
+    const filter = { _id: releaseId, user: userId };
+    const options = { new: true, upsert: true };
+    const release = await Release.findOneAndUpdate(filter, {}, options).exec();
+    const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 200 } });
+
+    busboy.on("error", async error => {
+      console.log(error);
+      req.unpipe(busboy);
+      if (filePath) await fs.promises.unlink(filePath);
+      res.status(400).json({ error: "Error. Could not upload this file." });
+    });
+
+    busboy.on("field", (key, value) => {
       formData[key] = value;
     });
 
-    busboy.on('file', async (filename, file, { mimeType }) => {
-      const { releaseId, trackId, trackName } = formData;
-
-      if (releaseId) {
-        const isUserRelease = await Release.exists({ _id: releaseId, user: userId });
-        if (!isUserRelease) throw new Error('User is not authorised.');
-      }
-
-      const accepted = [
-        'audio/aiff',
-        'audio/x-aiff',
-        'audio/flac',
-        'audio/x-flac',
-        'audio/wav',
-        'audio/wave',
-        'audio/vnd.wave',
-        'audio/x-wave'
-      ].includes(mimeType);
+    busboy.on("file", async (fieldName, file, { mimeType }) => {
+      if (fieldName !== "trackAudioFile") return res.sendStatus(403);
+      const { trackId, trackName } = formData;
+      const accepted = ["aiff", "flac", "wav"].includes(mime.extension(mimeType));
 
       if (!accepted) {
-        throw new Error('File type not recognised. Needs to be flac/aiff/wav.');
+        throw new Error("File type not recognised. Needs to be flac/aiff/wav.");
       }
 
-      const filePath = path.resolve(TEMP_PATH, trackId);
+      filePath = path.resolve(TEMP_PATH, trackId);
       const write = fs.createWriteStream(filePath, { autoClose: true });
 
-      write.on('finish', () => {
-        Release.findOneAndUpdate(
-          { _id: releaseId, 'trackList._id': trackId },
-          { $set: { 'trackList.$.status': 'uploaded', 'trackList.$.dateUpdated': Date.now() } },
-          { new: true }
-        )
-          .exec()
-          .then(() => operatorUser.emit('updateTrackStatus', { releaseId, trackId, status: 'uploaded' }));
+      write.on("finish", async () => {
+        const track = release.trackList.id(trackId);
+        track.set({ dateUpdated: Date.now(), status: "uploaded" });
+        await release.save();
+        operatorUser.emit("updateTrackStatus", { releaseId, trackId, status: "uploaded" });
 
         if ([userId, filePath, releaseId, trackId, trackName].includes(undefined)) {
-          throw new Error('Job parameters missing.');
+          throw new Error("Job parameters missing.");
         }
 
-        publishToQueue('', QUEUE_TRANSCODE, { userId, filePath, job: 'encodeFLAC', releaseId, trackId, trackName });
+        publishToQueue("", QUEUE_TRANSCODE, { userId, filePath, job: "encodeFLAC", releaseId, trackId, trackName });
       });
 
-      Release.findOneAndUpdate(
-        { _id: releaseId, 'trackList._id': trackId },
-        { $set: { 'trackList.$.status': 'uploading', 'trackList.$.dateUpdated': Date.now() } },
-        { new: true }
-      )
-        .exec()
-        .then(() => {
-          operatorUser.emit('updateTrackStatus', { releaseId, trackId, status: 'uploading' });
-        });
+      const track = release.trackList.id(trackId);
 
+      if (track) {
+        track.set({ dateUpdated: Date.now(), status: "uploading" });
+      } else {
+        release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
+      }
+
+      const io = app.get("socketio");
+      const operatorUser = io.to(userId);
+      operatorUser.emit("updateTrackStatus", { releaseId, trackId, status: "uploading" });
       file.pipe(write);
     });
 
-    busboy.on('finish', () => res.sendStatus(200));
+    busboy.on("finish", () => {
+      if (!res.headersSent) res.sendStatus(200);
+    });
+
     req.pipe(busboy);
   } catch (error) {
-    console.log(error.toString());
-    res.status(400).json({ error: 'Encountered an error attempting to upload this file.' });
+    console.log(error);
+    if (filePath) await fs.promises.unlink(filePath);
+    res.status(400).json({ error: "Error. Could not upload this file." });
   }
 });
 

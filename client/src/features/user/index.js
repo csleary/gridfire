@@ -1,15 +1,15 @@
-import { createAction, createSlice } from '@reduxjs/toolkit';
-import { toastError, toastSuccess } from 'features/toast';
-import axios from 'axios';
+import { createAction, createSlice } from "@reduxjs/toolkit";
+import { toastError, toastSuccess } from "features/toast";
+import axios from "axios";
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState: {
     auth: undefined,
     credits: 0,
     favourites: [],
     isLoading: true,
-    paymentAddress: '',
+    paymentAddress: "",
     purchases: [],
     wishList: []
   },
@@ -57,33 +57,35 @@ const userSlice = createSlice({
 const addToFavourites = releaseId => async dispatch => {
   const res = await axios.post(`/api/user/favourites/${releaseId}`);
   dispatch(addFavouritesItem(res.data));
-  dispatch(toastSuccess('Added to favourites.'));
+  dispatch(toastSuccess("Added to favourites."));
 };
 
 const removeFromFavourites = releaseId => async dispatch => {
   dispatch(removeFavouritesItem(releaseId));
   await axios.delete(`/api/user/favourites/${releaseId}`);
-  dispatch(toastSuccess('Removed from favourites.'));
+  dispatch(toastSuccess("Removed from favourites."));
 };
 
-const addToWishList = releaseId => async dispatch => {
-  const res = await axios.post(`/api/user/wishlist/${releaseId}`);
-  dispatch(addWishListItem(res.data));
-  dispatch(toastSuccess('Added to wish list.'));
-};
+const addToWishList =
+  ({ releaseId, note }) =>
+  async dispatch => {
+    const res = await axios.post(`/api/user/wishlist/${releaseId}`, { note });
+    dispatch(addWishListItem(res.data));
+    dispatch(toastSuccess("Added to wish list."));
+  };
 
 const removeFromWishList = releaseId => async dispatch => {
   dispatch(removeWishListItem(releaseId));
   await axios.delete(`/api/user/wishlist/${releaseId}`);
-  dispatch(toastSuccess('Removed from wish list.'));
+  dispatch(toastSuccess("Removed from wish list."));
 };
 
 const addPaymentAddress = values => async dispatch => {
   try {
-    const res = await axios.post('/api/user/address', values);
+    const res = await axios.post("/api/user/address", values);
     const { paymentAddress } = res.data;
     dispatch(setPaymentAddress(paymentAddress));
-    dispatch(toastSuccess('Payment address saved.'));
+    dispatch(toastSuccess("Payment address saved."));
   } catch (error) {
     dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
   }
@@ -91,7 +93,7 @@ const addPaymentAddress = values => async dispatch => {
 
 const fetchUser = () => async dispatch => {
   try {
-    const res = await axios.get('/api/user');
+    const res = await axios.get("/api/user");
     if (res.data) dispatch(updateUser(res.data));
   } catch (error) {
     dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
@@ -102,8 +104,8 @@ const fetchUser = () => async dispatch => {
 
 const logOut = () => async dispatch => {
   try {
-    const res = await axios.get('/api/auth/logout');
-    const action = createAction('user/logOut');
+    const res = await axios.get("/api/auth/logout");
+    const action = createAction("user/logOut");
     dispatch(action());
     dispatch(toastSuccess(res.data.success));
   } catch (error) {

@@ -1,7 +1,0 @@
-.root {
-  background-color: var(--yellow);
-  height: 4px;
-  margin-top: 1rem;
-  transition: 0.25s;
-  width: 0;
-}
