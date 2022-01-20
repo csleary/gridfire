@@ -61,7 +61,7 @@ const Home = () => {
   return (
     <>
       {head}
-      <Box as="main" flexGrow={1}>
+      <Box as="main">
         <SortReleases
           handleFetchCatalogue={handleFetchCatalogue}
           currentSortPath={currentSortPath}

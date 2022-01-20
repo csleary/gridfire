@@ -11,18 +11,13 @@ const Footer: React.FC = () => {
   const year = today.getFullYear();
 
   return (
-    <Container as="footer" maxW="container.xl">
+    <Container as="footer" maxW="container.xl" p={0} pt={8}>
       <HStack alignItems="flex-start">
         <Center flex={1}>
           <List>
             <ListItem>
               <Link as={RouterLink} to={"/about"}>
                 About
-              </Link>
-            </ListItem>
-            <ListItem>
-              <Link as={RouterLink} to={"/support"}>
-                Support
               </Link>
             </ListItem>
           </List>
@@ -54,8 +49,8 @@ const Footer: React.FC = () => {
           </Center>
         ) : null}
       </HStack>
-      <Divider my={8} />
-      <Center fontSize="small" mb={8}>
+      <Divider borderColor="gray.300" my={8} />
+      <Center fontSize="small">
         <Text>
           &copy; 2017&ndash;{year}{" "}
           <Link to="https://ochremusic.com" isExternal>

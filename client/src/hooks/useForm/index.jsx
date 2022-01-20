@@ -10,19 +10,8 @@ const useForm = ({ defaultState = {}, validate }) => {
   const handleChange = (e, format) => {
     const { name, value } = e.target;
     setIsPristine(false);
-
-    setErrors(prev => {
-      if (prev[name]) {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      }
-
-      return prev;
-    });
-
-    let formattedValue = value;
-    if (format) formattedValue = format(value);
+    setErrors(({ [name]: field, ...rest }) => rest);
+    const formattedValue = format ? format(value) : value;
     setValues(prev => ({ ...prev, [name]: formattedValue }));
   };
 

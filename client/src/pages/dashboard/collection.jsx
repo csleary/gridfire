@@ -8,9 +8,10 @@ const Collection = () => {
   const dispatch = useDispatch();
   const { collection } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
+  const available = collection.filter(({ release }) => Boolean(release));
 
   useEffect(() => {
-    if (!collection.length) setLoading(true);
+    if (!available.length) setLoading(true);
   }, []); // eslint-disable-line
 
   useEffect(() => {
@@ -20,11 +21,11 @@ const Collection = () => {
   return (
     <Box as={"main"} flexGrow={1}>
       <Heading as="h3">
-        Your Collection ({collection.length} release{collection.length === 1 ? "" : "s"})
+        Your Collection ({available.length} release{available.length === 1 ? "" : "s"})
       </Heading>
       <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8}>
-        {collection.map(({ release }) => (
-          <RenderRelease key={release._id} release={release} type="collection" />
+        {available.map(({ release }) => (
+          <RenderRelease key={release?._id} release={release} type="collection" />
         ))}
       </Grid>
     </Box>

@@ -85,7 +85,7 @@ const Artwork = () => {
   };
 
   return (
-    <Container maxW="container.sm">
+    <Container maxW="container.sm" p={0}>
       <Square
         {...getRootProps()}
         borderWidth="2px"

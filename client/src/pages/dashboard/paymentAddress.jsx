@@ -148,7 +148,8 @@ const Address = () => {
         </Stat>
         <Text></Text>
         <Button
-          leftIcon={<Icon color="gray.500" icon={faWallet} />}
+          colorScheme="yellow"
+          leftIcon={<Icon icon={faWallet} />}
           isDisabled={balanceIsZero}
           isLoading={isClaiming}
           loadingText="Claiming…"

@@ -76,7 +76,13 @@ const NavBar = () => {
       <Spacer />
       {auth === undefined ? (
         <WrapItem>
-          <Button as={NavLink} end to={"/login"} leftIcon={<Icon icon={faSignInAlt} />} title="Click to log in.">
+          <Button
+            as={NavLink}
+            to={"/login"}
+            colorScheme="yellow"
+            leftIcon={<Icon icon={faSignInAlt} />}
+            title="Click to log in."
+          >
             Log In
           </Button>
         </WrapItem>
@@ -103,7 +109,7 @@ const NavBar = () => {
             </WrapItem>
           )}
           <WrapItem>
-            <Button leftIcon={<Icon icon={faPlus} />} as={NavLink} to={"/release/add/"} title="Add a new release.">
+            <Button leftIcon={<Icon icon={faPlus} />} as={NavLink} to={"/release/new"} title="Add a new release.">
               Add Release
             </Button>
           </WrapItem>
@@ -111,6 +117,7 @@ const NavBar = () => {
             <Menu>
               <MenuButton
                 as={Button}
+                colorScheme="yellow"
                 leftIcon={<Icon icon={faUserCircle} />}
                 rightIcon={<ChevronDownIcon />}
                 title="Visit your dashboard."
@@ -118,28 +125,22 @@ const NavBar = () => {
                 Dashboard
               </MenuButton>
               <MenuList>
-                <MenuItem as={NavLink} end to={"/dashboard/artists"} icon={<Icon icon={faArchive} />} sx={activeStyle}>
+                <MenuItem as={NavLink} to={"/dashboard/artists"} icon={<Icon icon={faArchive} />} sx={activeStyle}>
                   Artists
                 </MenuItem>
-                <MenuItem as={NavLink} end to={"/dashboard"} icon={<Icon icon={faHeadphonesAlt} />} sx={activeStyle}>
+                <MenuItem as={NavLink} to={"/dashboard"} end icon={<Icon icon={faHeadphonesAlt} />} sx={activeStyle}>
                   Releases
                 </MenuItem>
-                <MenuItem as={NavLink} end to={"/dashboard/address"} icon={<Icon icon={faEthereum} />} sx={activeStyle}>
+                <MenuItem as={NavLink} to={"/dashboard/address"} icon={<Icon icon={faEthereum} />} sx={activeStyle}>
                   Payment
                 </MenuItem>
-                <MenuItem
-                  as={NavLink}
-                  end
-                  to={"/dashboard/collection"}
-                  icon={<Icon icon={faArchive} />}
-                  sx={activeStyle}
-                >
+                <MenuItem as={NavLink} to={"/dashboard/collection"} icon={<Icon icon={faArchive} />} sx={activeStyle}>
                   Collection
                 </MenuItem>
-                <MenuItem as={NavLink} end to={"/dashboard/favourites"} icon={<Icon icon={faHeart} />} sx={activeStyle}>
+                <MenuItem as={NavLink} to={"/dashboard/favourites"} icon={<Icon icon={faHeart} />} sx={activeStyle}>
                   Faves
                 </MenuItem>
-                <MenuItem as={NavLink} end to={"/dashboard/wishlist"} icon={<Icon icon={faMagic} />} sx={activeStyle}>
+                <MenuItem as={NavLink} to={"/dashboard/wishlist"} icon={<Icon icon={faMagic} />} sx={activeStyle}>
                   List
                 </MenuItem>
                 <MenuDivider />

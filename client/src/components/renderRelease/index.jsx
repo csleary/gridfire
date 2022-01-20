@@ -18,10 +18,10 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
   if (!release) {
     return (
       <Square position="relative">
-        <Image alt={"Release unavailable."} loading="lazy" src={placeholder} />
+        <Image alt="Release not found." loading="lazy" src={placeholder} />
         <Box
           bottom={0}
-          color="gray.500"
+          color="gray.600"
           fontSize="1.2rem"
           fontWeight={500}
           padding="0.75rem 1.25rem"
@@ -29,7 +29,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
           textAlign="center"
           textTransform="uppercase"
         >
-          Release not available
+          Release not found
         </Box>
       </Square>
     );

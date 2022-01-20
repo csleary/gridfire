@@ -82,7 +82,6 @@ const SearchBar = () => {
             />
             <Input
               bg="white"
-              border="none"
               paddingLeft={12}
               paddingRight={12}
               onChange={handleSearchInput}
@@ -92,7 +91,7 @@ const SearchBar = () => {
               variant="flushed"
             />
             <InputRightElement>
-              <Fade in={!!searchText}>
+              <Fade in={Boolean(searchText)}>
                 <IconButton
                   color="gray.400"
                   icon={<Icon icon={faBackspace} />}

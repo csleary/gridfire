@@ -65,8 +65,8 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Container maxW="100%" bg="gray.50" px={8} py={6}>
-        <Flex direction="column" minH="100vh">
+      <Container maxW="100%" bg="gray.50" minH="100vh" px={8} py={6} display="flex">
+        <Flex direction="column" flex={1}>
           <Suspense fallback={<></>}>
             <NavBar />
           </Suspense>
@@ -84,7 +84,7 @@ const App: React.FC = () => {
               <Route path="/search" element={<SearchResults />} />
               <Route path="/about" element={<About />} />
               <Route
-                path="/release/add/"
+                path="/release/new"
                 element={
                   <PrivateRoute>
                     <EditRelease />

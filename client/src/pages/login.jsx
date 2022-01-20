@@ -65,7 +65,7 @@ const Login = () => {
         <Heading as="h2" fontSize="5xl" m={0}>
           Log In
         </Heading>
-        <Button leftIcon={<Icon icon={faEthereum} />} size="lg" onClick={handleWeb3Login} mb={8}>
+        <Button colorScheme="yellow" leftIcon={<Icon icon={faEthereum} />} size="lg" onClick={handleWeb3Login} mb={8}>
           Log in with your Ethereum wallet
         </Button>
         {loginError ? (

@@ -26,7 +26,7 @@ import Field from "components/field";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import TrackList from "./trackList";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchRelease } from "features/releases";
 import { toastSuccess } from "features/toast";
 import { usePrevious } from "hooks/usePrevious";
@@ -225,7 +225,10 @@ const EditRelease = () => {
         ) : null}
         <Flex justifyContent="flex-end">
           <Button
-            leftIcon={<Icon icon={faCheck} />}
+            colorScheme="yellow"
+            isLoading={isSubmitting}
+            loadingText="Saving…"
+            leftIcon={isPristine ? null : <Icon icon={hasErrors ? faTimes : faCheck} />}
             isDisabled={hasErrors || isPristine || isSubmitting}
             onClick={handleSubmit}
           >

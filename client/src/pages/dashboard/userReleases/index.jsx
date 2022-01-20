@@ -43,7 +43,8 @@ function UserReleases() {
         <Center>
           <Button
             as={RouterLink}
-            to={"/release/add/"}
+            colorScheme="yellow"
+            to={"/release/new"}
             leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
             title="Add Release"
           >
