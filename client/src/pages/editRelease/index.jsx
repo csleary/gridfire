@@ -220,7 +220,7 @@ const EditRelease = () => {
           <Alert status="error" mb={8}>
             <AlertIcon />
             <AlertTitle mr={2}>Error!</AlertTitle>
-            <AlertDescription>Please address the forms errors before saving.</AlertDescription>
+            <AlertDescription>Please address the form errors before saving.</AlertDescription>
           </Alert>
         ) : null}
         <Flex justifyContent="flex-end">

@@ -2,6 +2,7 @@ import { Center, Container, Flex, Spacer, Spinner } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useContext, useEffect, useRef } from "react";
 import { setAccount, setIsConnected, setNetworkName } from "features/web3";
+import Footer from "components/footer";
 import Player from "pages/player";
 import PrivateRoute from "components/privateRoute";
 import { Web3Context } from "index";
@@ -14,7 +15,6 @@ const ActiveRelease = lazy(() => import("pages/activeRelease"));
 const ArtistPage = lazy(() => import("pages/artistPage"));
 const Dashboard = lazy(() => import("pages/dashboard"));
 const EditRelease = lazy(() => import("pages/editRelease"));
-const Footer = lazy(() => import("components/footer"));
 const Home = lazy(() => import("pages/home"));
 const Login = lazy(() => import("pages/login"));
 const NavBar = lazy(() => import("components/navBar"));
@@ -111,11 +111,9 @@ const App: React.FC = () => {
               />
               <Route path="/:artistSlug" element={<ArtistPage />} />
             </Routes>
+            <Spacer mb={8} />
           </Suspense>
-          <Spacer mb={8} />
-          <Suspense fallback={<></>}>
-            <Footer />
-          </Suspense>
+          <Footer />
           <Player />
         </Flex>
       </Container>

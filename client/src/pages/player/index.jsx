@@ -1,13 +1,12 @@
 import React, { Component, createRef } from "react";
-import { faChevronDown, faStop } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerHide, playerPause, playerPlay, playerStop } from "features/player";
 import { toastError, toastInfo, toastWarning } from "features/toast";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import PlayButton from "./playButton";
+import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
+import Icon from "components/icon";
 import PropTypes from "prop-types";
-import TrackInfo from "./trackInfo";
 import axios from "axios";
-import classNames from "classnames";
 import { connect } from "react-redux";
 import styles from "./player.module.css";
 // import { withRouter } from 'react-router-dom';
@@ -289,52 +288,120 @@ class Player extends Component {
   };
 
   render() {
-    const { showPlayer } = this.props.player;
-    const playerClassNames = classNames(styles.player, {
-      [styles.show]: showPlayer
-    });
+    const { artistName, isPlaying, releaseId, showPlayer, trackTitle } = this.props.player;
+    const { isReady } = this.state;
 
     return (
-      <div className={playerClassNames}>
+      <Box
+        role="group"
+        isOpen={showPlayer}
+        background="gray.800"
+        bottom="0"
+        color="gray.400"
+        fontSize="2rem"
+        left="0"
+        position="fixed"
+        right="0"
+        transform={showPlayer ? "translateY(0)" : "translateY(100%)"}
+        transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+        visibility={showPlayer ? "visible" : "hidden"}
+        zIndex="1030"
+      >
         <audio id="player" ref={this.audioPlayerRef} />
-        <div className={styles.seek} onClick={this.handleSeek} ref={this.seekBarRef} role="button" tabIndex="-1">
+        <Box
+          onClick={this.handleSeek}
+          ref={this.seekBarRef}
+          role="button"
+          tabIndex="-1"
+          background="gray.300"
+          height="4px"
+          position="relative"
+          transition="0.125s cubic-bezier(0.2, 0.8, 0.4, 1)"
+          width="100%"
+          _groupHover={{ background: "gray.200", cursor: "pointer", height: "8px", marginTop: "6px" }}
+        >
           {this.state.bufferRanges.map(([start, end]) => {
             const left = (start / this.mediaSource.duration) * 100;
             const width = ((end - start) / this.mediaSource.duration) * 100;
-            return <div className={styles.buffered} key={start} style={{ left: `${left}%`, width: `${width}%` }}></div>;
-          })}
-          <div className={styles.progress} style={{ width: `${this.state.percentComplete * 100}%` }} />
-        </div>
-        <div className="container-fluid">
-          <div className={`${styles.interface} row no-gutters`}>
-            <div className={`${styles.controls} col-sm`}>
-              <PlayButton isReady={this.state.isReady} onClick={this.handlePlayButton} />
-              <FontAwesomeIcon icon={faStop} className={styles.playerButton} fixedWidth onClick={this.handleStop} />
-              <div
-                className={`${styles.currentTime} align-middle`}
-                onClick={() =>
-                  this.setState({
-                    showRemaining: !this.state.showRemaining
-                  })
-                }
-                role="button"
-                tabIndex="-1"
-              >
-                {this.state.showRemaining ? this.state.remainingTime : this.state.elapsedTime}
-              </div>
-            </div>
-            <div className={`${styles.trackInfo} col-sm`}>
-              <TrackInfo isReady={this.state.isReady} />
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                className={`${styles.playerButton} ${styles.hide}`}
-                onClick={this.handleHidePlayer}
-                title="Hide player (will stop audio)"
+
+            return (
+              <Box
+                key={start}
+                background="red.200"
+                height="100%"
+                left={`${left || 0}%`}
+                position="absolute"
+                width={`${width || 0}%`}
               />
-            </div>
-          </div>
-        </div>
-      </div>
+            );
+          })}
+          <Box
+            background="gray.400"
+            height="100%"
+            position="absolute"
+            transition="0.125s cubic-bezier(0.2, 0.8, 0.4, 1)"
+            width={`${this.state.percentComplete * 100}%`}
+            _groupHover={{ background: "cyan.200" }}
+          />
+        </Box>
+        <Flex alignItems="center" justifyContent="center" height="3.25rem">
+          <IconButton
+            icon={<Icon icon={!isReady ? faCog : isPlaying ? faPause : faPlay} fixedWidth />}
+            isReady={this.state.isReady}
+            onClick={this.handlePlayButton}
+            mr={2}
+            variant="ghost"
+          />
+          <IconButton
+            icon={<Icon icon={faStop} fixedWidth />}
+            onClick={this.handleStop}
+            margin="0 0.5rem 0 0"
+            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+            variant="ghost"
+          />
+          <Box
+            role="button"
+            onClick={() => this.setState({ showRemaining: !this.state.showRemaining })}
+            tabIndex="-1"
+            display="inline-block"
+            padding="0 1rem"
+            textAlign="right"
+            transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+            userSelect="none"
+            width="8rem"
+            _focus={{ outline: "none" }}
+          >
+            {this.state.showRemaining ? this.state.remainingTime : this.state.elapsedTime}
+          </Box>
+          <Flex
+            alignItems="center"
+            justifyContent={["space-between", "flex-end"]}
+            overflow="hidden"
+            pl={4}
+            textAlign="left"
+            textOverflow="ellipsis"
+          >
+            {!isReady ? (
+              <Text>Loading&hellip;</Text>
+            ) : "location.pathname" !== `/release/${releaseId}` ? (
+              <Text as={RouterLink} to={`/release/${releaseId}`}>
+                {artistName} &bull; <Text as="em">{trackTitle}</Text>
+              </Text>
+            ) : (
+              <Text>
+                {artistName} &bull; <Text as="em">{trackTitle}</Text>
+              </Text>
+            )}
+            <IconButton
+              icon={<Icon icon={faChevronDown} />}
+              ml={8}
+              onClick={this.handleHidePlayer}
+              title="Hide player (will stop audio)"
+              variant="ghost"
+            />
+          </Flex>
+        </Flex>
+      </Box>
     );
   }
 }

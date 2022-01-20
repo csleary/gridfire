@@ -1,9 +1,8 @@
-import { faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
-import { shallowEqual, useSelector } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import PropTypes from 'prop-types';
-import React from 'react';
-import styles from './playButton.module.css';
+import { faCog, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { shallowEqual, useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PropTypes from "prop-types";
+import styles from "./playButton.module.css";
 
 const PlayButton = ({ isReady, onClick }) => {
   const { isPlaying } = useSelector(state => state.player, shallowEqual);

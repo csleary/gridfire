@@ -1,5 +1,5 @@
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { Link, Text } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -10,18 +10,16 @@ const TrackInfo = ({ isReady }) => {
 
   if (location.pathname !== `/release/${releaseId}`) {
     return (
-      <Link as={RouterLink} to={`/release/${releaseId}`}>
-        <Text>
-          {artistName} &bull; <Text as="em">{trackTitle}</Text>
-        </Text>
-      </Link>
+      <Box as={RouterLink} to={`/release/${releaseId}`}>
+        {artistName} &bull; <Text as="em">{trackTitle}</Text>
+      </Box>
     );
   }
 
   return (
-    <Text>
+    <Box>
       {artistName} &bull; <Text as="em">{trackTitle}</Text>
-    </Text>
+    </Box>
   );
 };
 
