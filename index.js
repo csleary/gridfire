@@ -40,12 +40,12 @@ await amqp(io).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
-db.once("open", async () => console.log("[Mongoose] Connection open."));
-db.on("disconnected", () => console.log("[Mongoose] Disconnected."));
+db.once("open", async () => console.log("[Mongoose] Connected."));
 db.on("close", () => console.log("[Mongoose] Connection closed."));
+db.on("disconnected", () => console.log("[Mongoose] Disconnected."));
 db.on("error", error => {
   console.log(`[Mongoose] Error: ${error.message}`);
-  io.emit("error", { message: "Database connection error!" });
+  io.emit("notify", { type: "error", message: "Database connection error." });
 });
 
 await mongoose.connect(MONGO_URI).catch(console.error);

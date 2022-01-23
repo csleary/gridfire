@@ -73,7 +73,7 @@ const socketMiddleware = ({ dispatch }) => {
 
   socket.on("transcodingCompleteAAC", ({ trackId, trackName }) => {
     batch(() => {
-      dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`));
+      dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`, "Transcode Streaming Audio"));
       dispatch(setTranscodingComplete({ trackId }));
     });
   });
@@ -87,7 +87,7 @@ const socketMiddleware = ({ dispatch }) => {
   });
 
   socket.on("workerMessage", ({ message }) => {
-    dispatch(toastInfo(message));
+    dispatch(toastInfo(message, "Processing Audio"));
   });
 
   return next => action => {

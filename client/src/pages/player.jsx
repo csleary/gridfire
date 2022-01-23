@@ -1,8 +1,8 @@
-import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Spacer, Text } from "@chakra-ui/react";
 import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink } from "react-router-dom";
 import Icon from "components/icon";
-import usePlayer from "hooks/usePlayer";
+import useAudioPlayer from "hooks/useAudioPlayer";
 import { shallowEqual, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
@@ -16,24 +16,24 @@ const Player = () => {
     bufferRanges,
     duration,
     elapsedTime,
-    handleHidePlayer,
-    handlePlayButton,
-    handleSeek,
-    handleStop,
+    hidePlayer,
+    playAudio,
+    seekAudio,
+    stopAudio,
     isReady,
-    percentComplete,
+    progressPercent,
     remainingTime,
     seekBarRef,
     setShowRemaining,
     showRemaining
-  } = usePlayer();
+  } = useAudioPlayer();
 
   return (
     <Box
       role="group"
       background="gray.800"
       bottom="0"
-      color="gray.400"
+      color="gray.300"
       fontSize="2rem"
       left="0"
       position="fixed"
@@ -45,7 +45,7 @@ const Player = () => {
     >
       <audio id="player" ref={el => (audioPlayerRef.current = el)} />
       <Box
-        onClick={handleSeek}
+        onClick={seekAudio}
         ref={seekBarRef}
         role="button"
         tabIndex="-1"
@@ -63,58 +63,64 @@ const Player = () => {
           return (
             <Box
               key={start}
-              background="red.200"
+              background="gray.600"
               height="100%"
               left={`${left || 0}%`}
               position="absolute"
+              transition="width 0.125s cubic-bezier(0.2, 0.8, 0.4, 1)"
               width={`${width || 0}%`}
             />
           );
         })}
         <Box
-          background="gray.400"
+          background="yellow.400"
           height="100%"
           position="absolute"
           transition="0.125s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          width={`${percentComplete * 100}%`}
-          _groupHover={{ background: "cyan.200" }}
+          width={`${progressPercent * 100}%`}
         />
       </Box>
-      <Flex alignItems="center" justifyContent="center" height="3.25rem">
-        <IconButton
-          icon={<Icon icon={!isReady ? faCog : isPlaying ? faPause : faPlay} fixedWidth spin={!isReady} />}
-          onClick={handlePlayButton}
-          mr={2}
-          variant="ghost"
-        />
-        <IconButton
-          icon={<Icon icon={faStop} fixedWidth />}
-          onClick={handleStop}
-          margin="0 0.5rem 0 0"
-          transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          variant="ghost"
-        />
+      <Flex alignItems="center" flex="1" justifyContent="center" height="3.25rem">
+        <Flex flex="1 1 50%" justifyContent="flex-end">
+          <IconButton
+            icon={<Icon icon={!isReady ? faCog : isPlaying ? faPause : faPlay} fixedWidth spin={!isReady} />}
+            onClick={playAudio}
+            variant="ghost"
+            fontSize="2rem"
+            mr={2}
+            _hover={{ "&:active": { background: "none" }, color: "gray.100" }}
+          />
+          <IconButton
+            icon={<Icon icon={faStop} fixedWidth />}
+            onClick={stopAudio}
+            fontSize="2rem"
+            mr={2}
+            variant="ghost"
+            _hover={{ "&:active": { background: "none" }, color: "gray.100" }}
+          />
+        </Flex>
         <Box
           role="button"
           onClick={() => setShowRemaining(prev => !prev)}
           tabIndex="-1"
           display="inline-block"
+          flex="0 1 8rem"
           padding="0 1rem"
           textAlign="right"
           transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
           userSelect="none"
-          width="8rem"
-          _focus={{ outline: "none" }}
+          _hover={{ "&:active": { background: "none" }, color: "gray.100" }}
         >
           {showRemaining ? remainingTime : elapsedTime}
         </Box>
         <Flex
           alignItems="center"
-          justifyContent={["space-between", "flex-end"]}
+          flex="1 1 50%"
           overflow="hidden"
-          pl={4}
+          pl={[1, 4]}
           textAlign="left"
           textOverflow="ellipsis"
+          whiteSpace="nowrap"
         >
           {!isReady ? (
             <Text>Loading&hellip;</Text>
@@ -127,14 +133,16 @@ const Player = () => {
               {artistName} &bull; <Text as="em">{trackTitle}</Text>
             </Text>
           )}
-          <IconButton
-            icon={<Icon icon={faChevronDown} />}
-            ml={8}
-            onClick={handleHidePlayer}
-            title="Hide player (will stop audio)"
-            variant="ghost"
-          />
         </Flex>
+        <Spacer />
+        <IconButton
+          icon={<Icon icon={faChevronDown} />}
+          mx={[1, 4]}
+          onClick={hidePlayer}
+          title="Hide player (will stop audio)"
+          variant="ghost"
+          _hover={{ "&:active": { background: "none" }, color: "gray.100" }}
+        />
       </Flex>
     </Box>
   );

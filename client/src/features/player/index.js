@@ -1,12 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
-const nemSlice = createSlice({
-  name: 'player',
+const playerSlice = createSlice({
+  name: "player",
   initialState: {
     isPlaying: false,
     isPaused: false,
-    releaseId: '',
-    trackId: '',
+    releaseId: "",
+    trackId: "",
     showPlayer: false
   },
   reducers: {
@@ -43,5 +43,5 @@ const nemSlice = createSlice({
   }
 });
 
-export const { playerHide, playerPause, playerPlay, playerStop, playTrack } = nemSlice.actions;
-export default nemSlice.reducer;
+export const { playerHide, playerPause, playerPlay, playerStop, playTrack } = playerSlice.actions;
+export default playerSlice.reducer;
