@@ -185,7 +185,8 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         const track = release.trackList.id(trackId);
         track.set({ dateUpdated: Date.now(), status: "uploaded" });
         await release.save();
-        operatorUser.emit("updateTrackStatus", { releaseId, trackId, status: "uploaded" });
+        emitter.write("event: updateTrackStatus\n");
+        emitter.write(`data: ${JSON.stringify({ releaseId, trackId, status: "uploaded" })}\n\n`);
 
         if ([userId, filePath, releaseId, trackId, trackName].includes(undefined)) {
           throw new Error("Job parameters missing.");
@@ -202,9 +203,10 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
       }
 
-      const io = app.get("socketio");
-      const operatorUser = io.to(userId);
-      operatorUser.emit("updateTrackStatus", { releaseId, trackId, status: "uploading" });
+      const { sseSessions } = req.app.locals;
+      const emitter = sseSessions.get(userId.toString());
+      emitter.write("event: updateTrackStatus\n");
+      emitter.write(`data: ${JSON.stringify({ releaseId, trackId, status: "uploading" })}\n\n`);
       file.pipe(write);
     });
 

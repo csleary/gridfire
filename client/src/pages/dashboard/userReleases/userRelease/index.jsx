@@ -82,7 +82,7 @@ function UserRelease({ favs, numSold, plays, release }) {
               {moment(new Date(releaseDate)).format("Do of MMM, YYYY")}
             </Text>
             <Text>
-              <Icon color={hasAudio ? "green.200" : "red.200"} fixedWidth icon={faCircle} mr={2} />
+              <Icon color={hasAudio ? "green.200" : "red.400"} fixedWidth icon={faCircle} mr={2} />
               {trackList.length} track{trackList.length === 1 ? "" : "s"}
               {trackList.length && !hasAudio ? " (incomplete)" : null}
             </Text>
@@ -104,7 +104,7 @@ function UserRelease({ favs, numSold, plays, release }) {
             </Text>
             <Text title="Total favourites for this release.">
               {favs}
-              <Icon color={favs > 0 ? "red.200" : "gray.500"} fixedWidth icon={faHeart} ml={2} />
+              <Icon color={favs > 0 ? "red.400" : "gray.500"} fixedWidth icon={faHeart} ml={2} />
             </Text>
           </Box>
         </Flex>
@@ -135,7 +135,7 @@ function UserRelease({ favs, numSold, plays, release }) {
             leftIcon={<Icon icon={faTrashAlt} />}
             onBlur={() => cancelDeleteTrack(releaseId)}
             onClick={handleDeleteRelease}
-            onKeyUp={({ key }) => (key === "Escape") & cancelDeleteTrack(releaseId)}
+            onKeyDown={({ key }) => (key === "Escape") & cancelDeleteTrack(releaseId)}
             size="sm"
           >
             {releaseIdsForDeletion[releaseId] ? "Confirm!" : "Delete"}

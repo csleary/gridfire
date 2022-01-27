@@ -12,9 +12,9 @@ const router = express.Router();
 router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const io = req.app.get("socketio");
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
     const userId = req.user._id;
+    const emitter = req.app.locals.sseSessions.get(userId.toString());
 
     busboy.on("error", async error => {
       console.log(error);
@@ -30,7 +30,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       const filePath = path.join(TEMP_PATH, releaseId);
       const write = fs.createWriteStream(filePath);
       file.pipe(write);
-      write.on("finish", () => uploadArtwork({ userId, filePath, releaseId }, io));
+      write.on("finish", () => uploadArtwork({ userId, filePath, releaseId }, emitter));
     });
 
     busboy.on("finish", () => {

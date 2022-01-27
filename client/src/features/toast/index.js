@@ -3,7 +3,7 @@ import { nanoid } from "@reduxjs/toolkit";
 
 const toast = createStandaloneToast({
   defaultOptions: {
-    position: "bottom",
+    position: "top",
     duration: 5000,
     isClosable: false
   }

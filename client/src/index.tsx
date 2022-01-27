@@ -1,5 +1,5 @@
 import * as serviceWorker from "serviceWorker";
-import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Provider } from "react-redux";
@@ -7,7 +7,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { ethers } from "ethers";
 import rootReducer from "features";
-import socketMiddleware from "middleware/socket";
 import theme from "./theme";
 
 const { REACT_APP_CLOUDFRONT, REACT_APP_NETWORK_URL } = process.env;
@@ -16,7 +15,7 @@ declare const window: any; // eslint-disable-line
 
 const store = configureStore({
   reducer: rootReducer,
-  middleware: [...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }), socketMiddleware]
+  middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false })
 });
 
 //ethers.providers.AlchemyProvider(chainId, [apiKey]) // For prod

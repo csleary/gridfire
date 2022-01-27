@@ -21,36 +21,29 @@ import catalogue from "./routes/catalogueRoutes.js";
 import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
 import email from "./routes/emailRoutes.js";
-import socketio from "./controllers/socket.io.js";
 import release from "./routes/releaseRoutes.js";
+import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
 const { COOKIE_KEY, MONGO_URI } = process.env;
-
 const app = express();
 const server = createServer(app);
-
-// Socket.io
-const io = socketio(server);
-app.set("socketio", io);
+const sseSessions = new Map();
 
 // RabbitMQ
-await amqp(io).catch(console.error);
+await amqp(sseSessions).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
 db.once("open", async () => console.log("[Mongoose] Connected."));
 db.on("close", () => console.log("[Mongoose] Connection closed."));
 db.on("disconnected", () => console.log("[Mongoose] Disconnected."));
-db.on("error", error => {
-  console.log(`[Mongoose] Error: ${error.message}`);
-  io.emit("notify", { type: "error", message: "Database connection error." });
-});
-
+db.on("error", error => console.log(`[Mongoose] Error: ${error.message}`));
 await mongoose.connect(MONGO_URI).catch(console.error);
 
 // Express
+app.locals.sseSessions = sseSessions;
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
 app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));
@@ -66,17 +59,16 @@ app.use("/api/catalogue", catalogue);
 app.use("/api/download", download);
 app.use("/api/email", email);
 app.use("/api/release", release);
+app.use("/api/sse", sse);
 app.use("/api/track", track);
 app.use("/api/user", user);
 
 process.on("SIGINT", () => {
   console.log("[Node] Gracefully shutting down from SIGINT (Ctrl-C)…");
   mongoose.connection.close(false, () => {
-    io.close(() => {
-      server.close(() => {
-        console.log("[Express] Server closed.");
-        process.exit(0);
-      });
+    server.close(() => {
+      console.log("[Express] Server closed.");
+      process.exit(0);
     });
   });
 });

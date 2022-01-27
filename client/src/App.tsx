@@ -9,6 +9,7 @@ import { Web3Context } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { fetchUser } from "features/user";
 import { useDispatch } from "react-redux";
+import useSSE from "hooks/useSSE";
 
 const About = lazy(() => import("pages/about"));
 const ActiveRelease = lazy(() => import("pages/activeRelease"));
@@ -22,6 +23,7 @@ const SearchResults = lazy(() => import("pages/searchResults"));
 declare const window: any; // eslint-disable-line
 
 const App: React.FC = () => {
+  useSSE();
   const dispatch = useDispatch();
   const provider = useContext(Web3Context);
   const ethereumRef: any = useRef();

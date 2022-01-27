@@ -2,7 +2,7 @@ import closeOnError from "./closeOnError.js";
 
 const { MESSAGE_QUEUE } = process.env;
 
-const startConsumer = async (connection, io) => {
+const startConsumer = async (connection, sseSessions) => {
   try {
     const channel = await connection.createChannel();
 
@@ -11,11 +11,17 @@ const startConsumer = async (connection, io) => {
 
       try {
         const message = JSON.parse(data.content.toString());
-        console.log(`[Worker Message] ${JSON.stringify(message)}`);
+        // console.log(`[Worker Message] ${JSON.stringify(message)}`);
         const { type, userId, ...rest } = message;
-        const operatorUser = io.to(userId);
-        if (type) operatorUser.emit(type, { ...rest });
-        else operatorUser.emit("workerMessage", message);
+        const res = sseSessions.get(userId);
+
+        if (type) {
+          res.write(`event: ${type}\n`);
+          res.write(`data: ${JSON.stringify(rest)}\n\n`);
+        } else {
+          res.write("event: workerMessage\n");
+          res.write(`data: ${JSON.stringify(message)}\n\n`);
+        }
         channel.ack(data);
       } catch (error) {
         channel.nack(data, false, false);

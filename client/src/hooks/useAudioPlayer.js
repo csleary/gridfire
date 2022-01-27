@@ -259,9 +259,9 @@ const useAudioPlayer = () => {
       dispatch(playerStop());
     };
 
-    const handleSourceEnded = e => console.log(e);
     const handleCanPlay = () => setIsReady(true);
     const handleLoadStart = () => setIsReady(false);
+    const handleSourceEnded = e => console.log(e);
     if (!mediaSourceRef.current) mediaSourceRef.current = new MediaSource();
     if (!audioPlayer.src) audioPlayer.src = URL.createObjectURL(mediaSourceRef.current);
 
