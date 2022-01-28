@@ -14,7 +14,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
     const userId = req.user._id;
-    const emitter = req.app.locals.sseSessions.get(userId.toString());
+    const { res: emitter } = req.app.locals.sseSessions.get(userId.toString());
 
     busboy.on("error", async error => {
       console.log(error);

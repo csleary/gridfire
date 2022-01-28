@@ -1,6 +1,7 @@
 import Release from "../models/Release.js";
 import aws from "aws-sdk";
 import fs from "fs";
+import { sendEvent } from "./sseController.js";
 import sharp from "sharp";
 
 const { AWS_REGION, BUCKET_IMG } = process.env;
@@ -43,8 +44,7 @@ const uploadArtwork = async (workerData, emitter) => {
       { new: true }
     ).exec();
 
-    emitter.write("event: workerMessage\n");
-    emitter.write(`data: ${JSON.stringify({ message: "Optimising and storing artwork…" })}\n\n`);
+    sendEvent(emitter, { message: "Optimising and storing artwork…" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
     const s3Stream = file.pipe(optimisedImg);
@@ -62,8 +62,7 @@ const uploadArtwork = async (workerData, emitter) => {
       .catch(error => console.log(error));
 
     await release.updateOne({ $set: { "artwork.status": "stored", "artwork.dateUpdated": Date.now() } }).exec();
-    emitter.write("event: artworkUploaded\n");
-    emitter.write("data: \n\n");
+    sendEvent(emitter, { type: "artworkUploaded" });
     await fsPromises.unlink(filePath);
   } catch (error) {
     await fsPromises.unlink(filePath).catch(() => {});

@@ -56,7 +56,7 @@ const ArtistMenu = ({ error, label, name, onChange, setShowNewArtist, showNewArt
               {artist.name}
             </MenuItem>
           ))}
-          <MenuDivider />
+          {artists.length ? <MenuDivider /> : null}
           <MenuItem
             icon={<Icon icon={faPlusCircle} />}
             onClick={() => {

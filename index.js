@@ -22,7 +22,7 @@ import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
 import email from "./routes/emailRoutes.js";
 import release from "./routes/releaseRoutes.js";
-import sse from "./routes/sseRoutes.js";
+import sse, { scheduleCleanup } from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
@@ -30,6 +30,7 @@ const { COOKIE_KEY, MONGO_URI } = process.env;
 const app = express();
 const server = createServer(app);
 const sseSessions = new Map();
+scheduleCleanup(sseSessions);
 
 // RabbitMQ
 await amqp(sseSessions).catch(console.error);

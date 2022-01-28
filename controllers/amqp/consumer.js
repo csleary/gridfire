@@ -1,4 +1,5 @@
 import closeOnError from "./closeOnError.js";
+import { sendEvent } from "../sseController.js";
 
 const { MESSAGE_QUEUE } = process.env;
 
@@ -12,16 +13,9 @@ const startConsumer = async (connection, sseSessions) => {
       try {
         const message = JSON.parse(data.content.toString());
         // console.log(`[Worker Message] ${JSON.stringify(message)}`);
-        const { type, userId, ...rest } = message;
-        const res = sseSessions.get(userId);
-
-        if (type) {
-          res.write(`event: ${type}\n`);
-          res.write(`data: ${JSON.stringify(rest)}\n\n`);
-        } else {
-          res.write("event: workerMessage\n");
-          res.write(`data: ${JSON.stringify(message)}\n\n`);
-        }
+        const { userId, ...rest } = message;
+        const { res } = sseSessions.get(userId);
+        sendEvent(res, rest);
         channel.ack(data);
       } catch (error) {
         channel.nack(data, false, false);

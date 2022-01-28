@@ -1,6 +1,3 @@
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
-import { usePrevious } from "@chakra-ui/react";
 import {
   setEncodingComplete,
   setEncodingProgressFLAC,
@@ -10,94 +7,121 @@ import {
   setUploadProgress
 } from "features/tracks";
 import { setFormatExists, updateTrackStatus } from "features/releases";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess, toastWarning } from "features/toast";
 import { batch } from "react-redux";
 import { setArtworkUploading } from "features/artwork";
+import { useEffect, useRef } from "react";
+import { usePrevious } from "@chakra-ui/react";
 
 const useSSE = () => {
   const dispatch = useDispatch();
-  const sse = useRef();
+  const sourceRef = useRef();
   const { userId } = useSelector(state => state.user, shallowEqual);
   const prevUserId = usePrevious(userId);
 
   useEffect(() => {
-    if (userId && userId !== prevUserId) {
-      if (sse.current) return;
-      sse.current = new EventSource(`/api/sse/${userId}`);
-
-      sse.current.onmessage = event => {
-        console.log(event.data);
-      };
-
-      sse.current.addEventListener("artworkUploaded", () => {
-        batch(() => {
-          dispatch(setArtworkUploading(false));
-          dispatch(toastSuccess("Artwork uploaded."));
-        });
+    const handleArtworkUploaded = () => {
+      batch(() => {
+        dispatch(setArtworkUploading(false));
+        dispatch(toastSuccess("Artwork uploaded."));
       });
+    };
 
-      sse.current.addEventListener("encodingProgressFLAC", event => {
-        const { message, trackId } = JSON.parse(event.data);
-        dispatch(setEncodingProgressFLAC({ message, trackId }));
+    const handleEncodingProgressFLAC = event => {
+      const { message, trackId } = JSON.parse(event.data);
+      dispatch(setEncodingProgressFLAC({ message, trackId }));
+    };
+    const handleEncodingCompleteFLAC = event => {
+      const { trackId } = JSON.parse(event.data);
+      batch(() => {
+        dispatch(setEncodingComplete({ trackId }));
+        dispatch(setUploadProgress({ trackId, percent: 0 }));
       });
+    };
 
-      sse.current.addEventListener("encodingCompleteFLAC", event => {
-        const { trackId } = JSON.parse(event.data);
-        batch(() => {
-          dispatch(setEncodingComplete({ trackId }));
-          dispatch(setUploadProgress({ trackId, percent: 0 }));
-        });
+    const handleNotify = event => {
+      const { type, message } = JSON.parse(event.data);
+
+      switch (type) {
+        case "error":
+          return dispatch(toastError(message));
+        case "info":
+          return dispatch(toastInfo(message));
+        case "success":
+          return dispatch(toastSuccess(message));
+        case "warning":
+          return dispatch(toastWarning(message));
+        default:
+          return dispatch(toastInfo(message));
+      }
+    };
+
+    const handleStoringProgressFLAC = event => {
+      const { message, trackId } = JSON.parse(event.data);
+      dispatch(setStoringProgressFLAC({ message, trackId }));
+    };
+
+    const handleTranscodingProgressAAC = event => {
+      const { message, trackId } = JSON.parse(event.data);
+      dispatch(setTranscodingProgressAAC({ message, trackId }));
+    };
+
+    const handleTranscodingCompleteAAC = event => {
+      const { trackId, trackName } = JSON.parse(event.data);
+      batch(() => {
+        dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`, "Transcode Streaming Audio"));
+        dispatch(setTranscodingComplete({ trackId }));
       });
+    };
 
-      sse.current.addEventListener("notify", event => {
-        const { type, message } = JSON.parse(event.data);
+    const handleTranscodingCompleteMP3 = ({ releaseId, format, exists }) => {
+      dispatch(setFormatExists({ releaseId, format, exists }));
+    };
 
-        switch (type) {
-          case "error":
-            return dispatch(toastError(message));
-          case "info":
-            return dispatch(toastInfo(message));
-          case "success":
-            return dispatch(toastSuccess(message));
-          case "warning":
-            return dispatch(toastWarning(message));
-          default:
-            return dispatch(toastInfo(message));
-        }
-      });
+    const handleUpdateTrackStatus = event => {
+      const { releaseId, trackId, status } = JSON.parse(event.data);
+      dispatch(updateTrackStatus({ releaseId, trackId, status }));
+    };
 
-      sse.current.addEventListener("storingProgressFLAC", event => {
-        const { message, trackId } = JSON.parse(event.data);
-        dispatch(setStoringProgressFLAC({ message, trackId }));
-      });
+    const handleWorkerMessage = event => {
+      const { message } = JSON.parse(event.data);
+      dispatch(toastInfo(message, "Processing Audio"));
+    };
 
-      sse.current.addEventListener("transcodingProgressAAC", event => {
-        const { message, trackId } = JSON.parse(event.data);
-        dispatch(setTranscodingProgressAAC({ message, trackId }));
-      });
-
-      sse.current.addEventListener("transcodingCompleteAAC", event => {
-        const { trackId, trackName } = JSON.parse(event.data);
-        batch(() => {
-          dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`, "Transcode Streaming Audio"));
-          dispatch(setTranscodingComplete({ trackId }));
-        });
-      });
-
-      sse.current.addEventListener("transcodingCompleteMP3", ({ releaseId, format, exists }) => {
-        dispatch(setFormatExists({ releaseId, format, exists }));
-      });
-
-      sse.current.addEventListener("updateTrackStatus", event => {
-        const { releaseId, trackId, status } = JSON.parse(event.data);
-        dispatch(updateTrackStatus({ releaseId, trackId, status }));
-      });
-
-      sse.current.addEventListener("workerMessage", event => {
-        const { message } = JSON.parse(event.data);
-        dispatch(toastInfo(message, "Processing Audio"));
-      });
+    if (userId && userId !== prevUserId && !sourceRef.current) {
+      sourceRef.current = new EventSource(`/api/sse/${userId}`);
+      const source = sourceRef.current;
+      source.onmessage = event => console.log(event.data);
+      source.onerror = error => console.log(`[SSE] Error: ${error.message}`);
+      source.addEventListener("artworkUploaded", handleArtworkUploaded());
+      source.addEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
+      source.addEventListener("encodingCompleteFLAC", handleEncodingCompleteFLAC);
+      source.addEventListener("notify", handleNotify);
+      source.addEventListener("storingProgressFLAC", handleStoringProgressFLAC);
+      source.addEventListener("transcodingProgressAAC", handleTranscodingProgressAAC);
+      source.addEventListener("transcodingCompleteAAC", handleTranscodingCompleteAAC);
+      source.addEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
+      source.addEventListener("updateTrackStatus", handleUpdateTrackStatus);
+      source.addEventListener("workerMessage", handleWorkerMessage);
     }
+
+    return () => {
+      if (userId && userId !== prevUserId && !sourceRef.current) {
+        const source = sourceRef.current;
+        source.removeEventListener("artworkUploaded", handleArtworkUploaded);
+        source.removeEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
+        source.removeEventListener("encodingCompleteFLAC", handleEncodingCompleteFLAC);
+        source.removeEventListener("notify", handleNotify);
+        source.removeEventListener("storingProgressFLAC", handleStoringProgressFLAC);
+        source.removeEventListener("transcodingProgressAAC", handleTranscodingProgressAAC);
+        source.removeEventListener("transcodingCompleteAAC", handleTranscodingCompleteAAC);
+        source.removeEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
+        source.removeEventListener("updateTrackStatus", handleUpdateTrackStatus);
+        source.removeEventListener("workerMessage", handleWorkerMessage);
+        sourceRef.current = null;
+      }
+    };
   }, [dispatch, prevUserId, userId]);
 };
 
