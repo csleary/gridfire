@@ -36,14 +36,21 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }) => {
 
   const onDropAudio = (accepted, rejected) => {
     if (rejected?.length) {
-      return dispatch(toastError("This does not seem to be an audio file. Please select a wav or aiff audio file."));
+      return dispatch(
+        toastError({
+          message: "This does not seem to be an audio file. Please select a wav or aiff audio file.",
+          title: "File type error"
+        })
+      );
     }
 
     const audioFile = accepted[0];
     const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(index, 10) + 1}`;
-    dispatch(toastInfo(`Uploading file \u2018${audioFile.name}\u2019 for ${trackName}.`));
+    dispatch(
+      toastInfo({ message: `Uploading file \u2018${audioFile.name}\u2019 for ${trackName}.`, title: "Uploading" })
+    );
     dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile, mimeType: audioFile.type })).catch(error =>
-      dispatch(toastError(`Upload failed! ${error.message}`))
+      dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }))
     );
   };
 

@@ -24,7 +24,7 @@ const useSSE = () => {
     const handleArtworkUploaded = () => {
       batch(() => {
         dispatch(setArtworkUploading(false));
-        dispatch(toastSuccess("Artwork uploaded."));
+        dispatch(toastSuccess({ message: "Artwork uploaded.", title: "Done!" }));
       });
     };
 
@@ -45,15 +45,15 @@ const useSSE = () => {
 
       switch (type) {
         case "error":
-          return dispatch(toastError(message));
+          return dispatch(toastError({ message }));
         case "info":
-          return dispatch(toastInfo(message));
+          return dispatch(toastInfo({ message }));
         case "success":
-          return dispatch(toastSuccess(message));
+          return dispatch(toastSuccess({ message }));
         case "warning":
-          return dispatch(toastWarning(message));
+          return dispatch(toastWarning({ message }));
         default:
-          return dispatch(toastInfo(message));
+          return dispatch(toastInfo({ message }));
       }
     };
 
@@ -70,7 +70,12 @@ const useSSE = () => {
     const handleTranscodingCompleteAAC = event => {
       const { trackId, trackName } = JSON.parse(event.data);
       batch(() => {
-        dispatch(toastSuccess(`Transcoding complete. ${trackName} added!`, "Transcode Streaming Audio"));
+        dispatch(
+          toastSuccess({
+            message: `Transcoding complete. ${trackName} added!`,
+            title: "Transcode Streaming Audio"
+          })
+        );
         dispatch(setTranscodingComplete({ trackId }));
       });
     };
@@ -85,8 +90,8 @@ const useSSE = () => {
     };
 
     const handleWorkerMessage = event => {
-      const { message } = JSON.parse(event.data);
-      dispatch(toastInfo(message, "Processing Audio"));
+      const { message, title } = JSON.parse(event.data);
+      dispatch(toastInfo({ message, title }));
     };
 
     if (userId && userId !== prevUserId && !sourceRef.current) {
@@ -94,7 +99,7 @@ const useSSE = () => {
       const source = sourceRef.current;
       source.onmessage = event => console.log(event.data);
       source.onerror = error => console.log(`[SSE] Error: ${error.message}`);
-      source.addEventListener("artworkUploaded", handleArtworkUploaded());
+      source.addEventListener("artworkUploaded", handleArtworkUploaded);
       source.addEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
       source.addEventListener("encodingCompleteFLAC", handleEncodingCompleteFLAC);
       source.addEventListener("notify", handleNotify);

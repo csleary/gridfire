@@ -52,7 +52,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
       batch(() => {
         dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
         dispatch(fetchRelease(releaseId));
-        dispatch(toastInfo(`Loading ${artistName} - '${trackTitle}'`));
+        dispatch(toastInfo({ message: `${artistName} - '${trackTitle}'`, title: "Loading" }));
       });
     }
   };

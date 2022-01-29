@@ -131,13 +131,13 @@ const deleteRelease =
       if (getState().releases.releaseIdsForDeletion[releaseId]) {
         dispatch(removeRelease(releaseId));
         await axios.delete(`/api/release/${releaseId}`);
-        dispatch(toastSuccess(`Successfully deleted ${releaseTitle}.`));
+        dispatch(toastSuccess({ message: `Successfully deleted ${releaseTitle}.`, title: "Deleted" }));
         dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
       } else {
         dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: true }));
       }
     } catch (error) {
-      dispatch(toastError(error.response.data.error));
+      dispatch(toastError({ message: error.response.data.error, title: "Error" }));
     }
   };
 
@@ -164,7 +164,7 @@ const fetchCatalogue =
       dispatch(setCatalogue({ catalogue: res.data, isPaging }));
     } catch (error) {
       dispatch(setIsLoading(false));
-      dispatch(toastError(error.response?.data?.error));
+      dispatch(toastError({ message: error.response?.data?.error, title: "Error" }));
     }
   };
 
@@ -173,7 +173,7 @@ const fetchCollection = () => async dispatch => {
     const res = await axios.get("/api/user/collection/");
     dispatch(setCollection(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -182,7 +182,7 @@ const fetchRelease = releaseId => async dispatch => {
     const res = await axios.get(`/api/release/${releaseId}`);
     dispatch(setActiveRelease(res.data.release));
   } catch (error) {
-    dispatch(toastError("Release currently unavailable."));
+    dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
     return error.response.data;
   }
 };
@@ -212,7 +212,7 @@ const fetchUserFavourites = () => async dispatch => {
     const res = await axios.get("/api/user/favourites");
     if (res.data) dispatch(setUserFavourites(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -221,7 +221,7 @@ const fetchUserWishList = () => async dispatch => {
     const res = await axios.get("/api/user/wishlist");
     if (res.data) dispatch(setUserWishList(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -232,7 +232,7 @@ const publishStatus = releaseId => async dispatch => {
     dispatch(updateUserReleases(res.data));
     return true;
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -242,7 +242,7 @@ const purchaseRelease = releaseId => async dispatch => {
     if (res.data.error) dispatch(toastError(res.data.error));
     dispatch(setReleasePurchaseInfo(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -251,7 +251,7 @@ const updateRelease = values => async dispatch => {
     const res = await axios.post("/api/release", values);
     dispatch(setActiveRelease(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 

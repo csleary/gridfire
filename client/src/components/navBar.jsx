@@ -49,13 +49,16 @@ const NavBar = () => {
     const ethereum = await detectEthereumProvider();
 
     if (!ethereum) {
-      return void dispatch(toastWarning("No local wallet found. Do you have a web3 wallet installed?"));
+      return void dispatch(
+        toastWarning({ message: "No local wallet found. Do you have a web3 wallet installed?", title: "Warning" })
+      );
     }
 
     try {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
       const [firstAccount] = accounts;
-      if (!firstAccount) return void dispatch(toastWarning("Could not connect. Is the wallet unlocked?"));
+      if (!firstAccount)
+        return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
       dispatch(setAccount(firstAccount));
       dispatch(setIsConnected(true));
     } catch (error) {

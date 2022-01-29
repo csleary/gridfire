@@ -26,7 +26,7 @@ const deleteArtwork = releaseId => async dispatch => {
     const res = await axios.delete(`/api/artwork/${releaseId}`);
     dispatch(setActiveRelease(res.data));
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -47,7 +47,7 @@ const uploadArtwork = (releaseId, file) => async dispatch => {
     axios.post(`/api/artwork/${releaseId}`, data, config);
   } catch (error) {
     batch(() => {
-      dispatch(toastError(error.response.data.error));
+      dispatch(toastError({ message: error.response.data.error, title: "Error" }));
       dispatch(setArtworkUploadProgress(0));
       dispatch(setArtworkUploading(false));
     });

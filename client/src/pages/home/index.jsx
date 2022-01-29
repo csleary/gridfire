@@ -47,7 +47,7 @@ const Home = () => {
   useEffect(() => {
     if (service) {
       const serviceName = `${service.charAt(0).toUpperCase()}${service.substring(1)}`;
-      dispatch(toastInfo(`You are now logged in using your ${serviceName} account.`));
+      dispatch(toastInfo({ message: `You are now logged in using your ${serviceName} account.`, title: "Logged in" }));
     }
   }, [service]); // eslint-disable-line
 

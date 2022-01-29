@@ -44,8 +44,10 @@ function UserRelease({ favs, numSold, plays, release }) {
   const handlePublishStatus = async () => {
     setPublishingRelease(true);
     const success = await dispatch(publishStatus(releaseId));
-    if (success && published) dispatch(toastWarning(`\u2018${releaseTitle}\u2019 has been taken offline.`));
-    else if (success) dispatch(toastSuccess(`\u2018${releaseTitle}\u2019 is now live and on sale.`));
+    if (success && published)
+      dispatch(toastWarning({ message: `\u2018${releaseTitle}\u2019 has been taken offline.`, title: "Note" }));
+    else if (success)
+      dispatch(toastSuccess({ message: `\u2018${releaseTitle}\u2019 is now live and on sale.`, title: "Published!" }));
     setPublishingRelease(false);
   };
 

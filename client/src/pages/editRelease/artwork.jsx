@@ -37,9 +37,11 @@ const Artwork = () => {
   const onDrop = (accepted, rejected) => {
     if (rejected.length) {
       return dispatch(
-        toastError(
-          "Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 20MB in size."
-        )
+        toastError({
+          message:
+            "Upload rejected. Might be too large or formatted incorrectly. Needs to be a jpg or png under 20MB in size.",
+          title: "Image rejected"
+        })
       );
     }
 
@@ -53,9 +55,10 @@ const Artwork = () => {
 
       if (height < 1000 || width < 1000) {
         return dispatch(
-          toastError(
-            `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`
-          )
+          toastError({
+            message: `Sorry, but your image must be at least 1000 pixels high and wide (this seems to be ${width}px by ${height}px). Please edit and re-upload.`,
+            title: "Image rejected"
+          })
         );
       }
 
@@ -78,10 +81,10 @@ const Artwork = () => {
     event.stopPropagation();
     let prevPublished = "";
     if (published) prevPublished = " As your release was previously published, it has also been taken offline.";
-    dispatch(toastWarning("Deleting artwork…"));
+    dispatch(toastWarning({ message: "Deleting artwork…", title: "Deletion" }));
     await dispatch(deleteArtwork(releaseId));
     setCoverArtPreview();
-    dispatch(toastSuccess(`Artwork deleted.${prevPublished}`));
+    dispatch(toastSuccess({ message: `Artwork deleted.${prevPublished}`, title: "Deletion" }));
   };
 
   return (
@@ -138,11 +141,11 @@ const Artwork = () => {
           <Flex height="100%" alignItems="stretch" flexDirection="column" justifyContent="center" padding={8}>
             {artworkUploading ? (
               <>
-                <Text textAlign="center" mb={4} color="white">
-                  <Icon icon={faUpload} mr={2} />
+                <Text textAlign="center" mb={4} color="blue.100">
+                  <Icon fixedWidth icon={faUpload} mr={2} />
                   Uploading &lsquo;{acceptedFiles[0]?.path}&rsquo;: {artworkUploadProgress}%
                 </Text>
-                <Progress colorScheme="green" hasStripe value={artworkUploadProgress} />
+                <Progress value={artworkUploadProgress} variant="uploading" />
               </>
             ) : !coverArtPreview && isDragReject ? (
               <Text textAlign="center">

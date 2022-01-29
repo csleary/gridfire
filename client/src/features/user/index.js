@@ -57,13 +57,13 @@ const userSlice = createSlice({
 const addToFavourites = releaseId => async dispatch => {
   const res = await axios.post(`/api/user/favourites/${releaseId}`);
   dispatch(addFavouritesItem(res.data));
-  dispatch(toastSuccess("Added to favourites."));
+  dispatch(toastSuccess({ message: "Added to favourites.", title: "Added!" }));
 };
 
 const removeFromFavourites = releaseId => async dispatch => {
   dispatch(removeFavouritesItem(releaseId));
   await axios.delete(`/api/user/favourites/${releaseId}`);
-  dispatch(toastSuccess("Removed from favourites."));
+  dispatch(toastSuccess({ message: "Removed from favourites.", title: "Removed" }));
 };
 
 const addToWishList =
@@ -71,13 +71,13 @@ const addToWishList =
   async dispatch => {
     const res = await axios.post(`/api/user/wishlist/${releaseId}`, { note });
     dispatch(addWishListItem(res.data));
-    dispatch(toastSuccess("Added to wish list."));
+    dispatch(toastSuccess({ message: "Added to wish list.", title: "Added!" }));
   };
 
 const removeFromWishList = releaseId => async dispatch => {
   dispatch(removeWishListItem(releaseId));
   await axios.delete(`/api/user/wishlist/${releaseId}`);
-  dispatch(toastSuccess("Removed from wish list."));
+  dispatch(toastSuccess({ message: "Removed from wish list.", title: "Removed" }));
 };
 
 const addPaymentAddress = values => async dispatch => {
@@ -85,9 +85,9 @@ const addPaymentAddress = values => async dispatch => {
     const res = await axios.post("/api/user/address", values);
     const { paymentAddress } = res.data;
     dispatch(setPaymentAddress(paymentAddress));
-    dispatch(toastSuccess("Payment address saved."));
+    dispatch(toastSuccess({ message: "Payment address saved.", title: "Saved!" }));
   } catch (error) {
-    dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
+    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   }
 };
 
@@ -96,7 +96,7 @@ const fetchUser = () => async dispatch => {
     const res = await axios.get("/api/user");
     if (res.data) dispatch(updateUser(res.data));
   } catch (error) {
-    dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
+    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   } finally {
     dispatch(setIsLoading(false));
   }
@@ -107,9 +107,9 @@ const logOut = () => async dispatch => {
     const res = await axios.get("/api/auth/logout");
     const action = createAction("user/logOut");
     dispatch(action());
-    dispatch(toastSuccess(res.data.success));
+    dispatch(toastSuccess({ message: res.data.success, title: "👋" }));
   } catch (error) {
-    dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
+    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   }
 };
 

@@ -98,7 +98,7 @@ const addLink = activeArtistId => async dispatch => {
     const res = await axios.patch(`/api/artists/${activeArtistId}/link`);
     dispatch(setLink({ artistId: activeArtistId, link: res.data }));
   } catch (error) {
-    dispatch(toastError(error.response?.data.error ?? error.toString()));
+    dispatch(toastError({ message: error.response?.data.error ?? error.toString(), title: "Error" }));
   }
 };
 
@@ -108,7 +108,7 @@ const fetchArtists = () => async dispatch => {
     const res = await axios.get("/api/artists");
     dispatch(setArtists(res.data));
   } catch (error) {
-    dispatch(toastError(error.response?.data.error));
+    dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
   } finally {
     dispatch(setIsLoading(false));
   }
@@ -121,19 +121,19 @@ const updateArtist = values => async dispatch => {
 
     if (res.data.error) {
       dispatch(setErrors({ name: res.data.name, value: res.data.value }));
-      dispatch(toastError(res.data.error));
+      dispatch(toastError({ message: res.data.error, title: "Error" }));
       return dispatch(setIsSubmitting(false));
     }
 
     batch(() => {
       dispatch(setArtist(res.data));
       dispatch(setErrors());
-      dispatch(toastSuccess("Artist saved"));
+      dispatch(toastSuccess({ message: "Artist saved", title: "Success" }));
       dispatch(setIsSubmitting(false));
       dispatch(setIsPristine(true));
     });
   } catch (error) {
-    dispatch(toastError(error.response?.data.error));
+    dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
     dispatch(setIsLoading(false));
   }
 };

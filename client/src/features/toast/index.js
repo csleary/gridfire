@@ -3,26 +3,34 @@ import { nanoid } from "@reduxjs/toolkit";
 
 const toast = createStandaloneToast({
   defaultOptions: {
-    position: "top",
+    position: "bottom-right",
     duration: 5000,
     isClosable: false
   }
 });
 
-const toastError = (message, title) => dispatch => {
-  toast({ description: message, duration: 10000, id: nanoid(), isClosable: true, status: "error", title });
-};
+const toastError =
+  ({ message, title }) =>
+  dispatch => {
+    toast({ description: message, duration: 10000, id: nanoid(), isClosable: true, status: "error", title });
+  };
 
-const toastInfo = (message, title) => dispatch => {
-  toast({ description: message, id: nanoid(), status: "info", title });
-};
+const toastInfo =
+  ({ message, title }) =>
+  dispatch => {
+    toast({ description: message, id: nanoid(), status: "info", title });
+  };
 
-const toastSuccess = (message, title) => dispatch => {
-  toast({ description: message, id: nanoid(), status: "success", title });
-};
+const toastSuccess =
+  ({ message, title }) =>
+  dispatch => {
+    toast({ description: message, id: nanoid(), status: "success", title });
+  };
 
-const toastWarning = (message, title) => dispatch => {
-  toast({ description: message, id: nanoid(), status: "warning", title });
-};
+const toastWarning =
+  ({ message, title }) =>
+  dispatch => {
+    toast({ description: message, id: nanoid(), status: "warning", title });
+  };
 
 export { toastInfo, toastError, toastSuccess, toastWarning };

@@ -25,7 +25,7 @@ const TrackList = () => {
               if (trackId !== playerTrackId) {
                 batch(() => {
                   dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
-                  dispatch(toastInfo(`Loading '${trackTitle}'`));
+                  dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
                 });
               } else if (!isPlaying) {
                 const audioPlayer = document.getElementById("player");

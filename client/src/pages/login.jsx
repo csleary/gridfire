@@ -41,13 +41,13 @@ const Login = () => {
         dispatch(setAccount(address));
         dispatch(setIsConnected(true));
         dispatch(updateUser(user));
-        dispatch(toastSuccess("You are now logged in with your Ether wallet."));
+        dispatch(toastSuccess({ message: "You are now logged in with your Ether wallet.", title: "Logged in" }));
         const { pathname } = location.state || {};
         if (pathname) return navigate(pathname);
         navigate("/");
       } catch (error) {
         if (error.code === 4001) {
-          return void dispatch(toastError(error.message));
+          return void dispatch(toastError({ message: error.message, title: "Error" }));
         }
 
         setLoginError(

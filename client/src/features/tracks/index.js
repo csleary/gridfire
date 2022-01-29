@@ -75,13 +75,15 @@ const deleteTrack = (releaseId, trackId, trackTitle) => async (dispatch, getStat
     if (getState().tracks.trackIdsForDeletion[trackId]) {
       const res = await axios.delete(`/api/track/${releaseId}/${trackId}`);
       dispatch(setActiveRelease(res.data));
-      dispatch(toastSuccess(`${trackTitle ? `\u2018${trackTitle}\u2019` : "Track"} deleted.`));
+      dispatch(
+        toastSuccess({ message: `${trackTitle ? `\u2018${trackTitle}\u2019` : "Track"} deleted.`, title: "Done" })
+      );
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
     } else {
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: true }));
     }
   } catch (error) {
-    dispatch(toastError(error.response.data.error));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -112,7 +114,7 @@ const uploadAudio =
       await axios.post(`/api/track/${releaseId}/upload`, formData, config);
     } catch (error) {
       if (axios.isCancel(error)) {
-        return toastInfo("Upload cancelled.");
+        return toastInfo({ message: "Upload cancelled.", title: "Cancelled" });
       }
 
       toastError(error.response.data.error);

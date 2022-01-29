@@ -8,8 +8,6 @@ import {
   InputLeftElement,
   Text,
   Stat,
-  StatArrow,
-  StatHelpText,
   StatLabel,
   StatNumber
 } from "@chakra-ui/react";
@@ -72,12 +70,12 @@ const Address = () => {
       const transactionReceipt = await upgradedContract.claim();
       await transactionReceipt.wait(0);
       contract.getBalance(paymentAddress).then(setBalance);
-      dispatch(toastSuccess("Balance claimed successfully"));
+      dispatch(toastSuccess({ message: "Balance claimed successfully", title: "🙌" }));
     } catch (error) {
       if (ethers.utils.formatUnits(balance, 18) === "0.0") {
-        return void dispatch(toastInfo("Nothing to claim."));
+        return void dispatch(toastInfo({ message: "There's nothing to claim at the moment.", title: "🤔" }));
       }
-      dispatch(toastError(error.message));
+      dispatch(toastError({ message: error.message, title: "Error" }));
     } finally {
       setIsClaiming(false);
     }

@@ -45,7 +45,13 @@ const Actions = () => {
         loadingText="Saving…"
         leftIcon={<Icon color={isInFaves && "red.400"} icon={isInFaves ? faHeart : heartOutline} />}
         onClick={() => {
-          if (!auth) return dispatch(toastInfo("Please log in to save this track to your favourites."));
+          if (!auth)
+            return dispatch(
+              toastInfo({
+                message: "You need to be logged in to save this track to your favourites.",
+                title: "Please log in"
+              })
+            );
           if (isInFaves) return dispatch(removeFromFavourites(releaseId));
           setIsSavingToFaves(true);
           dispatch(addToFavourites(releaseId)).then(() => setIsSavingToFaves(false));
@@ -100,7 +106,13 @@ const Actions = () => {
               loadingText="Saving…"
               leftIcon={<Icon icon={faMagic} />}
               onClick={() => {
-                if (!auth) return dispatch(toastInfo("Please log in to save this track to your wish list."));
+                if (!auth)
+                  return dispatch(
+                    toastInfo({
+                      message: "You need to be logged in to save this track to your wish list.",
+                      title: "Please log in"
+                    })
+                  );
                 setIsSavingToList(true);
                 dispatch(addToWishList({ releaseId, note })).then(() => setIsSavingToList(false));
               }}

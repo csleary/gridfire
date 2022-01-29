@@ -1,4 +1,4 @@
-import { Box, Flex, IconButton, Square, Image, chakra } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Square, Image } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "features/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,7 @@ const Artwork = () => {
     } else {
       const [{ _id: trackId, trackTitle }] = trackList;
       dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
-      dispatch(toastInfo(`Loading '${trackTitle}'`));
+      dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
     }
   };
 

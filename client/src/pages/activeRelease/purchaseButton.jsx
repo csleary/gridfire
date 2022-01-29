@@ -35,9 +35,11 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
       const { transactionHash } = confirmedTransaction;
       await axios.post(`/api/release/purchase/${releaseId}`, { transactionHash });
       dispatch(fetchUser());
-      dispatch(toastSuccess("Purchased!"));
+      dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
     } catch (error) {
-      dispatch(toastError(error.response?.data?.error || error.message || error.toString()));
+      dispatch(
+        toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" })
+      );
     } finally {
       setIsPurchasing(false);
     }

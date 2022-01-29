@@ -44,7 +44,7 @@ const uploadArtwork = async (workerData, emitter) => {
       { new: true }
     ).exec();
 
-    sendEvent(emitter, { message: "Optimising and storing artwork…" });
+    sendEvent(emitter, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
     const s3Stream = file.pipe(optimisedImg);

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { addToWishList, removeFromWishList } from 'features/user';
-import { faCog, faMagic } from '@fortawesome/free-solid-svg-icons';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import classnames from 'classnames';
-import styles from './wishListButton.module.css';
-import { toastInfo } from 'features/toast';
+import React, { useState } from "react";
+import { addToWishList, removeFromWishList } from "features/user";
+import { faCog, faMagic } from "@fortawesome/free-solid-svg-icons";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import classnames from "classnames";
+import styles from "./wishListButton.module.css";
+import { toastInfo } from "features/toast";
 
 const WishListButton = () => {
   const dispatch = useDispatch();
@@ -21,7 +21,13 @@ const WishListButton = () => {
       className={styles.button}
       disabled={loading}
       onClick={async () => {
-        if (!auth) return dispatch(toastInfo('Please log in to save this track to your wish list.'));
+        if (!auth)
+          return dispatch(
+            toastInfo({
+              message: "You need to be logged in to save this track to your wish list.",
+              title: "Please log in"
+            })
+          );
         if (isInWishList) dispatch(removeFromWishList(releaseId));
         else {
           setLoading(true);

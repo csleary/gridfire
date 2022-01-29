@@ -100,7 +100,12 @@ const EditRelease = () => {
 
     dispatch(updateRelease({ releaseId, ...values })).then(() => {
       setIsSubmitting(false);
-      dispatch(toastSuccess(`${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} saved!`));
+      dispatch(
+        toastSuccess({
+          message: `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} saved!`,
+          title: "Success"
+        })
+      );
       navigate("/dashboard");
     });
   };
