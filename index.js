@@ -1,4 +1,5 @@
 import { clientErrorHandler, errorHandler, logErrors } from "./middlewares/errorHandlers.js";
+import SSEController from "./controllers/sseController.js";
 import express from "express";
 import amqp from "./controllers/amqp/index.js";
 import cookieParser from "cookie-parser";
@@ -22,18 +23,17 @@ import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
 import email from "./routes/emailRoutes.js";
 import release from "./routes/releaseRoutes.js";
-import sse, { scheduleCleanup } from "./routes/sseRoutes.js";
+import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
 const { COOKIE_KEY, MONGO_URI } = process.env;
 const app = express();
 const server = createServer(app);
-const sseSessions = new Map();
-scheduleCleanup(sseSessions);
+const sseController = new SSEController();
 
 // RabbitMQ
-await amqp(sseSessions).catch(console.error);
+await amqp(sseController).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
@@ -44,7 +44,7 @@ db.on("error", error => console.log(`[Mongoose] Error: ${error.message}`));
 await mongoose.connect(MONGO_URI).catch(console.error);
 
 // Express
-app.locals.sseSessions = sseSessions;
+app.locals.sse = sseController;
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
 app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));

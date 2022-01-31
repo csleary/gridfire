@@ -9,7 +9,6 @@ import mongoose from "mongoose";
 import path from "path";
 import { publishToQueue } from "../controllers/amqp/publisher.js";
 import requireLogin from "../middlewares/requireLogin.js";
-import { sendEvent } from "../controllers/sseController.js";
 
 const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = process.env;
 aws.config.update({ region: AWS_REGION });
@@ -152,6 +151,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
   try {
     const { app, headers, params, user } = req;
     const { releaseId } = params;
+    const { sse } = app.locals;
     const userId = user._id.toString();
     const formData = {};
     const filter = { _id: releaseId, user: userId };
@@ -186,7 +186,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         const track = release.trackList.id(trackId);
         track.set({ dateUpdated: Date.now(), status: "uploaded" });
         await release.save();
-        sendEvent(emitter, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
+        sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
 
         if ([userId, filePath, releaseId, trackId, trackName].includes(undefined)) {
           throw new Error("Job parameters missing.");
@@ -203,9 +203,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
       }
 
-      const { sseSessions } = app.locals;
-      const { res: emitter } = sseSessions.get(userId.toString()) || {};
-      sendEvent(emitter, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
+      sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
       file.pipe(write);
     });
 

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Tag, TagCloseButton, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { Button, Flex, Tag, TagCloseButton, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import Card from "components/card";
 import Field from "components/field";
 import PropTypes from "prop-types";

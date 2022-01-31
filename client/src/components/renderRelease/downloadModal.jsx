@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Image, Flex, Text, Wrap, WrapItem, VStack, Link } from "@chakra-ui/react";
+import { Box, Button, Heading, Image, Link, Text, Wrap, VStack, WrapItem } from "@chakra-ui/react";
 import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
@@ -26,13 +26,23 @@ const DownloadModal = ({ artistName, releaseId, releaseTitle }) => {
           />
         </WrapItem>
         <WrapItem alignItems="stretch" flex="1 1 24ch" p={4}>
-          <VStack flex="1" justifyContent="center" spacing={8}>
-            <Button leftIcon={<Icon icon={faCloudDownloadAlt} />} onClick={() => handleDownload("mp3")} size="lg">
-              MP3
-            </Button>
-            <Button leftIcon={<Icon icon={faCloudDownloadAlt} />} onClick={() => handleDownload("flac")} size="lg">
-              FLAC
-            </Button>
+          <VStack flex="1" justifyContent="center" spacing={12}>
+            <Box>
+              <Button
+                leftIcon={<Icon icon={faCloudDownloadAlt} />}
+                onClick={() => handleDownload("mp3")}
+                size="lg"
+                mb="1"
+              >
+                Download MP3
+              </Button>
+              <Text textAlign="center">(May require transcoding.)</Text>
+            </Box>
+            <Box>
+              <Button leftIcon={<Icon icon={faCloudDownloadAlt} />} onClick={() => handleDownload("flac")} size="lg">
+                Download FLAC
+              </Button>
+            </Box>
           </VStack>
         </WrapItem>
       </Wrap>

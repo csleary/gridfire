@@ -13,8 +13,8 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
+    const { sse } = req.app.locals;
     const userId = req.user._id;
-    const { res: emitter } = req.app.locals.sseSessions.get(userId.toString());
 
     busboy.on("error", async error => {
       console.log(error);
@@ -25,12 +25,13 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     busboy.on("file", async (fieldName, file, info) => {
       if (fieldName !== "artworkImageFile") return res.sendStatus(403);
       const { filename, encoding, mimeType } = info;
+      console.log(`Uploading artwork -- filename: ${filename}, encoding: ${encoding}, mime type: ${mimeType}`);
       const releaseExists = await Release.exists({ _id: releaseId, user: userId });
       if (!releaseExists) await Release.create({ _id: releaseId, user: userId });
       const filePath = path.join(TEMP_PATH, releaseId);
       const write = fs.createWriteStream(filePath);
       file.pipe(write);
-      write.on("finish", () => uploadArtwork({ userId, filePath, releaseId }, emitter));
+      write.on("finish", () => uploadArtwork({ userId, filePath, releaseId }, sse));
     });
 
     busboy.on("finish", () => {

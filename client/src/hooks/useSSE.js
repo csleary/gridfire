@@ -12,13 +12,11 @@ import { toastError, toastInfo, toastSuccess, toastWarning } from "features/toas
 import { batch } from "react-redux";
 import { setArtworkUploading } from "features/artwork";
 import { useEffect, useRef } from "react";
-import { usePrevious } from "@chakra-ui/react";
 
 const useSSE = () => {
   const dispatch = useDispatch();
   const sourceRef = useRef();
   const { userId } = useSelector(state => state.user, shallowEqual);
-  const prevUserId = usePrevious(userId);
 
   useEffect(() => {
     const handleArtworkUploaded = () => {
@@ -94,11 +92,12 @@ const useSSE = () => {
       dispatch(toastInfo({ message, title }));
     };
 
-    if (userId && userId !== prevUserId && !sourceRef.current) {
+    if (userId && !sourceRef.current) {
       sourceRef.current = new EventSource(`/api/sse/${userId}`);
       const source = sourceRef.current;
+      source.onopen = () => console.log("[SSE] Connection to server opened.");
       source.onmessage = event => console.log(event.data);
-      source.onerror = error => console.log(`[SSE] Error: ${error.message}`);
+      source.onerror = error => console.log(`[SSE] Error: ${JSON.stringify(error, null, 2)}`);
       source.addEventListener("artworkUploaded", handleArtworkUploaded);
       source.addEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
       source.addEventListener("encodingCompleteFLAC", handleEncodingCompleteFLAC);
@@ -112,7 +111,7 @@ const useSSE = () => {
     }
 
     return () => {
-      if (userId && userId !== prevUserId && !sourceRef.current) {
+      if (sourceRef.current) {
         const source = sourceRef.current;
         source.removeEventListener("artworkUploaded", handleArtworkUploaded);
         source.removeEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
@@ -127,7 +126,7 @@ const useSSE = () => {
         sourceRef.current = null;
       }
     };
-  }, [dispatch, prevUserId, userId]);
+  }, [dispatch, userId]);
 };
 
 export default useSSE;

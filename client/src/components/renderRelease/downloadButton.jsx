@@ -43,7 +43,7 @@ const OverlayDownloadButton = ({ artistName, releaseId, releaseTitle }) => {
         variant="unstyled"
         _hover={{ color: "#fff" }}
       />
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="xl">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="4xl">
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
