@@ -18,9 +18,9 @@ const connect = async sse => {
       return setTimeout(connect, 3000);
     });
 
-    process.once("SIGINT", connection.close.bind(connection));
     startPublisher(connection);
     startConsumer(connection, sse);
+    return connection;
   } catch (error) {
     console.error(error);
     setTimeout(connect, 3000);

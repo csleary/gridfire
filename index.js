@@ -33,7 +33,7 @@ const server = createServer(app);
 const sseController = new SSEController();
 
 // RabbitMQ
-await amqp(sseController).catch(console.error);
+const amqpConnection = await amqp(sseController).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
@@ -64,15 +64,19 @@ app.use("/api/sse", sse);
 app.use("/api/track", track);
 app.use("/api/user", user);
 
-process.on("SIGINT", () => {
-  console.log("[Node] Gracefully shutting down from SIGINT (Ctrl-C)…");
+const handleShutdown = async () => {
+  console.log("[Node] Gracefully shutting down…");
+  await amqpConnection.close.bind(amqpConnection);
   mongoose.connection.close(false, () => {
     server.close(() => {
       console.log("[Express] Server closed.");
       process.exit(0);
     });
   });
-});
+};
+
+process.on("SIGINT", handleShutdown);
+process.on("SIGTERM", handleShutdown);
 
 const port = process.env.PORT || 5000;
 server.listen(port, () => console.log(`[Express] Server running on port ${port || 5000}.`));

@@ -148,6 +148,21 @@ router.get("/upload", requireLogin, async (req, res) => {
 router.post("/:releaseId/upload", requireLogin, async (req, res) => {
   let filePath;
 
+  req.on("close", async () => {
+    console.log("Upload aborted.");
+    console.log(req.destroyed);
+
+    // if (filePath) {
+    //   try {
+    //     console.log("Cleaning up temp file…");
+    //     await fs.promises.unlink(filePath);
+    //     console.log(`Removed temp file: ${filePath}`);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
+  });
+
   try {
     const { app, headers, params, user } = req;
     const { releaseId } = params;

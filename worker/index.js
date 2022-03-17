@@ -25,13 +25,26 @@ const amqpConnect = async () => {
       return setTimeout(amqpConnect, 3000);
     });
 
-    process.once("SIGINT", connection.close.bind(connection));
     startPublisher(connection);
     startConsumer(connection);
+    return connection;
   } catch (error) {
     setTimeout(amqpConnect, 3000);
   }
 };
 
 await mongoose.connect(MONGO_URI).catch(console.error);
-await amqpConnect().catch(console.error);
+const amqpConnection = await amqpConnect().catch(console.error);
+
+const handleShutdown = async () => {
+  console.log("[Worker] [Node] Gracefully shutting down…");
+  await amqpConnection.close.bind(amqpConnection);
+  console.log("[Worker] [AMQP] Closed.");
+  mongoose.connection.close(false, () => {
+    console.log("[Worker] [Mongoose] Closed.");
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", handleShutdown);
+process.on("SIGTERM", handleShutdown);

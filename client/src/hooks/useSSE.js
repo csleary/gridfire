@@ -93,7 +93,8 @@ const useSSE = () => {
     };
 
     if (userId && !sourceRef.current) {
-      sourceRef.current = new EventSource(`/api/sse/${userId}`);
+      const uuid = window.crypto.randomUUID();
+      sourceRef.current = new EventSource(`/api/sse/${userId}/${uuid}`);
       const source = sourceRef.current;
       source.onopen = () => console.log("[SSE] Connection to server opened.");
       source.onmessage = event => console.log(event.data);
