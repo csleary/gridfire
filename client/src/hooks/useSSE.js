@@ -12,6 +12,7 @@ import { toastError, toastInfo, toastSuccess, toastWarning } from "features/toas
 import { batch } from "react-redux";
 import { setArtworkUploading } from "features/artwork";
 import { useEffect, useRef } from "react";
+import axios from "axios";
 
 const useSSE = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,9 @@ const useSSE = () => {
   const { userId } = useSelector(state => state.user, shallowEqual);
 
   useEffect(() => {
+    const uuid = window.crypto.randomUUID();
+    const cleanup = () => axios.delete(`/api/sse/${userId}/${uuid}`);
+
     const handleArtworkUploaded = () => {
       batch(() => {
         dispatch(setArtworkUploading(false));
@@ -93,7 +97,6 @@ const useSSE = () => {
     };
 
     if (userId && !sourceRef.current) {
-      const uuid = window.crypto.randomUUID();
       sourceRef.current = new EventSource(`/api/sse/${userId}/${uuid}`);
       const source = sourceRef.current;
       source.onopen = () => console.log("[SSE] Connection to server opened.");
@@ -109,6 +112,7 @@ const useSSE = () => {
       source.addEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
       source.addEventListener("updateTrackStatus", handleUpdateTrackStatus);
       source.addEventListener("workerMessage", handleWorkerMessage);
+      window.addEventListener("beforeunload", cleanup);
     }
 
     return () => {
@@ -125,6 +129,7 @@ const useSSE = () => {
         source.removeEventListener("updateTrackStatus", handleUpdateTrackStatus);
         source.removeEventListener("workerMessage", handleWorkerMessage);
         sourceRef.current = null;
+        window.removeEventListener("beforeunload", cleanup);
       }
     };
   }, [dispatch, userId]);

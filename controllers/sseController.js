@@ -71,12 +71,12 @@ class SSEController {
   }
 
   send(userId, { type, ...message } = {}) {
-    console.log(`[SSE] Fetching connections for user ${userId}…`);
+    // console.log(`[SSE] Fetching connections for user ${userId}…`);
     const connections = this.get(userId.toString());
     if (!connections) return;
 
     connections.forEach(({ res }) => {
-      console.log(`[SSE] Sending message for user ${userId}: ${JSON.stringify(message)}`);
+      // console.log(`[SSE] Sending message for user ${userId}: ${JSON.stringify(message)}`);
       const data = JSON.stringify(message);
 
       if (type) {

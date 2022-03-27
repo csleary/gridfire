@@ -27,7 +27,7 @@ import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
-const { COOKIE_KEY, MONGO_URI } = process.env;
+const { COOKIE_KEY, MONGO_URI, PORT = 5000 } = process.env;
 const app = express();
 const server = createServer(app);
 const sseController = new SSEController();
@@ -75,8 +75,10 @@ const handleShutdown = async () => {
   });
 };
 
-process.on("SIGINT", handleShutdown);
-process.on("SIGTERM", handleShutdown);
+process
+  .on("SIGINT", handleShutdown)
+  .on("SIGTERM", handleShutdown)
+  .on("uncaughtException", error => console.log("Unhandled exception:", error))
+  .on("unhandledRejection", error => console.log("Unhandled promise rejection:", error));
 
-const port = process.env.PORT || 5000;
-server.listen(port, () => console.log(`[Express] Server running on port ${port || 5000}.`));
+server.listen(PORT, () => console.log(`[Express] Server running on port ${PORT}.`));

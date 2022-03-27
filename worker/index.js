@@ -37,7 +37,7 @@ await mongoose.connect(MONGO_URI).catch(console.error);
 const amqpConnection = await amqpConnect().catch(console.error);
 
 const handleShutdown = async () => {
-  console.log("[Worker] [Node] Gracefully shutting down…");
+  console.log("[Worker] Gracefully shutting down…");
   await amqpConnection.close.bind(amqpConnection);
   console.log("[Worker] [AMQP] Closed.");
   mongoose.connection.close(false, () => {
@@ -46,5 +46,8 @@ const handleShutdown = async () => {
   });
 };
 
-process.on("SIGINT", handleShutdown);
-process.on("SIGTERM", handleShutdown);
+process
+  .on("SIGINT", handleShutdown)
+  .on("SIGTERM", handleShutdown)
+  .on("uncaughtException", error => console.log("[Worker] Unhandled exception:", error))
+  .on("unhandledRejection", error => console.log("[Worker] Unhandled promise rejection:", error));
