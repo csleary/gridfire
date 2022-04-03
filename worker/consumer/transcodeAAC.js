@@ -1,14 +1,13 @@
 import { encodeAacFrag, getTrackDuration } from "./ffmpeg.js";
 import Release from "../models/Release.js";
-import aws from "aws-sdk";
 import createMPD from "./createMPD.js";
 import fs from "fs";
+import { ipfs } from "./index.js";
 import path from "path";
 import postMessage from "./postMessage.js";
 import sax from "sax";
 
-const { AWS_REGION, BUCKET_OPT, TEMP_PATH } = process.env;
-aws.config.update({ region: AWS_REGION });
+const { TEMP_PATH } = process.env;
 const fsPromises = fs.promises;
 
 const removeTempFiles = async (mp4Path, flacPath, playlistDir) => {
@@ -27,17 +26,19 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = "transcoding";
     trackDoc.dateUpdated = Date.now();
+    await release.save();
     postMessage({ message: "Transcoding to aac…", title: "Processing", userId });
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "transcoding", userId });
 
-    // Probe for track duration
+    // Probe for track duration.
     flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
     const probeSrc = fs.createReadStream(flacPath);
     const metadata = await getTrackDuration(probeSrc);
     trackDoc.duration = metadata.format.duration;
     trackDoc.dateUpdated = Date.now();
+    await release.save();
 
-    // Transcode FLAC to AAC
+    // Transcode FLAC to AAC.
     mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
     const flacData = fs.createReadStream(flacPath);
 
@@ -55,8 +56,9 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     };
 
     await encodeAacFrag(flacData, mp4Path, onProgress);
-    playlistDir = path.join(TEMP_PATH, trackId);
 
+    // Create mpd and playlists.
+    playlistDir = path.join(TEMP_PATH, trackId);
     createMPD(mp4Path, trackId, playlistDir);
     const outputMpd = path.join(playlistDir, `${trackId}.mpd`);
     const mpdData = await fsPromises.readFile(outputMpd);
@@ -84,52 +86,65 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     parser.write(mpdData).close();
     trackDoc.segmentList = segmentList;
     trackDoc.mpd = mpdData;
+    await release.save();
 
-    const mp4Audio = fs.createReadStream(mp4Path);
+    // Add fragmented mp4 audio to IPFS
+    const mp4Stream = fs.createReadStream(mp4Path);
+    const ipfsMP4 = await ipfs.add(
+      { content: mp4Stream },
+      {
+        progress: progress => {
+          console.log(progress);
+        }
+      }
+    );
+    await release.save();
+
     const m3u8Master = await fsPromises.readFile(path.join(playlistDir, "master.m3u8"));
     const m3u8Media = await fsPromises.readFile(path.join(playlistDir, "audio-und-mp4a.m3u8"));
 
-    const mp4Params = {
-      Bucket: BUCKET_OPT,
-      ContentType: "audio/mp4",
-      Key: `mp4/${releaseId}/${trackId}.mp4`,
-      Body: mp4Audio
-    };
+    // const mp4Params = {
+    //   Bucket: BUCKET_OPT,
+    //   ContentType: "audio/mp4",
+    //   Key: `mp4/${releaseId}/${trackId}.mp4`,
+    //   Body: mp4Audio
+    // };
 
-    const m3u8MasterParams = {
-      Bucket: BUCKET_OPT,
-      ContentType: "application/x-mpegURL",
-      Key: `mp4/${releaseId}/${trackId}/master.m3u8`,
-      Body: m3u8Master
-    };
+    // const m3u8MasterParams = {
+    //   Bucket: BUCKET_OPT,
+    //   ContentType: "application/x-mpegURL",
+    //   Key: `mp4/${releaseId}/${trackId}/master.m3u8`,
+    //   Body: m3u8Master
+    // };
 
-    const m3u8MediaParams = {
-      Bucket: BUCKET_OPT,
-      ContentType: "application/x-mpegURL",
-      Key: `mp4/${releaseId}/${trackId}/audio-und-mp4a.m3u8`,
-      Body: m3u8Media
-    };
+    // const m3u8MediaParams = {
+    //   Bucket: BUCKET_OPT,
+    //   ContentType: "application/x-mpegURL",
+    //   Key: `mp4/${releaseId}/${trackId}/audio-und-mp4a.m3u8`,
+    //   Body: m3u8Media
+    // };
 
-    const uploads = [];
-    const s3 = new aws.S3();
-    uploads.push(s3.upload(mp4Params).promise());
-    uploads.push(s3.upload(m3u8MasterParams).promise());
-    uploads.push(s3.upload(m3u8MediaParams).promise());
-    await Promise.allSettled(uploads);
-    trackDoc.status = "stored";
+    // const uploads = [];
+    // const s3 = new aws.S3();
+    // uploads.push(s3.upload(mp4Params).promise());
+    // uploads.push(s3.upload(m3u8MasterParams).promise());
+    // uploads.push(s3.upload(m3u8MediaParams).promise());
+    // await Promise.allSettled(uploads);
+    trackDoc.cids.aac = ipfsMP4.cid.toString();
     trackDoc.dateUpdated = Date.now();
+    trackDoc.status = "stored";
     await release.save();
     postMessage({ type: "transcodingCompleteAAC", trackId, trackName, userId });
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "stored", userId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
   } catch (error) {
-    console.log(error);
     if (trackDoc) {
       trackDoc.status = "error";
       trackDoc.dateUpdated = Date.now();
       await release.save();
     }
 
+    console.log(error);
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "error", userId });
     await removeTempFiles(mp4Path, flacPath, playlistDir);
     throw error;

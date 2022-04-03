@@ -4,13 +4,13 @@ import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { ethers } from "ethers";
 import rootReducer from "features";
 import theme from "./theme";
 
-const { REACT_APP_CLOUDFRONT, REACT_APP_NETWORK_URL } = process.env;
-const CLOUD_URL = `https://${REACT_APP_CLOUDFRONT}`;
+const { REACT_APP_IPFS_GATEWAY, REACT_APP_NETWORK_URL } = process.env;
+const CLOUD_URL = `${REACT_APP_IPFS_GATEWAY}`;
 declare const window: any; // eslint-disable-line
 
 const store = configureStore({
@@ -21,16 +21,17 @@ const store = configureStore({
 //ethers.providers.AlchemyProvider(chainId, [apiKey]) // For prod
 const provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
 const Web3Context = React.createContext(provider);
+const container = document.getElementById("root")!;
+const root = createRoot(container);
 
-ReactDOM.render(
+root.render(
   <Provider store={store}>
     <Web3Context.Provider value={provider}>
       <ChakraProvider theme={theme}>
         <App />
       </ChakraProvider>
     </Web3Context.Provider>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
 );
 
 // If you want your app to work offline and load faster, you can change

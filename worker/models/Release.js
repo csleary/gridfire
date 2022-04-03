@@ -1,30 +1,37 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const trackSchema = new Schema(
   {
     trackTitle: { type: String, trim: true },
-    status: { type: String, default: 'pending' },
+    status: { type: String, default: "pending" },
     duration: { type: Number, trim: true },
     mpd: { type: Buffer },
     segmentDuration: { type: Number },
     segmentTimescale: { type: Number },
     segmentList: { type: Array },
-    initRange: { type: String }
+    initRange: { type: String },
+    cids: {
+      source: { type: String },
+      flac: { type: String },
+      aac: { type: String },
+      mp3: { type: String }
+    }
   },
   { timestamps: true }
 );
 
 const releaseSchema = new Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    artist: { type: Schema.Types.ObjectId, ref: 'Artist' },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    artist: { type: Schema.Types.ObjectId, ref: "Artist" },
     artistName: { type: String, trim: true },
     releaseTitle: { type: String, trim: true },
     artwork: {
       dateCreated: { type: Date },
       dateUpdated: { type: Date },
-      status: { type: String, default: 'pending' }
+      status: { type: String, default: "pending" },
+      cid: { type: String }
     },
     releaseDate: { type: Date },
     price: { type: Number },
@@ -44,17 +51,17 @@ const releaseSchema = new Schema(
 );
 
 releaseSchema.index({
-  artistName: 'text',
-  releaseTitle: 'text',
-  'trackList.trackTitle': 'text',
-  tags: 'text'
+  artistName: "text",
+  releaseTitle: "text",
+  "trackList.trackTitle": "text",
+  tags: "text"
 });
 
-releaseSchema.post('save', release => {
+releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-releaseSchema.set('toJSON', {
+releaseSchema.set("toJSON", {
   transform: function (doc, ret) {
     delete ret.createdAt;
     delete ret.updatedAt;
@@ -75,5 +82,5 @@ releaseSchema.set('toJSON', {
   }
 });
 
-const Release = mongoose.model('Release', releaseSchema, 'releases');
+const Release = mongoose.model("Release", releaseSchema, "releases");
 export default Release;

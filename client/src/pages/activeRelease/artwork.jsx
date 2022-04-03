@@ -12,6 +12,7 @@ const Artwork = () => {
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
+  const { cid } = artwork;
 
   const handlePlayRelease = () => {
     const audioPlayer = document.getElementById("player");
@@ -48,7 +49,7 @@ const Artwork = () => {
         loading="lazy"
         src={
           artwork.status === "stored" && !isLoading
-            ? `${CLOUD_URL}/${releaseId}.jpg`
+            ? `${CLOUD_URL}/${cid}`
             : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
         }
       />

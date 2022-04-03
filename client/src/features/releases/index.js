@@ -228,7 +228,7 @@ const fetchUserWishList = () => async dispatch => {
 const publishStatus = releaseId => async dispatch => {
   try {
     const res = await axios.patch(`/api/release/${releaseId}`);
-    if (res.data.error) return dispatch(toastError(res.data.error));
+    if (res.data.error) return dispatch(toastError({ message: res.data.error, title: "Error" }));
     dispatch(updateUserReleases(res.data));
     return true;
   } catch (error) {

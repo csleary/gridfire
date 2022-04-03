@@ -1,9 +1,11 @@
-import closeOnError from '../closeOnError.js';
-import encodeFLAC from './encodeFLAC.js';
-import transcodeAAC from './transcodeAAC.js';
-import transcodeMP3 from './transcodeMP3.js';
+import closeOnError from "../closeOnError.js";
+import encodeFLAC from "./encodeFLAC.js";
+import transcodeAAC from "./transcodeAAC.js";
+import transcodeMP3 from "./transcodeMP3.js";
+import { create } from "ipfs-http-client";
 
 const { WORKER_QUEUE } = process.env;
+const ipfs = create("http://localhost:5001");
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
 
 const startConsumer = async connection => {
@@ -23,8 +25,8 @@ const startConsumer = async connection => {
       }
     };
 
-    channel.on('error', error => {
-      console.error('[AMQP] Channel error:\n', error.message);
+    channel.on("error", error => {
+      console.error("[AMQP] Channel error:\n", error.message);
     });
 
     channel.prefetch(1);
@@ -35,4 +37,4 @@ const startConsumer = async connection => {
   }
 };
 
-export default startConsumer;
+export { ipfs, startConsumer as default };

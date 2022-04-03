@@ -15,7 +15,7 @@ import PropTypes from "prop-types";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
-const OverlayDownloadButton = ({ artistName, releaseId, releaseTitle }) => {
+const OverlayDownloadButton = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -48,7 +48,12 @@ const OverlayDownloadButton = ({ artistName, releaseId, releaseTitle }) => {
         <ModalContent>
           <ModalCloseButton />
           <ModalBody>
-            <DownloadModal artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
+            <DownloadModal
+              artistName={artistName}
+              artworkCID={artworkCID}
+              releaseId={releaseId}
+              releaseTitle={releaseTitle}
+            />
           </ModalBody>
           <ModalFooter>
             <Button onClick={() => setShowModal(false)}>Close</Button>

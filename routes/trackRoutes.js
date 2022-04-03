@@ -3,14 +3,12 @@ import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
 import aws from "aws-sdk";
 import express from "express";
-import fs from "fs";
 import mime from "mime-types";
 import mongoose from "mongoose";
-import path from "path";
 import { publishToQueue } from "../controllers/amqp/publisher.js";
 import requireLogin from "../middlewares/requireLogin.js";
 
-const { AWS_REGION, BUCKET_OPT, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = process.env;
+const { AWS_REGION, BUCKET_OPT, QUEUE_TRANSCODE } = process.env;
 aws.config.update({ region: AWS_REGION });
 const router = express.Router();
 
@@ -75,6 +73,7 @@ router.get("/:trackId/stream", async (req, res) => {
 router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
   try {
     const { releaseId, trackId } = req.params;
+    const { ipfs } = req.app.locals;
     const user = req.user._id;
     const release = await Release.findOne({ _id: releaseId, user }).exec();
     if (!release) return res.sendStatus(403);
@@ -83,46 +82,13 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
     trackDoc.status = "deleting";
     await release.save();
 
-    // Delete from S3
-    const s3 = new aws.S3();
-
-    // Delete source audio
-    const listSrcParams = {
-      Bucket: BUCKET_SRC,
-      Prefix: `${releaseId}/${trackId}`
-    };
-
-    const s3SrcData = await s3.listObjectsV2(listSrcParams).promise();
-
-    let deleteS3Src;
-    if (s3SrcData.Contents.length) {
-      const deleteImgParams = { Bucket: BUCKET_SRC, Key: s3SrcData.Contents[0].Key };
-      deleteS3Src = await s3.deleteObject(deleteImgParams).promise();
+    for (const cid in trackDoc.cids.toJSON()) {
+      await ipfs.pin.rm(trackDoc.cids[cid]).catch(console.error);
     }
 
-    // Delete streaming audio
-    const listOptParams = { Bucket: BUCKET_OPT, Prefix: `mp4/${releaseId}/${trackId}` };
-    const s3OptData = await s3.listObjectsV2(listOptParams).promise();
-
-    let deleteS3Opt;
-    if (s3OptData.Contents.length) {
-      const deleteOptParams = {
-        Bucket: BUCKET_OPT,
-        Delete: {
-          Objects: s3OptData.Contents.map(track => ({
-            Key: track.Key
-          }))
-        }
-      };
-
-      deleteS3Opt = await s3.deleteObjects(deleteOptParams).promise();
-    }
-
-    // Delete from db
     release.trackList.id(trackId).remove();
     if (!release.trackList.length) release.published = false;
-    const deleteTrackDb = release.save();
-    const [updatedRelease] = await Promise.all([deleteTrackDb, deleteS3Src, deleteS3Opt]);
+    const updatedRelease = await release.save();
     res.json(updatedRelease.toJSON());
   } catch (error) {
     console.log(error);
@@ -130,28 +96,11 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/upload", requireLogin, async (req, res) => {
-  try {
-    const { releaseId, trackId, type } = req.query;
-    const s3 = new aws.S3();
-    const ext = mime.extension(type);
-    const key = `${releaseId}/${trackId}${ext}`;
-    const params = { ContentType: `${type}`, Bucket: BUCKET_SRC, Expires: 30, Key: key };
-    const audioUploadUrl = s3.getSignedUrl("putObject", params);
-    res.send(audioUploadUrl);
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ error: error.message || error.toString() });
-  }
-});
-
 router.post("/:releaseId/upload", requireLogin, async (req, res) => {
-  let filePath;
-
   try {
     const { app, headers, params, user } = req;
     const { releaseId } = params;
-    const { sse } = app.locals;
+    const { ipfs, sse } = app.locals;
     const userId = user._id.toString();
     const formData = {};
     const filter = { _id: releaseId, user: userId };
@@ -162,7 +111,6 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
     busboy.on("error", async error => {
       console.log(error);
       req.unpipe(busboy);
-      if (filePath) await fs.promises.unlink(filePath);
       res.status(400).json({ error: "Error. Could not upload this file." });
     });
 
@@ -170,7 +118,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       formData[key] = value;
     });
 
-    busboy.on("file", async (fieldName, file, { mimeType }) => {
+    busboy.on("file", async (fieldName, fileStream, { mimeType }) => {
       if (fieldName !== "trackAudioFile") return res.sendStatus(403);
       const { trackId, trackName } = formData;
       const accepted = ["aiff", "flac", "wav"].includes(mime.extension(mimeType));
@@ -179,32 +127,27 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         throw new Error("File type not recognised. Needs to be flac/aiff/wav.");
       }
 
-      filePath = path.resolve(TEMP_PATH, trackId);
-      const write = fs.createWriteStream(filePath, { autoClose: true });
-
-      write.on("finish", async () => {
-        const track = release.trackList.id(trackId);
-        track.set({ dateUpdated: Date.now(), status: "uploaded" });
-        await release.save();
-        sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
-
-        if ([userId, filePath, releaseId, trackId, trackName].includes(undefined)) {
-          throw new Error("Job parameters missing.");
-        }
-
-        publishToQueue("", QUEUE_TRANSCODE, { userId, filePath, job: "encodeFLAC", releaseId, trackId, trackName });
-      });
-
-      const track = release.trackList.id(trackId);
+      let track = release.trackList.id(trackId);
 
       if (track) {
         track.set({ dateUpdated: Date.now(), status: "uploading" });
       } else {
         release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
+        track = release.trackList.id(trackId);
       }
 
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
-      file.pipe(write);
+      const ipfsFile = await ipfs.add({ content: fileStream }, { progress: progress => console.log(progress) });
+      const cid = ipfsFile.cid.toString();
+      track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { source: cid } });
+      await release.save();
+      sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
+
+      if ([cid, releaseId, trackId, trackName, userId].includes(undefined)) {
+        throw new Error("Job parameters missing.");
+      }
+
+      publishToQueue("", QUEUE_TRANSCODE, { userId, cid, job: "encodeFLAC", releaseId, trackId, trackName });
     });
 
     busboy.on("finish", () => {
@@ -214,7 +157,6 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
     req.pipe(busboy);
   } catch (error) {
     console.log(error);
-    if (filePath) await fs.promises.unlink(filePath);
     res.status(400).json({ error: "Error. Could not upload this file." });
   }
 });

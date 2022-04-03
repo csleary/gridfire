@@ -110,6 +110,7 @@ const SearchBar = () => {
                   const {
                     _id: releaseId,
                     artistName,
+                    artwork: { cid },
                     catNumber,
                     info,
                     price,
@@ -125,7 +126,7 @@ const SearchBar = () => {
                         objectFit="cover"
                         loading="lazy"
                         rounded="full"
-                        src={`${CLOUD_URL}/${releaseId}.jpg`}
+                        src={`${CLOUD_URL}/${cid}`}
                       />
                       <LinkOverlay as={Link} to={`/release/${releaseId}`} flex={1} p={4}>
                         <Box>

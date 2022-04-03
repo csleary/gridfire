@@ -6,7 +6,7 @@ import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import placeholder from "placeholder.svg";
 import { useDownload } from "hooks/useDownload";
 
-const DownloadModal = ({ artistName, releaseId, releaseTitle }) => {
+const DownloadModal = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
   const { anchorRef, downloadUrl, handleDownload, isPreparingDownload } = useDownload({
     artistName,
     releaseId,
@@ -22,7 +22,7 @@ const DownloadModal = ({ artistName, releaseId, releaseTitle }) => {
             alt={`${artistName} - ${releaseTitle}`}
             className="lazyload"
             fallbackSrc={placeholder}
-            src={`${CLOUD_URL}/${releaseId}.jpg`}
+            src={`${CLOUD_URL}/${artworkCID}`}
           />
         </WrapItem>
         <WrapItem alignItems="stretch" flex="1 1 24ch" p={4}>

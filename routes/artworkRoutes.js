@@ -11,6 +11,7 @@ const router = express.Router();
 
 router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
+    const { ipfs } = req.app.locals;
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
     const { sse } = req.app.locals;
@@ -25,13 +26,19 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     busboy.on("file", async (fieldName, file, info) => {
       if (fieldName !== "artworkImageFile") return res.sendStatus(403);
       const { filename, encoding, mimeType } = info;
-      console.log(`Uploading artwork -- filename: ${filename}, encoding: ${encoding}, mime type: ${mimeType}`);
+      console.log(
+        `[Release ${releaseId}] Uploading artwork: ${filename}, encoding: ${encoding}, mime type: ${mimeType}`
+      );
       const releaseExists = await Release.exists({ _id: releaseId, user: userId });
       if (!releaseExists) await Release.create({ _id: releaseId, user: userId });
       const filePath = path.join(TEMP_PATH, releaseId);
       const write = fs.createWriteStream(filePath);
       file.pipe(write);
-      write.on("finish", () => uploadArtwork({ userId, filePath, releaseId }, sse));
+
+      write.on("finish", async () => {
+        await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
+        console.log(`[Release ${releaseId}] Artwork uploaded.`);
+      });
     });
 
     busboy.on("finish", () => {
@@ -47,11 +54,12 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
+    const { ipfs } = req.app.locals;
     const { releaseId } = req.params;
     const userId = req.user._id;
     const release = await Release.findOne({ _id: releaseId, user: userId }, "-__v").exec();
-    if (!release) res.end();
-    const updated = await deleteArtwork(releaseId, release);
+    if (!release) return res.end();
+    const updated = await deleteArtwork({ ipfs, release });
     res.send(updated);
   } catch (error) {
     res.status(400).send({ error: error.message });

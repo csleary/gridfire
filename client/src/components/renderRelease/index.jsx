@@ -36,6 +36,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
   }
 
   const { _id: releaseId, artist, artistName, artwork = {}, releaseTitle, trackList } = release;
+  const { cid } = artwork;
 
   const handlePlayTrack = () => {
     const audioPlayer = document.getElementById("player");
@@ -69,7 +70,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
         alt={`${artistName} - ${releaseTitle}`}
         fallbackSrc={placeholder}
         loading="lazy"
-        src={artwork.status === "stored" ? `${CLOUD_URL}/${releaseId}.jpg` : placeholder}
+        src={artwork.status === "stored" ? `${CLOUD_URL}/${cid}` : placeholder}
       />
       <Flex
         background="rgba(0, 0, 0, 0.5)"
@@ -150,7 +151,12 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
             _hover={{ color: "#fff" }}
           />
           {type === "collection" ? (
-            <OverlayDownloadButton artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
+            <OverlayDownloadButton
+              artistName={artistName}
+              artworkCID={cid}
+              releaseId={releaseId}
+              releaseTitle={releaseTitle}
+            />
           ) : null}
         </Flex>
         {showTitle ? (

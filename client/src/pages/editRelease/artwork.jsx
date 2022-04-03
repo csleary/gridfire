@@ -23,16 +23,17 @@ const Artwork = () => {
   const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
   const [coverArtPreview, setCoverArtPreview] = useState();
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
+  const { cid } = artwork;
   const artworkStatus = artwork?.status;
 
   useEffect(() => {
-    if (artworkStatus === "stored") return setCoverArtPreview(`${CLOUD_URL}/${releaseId}.jpg`);
+    if (artworkStatus === "stored") return setCoverArtPreview(`${CLOUD_URL}/${cid}`);
     setCoverArtPreview();
 
     return () => {
       if (artworkFile.current) window.URL.revokeObjectURL(artworkFile.current.preview);
     };
-  }, [artworkStatus, releaseId]);
+  }, [artworkStatus, cid, releaseId]);
 
   const onDrop = (accepted, rejected) => {
     if (rejected.length) {

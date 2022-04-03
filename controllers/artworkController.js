@@ -1,41 +1,30 @@
 import Release from "../models/Release.js";
-import aws from "aws-sdk";
 import fs from "fs";
 import sharp from "sharp";
+import { CID } from "ipfs-http-client";
 
-const { AWS_REGION, BUCKET_IMG } = process.env;
-aws.config.update({ region: AWS_REGION });
 const fsPromises = fs.promises;
 
-const deleteArtwork = async (releaseId, release) => {
+const deleteArtwork = async ({ ipfs, release }) => {
+  const releaseId = release._id.toString();
   release.updateOne({ $set: { "artwork.status": "deleting", "artwork.dateUpdated": Date.now() } }).exec();
-  const listImgParams = { Bucket: BUCKET_IMG, Prefix: `${releaseId}` };
-  const s3 = new aws.S3();
-  const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
+  const { artwork } = release;
+  const { cid } = artwork;
 
-  if (s3ImgData.Contents.length) {
-    const deleteImgParams = { Bucket: BUCKET_IMG, Key: s3ImgData.Contents[0].Key };
-    await s3.deleteObject(deleteImgParams).promise();
+  await ipfs.pin.rm(cid).catch(error => {
+    console.log(error);
+  });
 
-    const updatedRelease = await Release.findByIdAndUpdate(
-      releaseId,
-      { $set: { "artwork.status": "deleted", "artwork.dateUpdated": Date.now(), published: false } },
-      { new: true }
-    ).exec();
+  const updatedRelease = await Release.findByIdAndUpdate(
+    releaseId,
+    { $set: { "artwork.status": "deleted", "artwork.dateUpdated": Date.now(), published: false } },
+    { new: true }
+  ).exec();
 
-    return updatedRelease.toJSON();
-  } else {
-    release
-      .updateOne({ $set: { "artwork.status": "error", "artwork.dateUpdated": Date.now(), published: false } })
-      .exec();
-    throw new Error("Artwork file not found. Please upload a new file.");
-  }
+  return updatedRelease.toJSON();
 };
 
-const uploadArtwork = async (workerData, sse) => {
-  const s3 = new aws.S3();
-  const { filePath, releaseId, userId } = workerData;
-
+const uploadArtwork = async ({ filePath, ipfs, releaseId, userId, sse }) => {
   try {
     const release = await Release.findByIdAndUpdate(
       releaseId,
@@ -46,21 +35,20 @@ const uploadArtwork = async (workerData, sse) => {
     sse.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
-    const s3Stream = file.pipe(optimisedImg);
+    const content = file.pipe(optimisedImg);
+    const res = await ipfs.add({ content }, { progress: progress => console.log(progress) });
+    const { cid } = res;
 
-    const params = {
-      ContentType: "image/jpeg",
-      Body: s3Stream,
-      Bucket: BUCKET_IMG,
-      Key: `${releaseId}.jpg`
-    };
+    await release
+      .updateOne({
+        $set: {
+          "artwork.cid": cid.toString(),
+          "artwork.dateUpdated": Date.now(),
+          "artwork.status": "stored"
+        }
+      })
+      .exec();
 
-    await s3
-      .upload(params)
-      .promise()
-      .catch(error => console.log(error));
-
-    await release.updateOne({ $set: { "artwork.status": "stored", "artwork.dateUpdated": Date.now() } }).exec();
     sse.send(userId, { type: "artworkUploaded" });
     await fsPromises.unlink(filePath);
   } catch (error) {

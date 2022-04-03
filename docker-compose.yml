@@ -46,8 +46,27 @@ services:
       - 5672:5672
       - 15672:15672
     restart: always
+  ipfs-host:
+    container_name: ipfs-host
+    image: ipfs/go-ipfs
+    # environment:
+    expose:
+      - 5001
+    ports:
+      - 8080:8080
+      - 4001:4001
+      - 5001:5001
+    volumes:
+      - ipfs-data:/data/ipfs
+      - ipfs-export:/export
+    networks:
+      internal:
+        aliases:
+          - ipfs-host
 networks:
   internal:
     driver: bridge
 volumes:
   db-data:
+  ipfs-data:
+  ipfs-export:

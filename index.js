@@ -4,6 +4,7 @@ import express from "express";
 import amqp from "./controllers/amqp/index.js";
 import cookieParser from "cookie-parser";
 import cookieSession from "cookie-session";
+import { create } from "ipfs-http-client";
 import mongoose from "mongoose";
 import passport from "passport";
 import "./models/Artist.js";
@@ -31,6 +32,10 @@ const { COOKIE_KEY, MONGO_URI, PORT = 5000 } = process.env;
 const app = express();
 const server = createServer(app);
 const sseController = new SSEController();
+
+// IPFS
+const ipfs = create("http://localhost:5001");
+app.locals.ipfs = ipfs;
 
 // RabbitMQ
 const amqpConnection = await amqp(sseController).catch(console.error);

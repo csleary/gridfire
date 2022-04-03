@@ -7,6 +7,7 @@ import placeholder from "placeholder.svg";
 const Artwork = ({ artwork, releaseId, releaseTitle }) => {
   const { isOpen, onOpen } = useDisclosure(false);
   const isStored = artwork.status === "stored";
+  const { cid } = artwork;
 
   return (
     <Fade in={isOpen}>
@@ -18,7 +19,7 @@ const Artwork = ({ artwork, releaseId, releaseTitle }) => {
           onLoad={onOpen}
           onError={onOpen}
           fallbackSrc={placeholder}
-          src={isStored ? `${CLOUD_URL}/${releaseId}.jpg` : placeholder}
+          src={isStored ? `${CLOUD_URL}/${cid}` : placeholder}
         />
       </Link>
     </Fade>

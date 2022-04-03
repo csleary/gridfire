@@ -1,16 +1,16 @@
+import { Readable } from "stream";
 import Release from "../models/Release.js";
-import aws from "aws-sdk";
 import { encodeFlacStream } from "./ffmpeg.js";
 import fs from "fs";
+import { ipfs } from "./index.js";
 import path from "path";
 import postMessage from "./postMessage.js";
 import { publishToQueue } from "../publisher/index.js";
+import tar from "tar-stream";
 
-const { AWS_REGION, BUCKET_SRC, TEMP_PATH, WORKER_QUEUE } = process.env;
-aws.config.update({ region: AWS_REGION });
-const fsPromises = fs.promises;
+const { TEMP_PATH, WORKER_QUEUE } = process.env;
 
-const encodeFLAC = async ({ filePath, releaseId, trackId, trackName, userId }) => {
+const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
   let release;
   let trackDoc;
 
@@ -24,8 +24,9 @@ const encodeFLAC = async ({ filePath, releaseId, trackId, trackName, userId }) =
     ).exec();
 
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoding", userId });
-    const readFile = fs.createReadStream(filePath);
     const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
+    const tarStream = Readable.from(ipfs.get(cid));
+    const tarExtract = tar.extract();
 
     const onProgress = ({ targetSize, timemark }) => {
       const [hours, mins, seconds] = timemark.split(":");
@@ -40,28 +41,42 @@ const encodeFLAC = async ({ filePath, releaseId, trackId, trackName, userId }) =
       });
     };
 
-    await encodeFlacStream(readFile, flacPath, onProgress);
-    const readFlac = fs.createReadStream(flacPath);
-    const Key = `${releaseId}/${trackId}.flac`;
-    const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };
-    const s3 = new aws.S3();
+    let size;
+    await new Promise((resolve, reject) => {
+      tarExtract.on("entry", async (header, stream, next) => {
+        console.log(header);
+        size = header.size;
+        stream.on("end", next);
+        stream.resume();
+        await encodeFlacStream(stream, flacPath, onProgress);
+      });
 
-    await s3
-      .upload(params)
-      .on("httpUploadProgress", event => {
-        const percent = Math.floor((event.loaded / event.total) * 100);
+      tarExtract.on("finish", resolve);
+      tarExtract.on("error", reject);
+      tarStream.pipe(tarExtract);
+    });
 
-        postMessage({
-          message: `Saving FLAC (${percent}% complete)`,
-          trackId,
-          type: "storingProgressFLAC",
-          userId
-        });
-      })
-      .promise();
+    const flacStream = fs.createReadStream(flacPath);
+    const ipfsFLAC = await ipfs.add(
+      { content: flacStream },
+      {
+        progress: progress => {
+          const percent = Math.floor((progress / size) * 100);
+          console.log({ percent });
+
+          postMessage({
+            message: `Saving FLAC (${percent}% complete)`,
+            trackId,
+            type: "storingProgressFLAC",
+            userId
+          });
+        }
+      }
+    );
 
     trackDoc = release.trackList.id(trackId);
     trackDoc.status = "encoded";
+    trackDoc.cids.flac = ipfsFLAC.cid.toString();
     trackDoc.dateUpdated = Date.now();
     await release.save();
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoded", userId });
@@ -74,8 +89,6 @@ const encodeFLAC = async ({ filePath, releaseId, trackId, trackName, userId }) =
       trackName,
       userId
     });
-
-    await fsPromises.unlink(filePath);
   } catch (error) {
     if (trackDoc) {
       trackDoc.status = "error";
@@ -84,7 +97,6 @@ const encodeFLAC = async ({ filePath, releaseId, trackId, trackName, userId }) =
     }
 
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "error", userId });
-    await fsPromises.unlink(filePath).catch(() => {});
     throw error;
   }
 };

@@ -10,7 +10,13 @@ const trackSchema = new Schema(
     segmentDuration: { type: Number },
     segmentTimescale: { type: Number },
     segmentList: { type: Array },
-    initRange: { type: String }
+    initRange: { type: String },
+    cids: {
+      source: { type: String },
+      flac: { type: String },
+      aac: { type: String },
+      mp3: { type: String }
+    }
   },
   { timestamps: true }
 );
@@ -24,7 +30,8 @@ const releaseSchema = new Schema(
     artwork: {
       dateCreated: { type: Date },
       dateUpdated: { type: Date },
-      status: { type: String, default: "pending" }
+      status: { type: String, default: "pending" },
+      cid: { type: String }
     },
     releaseDate: { type: Date },
     price: { type: Number },

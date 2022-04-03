@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
       <Center fontSize="small">
         <Text>
           &copy; 2017&ndash;{year}{" "}
-          <Link to="https://ochremusic.com" isExternal>
+          <Link href="https://ochremusic.com" isExternal>
             Christopher Leary
           </Link>
         </Text>
