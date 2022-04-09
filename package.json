@@ -19,7 +19,6 @@
     "@metamask/detect-provider": "^1.2.0",
     "amqplib": "^0.8.0",
     "archiver": "^5.3.0",
-    "aws-sdk": "^2.922.0",
     "axios": "^0.26.1",
     "bcrypt": "^5.0.0",
     "busboy": "^1.0.0",

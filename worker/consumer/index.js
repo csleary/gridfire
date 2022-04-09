@@ -5,7 +5,7 @@ import transcodeMP3 from "./transcodeMP3.js";
 import { create } from "ipfs-http-client";
 
 const { WORKER_QUEUE } = process.env;
-const ipfs = create("http://localhost:5001");
+const ipfs = create();
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
 
 const startConsumer = async connection => {
@@ -21,6 +21,7 @@ const startConsumer = async connection => {
         await work(message);
         channel.ack(data);
       } catch (error) {
+        console.log(error);
         channel.nack(data, false, false);
       }
     };

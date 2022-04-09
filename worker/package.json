@@ -12,7 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.8.0",
-    "aws-sdk": "^2.1048.0",
     "dotenv": "^16.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "mongoose": "^6.1.4",

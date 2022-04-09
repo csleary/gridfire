@@ -34,7 +34,7 @@ const server = createServer(app);
 const sseController = new SSEController();
 
 // IPFS
-const ipfs = create("http://localhost:5001");
+const ipfs = create();
 app.locals.ipfs = ipfs;
 
 // RabbitMQ

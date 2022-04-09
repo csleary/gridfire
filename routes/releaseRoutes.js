@@ -4,81 +4,48 @@ import Release from "../models/Release.js";
 import Sale from "../models/Sale.js";
 import User from "../models/User.js";
 import Wishlist from "../models/Wishlist.js";
-import aws from "aws-sdk";
 import { createArtist } from "../controllers/artistController.js";
 import { ethers } from "ethers";
 import express from "express";
 import requireLogin from "../middlewares/requireLogin.js";
 
-const { AWS_REGION, BUCKET_IMG, BUCKET_OPT, BUCKET_SRC, NETWORK_URL } = process.env;
-aws.config.update({ region: AWS_REGION });
+const { NETWORK_URL } = process.env;
 const router = express.Router();
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { releaseId } = req.params;
+    const { ipfs } = req.app.locals;
     const user = req.user._id;
+    const { releaseId } = req.params;
+    const release = await Release.findOne({ _id: releaseId, user }, "artist artwork trackList").exec();
+    const { artist, artwork, trackList } = release;
 
-    // Delete from db
-    const { artist } = await Release.findOne({ _id: releaseId, user }, "artist").exec();
+    // Delete artwork from IPFS.
+    const deleteArtwork = ipfs.pin.rm(artwork.cid).catch(console.log);
+
+    // Delete track audio and playlists from IPFS.
+    const deleteTracks = trackList.reduce(
+      (prev, track) => [...prev, ...Object.values(track.cids.toJSON()).map(cid => ipfs.pin.rm(cid).catch(console.log))],
+      []
+    );
+
+    // Delete from Mongo.
     const deleteRelease = await Release.findOneAndRemove({ _id: releaseId, user }).exec();
     const artistHasReleases = await Release.exists({ artist });
-    let deleteArtist;
+    let deleteArtist = Promise.resolve();
     if (!artistHasReleases) deleteArtist = Artist.findOneAndRemove({ _id: artist, user }).exec();
-
-    // Delete audio from S3
-    const s3 = new aws.S3();
-
-    // Delete source audio
-    const listSrcParams = { Bucket: BUCKET_SRC, Prefix: `${releaseId}` };
-    const s3SrcData = await s3.listObjectsV2(listSrcParams).promise();
-
-    let deleteS3Src;
-    if (s3SrcData.Contents.length) {
-      const deleteSrcParams = {
-        Bucket: BUCKET_SRC,
-        Delete: { Objects: s3SrcData.Contents.map(({ Key }) => ({ Key })) }
-      };
-
-      deleteS3Src = s3.deleteObjects(deleteSrcParams).promise();
-    }
-
-    // Delete streaming audio
-    const listOptParams = { Bucket: BUCKET_OPT, Prefix: `mp4/${releaseId}` };
-    const s3OptData = await s3.listObjectsV2(listOptParams).promise();
-
-    let deleteS3Opt;
-    if (s3OptData.Contents.length) {
-      const deleteOptParams = {
-        Bucket: BUCKET_OPT,
-        Delete: { Objects: s3OptData.Contents.map(({ Key }) => ({ Key })) }
-      };
-
-      deleteS3Opt = s3.deleteObjects(deleteOptParams).promise();
-    }
-
-    // Delete art from S3
-    const listImgParams = { Bucket: BUCKET_IMG, Prefix: `${releaseId}` };
-    const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
-
-    let deleteS3Img;
-    if (s3ImgData.Contents.length) {
-      const deleteImgParams = { Bucket: BUCKET_IMG, Key: s3ImgData.Contents[0].Key };
-      deleteS3Img = s3.deleteObject(deleteImgParams).promise();
-    }
-
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();
     const deleteFromWishlists = Wishlist.deleteMany({ release: releaseId }).exec();
 
-    const [{ _id }] = await Promise.all([
+    const [{ _id } = {}] = await Promise.all([
       deleteRelease,
+      deleteArtwork,
       deleteArtist,
+      ...deleteTracks,
       deleteFromFavourites,
-      deleteFromWishlists,
-      deleteS3Src,
-      deleteS3Opt,
-      deleteS3Img
+      deleteFromWishlists
     ]);
+
     res.send(_id);
   } catch (error) {
     console.log(error);

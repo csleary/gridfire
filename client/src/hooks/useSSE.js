@@ -6,12 +6,12 @@ import {
   setTranscodingProgressAAC,
   setUploadProgress
 } from "features/tracks";
-import { setFormatExists, updateTrackStatus } from "features/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess, toastWarning } from "features/toast";
 import { batch } from "react-redux";
 import { setArtworkUploading } from "features/artwork";
 import { useEffect, useRef } from "react";
+import { updateTrackStatus } from "features/releases";
 import axios from "axios";
 
 const useSSE = () => {
@@ -82,13 +82,13 @@ const useSSE = () => {
       });
     };
 
-    const handleTranscodingCompleteMP3 = ({ releaseId, format, exists }) => {
-      dispatch(setFormatExists({ releaseId, format, exists }));
+    const handleTranscodingCompleteMP3 = ({ format, releaseId }) => {
+      //
     };
 
     const handleUpdateTrackStatus = event => {
-      const { releaseId, trackId, status } = JSON.parse(event.data);
-      dispatch(updateTrackStatus({ releaseId, trackId, status }));
+      const { releaseId, status, trackId } = JSON.parse(event.data);
+      dispatch(updateTrackStatus({ releaseId, status, trackId }));
     };
 
     const handleWorkerMessage = event => {

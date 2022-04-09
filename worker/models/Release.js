@@ -15,7 +15,9 @@ const trackSchema = new Schema(
       flac: { type: String },
       mp3: { type: String },
       mp4: { type: String },
-      src: { type: String }
+      src: { type: String },
+      m3u8Master: { type: String },
+      m3u8Track: { type: String }
     }
   },
   { timestamps: true }

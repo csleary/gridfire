@@ -10,6 +10,21 @@ import tar from "tar-stream";
 
 const { TEMP_PATH, WORKER_QUEUE } = process.env;
 
+const onProgress =
+  (trackId, userId) =>
+  ({ targetSize, timemark }) => {
+    const [hours, mins, seconds] = timemark.split(":");
+    const [s] = seconds.split(".");
+    const h = hours !== "00" ? `${hours}:` : "";
+
+    postMessage({
+      message: `Encoded FLAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
+      trackId,
+      type: "encodingProgressFLAC",
+      userId
+    });
+  };
+
 const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
   let release;
   let trackDoc;
@@ -28,19 +43,6 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     const tarStream = Readable.from(ipfs.get(cid));
     const tarExtract = tar.extract();
 
-    const onProgress = ({ targetSize, timemark }) => {
-      const [hours, mins, seconds] = timemark.split(":");
-      const [s] = seconds.split(".");
-      const h = hours !== "00" ? `${hours}:` : "";
-
-      postMessage({
-        message: `Encoded FLAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
-        trackId,
-        type: "encodingProgressFLAC",
-        userId
-      });
-    };
-
     let size;
     await new Promise((resolve, reject) => {
       tarExtract.on("entry", async (header, stream, next) => {
@@ -48,7 +50,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
         size = header.size;
         stream.on("end", next);
         stream.resume();
-        await encodeFlacStream(stream, flacPath, onProgress);
+        await encodeFlacStream(stream, flacPath, onProgress(trackId, userId));
       });
 
       tarExtract.on("finish", resolve);
@@ -62,7 +64,6 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
       {
         progress: progress => {
           const percent = Math.floor((progress / size) * 100);
-          console.log({ percent });
 
           postMessage({
             message: `Saving FLAC (${percent}% complete)`,
@@ -81,14 +82,8 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     await release.save();
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoded", userId });
     postMessage({ type: "encodingCompleteFLAC", trackId, userId });
-
-    publishToQueue("", WORKER_QUEUE, {
-      job: "transcodeAAC",
-      releaseId,
-      trackId,
-      trackName,
-      userId
-    });
+    publishToQueue("", WORKER_QUEUE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
+    publishToQueue("", WORKER_QUEUE, { job: "transcodeMP3", releaseId, trackId, userId });
   } catch (error) {
     if (trackDoc) {
       trackDoc.status = "error";

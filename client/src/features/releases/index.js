@@ -72,10 +72,6 @@ const releaseSlice = createSlice({
     setActiveRelease(state, action) {
       state.activeRelease = action.payload;
     },
-    setFormatExists(state, action) {
-      const { exists, format, releaseId } = action.payload;
-      state.formatExists = { ...state.formatExists, [releaseId]: { [format]: exists } };
-    },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
@@ -265,7 +261,6 @@ export const {
   setArtworkUploadProgress,
   setCatalogue,
   setCollection,
-  setFormatExists,
   setIsLoading,
   setReleaseIdsForDeletion,
   setReleasePurchaseInfo,

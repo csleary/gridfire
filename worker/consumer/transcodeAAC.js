@@ -10,6 +10,21 @@ import sax from "sax";
 const { TEMP_PATH } = process.env;
 const fsPromises = fs.promises;
 
+const onProgress =
+  (trackId, userId) =>
+  ({ targetSize, timemark }) => {
+    const [hours, mins, seconds] = timemark.split(":");
+    const [s] = seconds.split(".");
+    const h = hours !== "00" ? `${hours}:` : "";
+
+    postMessage({
+      message: `Transcoded AAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
+      trackId,
+      type: "transcodingProgressAAC",
+      userId
+    });
+  };
+
 const removeTempFiles = async (mp4Path, flacPath, playlistDir) => {
   const dirContents = await fsPromises.readdir(playlistDir);
   const deleteFiles = dirContents.map(file => fsPromises.unlink(path.join(playlistDir, file)));
@@ -40,22 +55,9 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     // Transcode FLAC to AAC.
     mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
-    const flacData = fs.createReadStream(flacPath);
+    const flacStream = fs.createReadStream(flacPath);
 
-    const onProgress = ({ targetSize, timemark }) => {
-      const [hours, mins, seconds] = timemark.split(":");
-      const [s] = seconds.split(".");
-      const h = hours !== "00" ? `${hours}:` : "";
-
-      postMessage({
-        message: `Transcoded AAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
-        trackId,
-        type: "transcodingProgressAAC",
-        userId
-      });
-    };
-
-    await encodeAacFrag(flacData, mp4Path, onProgress);
+    await encodeAacFrag(flacStream, mp4Path, onProgress(trackId, userId));
 
     // Create mpd and playlists.
     playlistDir = path.join(TEMP_PATH, trackId);
@@ -88,49 +90,20 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     trackDoc.mpd = mpdData;
     await release.save();
 
-    // Add fragmented mp4 audio to IPFS
+    // Add fragmented mp4 audio to IPFS.
     const mp4Stream = fs.createReadStream(mp4Path);
-    const ipfsMP4 = await ipfs.add(
-      { content: mp4Stream },
-      {
-        progress: progress => {
-          console.log(progress);
-        }
-      }
-    );
-    await release.save();
-
-    const m3u8Master = await fsPromises.readFile(path.join(playlistDir, "master.m3u8"));
-    const m3u8Media = await fsPromises.readFile(path.join(playlistDir, "audio-und-mp4a.m3u8"));
-
-    // const mp4Params = {
-    //   Bucket: BUCKET_OPT,
-    //   ContentType: "audio/mp4",
-    //   Key: `mp4/${releaseId}/${trackId}.mp4`,
-    //   Body: mp4Audio
-    // };
-
-    // const m3u8MasterParams = {
-    //   Bucket: BUCKET_OPT,
-    //   ContentType: "application/x-mpegURL",
-    //   Key: `mp4/${releaseId}/${trackId}/master.m3u8`,
-    //   Body: m3u8Master
-    // };
-
-    // const m3u8MediaParams = {
-    //   Bucket: BUCKET_OPT,
-    //   ContentType: "application/x-mpegURL",
-    //   Key: `mp4/${releaseId}/${trackId}/audio-und-mp4a.m3u8`,
-    //   Body: m3u8Media
-    // };
-
-    // const uploads = [];
-    // const s3 = new aws.S3();
-    // uploads.push(s3.upload(mp4Params).promise());
-    // uploads.push(s3.upload(m3u8MasterParams).promise());
-    // uploads.push(s3.upload(m3u8MediaParams).promise());
-    // await Promise.allSettled(uploads);
+    const ipfsMP4 = await ipfs.add({ content: mp4Stream }, { progress: console.log });
     trackDoc.cids.mp4 = ipfsMP4.cid.toString();
+
+    // Add hls playlists to IPFS.
+    const m3u8_master = await fsPromises.readFile(path.join(playlistDir, "master.m3u8"));
+    const ipfs_m3u8_master = await ipfs.add(m3u8_master);
+    trackDoc.cids.m3u8Master = ipfs_m3u8_master.cid.toString();
+    const m3u8_track = await fsPromises.readFile(path.join(playlistDir, "audio-und-mp4a.m3u8"));
+    const ipfs_m3u8_track = await ipfs.add(m3u8_track);
+    trackDoc.cids.m3u8Track = ipfs_m3u8_track.cid.toString();
+
+    // Save track and clean up.
     trackDoc.dateUpdated = Date.now();
     trackDoc.status = "stored";
     await release.save();
