@@ -21,7 +21,7 @@ const zipDownload = async ({ ipfs, release, res, format }) => {
         console.log(header);
         artworkStream.on("end", next);
         archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.jpg` });
-        artworkStream.resume();
+        artworkStream.read();
       });
 
       const cidArtwork = artwork.cid;
@@ -40,7 +40,7 @@ const zipDownload = async ({ ipfs, release, res, format }) => {
           console.log(header);
           trackStream.on("end", next);
           archive.append(trackStream, { name: `${trackNumber.toString(10).padStart(2, "0")} ${trackTitle}.${format}` });
-          trackStream.resume();
+          trackStream.read();
         });
 
         const tarStream = Readable.from(ipfs.get(cids[format]));

@@ -49,7 +49,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
         console.log(header);
         size = header.size;
         stream.on("end", next);
-        stream.resume();
+        stream.read();
         await encodeFlacStream(stream, flacPath, onProgress(trackId, userId));
       });
 

@@ -31,7 +31,7 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
       tarExtract.on("entry", async (header, srcStream, next) => {
         try {
           console.log(header);
-          srcStream.resume();
+          srcStream.read();
           await encodeMp3(srcStream, mp3Path, onProgress(userId));
           next();
         } catch (error) {
