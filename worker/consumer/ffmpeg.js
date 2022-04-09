@@ -1,7 +1,11 @@
-import aws from "aws-sdk";
+import { Readable } from "stream";
 import ffmpeg from "fluent-ffmpeg";
+import fs from "fs";
+import { ipfs } from "./index.js";
+import path from "path";
+import tar from "tar-stream";
 
-const { BUCKET_MP3, BUCKET_SRC } = process.env;
+const { TEMP_PATH } = process.env;
 
 const encodeAacFrag = (downloadSrc, outputAudio, onProgress) =>
   new Promise((resolve, reject) => {
@@ -39,45 +43,48 @@ const encodeFlacStream = (srcStream, outputPath, onProgress) =>
       .save(outputPath);
   });
 
-const encodeMp3 = async (release, onProgress) =>
-  new Promise(async (resolve, reject) => {
-    const { _id: releaseId, trackList } = release;
-    const s3 = new aws.S3();
+const encodeMp3 = async (release, onProgress) => {
+  const { trackList } = release;
 
-    for (const track of trackList) {
-      try {
-        const { _id: trackId } = track;
+  for (const { _id: trackId, cids } of trackList) {
+    const tarExtract = tar.extract();
+    tarExtract.on("error", console.log);
 
-        const { Contents, KeyCount } = await s3
-          .listObjectsV2({ Bucket: BUCKET_SRC, Prefix: `${releaseId}/${trackId}` })
-          .promise();
+    tarExtract.on("entry", async (header, srcStream, next) => {
+      ffmpeg(srcStream)
+        .audioCodec("libmp3lame")
+        .toFormat("mp3")
+        .on("progress", onProgress)
+        .outputOptions("-q:a 0")
+        .on("end", async (error, stdout, stderr) => {
+          console.log("MP3 encoding complete.");
+          next();
+        })
+        .on("error", console.log)
+        .save(mp3Path);
 
-        if (!KeyCount) throw new Error("Track not found for encoding.");
-        const [{ Key }] = Contents;
-        const trackSrc = s3.getObject({ Bucket: BUCKET_SRC, Key }).createReadStream();
+      srcStream.resume();
+    });
 
-        const encode = ffmpeg(trackSrc)
-          .audioCodec("libmp3lame")
-          .toFormat("mp3")
-          .on("progress", onProgress)
-          .outputOptions("-q:a 0")
-          .on("error", reject);
+    tarExtract.on("finish", async () => {
+      const mp3Stream = fs.createReadStream(mp3Path);
+      const ipfsFile = await ipfs.add({ content: mp3Stream }, { progress: progress => console.log(progress) });
+      const cidMP3 = ipfsFile.cid.toString();
+      await fs.promises.unlink(mp3Path);
+      const trackDoc = release.trackList.id(trackId);
+      trackDoc.cids.mp3 = cidMP3;
+      await release.save();
+    });
 
-        const uploadParams = {
-          Bucket: BUCKET_MP3,
-          ContentType: "audio/mp3",
-          Key: `${releaseId}/${trackId}.mp3`,
-          Body: encode.pipe()
-        };
+    const cidFLAC = cids.flac;
+    const tarStream = Readable.from(ipfs.get(cidFLAC));
+    const mp3Path = path.resolve(TEMP_PATH, `${trackId}.mp3`);
+    tarStream.pipe(tarExtract);
+  }
 
-        await s3.upload(uploadParams).promise();
-      } catch (error) {
-        reject(error);
-      }
-    }
-
-    resolve();
-  });
+  console.log("[Worker] Release converted to mp3.");
+  return release;
+};
 
 const getTrackDuration = probeSrc =>
   new Promise((resolve, reject) =>
@@ -85,6 +92,7 @@ const getTrackDuration = probeSrc =>
       if (error) {
         reject(`Probing error: ${error.message}`);
       }
+
       resolve(metadata);
     })
   );

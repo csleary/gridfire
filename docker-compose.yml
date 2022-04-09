@@ -49,7 +49,6 @@ services:
   ipfs-host:
     container_name: ipfs-host
     image: ipfs/go-ipfs
-    # environment:
     expose:
       - 5001
     ports:

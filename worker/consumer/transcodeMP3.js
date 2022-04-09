@@ -3,7 +3,7 @@ import { encodeMp3 } from "./ffmpeg.js";
 import postMessage from "./postMessage.js";
 
 const transcodeMP3 = async ({ releaseId, userId }) => {
-  const release = await Release.findById(releaseId, "trackList", { lean: true }).exec();
+  const release = await Release.findById(releaseId, "trackList").exec();
 
   const onProgress = ({ targetSize, timemark }) => {
     const [hours, mins, seconds] = timemark.split(":");

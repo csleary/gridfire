@@ -130,7 +130,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     // uploads.push(s3.upload(m3u8MasterParams).promise());
     // uploads.push(s3.upload(m3u8MediaParams).promise());
     // await Promise.allSettled(uploads);
-    trackDoc.cids.aac = ipfsMP4.cid.toString();
+    trackDoc.cids.mp4 = ipfsMP4.cid.toString();
     trackDoc.dateUpdated = Date.now();
     trackDoc.status = "stored";
     await release.save();

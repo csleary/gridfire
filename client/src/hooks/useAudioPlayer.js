@@ -4,6 +4,7 @@ import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "feat
 import { toastError, toastWarning } from "features/toast";
 import axios from "axios";
 
+const { REACT_APP_IPFS_GATEWAY } = process.env;
 const MIME_TYPE = 'audio/mp4; codecs="mp4a.40.2"';
 
 const useAudioPlayer = () => {
@@ -100,9 +101,9 @@ const useAudioPlayer = () => {
 
   const fetchInitSegment = useCallback(async () => {
     const resUrl = await axios.get(`/api/track/${playerTrackId}/init`);
-    const { duration, url, range } = resUrl.data;
+    const { duration, cid, range } = resUrl.data;
     const config = { headers: { Range: `bytes=${range}` }, responseType: "arraybuffer" };
-    const resBuffer = await axios.get(url, config);
+    const resBuffer = await axios.get(`${REACT_APP_IPFS_GATEWAY}/${cid}`, config);
     initSegmentRef.current = new Uint8Array(resBuffer.data);
     setDuration(duration);
   }, [playerTrackId]);
@@ -110,9 +111,9 @@ const useAudioPlayer = () => {
   const fetchSegment = useCallback(
     async (time, type) => {
       const resUrl = await axios.get(`/api/track/${playerTrackId}/stream`, { params: { time, type } });
-      const { url, range, end } = resUrl.data;
+      const { cid, range, end } = resUrl.data;
       const config = { headers: { Range: `bytes=${range}` }, responseType: "arraybuffer" };
-      const resBuffer = await axios.get(url, config);
+      const resBuffer = await axios.get(`${REACT_APP_IPFS_GATEWAY}/${cid}`, config);
       const segment = new Uint8Array(resBuffer.data);
       const buffer = new Uint8Array([...initSegmentRef.current, ...segment]);
       setHasFinalSegment(Boolean(end));

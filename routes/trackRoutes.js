@@ -1,30 +1,26 @@
 import Busboy from "busboy";
 import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
-import aws from "aws-sdk";
 import express from "express";
 import mime from "mime-types";
 import mongoose from "mongoose";
 import { publishToQueue } from "../controllers/amqp/publisher.js";
 import requireLogin from "../middlewares/requireLogin.js";
 
-const { AWS_REGION, BUCKET_OPT, QUEUE_TRANSCODE } = process.env;
-aws.config.update({ region: AWS_REGION });
+const { QUEUE_TRANSCODE } = process.env;
 const router = express.Router();
 
 router.get("/:trackId/init", async (req, res) => {
   const { trackId } = req.params;
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
   const releaseId = release._id;
-  const { duration, initRange, segmentList } = release.trackList.id(trackId);
-  const mp4Params = { Bucket: BUCKET_OPT, Expires: 10, Key: `mp4/${releaseId}/${trackId}.mp4` };
-  const s3 = new aws.S3();
-  const url = s3.getSignedUrl("getObject", mp4Params);
+  const { cids, duration, initRange, segmentList } = release.trackList.id(trackId);
+  const cidMP4 = cids.mp4;
 
   // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
   const user = req.user?._id || req.session.user || mongoose.Types.ObjectId();
   req.session.user = user;
-  res.send({ duration, url, range: initRange });
+  res.send({ duration, cid: cidMP4, range: initRange });
 
   if (!release.user.equals(user)) {
     try {
@@ -46,17 +42,14 @@ router.get("/:trackId/stream", async (req, res) => {
     const { trackId } = req.params;
     const { time, type } = req.query;
     const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
-    const releaseId = release._id;
-    const { segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
+    const { cids, segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
+    const cidMP4 = cids.mp4;
     const segmentTime = Number.parseFloat(time) / (segmentDuration / segmentTimescale);
     const indexLookup = { 0: 0, 1: Math.ceil(segmentTime), 2: Math.floor(segmentTime) };
     const index = indexLookup[type];
     const range = segmentList[index];
     const end = index + 1 === segmentList.length;
-    const mp4Params = { Bucket: BUCKET_OPT, Expires: 10, Key: `mp4/${releaseId}/${trackId}.mp4` };
-    const s3 = new aws.S3();
-    const url = s3.getSignedUrl("getObject", mp4Params);
-    res.send({ url, range, end });
+    res.send({ cid: cidMP4, range, end });
 
     // If user is not logged in, use the session userId for play tracking.
     const user = req.user?._id || req.session.user;
@@ -139,7 +132,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
       const ipfsFile = await ipfs.add({ content: fileStream }, { progress: progress => console.log(progress) });
       const cid = ipfsFile.cid.toString();
-      track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { source: cid } });
+      track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
       await release.save();
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
 
