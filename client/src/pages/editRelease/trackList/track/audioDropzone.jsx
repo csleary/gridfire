@@ -11,13 +11,15 @@ import Icon from "components/icon";
 import { faPlusCircle, faSyncAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faThumbsUp, faTimesCircle } from "@fortawesome/free-regular-svg-icons";
 
-const AudioDropzone = ({ index, status, trackId, trackTitle }) => {
+const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => {
   const dispatch = useDispatch();
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
+
   const { audioUploadProgress, encodingProgressFLAC, storingProgressFLAC, transcodingProgressAAC } = useSelector(
     state => state.tracks,
     shallowEqual
   );
+
   const [hoverActive, setHoverActive] = useState(false);
   const releaseId = release._id;
   const isEncoding = status === "encoding";
@@ -45,10 +47,13 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }) => {
     }
 
     const audioFile = accepted[0];
+    if (!trackTitle) handleChange({ target: { name: "trackTitle", value: audioFile.name } }, trackId);
     const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(index, 10) + 1}`;
+
     dispatch(
       toastInfo({ message: `Uploading file \u2018${audioFile.name}\u2019 for ${trackName}.`, title: "Uploading" })
     );
+
     dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile, mimeType: audioFile.type })).catch(error =>
       dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }))
     );

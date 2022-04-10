@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 import Release from "../models/Release.js";
-import { encodeFlacStream } from "./ffmpeg.js";
+import { ffmpegEncodeFLAC } from "./ffmpeg.js";
 import fs from "fs";
 import { ipfs } from "./index.js";
 import path from "path";
@@ -26,16 +26,12 @@ const onProgress =
   };
 
 const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
-  let release;
-  let trackDoc;
-
   try {
     postMessage({ message: "Encoding flac…", title: "Processing", userId });
 
-    release = await Release.findOneAndUpdate(
+    await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
-      { $set: { "trackList.$.status": "encoding", "trackList.$.dateUpdated": Date.now() } },
-      { new: true }
+      { "trackList.$.status": "encoding" }
     ).exec();
 
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoding", userId });
@@ -43,14 +39,11 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     const tarStream = Readable.from(ipfs.get(cid));
     const tarExtract = tar.extract();
 
-    let size;
     await new Promise((resolve, reject) => {
-      tarExtract.on("entry", async (header, stream, next) => {
-        console.log(header);
-        size = header.size;
-        stream.on("end", next);
-        stream.read();
-        await encodeFlacStream(stream, flacPath, onProgress(trackId, userId));
+      tarExtract.on("entry", async (header, srcStream, next) => {
+        srcStream.on("error", console.log);
+        await ffmpegEncodeFLAC(srcStream, flacPath, onProgress(trackId, userId));
+        next();
       });
 
       tarExtract.on("finish", resolve);
@@ -58,39 +51,38 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
       tarStream.pipe(tarExtract);
     });
 
+    const { size } = await fs.promises.stat(flacPath);
     const flacStream = fs.createReadStream(flacPath);
-    const ipfsFLAC = await ipfs.add(
-      { content: flacStream },
-      {
-        progress: progress => {
-          const percent = Math.floor((progress / size) * 100);
 
-          postMessage({
-            message: `Saving FLAC (${percent}% complete)`,
-            trackId,
-            type: "storingProgressFLAC",
-            userId
-          });
-        }
+    const ipfsFLAC = await ipfs.add(flacStream, {
+      progress: progress => {
+        const percent = Math.floor((progress / size) * 100);
+
+        postMessage({
+          message: `Saving FLAC (${percent}% complete)`,
+          trackId,
+          type: "storingProgressFLAC",
+          userId
+        });
       }
-    );
+    });
 
-    trackDoc = release.trackList.id(trackId);
-    trackDoc.status = "encoded";
-    trackDoc.cids.flac = ipfsFLAC.cid.toString();
-    trackDoc.dateUpdated = Date.now();
-    await release.save();
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "encoded", "trackList.$.cids.flac": ipfsFLAC.cid.toString() }
+    ).exec();
+
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoded", userId });
     postMessage({ type: "encodingCompleteFLAC", trackId, userId });
     publishToQueue("", WORKER_QUEUE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
     publishToQueue("", WORKER_QUEUE, { job: "transcodeMP3", releaseId, trackId, userId });
   } catch (error) {
-    if (trackDoc) {
-      trackDoc.status = "error";
-      trackDoc.dateUpdated = Date.now();
-      await release.save();
-    }
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "error", "trackList.$.dateUpdated": Date.now() }
+    ).exec();
 
+    console.log(error);
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "error", userId });
     throw error;
   }

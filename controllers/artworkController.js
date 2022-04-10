@@ -35,8 +35,8 @@ const uploadArtwork = async ({ filePath, ipfs, releaseId, userId, sse }) => {
     sse.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
-    const content = file.pipe(optimisedImg);
-    const res = await ipfs.add({ content }, { progress: progress => console.log(progress) });
+    const artworkStream = file.pipe(optimisedImg);
+    const res = await ipfs.add(artworkStream, { progress: console.log });
     const { cid } = res;
 
     await release

@@ -128,7 +128,14 @@ const Track = props => {
           </Button>
         </HStack>
       </Flex>
-      <AudioDropzone disablePreview index={index} trackId={trackId} trackTitle={trackTitle} status={status} />
+      <AudioDropzone
+        disablePreview
+        handleChange={handleChange}
+        index={index}
+        trackId={trackId}
+        trackTitle={trackTitle}
+        status={status}
+      />
     </Flex>
   );
 };

@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 import Release from "../models/Release.js";
-import { encodeMp3 } from "./ffmpeg.js";
+import { ffmpegEncodeMP3 } from "./ffmpeg.js";
 import fs from "fs";
 import { ipfs } from "./index.js";
 import path from "path";
@@ -20,19 +20,20 @@ const onProgress =
 
 const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
   try {
-    const release = await Release.findById(releaseId).exec();
-    const trackDoc = release.trackList.id(trackId);
-    const { cids } = trackDoc;
+    const release = await Release.findOne({ _id: releaseId, "trackList._id": trackId, user: userId }, "trackList.$", {
+      lean: true
+    }).exec();
 
-    await new Promise((resolve, reject) => {
+    const [{ cids }] = release.trackList;
+
+    const cidMP3 = await new Promise((resolve, reject) => {
       const tarExtract = tar.extract();
       tarExtract.on("error", reject);
 
       tarExtract.on("entry", async (header, srcStream, next) => {
         try {
-          console.log(header);
-          srcStream.read();
-          await encodeMp3(srcStream, mp3Path, onProgress(userId));
+          // console.log(header);
+          await ffmpegEncodeMP3(srcStream, mp3Path);
           next();
         } catch (error) {
           throw error;
@@ -42,13 +43,9 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
       tarExtract.on("finish", async () => {
         try {
           const mp3Stream = fs.createReadStream(mp3Path);
-          const ipfsFile = await ipfs.add({ content: mp3Stream }, { progress: console.log });
-          const cidMP3 = ipfsFile.cid.toString();
+          const ipfsFile = await ipfs.add(mp3Stream);
           await fs.promises.unlink(mp3Path);
-          trackDoc.cids.mp3 = cidMP3;
-          trackDoc.dateUpdated = Date.now();
-          await release.save();
-          resolve();
+          resolve(ipfsFile.cid.toString());
         } catch (error) {
           throw error;
         }
@@ -60,8 +57,13 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
       tarStream.pipe(tarExtract);
     });
 
-    console.log("[Worker] Track converted to MP3 and uploaded to IPFS.");
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId, user: userId },
+      { "trackList.$.cids.mp3": cidMP3 }
+    ).exec();
+
     postMessage({ type: "transcodingCompleteMP3", format: "mp3", releaseId, userId });
+    console.log(`[Worker] Track ${trackId} converted to MP3 and uploaded to IPFS.`);
   } catch (error) {
     console.log(error);
   }

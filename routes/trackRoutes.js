@@ -130,7 +130,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       }
 
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
-      const ipfsFile = await ipfs.add({ content: fileStream }, { progress: progress => console.log(progress) });
+      const ipfsFile = await ipfs.add(fileStream);
       const cid = ipfsFile.cid.toString();
       track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
       await release.save();

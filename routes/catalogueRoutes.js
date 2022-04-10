@@ -74,10 +74,12 @@ router.get("/", async (req, res) => {
     const releases = await Release.find(
       { published: true },
       `
+      -__v
       -artwork.dateCreated
       -artwork.dateUpdated 
       -createdAt
       -updatedAt
+      -trackList.cids
       -trackList.initRange
       -trackList.mpd
       -trackList.segmentDuration

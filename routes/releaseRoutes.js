@@ -62,7 +62,7 @@ router.get("/:releaseId", async (req, res) => {
       throw new Error("This release is currently unavailable.");
     }
 
-    res.json({ release: release.toJSON() });
+    res.json({ release: release.toJSON({ versionKey: false }) });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error.message || error.toString() });
@@ -145,7 +145,7 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
 
     release.published = !release.published;
     const updatedRelease = await release.save();
-    res.json(updatedRelease.toJSON());
+    res.json(updatedRelease.toJSON({ versionKey: false }));
   } catch (error) {
     console.log(error);
     res.status(200).json({ error: error.message });
