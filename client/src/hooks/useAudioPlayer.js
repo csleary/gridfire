@@ -11,6 +11,7 @@ const MIME_TYPE = 'audio/mp4; codecs="mp4a.40.2"';
 const useAudioPlayer = () => {
   const dispatch = useDispatch();
   const audioPlayerRef = useRef();
+  const durationRef = useRef(0);
   const prevTimeRef = useRef();
   const initSegmentRef = useRef();
   const mediaSourceRef = useRef();
@@ -19,7 +20,6 @@ const useAudioPlayer = () => {
   const queueRef = useRef([]);
   const { player, releases } = useSelector(state => state, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
-  const [duration, setDuration] = useState(0);
   const [elapsedTime, setElapsedTime] = useState("");
   const [hasFinalSegment, setHasFinalSegment] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
@@ -44,6 +44,7 @@ const useAudioPlayer = () => {
   );
 
   const updateBuffer = useCallback(() => {
+    const duration = durationRef.current;
     const prevDuration = mediaSourceRef.current.duration;
     if (Number.isNaN(prevDuration)) {
       setShouldSetDuration(true);
@@ -53,12 +54,13 @@ const useAudioPlayer = () => {
     } else {
       mediaSourceRef.current.duration = duration;
     }
-  }, [duration]);
+  }, []);
 
   const handleUpdateEnd = useCallback(
     ({ target }) => {
       const bufferRanges = [];
       const { buffered } = target;
+      const duration = durationRef.current;
 
       for (let i = 0; i < buffered.length; i++) {
         bufferRanges.push([buffered.start(i), buffered.end(i)]);
@@ -69,8 +71,7 @@ const useAudioPlayer = () => {
 
       if (shouldSetDuration) {
         mediaSourceRef.current.duration = duration;
-        setShouldSetDuration(false);
-        return;
+        return void setShouldSetDuration(false);
       }
 
       if (queueRef.current.length) {
@@ -78,7 +79,7 @@ const useAudioPlayer = () => {
       }
       setIsBuffering(false);
     },
-    [duration, shouldSetDuration]
+    [shouldSetDuration]
   );
 
   const handleSetIsBuffering = () => setIsBuffering(true);
@@ -106,11 +107,10 @@ const useAudioPlayer = () => {
   const fetchInitSegment = useCallback(async () => {
     const resUrl = await axios.get(`/api/track/${playerTrackId}/init`);
     const { duration, cid, range } = resUrl.data;
-    console.log(duration);
     const config = { headers: { Range: `bytes=${range}` }, responseType: "arraybuffer" };
     const resBuffer = await axios.get(`${REACT_APP_IPFS_GATEWAY}/${cid}`, config);
     initSegmentRef.current = new Uint8Array(resBuffer.data);
-    setDuration(duration);
+    durationRef.current = duration;
   }, [playerTrackId]);
 
   const fetchSegment = useCallback(
@@ -168,9 +168,9 @@ const useAudioPlayer = () => {
         })
         .catch(error => {
           audioPlayerRef.current.pause();
-          dispatch(playerStop());
           setIsBuffering(false);
           setIsReady(true);
+          dispatch(playerStop());
           dispatch(toastError({ message: error.message || error }));
         });
     }
@@ -348,7 +348,7 @@ const useAudioPlayer = () => {
   return {
     audioPlayerRef,
     bufferRanges,
-    duration,
+    duration: durationRef.current,
     elapsedTime,
     hidePlayer: handleHidePlayer,
     playAudio: handlePlayButton,
