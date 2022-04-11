@@ -11,29 +11,34 @@ const { QUEUE_TRANSCODE } = process.env;
 const router = express.Router();
 
 router.get("/:trackId/init", async (req, res) => {
-  const { trackId } = req.params;
-  const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
-  const releaseId = release._id;
-  const { cids, duration, initRange, segmentList } = release.trackList.id(trackId);
-  const cidMP4 = cids.mp4;
+  try {
+    const { trackId } = req.params;
+    const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
+    const releaseId = release._id;
+    const { cids, duration, initRange, segmentList } = release.trackList.id(trackId);
+    const cidMP4 = cids.mp4;
 
-  // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
-  const user = req.user?._id || req.session.user || mongoose.Types.ObjectId();
-  req.session.user = user;
-  res.send({ duration, cid: cidMP4, range: initRange });
+    // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
+    const user = req.user?._id || req.session.user || mongoose.Types.ObjectId();
+    req.session.user = user;
+    res.send({ duration, cid: cidMP4, range: initRange });
 
-  if (!release.user.equals(user)) {
-    try {
-      await StreamSession.create({
-        user,
-        release: releaseId,
-        trackId,
-        segmentsTotal: segmentList.length
-      });
-    } catch (error) {
-      if (error.code === 11000) return;
-      res.status(400).json({ error: error.message || error.toString() });
+    if (!release.user.equals(user)) {
+      try {
+        await StreamSession.create({
+          user,
+          release: releaseId,
+          trackId,
+          segmentsTotal: segmentList.length
+        });
+      } catch (error) {
+        if (error.code === 11000) return;
+        res.status(400).json({ error: error.message || error.toString() });
+      }
     }
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
   }
 });
 
@@ -68,7 +73,7 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
     const { releaseId, trackId } = req.params;
     const { ipfs } = req.app.locals;
     const user = req.user._id;
-    const release = await Release.findOne({ _id: releaseId, user }).exec();
+    const release = await Release.findOne({ _id: releaseId, user }, "+trackList.cids").exec();
     if (!release) return res.sendStatus(403);
     const trackDoc = release.trackList.id(trackId);
     if (!trackDoc) return res.sendStatus(200);

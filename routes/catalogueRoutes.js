@@ -79,7 +79,7 @@ router.get("/", async (req, res) => {
       -artwork.dateUpdated 
       -createdAt
       -updatedAt
-      -trackList.cids
+      -trackList.cids.mp4
       -trackList.initRange
       -trackList.mpd
       -trackList.segmentDuration
@@ -97,6 +97,7 @@ router.get("/", async (req, res) => {
 
     res.send(releases);
   } catch (error) {
+    console.log(error);
     res.status(400).send({ error: "Music catalogue could not be fetched." });
   }
 });

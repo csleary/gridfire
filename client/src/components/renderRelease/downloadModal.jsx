@@ -8,7 +8,12 @@ import placeholder from "placeholder.svg";
 const DownloadModal = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
   return (
     <>
-      <Heading>Download &lsquo;{releaseTitle}&rsquo;</Heading>
+      <Heading>
+        Download{" "}
+        <Box as="span" fontStyle="italic">
+          {releaseTitle}
+        </Box>
+      </Heading>
       <Wrap as="section" mb={4}>
         <WrapItem flex="1 1 24ch">
           <Image

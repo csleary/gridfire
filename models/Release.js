@@ -12,12 +12,12 @@ const trackSchema = new Schema(
     segmentList: { type: Array },
     initRange: { type: String },
     cids: {
-      flac: { type: String },
-      mp3: { type: String },
-      mp4: { type: String },
-      src: { type: String },
-      m3u8Master: { type: String },
-      m3u8Track: { type: String }
+      flac: { type: String, select: false },
+      mp3: { type: String, select: false },
+      mp4: { type: String, select: false },
+      src: { type: String, select: false },
+      m3u8Master: { type: String, select: false },
+      m3u8Track: { type: String, select: false }
     }
   },
   { timestamps: true }
