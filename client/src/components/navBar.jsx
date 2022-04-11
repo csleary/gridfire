@@ -62,7 +62,7 @@ const NavBar = () => {
       dispatch(setAccount(firstAccount));
       dispatch(setIsConnected(true));
     } catch (error) {
-      dispatch(toastError(error.message));
+      dispatch(toastError({ message: error.message }));
     }
   };
 

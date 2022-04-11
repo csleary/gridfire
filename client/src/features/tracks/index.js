@@ -117,7 +117,7 @@ const uploadAudio =
         return toastInfo({ message: "Upload cancelled.", title: "Cancelled" });
       }
 
-      toastError(error.response.data.error);
+      toastError({ message: error.response.data.error });
       dispatch(setUploadProgress({ trackId, percent: 0 }));
     }
   };

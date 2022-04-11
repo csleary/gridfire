@@ -16,26 +16,30 @@ const TrackList = () => {
 
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
-      {trackList.map(({ _id: trackId, trackTitle }) => (
+      {trackList.map(({ _id: trackId, duration, trackTitle }, index) => (
         <ListItem key={trackId}>
+          <Box as="span" color="gray.400" fontWeight="600" mr="2">
+            {(index + 1).toString(10).padStart(2, "0")}
+          </Box>
           <Button
             color="gray.500"
             variant="link"
-            onClick={() => {
+            onClick={async () => {
               if (trackId !== playerTrackId) {
-                batch(() => {
-                  dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
-                  dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
-                });
+                dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+                dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
               } else if (!isPlaying) {
                 const audioPlayer = document.getElementById("player");
-                audioPlayer.play();
-                return dispatch(playerPlay());
+                await audioPlayer.play().catch(console.log);
+                dispatch(playerPlay());
               }
             }}
           >
             {trackTitle}
           </Button>
+          <Box as="span" color="gray.400" fontWeight="600" ml="2">
+            ({Math.floor(duration / 60)}:{(Math.ceil(duration) % 60).toString(10).padStart(2, "0")})
+          </Box>
           {trackId === playerTrackId && isPlaying ? (
             <Box as={FontAwesomeIcon} icon={faPlay} animation={animation} ml={2} />
           ) : trackId === playerTrackId && isPaused ? (

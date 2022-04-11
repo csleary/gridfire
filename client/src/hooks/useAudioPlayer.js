@@ -3,6 +3,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "features/player";
 import { toastError, toastWarning } from "features/toast";
 import axios from "axios";
+import { usePrevious } from "hooks/usePrevious";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 const MIME_TYPE = 'audio/mp4; codecs="mp4a.40.2"';
@@ -31,6 +32,7 @@ const useAudioPlayer = () => {
   const release = releases.activeRelease;
   const { isPlaying, trackId: playerTrackId } = player;
   const { _id: releaseId, artistName, trackList } = release;
+  const prevPlayerTrackId = usePrevious(playerTrackId);
 
   useEffect(
     () => () => {
@@ -42,9 +44,11 @@ const useAudioPlayer = () => {
   );
 
   const updateBuffer = useCallback(() => {
-    const oldDuration = Number.isFinite(mediaSourceRef.current.duration) ? mediaSourceRef.current.duration : 0;
-    if (duration < oldDuration) {
-      sourceBufferRef.current.remove(duration, oldDuration);
+    const prevDuration = mediaSourceRef.current.duration;
+    if (Number.isNaN(prevDuration)) {
+      setShouldSetDuration(true);
+    } else if (duration < prevDuration) {
+      sourceBufferRef.current.remove(duration, prevDuration);
       setShouldSetDuration(true);
     } else {
       mediaSourceRef.current.duration = duration;
@@ -102,6 +106,7 @@ const useAudioPlayer = () => {
   const fetchInitSegment = useCallback(async () => {
     const resUrl = await axios.get(`/api/track/${playerTrackId}/init`);
     const { duration, cid, range } = resUrl.data;
+    console.log(duration);
     const config = { headers: { Range: `bytes=${range}` }, responseType: "arraybuffer" };
     const resBuffer = await axios.get(`${REACT_APP_IPFS_GATEWAY}/${cid}`, config);
     initSegmentRef.current = new Uint8Array(resBuffer.data);
@@ -140,7 +145,7 @@ const useAudioPlayer = () => {
   }, [artistName, dispatch, handleStop, playerTrackId, releaseId, trackList]);
 
   useEffect(() => {
-    if (playerTrackId) {
+    if (playerTrackId && playerTrackId !== prevPlayerTrackId) {
       audioPlayerRef.current.pause();
       queueRef.current.length = 0;
       setHasFinalSegment(false);
@@ -166,10 +171,19 @@ const useAudioPlayer = () => {
           dispatch(playerStop());
           setIsBuffering(false);
           setIsReady(true);
-          dispatch(toastError(error.message || error.toString()));
+          dispatch(toastError({ message: error.message || error }));
         });
     }
-  }, [appendBuffer, dispatch, fetchInitSegment, fetchSegment, handlePlay, playerTrackId, updateBuffer]);
+  }, [
+    appendBuffer,
+    dispatch,
+    fetchInitSegment,
+    fetchSegment,
+    handlePlay,
+    playerTrackId,
+    prevPlayerTrackId,
+    updateBuffer
+  ]);
 
   const handleTimeUpdate = useCallback(async () => {
     const { currentTime, paused } = audioPlayerRef.current;
@@ -239,9 +253,9 @@ const useAudioPlayer = () => {
 
     if (iPhone || iPad || !isSupported) {
       return dispatch(
-        toastWarning(
-          "The mp4 audio format we use is not currently supported by your device. Streaming will be disabled."
-        )
+        toastWarning({
+          message: "The mp4 audio format we use is not currently supported by your device. Streaming will be disabled."
+        })
       );
     }
 
