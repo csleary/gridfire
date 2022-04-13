@@ -46,19 +46,19 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "transcoding", userId });
 
     // Probe for track duration.
-    flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
+    flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
     const probeSrc = fs.createReadStream(flacPath);
     const metadata = await ffprobeGetTrackDuration(probeSrc);
 
     // Transcode FLAC to AAC.
-    mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
+    mp4Path = path.resolve(TEMP_PATH, `${trackId}.mp4`);
     const flacStream = fs.createReadStream(flacPath);
     await ffmpegEncodeFragmentedAAC(flacStream, mp4Path, onProgress(trackId, userId));
 
     // Create mpd and playlists.
-    playlistDir = path.join(TEMP_PATH, trackId);
+    playlistDir = path.resolve(TEMP_PATH, trackId);
     createMPD(mp4Path, trackId, playlistDir);
-    const outputMpd = path.join(playlistDir, `${trackId}.mpd`);
+    const outputMpd = path.resolve(playlistDir, `${trackId}.mpd`);
     const mpdData = await fsPromises.readFile(outputMpd);
     const strict = true;
     const parser = sax.parser(strict);

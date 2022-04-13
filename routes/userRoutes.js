@@ -76,7 +76,7 @@ router.get("/plays", requireLogin, async (req, res) => {
     const releases = await Release.aggregate([
       { $match: { user: userId } },
       { $lookup: { from: "plays", localField: "_id", foreignField: "release", as: "plays" } },
-      { $project: { sum: { $size: "$plays" } } }
+      { $project: { total: { $size: "$plays" } } }
     ]).exec();
 
     res.send(releases);
@@ -102,7 +102,7 @@ router.get("/releases/favourites", requireLogin, async (req, res) => {
     const releases = await Release.aggregate([
       { $match: { user: userId } },
       { $lookup: { from: "favourites", localField: "_id", foreignField: "release", as: "favourites" } },
-      { $project: { sum: { $size: "$favourites" } } }
+      { $project: { total: { $size: "$favourites" } } }
     ]).exec();
 
     res.send(releases);

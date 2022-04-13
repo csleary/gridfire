@@ -5,10 +5,11 @@ import axios from "axios";
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    auth: undefined,
-    credits: 0,
+    account: "",
+    email: "",
     favourites: [],
     isLoading: true,
+    lastLogin: null,
     paymentAddress: "",
     purchases: [],
     wishList: []
@@ -43,8 +44,10 @@ const userSlice = createSlice({
     },
 
     updateUser(state, action) {
-      const { _id, auth, favourites, paymentAddress, purchases, wishList } = action.payload;
-      state.auth = auth;
+      const { _id, account, email, favourites, lastLogin, paymentAddress, purchases, wishList } = action.payload;
+      state.account = account;
+      state.email = email;
+      state.lastLogin = lastLogin;
       state.favourites = favourites;
       state.paymentAddress = paymentAddress;
       state.purchases = purchases;

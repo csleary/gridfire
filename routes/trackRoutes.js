@@ -1,6 +1,8 @@
 import Busboy from "busboy";
 import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
+import User from "../models/User.js";
+import { encryptStream } from "../controllers/encryption.js";
 import express from "express";
 import mime from "mime-types";
 import mongoose from "mongoose";
@@ -104,6 +106,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
     const filter = { _id: releaseId, user: userId };
     const options = { new: true, upsert: true };
     const release = await Release.findOneAndUpdate(filter, {}, options).exec();
+    const { key } = await User.findById(userId, "+key", { lean: true }).exec();
     const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 200 } });
 
     busboy.on("error", async error => {
@@ -135,7 +138,8 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       }
 
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
-      const ipfsFile = await ipfs.add(fileStream);
+      const encryptedStream = await encryptStream(fileStream, key);
+      const ipfsFile = await ipfs.add(encryptedStream);
       const cid = ipfsFile.cid.toString();
       track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
       await release.save();

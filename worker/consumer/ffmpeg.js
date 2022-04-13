@@ -66,10 +66,7 @@ const ffmpegEncodeMP3 = async (srcStream, outputPath, onProgress) =>
       })
       .on("error", reject)
       // .on("progress", onProgress)
-      .on("start", () => {
-        srcStream.resume();
-        console.log();
-      })
+      .on("start", console.log)
       .save(outputPath);
   });
 

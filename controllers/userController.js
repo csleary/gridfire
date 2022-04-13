@@ -1,11 +1,11 @@
-import User from '../models/User.js';
+import User from "../models/User.js";
 
 const getUser = async userId => {
   const [user] = await User.aggregate([
     { $match: { _id: userId } },
-    { $lookup: { from: 'favourites', localField: '_id', foreignField: 'user', as: 'favourites' } },
-    { $lookup: { from: 'wishlists', localField: '_id', foreignField: 'user', as: 'wishList' } },
-    { $lookup: { from: 'sales', localField: '_id', foreignField: 'user', as: 'purchases' } },
+    { $lookup: { from: "favourites", localField: "_id", foreignField: "user", as: "favourites" } },
+    { $lookup: { from: "wishlists", localField: "_id", foreignField: "user", as: "wishList" } },
+    { $lookup: { from: "sales", localField: "_id", foreignField: "user", as: "purchases" } },
     { $project: { __v: 0 } }
   ]).exec();
 
@@ -13,9 +13,7 @@ const getUser = async userId => {
 };
 
 const setPaymentAddress = async ({ paymentAddress, userId }) => {
-  const user = await User.findById(userId, 'auth paymentAddress').exec();
-  user.paymentAddress = paymentAddress;
-  await user.save();
+  await User.findByIdAndUpdate(userId, { paymentAddress }).exec();
 };
 
 export { getUser, setPaymentAddress };

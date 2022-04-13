@@ -17,7 +17,6 @@ import {
   faHeadphonesAlt,
   faHeart,
   faMagic,
-  faPlus,
   faSignInAlt,
   faSignOutAlt,
   faUserCircle
@@ -38,7 +37,7 @@ const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, web3 } = useSelector(state => state, shallowEqual);
-  const { auth } = user;
+  const { account: userAccount } = user;
   const { account = "", accountShort, isConnected } = web3 || {};
 
   const handleLogout = () => {
@@ -77,7 +76,7 @@ const NavBar = () => {
         </Link>
       </WrapItem>
       <Spacer />
-      {auth === undefined ? (
+      {!userAccount ? (
         <WrapItem>
           <Button
             as={NavLink}
@@ -111,11 +110,6 @@ const NavBar = () => {
               </Button>
             </WrapItem>
           )}
-          <WrapItem>
-            <Button leftIcon={<Icon icon={faPlus} />} as={NavLink} to={"/release/new"} title="Add a new release.">
-              Add Release
-            </Button>
-          </WrapItem>
           <WrapItem>
             <Menu>
               <MenuButton

@@ -1,5 +1,7 @@
 import { Readable } from "stream";
 import Release from "../models/Release.js";
+import User from "../models/User.js";
+import { decryptStream } from "../../controllers/encryption.js";
 import { ffmpegEncodeFLAC } from "./ffmpeg.js";
 import fs from "fs";
 import { ipfs } from "./index.js";
@@ -34,6 +36,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
       { "trackList.$.status": "encoding" }
     ).exec();
 
+    const { key } = await User.findById(userId, "+key", { lean: true }).exec();
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoding", userId });
     const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
     const tarStream = Readable.from(ipfs.get(cid));
@@ -42,8 +45,15 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     await new Promise((resolve, reject) => {
       tarExtract.on("entry", async (header, srcStream, next) => {
         srcStream.on("error", console.log);
-        await ffmpegEncodeFLAC(srcStream, flacPath, onProgress(trackId, userId));
-        next();
+
+        try {
+          const decryptedStream = await decryptStream(srcStream, key);
+          await ffmpegEncodeFLAC(decryptedStream, flacPath, onProgress(trackId, userId));
+          next();
+        } catch (error) {
+          srcStream.destroy(error);
+          throw error;
+        }
       });
 
       tarExtract.on("finish", resolve);

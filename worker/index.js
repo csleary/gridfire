@@ -3,6 +3,7 @@ import amqp from "amqplib";
 import startConsumer from "./consumer/index.js";
 import startPublisher from "./publisher/index.js";
 import "./models/Release.js";
+import "./models/User.js";
 
 const { MONGO_URI, RABBITMQ_USER, RABBIT_HOST, RABBITMQ_PASS } = process.env;
 

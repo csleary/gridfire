@@ -3,22 +3,25 @@ import crypto from "crypto";
 import { ethers } from "ethers";
 import passport from "passport";
 import passportCustom from "passport-custom";
+import { strict as assert } from "assert";
 
 const { GRIDFIRE_SECRET } = process.env;
 const CustomStrategy = passportCustom.Strategy;
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, user._id);
 });
 
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id, "-__v -auth.password").exec();
+passport.deserializeUser(async (userId, done) => {
+  const user = await User.findById(userId, "-__v").exec();
   done(null, user);
 });
 
-const idHash = userToken => {
+const createKey = userToken => {
+  assert(Boolean(GRIDFIRE_SECRET), "Gridfire secret missing.");
   const hash = crypto.createHash("sha256");
-  return hash.update(userToken).update(GRIDFIRE_SECRET).digest("hex");
+  const digest = hash.update(userToken).update(GRIDFIRE_SECRET).digest("hex");
+  return digest.slice(0, 32);
 };
 
 const loginWeb3 = async (req, done) => {
@@ -37,24 +40,23 @@ const loginWeb3 = async (req, done) => {
       return done(null, false, "Could not verify signature.");
     }
 
-    const existingUser = await User.findOne({ "auth.account": address }).exec();
+    const existingUser = await User.findOne({ account: address }).exec();
 
     if (existingUser) {
-      await existingUser.updateOne({ "auth.lastLogin": Date.now() }).exec();
+      await existingUser.updateOne({ lastLogin: Date.now() }).exec();
       return done(null, existingUser);
     }
 
     const newUser = await User.create({
-      auth: {
-        account: address,
-        idHash: idHash(address),
-        lastLogin: Date.now()
-      },
+      account: address,
+      key: createKey(address),
+      lastLogin: Date.now(),
       paymentAddress: address
     });
 
     done(null, newUser);
   } catch (error) {
+    console.log(error);
     done(error);
   }
 };

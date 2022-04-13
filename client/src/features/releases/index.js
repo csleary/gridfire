@@ -87,12 +87,12 @@ const releaseSlice = createSlice({
     },
     setUserReleaseFavs(state, action) {
       action.payload.forEach(rel => {
-        state.favCounts[rel._id] = rel.sum;
+        state.favCounts[rel._id] = rel.total;
       });
     },
     setUserReleasePlays(state, action) {
       action.payload.forEach(rel => {
-        state.playCounts[rel._id] = rel.sum;
+        state.playCounts[rel._id] = rel.total;
       });
     },
     setUserWishList(state, action) {

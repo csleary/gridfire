@@ -5,8 +5,7 @@ import React from "react";
 import { RootState } from "index";
 
 const Footer: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user, shallowEqual);
-  const { auth } = user;
+  const { account } = useSelector((state: RootState) => state.user, shallowEqual);
   const today = new Date();
   const year = today.getFullYear();
 
@@ -22,7 +21,7 @@ const Footer: React.FC = () => {
             </ListItem>
           </List>
         </Center>
-        {auth ? (
+        {account ? (
           <Center flex={1}>
             <List>
               <ListItem>

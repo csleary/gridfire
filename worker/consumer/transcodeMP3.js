@@ -32,10 +32,10 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
 
       tarExtract.on("entry", async (header, srcStream, next) => {
         try {
-          // console.log(header);
           await ffmpegEncodeMP3(srcStream, mp3Path);
           next();
         } catch (error) {
+          srcStream.destroy(error);
           throw error;
         }
       });

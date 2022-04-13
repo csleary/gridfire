@@ -13,12 +13,12 @@ router.get("/web3", (req, res) => {
   const { address } = req.query;
 
   const message = `Hi! Welcome to GridFire.
-      
-  Using your Ether wallet you can safely and securely sign in, without needing an email or password. 'Signing' a message proves you are the owner of the account. This is a free process, costing you no ether, and doesn't require access to the blockchain.
-      
-  We've included a unique, randomly-generated code below to ensure that your signature is recent.
-      
-  ${nonce}`;
+
+Using your Ether wallet you can safely and securely sign in, without needing an email or password. 'Signing' a message proves you are the owner of the account. This is a free process, costing you no ether, and doesn't require access to the blockchain.
+
+We've included a unique, randomly-generated code below to ensure that your signature is recent.
+
+${nonce}`;
 
   const messageHash = keccak256(toUtf8Bytes(message));
 

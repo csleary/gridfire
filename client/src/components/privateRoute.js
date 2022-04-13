@@ -5,9 +5,9 @@ import PropTypes from "prop-types";
 const PrivateRoute = ({ children }) => {
   const { user } = useSelector(state => state, shallowEqual);
   const location = useLocation();
-  const { auth, isLoading } = user;
+  const { account, isLoading } = user;
 
-  if (!isLoading && !auth) {
+  if (!isLoading && !account) {
     return <Navigate to={"/login"} state={location} />;
   }
 
