@@ -138,18 +138,24 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       }
 
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
-      const encryptedStream = await encryptStream(fileStream, key);
-      const ipfsFile = await ipfs.add(encryptedStream);
-      const cid = ipfsFile.cid.toString();
-      track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
-      await release.save();
-      sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
 
-      if ([cid, releaseId, trackId, trackName, userId].includes(undefined)) {
-        throw new Error("Job parameters missing.");
+      try {
+        const encryptedStream = await encryptStream(fileStream, key);
+        const ipfsFile = await ipfs.add(encryptedStream);
+        const cid = ipfsFile.cid.toString();
+        track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
+        await release.save();
+        sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
+
+        if ([cid, releaseId, trackId, trackName, userId].includes(undefined)) {
+          throw new Error("Job parameters missing.");
+        }
+
+        publishToQueue("", QUEUE_TRANSCODE, { userId, cid, job: "encodeFLAC", releaseId, trackId, trackName });
+      } catch (error) {
+        busboy.emit("error", error);
+        fileStream.destroy();
       }
-
-      publishToQueue("", QUEUE_TRANSCODE, { userId, cid, job: "encodeFLAC", releaseId, trackId, trackName });
     });
 
     busboy.on("finish", () => {

@@ -69,6 +69,7 @@ const decryptStream = async (encryptedStream, key) => {
   } catch (error) {
     if (encryptedFilePath) fs.promises.unlink(encryptedFilePath).catch(console.log);
     console.log(error);
+    throw error;
   }
 };
 
