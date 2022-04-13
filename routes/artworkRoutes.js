@@ -57,9 +57,9 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const { ipfs } = req.app.locals;
     const { releaseId } = req.params;
     const userId = req.user._id;
-    const release = await Release.findOne({ _id: releaseId, user: userId }, "-__v").exec();
-    if (!release) return res.end();
-    const updated = await deleteArtwork({ ipfs, release });
+    const releaseExists = await Release.findOne({ _id: releaseId, user: userId });
+    if (!releaseExists) return res.end();
+    const updated = await deleteArtwork({ ipfs, releaseId });
     res.send(updated);
   } catch (error) {
     res.status(400).send({ error: error.message });

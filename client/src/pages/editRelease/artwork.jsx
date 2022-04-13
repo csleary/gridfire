@@ -23,7 +23,7 @@ const Artwork = () => {
   const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
   const [coverArtPreview, setCoverArtPreview] = useState();
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
-  const { cid } = artwork;
+  const { cid } = artwork || {};
   const artworkStatus = artwork?.status;
 
   useEffect(() => {

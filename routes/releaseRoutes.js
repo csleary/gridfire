@@ -21,7 +21,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const { artist, artwork, trackList } = release;
 
     // Delete artwork from IPFS.
-    const deleteArtwork = ipfs.pin.rm(artwork.cid).catch(console.log);
+    const deleteArtwork = artwork.cid && ipfs.pin.rm(artwork.cid).catch(console.log);
 
     // Delete track audio and playlists from IPFS.
     const deleteTracks = trackList.reduce(
@@ -75,9 +75,8 @@ router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
     const alreadyBought = await Sale.exists({ user: req.user._id, release: releaseId });
     if (alreadyBought) throw new Error("You already own this release.");
     const release = await Release.findById(releaseId, "-__v", { lean: true });
-    const owner = await User.findById(release.user, "auth.account", { lean: true });
-    const paymentAddress = owner.auth.account;
-    res.json({ release, paymentAddress });
+    const { account } = await User.findById(release.user, "account", { lean: true });
+    res.json({ release, paymentAddress: account });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error.message || error.toString() });

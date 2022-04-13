@@ -1,5 +1,6 @@
 import Release from "../models/Release.js";
 import Sale from "../models/Sale.js";
+import User from "../models/User.js";
 import express from "express";
 import requireLogin from "../middlewares/requireLogin.js";
 import { zipDownload } from "../controllers/archiveController.js";
@@ -11,6 +12,7 @@ router.get("/:releaseId/:format", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const hasPurchased = await Sale.exists({ user: userId, release: releaseId });
   if (!hasPurchased) res.status(401).send({ error: "Not authorised." });
+  const { key } = await User.findById(userId, "+key", { lean: true }).exec();
   const { ipfs } = req.app.locals;
 
   const release = await Release.findById(
@@ -20,7 +22,7 @@ router.get("/:releaseId/:format", requireLogin, async (req, res) => {
   ).exec();
 
   if (!release) return res.sendStatus(404);
-  zipDownload({ ipfs, release, res, format });
+  zipDownload({ ipfs, key, release, res, format });
 });
 
 export default router;

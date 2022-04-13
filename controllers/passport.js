@@ -3,9 +3,7 @@ import crypto from "crypto";
 import { ethers } from "ethers";
 import passport from "passport";
 import passportCustom from "passport-custom";
-import { strict as assert } from "assert";
 
-const { GRIDFIRE_SECRET } = process.env;
 const CustomStrategy = passportCustom.Strategy;
 
 passport.serializeUser((user, done) => {
@@ -17,12 +15,14 @@ passport.deserializeUser(async (userId, done) => {
   done(null, user);
 });
 
-const createKey = userToken => {
-  assert(Boolean(GRIDFIRE_SECRET), "Gridfire secret missing.");
-  const hash = crypto.createHash("sha256");
-  const digest = hash.update(userToken).update(GRIDFIRE_SECRET).digest("hex");
-  return digest.slice(0, 32);
-};
+const createKey = userToken =>
+  new Promise((resolve, reject) => {
+    const salt = crypto.randomBytes(32).toString("hex");
+    crypto.scrypt(userToken, salt, 16, { maxmem: 64 * 1024 * 1024 }, (error, derivedKey) => {
+      if (error) return reject(error);
+      resolve(derivedKey.toString("hex"));
+    });
+  });
 
 const loginWeb3 = async (req, done) => {
   try {
@@ -49,7 +49,7 @@ const loginWeb3 = async (req, done) => {
 
     const newUser = await User.create({
       account: address,
-      key: createKey(address),
+      key: await createKey(address),
       lastLogin: Date.now(),
       paymentAddress: address
     });

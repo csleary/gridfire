@@ -1,7 +1,7 @@
+import { encryptStream, decryptStream } from "../../controllers/encryption.js";
 import { Readable } from "stream";
 import Release from "../models/Release.js";
 import User from "../models/User.js";
-import { decryptStream } from "../../controllers/encryption.js";
 import { ffmpegEncodeFLAC } from "./ffmpeg.js";
 import fs from "fs";
 import { ipfs } from "./index.js";
@@ -62,9 +62,10 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     });
 
     const { size } = await fs.promises.stat(flacPath);
-    const flacStream = fs.createReadStream(flacPath);
+    const flacFileStream = fs.createReadStream(flacPath);
+    const encryptedFlacStream = await encryptStream(flacFileStream, key);
 
-    const ipfsFLAC = await ipfs.add(flacStream, {
+    const ipfsFLAC = await ipfs.add(encryptedFlacStream, {
       progress: progress => {
         const percent = Math.floor((progress / size) * 100);
 

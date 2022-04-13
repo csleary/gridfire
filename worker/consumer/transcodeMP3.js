@@ -1,5 +1,7 @@
+import { encryptStream, decryptStream } from "../../controllers/encryption.js";
 import { Readable } from "stream";
 import Release from "../models/Release.js";
+import User from "../models/User.js";
 import { ffmpegEncodeMP3 } from "./ffmpeg.js";
 import fs from "fs";
 import { ipfs } from "./index.js";
@@ -20,6 +22,7 @@ const onProgress =
 
 const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
   try {
+    const { key } = await User.findById(userId, "+key", { lean: true }).exec();
     const release = await Release.findOne({ _id: releaseId, "trackList._id": trackId, user: userId }, "trackList.$", {
       lean: true
     }).exec();
@@ -32,7 +35,8 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
 
       tarExtract.on("entry", async (header, srcStream, next) => {
         try {
-          await ffmpegEncodeMP3(srcStream, mp3Path);
+          const decryptedStream = await decryptStream(srcStream, key);
+          await ffmpegEncodeMP3(decryptedStream, mp3Path);
           next();
         } catch (error) {
           srcStream.destroy(error);
@@ -43,7 +47,8 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
       tarExtract.on("finish", async () => {
         try {
           const mp3Stream = fs.createReadStream(mp3Path);
-          const ipfsFile = await ipfs.add(mp3Stream);
+          const encryptedFlacStream = await encryptStream(mp3Stream, key);
+          const ipfsFile = await ipfs.add(encryptedFlacStream);
           await fs.promises.unlink(mp3Path);
           resolve(ipfsFile.cid.toString());
         } catch (error) {

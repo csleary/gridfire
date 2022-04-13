@@ -1,19 +1,19 @@
 import Release from "../models/Release.js";
 import fs from "fs";
 import sharp from "sharp";
-import { CID } from "ipfs-http-client";
 
 const fsPromises = fs.promises;
 
-const deleteArtwork = async ({ ipfs, release }) => {
-  const releaseId = release._id.toString();
-  release.updateOne({ $set: { "artwork.status": "deleting", "artwork.dateUpdated": Date.now() } }).exec();
+const deleteArtwork = async ({ ipfs, releaseId }) => {
+  const release = await Release.findByIdAndUpdate(
+    releaseId,
+    { "artwork.status": "deleting", "artwork.dateUpdated": Date.now() },
+    { new: true }
+  ).exec();
+
   const { artwork } = release;
   const { cid } = artwork;
-
-  await ipfs.pin.rm(cid).catch(error => {
-    console.log(error);
-  });
+  await ipfs.pin.rm(cid).catch(console.log);
 
   const updatedRelease = await Release.findByIdAndUpdate(
     releaseId,
@@ -28,15 +28,18 @@ const uploadArtwork = async ({ filePath, ipfs, releaseId, userId, sse }) => {
   try {
     const release = await Release.findByIdAndUpdate(
       releaseId,
-      { $set: { "artwork.status": "storing", "artwork.dateCreated": Date.now() } },
+      { "artwork.status": "storing", "artwork.dateCreated": Date.now() },
       { new: true }
     ).exec();
 
+    const { artwork } = release;
+    const { cid: prevCid } = artwork;
+    if (prevCid) await ipfs.pin.rm(prevCid).catch(console.log);
     sse.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
     const artworkStream = file.pipe(optimisedImg);
-    const res = await ipfs.add(artworkStream, { progress: console.log });
+    const res = await ipfs.add(artworkStream);
     const { cid } = res;
 
     await release
@@ -50,10 +53,8 @@ const uploadArtwork = async ({ filePath, ipfs, releaseId, userId, sse }) => {
       .exec();
 
     sse.send(userId, { type: "artworkUploaded" });
-    await fsPromises.unlink(filePath);
-  } catch (error) {
-    await fsPromises.unlink(filePath).catch(() => {});
-    throw error;
+  } finally {
+    fsPromises.unlink(filePath).catch(console.log);
   }
 };
 
