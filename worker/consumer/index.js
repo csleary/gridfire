@@ -16,8 +16,8 @@ const startConsumer = async connection => {
       if (data === null) return; // null message fired if consumer was cancelled.
 
       try {
-        const message = JSON.parse(data.content.toString());
-        const work = jobs[message.job];
+        const { job, ...message } = JSON.parse(data.content.toString());
+        const work = jobs[job];
         await work(message);
         channel.ack(data);
       } catch (error) {

@@ -73,11 +73,9 @@ const trackSlice = createSlice({
 const deleteTrack = (releaseId, trackId, trackTitle) => async (dispatch, getState) => {
   try {
     if (getState().tracks.trackIdsForDeletion[trackId]) {
-      const res = await axios.delete(`/api/track/${releaseId}/${trackId}`);
-      dispatch(setActiveRelease(res.data));
-      dispatch(
-        toastSuccess({ message: `${trackTitle ? `\u2018${trackTitle}\u2019` : "Track"} deleted.`, title: "Done" })
-      );
+      await axios.delete(`/api/track/${releaseId}/${trackId}`);
+      const message = `${trackTitle ? `\u2018${trackTitle}\u2019` : "Track"} deleted.`;
+      dispatch(toastSuccess({ message, title: "Done" }));
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
     } else {
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: true }));

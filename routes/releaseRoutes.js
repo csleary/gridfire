@@ -21,11 +21,18 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const { artist, artwork, trackList } = release;
 
     // Delete artwork from IPFS.
-    const deleteArtwork = artwork.cid && ipfs.pin.rm(artwork.cid).catch(console.log);
+    console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
+    const deleteArtwork = artwork.cid ? ipfs.pin.rm(artwork.cid).catch(console.log) : Promise.resolve();
 
     // Delete track audio and playlists from IPFS.
     const deleteTracks = trackList.reduce(
-      (prev, track) => [...prev, ...Object.values(track.cids.toJSON()).map(cid => ipfs.pin.rm(cid).catch(console.log))],
+      (prev, track) => [
+        ...prev,
+        ...Object.values(track.cids).map(cid => {
+          console.log(`Unpinning CID ${cid} for track ${track._id.toString()}…`);
+          ipfs.pin.rm(cid).catch(console.log);
+        })
+      ],
       []
     );
 
@@ -37,7 +44,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();
     const deleteFromWishlists = Wishlist.deleteMany({ release: releaseId }).exec();
 
-    const [{ _id } = {}] = await Promise.all([
+    await Promise.all([
       deleteRelease,
       deleteArtwork,
       deleteArtist,
@@ -46,7 +53,8 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
       deleteFromWishlists
     ]);
 
-    res.send(_id);
+    console.log(`Release ${releaseId} deleted.`);
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error.message || error.toString() });
@@ -146,7 +154,6 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
     const updatedRelease = await release.save();
     res.json(updatedRelease.toJSON({ versionKey: false }));
   } catch (error) {
-    console.log(error);
     res.status(200).json({ error: error.message });
   }
 });

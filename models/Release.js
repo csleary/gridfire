@@ -68,8 +68,8 @@ releaseSchema.set("toJSON", {
   transform: function (doc, ret) {
     delete ret.createdAt;
     delete ret.updatedAt;
-    delete ret.artwork.dateCreated;
-    delete ret.artwork.dateUpdated;
+    delete ret.artwork?.dateCreated;
+    delete ret.artwork?.dateUpdated;
 
     ret.trackList.forEach(track => {
       delete track.createdAt;

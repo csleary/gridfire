@@ -2,6 +2,7 @@ import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from "crypt
 import { Transform } from "stream";
 import fs from "fs";
 import path from "path";
+import { pipeline } from "stream/promises";
 
 const { TEMP_PATH } = process.env;
 
@@ -41,22 +42,25 @@ const decryptStream = async (encryptedStream, key) => {
   try {
     // Stream cipher to file to read IV from the beginning.
     const streamToDisk = fs.createWriteStream(encryptedFilePath);
-    streamToDisk.on("error", console.log);
-    const streamFromIPFS = new Promise(resolve => void streamToDisk.on("finish", resolve));
-    encryptedStream.pipe(streamToDisk);
-    await streamFromIPFS;
+    const ac = new AbortController();
+    const signal = ac.signal;
+    await pipeline(encryptedStream, streamToDisk, { signal });
 
     // Read and return IV.
     const getIVFromStream = fs.createReadStream(encryptedFilePath, { highWaterMark: 16 });
 
     const iv = await new Promise((resolve, reject) => {
-      getIVFromStream.on("error", reject);
+      getIVFromStream.on("error", () => {
+        getIVFromStream.destroy();
+        reject();
+      });
+
       getIVFromStream.on("readable", () => {
         const iv = getIVFromStream.read();
         getIVFromStream.destroy();
         resolve(iv);
       });
-    }).catch(console.log);
+    });
 
     // Decrypt remainder of the stream, skipping the IV.
     const decrypt = createDecipheriv("aes-256-cbc", Buffer.from(key), iv);
