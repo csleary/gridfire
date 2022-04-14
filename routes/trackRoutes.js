@@ -140,7 +140,15 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
 
       try {
-        const encryptedStream = await encryptStream(fileStream, key);
+        const handleStreamError = stream => error => {
+          console.log(error);
+          stream.destory();
+          throw error;
+        };
+
+        const encryptedStream = encryptStream(fileStream, key);
+        fileStream.on("error", handleStreamError(fileStream));
+        encryptedStream.on("error", handleStreamError(encryptedStream));
         const ipfsFile = await ipfs.add(encryptedStream);
         const cid = ipfsFile.cid.toString();
         track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });

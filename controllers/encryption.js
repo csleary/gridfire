@@ -26,12 +26,12 @@ class PrependIV extends Transform {
   }
 }
 
-const encryptStream = async (unencryptedStream, key) => {
+const encryptStream = (unencryptedStream, key) => {
   const iv = Buffer.from(randomBytes(8).toString("hex"));
   const prependIV = new PrependIV(iv);
   const encrypt = createCipheriv("aes-256-cbc", Buffer.from(key), iv);
-  const encrypted = unencryptedStream.pipe(encrypt).pipe(prependIV);
-  return encrypted;
+  const encryptedStream = unencryptedStream.pipe(encrypt).pipe(prependIV);
+  return encryptedStream;
 };
 
 const decryptStream = async (encryptedStream, key) => {
@@ -61,11 +61,11 @@ const decryptStream = async (encryptedStream, key) => {
     // Decrypt remainder of the stream, skipping the IV.
     const decrypt = createDecipheriv("aes-256-cbc", Buffer.from(key), iv);
     const encryptedFileStream = fs.createReadStream(encryptedFilePath, { start: 16 });
-    const decrypted = encryptedFileStream.pipe(decrypt);
+    const decryptedStream = encryptedFileStream.pipe(decrypt);
 
     // Delete temp file.
-    decrypted.on("finish", async () => await fs.promises.unlink(encryptedFilePath));
-    return decrypted;
+    decryptedStream.on("finish", async () => await fs.promises.unlink(encryptedFilePath));
+    return decryptedStream;
   } catch (error) {
     if (encryptedFilePath) fs.promises.unlink(encryptedFilePath).catch(console.log);
     console.log(error);

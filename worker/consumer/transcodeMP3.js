@@ -47,7 +47,7 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
       tarExtract.on("finish", async () => {
         try {
           const mp3Stream = fs.createReadStream(mp3Path);
-          const encryptedFlacStream = await encryptStream(mp3Stream, key);
+          const encryptedFlacStream = encryptStream(mp3Stream, key);
           const ipfsFile = await ipfs.add(encryptedFlacStream);
           await fs.promises.unlink(mp3Path);
           resolve(ipfsFile.cid.toString());

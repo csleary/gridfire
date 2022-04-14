@@ -44,9 +44,14 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
 
     await new Promise((resolve, reject) => {
       tarExtract.on("entry", async (header, srcStream, next) => {
-        srcStream.on("error", console.log);
+        const handleStreamError = stream => error => {
+          console.log(error);
+          stream.destory();
+          throw error;
+        };
 
         try {
+          srcStream.on("error", handleStreamError(srcStream));
           const decryptedStream = await decryptStream(srcStream, key);
           await ffmpegEncodeFLAC(decryptedStream, flacPath, onProgress(trackId, userId));
           next();
@@ -63,7 +68,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
 
     const { size } = await fs.promises.stat(flacPath);
     const flacFileStream = fs.createReadStream(flacPath);
-    const encryptedFlacStream = await encryptStream(flacFileStream, key);
+    const encryptedFlacStream = encryptStream(flacFileStream, key);
 
     const ipfsFLAC = await ipfs.add(encryptedFlacStream, {
       progress: progress => {

@@ -40,35 +40,37 @@ const ArtistPage = () => {
             ))}
           </Grid>
         </Box>
-        <Card as="section" flex="1 1 32rem" m={0} order={[1, 2]}>
-          {biography ? (
-            <>
-              <Heading as="h3">Biography</Heading>
-              <Box mb={8}>
-                {biography
-                  .split("\n")
-                  .filter(text => text.trim().length)
-                  .map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
+        {biography || links?.length ? (
+          <Card as="section" flex="1 1 32rem" m={0} order={[1, 2]}>
+            {biography ? (
+              <>
+                <Heading as="h3">Biography</Heading>
+                <Box mb={8}>
+                  {biography
+                    .split("\n")
+                    .filter(text => text.trim().length)
+                    .map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+                </Box>
+              </>
+            ) : null}
+            {links?.length ? (
+              <Box>
+                <Heading as="h3">Links</Heading>
+                <VStack as="ul" alignItems="flex-start" listStyleType="none">
+                  {links.map(({ title, uri }) => (
+                    <Box as="li" key={uri}>
+                      <Link href={uri} rel="nofollow noopener">
+                        {title}
+                      </Link>
+                    </Box>
                   ))}
+                </VStack>
               </Box>
-            </>
-          ) : null}
-          {links?.length ? (
-            <Box>
-              <Heading as="h3">Links</Heading>
-              <VStack as="ul" alignItems="flex-start" listStyleType="none">
-                {links.map(({ title, uri }) => (
-                  <Box as="li" key={uri}>
-                    <Link href={uri} rel="nofollow noopener">
-                      {title}
-                    </Link>
-                  </Box>
-                ))}
-              </VStack>
-            </Box>
-          ) : null}
-        </Card>
+            ) : null}
+          </Card>
+        ) : null}
       </Flex>
     </>
   );
