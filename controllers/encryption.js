@@ -42,9 +42,7 @@ const decryptStream = async (encryptedStream, key) => {
   try {
     // Stream cipher to file to read IV from the beginning.
     const streamToDisk = fs.createWriteStream(encryptedFilePath);
-    const ac = new AbortController();
-    const signal = ac.signal;
-    await pipeline(encryptedStream, streamToDisk, { signal });
+    await pipeline(encryptedStream, streamToDisk);
 
     // Read and return IV.
     const getIVFromStream = fs.createReadStream(encryptedFilePath, { highWaterMark: 16 });
@@ -68,7 +66,7 @@ const decryptStream = async (encryptedStream, key) => {
     const decryptedStream = encryptedFileStream.pipe(decrypt);
 
     // Delete temp file.
-    decryptedStream.on("finish", async () => await fs.promises.unlink(encryptedFilePath));
+    decryptedStream.on("close", () => fs.promises.unlink(encryptedFilePath));
     return decryptedStream;
   } catch (error) {
     if (encryptedFilePath) fs.promises.unlink(encryptedFilePath).catch(console.log);

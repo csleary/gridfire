@@ -22,7 +22,7 @@ const onProgress =
 
 const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
   try {
-    const { key } = await User.findById(userId, "+key", { lean: true }).exec();
+    const { key } = await User.findById(userId, "key", { lean: true }).exec();
     const release = await Release.findOne({ _id: releaseId, "trackList._id": trackId, user: userId }, "trackList.$", {
       lean: true
     }).exec();

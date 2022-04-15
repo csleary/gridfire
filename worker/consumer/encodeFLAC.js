@@ -36,7 +36,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
       { "trackList.$.status": "encoding" }
     ).exec();
 
-    const { key } = await User.findById(userId, "+key", { lean: true }).exec();
+    const { key } = await User.findById(userId, "key", { lean: true }).exec();
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoding", userId });
     const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
     const tarStream = Readable.from(ipfs.get(cid));

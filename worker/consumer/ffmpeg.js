@@ -13,7 +13,7 @@ const ffmpegEncodeFragmentedAAC = (srcStream, outputPath, onProgress) =>
       .audioBitrate(96)
       .toFormat("mp4")
       .outputOptions(["-frag_duration 15000000", "-movflags default_base_moof+empty_moov"])
-      .on("codecData", console.log)
+      // .on("codecData", console.log)
       .on("end", (stdout, stderr) => {
         // console.log(stderr);
         resolve();
@@ -38,7 +38,7 @@ const ffmpegEncodeFLAC = async (srcStream, outputPath, onProgress) => {
       .audioCodec("flac")
       .audioChannels(2)
       .toFormat("flac")
-      .on("codecData", console.log)
+      // .on("codecData", console.log)
       .on("end", (stdout, stderr) => {
         // console.log(stderr);
         resolve();
@@ -59,7 +59,7 @@ const ffmpegEncodeMP3 = async (srcStream, outputPath, onProgress) =>
       .audioCodec("libmp3lame")
       .toFormat("mp3")
       .outputOptions("-q:a 0")
-      .on("codecData", console.log)
+      // .on("codecData", console.log)
       .on("end", async (stdout, stderr) => {
         // console.log(stderr);
         resolve();

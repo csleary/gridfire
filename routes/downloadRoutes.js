@@ -12,7 +12,7 @@ router.get("/:releaseId/:format", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const hasPurchased = await Sale.exists({ user: userId, release: releaseId });
   if (!hasPurchased) res.status(401).send({ error: "Not authorised." });
-  const { key } = await User.findById(userId, "+key", { lean: true }).exec();
+  const { key } = await User.findById(userId, "key", { lean: true }).exec();
   const { ipfs } = req.app.locals;
 
   const release = await Release.findById(

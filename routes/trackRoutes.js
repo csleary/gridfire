@@ -82,7 +82,7 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
     trackDoc.status = "deleting";
     await release.save();
 
-    console.log("Deleting track audio…");
+    console.log("Unpinning track audio…");
     for (const cid of Object.values(trackDoc.cids)) {
       console.log(`Unpinning CID ${cid} for track ${trackId}…`);
       await ipfs.pin.rm(cid).catch(console.error);
@@ -109,7 +109,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
     const filter = { _id: releaseId, user: userId };
     const options = { new: true, upsert: true };
     const release = await Release.findOneAndUpdate(filter, {}, options).exec();
-    const { key } = await User.findById(userId, "+key", { lean: true }).exec();
+    const { key } = await User.findById(userId, "key", { lean: true }).exec();
     const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 200 } });
 
     busboy.on("error", async error => {
@@ -134,6 +134,16 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       let track = release.trackList.id(trackId);
 
       if (track) {
+        const {
+          trackList: [{ cids }]
+        } = await Release.findOne({ _id: releaseId, "trackList._id": trackId }, "trackList.$").exec();
+
+        console.log("Unpinning existing track audio…");
+        for (const cid of Object.values(cids)) {
+          console.log(`Unpinning CID ${cid} for track ${trackId}…`);
+          await ipfs.pin.rm(cid).catch(console.error);
+        }
+
         track.set({ dateUpdated: Date.now(), status: "uploading" });
       } else {
         release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
@@ -143,17 +153,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
       sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
 
       try {
-        const handleStreamError =
-          (...streams) =>
-          error => {
-            console.log(error);
-            for (const stream of streams) stream.destory();
-            throw error;
-          };
-
         const encryptedStream = encryptStream(fileStream, key);
-        fileStream.on("error", handleStreamError(fileStream, encryptedStream));
-        encryptedStream.on("error", handleStreamError(fileStream, encryptedStream));
         const ipfsFile = await ipfs.add(encryptedStream);
         const cid = ipfsFile.cid.toString();
         track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
