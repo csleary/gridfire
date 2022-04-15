@@ -135,7 +135,7 @@ router.post("/transactions", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/wishlist/", requireLogin, async (req, res) => {
+router.get("/wishlist", requireLogin, async (req, res) => {
   const userWishList = await Wishlist.find({ user: req.user._id }, "", { lean: true, sort: "-release.releaseDate" })
     .populate({
       path: "release",

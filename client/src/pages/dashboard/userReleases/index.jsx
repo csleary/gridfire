@@ -79,7 +79,7 @@ function UserReleases() {
       </Grid>
       <Button
         as={RouterLink}
-        to={"/release/add/"}
+        to={"/release/new"}
         leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
         title="Add Release"
       >

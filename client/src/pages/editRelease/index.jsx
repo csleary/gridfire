@@ -36,6 +36,7 @@ const EditRelease = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
+  const { artists } = useSelector(state => state.artists, shallowEqual);
   const { activeRelease: release, versions } = useSelector(state => state.releases, shallowEqual);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -143,23 +144,25 @@ const EditRelease = () => {
                     <Field isDisabled isReadOnly label="Artist name" value={artistName} size="lg" />
                   ) : (
                     <>
-                      <ArtistMenu
-                        error={errors.artist}
-                        label="Artist name"
-                        name="artist"
-                        onChange={e => {
-                          setErrors(({ artist, artistName, ...rest }) => rest);
-                          handleChange(e);
-                        }}
-                        setShowNewArtist={setShowNewArtistName}
-                        showNewArtistName={showNewArtistName}
-                        value={values.artist}
-                      />
-                      {showNewArtistName ? (
+                      {artists.length ? (
+                        <ArtistMenu
+                          error={errors.artist}
+                          label="Artist name"
+                          name="artist"
+                          onChange={e => {
+                            setErrors(({ artist, artistName, ...rest }) => rest);
+                            handleChange(e);
+                          }}
+                          setShowNewArtist={setShowNewArtistName}
+                          showNewArtistName={showNewArtistName}
+                          value={values.artist}
+                        />
+                      ) : null}
+                      {!artists.length || showNewArtistName ? (
                         <Field
                           errors={errors}
                           isRequired
-                          label="New artist name"
+                          label={artists.length ? "New artist name" : "Artist name"}
                           name="artistName"
                           onChange={e => {
                             setErrors(({ artist, artistName, ...rest }) => rest);
