@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/fluent-ffmpeg": "^2.1.20",
     "@types/sax": "^1.2.4",
+    "@types/tar-stream": "^2.2.2",
     "nodemon": "^2.0.15"
   }
 }

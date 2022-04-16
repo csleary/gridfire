@@ -1,10 +1,11 @@
-import { toastError, toastSuccess } from "features/toast";
 import { Button, Center } from "@chakra-ui/react";
 import { ethers, Contract } from "ethers";
+import { toastError, toastSuccess, toastWarning } from "features/toast";
 import GridFirePayment from "contracts/GridFirePayment.json";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import axios from "axios";
+import detectEthereumProvider from "@metamask/detect-provider";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchUser } from "features/user";
@@ -18,11 +19,13 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const handlePayment = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    const signer = provider.getSigner();
-    const contract = new Contract(REACT_APP_CONTRACT_ADDRESS, GridFirePayment.abi, signer);
-
     try {
+      const ethereum = await detectEthereumProvider();
+      const provider = new ethers.providers.Web3Provider(ethereum, "any");
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const signer = provider.getSigner();
+      const contract = new Contract(REACT_APP_CONTRACT_ADDRESS, GridFirePayment.abi, signer);
+
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/purchase/${releaseId}`);
       const { release, paymentAddress } = res.data;
@@ -37,6 +40,10 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
     } catch (error) {
+      if (error.code === 4001) {
+        return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
+      }
+
       dispatch(
         toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" })
       );
