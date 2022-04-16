@@ -71,7 +71,7 @@ const useAudioPlayer = () => {
 
       if (shouldSetDuration) {
         mediaSourceRef.current.duration = duration;
-        return void setShouldSetDuration(false);
+        setShouldSetDuration(false);
       }
 
       if (queueRef.current.length) {
