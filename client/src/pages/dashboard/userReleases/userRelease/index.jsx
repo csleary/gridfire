@@ -59,6 +59,8 @@ function UserRelease({ favs, numSold, plays, release }) {
       flexDirection="column"
       key={releaseId}
       bg={useColorModeValue("white", "gray.800")}
+      borderColor={useColorModeValue("white", "gray.700")}
+      borderWidth="1px"
       boxShadow="md"
       position="relative"
     >

@@ -13,11 +13,11 @@ const useContractEvents = () => {
   };
 
   provider.on(filter, (log, event) => {
-    console.log(event);
+    // console.log(event);
   });
 
   provider.on("block", blockNumber => {
-    console.log(blockNumber);
+    // console.log(blockNumber);
   });
 };
 

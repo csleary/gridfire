@@ -1,4 +1,4 @@
-import { Box, Flex, IconButton, Spacer, Text } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Spacer, Text, useColorModeValue } from "@chakra-ui/react";
 import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink } from "react-router-dom";
 import Icon from "components/icon";
@@ -73,7 +73,7 @@ const Player = () => {
           );
         })}
         <Box
-          background="yellow.400"
+          background={useColorModeValue("yellow.400", "purple.400")}
           height="100%"
           position="absolute"
           transition="0.125s cubic-bezier(0.2, 0.8, 0.4, 1)"

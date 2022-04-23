@@ -90,7 +90,13 @@ const ActiveRelease = () => {
                 color="gray.500"
                 _hover={{ color: "initial", textDecoration: "none" }}
               >
-                <Heading as="h3" size="xl" mb={8}>
+                <Heading
+                  as="h3"
+                  color={useColorModeValue("gray.400", "gray.500")}
+                  _hover={{ color: useColorModeValue("gray.600", "gray.400") }}
+                  size="xl"
+                  mb={8}
+                >
                   {artistName}
                 </Heading>
               </Link>
