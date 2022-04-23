@@ -8,10 +8,13 @@ import {
   MenuDivider,
   Spacer,
   Wrap,
-  WrapItem
+  WrapItem,
+  useColorMode,
+  IconButton,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import {
   faArchive,
   faHeadphonesAlt,
@@ -31,9 +34,19 @@ import { logOut } from "features/user";
 import { toastError, toastWarning } from "features/toast";
 import { useNavigate } from "react-router-dom";
 
-const activeStyle = { "&.active": { backgroundColor: "orange.100", color: "orange.700" } };
-
 const NavBar = () => {
+  const { toggleColorMode } = useColorMode();
+  const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
+  const colorModeTextHover = useColorModeValue("purple", "yellow");
+  const primaryButtonColor = useColorModeValue("yellow", "purple");
+
+  const activeStyle = {
+    "&.active": useColorModeValue(
+      { backgroundColor: "orange.200", color: "orange.900" },
+      { backgroundColor: "purple.200", color: "purple.900" }
+    )
+  };
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, web3 } = useSelector(state => state, shallowEqual);
@@ -81,7 +94,7 @@ const NavBar = () => {
           <Button
             as={NavLink}
             to={"/login"}
-            colorScheme="yellow"
+            colorScheme={primaryButtonColor}
             leftIcon={<Icon icon={faSignInAlt} />}
             title="Click to log in."
           >
@@ -110,11 +123,12 @@ const NavBar = () => {
               </Button>
             </WrapItem>
           )}
+          <IconButton _hover={{ color: colorModeTextHover }} icon={colorModeIcon} onClick={toggleColorMode} />
           <WrapItem>
             <Menu>
               <MenuButton
                 as={Button}
-                colorScheme="yellow"
+                colorScheme={primaryButtonColor}
                 leftIcon={<Icon icon={faUserCircle} />}
                 rightIcon={<ChevronDownIcon />}
                 title="Visit your dashboard."

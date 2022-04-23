@@ -1,4 +1,4 @@
-import { Box, Button, Center, Grid, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Center, Grid, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { fetchUserReleases, fetchUserReleasesFavCounts, fetchUserReleasesPlayCounts } from "features/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import axios from "axios";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 
 function UserReleases() {
+  const addReleaseButtonColor = useColorModeValue("yellow", "purple");
   const dispatch = useDispatch();
   const { userReleases, favCounts, playCounts } = useSelector(state => state.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
@@ -43,7 +44,7 @@ function UserReleases() {
         <Center>
           <Button
             as={RouterLink}
-            colorScheme="yellow"
+            colorScheme={addReleaseButtonColor}
             to={"/release/new"}
             leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
             title="Add Release"

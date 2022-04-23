@@ -81,7 +81,6 @@ const SearchBar = () => {
               pointerEvents="none"
             />
             <Input
-              bg="white"
               paddingLeft={12}
               paddingRight={12}
               onChange={handleSearchInput}
@@ -103,7 +102,7 @@ const SearchBar = () => {
               </Fade>
             </InputRightElement>
           </InputGroup>
-          <ModalBody bg="white" p={0} mt={6}>
+          <ModalBody p={0} mt={6}>
             <VStack spacing={4} alignItems="stretch" role="listbox">
               {searchResults.length ? (
                 searchResults.map(release => {

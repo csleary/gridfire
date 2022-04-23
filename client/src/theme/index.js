@@ -1,12 +1,12 @@
-import { extendTheme } from "@chakra-ui/react";
-
-// Component style overrides
 import Heading from "./components/heading";
 import Input from "./components/input";
 import Progress from "./components/progress";
 import Textarea from "./components/textarea";
+import { extendTheme } from "@chakra-ui/react";
 
-const overrides = {
+const config = {
+  initialColorMode: "dark",
+  useSystemColorMode: false,
   components: {
     Heading,
     Input,
@@ -15,4 +15,4 @@ const overrides = {
   }
 };
 
-export default extendTheme(overrides);
+export default extendTheme(config);

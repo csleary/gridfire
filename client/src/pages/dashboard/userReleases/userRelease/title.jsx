@@ -1,4 +1,4 @@
-import { Box, Flex, Link } from "@chakra-ui/react";
+import { Box, Flex, Link, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -11,12 +11,13 @@ const Title = ({ artist, artistName, releaseId, releaseTitle }) => {
     <Flex
       fontSize="xl"
       alignItems="center"
-      color="gray.600"
+      color={useColorModeValue("gray.600", "gray.200")}
       flex={1}
       fontWeight={500}
       justifyContent="center"
       px={4}
-      py={2}
+      pt={2}
+      pb={0}
       textAlign="center"
     >
       <Box overflow="hidden" textOverflow="ellipsis">

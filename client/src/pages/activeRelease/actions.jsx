@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Input,
   Popover,
   PopoverFooter,
   PopoverTrigger,
@@ -11,7 +12,7 @@ import {
   PopoverCloseButton,
   PopoverHeader,
   PopoverBody,
-  Input
+  useColorModeValue
 } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
@@ -25,7 +26,7 @@ const Actions = () => {
   const [note, setNote] = useState("");
   const [isSavingToFaves, setIsSavingToFaves] = useState(false);
   const [isSavingToList, setIsSavingToList] = useState(false);
-  const { auth, favourites, wishList } = useSelector(state => state.user, shallowEqual);
+  const { account, favourites, wishList } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
   const isInFaves = favourites?.some(item => item.release === releaseId);
@@ -39,13 +40,13 @@ const Actions = () => {
   }, [releaseId, wishList]);
 
   return (
-    <ButtonGroup size="sm" isAttached variant="outline" bg="white" mb={4}>
+    <ButtonGroup size="sm" isAttached variant="outline" bg={useColorModeValue("white")} mb={4}>
       <Button
         isLoading={isSavingToFaves}
         loadingText="Saving…"
         leftIcon={<Icon color={isInFaves && "red.400"} icon={isInFaves ? faHeart : heartOutline} />}
         onClick={() => {
-          if (!auth)
+          if (!account)
             return dispatch(
               toastInfo({
                 message: "You need to be logged in to save this track to your favourites.",
@@ -106,13 +107,15 @@ const Actions = () => {
               loadingText="Saving…"
               leftIcon={<Icon icon={faMagic} />}
               onClick={() => {
-                if (!auth)
+                if (!account) {
                   return dispatch(
                     toastInfo({
                       message: "You need to be logged in to save this track to your wish list.",
                       title: "Please log in"
                     })
                   );
+                }
+
                 setIsSavingToList(true);
                 dispatch(addToWishList({ releaseId, note })).then(() => setIsSavingToList(false));
               }}

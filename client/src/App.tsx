@@ -1,4 +1,4 @@
-import { Center, Container, Flex, Spacer, Spinner } from "@chakra-ui/react";
+import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useContext, useEffect, useRef } from "react";
 import { setAccount, setIsConnected, setNetworkName } from "features/web3";
@@ -10,6 +10,7 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { fetchUser } from "features/user";
 import { useDispatch } from "react-redux";
 import useSSE from "hooks/useSSE";
+import useContractEvents from "hooks/useContractEvents";
 
 const About = lazy(() => import("pages/about"));
 const ActiveRelease = lazy(() => import("pages/activeRelease"));
@@ -23,6 +24,7 @@ const SearchResults = lazy(() => import("pages/searchResults"));
 declare const window: any; // eslint-disable-line
 
 const App: React.FC = () => {
+  useContractEvents();
   useSSE();
   const dispatch = useDispatch();
   const provider = useContext(Web3Context);
@@ -67,7 +69,7 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Container maxW="100%" bg="gray.50" minH="100vh" px={8} py={6} display="flex">
+      <Container maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" px={8} py={6} display="flex">
         <Flex direction="column" flex={1}>
           <Suspense fallback={<></>}>
             <NavBar />

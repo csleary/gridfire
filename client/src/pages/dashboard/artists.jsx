@@ -16,7 +16,8 @@ import {
   Textarea,
   VStack,
   Wrap,
-  WrapItem
+  WrapItem,
+  useColorModeValue
 } from "@chakra-ui/react";
 import {
   addLink,
@@ -39,6 +40,7 @@ import { useNavigate } from "react-router-dom";
 import Field from "components/field";
 
 const Artists = () => {
+  const buttonColorScheme = useColorModeValue("yellow", "purple");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -132,7 +134,7 @@ const Artists = () => {
                 Artist Name
               </Box>
               <Button
-                colorScheme="blue"
+                colorScheme={buttonColorScheme}
                 leftIcon={<Icon icon={faLink} />}
                 onClick={() => navigate(activeArtist.slug ? `/${activeArtist.slug}` : `/artist/${activeArtistId}`)}
                 size="sm"
@@ -223,7 +225,7 @@ const Artists = () => {
           </Card>
           <Flex justifyContent="flex-end">
             <Button
-              colorScheme="blue"
+              colorScheme={buttonColorScheme}
               isLoading={isSubmitting}
               isDisabled={isPristine}
               leftIcon={<Icon icon={faCheck} />}

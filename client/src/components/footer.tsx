@@ -1,6 +1,6 @@
+import { Center, Container, Divider, HStack, Link, List, ListItem, Text, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
-import { Center, Container, Divider, HStack, Link, List, ListItem, Text } from "@chakra-ui/react";
 import React from "react";
 import { RootState } from "index";
 
@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
           </Center>
         ) : null}
       </HStack>
-      <Divider borderColor="gray.300" my={8} />
+      <Divider borderColor={useColorModeValue("gray.300", "gray.500")} my={8} />
       <Center fontSize="small">
         <Text>
           &copy; 2017&ndash;{year}{" "}

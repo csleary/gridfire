@@ -13,7 +13,8 @@ import {
   TabPanels,
   TabPanel,
   Tabs,
-  Text
+  Text,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "features/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -128,7 +129,7 @@ const EditRelease = () => {
             ? "Editing Release"
             : "Add Release"}
         </Heading>
-        <Tabs mb={8}>
+        <Tabs colorScheme={useColorModeValue("yellow", "purple")} isFitted mb={8}>
           <TabList mb={8}>
             <Tab>Essential Info</Tab>
             <Tab>Artwork</Tab>
@@ -233,7 +234,7 @@ const EditRelease = () => {
         ) : null}
         <Flex justifyContent="flex-end">
           <Button
-            colorScheme="yellow"
+            colorScheme={useColorModeValue("yellow", "purple")}
             isLoading={isSubmitting}
             loadingText="Saving…"
             leftIcon={isPristine ? null : <Icon icon={hasErrors ? faTimes : faCheck} />}

@@ -9,7 +9,8 @@ import {
   Text,
   Stat,
   StatLabel,
-  StatNumber
+  StatNumber,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { Contract, ethers } from "ethers";
 import { useContext, useEffect, useState } from "react";
@@ -101,7 +102,7 @@ const Address = () => {
           top=".25rem"
         />
         <Input
-          bg="white"
+          bg={useColorModeValue("white", "gray.400")}
           isDisabled={isSubmitting}
           isInvalid={Boolean(errors.paymentAddress)}
           error={errors.paymentAddress}
@@ -126,9 +127,9 @@ const Address = () => {
         </Button>
       </Flex>
       <Flex
-        bg="white"
+        bg={useColorModeValue("white", "gray.700")}
         borderWidth="1px"
-        borderColor="gray.200"
+        borderColor={useColorModeValue("gray.200", "gray.600")}
         boxShadow="md"
         flexDirection="column"
         rounded="lg"
@@ -139,14 +140,9 @@ const Address = () => {
           <StatNumber fontSize="4xl" textAlign="center">
             {balanceIsZero ? "0.00" : ethers.utils.formatUnits(balance, "ether")}
           </StatNumber>
-          {/* <StatHelpText>
-            <StatArrow type="increase" />
-            23.36% Since last month
-          </StatHelpText> */}
         </Stat>
-        <Text></Text>
         <Button
-          colorScheme="yellow"
+          colorScheme={useColorModeValue("yellow", "purple")}
           leftIcon={<Icon icon={faWallet} />}
           isDisabled={balanceIsZero}
           isLoading={isClaiming}

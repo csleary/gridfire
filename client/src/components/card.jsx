@@ -1,10 +1,10 @@
-import { Box } from "@chakra-ui/react";
+import { Box, useColorModeValue } from "@chakra-ui/react";
 
 const Card = props => (
   <Box
-    bg="white"
+    bg={useColorModeValue("white", "gray.800")}
     borderWidth="1px"
-    borderColor="gray.200"
+    borderColor={useColorModeValue("gray.200", "gray.800")}
     boxShadow="md"
     p={8}
     rounded="md"

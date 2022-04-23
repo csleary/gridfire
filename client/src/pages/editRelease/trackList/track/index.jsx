@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Button, Flex, HStack, IconButton, Input, Spacer } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Flex, HStack, IconButton, Input, Spacer, useColorModeValue } from "@chakra-ui/react";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useSelector } from "react-redux";
 import AudioDropzone from "./audioDropzone";
@@ -31,7 +31,7 @@ const Track = props => {
 
   return (
     <Flex
-      bg="white"
+      bg={useColorModeValue("white", "gray.800")}
       borderWidth="1px"
       marginBottom={6}
       padding={4}

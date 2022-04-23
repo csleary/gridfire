@@ -1,9 +1,9 @@
 const Textarea = {
   parts: ["field", "addon"],
   variants: {
-    outline: {
-      backgroundColor: "white"
-    }
+    outline: ({ colorMode }) => ({
+      backgroundColor: colorMode === "dark" ? "gray.700" : "white"
+    })
   }
 };
 

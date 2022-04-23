@@ -1,12 +1,14 @@
 import { createStandaloneToast } from "@chakra-ui/react";
 import { nanoid } from "@reduxjs/toolkit";
+import theme from "../../theme";
 
 const toast = createStandaloneToast({
   defaultOptions: {
     position: "bottom-right",
     duration: 5000,
     isClosable: false
-  }
+  },
+  theme
 });
 
 const toastError =

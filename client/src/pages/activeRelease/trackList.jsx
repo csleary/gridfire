@@ -1,7 +1,7 @@
-import { Box, Button, ListItem, UnorderedList, keyframes } from "@chakra-ui/react";
-import { batch, shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Box, Button, ListItem, UnorderedList, keyframes, useColorModeValue } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPlay } from "features/player";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toastInfo } from "features/toast";
 
@@ -13,16 +13,19 @@ const TrackList = () => {
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, trackList } = release;
+  const secondaryColor = useColorModeValue("gray.400", "gray.500");
+  const titleColor = useColorModeValue("gray.500", "gray.300");
 
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
       {trackList.map(({ _id: trackId, duration, trackTitle }, index) => (
         <ListItem key={trackId}>
-          <Box as="span" color="gray.400" fontWeight="600" mr="2">
+          <Box as="span" color={secondaryColor} fontWeight="600" mr="2">
             {(index + 1).toString(10).padStart(2, "0")}
           </Box>
           <Button
-            color="gray.500"
+            color={titleColor}
+            minWidth={2}
             variant="link"
             onClick={async () => {
               if (trackId !== playerTrackId) {
@@ -37,9 +40,11 @@ const TrackList = () => {
           >
             {trackTitle}
           </Button>
-          <Box as="span" color="gray.400" fontWeight="600" ml="2">
-            ({Math.floor(duration / 60)}:{(Math.ceil(duration) % 60).toString(10).padStart(2, "0")})
-          </Box>
+          {duration ? (
+            <Box as="span" color={secondaryColor} fontWeight="600" ml="2">
+              ({Math.floor(duration / 60)}:{(Math.ceil(duration) % 60).toString(10).padStart(2, "0")})
+            </Box>
+          ) : null}
           {trackId === playerTrackId && isPlaying ? (
             <Box as={FontAwesomeIcon} icon={faPlay} animation={animation} ml={2} />
           ) : trackId === playerTrackId && isPaused ? (

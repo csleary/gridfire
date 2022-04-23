@@ -1,4 +1,17 @@
-import { Badge, Box, Container, Divider, Flex, Heading, Link, Text, VStack, Wrap, WrapItem } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Container,
+  Divider,
+  Flex,
+  Heading,
+  Link,
+  Text,
+  VStack,
+  Wrap,
+  WrapItem,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { fetchRelease, setIsLoading } from "features/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -16,6 +29,8 @@ import moment from "moment";
 import { useEffect } from "react";
 
 const ActiveRelease = () => {
+  const releaseInfoColor = useColorModeValue("gray.500", "gray.700");
+  const releaseInfoText = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
   const { releaseId } = useParams();
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
@@ -80,31 +95,31 @@ const ActiveRelease = () => {
                 </Heading>
               </Link>
               <TrackList />
-              <Divider borderColor="gray.200" mb={8} />
+              <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
               <PurchaseButton inCollection={isInCollection} isLoading={isLoading} price={price} releaseId={releaseId} />
-              <Divider mb={8} />
+              <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
               {recordLabel && (
                 <Flex mb={2}>
                   <Flex align="center" bg="purple.200" justify="center" minW={10} mr={3} rounded="sm">
-                    <Icon color="gray.500" icon={faRecordVinyl} />
+                    <Icon color={releaseInfoColor} icon={faRecordVinyl} />
                   </Flex>
-                  <Box color="gray.500">{recordLabel}</Box>
+                  <Box color={releaseInfoText}>{recordLabel}</Box>
                 </Flex>
               )}
               <Flex mb={2}>
                 <Flex align="center" bg="blue.100" justify="center" minW={10} mr={3} rounded="sm">
-                  <Icon color="gray.500" icon={faCalendar} title="Release date" />
+                  <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
                 </Flex>
-                <Box color="gray.500">{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
+                <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
               </Flex>
               {catNumber && (
                 <Flex mb={6}>
                   <Flex align="center" bg="green.100" justify="center" minW={10} mr={3} rounded="sm">
-                    <Badge bg="none" color="gray.500">
+                    <Badge bg="none" color={releaseInfoColor}>
                       CAT.
                     </Badge>
                   </Flex>
-                  <Box color="gray.500">{catNumber}</Box>
+                  <Box color={releaseInfoText}>{catNumber}</Box>
                 </Flex>
               )}
               {info && (

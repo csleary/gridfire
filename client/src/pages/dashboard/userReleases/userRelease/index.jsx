@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Divider, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, Divider, Flex, Text, useColorModeValue } from "@chakra-ui/react";
 import { deleteRelease, publishStatus } from "features/releases";
 import { faCircle, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { faEye, faEyeSlash, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
@@ -58,16 +58,15 @@ function UserRelease({ favs, numSold, plays, release }) {
       as="li"
       flexDirection="column"
       key={releaseId}
-      bg="white"
-      borderWidth="1px"
+      bg={useColorModeValue("white", "gray.800")}
       boxShadow="md"
       position="relative"
     >
       <Artwork artwork={artwork} releaseId={releaseId} releaseTitle={releaseTitle} />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
       <Title artist={artist} artistName={artistName} favs={favs} releaseId={releaseId} releaseTitle={releaseTitle} />
-      <Divider my={2} />
-      <Flex flexDirection="column" px={4} pt={2} pb={4}>
+      <Flex flexDirection="column" px={4} pt={0} pb={4}>
+        <Divider borderColor={useColorModeValue("gray.200", "gray.500")} my={4} />
         <Flex marginTop="auto">
           <Box flex={1} pr={2}>
             <Text>

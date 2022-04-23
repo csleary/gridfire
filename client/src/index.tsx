@@ -1,7 +1,7 @@
 import * as serviceWorker from "serviceWorker";
 import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -28,6 +28,7 @@ root.render(
   <Provider store={store}>
     <Web3Context.Provider value={provider}>
       <ChakraProvider theme={theme}>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <App />
       </ChakraProvider>
     </Web3Context.Provider>
