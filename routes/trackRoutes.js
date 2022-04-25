@@ -12,6 +12,41 @@ import requireLogin from "../middlewares/requireLogin.js";
 const { QUEUE_TRANSCODE } = process.env;
 const router = express.Router();
 
+router.post("/", async (req, res) => {
+  try {
+    const { headers } = req;
+    const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 1 } });
+
+    busboy.on("error", async error => {
+      console.log(error);
+      req.unpipe(busboy);
+      res.sendStatus(400);
+    });
+
+    busboy.on("field", async kids => {
+      const message = JSON.parse(kids);
+      const [kidBase64] = message.kids;
+      const kid = Buffer.from(kidBase64, "base64url").toString("hex");
+      const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
+      const [track] = release.trackList;
+      const { key } = track;
+
+      const keysObj = {
+        keys: [{ kty: "oct", k: Buffer.from(key, "hex").toString("base64url"), kid: kidBase64 }],
+        type: "temporary"
+      };
+
+      const keysBuffer = Buffer.from(JSON.stringify(keysObj));
+      res.send(keysBuffer);
+    });
+
+    req.pipe(busboy);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
 router.get("/:trackId/init", async (req, res) => {
   try {
     const { trackId } = req.params;

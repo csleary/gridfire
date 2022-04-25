@@ -12,6 +12,7 @@ const useAudioPlayer = () => {
   const dispatch = useDispatch();
   const audioPlayerRef = useRef();
   const durationRef = useRef(0);
+  const mediaKeysRef = useRef();
   const prevTimeRef = useRef();
   const initSegmentRef = useRef();
   const mediaSourceRef = useRef();
@@ -69,7 +70,7 @@ const useAudioPlayer = () => {
       setBufferRanges(bufferRanges);
       setIsFetchingBuffer(false);
 
-      if (shouldSetDuration) {
+      if (shouldSetDuration && mediaSourceRef.current.readyState === "open") {
         mediaSourceRef.current.duration = duration;
         setShouldSetDuration(false);
       }
@@ -143,6 +144,32 @@ const useAudioPlayer = () => {
 
     handleStop();
   }, [artistName, dispatch, handleStop, playerTrackId, releaseId, trackList]);
+
+  const handleMessage = useCallback(async ({ message, target }) => {
+    const postConfig = { responseType: "arraybuffer" };
+    const kRes = await axios.post(`/api/track`, message, postConfig);
+    await target.update(kRes.data);
+  }, []);
+
+  const handleEncrypted = useCallback(
+    async ({ initDataType, initData, target }) => {
+      try {
+        if (!mediaKeysRef.current) {
+          const audioCapabilities = [{ contentType: MIME_TYPE, encryptionScheme: "cenc" }];
+          const config = [{ initDataTypes: [initDataType], audioCapabilities }];
+          const keySystemAccess = await navigator.requestMediaKeySystemAccess("org.w3.clearkey", config);
+          mediaKeysRef.current = await keySystemAccess.createMediaKeys();
+          target.setMediaKeys(mediaKeysRef.current);
+        }
+        const keySession = mediaKeysRef.current.createSession("temporary");
+        keySession.addEventListener("message", handleMessage, false);
+        await keySession.generateRequest(initDataType, initData);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [handleMessage]
+  );
 
   useEffect(() => {
     if (playerTrackId && playerTrackId !== prevPlayerTrackId) {
@@ -277,11 +304,14 @@ const useAudioPlayer = () => {
     const handleCanPlay = () => setIsReady(true);
     const handleLoadStart = () => setIsReady(false);
     const handleSourceEnded = e => console.log(e);
+    // const handleWaitingForKey = e => console.log(e);
     if (!mediaSourceRef.current) mediaSourceRef.current = new MediaSource();
     if (!audioPlayer.src) audioPlayer.src = URL.createObjectURL(mediaSourceRef.current);
 
     mediaSourceRef.current.addEventListener("sourceopen", handleSourceOpen);
     mediaSourceRef.current.addEventListener("sourceended", handleSourceEnded);
+    audioPlayer.addEventListener("encrypted", handleEncrypted);
+    // audioPlayer.addEventListener("waitingforkey", handleWaitingForKey);
     audioPlayer.addEventListener("loadstart", handleLoadStart);
     audioPlayer.addEventListener("canplay", handleCanPlay);
     audioPlayer.addEventListener("play", handlePlay);
@@ -298,6 +328,9 @@ const useAudioPlayer = () => {
     return () => {
       mediaSourceRef.current.removeEventListener("sourceopen", handleSourceOpen);
       mediaSourceRef.current.removeEventListener("sourceended", handleSourceEnded);
+      mediaSourceRef.current.removeEventListener("encrypted", handleEncrypted);
+      // audioPlayer.removeEventListener("waitingforkey", handleWaitingForKey);
+      audioPlayer.removeEventListener("encrypted", handleEncrypted);
       audioPlayer.removeEventListener("loadstart", handleLoadStart);
       audioPlayer.removeEventListener("canplay", handleCanPlay);
       audioPlayer.removeEventListener("play", handlePlay);
@@ -313,13 +346,13 @@ const useAudioPlayer = () => {
     };
   }, [
     dispatch,
+    handleEncrypted,
     handlePlay,
     handleSeeking,
     handleSourceOpen,
     handleTimeUpdate,
     handleTrackEnded,
     handleUpdateEnd,
-    playerTrackId,
     trackList
   ]);
 

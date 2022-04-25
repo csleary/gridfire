@@ -1,10 +1,12 @@
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "./ffmpeg.js";
 import Release from "../models/Release.js";
 import createMPD from "./createMPD.js";
+import encryptMP4 from "./encryptMP4.js";
 import fs from "fs";
 import { ipfs } from "./index.js";
 import path from "path";
 import postMessage from "./postMessage.js";
+import { randomBytes } from "crypto";
 import sax from "sax";
 
 const { TEMP_PATH } = process.env;
@@ -25,16 +27,23 @@ const onProgress =
     });
   };
 
-const removeTempFiles = async ({ flacPath, mp4Path, playlistDir }) => {
+const removeTempFiles = async ({ flacPath, mp4Path, mp4PathEnc, playlistDir }) => {
   const dirContents = await fsPromises.readdir(playlistDir);
   const deleteFiles = dirContents.map(file => fsPromises.unlink(path.join(playlistDir, file)));
-  const outcome = await Promise.allSettled([fsPromises.unlink(mp4Path), fsPromises.unlink(flacPath), ...deleteFiles]);
+
+  const outcome = await Promise.allSettled([
+    fsPromises.unlink(flacPath),
+    fsPromises.unlink(mp4Path),
+    fsPromises.unlink(mp4PathEnc),
+    ...deleteFiles
+  ]);
+
   if (outcome.some(({ status }) => status === "rejected")) return;
   await fsPromises.rmdir(playlistDir);
 };
 
 const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
-  let flacPath, mp4Path, playlistDir;
+  let flacPath, mp4Path, mp4PathEnc, playlistDir;
 
   try {
     await Release.findOneAndUpdate(
@@ -50,14 +59,20 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     const probeSrc = fs.createReadStream(flacPath);
     const metadata = await ffprobeGetTrackDuration(probeSrc);
 
-    // Transcode FLAC to AAC.
+    // Transcode to AAC.
     mp4Path = path.resolve(TEMP_PATH, `${trackId}.mp4`);
     const flacStream = fs.createReadStream(flacPath);
     await ffmpegEncodeFragmentedAAC(flacStream, mp4Path, onProgress(trackId, userId));
 
-    // Create mpd and playlists.
+    // Encrypt.
+    mp4PathEnc = path.resolve(TEMP_PATH, `${trackId}-enc.mp4`);
+    const key = randomBytes(16).toString("hex");
+    const kid = randomBytes(16).toString("hex");
+    encryptMP4({ key, kid, mp4Path, mp4PathEnc, trackId });
+
+    // Create MPD.
     playlistDir = path.resolve(TEMP_PATH, trackId);
-    createMPD(mp4Path, trackId, playlistDir);
+    createMPD(mp4PathEnc, trackId, playlistDir);
     const outputMpd = path.resolve(playlistDir, `${trackId}.mpd`);
     const mpdData = await fsPromises.readFile(outputMpd);
     const strict = true;
@@ -87,24 +102,18 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     parser.write(mpdData).close();
 
     // Add fragmented mp4 audio to IPFS.
-    const mp4Stream = fs.createReadStream(mp4Path);
+    const mp4Stream = fs.createReadStream(mp4PathEnc);
     const ipfsMP4 = await ipfs.add(mp4Stream);
-
-    // Add hls playlists to IPFS.
-    const m3u8_master = await fsPromises.readFile(path.join(playlistDir, "master.m3u8"));
-    const ipfs_m3u8_master = await ipfs.add(m3u8_master);
-    const m3u8_track = await fsPromises.readFile(path.join(playlistDir, "audio-und-mp4a.m3u8"));
-    const ipfs_m3u8_track = await ipfs.add(m3u8_track);
 
     // Save track and clean up.
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId, user: userId },
       {
-        "trackList.$.cids.m3u8Master": ipfs_m3u8_master.cid.toString(),
-        "trackList.$.cids.m3u8Track": ipfs_m3u8_track.cid.toString(),
         "trackList.$.cids.mp4": ipfsMP4.cid.toString(),
         "trackList.$.duration": metadata.format.duration,
         "trackList.$.initRange": initRange,
+        "trackList.$.key": key,
+        "trackList.$.kid": kid,
         "trackList.$.mpd": mpdData,
         "trackList.$.segmentDuration": segmentDuration,
         "trackList.$.segmentList": segmentList,
@@ -115,7 +124,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     postMessage({ type: "transcodingCompleteAAC", trackId, trackName, userId });
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "stored", userId });
-    await removeTempFiles({ flacPath, mp4Path, playlistDir });
+    // await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir });
   } catch (error) {
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
@@ -124,7 +133,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     console.log(error);
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "error", userId });
-    await removeTempFiles({ flacPath, mp4Path, playlistDir });
+    await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir });
     throw error;
   }
 };

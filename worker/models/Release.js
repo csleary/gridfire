@@ -18,7 +18,9 @@ const trackSchema = new Schema(
       src: { type: String, select: false },
       m3u8Master: { type: String, select: false },
       m3u8Track: { type: String, select: false }
-    }
+    },
+    key: { type: String, select: false },
+    kid: { type: String, select: false }
   },
   { timestamps: true }
 );
