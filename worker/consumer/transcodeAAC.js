@@ -124,7 +124,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     postMessage({ type: "transcodingCompleteAAC", trackId, trackName, userId });
     postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "stored", userId });
-    // await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir });
+    await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir });
   } catch (error) {
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },

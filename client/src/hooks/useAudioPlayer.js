@@ -146,8 +146,10 @@ const useAudioPlayer = () => {
   }, [artistName, dispatch, handleStop, playerTrackId, releaseId, trackList]);
 
   const handleMessage = useCallback(async ({ message, target }) => {
+    const formData = new FormData();
+    formData.append("message", new Blob([message]));
     const postConfig = { responseType: "arraybuffer" };
-    const kRes = await axios.post(`/api/track`, message, postConfig);
+    const kRes = await axios.post(`/api/track`, formData, postConfig);
     await target.update(kRes.data);
   }, []);
 

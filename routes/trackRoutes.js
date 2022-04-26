@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   try {
     const { headers } = req;
-    const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 1 } });
+    const busboy = Busboy({ headers, limits: { fileSize: 1024 * 16 } });
 
     busboy.on("error", async error => {
       console.log(error);
@@ -23,21 +23,38 @@ router.post("/", async (req, res) => {
       res.sendStatus(400);
     });
 
-    busboy.on("field", async kids => {
-      const message = JSON.parse(kids);
-      const [kidBase64] = message.kids;
-      const kid = Buffer.from(kidBase64, "base64url").toString("hex");
-      const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
-      const [track] = release.trackList;
-      const { key } = track;
+    busboy.on("file", async (name, file) => {
+      if (name !== "message") return void busboy.emit(new Error("Internal error."));
 
-      const keysObj = {
-        keys: [{ kty: "oct", k: Buffer.from(key, "hex").toString("base64url"), kid: kidBase64 }],
-        type: "temporary"
-      };
+      try {
+        const kidsBuffer = await new Promise((resolve, reject) => {
+          const chunks = [];
+          file.on("data", chunk => chunks.push(chunk));
+          file.on("end", () => resolve(Buffer.concat(chunks)));
+          file.on("error", reject);
+        });
 
-      const keysBuffer = Buffer.from(JSON.stringify(keysObj));
-      res.send(keysBuffer);
+        console.log(kidsBuffer.toString());
+        const message = JSON.parse(kidsBuffer.toString());
+        console.log(message);
+        const [kidBase64] = message.kids;
+        const kid = Buffer.from(kidBase64, "base64url").toString("hex");
+        const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
+        const [track] = release.trackList;
+        const { key } = track;
+
+        const keysObj = {
+          keys: [{ kty: "oct", k: Buffer.from(key, "hex").toString("base64url"), kid: kidBase64 }],
+          type: "temporary"
+        };
+
+        console.log(keysObj);
+        const keysBuffer = Buffer.from(JSON.stringify(keysObj));
+        res.send(keysBuffer);
+      } catch (error) {
+        console.log(error);
+        busboy.emit(error);
+      }
     });
 
     req.pipe(busboy);
