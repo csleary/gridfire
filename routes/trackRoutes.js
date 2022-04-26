@@ -24,9 +24,9 @@ router.post("/", async (req, res) => {
     });
 
     busboy.on("file", async (name, file) => {
-      if (name !== "message") return void busboy.emit(new Error("Internal error."));
-
       try {
+        if (name !== "message") throw new Error("Internal error.");
+
         const kidsBuffer = await new Promise((resolve, reject) => {
           const chunks = [];
           file.on("data", chunk => chunks.push(chunk));
@@ -34,9 +34,7 @@ router.post("/", async (req, res) => {
           file.on("error", reject);
         });
 
-        console.log(kidsBuffer.toString());
         const message = JSON.parse(kidsBuffer.toString());
-        console.log(message);
         const [kidBase64] = message.kids;
         const kid = Buffer.from(kidBase64, "base64url").toString("hex");
         const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
@@ -48,19 +46,17 @@ router.post("/", async (req, res) => {
           type: "temporary"
         };
 
-        console.log(keysObj);
         const keysBuffer = Buffer.from(JSON.stringify(keysObj));
         res.send(keysBuffer);
       } catch (error) {
-        console.log(error);
-        busboy.emit(error);
+        busboy.emit("error", error);
       }
     });
 
     req.pipe(busboy);
   } catch (error) {
     console.log(error);
-    res.sendStatus(400);
+    if (!req.headersSent) res.sendStatus(400);
   }
 });
 
