@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
           </Center>
         ) : null}
       </HStack>
-      <Divider borderColor={useColorModeValue("gray.300", "gray.500")} my={8} />
+      <Divider borderColor={useColorModeValue("gray.300", "gray.600")} my={8} />
       <Center fontSize="small">
         <Text>
           &copy; 2017&ndash;{year}{" "}
