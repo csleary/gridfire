@@ -2,6 +2,7 @@ import Busboy from "busboy";
 import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
 import User from "../models/User.js";
+import crypto from "crypto";
 import { encryptStream } from "../controllers/encryption.js";
 import express from "express";
 import mime from "mime-types";
@@ -10,12 +11,14 @@ import { publishToQueue } from "../controllers/amqp/publisher.js";
 import requireLogin from "../middlewares/requireLogin.js";
 
 const { QUEUE_TRANSCODE } = process.env;
+const { publicEncrypt, webcrypto } = crypto;
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
     const { headers } = req;
     const busboy = Busboy({ headers, limits: { fileSize: 1024 * 16 } });
+    let publicKey;
 
     busboy.on("error", async error => {
       console.log(error);
@@ -23,9 +26,17 @@ router.post("/", async (req, res) => {
       res.sendStatus(400);
     });
 
+    busboy.on("field", async (name, value) => {
+      if (name === "key") {
+        publicKey = JSON.parse(value);
+      }
+    });
+
     busboy.on("file", async (name, file) => {
       try {
-        if (name !== "message") throw new Error("Internal error.");
+        if (name !== "message") {
+          throw new Error("Internal error.");
+        }
 
         const kidsBuffer = await new Promise((resolve, reject) => {
           const chunks = [];
@@ -47,7 +58,12 @@ router.post("/", async (req, res) => {
         };
 
         const keysBuffer = Buffer.from(JSON.stringify(keysObj));
-        res.send(keysBuffer);
+        const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
+        const cryptoKey = await webcrypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
+        const padding = crypto.constants.RSA_PKCS1_OAEP_PADDING;
+        const cipherConfig = { key: cryptoKey, padding, oaepHash: "sha256" };
+        const cipherBuffer = publicEncrypt(cipherConfig, keysBuffer);
+        res.send(cipherBuffer);
       } catch (error) {
         busboy.emit("error", error);
       }

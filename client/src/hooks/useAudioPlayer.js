@@ -7,18 +7,20 @@ import { usePrevious } from "hooks/usePrevious";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 const MIME_TYPE = 'audio/mp4; codecs="mp4a.40.2"';
+const { crypto } = window;
 
 const useAudioPlayer = () => {
   const dispatch = useDispatch();
   const audioPlayerRef = useRef();
   const durationRef = useRef(0);
-  const mediaKeysRef = useRef();
-  const prevTimeRef = useRef();
   const initSegmentRef = useRef();
+  const keyPairRef = useRef();
+  const queueRef = useRef([]);
+  const mediaKeysRef = useRef();
   const mediaSourceRef = useRef();
+  const prevTimeRef = useRef();
   const seekBarRef = useRef();
   const sourceBufferRef = useRef();
-  const queueRef = useRef([]);
   const { player, releases } = useSelector(state => state, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
@@ -146,11 +148,20 @@ const useAudioPlayer = () => {
   }, [artistName, dispatch, handleStop, playerTrackId, releaseId, trackList]);
 
   const handleMessage = useCallback(async ({ message, target }) => {
-    const formData = new FormData();
-    formData.append("message", new Blob([message]));
-    const postConfig = { responseType: "arraybuffer" };
-    const kRes = await axios.post(`/api/track`, formData, postConfig);
-    await target.update(kRes.data);
+    try {
+      const { publicKey, privateKey } = keyPairRef.current;
+      const formData = new FormData();
+      const jwk = await crypto.subtle.exportKey("jwk", publicKey);
+      formData.append("key", JSON.stringify(jwk));
+      formData.append("message", new Blob([message]));
+      const postConfig = { responseType: "arraybuffer" };
+      const res = await axios.post(`/api/track`, formData, postConfig);
+      const decipherConfig = { name: "RSA-OAEP", hash: "SHA-256" };
+      const key = await crypto.subtle.decrypt(decipherConfig, privateKey, res.data);
+      await target.update(key);
+    } catch (error) {
+      console.error(error);
+    }
   }, []);
 
   const handleEncrypted = useCallback(
@@ -274,6 +285,14 @@ const useAudioPlayer = () => {
       appendBuffer(buffer);
     }
   }, [appendBuffer, fetchSegment, isBuffering, isFetchingBuffer]);
+
+  useEffect(() => {
+    const publicExponent = new Uint8Array([1, 0, 1]);
+    const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
+    const extractable = true;
+    const keyUsages = ["encrypt", "decrypt"];
+    crypto.subtle.generateKey(algorithm, extractable, keyUsages).then(keyPair => (keyPairRef.current = keyPair));
+  }, []);
 
   useEffect(() => {
     const iPhone = navigator.userAgent.indexOf("iPhone") !== -1;
