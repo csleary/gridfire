@@ -2,8 +2,7 @@ import Busboy from "busboy";
 import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
 import User from "../models/User.js";
-import crypto from "crypto";
-import { encryptStream } from "../controllers/encryption.js";
+import { encryptStream, encryptString } from "../controllers/encryption.js";
 import express from "express";
 import mime from "mime-types";
 import mongoose from "mongoose";
@@ -11,7 +10,6 @@ import { publishToQueue } from "../controllers/amqp/publisher.js";
 import requireLogin from "../middlewares/requireLogin.js";
 
 const { QUEUE_TRANSCODE } = process.env;
-const { publicEncrypt, webcrypto } = crypto;
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -57,12 +55,7 @@ router.post("/", async (req, res) => {
           type: "temporary"
         };
 
-        const keysBuffer = Buffer.from(JSON.stringify(keysObj));
-        const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
-        const cryptoKey = await webcrypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
-        const padding = crypto.constants.RSA_PKCS1_OAEP_PADDING;
-        const cipherConfig = { key: cryptoKey, padding, oaepHash: "sha256" };
-        const cipherBuffer = publicEncrypt(cipherConfig, keysBuffer);
+        const cipherBuffer = await encryptString(publicKey, JSON.stringify(keysObj));
         res.send(cipherBuffer);
       } catch (error) {
         busboy.emit("error", error);

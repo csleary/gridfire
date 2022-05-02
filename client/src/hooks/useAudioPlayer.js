@@ -1,3 +1,4 @@
+import { decryptArrayBuffer, exportKeyToJWK, generateKey } from "utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "features/player";
@@ -7,7 +8,6 @@ import { usePrevious } from "hooks/usePrevious";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 const MIME_TYPE = 'audio/mp4; codecs="mp4a.40.2"';
-const { crypto } = window;
 
 const useAudioPlayer = () => {
   const dispatch = useDispatch();
@@ -150,15 +150,14 @@ const useAudioPlayer = () => {
   const handleMessage = useCallback(async ({ message, target }) => {
     try {
       const { publicKey, privateKey } = keyPairRef.current;
+      const jwk = await exportKeyToJWK(publicKey);
       const formData = new FormData();
-      const jwk = await crypto.subtle.exportKey("jwk", publicKey);
       formData.append("key", JSON.stringify(jwk));
       formData.append("message", new Blob([message]));
       const postConfig = { responseType: "arraybuffer" };
       const res = await axios.post(`/api/track`, formData, postConfig);
-      const decipherConfig = { name: "RSA-OAEP", hash: "SHA-256" };
-      const key = await crypto.subtle.decrypt(decipherConfig, privateKey, res.data);
-      await target.update(key);
+      const keyBuffer = await decryptArrayBuffer(privateKey, res.data);
+      await target.update(keyBuffer);
     } catch (error) {
       console.error(error);
     }
@@ -225,7 +224,7 @@ const useAudioPlayer = () => {
     updateBuffer
   ]);
 
-  const handleTimeUpdate = useCallback(async () => {
+  const handleTimeUpdate = useCallback(() => {
     const { currentTime, paused } = audioPlayerRef.current;
     let needsBuffer = false;
 
@@ -251,8 +250,7 @@ const useAudioPlayer = () => {
 
     if (needsBuffer && !isBuffering && !isFetchingBuffer) {
       setIsFetchingBuffer(true);
-      const buffer = await fetchSegment(currentTime, 1);
-      appendBuffer(buffer);
+      fetchSegment(currentTime, 1).then(appendBuffer);
     }
 
     const mins = Math.floor(currentTime / 60);
@@ -287,11 +285,7 @@ const useAudioPlayer = () => {
   }, [appendBuffer, fetchSegment, isBuffering, isFetchingBuffer]);
 
   useEffect(() => {
-    const publicExponent = new Uint8Array([1, 0, 1]);
-    const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
-    const extractable = true;
-    const keyUsages = ["encrypt", "decrypt"];
-    crypto.subtle.generateKey(algorithm, extractable, keyUsages).then(keyPair => (keyPairRef.current = keyPair));
+    generateKey().then(keyPair => (keyPairRef.current = keyPair));
   }, []);
 
   useEffect(() => {

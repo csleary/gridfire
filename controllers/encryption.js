@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from "crypto";
+import { constants, createCipheriv, createDecipheriv, publicEncrypt, randomBytes, randomUUID, webcrypto } from "crypto";
 import { Transform } from "stream";
 import fs from "fs";
 import path from "path";
@@ -75,4 +75,14 @@ const decryptStream = async (encryptedStream, key) => {
   }
 };
 
-export { encryptStream, decryptStream };
+const encryptString = async (publicKey, string) => {
+  const keysBuffer = Buffer.from(string);
+  const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
+  const cryptoKey = await webcrypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
+  const padding = constants.RSA_PKCS1_OAEP_PADDING;
+  const cipherConfig = { key: cryptoKey, padding, oaepHash: "sha256" };
+  const cipherBuffer = publicEncrypt(cipherConfig, keysBuffer);
+  return cipherBuffer;
+};
+
+export { encryptStream, encryptString, decryptStream };

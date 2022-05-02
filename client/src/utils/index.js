@@ -1,4 +1,5 @@
 import axios from "axios";
+const { crypto } = window;
 
 const checkFormatMp3 = async token => {
   return axios.get("/api/download/check", { headers: { Authorization: `Bearer ${token}` } });
@@ -11,9 +12,28 @@ const createObjectId = () => {
   return `${timestamp}${randomHex}`;
 };
 
+const decryptArrayBuffer = async (privateKey, encryptedBuffer) => {
+  const decipherConfig = { name: "RSA-OAEP", hash: "SHA-256" };
+  const decryptedBuffer = await crypto.subtle.decrypt(decipherConfig, privateKey, encryptedBuffer);
+  return decryptedBuffer;
+};
+
+const exportKeyToJWK = async publicKey => {
+  const jwk = await crypto.subtle.exportKey("jwk", publicKey);
+  return jwk;
+};
+
 const fetchDownloadToken = async releaseId => {
   const res = await axios.post("/api/download", { releaseId });
   return res.headers.authorization.split(" ")[1];
 };
 
-export { checkFormatMp3, createObjectId, fetchDownloadToken };
+const generateKey = async () => {
+  const publicExponent = new Uint8Array([1, 0, 1]);
+  const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
+  const extractable = true;
+  const keyUsages = ["encrypt", "decrypt"];
+  return crypto.subtle.generateKey(algorithm, extractable, keyUsages);
+};
+
+export { checkFormatMp3, createObjectId, decryptArrayBuffer, exportKeyToJWK, fetchDownloadToken, generateKey };
