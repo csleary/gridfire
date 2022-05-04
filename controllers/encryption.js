@@ -1,4 +1,13 @@
-import { constants, createCipheriv, createDecipheriv, publicEncrypt, randomBytes, randomUUID, webcrypto } from "crypto";
+import {
+  constants,
+  createCipheriv,
+  createDecipheriv,
+  privateDecrypt,
+  publicEncrypt,
+  randomBytes,
+  randomUUID,
+  webcrypto
+} from "crypto";
 import { Transform } from "stream";
 import fs from "fs";
 import path from "path";
@@ -33,6 +42,16 @@ const encryptStream = (unencryptedStream, key) => {
   const encrypt = createCipheriv("aes-256-cbc", Buffer.from(key), iv);
   const encryptedStream = unencryptedStream.pipe(encrypt).pipe(prependIV);
   return encryptedStream;
+};
+
+const encryptString = async (publicKey, string) => {
+  const keysBuffer = Buffer.from(string);
+  const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
+  const cryptoKey = await webcrypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
+  const padding = constants.RSA_PKCS1_OAEP_PADDING;
+  const cipherConfig = { key: cryptoKey, padding, oaepHash: "sha256" };
+  const cipherBuffer = publicEncrypt(cipherConfig, keysBuffer);
+  return cipherBuffer;
 };
 
 const decryptStream = async (encryptedStream, key) => {
@@ -75,14 +94,19 @@ const decryptStream = async (encryptedStream, key) => {
   }
 };
 
-const encryptString = async (publicKey, string) => {
-  const keysBuffer = Buffer.from(string);
-  const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
-  const cryptoKey = await webcrypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
+const decryptString = (key, buffer) => {
   const padding = constants.RSA_PKCS1_OAEP_PADDING;
-  const cipherConfig = { key: cryptoKey, padding, oaepHash: "sha256" };
-  const cipherBuffer = publicEncrypt(cipherConfig, keysBuffer);
-  return cipherBuffer;
+  return privateDecrypt({ key, oaepHash: "sha256", padding }, buffer);
 };
 
-export { encryptStream, encryptString, decryptStream };
+const generateKey = async () => {
+  const publicExponent = new Uint8Array([1, 0, 1]);
+  const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
+  const extractable = true;
+  const keyUsages = ["encrypt", "decrypt"];
+  const { publicKey, privateKey } = await webcrypto.subtle.generateKey(algorithm, extractable, keyUsages);
+  const publicJWK = await webcrypto.subtle.exportKey("jwk", publicKey);
+  return { privateKey, publicJWK, publicKey };
+};
+
+export { encryptStream, encryptString, decryptStream, decryptString, generateKey };

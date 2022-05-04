@@ -1,4 +1,4 @@
-import { decryptArrayBuffer, exportKeyToJWK, generateKey } from "utils";
+import { decryptArrayBuffer, encryptArrayBuffer, exportKeyToJWK, generateKey } from "utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "features/player";
@@ -21,6 +21,7 @@ const useAudioPlayer = () => {
   const prevTimeRef = useRef();
   const seekBarRef = useRef();
   const sourceBufferRef = useRef();
+  const serverPublicKeyRef = useRef();
   const { player, releases } = useSelector(state => state, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
@@ -152,8 +153,9 @@ const useAudioPlayer = () => {
       const { publicKey, privateKey } = keyPairRef.current;
       const jwk = await exportKeyToJWK(publicKey);
       const formData = new FormData();
+      const encryptedMessage = await encryptArrayBuffer(serverPublicKeyRef.current, message);
       formData.append("key", JSON.stringify(jwk));
-      formData.append("message", new Blob([message]));
+      formData.append("message", new Blob([encryptedMessage]));
       const postConfig = { responseType: "arraybuffer" };
       const res = await axios.post(`/api/track`, formData, postConfig);
       const keyBuffer = await decryptArrayBuffer(privateKey, res.data);
@@ -286,6 +288,11 @@ const useAudioPlayer = () => {
 
   useEffect(() => {
     generateKey().then(keyPair => (keyPairRef.current = keyPair));
+
+    axios
+      .get("/api/track")
+      .then(res => (serverPublicKeyRef.current = res.data))
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -311,7 +318,7 @@ const useAudioPlayer = () => {
     }
 
     const handlePlayerError = error => {
-      console.log(error);
+      console.error(error);
       setIsReady(false);
       dispatch(playerStop());
     };
@@ -319,14 +326,12 @@ const useAudioPlayer = () => {
     const handleCanPlay = () => setIsReady(true);
     const handleLoadStart = () => setIsReady(false);
     const handleSourceEnded = e => console.log(e);
-    // const handleWaitingForKey = e => console.log(e);
     if (!mediaSourceRef.current) mediaSourceRef.current = new MediaSource();
     if (!audioPlayer.src) audioPlayer.src = URL.createObjectURL(mediaSourceRef.current);
 
     mediaSourceRef.current.addEventListener("sourceopen", handleSourceOpen);
     mediaSourceRef.current.addEventListener("sourceended", handleSourceEnded);
     audioPlayer.addEventListener("encrypted", handleEncrypted);
-    // audioPlayer.addEventListener("waitingforkey", handleWaitingForKey);
     audioPlayer.addEventListener("loadstart", handleLoadStart);
     audioPlayer.addEventListener("canplay", handleCanPlay);
     audioPlayer.addEventListener("play", handlePlay);
@@ -344,7 +349,6 @@ const useAudioPlayer = () => {
       mediaSourceRef.current.removeEventListener("sourceopen", handleSourceOpen);
       mediaSourceRef.current.removeEventListener("sourceended", handleSourceEnded);
       mediaSourceRef.current.removeEventListener("encrypted", handleEncrypted);
-      // audioPlayer.removeEventListener("waitingforkey", handleWaitingForKey);
       audioPlayer.removeEventListener("encrypted", handleEncrypted);
       audioPlayer.removeEventListener("loadstart", handleLoadStart);
       audioPlayer.removeEventListener("canplay", handleCanPlay);

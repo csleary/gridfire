@@ -12,10 +12,11 @@ const About = () => (
       <Text fontSize="xl" mb={6}>
         GridFire is a music download store that uses the Arbitrum blockchain for payment.
       </Text>
-      <Text fontSize="xl">
+      <Text fontSize="xl" mb={6}>
         Artists set a price for their releases in DAI (a USD stablecoin), accruing balances in a smart contract, to be
-        withdrawn at any time. Fans can make purchases using popular in-browser wallets such as Metamask.
+        withdrawn at any time.
       </Text>
+      <Text fontSize="xl">Fans can make purchases using popular in-browser wallets such as Metamask.</Text>
     </Container>
   </>
 );

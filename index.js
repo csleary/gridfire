@@ -23,12 +23,18 @@ import catalogue from "./routes/catalogueRoutes.js";
 import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
 import email from "./routes/emailRoutes.js";
+import { generateKey } from "./controllers/encryption.js";
 import release from "./routes/releaseRoutes.js";
 import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
 const { COOKIE_KEY, MONGO_URI, PORT = 5000 } = process.env;
+
+process
+  .on("uncaughtException", error => console.error("[Unhandled exception]", error))
+  .on("unhandledRejection", error => console.error("[Unhandled promise rejection]", error));
+
 const app = express();
 const server = createServer(app);
 const sseController = new SSEController();
@@ -50,6 +56,7 @@ await mongoose.connect(MONGO_URI).catch(console.error);
 
 // Express
 app.locals.sse = sseController;
+app.locals.crypto = await generateKey();
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
 app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));
@@ -80,10 +87,5 @@ const handleShutdown = async () => {
   });
 };
 
-process
-  .on("SIGINT", handleShutdown)
-  .on("SIGTERM", handleShutdown)
-  .on("uncaughtException", error => console.log("Unhandled exception:", error))
-  .on("unhandledRejection", error => console.log("Unhandled promise rejection:", error));
-
+process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
 server.listen(PORT, () => console.log(`[Express] Server running on port ${PORT}.`));

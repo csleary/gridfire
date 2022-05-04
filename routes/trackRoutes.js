@@ -2,7 +2,7 @@ import Busboy from "busboy";
 import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
 import User from "../models/User.js";
-import { encryptStream, encryptString } from "../controllers/encryption.js";
+import { decryptString, encryptStream, encryptString } from "../controllers/encryption.js";
 import express from "express";
 import mime from "mime-types";
 import mongoose from "mongoose";
@@ -11,6 +11,11 @@ import requireLogin from "../middlewares/requireLogin.js";
 
 const { QUEUE_TRANSCODE } = process.env;
 const router = express.Router();
+
+router.get("/", async (req, res) => {
+  const { publicJWK } = req.app.locals.crypto;
+  res.json(publicJWK);
+});
 
 router.post("/", async (req, res) => {
   try {
@@ -43,7 +48,9 @@ router.post("/", async (req, res) => {
           file.on("error", reject);
         });
 
-        const message = JSON.parse(kidsBuffer.toString());
+        const { privateKey } = req.app.locals.crypto;
+        const decrypted = decryptString(privateKey, kidsBuffer);
+        const message = JSON.parse(decrypted);
         const [kidBase64] = message.kids;
         const kid = Buffer.from(kidBase64, "base64url").toString("hex");
         const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
@@ -84,12 +91,7 @@ router.get("/:trackId/init", async (req, res) => {
 
     if (!release.user.equals(user)) {
       try {
-        await StreamSession.create({
-          user,
-          release: releaseId,
-          trackId,
-          segmentsTotal: segmentList.length
-        });
+        await StreamSession.create({ user, release: releaseId, trackId, segmentsTotal: segmentList.length });
       } catch (error) {
         if (error.code === 11000) return;
         res.status(400).json({ error: error.message || error.toString() });

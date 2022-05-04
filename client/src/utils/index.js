@@ -12,6 +12,13 @@ const createObjectId = () => {
   return `${timestamp}${randomHex}`;
 };
 
+const encryptArrayBuffer = async (publicKey, arrayBuffer) => {
+  const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
+  const cryptoKey = await crypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
+  const cipherBuffer = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, cryptoKey, arrayBuffer);
+  return cipherBuffer;
+};
+
 const decryptArrayBuffer = async (privateKey, encryptedBuffer) => {
   const decipherConfig = { name: "RSA-OAEP", hash: "SHA-256" };
   const decryptedBuffer = await crypto.subtle.decrypt(decipherConfig, privateKey, encryptedBuffer);
@@ -36,4 +43,12 @@ const generateKey = async () => {
   return crypto.subtle.generateKey(algorithm, extractable, keyUsages);
 };
 
-export { checkFormatMp3, createObjectId, decryptArrayBuffer, exportKeyToJWK, fetchDownloadToken, generateKey };
+export {
+  checkFormatMp3,
+  createObjectId,
+  decryptArrayBuffer,
+  encryptArrayBuffer,
+  exportKeyToJWK,
+  fetchDownloadToken,
+  generateKey
+};
