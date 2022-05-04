@@ -11,7 +11,7 @@
     "client": "yarn --cwd ./client/ start",
     "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"npm run ganache\"",
     "worker": "yarn --cwd ./worker/ run dev",
-    "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -d -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\""
+    "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\""
   },
   "author": "Christopher Leary",
   "license": "ISC",
@@ -40,8 +40,11 @@
   },
   "devDependencies": {
     "@types/busboy": "^1.5.0",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cookie-session": "^2.0.44",
     "@types/express": "^4.17.13",
     "@types/mime-types": "^2.1.1",
+    "@types/passport": "^1.0.7",
     "concurrently": "^7.1.0",
     "nodemon": "^2.0.7"
   }
