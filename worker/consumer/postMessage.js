@@ -1,6 +1,6 @@
 import { publishToQueue } from '../publisher/index.js';
 
-const { MESSAGE_QUEUE } = process.env;
-const postMessage = message => publishToQueue('', MESSAGE_QUEUE, message);
+const { QUEUE_MESSAGE } = process.env;
+const postMessage = message => publishToQueue('', QUEUE_MESSAGE, message);
 
 export default postMessage;

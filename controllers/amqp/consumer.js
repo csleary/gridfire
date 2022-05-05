@@ -1,6 +1,6 @@
 import closeOnError from "./closeOnError.js";
 
-const { MESSAGE_QUEUE } = process.env;
+const { QUEUE_MESSAGE } = process.env;
 
 const startConsumer = async (connection, sse) => {
   try {
@@ -27,8 +27,8 @@ const startConsumer = async (connection, sse) => {
     });
 
     channel.prefetch(5);
-    await channel.assertQueue(MESSAGE_QUEUE, { durable: true });
-    channel.consume(MESSAGE_QUEUE, processMessage, { noAck: false });
+    await channel.assertQueue(QUEUE_MESSAGE, { durable: true });
+    channel.consume(QUEUE_MESSAGE, processMessage, { noAck: false });
   } catch (error) {
     if (closeOnError(connection, error)) return;
   }
