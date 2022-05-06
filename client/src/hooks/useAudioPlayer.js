@@ -81,6 +81,7 @@ const useAudioPlayer = () => {
       if (queueRef.current.length) {
         return sourceBufferRef.current.appendBuffer(queueRef.current.shift());
       }
+
       setIsBuffering(false);
     },
     [shouldSetDuration]
@@ -228,7 +229,6 @@ const useAudioPlayer = () => {
 
   const handleTimeUpdate = useCallback(() => {
     const { currentTime, paused } = audioPlayerRef.current;
-    let needsBuffer = false;
 
     if (!paused && hasFinalSegment && prevTimeRef.current === currentTime) {
       return handleTrackEnded();
@@ -236,6 +236,7 @@ const useAudioPlayer = () => {
 
     const { duration } = mediaSourceRef.current;
     const { buffered } = sourceBufferRef.current;
+    let needsBuffer = false;
 
     for (let i = 0; i < buffered.length; i++) {
       if (
@@ -281,8 +282,7 @@ const useAudioPlayer = () => {
     if (!isBuffered && !isBuffering && !isFetchingBuffer) {
       setIsReady(false);
       setIsFetchingBuffer(true);
-      const buffer = await fetchSegment(currentTime, 2);
-      appendBuffer(buffer);
+      fetchSegment(currentTime, 2).then(appendBuffer);
     }
   }, [appendBuffer, fetchSegment, isBuffering, isFetchingBuffer]);
 
@@ -339,6 +339,7 @@ const useAudioPlayer = () => {
     audioPlayer.addEventListener("seeking", handleSeeking);
     audioPlayer.addEventListener("ended", handleTrackEnded);
     audioPlayer.addEventListener("onerror", handlePlayerError);
+    audioPlayer.addEventListener("waiting", handleTimeUpdate);
 
     if (sourceBufferRef.current) {
       sourceBufferRef.current.addEventListener("updatestart", handleSetIsBuffering);
@@ -357,6 +358,7 @@ const useAudioPlayer = () => {
       audioPlayer.removeEventListener("seeking", handleSeeking);
       audioPlayer.removeEventListener("ended", handleTrackEnded);
       audioPlayer.removeEventListener("onerror", handlePlayerError);
+      audioPlayer.removeEventListener("waiting", handleTimeUpdate);
 
       if (sourceBufferRef.current) {
         sourceBufferRef.current.removeEventListener("updatestart", handleSetIsBuffering);

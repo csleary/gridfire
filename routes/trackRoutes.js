@@ -109,13 +109,12 @@ router.get("/:trackId/stream", async (req, res) => {
     const { time, type } = req.query;
     const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
     const { cids, segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
-    const cidMP4 = cids.mp4;
     const segmentTime = Number.parseFloat(time) / (segmentDuration / segmentTimescale);
     const indexLookup = { 0: 0, 1: Math.ceil(segmentTime), 2: Math.floor(segmentTime) };
     const index = indexLookup[type];
     const range = segmentList[index];
     const end = index + 1 === segmentList.length;
-    res.send({ cid: cidMP4, range, end });
+    res.send({ cid: cids.mp4, range, end });
 
     // If user is not logged in, use the session userId for play tracking.
     const user = req.user?._id || req.session.user;

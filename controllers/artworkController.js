@@ -1,4 +1,4 @@
-import Release from "../models/Release.js";
+import Release from "gridfire/models/Release.js";
 import fs from "fs";
 import sharp from "sharp";
 
