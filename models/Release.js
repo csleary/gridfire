@@ -55,6 +55,7 @@ const releaseSchema = new Schema(
 
 releaseSchema.index({
   artistName: "text",
+  catNumber: "text",
   recordLabel: "text",
   releaseTitle: "text",
   "trackList.trackTitle": "text",

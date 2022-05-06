@@ -5,11 +5,38 @@ import Release from "../models/Release.js";
 
 const router = express.Router();
 
+const mapKeyToModel = {
+  artist: "artistName",
+  cat: "catNumber",
+  price: "price",
+  label: "recordLabel",
+  title: "releaseTitle",
+  track: "trackList.trackTitle",
+  year: "releaseDate"
+};
+
 router.get("/search", async (req, res) => {
-  const { searchQuery } = req.query;
+  const query = Object.entries(req.query).reduce((prev, [key, value]) => {
+    if (key === "text") return { ...prev, $text: { $search: value } };
+
+    if (key === "year")
+      return {
+        ...prev,
+        [mapKeyToModel[key]]: {
+          $gte: new Date().setFullYear(value - 1),
+          $lte: new Date().setFullYear(value)
+        }
+      };
+
+    if (["artist", "cat", "label", "title", "text", "track"].includes(key)) {
+      return { ...prev, [mapKeyToModel[key]]: value };
+    }
+
+    return prev;
+  }, {});
 
   const results = await Release.find(
-    { published: true, $text: { $search: searchQuery } },
+    { published: true, ...query },
     {
       artistName: 1,
       artwork: 1,

@@ -1,17 +1,17 @@
-import axios from 'axios';
-import { createSlice } from '@reduxjs/toolkit';
+import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
 
 const searchSlice = createSlice({
-  name: 'search',
+  name: "search",
   initialState: {
     isSearching: false,
-    searchQuery: '',
+    searchQuery: "",
     searchResults: []
   },
   reducers: {
     clearResults(state) {
       state.searchResults = [];
-      state.searchQuery = '';
+      state.searchQuery = "";
     },
 
     setSearchResults(state, action) {
@@ -27,7 +27,16 @@ const searchSlice = createSlice({
 
 const searchReleases = searchQuery => async dispatch => {
   dispatch(setSearching({ isSearching: true, searchQuery }));
-  const res = await axios.get('/api/catalogue/search', { params: { searchQuery } });
+  const [key, value] = searchQuery.split(":");
+
+  let query;
+  if (["artist", "cat", "label", "track", "year"].includes(key.trim())) {
+    query = { [key.trim()]: value.trim() };
+  } else {
+    query = { text: searchQuery.trim() };
+  }
+
+  const res = await axios.get("/api/catalogue/search", { params: query });
   dispatch(setSearchResults(res.data));
   dispatch(setSearching({ isSearching: false, searchQuery }));
   return res;
