@@ -27,16 +27,23 @@ const searchSlice = createSlice({
 
 const searchReleases = searchQuery => async dispatch => {
   dispatch(setSearching({ isSearching: true, searchQuery }));
-  const [key, value] = searchQuery.split(":");
 
-  let query;
-  if (["artist", "cat", "label", "track", "year"].includes(key.trim())) {
-    query = { [key.trim()]: value.trim() };
-  } else {
-    query = { text: searchQuery.trim() };
-  }
+  const params = searchQuery
+    .trim()
+    .split(",")
+    .reduce((prev, current) => {
+      let [key, value] = current.split(":");
+      key = key?.trim();
+      value = value?.trim();
 
-  const res = await axios.get("/api/catalogue/search", { params: query });
+      if (["artist", "cat", "label", "title", "track", "year"].includes(key)) {
+        return { ...prev, [key]: value };
+      }
+
+      return { ...prev, text: current.trim() };
+    }, {});
+
+  const res = await axios.get("/api/catalogue/search", { params });
   dispatch(setSearchResults(res.data));
   dispatch(setSearching({ isSearching: false, searchQuery }));
   return res;
