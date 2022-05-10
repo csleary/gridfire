@@ -1,5 +1,5 @@
 import { createAction, createSlice } from "@reduxjs/toolkit";
-import { toastError, toastSuccess } from "features/toast";
+import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
 
 const userSlice = createSlice({

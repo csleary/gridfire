@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Card from "components/card";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
-import { fetchArtistCatalogue } from "features/releases";
+import { fetchArtistCatalogue } from "state/releases";
 import { useParams } from "react-router-dom";
 
 const ArtistPage = () => {

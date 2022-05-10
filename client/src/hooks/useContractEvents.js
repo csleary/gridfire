@@ -1,24 +1,28 @@
-import { useContext } from "react";
-import { utils } from "ethers";
+import { shallowEqual, useSelector } from "react-redux";
+import { useContext, useEffect } from "react";
 import { Web3Context } from "index";
-
-const { REACT_APP_CONTRACT_ADDRESS } = process.env;
+import { daiAbi } from "web3/dai";
+import { getDaiContract } from "web3/contract";
+import { utils } from "ethers";
 
 const useContractEvents = () => {
   const provider = useContext(Web3Context);
+  const { account } = useSelector(state => state.web3, shallowEqual);
 
-  const filter = {
-    address: REACT_APP_CONTRACT_ADDRESS,
-    topics: [utils.id("PaymentReceived(address,uint256)")]
-  };
+  useEffect(() => {
+    if (account && provider) {
+      const dai = getDaiContract(provider);
+      const iface = new utils.Interface(daiAbi);
+      const filter = dai.filters.Transfer(null, account); // DAI transfers to my account.
 
-  provider.on(filter, (log, event) => {
-    // console.log(event);
-  });
-
-  provider.on("block", blockNumber => {
-    // console.log(blockNumber);
-  });
+      provider.once(filter, log => {
+        const { args, name } = iface.parseLog(log);
+        const [from, to, bigNum] = args;
+        const amount = utils.formatEther(bigNum);
+        console.log(name, from, to, amount);
+      });
+    }
+  }, [account, provider]);
 };
 
 export default useContractEvents;

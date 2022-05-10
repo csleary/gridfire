@@ -2,7 +2,7 @@ import { Box, Grid, Heading } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import RenderRelease from "components/renderRelease";
-import { fetchCollection } from "features/releases";
+import { fetchCollection } from "state/releases";
 
 const Collection = () => {
   const dispatch = useDispatch();

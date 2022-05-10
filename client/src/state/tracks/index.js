@@ -1,7 +1,7 @@
-import { toastError, toastInfo, toastSuccess } from "features/toast";
+import { toastError, toastInfo, toastSuccess } from "state/toast";
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
-import { setActiveRelease } from "features/releases";
+import { setActiveRelease } from "state/releases";
 const calls = new Map();
 
 const trackSlice = createSlice({

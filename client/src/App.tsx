@@ -1,13 +1,13 @@
 import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useContext, useEffect, useRef } from "react";
-import { setAccount, setIsConnected, setNetworkName } from "features/web3";
+import { fetchDaiAllowance, setAccount, setIsConnected, setNetworkName } from "state/web3";
 import Footer from "components/footer";
 import Player from "pages/player";
 import PrivateRoute from "components/privateRoute";
 import { Web3Context } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { fetchUser } from "features/user";
+import { fetchUser } from "state/user";
 import { useDispatch } from "react-redux";
 import useSSE from "hooks/useSSE";
 import useContractEvents from "hooks/useContractEvents";
@@ -45,6 +45,7 @@ const App: React.FC = () => {
 
       if (account) {
         dispatch(setAccount(account));
+        dispatch(fetchDaiAllowance(account));
         dispatch(setIsConnected(true));
       } else {
         dispatch(setIsConnected(false));

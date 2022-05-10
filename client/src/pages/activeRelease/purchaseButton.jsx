@@ -1,41 +1,40 @@
 import { Button, Center } from "@chakra-ui/react";
-import { ethers, Contract } from "ethers";
-import { toastError, toastSuccess, toastWarning } from "features/toast";
-import GridFirePayment from "contracts/GridFirePayment.json";
+import { ethers, utils } from "ethers";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { toastError, toastSuccess, toastWarning } from "state/toast";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import axios from "axios";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { fetchUser } from "features/user";
-import { useDispatch } from "react-redux";
+import { fetchUser } from "state/user";
+import { getGridFireContract } from "web3/contract";
 import { useState } from "react";
-
-const { REACT_APP_CONTRACT_ADDRESS } = process.env;
+import { useNavigate } from "react-router-dom";
 
 const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const { daiAllowance, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const allowanceTooLow = utils.parseEther(`${price || 0}`).gt(daiAllowance);
 
   const handlePayment = async () => {
     try {
       const ethereum = await detectEthereumProvider();
       const provider = new ethers.providers.Web3Provider(ethereum, "any");
-      await ethereum.request({ method: "eth_requestAccounts" });
       const signer = provider.getSigner();
-      const contract = new Contract(REACT_APP_CONTRACT_ADDRESS, GridFirePayment.abi, signer);
+      const gridFirePayment = getGridFireContract(signer);
 
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/purchase/${releaseId}`);
       const { release, paymentAddress } = res.data;
-
-      const transactionReceipt = await contract.purchase(paymentAddress, release.price, {
-        value: price
-      });
-
+      const weiReleasePrice = utils.parseEther(`${release.price}`);
+      const transactionReceipt = await gridFirePayment.purchase(paymentAddress, weiReleasePrice, weiReleasePrice);
       const confirmedTransaction = await transactionReceipt.wait(0);
-      const { transactionHash } = confirmedTransaction;
+      const { status, transactionHash } = confirmedTransaction;
+      if (status !== 1) throw new Error("Transaction unsuccessful.");
       await axios.post(`/api/release/purchase/${releaseId}`, { transactionHash });
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
@@ -55,14 +54,22 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   return (
     <Center>
       <Button
-        disabled={inCollection}
+        disabled={inCollection || !isConnected}
         isLoading={isLoading || isPurchasing}
         loadingText={isLoading ? "Loading" : "Purchasing"}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
         mb={8}
-        onClick={handlePayment}
+        onClick={allowanceTooLow ? () => navigate("/dashboard/address") : handlePayment}
       >
-        {!price ? "Name Your Price" : inCollection ? "In Collection" : `Purchase ~ ${price} USD`}
+        {!price
+          ? "Name your price"
+          : inCollection
+          ? "In collection"
+          : !isConnected
+          ? "Connect wallet"
+          : allowanceTooLow
+          ? "Approval required"
+          : `Purchase ~ ${price} USD`}
       </Button>
     </Center>
   );

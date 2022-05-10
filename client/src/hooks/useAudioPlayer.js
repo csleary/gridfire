@@ -1,8 +1,8 @@
 import { decryptArrayBuffer, encryptArrayBuffer, exportKeyToJWK, generateKey } from "utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "features/player";
-import { toastError, toastWarning } from "features/toast";
+import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
+import { toastError, toastWarning } from "state/toast";
 import axios from "axios";
 import { usePrevious } from "hooks/usePrevious";
 

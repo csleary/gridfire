@@ -13,7 +13,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { Link as RouterLink, useParams } from "react-router-dom";
-import { fetchRelease, setIsLoading } from "features/releases";
+import { fetchRelease, setIsLoading } from "state/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Actions from "./actions";
 import Artwork from "./artwork";
@@ -24,7 +24,7 @@ import PurchaseButton from "./purchaseButton";
 import Tags from "./tags";
 import TrackList from "./trackList";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
-import { fetchUser } from "features/user";
+import { fetchUser } from "state/user";
 import moment from "moment";
 import { useEffect } from "react";
 

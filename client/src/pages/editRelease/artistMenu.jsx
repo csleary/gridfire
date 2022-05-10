@@ -15,7 +15,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { fetchArtists } from "features/artists";
+import { fetchArtists } from "state/artists";
 import { useEffect } from "react";
 
 const ArtistMenu = ({ error, label, name, onChange, setShowNewArtist, showNewArtistName, value }) => {

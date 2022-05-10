@@ -1,9 +1,9 @@
 import { Button, Flex } from "@chakra-ui/react";
-import { deleteTrack, setTrackIdsForDeletion } from "features/tracks";
+import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import Track from "./track";
-import { addTrack } from "features/releases";
+import { addTrack } from "state/releases";
 import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";

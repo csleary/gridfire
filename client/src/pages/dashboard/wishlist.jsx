@@ -3,7 +3,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
-import { fetchUserWishList } from "features/releases";
+import { fetchUserWishList } from "state/releases";
 import { faStickyNote } from "@fortawesome/free-regular-svg-icons";
 import moment from "moment";
 

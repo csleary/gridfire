@@ -24,14 +24,14 @@ import {
   faSignOutAlt,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
-import { setAccount, setIsConnected } from "features/web3";
+import { fetchDaiAllowance, setAccount, setIsConnected } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Icon from "components/icon";
 import SearchBar from "./searchBar";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { logOut } from "features/user";
-import { toastError, toastWarning } from "features/toast";
+import { logOut } from "state/user";
+import { toastError, toastWarning } from "state/toast";
 import { useNavigate } from "react-router-dom";
 
 const NavBar = () => {
@@ -72,6 +72,7 @@ const NavBar = () => {
       if (!firstAccount)
         return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
       dispatch(setAccount(firstAccount));
+      dispatch(fetchDaiAllowance(firstAccount));
       dispatch(setIsConnected(true));
     } catch (error) {
       dispatch(toastError({ message: error.message }));

@@ -1,4 +1,4 @@
-import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "features/user";
+import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "state/user";
 import {
   Box,
   Button,
@@ -18,7 +18,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
 import Icon from "components/icon";
-import { toastInfo } from "features/toast";
+import { toastInfo } from "state/toast";
 import { useEffect, useState } from "react";
 
 const Actions = () => {

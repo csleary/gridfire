@@ -3,7 +3,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Icon from "components/icon";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "@reduxjs/toolkit";
-import { searchReleases } from "features/search";
+import { searchReleases } from "state/search";
 import { useNavigate } from "react-router-dom";
 
 const Tags = () => {

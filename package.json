@@ -12,9 +12,12 @@
     "start": "node index.js",
     "server": "nodemon --ignore client/ -r dotenv/config index.js dotenv_config_path=.env",
     "client": "yarn --cwd ./client/ start",
-    "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"npm run ganache\"",
+    "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"npm run hardhat:node\"",
     "worker": "yarn --cwd ./worker/ run dev",
-    "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\""
+    "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\"",
+    "hardhat:compile": "yarn --cwd ./hardhat/ hardhat compile",
+    "hardhat:deploy": "yarn --cwd ./hardhat/ hardhat run --network localhost scripts/deploy.js",
+    "hardhat:node": "yarn --cwd ./hardhat/ hardhat node"
   },
   "author": "Christopher Leary",
   "license": "ISC",

@@ -1,8 +1,8 @@
 import axios from "axios";
 import { batch } from "react-redux";
 import { createSlice } from "@reduxjs/toolkit";
-import { setActiveRelease } from "features/releases";
-import { toastError } from "features/toast";
+import { setActiveRelease } from "state/releases";
+import { toastError } from "state/toast";
 
 const artworkSlice = createSlice({
   name: "artwork",

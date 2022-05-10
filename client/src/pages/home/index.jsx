@@ -7,8 +7,8 @@ import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
 import SortReleases from "./sortReleases";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
-import { fetchCatalogue } from "features/releases";
-import { toastInfo } from "features/toast";
+import { fetchCatalogue } from "state/releases";
+import { toastInfo } from "state/toast";
 
 const Home = () => {
   const dispatch = useDispatch();

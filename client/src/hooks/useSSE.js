@@ -5,13 +5,13 @@ import {
   setTranscodingComplete,
   setTranscodingProgressAAC,
   setUploadProgress
-} from "features/tracks";
+} from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toastError, toastInfo, toastSuccess, toastWarning } from "features/toast";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
 import { batch } from "react-redux";
-import { setArtworkUploading } from "features/artwork";
+import { setArtworkUploading } from "state/artwork";
 import { useEffect, useRef } from "react";
-import { updateTrackStatus } from "features/releases";
+import { updateTrackStatus } from "state/releases";
 import axios from "axios";
 
 const useSSE = () => {

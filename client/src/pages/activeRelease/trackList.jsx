@@ -1,9 +1,9 @@
 import { Box, Button, ListItem, UnorderedList, keyframes, useColorModeValue } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { playTrack, playerPlay } from "features/player";
+import { playTrack, playerPlay } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { toastInfo } from "features/toast";
+import { toastInfo } from "state/toast";
 
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;

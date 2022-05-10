@@ -1,16 +1,16 @@
 import { Box, Button, ButtonGroup, Divider, Flex, Text, useColorModeValue } from "@chakra-ui/react";
-import { deleteRelease, publishStatus } from "features/releases";
+import { deleteRelease, publishStatus } from "state/releases";
 import { faCircle, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { faEye, faEyeSlash, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toastSuccess, toastWarning } from "features/toast";
+import { toastSuccess, toastWarning } from "state/toast";
 import Artwork from "./artwork";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import StatusIcon from "./statusIcon";
 import Title from "./title";
 import moment from "moment";
-import { setReleaseIdsForDeletion } from "features/releases";
+import { setReleaseIdsForDeletion } from "state/releases";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 

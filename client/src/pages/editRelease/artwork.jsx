@@ -1,7 +1,7 @@
 import { Box, Container, Fade, Flex, IconButton, Image as Img, Progress, Square, Text } from "@chakra-ui/react";
-import { deleteArtwork, uploadArtwork } from "features/artwork";
+import { deleteArtwork, uploadArtwork } from "state/artwork";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toastError, toastSuccess, toastWarning } from "features/toast";
+import { toastError, toastSuccess, toastWarning } from "state/toast";
 import { useEffect, useRef, useState } from "react";
 import { CLOUD_URL } from "index";
 import Icon from "components/icon";

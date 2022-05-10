@@ -1,7 +1,7 @@
 import { Button, Grid, Heading } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import RenderRelease from "components/renderRelease";
-import { clearResults } from "features/search";
+import { clearResults } from "state/search";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

@@ -1,10 +1,10 @@
 import { Box, Flex, Progress, Text } from "@chakra-ui/react";
-import { cancelUpload, uploadAudio } from "features/tracks";
+import { cancelUpload, uploadAudio } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toastError, toastInfo } from "features/toast";
+import { toastError, toastInfo } from "state/toast";
 import PropTypes from "prop-types";
 import TextSpinner from "components/textSpinner";
-import { updateTrackStatus } from "features/releases";
+import { updateTrackStatus } from "state/releases";
 import { useDropzone } from "react-dropzone";
 import { useState } from "react";
 import Icon from "components/icon";

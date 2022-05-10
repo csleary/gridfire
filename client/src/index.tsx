@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { ethers } from "ethers";
-import rootReducer from "features";
+import rootReducer from "state";
 import theme from "./theme";
 
 const { REACT_APP_IPFS_GATEWAY, REACT_APP_NETWORK_URL } = process.env;

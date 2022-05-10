@@ -1,4 +1,4 @@
-import { toastError, toastSuccess } from "features/toast";
+import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
 import { batch } from "react-redux";
 import { createSlice } from "@reduxjs/toolkit";

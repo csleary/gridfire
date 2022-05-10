@@ -29,7 +29,7 @@ import {
   setIsPristine,
   setValues,
   updateArtist
-} from "features/artists";
+} from "state/artists";
 import { faCheck, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";

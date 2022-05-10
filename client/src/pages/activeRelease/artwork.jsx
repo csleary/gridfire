@@ -1,11 +1,11 @@
 import { Box, Flex, IconButton, Square, Image } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { playTrack, playerPause, playerPlay } from "features/player";
+import { playTrack, playerPause, playerPlay } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { CLOUD_URL } from "index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import placeholder from "placeholder.svg";
-import { toastInfo } from "features/toast";
+import { toastInfo } from "state/toast";
 
 const Artwork = () => {
   const dispatch = useDispatch();

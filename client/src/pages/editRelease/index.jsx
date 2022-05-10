@@ -16,7 +16,7 @@ import {
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
-import { createRelease, updateRelease } from "features/releases";
+import { createRelease, updateRelease } from "state/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,8 +28,8 @@ import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import TrackList from "./trackList";
 import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { fetchRelease } from "features/releases";
-import { toastSuccess } from "features/toast";
+import { fetchRelease } from "state/releases";
+import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
 import validate from "./validate";
 

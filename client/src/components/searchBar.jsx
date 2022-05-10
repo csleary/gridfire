@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { clearResults, searchReleases } from "features/search";
+import { clearResults, searchReleases } from "state/search";
 import { faBackspace, faCog, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";

@@ -1,15 +1,15 @@
 import { Box, Flex, IconButton, Image, Square } from "@chakra-ui/react";
 import { batch, shallowEqual, useDispatch, useSelector } from "react-redux";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { playTrack, playerPause, playerPlay } from "features/player";
+import { playTrack, playerPause, playerPlay } from "state/player";
 import { CLOUD_URL } from "index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
 import PropTypes from "prop-types";
-import { fetchRelease } from "features/releases";
+import { fetchRelease } from "state/releases";
 import placeholder from "placeholder.svg";
-import { toastInfo } from "features/toast";
+import { toastInfo } from "state/toast";
 
 const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) => {
   const dispatch = useDispatch();

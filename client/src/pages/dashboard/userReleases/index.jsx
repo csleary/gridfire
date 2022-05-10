@@ -1,5 +1,5 @@
 import { Box, Button, Center, Grid, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import { fetchUserReleases, fetchUserReleasesFavCounts, fetchUserReleasesPlayCounts } from "features/releases";
+import { fetchUserReleases, fetchUserReleasesFavCounts, fetchUserReleasesPlayCounts } from "state/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";

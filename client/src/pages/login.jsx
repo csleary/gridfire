@@ -1,7 +1,7 @@
-import { Alert, AlertIcon, Button, Center, Heading, Text, VStack } from "@chakra-ui/react";
-import { setAccount, setIsConnected } from "features/web3";
-import { setIsLoading, updateUser } from "features/user";
-import { toastError, toastSuccess } from "features/toast";
+import { Alert, AlertIcon, Button, Center, Heading, Text, VStack, useColorModeValue } from "@chakra-ui/react";
+import { setAccount, setIsConnected } from "state/web3";
+import { setIsLoading, updateUser } from "state/user";
+import { toastError, toastSuccess } from "state/toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import axios from "axios";
@@ -65,7 +65,13 @@ const Login = () => {
         <Heading as="h2" fontSize="5xl" m={0}>
           Log In
         </Heading>
-        <Button colorScheme="yellow" leftIcon={<Icon icon={faEthereum} />} size="lg" onClick={handleWeb3Login} mb={8}>
+        <Button
+          colorScheme={useColorModeValue("yellow", "purple")}
+          leftIcon={<Icon icon={faEthereum} />}
+          size="lg"
+          onClick={handleWeb3Login}
+          mb={8}
+        >
           Log in with your Ethereum wallet
         </Button>
         {loginError ? (

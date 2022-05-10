@@ -1,13 +1,13 @@
-import artistSlice from "features/artists";
-import artworkSlice from "features/artwork";
+import artistSlice from "state/artists";
+import artworkSlice from "state/artwork";
 import { combineReducers } from "redux";
-import paymentSlice from "features/payment";
-import playerSlice from "features/player";
-import releaseSlice from "features/releases";
-import searchSlice from "features/search";
-import trackSlice from "features/tracks";
-import userSlice from "features/user";
-import web3Slice from "features/web3";
+import paymentSlice from "state/payment";
+import playerSlice from "state/player";
+import releaseSlice from "state/releases";
+import searchSlice from "state/search";
+import trackSlice from "state/tracks";
+import userSlice from "state/user";
+import web3Slice from "state/web3";
 
 const appReducer = combineReducers({
   artists: artistSlice,
