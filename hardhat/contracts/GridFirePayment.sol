@@ -1,57 +1,86 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.9;
 
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract GridFirePayment is Ownable {
     uint256 private feePercent = 5;
+    mapping(address => uint256) balances;
+
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
+    event Claim(address indexed artist, uint256 amount);
+    event Purchase(address indexed buyer, address indexed artist, uint256 amount, uint256 fee);
+    event Received(address from, uint256 amount);
+
     function transferPayment(address _artist, uint256 _paid) private {
-        uint256 artistShare = _paid;
-        require(artistShare != 0);
+        uint256 _artistShare = _paid;
+        uint256 _serviceFee = 0;
+        require(_artistShare != 0);
 
         if (feePercent == 0) {
-            dai.transferFrom(msg.sender, _artist, artistShare);
+            balances[_artist] += _artistShare;
         } else {
-            uint256 serviceFee = (artistShare * feePercent) / 100;
-            dai.transferFrom(msg.sender, address(this), serviceFee);
-            artistShare -= serviceFee;
-            dai.transferFrom(msg.sender, _artist, artistShare);
+            _serviceFee = (_artistShare * feePercent) / 100;
+            balances[address(this)] += _serviceFee;
+            _artistShare -= _serviceFee;
+            balances[_artist] += _artistShare;
         }
+
+        dai.transferFrom(msg.sender, address(this), _paid);
+        emit Purchase(msg.sender, _artist, _artistShare, _serviceFee);
     }
 
     function purchase(
         address _artist,
         uint256 _paid,
         uint256 _releasePrice
-    ) public payable {
+    ) public {
         require(_paid != 0);
         require(_paid >= _releasePrice);
         transferPayment(_artist, _paid);
     }
 
     function getBalance(address _artist) public view returns (uint256) {
-        return dai.balanceOf(_artist);
+        return balances[_artist];
+    }
+
+    function claim() public {
+        uint256 _amount = balances[msg.sender];
+        require(_amount != 0, "Nothing to claim.");
+        require(dai.balanceOf(address(this)) >= _amount, "DAI balance too low.");
+        balances[msg.sender] = 0;
+        dai.transferFrom(address(this), msg.sender, _amount);
+        emit Claim(msg.sender, _amount);
     }
 
     function getServiceFee() public view returns (uint256) {
         return feePercent;
     }
 
-    function setServiceFee(uint256 newFee) public onlyOwner {
-        require(newFee < 100);
-        feePercent = newFee;
+    function setServiceFee(uint256 _newFee) public onlyOwner {
+        require(_newFee < 100);
+        feePercent = _newFee;
     }
 
     function getOwnerBalance() public view returns (uint256) {
-        return dai.balanceOf(address(this));
+        return balances[address(this)];
     }
 
     function withdrawOwnerBalance() public onlyOwner {
-        require(dai.balanceOf(address(this)) != 0);
-        uint256 amount = dai.balanceOf(address(this));
-        dai.transferFrom(address(this), msg.sender, amount);
+        uint256 _amount = balances[address(this)];
+        require(_amount != 0, "Nothing to withdraw.");
+        require(dai.balanceOf(address(this)) >= _amount, "DAI balance too low.");
+        balances[address(this)] = 0;
+        dai.transferFrom(address(this), msg.sender, _amount);
+    }
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+
+    function withdraw() public onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
     }
 }

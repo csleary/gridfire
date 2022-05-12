@@ -1,12 +1,15 @@
 import {
   Button,
+  ButtonGroup,
   Container,
   Flex,
   Heading,
   Input,
   InputGroup,
+  InputLeftAddon,
   InputLeftElement,
   InputRightAddon,
+  Link,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -18,21 +21,29 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  TableContainer,
+  Table,
+  TableCaption,
+  Thead,
+  Td,
+  Tr,
+  Th,
+  Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { ethers, utils } from "ethers";
 import { faCheck, faWallet } from "@fortawesome/free-solid-svg-icons";
-import { getDaiContract, getGridFireContract, setDaiAllowance } from "web3/contract";
-import { useContext, useEffect, useState } from "react";
+import { claimBalance, getBalance, getGridFireContract, setDaiAllowance } from "web3/contract";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
+import { useContext, useEffect, useState } from "react";
+import GridFirePayment from "artifacts/contracts/GridFirePayment.sol/GridFirePayment.json";
 import Icon from "components/icon";
 import { Web3Context } from "index";
-import { daiAbi } from "web3/dai";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchUserReleases } from "state/releases";
 import { fetchDaiAllowance } from "state/web3";
 import { addPaymentAddress } from "state/user";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { constants, utils } from "ethers";
 
 const Address = () => {
   const provider = useContext(Web3Context);
@@ -42,29 +53,27 @@ const Address = () => {
   const { account, accountShort, daiAllowance, isConnected, isFetchingAllowance } = web3;
   const [balance, setBalance] = useState(utils.parseEther("0"));
   const [errors, setErrors] = useState({});
+  const [isClaiming, setIsClaiming] = useState(false);
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [claims, setClaims] = useState([]);
+  const [purchases, setPurchases] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [values, setValues] = useState({ paymentAddress });
+  const [values, setValues] = useState({ paymentAddress, allowance: 100 });
   const hasErrors = Object.values(errors).some(error => Boolean(error));
   const hasChanged = values.paymentAddress !== paymentAddress;
-  const contract = getGridFireContract(provider);
+  const gridFireInterface = new utils.Interface(GridFirePayment.abi);
 
   // Fetch payments received.
   useEffect(() => {
     const fetch = async () => {
-      const dai = getDaiContract(provider);
-      const iface = new utils.Interface(daiAbi);
-      const filter = dai.filters.Transfer(null, paymentAddress); // DAI transfers *to* my account.
-      const events = await dai.queryFilter(filter);
-
-      events.forEach(event => {
-        console.log(iface.parseLog(event));
-        const { args, name } = iface.parseLog(event);
-        const [from, to, bigNum] = args;
-        const amount = utils.formatEther(bigNum);
-        console.log(name, from, to, amount);
-      });
+      const gridFire = getGridFireContract(provider);
+      const purchaseFilter = gridFire.filters.Purchase(null, paymentAddress);
+      const purchases = await gridFire.queryFilter(purchaseFilter);
+      setPurchases(purchases);
+      const claimFilter = gridFire.filters.Claim(paymentAddress);
+      const claims = await gridFire.queryFilter(claimFilter);
+      setClaims(claims);
     };
 
     if (paymentAddress && provider) {
@@ -77,11 +86,13 @@ const Address = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (account) dispatch(fetchDaiAllowance(account));
-  }, [account, dispatch]);
+    if (daiAllowance && !values.allowance) {
+      setValues(prev => ({ ...prev, allowance: daiAllowance }));
+    }
+  }, [daiAllowance, values.allowance]);
 
   useEffect(() => {
-    contract.getBalance(paymentAddress).then(setBalance).catch(console.error);
+    getBalance(paymentAddress).then(setBalance).catch(console.error);
   }, [paymentAddress]); // eslint-disable-line
 
   const handleChange = e => {
@@ -97,11 +108,30 @@ const Address = () => {
     dispatch(addPaymentAddress(values)).then(() => setIsSubmitting(false));
   };
 
+  const handleClaimBalance = async () => {
+    try {
+      setIsClaiming(true);
+      await claimBalance();
+      setBalance(constants.Zero);
+      dispatch(toastSuccess({ message: "Balance claimed successfully", title: "🙌" }));
+    } catch (error) {
+      if (balance.isZero()) {
+        return void dispatch(toastInfo({ message: "There's nothing to claim at the moment.", title: "🤔" }));
+      }
+      dispatch(toastError({ message: error.message, title: "Error" }));
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
   const handleApproval = async () => {
     try {
       const newLimitInDai = `${values.allowance}` || "";
       await setDaiAllowance(newLimitInDai);
       dispatch(fetchDaiAllowance(account));
+      dispatch(
+        toastSuccess({ message: `New DAI spending limit set to ◈${newLimitInDai}. Happy shopping!`, title: "Success" })
+      );
       setShowModal(false);
     } catch (error) {
       console.error(error);
@@ -110,7 +140,11 @@ const Address = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setValues(prev => ({ ...prev, allowance: ethers.utils.formatEther(daiAllowance) }));
+    setValues(prev => ({ ...prev, allowance: utils.formatEther(daiAllowance) }));
+  };
+
+  const handleAddAmount = amount => {
+    setValues(prev => ({ ...prev, allowance: Number.parseInt(prev.allowance) + amount }));
   };
 
   return (
@@ -163,16 +197,87 @@ const Address = () => {
           boxShadow="md"
           flexDirection="column"
           rounded="lg"
-          mb={16}
+          mb={4}
           p={4}
         >
-          <Stat>
+          <Stat mb={4}>
             <StatLabel textAlign="center">Current DAI balance</StatLabel>
             <StatNumber fontSize="4xl" textAlign="center">
-              ◈ {Number(ethers.utils.formatEther(balance)).toFixed(2)}
+              ◈ {Number(utils.formatEther(balance)).toFixed(2)}
             </StatNumber>
           </Stat>
+          <Button
+            colorScheme={useColorModeValue("yellow", "purple")}
+            leftIcon={<Icon icon={faWallet} />}
+            isDisabled={!isConnected || balance.isZero()}
+            isLoading={isClaiming}
+            loadingText="Claiming…"
+            onClick={handleClaimBalance}
+          >
+            {!isConnected ? "Connect wallet" : isClaiming ? "Claiming…" : "Claim balance"}
+          </Button>
         </Flex>
+        <TableContainer mb={16}>
+          <Table variant="simple">
+            <TableCaption placement="top">Claim History</TableCaption>
+            <Thead>
+              <Tr>
+                <Th>Block</Th>
+                <Th isNumeric>Amount (DAI)</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {claims.map(event => {
+                const { blockNumber, transactionHash } = event;
+                const { args } = gridFireInterface.parseLog(event);
+                const { amount } = args;
+
+                return (
+                  <Tr key={transactionHash}>
+                    <Td>
+                      <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    </Td>
+                    <Td isNumeric>{Number(utils.formatEther(amount)).toFixed(2)}</Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
+
+        <TableContainer mb={16}>
+          <Table variant="simple">
+            <TableCaption placement="top">Payments received</TableCaption>
+            <Thead>
+              <Tr>
+                <Th>Block</Th>
+                <Th>From Address</Th>
+                <Th isNumeric>Amount (DAI)</Th>
+                <Th isNumeric>Fee (DAI)</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {purchases.map(event => {
+                const { blockNumber, transactionHash } = event;
+                const { args } = gridFireInterface.parseLog(event);
+                const { buyer, amount, fee } = args;
+
+                return (
+                  <Tr key={transactionHash}>
+                    <Td>
+                      <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    </Td>
+                    <Td>
+                      {buyer.slice(0, 6)}…{buyer.slice(-4)}
+                    </Td>
+                    <Td isNumeric>{Number(utils.formatEther(amount)).toFixed(2)}</Td>
+                    <Td isNumeric>{Number(utils.formatEther(fee)).toFixed(2)}</Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
         <Heading fontWeight={300} mb={8} textAlign="center">
           Spending Allowance
         </Heading>
@@ -218,6 +323,7 @@ const Address = () => {
           <ModalBody>
             <Text mb={8}>Enter your desired DAI spending allowance below.</Text>
             <InputGroup mb={4} fontSize="1.5rem" size="lg">
+              <InputLeftAddon children="◈" />
               <Input
                 autoFocus
                 bgColor={useColorModeValue("white", "gray.800")}
@@ -228,13 +334,20 @@ const Address = () => {
                 onChange={handleChange}
                 textAlign="center"
                 type="number"
-                value={values.allowance || ethers.utils.formatEther(daiAllowance)}
+                value={values.allowance}
               />
               <InputRightAddon children="DAI" />
             </InputGroup>
+            <ButtonGroup variant="outline" spacing="4" display="flex" justifyContent="center" mb="6">
+              <Button onClick={() => handleAddAmount(100)}>+100</Button>
+              <Button onClick={() => handleAddAmount(500)}>+500</Button>
+              <Button onClick={() => handleAddAmount(1000)}>+1000</Button>
+              <Button onClick={() => handleAddAmount(5000)}>+5000</Button>
+            </ButtonGroup>
             <Text mb={8}>
-              The high the value, the more purchases you can make without having to make further approvals. Once you hit
-              confirm, you will be prompted to make a transaction to set your new allowance.
+              The higher the value, the more purchases you will be able to make without having to make further
+              approvals. When you hit confirm, you will be prompted to make a small transaction to set your new
+              allowance.
             </Text>
           </ModalBody>
           <ModalFooter>

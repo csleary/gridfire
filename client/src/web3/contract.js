@@ -5,9 +5,26 @@ import GridFirePayment from "artifacts/contracts/GridFirePayment.sol/GridFirePay
 
 const { REACT_APP_CONTRACT_ADDRESS } = process.env;
 
+const claimBalance = async () => {
+  const ethereum = await detectEthereumProvider();
+  const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+  const gridFireContract = getGridFireContract(signer);
+  const transactionReceipt = await gridFireContract.claim();
+  const { status } = await transactionReceipt.wait(0);
+  if (status !== 1) throw new Error("Claim unsuccessful.");
+};
+
+const getBalance = async paymentAddress => {
+  const ethereum = await detectEthereumProvider();
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const gridFireContract = getGridFireContract(provider);
+  const balance = await gridFireContract.getBalance(paymentAddress);
+  return balance;
+};
+
 const getDaiAllowance = async account => {
   const ethereum = await detectEthereumProvider();
-  const provider = new ethers.providers.Web3Provider(ethereum, "any");
+  const provider = new ethers.providers.Web3Provider(ethereum);
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
   const currentAllowance = await daiContract.allowance(account, REACT_APP_CONTRACT_ADDRESS);
   return currentAllowance;
@@ -23,7 +40,7 @@ const getGridFireContract = signerOrProvider => {
 
 const setDaiAllowance = async (newLimitInDai = "") => {
   const ethereum = await detectEthereumProvider();
-  const provider = new ethers.providers.Web3Provider(ethereum, "any");
+  const provider = new ethers.providers.Web3Provider(ethereum);
   const signer = provider.getSigner();
   const daiContract = getDaiContract(signer);
   const requestedAllowance = utils.parseEther(newLimitInDai);
@@ -32,4 +49,4 @@ const setDaiAllowance = async (newLimitInDai = "") => {
   if (status !== 1) throw new Error("Approval unsuccessful.");
 };
 
-export { getDaiAllowance, getDaiContract, getGridFireContract, setDaiAllowance };
+export { claimBalance, getBalance, getDaiAllowance, getDaiContract, getGridFireContract, setDaiAllowance };

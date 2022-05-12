@@ -19,7 +19,6 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
       tarExtract.on("finish", resolve);
 
       tarExtract.on("entry", (header, artworkStream, next) => {
-        // console.log(header);
         artworkStream.on("end", next);
         archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.jpg` });
       });

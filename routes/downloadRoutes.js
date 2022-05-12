@@ -12,16 +12,16 @@ router.get("/:releaseId/:format", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const hasPurchased = await Sale.exists({ user: userId, release: releaseId });
   if (!hasPurchased) res.status(401).send({ error: "Not authorised." });
-  const { key } = await User.findById(userId, "key", { lean: true }).exec();
   const { ipfs } = req.app.locals;
 
   const release = await Release.findById(
     { _id: releaseId, published: true },
-    "artistName artwork releaseTitle trackList",
+    "artistName artwork releaseTitle trackList user",
     { lean: true }
   ).exec();
 
   if (!release) return res.sendStatus(404);
+  const { key } = await User.findById(release.user, "key", { lean: true }).exec();
   zipDownload({ ipfs, key, release, res, format });
 });
 

@@ -1,8 +1,8 @@
+import { decryptBuffer, encryptStream, encryptString } from "../controllers/encryption.js";
 import Busboy from "busboy";
 import Release from "../models/Release.js";
 import StreamSession from "../models/StreamSession.js";
 import User from "../models/User.js";
-import { decryptString, encryptStream, encryptString } from "../controllers/encryption.js";
 import express from "express";
 import mime from "mime-types";
 import mongoose from "mongoose";
@@ -49,7 +49,7 @@ router.post("/", async (req, res) => {
         });
 
         const { privateKey } = req.app.locals.crypto;
-        const decrypted = decryptString(privateKey, kidsBuffer);
+        const decrypted = decryptBuffer(kidsBuffer, privateKey);
         const message = JSON.parse(decrypted);
         const [kidBase64] = message.kids;
         const kid = Buffer.from(kidBase64, "base64url").toString("hex");
@@ -62,7 +62,7 @@ router.post("/", async (req, res) => {
           type: "temporary"
         };
 
-        const cipherBuffer = await encryptString(publicKey, JSON.stringify(keysObj));
+        const cipherBuffer = await encryptString(JSON.stringify(keysObj), publicKey);
         res.send(cipherBuffer);
       } catch (error) {
         busboy.emit("error", error);

@@ -44,8 +44,8 @@ const encryptStream = (unencryptedStream, key) => {
   return encryptedStream;
 };
 
-const encryptString = async (publicKey, string) => {
-  const keysBuffer = Buffer.from(string);
+const encryptString = async (plainText, publicKey) => {
+  const keysBuffer = Buffer.from(plainText);
   const algorithm = { name: "RSA-OAEP", hash: "SHA-256" };
   const cryptoKey = await webcrypto.subtle.importKey("jwk", publicKey, algorithm, false, ["encrypt"]);
   const padding = constants.RSA_PKCS1_OAEP_PADDING;
@@ -94,7 +94,7 @@ const decryptStream = async (encryptedStream, key) => {
   }
 };
 
-const decryptString = (key, buffer) => {
+const decryptBuffer = (buffer, key) => {
   const padding = constants.RSA_PKCS1_OAEP_PADDING;
   return privateDecrypt({ key, oaepHash: "sha256", padding }, buffer);
 };
@@ -109,4 +109,4 @@ const generateKey = async () => {
   return { privateKey, publicJWK, publicKey };
 };
 
-export { encryptStream, encryptString, decryptStream, decryptString, generateKey };
+export { encryptStream, encryptString, decryptBuffer, decryptStream, generateKey };
