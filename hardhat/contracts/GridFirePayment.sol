@@ -23,7 +23,7 @@ contract GridFirePayment is Ownable {
             balances[_artist] += _artistShare;
         } else {
             _serviceFee = (_artistShare * feePercent) / 100;
-            balances[address(this)] += _serviceFee;
+            balances[owner()] += _serviceFee;
             _artistShare -= _serviceFee;
             balances[_artist] += _artistShare;
         }
@@ -42,14 +42,13 @@ contract GridFirePayment is Ownable {
         transferPayment(_artist, _paid);
     }
 
-    function getBalance(address _artist) public view returns (uint256) {
-        return balances[_artist];
+    function getBalance(address _address) public view returns (uint256) {
+        return balances[_address];
     }
 
     function claim() public {
         uint256 _amount = balances[msg.sender];
         require(_amount != 0, "Nothing to claim.");
-        require(dai.balanceOf(address(this)) >= _amount, "DAI balance too low.");
         balances[msg.sender] = 0;
         dai.transferFrom(address(this), msg.sender, _amount);
         emit Claim(msg.sender, _amount);
@@ -62,18 +61,6 @@ contract GridFirePayment is Ownable {
     function setServiceFee(uint256 _newFee) public onlyOwner {
         require(_newFee < 100);
         feePercent = _newFee;
-    }
-
-    function getOwnerBalance() public view returns (uint256) {
-        return balances[address(this)];
-    }
-
-    function withdrawOwnerBalance() public onlyOwner {
-        uint256 _amount = balances[address(this)];
-        require(_amount != 0, "Nothing to withdraw.");
-        require(dai.balanceOf(address(this)) >= _amount, "DAI balance too low.");
-        balances[address(this)] = 0;
-        dai.transferFrom(address(this), msg.sender, _amount);
     }
 
     receive() external payable {

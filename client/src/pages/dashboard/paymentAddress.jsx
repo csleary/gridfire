@@ -20,6 +20,7 @@ import {
   Text,
   Stat,
   StatLabel,
+  StatHelpText,
   StatNumber,
   TableContainer,
   Table,
@@ -31,19 +32,19 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { faCheck, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { claimBalance, getBalance, getGridFireContract, setDaiAllowance } from "web3/contract";
+import { constants, utils } from "ethers";
+import { faCheck, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useContext, useEffect, useState } from "react";
 import GridFirePayment from "artifacts/contracts/GridFirePayment.sol/GridFirePayment.json";
 import Icon from "components/icon";
-import { Web3Context } from "index";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { fetchUserReleases } from "state/releases";
-import { fetchDaiAllowance } from "state/web3";
 import { addPaymentAddress } from "state/user";
-import { constants, utils } from "ethers";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { fetchDaiAllowance } from "state/web3";
+import { fetchUserReleases } from "state/releases";
+import { Web3Context } from "index";
 
 const Address = () => {
   const provider = useContext(Web3Context);
@@ -59,7 +60,7 @@ const Address = () => {
   const [claims, setClaims] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [values, setValues] = useState({ paymentAddress, allowance: 100 });
+  const [values, setValues] = useState({ paymentAddress });
   const hasErrors = Object.values(errors).some(error => Boolean(error));
   const hasChanged = values.paymentAddress !== paymentAddress;
   const gridFireInterface = new utils.Interface(GridFirePayment.abi);
@@ -79,17 +80,17 @@ const Address = () => {
     if (paymentAddress && provider) {
       fetch();
     }
-  }, [paymentAddress, provider]);
+  }, [balance, paymentAddress, provider]);
 
   useEffect(() => {
     dispatch(fetchUserReleases());
   }, [dispatch]);
 
   useEffect(() => {
-    if (daiAllowance && !values.allowance) {
-      setValues(prev => ({ ...prev, allowance: daiAllowance }));
+    if (daiAllowance) {
+      setValues(prev => ({ ...prev, allowance: Number(utils.formatEther(daiAllowance)).toFixed(2) }));
     }
-  }, [daiAllowance, values.allowance]);
+  }, [daiAllowance]);
 
   useEffect(() => {
     getBalance(paymentAddress).then(setBalance).catch(console.error);
@@ -113,11 +114,14 @@ const Address = () => {
       setIsClaiming(true);
       await claimBalance();
       setBalance(constants.Zero);
-      dispatch(toastSuccess({ message: "Balance claimed successfully", title: "🙌" }));
+      dispatch(toastSuccess({ message: "DAI balance claimed successfully", title: "Success! 🙌" }));
     } catch (error) {
       if (balance.isZero()) {
-        return void dispatch(toastInfo({ message: "There's nothing to claim at the moment.", title: "🤔" }));
+        return void dispatch(
+          toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim. 🤔" })
+        );
       }
+
       dispatch(toastError({ message: error.message, title: "Error" }));
     } finally {
       setIsClaiming(false);
@@ -130,7 +134,7 @@ const Address = () => {
       await setDaiAllowance(newLimitInDai);
       dispatch(fetchDaiAllowance(account));
       dispatch(
-        toastSuccess({ message: `New DAI spending limit set to ◈${newLimitInDai}. Happy shopping!`, title: "Success" })
+        toastSuccess({ message: `New DAI spending limit set to ◈ ${newLimitInDai}. Happy shopping!`, title: "Success" })
       );
       setShowModal(false);
     } catch (error) {
@@ -205,16 +209,23 @@ const Address = () => {
             <StatNumber fontSize="4xl" textAlign="center">
               ◈ {Number(utils.formatEther(balance)).toFixed(2)}
             </StatNumber>
+            <StatHelpText textAlign="center">The claimable amount in your GridFire account</StatHelpText>
           </Stat>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}
             leftIcon={<Icon icon={faWallet} />}
-            isDisabled={!isConnected || balance.isZero()}
+            isDisabled={!isConnected || balance.isZero() || account.toLowerCase() !== paymentAddress.toLowerCase()}
             isLoading={isClaiming}
             loadingText="Claiming…"
             onClick={handleClaimBalance}
           >
-            {!isConnected ? "Connect wallet" : isClaiming ? "Claiming…" : "Claim balance"}
+            {!isConnected
+              ? "Connect wallet"
+              : account.toLowerCase() !== paymentAddress.toLowerCase()
+              ? "Switch to payment account"
+              : isClaiming
+              ? "Claiming…"
+              : "Claim balance"}
           </Button>
         </Flex>
         <TableContainer mb={16}>
@@ -223,7 +234,7 @@ const Address = () => {
             <Thead>
               <Tr>
                 <Th>Block</Th>
-                <Th isNumeric>Amount (DAI)</Th>
+                <Th isNumeric>Amount</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -237,23 +248,22 @@ const Address = () => {
                     <Td>
                       <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                     </Td>
-                    <Td isNumeric>{Number(utils.formatEther(amount)).toFixed(2)}</Td>
+                    <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
                   </Tr>
                 );
               })}
             </Tbody>
           </Table>
         </TableContainer>
-
         <TableContainer mb={16}>
           <Table variant="simple">
-            <TableCaption placement="top">Payments received</TableCaption>
+            <TableCaption placement="top">DAI Payments received</TableCaption>
             <Thead>
               <Tr>
                 <Th>Block</Th>
                 <Th>From Address</Th>
-                <Th isNumeric>Amount (DAI)</Th>
-                <Th isNumeric>Fee (DAI)</Th>
+                <Th isNumeric>Fee</Th>
+                <Th isNumeric>Net</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -270,8 +280,8 @@ const Address = () => {
                     <Td>
                       {buyer.slice(0, 6)}…{buyer.slice(-4)}
                     </Td>
-                    <Td isNumeric>{Number(utils.formatEther(amount)).toFixed(2)}</Td>
-                    <Td isNumeric>{Number(utils.formatEther(fee)).toFixed(2)}</Td>
+                    <Td isNumeric>◈ {Number(utils.formatEther(fee)).toFixed(2)}</Td>
+                    <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
                   </Tr>
                 );
               })}
@@ -304,6 +314,7 @@ const Address = () => {
             <StatNumber fontSize="4xl" textAlign="center">
               ◈ {Number(utils.formatEther(daiAllowance)).toFixed(2)}
             </StatNumber>
+            <StatHelpText textAlign="center">Will decrease with each GridFire purchase</StatHelpText>
           </Stat>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}

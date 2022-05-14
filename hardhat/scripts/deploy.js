@@ -1,9 +1,9 @@
 async function main() {
-  // We get the contract to deploy
-  const Contract = await ethers.getContractFactory("GridFirePayment");
+  const [deployer] = await ethers.getSigners();
+  const Contract = await ethers.getContractFactory("GridFirePayment", deployer);
   const contract = await Contract.deploy();
   await contract.deployed();
-  console.log("GridFirePayment deployed to:", contract.address);
+  console.log("GridFirePayment deployed to:", contract.address, "by", deployer.address);
 }
 
 main()

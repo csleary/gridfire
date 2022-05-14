@@ -17,7 +17,7 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const { daiAllowance, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const allowanceTooLow = utils.parseEther(`${price || 0}`).gt(daiAllowance);
 
   const handlePayment = async () => {
@@ -43,9 +43,16 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
         return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
       }
 
-      dispatch(
-        toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" })
-      );
+      if (error.code === -32603) {
+        return void dispatch(
+          toastError({
+            message: "DAI balance too low. Please add more DAI or use a different account.",
+            title: "Payment Error"
+          })
+        );
+      }
+
+      dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
     } finally {
       setIsPurchasing(false);
     }
@@ -54,7 +61,7 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   return (
     <Center>
       <Button
-        disabled={inCollection || !isConnected}
+        disabled={inCollection || !isConnected || isFetchingAllowance}
         isLoading={isLoading || isPurchasing}
         loadingText={isLoading ? "Loading" : "Purchasing"}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}

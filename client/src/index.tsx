@@ -18,7 +18,6 @@ const store = configureStore({
   middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false })
 });
 
-//ethers.providers.AlchemyProvider(chainId, [apiKey]) // For prod
 const provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
 const Web3Context = React.createContext(provider);
 const container = document.getElementById("root")!;
