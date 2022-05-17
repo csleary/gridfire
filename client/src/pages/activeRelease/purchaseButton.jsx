@@ -1,17 +1,16 @@
 import { Button, Center } from "@chakra-ui/react";
-import { ethers, utils } from "ethers";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import axios from "axios";
-import detectEthereumProvider from "@metamask/detect-provider";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchUser } from "state/user";
-import { getGridFireContract } from "web3/contract";
+import { purchaseRelease } from "web3/contract";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { utils } from "ethers";
 
 const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   const dispatch = useDispatch();
@@ -22,19 +21,10 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
 
   const handlePayment = async () => {
     try {
-      const ethereum = await detectEthereumProvider();
-      const provider = new ethers.providers.Web3Provider(ethereum, "any");
-      const signer = provider.getSigner();
-      const gridFirePayment = getGridFireContract(signer);
-
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/purchase/${releaseId}`);
-      const { release, paymentAddress } = res.data;
-      const weiReleasePrice = utils.parseEther(`${release.price}`);
-      const transactionReceipt = await gridFirePayment.purchase(paymentAddress, weiReleasePrice, weiReleasePrice);
-      const confirmedTransaction = await transactionReceipt.wait(0);
-      const { status, transactionHash } = confirmedTransaction;
-      if (status !== 1) throw new Error("Transaction unsuccessful.");
+      const { paymentAddress, price } = res.data;
+      const transactionHash = await purchaseRelease(paymentAddress, price);
       await axios.post(`/api/release/purchase/${releaseId}`, { transactionHash });
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));

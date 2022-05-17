@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "state/releases";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdvancedFields from "./advancedFields";
 import ArtistMenu from "./artistMenu";
@@ -77,22 +77,29 @@ const EditRelease = () => {
     }));
   }, [versions[releaseId]]); // eslint-disable-line
 
-  const handleChange = (e, trackId) => {
-    const { name, value } = e.target;
+  const handleChange = useCallback(
+    (e, trackId) => {
+      const { name, value } = e.target;
 
-    if (trackId) {
-      const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
-      const trackFieldName = `trackList.${trackIndex}.${name}`;
-      setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest); // eslint-disable-line
+      if (trackId) {
+        const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
+        const trackFieldName = `trackList.${trackIndex}.${name}`;
+        setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest); // eslint-disable-line
 
-      return setValues(current => ({
-        ...current,
-        trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
-      }));
-    }
+        return setValues(current => ({
+          ...current,
+          trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
+        }));
+      }
 
-    setErrors(({ [name]: excludedField, ...rest }) => rest); // eslint-disable-line
-    setValues(current => ({ ...current, [name]: value }));
+      setErrors(({ [name]: excludedField, ...rest }) => rest); // eslint-disable-line
+      setValues(current => ({ ...current, [name]: value }));
+    },
+    [trackList]
+  );
+
+  const formatPrice = () => {
+    setValues(current => ({ ...current, price: Number(current.price).toFixed(2) }));
   };
 
   const handleSubmit = async () => {
@@ -111,6 +118,9 @@ const EditRelease = () => {
       navigate("/dashboard");
     });
   };
+
+  const { info, credits, catNumber, pubYear, pubName, recYear, recName, tags } = values;
+  const advancedFieldValues = { info, credits, catNumber, pubYear, pubName, recYear, recName, tags };
 
   return (
     <>
@@ -201,6 +211,7 @@ const EditRelease = () => {
                     isRequired
                     label="Price (USD)"
                     name="price"
+                    onBlur={formatPrice}
                     onChange={handleChange}
                     min={0}
                     type="number"
@@ -217,11 +228,16 @@ const EditRelease = () => {
             <TabPanel p={0}>
               <Heading as="h3">Track List</Heading>
               <Text mb={4}>Upload formats supported: flac, aiff, wav.</Text>
-              <TrackList errors={errors} handleChange={handleChange} setValues={setValues} values={values} />
+              <TrackList
+                errors={{ errors: errors.trackList }}
+                handleChange={handleChange}
+                setValues={setValues}
+                trackList={values.trackList}
+              />
             </TabPanel>
             <TabPanel p={0}>
               <Heading as="h3">Optional Info</Heading>
-              <AdvancedFields errors={errors} handleChange={handleChange} values={values} />
+              <AdvancedFields errors={errors} handleChange={handleChange} values={advancedFieldValues} />
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -5,29 +5,32 @@ import GridFirePayment from "artifacts/contracts/GridFirePayment.sol/GridFirePay
 
 const { REACT_APP_CONTRACT_ADDRESS } = process.env;
 
-const claimBalance = async () => {
+const getProvider = async () => {
   const ethereum = await detectEthereumProvider();
-  const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+  return new ethers.providers.Web3Provider(ethereum);
+};
+
+const claimBalance = async () => {
+  const provider = await getProvider();
+  const signer = provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
   const transactionReceipt = await gridFireContract.claim();
   const { status } = await transactionReceipt.wait(0);
   if (status !== 1) throw new Error("Claim unsuccessful.");
 };
 
+const checkout = basket => {};
+
 const getBalance = async paymentAddress => {
-  const ethereum = await detectEthereumProvider();
-  const provider = new ethers.providers.Web3Provider(ethereum);
+  const provider = await getProvider();
   const gridFireContract = getGridFireContract(provider);
-  const balance = await gridFireContract.getBalance(paymentAddress);
-  return balance;
+  return gridFireContract.getBalance(paymentAddress);
 };
 
 const getDaiAllowance = async account => {
-  const ethereum = await detectEthereumProvider();
-  const provider = new ethers.providers.Web3Provider(ethereum);
+  const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  const currentAllowance = await daiContract.allowance(account, REACT_APP_CONTRACT_ADDRESS);
-  return currentAllowance;
+  return daiContract.allowance(account, REACT_APP_CONTRACT_ADDRESS);
 };
 
 const getDaiContract = signerOrProvider => {
@@ -38,15 +41,34 @@ const getGridFireContract = signerOrProvider => {
   return new Contract(REACT_APP_CONTRACT_ADDRESS, GridFirePayment.abi, signerOrProvider);
 };
 
+const purchaseRelease = async (paymentAddress, price) => {
+  const provider = await getProvider();
+  const signer = provider.getSigner();
+  const gridFirePayment = getGridFireContract(signer);
+  const weiReleasePrice = utils.parseEther(`${price}`);
+  const transactionReceipt = await gridFirePayment.purchase(paymentAddress, weiReleasePrice, weiReleasePrice);
+  const { status, transactionHash } = await transactionReceipt.wait();
+  if (status !== 1) throw new Error("Transaction unsuccessful.");
+  return transactionHash;
+};
+
 const setDaiAllowance = async (newLimitInDai = "") => {
-  const ethereum = await detectEthereumProvider();
-  const provider = new ethers.providers.Web3Provider(ethereum);
+  const provider = await getProvider();
   const signer = provider.getSigner();
   const daiContract = getDaiContract(signer);
   const requestedAllowance = utils.parseEther(newLimitInDai);
   const approvalReceipt = await daiContract.approve(REACT_APP_CONTRACT_ADDRESS, requestedAllowance);
-  const { status } = await approvalReceipt.wait(0);
+  const { status } = await approvalReceipt.wait();
   if (status !== 1) throw new Error("Approval unsuccessful.");
 };
 
-export { claimBalance, getBalance, getDaiAllowance, getDaiContract, getGridFireContract, setDaiAllowance };
+export {
+  claimBalance,
+  checkout,
+  getBalance,
+  getDaiAllowance,
+  getDaiContract,
+  getGridFireContract,
+  purchaseRelease,
+  setDaiAllowance
+};

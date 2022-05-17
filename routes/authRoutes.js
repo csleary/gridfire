@@ -50,7 +50,7 @@ router.post("/web3", (req, res, next) =>
 router.get("/logout", (req, res) => {
   req.logout();
   delete req.user;
-  res.send({ success: "Thanks for visiting. You are now logged out." });
+  res.sendStatus(200);
 });
 
 export default router;

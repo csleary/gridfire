@@ -1,16 +1,17 @@
 import { Alert, AlertIcon, Button, Flex, HStack, IconButton, Input, Spacer, useColorModeValue } from "@chakra-ui/react";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useSelector } from "react-redux";
 import AudioDropzone from "./audioDropzone";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { memo } from "react";
 
 const Track = props => {
   const {
     cancelDeleteTrack,
     dragOverActive,
-    errors = {},
+    errorAudio,
+    errorTrackTitle,
     index,
     isDragOrigin,
     handleChange,
@@ -22,12 +23,14 @@ const Track = props => {
     handleDrop,
     handleDragEnd,
     handleMoveTrack,
-    track: { _id: trackId, trackTitle, status },
-    trackList
+    trackId,
+    trackTitle,
+    trackListLength,
+    trackMarkedForDeletion,
+    status
   } = props;
 
-  const { trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
-  const hasError = status === "error" || errors[`trackList.${index}.audio`];
+  const hasError = status === "error" || errorAudio;
 
   return (
     <Flex
@@ -87,7 +90,7 @@ const Track = props => {
           >
             ⠿
           </Flex>
-          {index < trackList.length - 1 ? (
+          {index < trackListLength - 1 ? (
             <IconButton
               icon={<Icon icon={faArrowDown} />}
               onClick={() => handleMoveTrack(index, index + 1)}
@@ -105,11 +108,10 @@ const Track = props => {
               variant={"ghost"}
             />
           ) : null}
-          {hasError || errors[`trackList.${index}.trackTitle`] ? (
+          {hasError || errorTrackTitle ? (
             <Alert status="error">
               <AlertIcon />
-              {errors[`trackList.${index}.trackTitle`] ||
-                "Audio processing error. Please re-upload or delete this track."}
+              {hasError || "Audio processing error. Please re-upload or delete this track."}
             </Alert>
           ) : null}
           <Spacer />
@@ -122,9 +124,9 @@ const Track = props => {
             size="sm"
             title="Delete Track"
             ml="auto"
-            variant={trackIdsForDeletion[trackId] ? "solid" : "ghost"}
+            variant={trackMarkedForDeletion ? "solid" : "ghost"}
           >
-            {trackIdsForDeletion[trackId] ? "Confirm!" : "Delete"}
+            {trackMarkedForDeletion ? "Confirm!" : "Delete"}
           </Button>
         </HStack>
       </Flex>
@@ -143,8 +145,8 @@ const Track = props => {
 Track.propTypes = {
   cancelDeleteTrack: PropTypes.func,
   dragOverActive: PropTypes.bool,
-  error: PropTypes.bool,
-  errors: PropTypes.object,
+  errorAudio: PropTypes.string,
+  errorTrackTitle: PropTypes.string,
   index: PropTypes.number,
   isDragOrigin: PropTypes.bool,
   handleChange: PropTypes.func,
@@ -157,8 +159,11 @@ Track.propTypes = {
   handleDrop: PropTypes.func,
   handleMoveTrack: PropTypes.func,
   onDropAudio: PropTypes.func,
-  track: PropTypes.object,
-  trackList: PropTypes.array
+  trackId: PropTypes.string,
+  trackTitle: PropTypes.string,
+  trackListLength: PropTypes.number,
+  trackMarkedForDeletion: PropTypes.bool,
+  status: PropTypes.string
 };
 
-export default Track;
+export default memo(Track);

@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertIcon,
+  AlertDescription,
   Button,
   ButtonGroup,
   Container,
@@ -33,7 +36,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { claimBalance, getBalance, getGridFireContract, setDaiAllowance } from "web3/contract";
-import { constants, utils } from "ethers";
+import { constants, ethers, utils } from "ethers";
 import { faCheck, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
@@ -128,13 +131,26 @@ const Address = () => {
     }
   };
 
+  const validate = value => {
+    try {
+      ethers.FixedNumber.fromString(value, "fixed128x18");
+    } catch (e) {
+      return "Invalid amount.";
+    }
+  };
+
   const handleApproval = async () => {
     try {
-      const newLimitInDai = `${values.allowance}` || "";
-      await setDaiAllowance(newLimitInDai);
+      const error = validate(values.allowance);
+      if (error) return setErrors(prev => ({ ...prev, allowance: error }));
+      await setDaiAllowance(values.allowance);
       dispatch(fetchDaiAllowance(account));
+
       dispatch(
-        toastSuccess({ message: `New DAI spending limit set to ◈ ${newLimitInDai}. Happy shopping!`, title: "Success" })
+        toastSuccess({
+          message: `New DAI spending limit set to ◈ ${values.allowance}. Happy shopping!`,
+          title: "Success"
+        })
       );
       setShowModal(false);
     } catch (error) {
@@ -148,7 +164,8 @@ const Address = () => {
   };
 
   const handleAddAmount = amount => {
-    setValues(prev => ({ ...prev, allowance: Number.parseInt(prev.allowance) + amount }));
+    console.log(typeof values.allowance);
+    setValues(prev => ({ ...prev, allowance: (Number(prev.allowance) + amount).toFixed(2) }));
   };
 
   return (
@@ -339,11 +356,13 @@ const Address = () => {
                 autoFocus
                 bgColor={useColorModeValue("white", "gray.800")}
                 isDisabled={isSubmitting}
+                isInvalid={errors.allowance}
                 label={"Set payment allowance"}
                 min={0}
                 name="allowance"
                 onChange={handleChange}
                 textAlign="center"
+                title=""
                 type="number"
                 value={values.allowance}
               />
@@ -355,11 +374,17 @@ const Address = () => {
               <Button onClick={() => handleAddAmount(1000)}>+1000</Button>
               <Button onClick={() => handleAddAmount(5000)}>+5000</Button>
             </ButtonGroup>
-            <Text mb={8}>
+            <Text mb={4}>
               The higher the value, the more purchases you will be able to make without having to make further
               approvals. When you hit confirm, you will be prompted to make a small transaction to set your new
               allowance.
             </Text>
+            {errors.allowance ? (
+              <Alert status="error" variant="solid">
+                <AlertIcon color="red.500" />
+                <AlertDescription>{errors.allowance}</AlertDescription>
+              </Alert>
+            ) : null}
           </ModalBody>
           <ModalFooter>
             <Button onClick={handleCloseModal}>Cancel</Button>

@@ -5,7 +5,7 @@ import Sale from "../models/Sale.js";
 import User from "../models/User.js";
 import Wishlist from "../models/Wishlist.js";
 import { createArtist } from "../controllers/artistController.js";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import express from "express";
 import requireLogin from "../middlewares/requireLogin.js";
 
@@ -79,12 +79,13 @@ router.get("/:releaseId", async (req, res) => {
 
 router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
   try {
+    const buyer = req.user._id;
     const { releaseId } = req.params;
-    const alreadyBought = await Sale.exists({ user: req.user._id, release: releaseId });
+    const alreadyBought = await Sale.exists({ user: buyer, release: releaseId });
     if (alreadyBought) throw new Error("You already own this release.");
-    const release = await Release.findById(releaseId, "-__v", { lean: true });
-    const { account } = await User.findById(release.user, "account", { lean: true });
-    res.json({ release, paymentAddress: account });
+    const { price, user: userId } = await Release.findById(releaseId, "user price", { lean: true }).exec();
+    const { account: paymentAddress } = await User.findById(userId, "account", { lean: true }).exec();
+    res.json({ paymentAddress, price });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error.message || error.toString() });
@@ -96,16 +97,25 @@ router.post("/purchase/:releaseId", requireLogin, async (req, res) => {
     const user = req.user._id;
     const { releaseId } = req.params;
     const { transactionHash } = req.body;
-    const release = await Release.findById(releaseId, "price", { lean: true });
+    const release = await Release.findById(releaseId, "price", { lean: true }).exec();
     const provider = ethers.getDefaultProvider(NETWORK_URL);
-    const transaction = await provider.waitForTransaction(transactionHash);
-    const { from: buyer, confirmations } = transaction;
+    const transaction = await provider.getTransaction(transactionHash);
+    const { data } = transaction;
+    const abi = ["function purchase(address artistAddress, uint256 paidBytes, uint256 priceBytes)"];
+    const purchaseInterface = new utils.Interface(abi);
+    const decodedData = purchaseInterface.parseTransaction({ data });
+    const { paidBytes } = decodedData.args;
+    const paid = Number(utils.formatEther(paidBytes));
+    const { price } = release;
+    if (paid < price) return res.sendStatus(422); // Check calldata price was not less than release price.
+    const transactionReceipt = await provider.waitForTransaction(transactionHash);
+    const { from: buyer, status } = transactionReceipt;
 
-    if (confirmations > 0) {
+    if (status === 1) {
       await Sale.create({
         purchaseDate: Date.now(),
         release: releaseId,
-        paid: release.price,
+        paid,
         transaction,
         user,
         userAddress: buyer

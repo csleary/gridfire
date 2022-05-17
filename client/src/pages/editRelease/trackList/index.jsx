@@ -6,10 +6,10 @@ import Track from "./track";
 import { addTrack } from "state/releases";
 import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Icon from "components/icon";
 
-const TrackList = ({ errors = {}, handleChange, setValues, values }) => {
+const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   const dispatch = useDispatch();
   const { activeRelease } = useSelector(state => state.releases, shallowEqual);
   const { trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
@@ -29,51 +29,63 @@ const TrackList = ({ errors = {}, handleChange, setValues, values }) => {
     dispatch(addTrack(newTrack));
   };
 
-  const cancelDeleteTrack = trackId => {
-    dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
-  };
+  const cancelDeleteTrack = useCallback(
+    trackId => {
+      dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
+    },
+    [dispatch]
+  );
 
-  const handleDeleteTrack = (trackId, trackTitle) => {
-    if (trackIdsForDeletion[trackId]) {
-      setValues(prev => ({ ...prev, trackList: prev.trackList.filter(({ _id }) => _id !== trackId) }));
-    }
+  const handleDeleteTrack = useCallback(
+    (trackId, trackTitle) => {
+      if (trackIdsForDeletion[trackId]) {
+        setValues(prev => ({ ...prev, trackList: prev.trackList.filter(({ _id }) => _id !== trackId) }));
+      }
 
-    dispatch(deleteTrack(releaseId, trackId, trackTitle));
-  };
+      dispatch(deleteTrack(releaseId, trackId, trackTitle));
+    },
+    [dispatch, releaseId, setValues, trackIdsForDeletion]
+  );
 
-  const handleDragStart = index => setDragOrigin(index);
-  const handleDragEnter = index => setDragActive(index);
-  const handleDragOver = () => false;
-  const handleDragLeave = () => setDragActive();
-  const handleDragEnd = () => {
+  const handleDragStart = useCallback(index => setDragOrigin(index), []);
+  const handleDragEnter = useCallback(index => setDragActive(index), []);
+  const handleDragOver = useCallback(() => false, []);
+  const handleDragLeave = useCallback(() => setDragActive(), []);
+  const handleDragEnd = useCallback(() => {
     setDragOrigin(null);
     setDragActive(null);
-  };
+  }, []);
 
-  const handleMoveTrack = (indexFrom, indexTo) => {
-    const { trackList } = values;
-    const nextTrackList = [...trackList];
-    nextTrackList.splice(indexTo, 0, ...nextTrackList.splice(indexFrom, 1));
-    setValues(prev => ({ ...prev, trackList: nextTrackList }));
-  };
+  const handleMoveTrack = useCallback(
+    (indexFrom, indexTo) => {
+      const nextTrackList = [...trackList];
+      nextTrackList.splice(indexTo, 0, ...nextTrackList.splice(indexFrom, 1));
+      setValues(prev => ({ ...prev, trackList: nextTrackList }));
+    },
+    [setValues, trackList]
+  );
 
-  const handleDrop = async indexTo => {
-    const indexFrom = dragOrigin;
-    if (indexFrom === indexTo) return;
-    handleMoveTrack(indexFrom, indexTo);
-  };
+  const handleDrop = useCallback(
+    async indexTo => {
+      const indexFrom = dragOrigin;
+      if (indexFrom === indexTo) return;
+      handleMoveTrack(indexFrom, indexTo);
+    },
+    [dragOrigin, handleMoveTrack]
+  );
 
   return (
     <>
       <Flex flexDirection="column">
-        {values.trackList.map((track, index) => {
-          const { _id: trackId } = track;
+        {trackList.map((track, index) => {
+          const { _id: trackId, trackTitle, status } = track;
 
           return (
             <Track
-              errors={errors}
               cancelDeleteTrack={cancelDeleteTrack}
               dragOverActive={dragActive === index}
+              errorAudio={errors[`trackList.${index}.audio`]}
+              errorTrackTitle={errors[`trackList.${index}.trackTitle`]}
               handleChange={handleChange}
               handleDeleteTrack={handleDeleteTrack}
               handleDragStart={handleDragStart}
@@ -87,8 +99,11 @@ const TrackList = ({ errors = {}, handleChange, setValues, values }) => {
               isDragOrigin={dragOrigin === index}
               key={trackId}
               setValues={setValues}
-              track={track}
-              trackList={values.trackList}
+              trackId={trackId}
+              trackListLength={trackList.length}
+              trackMarkedForDeletion={trackIdsForDeletion[trackId]}
+              trackTitle={trackTitle}
+              status={status}
             />
           );
         })}
@@ -104,7 +119,7 @@ TrackList.propTypes = {
   errors: PropTypes.object,
   handleChange: PropTypes.func,
   setValues: PropTypes.func,
-  values: PropTypes.object
+  TrackList: PropTypes.array
 };
 
 export default TrackList;

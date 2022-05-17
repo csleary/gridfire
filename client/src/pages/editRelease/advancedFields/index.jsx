@@ -2,6 +2,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import Field from "components/field";
 import PropTypes from "prop-types";
 import Tags from "./tags";
+import { memo } from "react";
 
 const AdvancedFields = ({ errors, handleChange, values }) => (
   <Flex as="section">
@@ -83,4 +84,12 @@ AdvancedFields.propTypes = {
   values: PropTypes.object
 };
 
-export default AdvancedFields;
+const stringify = obj => Object.entries(obj).flat().join(", ");
+
+export default memo(AdvancedFields, (prev, next) => {
+  return (
+    stringify(prev.errors) === stringify(next.errors) &&
+    stringify(prev.values) === stringify(next.values) &&
+    prev.handleChange === next.handleChange
+  );
+});

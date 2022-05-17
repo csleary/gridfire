@@ -2,7 +2,7 @@ import { Box, Container, Fade, Flex, IconButton, Image as Img, Progress, Square,
 import { deleteArtwork, uploadArtwork } from "state/artwork";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import { faTimesCircle, faThumbsUp, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
@@ -187,4 +187,4 @@ const Artwork = () => {
   );
 };
 
-export default Artwork;
+export default memo(Artwork);
