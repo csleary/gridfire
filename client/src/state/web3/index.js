@@ -1,10 +1,11 @@
+import { BigNumber, constants, utils } from "ethers";
 import { getDaiAllowance, gridFireCheckout } from "web3/contract";
+import { toastError, toastSuccess, toastWarning } from "state/toast";
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchUser } from "state/user";
-import { toastSuccess } from "state/toast";
-import { BigNumber, constants, utils } from "ethers";
 import axios from "axios";
 import { batch } from "react-redux";
+import detectEthereumProvider from "@metamask/detect-provider";
 
 const web3Slice = createSlice({
   name: "web3",
@@ -71,18 +72,6 @@ const web3Slice = createSlice({
   }
 });
 
-const fetchDaiAllowance = account => async dispatch => {
-  try {
-    dispatch(setIsFetchingAllowance(true));
-    const currentAllowance = await getDaiAllowance(account);
-    dispatch(setDaiAllowance(currentAllowance));
-  } catch (error) {
-    console.error(error);
-  } finally {
-    dispatch(setIsFetchingAllowance(false));
-  }
-};
-
 const checkoutBasket =
   (basket = []) =>
   async dispatch => {
@@ -112,6 +101,43 @@ const checkoutBasket =
     }
   };
 
+const fetchDaiAllowance = account => async dispatch => {
+  try {
+    dispatch(setIsFetchingAllowance(true));
+    const currentAllowance = await getDaiAllowance(account);
+    dispatch(setDaiAllowance(currentAllowance));
+  } catch (error) {
+    console.error(error);
+  } finally {
+    dispatch(setIsFetchingAllowance(false));
+  }
+};
+
+const connectToWeb3 = () => async dispatch => {
+  const ethereum = await detectEthereumProvider();
+
+  if (!ethereum) {
+    return void dispatch(
+      toastWarning({ message: "No local wallet found. Do you have a web3 wallet installed?", title: "Warning" })
+    );
+  }
+
+  try {
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    const [firstAccount] = accounts;
+
+    if (!firstAccount) {
+      return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
+    }
+
+    dispatch(setAccount(firstAccount));
+    dispatch(fetchDaiAllowance(firstAccount));
+    dispatch(setIsConnected(true));
+  } catch (error) {
+    dispatch(toastError({ message: error.message }));
+  }
+};
+
 export const {
   addToBasket,
   emptyBasket,
@@ -126,5 +152,5 @@ export const {
   setNetworkName
 } = web3Slice.actions;
 
-export { checkoutBasket, fetchDaiAllowance };
+export { checkoutBasket, connectToWeb3, fetchDaiAllowance };
 export default web3Slice.reducer;

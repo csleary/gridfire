@@ -24,15 +24,13 @@ import {
   faSignOutAlt,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
-import { fetchDaiAllowance, setAccount, setIsConnected } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import BasketButton from "./basketButton";
 import Icon from "components/icon";
 import SearchBar from "../searchBar";
-import detectEthereumProvider from "@metamask/detect-provider";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
-import { toastError, toastWarning } from "state/toast";
+import { connectToWeb3 } from "state/web3";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
@@ -59,25 +57,7 @@ const Header = () => {
   };
 
   const handleConnect = async () => {
-    const ethereum = await detectEthereumProvider();
-
-    if (!ethereum) {
-      return void dispatch(
-        toastWarning({ message: "No local wallet found. Do you have a web3 wallet installed?", title: "Warning" })
-      );
-    }
-
-    try {
-      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-      const [firstAccount] = accounts;
-      if (!firstAccount)
-        return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
-      dispatch(setAccount(firstAccount));
-      dispatch(fetchDaiAllowance(firstAccount));
-      dispatch(setIsConnected(true));
-    } catch (error) {
-      dispatch(toastError({ message: error.message }));
-    }
+    await dispatch(connectToWeb3());
   };
 
   return (

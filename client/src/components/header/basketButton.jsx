@@ -1,5 +1,6 @@
 import {
   Avatar,
+  AvatarGroup,
   Box,
   Button,
   Divider,
@@ -17,18 +18,24 @@ import {
   VStack,
   useColorModeValue
 } from "@chakra-ui/react";
-import { checkoutBasket, emptyBasket, removeFromBasket } from "state/web3";
+import { BigNumber, utils } from "ethers";
+import { checkoutBasket, connectToWeb3, emptyBasket, removeFromBasket } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import { BigNumber, utils } from "ethers";
 
 const BasketButton = () => {
   const dispatch = useDispatch();
-  const { basket, daiAllowance = 0, isCheckingOut, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const {
+    basket,
+    daiAllowance = 0,
+    isCheckingOut,
+    isConnected,
+    isFetchingAllowance
+  } = useSelector(state => state.web3, shallowEqual);
   const [showModal, setShowModal] = useState(false);
   const total = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
   const allowanceTooLow = total.gt(daiAllowance);
@@ -43,14 +50,25 @@ const BasketButton = () => {
     }
   };
 
-  const handleCloseModal = async () => {
+  const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+  const handleConnect = async () => {
+    await dispatch(connectToWeb3());
   };
 
   return (
     <>
       <Button leftIcon={<Icon icon={faShoppingBasket} />} onClick={() => setShowModal(true)}>
-        Basket ({basket.length})
+        Basket
+        {basket.length ? (
+          <AvatarGroup size="xs" max={5} ml={2}>
+            {basket.map(({ imageUrl, title }) => (
+              <Avatar loading="lazy" name={title} src={imageUrl} />
+            ))}
+          </AvatarGroup>
+        ) : null}
       </Button>
       <Modal isOpen={showModal} onClose={handleCloseModal} size="lg" isCentered>
         <ModalOverlay />
@@ -81,10 +99,10 @@ const BasketButton = () => {
             <Button
               colorScheme={useColorModeValue("yellow", "purple")}
               leftIcon={<Icon icon={faEthereum} />}
-              isDisabled={!basket.length || !isConnected || isCheckingOut}
+              isDisabled={!basket.length || isCheckingOut || isFetchingAllowance}
               isLoading={isCheckingOut}
               loadingText="Checking out…"
-              onClick={handleCheckout}
+              onClick={!isConnected ? handleConnect : handleCheckout}
               ml="auto"
             >
               {!isConnected
