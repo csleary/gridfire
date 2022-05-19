@@ -16,7 +16,7 @@
     "worker": "yarn --cwd ./worker/ run dev",
     "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\"",
     "hardhat:dev": "npm run hardhat:compile && npm run hardhat:deploy && npm run hardhat:fund",
-    "hardhat:compile": "yarn --cwd ./hardhat/ hardhat compile --force",
+    "hardhat:compile": "yarn --cwd ./hardhat/ hardhat compile --force && cp ./hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json ./client/src/web3/",
     "hardhat:deploy": "yarn --cwd ./hardhat/ hardhat run --network localhost scripts/deploy.js",
     "hardhat:withdraw": "yarn --cwd ./hardhat/ hardhat run --network localhost scripts/withdraw.js",
     "hardhat:fund": "yarn --cwd ./hardhat/ hardhat run --network localhost scripts/fundAccounts.js",

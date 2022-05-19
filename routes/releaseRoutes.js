@@ -1,15 +1,17 @@
 import Artist from "../models/Artist.js";
+import { BigNumber, ethers, utils } from "ethers";
 import Favourite from "../models/Favourite.js";
+import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import Release from "../models/Release.js";
 import Sale from "../models/Sale.js";
 import User from "../models/User.js";
 import Wishlist from "../models/Wishlist.js";
 import { createArtist } from "../controllers/artistController.js";
-import { BigNumber, ethers, utils } from "ethers";
 import express from "express";
 import requireLogin from "../middlewares/requireLogin.js";
 
 const { NETWORK_URL } = process.env;
+const { abi } = GridFirePayment;
 const router = express.Router();
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
@@ -98,11 +100,10 @@ router.post("/purchase", requireLogin, async (req, res) => {
     const { basket, transactionHash } = req.body;
     const provider = ethers.getDefaultProvider(NETWORK_URL);
     const { data } = await provider.getTransaction(transactionHash);
-    const abi = ["function checkout((address artistAddress, uint256 paidBytes, uint256 priceBytes)[])"];
     const checkoutInterface = new utils.Interface(abi);
     const decodedData = checkoutInterface.parseTransaction({ data });
     const [callDataBasket] = decodedData.args;
-    const totalPaidBytes = callDataBasket.reduce((prev, { paidBytes }) => prev.add(paidBytes), BigNumber.from("0"));
+    const totalPaidBytes = callDataBasket.reduce((prev, { amountPaid }) => prev.add(amountPaid), BigNumber.from("0"));
     const basketTotal = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
     const paidMatchesTotal = totalPaidBytes.eq(basketTotal);
 
@@ -119,24 +120,24 @@ router.post("/purchase", requireLogin, async (req, res) => {
 
     await Promise.allSettled(
       basket.map(async ({ id }, index) => {
-        const { artistAddress, paidBytes } = callDataBasket[index];
+        const { artist, amountPaid } = callDataBasket[index];
 
         const { price, user: artistUser } = await Release.findById(id, "price", { lean: true })
           .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
           .exec();
 
-        if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
+        if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artist)) {
           return Promise.reject("Receiver address does not match artist address.");
         }
 
-        if (paidBytes.lt(utils.parseEther(price.toString()))) {
+        if (amountPaid.lt(utils.parseEther(price.toString()))) {
           return Promise.reject("Basket item amount paid is less than release price.");
         }
 
         await Sale.create({
           purchaseDate: Date.now(),
           release: id,
-          paid: paidBytes,
+          paid: amountPaid,
           transaction: transactionReceipt,
           user: buyerUserId,
           userAddress: buyer
@@ -159,18 +160,28 @@ router.post("/purchase", requireLogin, async (req, res) => {
 
 router.post("/purchase/:releaseId", requireLogin, async (req, res) => {
   try {
-    const user = req.user._id;
+    const buyerUserId = req.user._id;
     const { releaseId } = req.params;
     const { transactionHash } = req.body;
-    const release = await Release.findById(releaseId, "price", { lean: true }).exec();
+
+    const { price, user: artistUser } = await Release.findById(releaseId, "price", { lean: true })
+      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+      .exec();
+
     const provider = ethers.getDefaultProvider(NETWORK_URL);
     const { data } = await provider.getTransaction(transactionHash);
-    const abi = ["function purchase(address artistAddress, uint256 paidBytes, uint256 priceBytes)"];
     const purchaseInterface = new utils.Interface(abi);
     const decodedData = purchaseInterface.parseTransaction({ data });
-    const { paidBytes } = decodedData.args;
-    const { price } = release;
-    if (paidBytes.lt(utils.parseEther(price.toString()))) return res.sendStatus(422); // Check calldata price was not less than release price.
+    const { artist, amountPaid } = decodedData.args;
+
+    if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artist)) {
+      return res.sendStatus(422); // Check calldata artist address matches payment address.
+    }
+
+    if (amountPaid.lt(utils.parseEther(price.toString()))) {
+      return res.sendStatus(422); // Check calldata price was not less than release price.
+    }
+
     const transactionReceipt = await provider.waitForTransaction(transactionHash);
     const { from: buyer, status } = transactionReceipt;
 
@@ -178,9 +189,9 @@ router.post("/purchase/:releaseId", requireLogin, async (req, res) => {
       await Sale.create({
         purchaseDate: Date.now(),
         release: releaseId,
-        paid: paidBytes,
+        paid: amountPaid,
         transaction: transactionReceipt,
-        user,
+        user: buyerUserId,
         userAddress: buyer
       }).catch(error => {
         if (error.code === 11000) {

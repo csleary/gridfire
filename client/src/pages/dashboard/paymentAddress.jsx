@@ -41,7 +41,7 @@ import { faCheck, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useContext, useEffect, useState } from "react";
-import GridFirePayment from "artifacts/contracts/GridFirePayment.sol/GridFirePayment.json";
+import GridFirePayment from "web3/GridFirePayment.json";
 import Icon from "components/icon";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";

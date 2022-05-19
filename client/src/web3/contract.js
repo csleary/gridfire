@@ -1,7 +1,7 @@
 import { Contract, ethers, utils } from "ethers";
 import { daiAbi, daiContractAddress } from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
-import GridFirePayment from "artifacts/contracts/GridFirePayment.sol/GridFirePayment.json";
+import GridFirePayment from "web3/GridFirePayment.json";
 
 const { REACT_APP_CONTRACT_ADDRESS } = process.env;
 

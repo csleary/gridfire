@@ -12,12 +12,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { utils } from "ethers";
 
-const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
+const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
-  const allowanceTooLow = utils.parseEther(`${price || 0}`).gt(daiAllowance);
+  const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance);
 
   const handlePayment = async () => {
     try {

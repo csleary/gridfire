@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Button,
+  Divider,
   Flex,
   IconButton,
   Modal,
@@ -12,22 +13,25 @@ import {
   ModalFooter,
   ModalHeader,
   Spacer,
+  Text,
   VStack,
   useColorModeValue
 } from "@chakra-ui/react";
 import { checkoutBasket, emptyBasket, removeFromBasket } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Icon from "components/icon";
+import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { faMinusSquare, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
+import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { BigNumber, utils } from "ethers";
 
 const BasketButton = () => {
   const dispatch = useDispatch();
-  const { basket, isCheckingOut, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const { basket, daiAllowance = 0, isCheckingOut, isConnected } = useSelector(state => state.web3, shallowEqual);
   const [showModal, setShowModal] = useState(false);
   const total = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
+  const allowanceTooLow = total.gt(daiAllowance);
 
   const handleCheckout = async () => {
     try {
@@ -58,18 +62,19 @@ const BasketButton = () => {
               {basket.map(({ artistName, imageUrl, price, id, title }) => (
                 <Flex key={id} alignItems="center">
                   <Avatar name={title} src={imageUrl} mr={4} />
-                  <Box>
-                    {artistName} - {title}
-                  </Box>
+                  <Text as={RouterLink} to={`/release/${id}`}>
+                    {artistName} &bull; <Text as="em">{title}</Text>
+                  </Text>
                   <Spacer />
                   <Box mr={4}>◈ {Number(utils.formatEther(price)).toFixed(2)}</Box>
-                  <IconButton icon={<Icon icon={faMinusSquare} />} onClick={() => dispatch(removeFromBasket(id))} />
+                  <IconButton icon={<Icon icon={faTimes} />} onClick={() => dispatch(removeFromBasket(id))} />
                 </Flex>
               ))}
               <Flex justifyContent="flex-end">
                 <Box mr={4}>Total: ◈ {Number(utils.formatEther(total)).toFixed(2)}</Box>
               </Flex>
             </VStack>
+            <Divider mt={4} />
           </ModalBody>
           <ModalFooter>
             <Button onClick={handleCloseModal}>Close</Button>
@@ -82,7 +87,11 @@ const BasketButton = () => {
               onClick={handleCheckout}
               ml="auto"
             >
-              Checkout
+              {!isConnected
+                ? "Connect wallet"
+                : allowanceTooLow
+                ? "Approval required"
+                : `Checkout ~ ${utils.formatEther(total)} USD`}
             </Button>
           </ModalFooter>
         </ModalContent>
