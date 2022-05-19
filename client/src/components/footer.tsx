@@ -25,11 +25,6 @@ const Footer: React.FC = () => {
           <Center flex={1}>
             <List>
               <ListItem>
-                <Link as={RouterLink} to={"/release/add/"}>
-                  Add Release
-                </Link>
-              </ListItem>
-              <ListItem>
                 <Link as={RouterLink} to={"/dashboard"}>
                   Dashboard
                 </Link>
@@ -40,7 +35,7 @@ const Footer: React.FC = () => {
                 </Link>
               </ListItem>
               <ListItem>
-                <Link as={RouterLink} to={"/dashboard/address"}>
+                <Link as={RouterLink} to={"/dashboard/payment"}>
                   Payment
                 </Link>
               </ListItem>

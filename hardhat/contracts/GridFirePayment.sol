@@ -41,7 +41,7 @@ contract GridFirePayment is Ownable {
         for (uint256 i = 0; i < basket.length; i++) {
             uint256 amountPaid = basket[i].amountPaid;
             uint256 releasePrice = basket[i].releasePrice;
-            require(amountPaid >= releasePrice, "Payment amount is lower than price.");
+            require(amountPaid >= releasePrice, "Payment amount too low.");
         }
 
         for (uint256 i = 0; i < basket.length; i++) {

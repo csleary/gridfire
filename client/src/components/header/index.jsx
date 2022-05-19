@@ -126,7 +126,7 @@ const Header = () => {
                 <MenuItem as={NavLink} to={"/dashboard"} end icon={<Icon icon={faHeadphonesAlt} />} sx={activeStyle}>
                   Releases
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard/address"} icon={<Icon icon={faEthereum} />} sx={activeStyle}>
+                <MenuItem as={NavLink} to={"/dashboard/payment"} icon={<Icon icon={faEthereum} />} sx={activeStyle}>
                   Payment
                 </MenuItem>
                 <MenuItem as={NavLink} to={"/dashboard/collection"} icon={<Icon icon={faArchive} />} sx={activeStyle}>

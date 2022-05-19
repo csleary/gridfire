@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Address from "./paymentAddress";
+import Payment from "./payment";
 import Artists from "./artists";
 import Collection from "./collection";
 import Favourites from "./favourites";
@@ -20,7 +20,7 @@ const Dashboard = () => (
       <Route path="/artists" element={<Artists />} />
       <Route path="/collection" element={<Collection />} />
       <Route path="/favourites" element={<Favourites />} />
-      <Route path="/address" element={<Address />} />
+      <Route path="/payment" element={<Payment />} />
       <Route path="/wishlist" element={<WishList />} />
       <Route path="/" element={<UserReleases />} />
     </Routes>
