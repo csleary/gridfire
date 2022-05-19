@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.14;
 
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -17,6 +17,7 @@ contract GridFirePayment is Ownable {
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
     event Claim(address indexed artist, uint256 amount);
+    event Checkout(address indexed buyer, uint256 amount);
     event Purchase(address indexed buyer, address indexed artist, uint256 amount, uint256 fee);
     event Received(address from, uint256 amount);
 
@@ -38,17 +39,21 @@ contract GridFirePayment is Ownable {
         uint256 total = 0;
 
         for (uint256 i = 0; i < basket.length; i++) {
-            address artist = basket[i].artist;
             uint256 amountPaid = basket[i].amountPaid;
             uint256 releasePrice = basket[i].releasePrice;
-            require(amountPaid != 0);
-            require(amountPaid >= releasePrice);
+            require(amountPaid >= releasePrice, "Payment amount is lower than price.");
+        }
+
+        for (uint256 i = 0; i < basket.length; i++) {
+            address artist = basket[i].artist;
+            uint256 amountPaid = basket[i].amountPaid;
             total += amountPaid;
             (uint256 artistShare, uint256 serviceFee) = creditBalances(artist, amountPaid);
             emit Purchase(msg.sender, artist, artistShare, serviceFee);
         }
 
         dai.transferFrom(msg.sender, address(this), total);
+        emit Checkout(msg.sender, total);
     }
 
     function claim() public {
@@ -77,8 +82,11 @@ contract GridFirePayment is Ownable {
     }
 
     function creditBalances(address artist, uint256 artistShare) private returns (uint256, uint256) {
-        require(artistShare != 0);
         uint256 serviceFee = 0;
+
+        if (artistShare == 0) {
+            return (artistShare, serviceFee);
+        }
 
         if (feePercent == 0) {
             balances[artist] += artistShare;

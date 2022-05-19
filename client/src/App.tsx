@@ -16,9 +16,9 @@ const ActiveRelease = lazy(() => import("pages/activeRelease"));
 const ArtistPage = lazy(() => import("pages/artistPage"));
 const Dashboard = lazy(() => import("pages/dashboard"));
 const EditRelease = lazy(() => import("pages/editRelease"));
+const Header = lazy(() => import("components/header"));
 const Home = lazy(() => import("pages/home"));
 const Login = lazy(() => import("pages/login"));
-const NavBar = lazy(() => import("components/navBar"));
 const SearchResults = lazy(() => import("pages/searchResults"));
 declare const window: any; // eslint-disable-line
 
@@ -71,7 +71,7 @@ const App: React.FC = () => {
       <Container maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" px={8} py={6} display="flex">
         <Flex direction="column" flex={1}>
           <Suspense fallback={<></>}>
-            <NavBar />
+            <Header />
           </Suspense>
           <Suspense
             fallback={

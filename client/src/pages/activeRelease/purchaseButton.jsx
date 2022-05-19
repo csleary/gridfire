@@ -1,4 +1,4 @@
-import { Button, Center } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
 import Icon from "components/icon";
@@ -49,26 +49,25 @@ const PurchaseButton = ({ inCollection, isLoading, price, releaseId }) => {
   };
 
   return (
-    <Center>
-      <Button
-        disabled={inCollection || !isConnected || isFetchingAllowance}
-        isLoading={isLoading || isPurchasing}
-        loadingText={isLoading ? "Loading" : "Purchasing"}
-        leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
-        mb={8}
-        onClick={allowanceTooLow ? () => navigate("/dashboard/address") : handlePayment}
-      >
-        {!price
-          ? "Name your price"
-          : inCollection
-          ? "In collection"
-          : !isConnected
-          ? "Connect wallet"
-          : allowanceTooLow
-          ? "Approval required"
-          : `Purchase ~ ${price} USD`}
-      </Button>
-    </Center>
+    <Button
+      disabled={inCollection || !isConnected || isFetchingAllowance}
+      isLoading={isLoading || isPurchasing}
+      loadingText={isLoading ? "Loading" : "Purchasing"}
+      leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
+      mb={8}
+      minWidth="16rem"
+      onClick={allowanceTooLow ? () => navigate("/dashboard/address") : handlePayment}
+    >
+      {!price
+        ? "Name your price"
+        : inCollection
+        ? "In collection"
+        : !isConnected
+        ? "Connect wallet"
+        : allowanceTooLow
+        ? "Approval required"
+        : `Purchase ~ ${price} USD`}
+    </Button>
   );
 };
 

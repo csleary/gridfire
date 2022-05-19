@@ -26,15 +26,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiAllowance, setAccount, setIsConnected } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import BasketButton from "./basketButton";
 import Icon from "components/icon";
-import SearchBar from "./searchBar";
+import SearchBar from "../searchBar";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
 import { toastError, toastWarning } from "state/toast";
 import { useNavigate } from "react-router-dom";
 
-const NavBar = () => {
+const Header = () => {
   const { toggleColorMode } = useColorMode();
   const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
   const colorModeTextHover = useColorModeValue("purple", "yellow");
@@ -124,7 +125,9 @@ const NavBar = () => {
               </Button>
             </WrapItem>
           )}
-          <IconButton _hover={{ color: colorModeTextHover }} icon={colorModeIcon} onClick={toggleColorMode} />
+          <WrapItem>
+            <BasketButton />
+          </WrapItem>
           <WrapItem>
             <Menu>
               <MenuButton
@@ -162,10 +165,13 @@ const NavBar = () => {
               </MenuList>
             </Menu>
           </WrapItem>
+          <WrapItem>
+            <IconButton _hover={{ color: colorModeTextHover }} icon={colorModeIcon} onClick={toggleColorMode} />
+          </WrapItem>
         </>
       )}
     </Wrap>
   );
 };
 
-export default NavBar;
+export default Header;

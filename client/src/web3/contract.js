@@ -19,8 +19,6 @@ const claimBalance = async () => {
   if (status !== 1) throw new Error("Claim unsuccessful.");
 };
 
-const checkout = basket => {};
-
 const getBalance = async paymentAddress => {
   const provider = await getProvider();
   const gridFireContract = getGridFireContract(provider);
@@ -39,6 +37,23 @@ const getDaiContract = signerOrProvider => {
 
 const getGridFireContract = signerOrProvider => {
   return new Contract(REACT_APP_CONTRACT_ADDRESS, GridFirePayment.abi, signerOrProvider);
+};
+
+const gridFireCheckout = async basket => {
+  const provider = await getProvider();
+  const signer = provider.getSigner();
+  const gridFireContract = getGridFireContract(signer);
+
+  const contractBasket = basket.map(({ paymentAddress, price }) => ({
+    artist: paymentAddress,
+    amountPaid: price,
+    releasePrice: price
+  }));
+
+  const transactionReceipt = await gridFireContract.checkout(contractBasket);
+  const { status, transactionHash } = await transactionReceipt.wait();
+  if (status !== 1) throw new Error("Transaction unsuccessful.");
+  return transactionHash;
 };
 
 const purchaseRelease = async (paymentAddress, price) => {
@@ -64,7 +79,7 @@ const setDaiAllowance = async (newLimitInDai = "") => {
 
 export {
   claimBalance,
-  checkout,
+  gridFireCheckout,
   getBalance,
   getDaiAllowance,
   getDaiContract,

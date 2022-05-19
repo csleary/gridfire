@@ -18,8 +18,10 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Actions from "./actions";
 import Artwork from "./artwork";
 import Card from "components/card";
+import { CLOUD_URL } from "index";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
+import AddToBasketButton from "./addToBasketButton";
 import PurchaseButton from "./purchaseButton";
 import Tags from "./tags";
 import TrackList from "./trackList";
@@ -27,6 +29,7 @@ import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import moment from "moment";
 import { useEffect } from "react";
+import { utils } from "ethers";
 
 const ActiveRelease = () => {
   const releaseInfoColor = useColorModeValue("gray.500", "gray.700");
@@ -40,6 +43,7 @@ const ActiveRelease = () => {
   const {
     artist,
     artistName,
+    artwork,
     catNumber,
     credits,
     info,
@@ -102,7 +106,25 @@ const ActiveRelease = () => {
               </Link>
               <TrackList />
               <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
-              <PurchaseButton inCollection={isInCollection} isLoading={isLoading} price={price} releaseId={releaseId} />
+              <Wrap justify="center" spacing={4}>
+                <WrapItem>
+                  <PurchaseButton
+                    inCollection={isInCollection}
+                    isLoading={isLoading}
+                    price={price}
+                    releaseId={releaseId}
+                  />
+                </WrapItem>
+                <WrapItem>
+                  <AddToBasketButton
+                    imageUrl={`${CLOUD_URL}/${artwork.cid}`}
+                    artistName={artistName}
+                    inCollection={isInCollection}
+                    itemId={releaseId}
+                    title={releaseTitle}
+                  />
+                </WrapItem>
+              </Wrap>
               <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
               {recordLabel && (
                 <Flex mb={2}>

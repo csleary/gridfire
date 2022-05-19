@@ -18,7 +18,6 @@ const releaseSlice = createSlice({
     collection: [],
     formatExists: {},
     paymentAddress: "",
-    priceInXem: "",
     reachedEndOfCat: false,
     releaseIdsForDeletion: {},
     userFavourites: [],
@@ -47,7 +46,6 @@ const releaseSlice = createSlice({
       state.activeRelease = action.payload.release;
       state.paymentAddress = action.payload.paymentInfo.paymentAddress;
       state.paymentHash = action.payload.paymentInfo.paymentHash;
-      state.priceInXem = action.payload.price;
     },
     setArtistCatalogue(state, action) {
       state.artist = action.payload;

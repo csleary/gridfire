@@ -164,7 +164,6 @@ const Address = () => {
   };
 
   const handleAddAmount = amount => {
-    console.log(typeof values.allowance);
     setValues(prev => ({ ...prev, allowance: (Number(prev.allowance) + amount).toFixed(2) }));
   };
 
