@@ -19,18 +19,15 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { claimBalance, getBalance, getGridFireContract } from "web3/contract";
+import { claimBalance, getBalance, getGridFireClaimEvents } from "web3/contract";
 import { constants, utils } from "ethers";
-import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
-import { useContext, useEffect, useState } from "react";
-import GridFirePayment from "web3/GridFirePayment.json";
+import { useEffect, useState } from "react";
+import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import Icon from "components/icon";
-import { Web3Context } from "index";
 
 const Balance = () => {
-  const provider = useContext(Web3Context);
   const dispatch = useDispatch();
   const { user, web3 } = useSelector(state => state, shallowEqual);
   const { paymentAddress } = user;
@@ -38,21 +35,13 @@ const Balance = () => {
   const [balance, setBalance] = useState(utils.parseEther("0"));
   const [isClaiming, setIsClaiming] = useState(false);
   const [claims, setClaims] = useState([]);
-  const gridFireInterface = new utils.Interface(GridFirePayment.abi);
 
   // Fetch payments received.
   useEffect(() => {
-    const fetch = async () => {
-      const gridFire = getGridFireContract(provider);
-      const claimFilter = gridFire.filters.Claim(paymentAddress);
-      const claims = await gridFire.queryFilter(claimFilter);
-      setClaims(claims);
-    };
-
-    if (paymentAddress && provider) {
-      fetch();
+    if (paymentAddress) {
+      getGridFireClaimEvents(paymentAddress).then(setClaims);
     }
-  }, [balance, paymentAddress, provider]);
+  }, [balance, paymentAddress]);
 
   useEffect(() => {
     getBalance(paymentAddress).then(setBalance).catch(console.error);
@@ -134,9 +123,7 @@ const Balance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {claims.map(event => {
-              const { blockNumber, transactionHash } = event;
-              const { args } = gridFireInterface.parseLog(event);
+            {claims.map(({ args, blockNumber, transactionHash }) => {
               const { amount } = args;
 
               return (

@@ -34,15 +34,15 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
 import { ethers, utils } from "ethers";
-import { faWallet } from "@fortawesome/free-solid-svg-icons";
+import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toastSuccess } from "state/toast";
 import { useEffect, useState } from "react";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiAllowance } from "state/web3";
+import { toastSuccess } from "state/toast";
 
 const Allowance = () => {
   const dispatch = useDispatch();
@@ -164,8 +164,7 @@ const Allowance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {approvals.map(event => {
-              const { args, blockNumber, transactionHash } = event;
+            {approvals.map(({ args, blockNumber, transactionHash }) => {
               const { wad } = args;
 
               return (

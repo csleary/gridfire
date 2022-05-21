@@ -18,19 +18,16 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { getGridFireContract } from "web3/contract";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getGridFirePurchaseEvents } from "web3/contract";
 import { utils } from "ethers";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useContext, useEffect, useState } from "react";
-import GridFirePayment from "web3/GridFirePayment.json";
 import Icon from "components/icon";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { Web3Context } from "index";
 
 const PaymentAddress = () => {
-  const provider = useContext(Web3Context);
   const dispatch = useDispatch();
   const { user } = useSelector(state => state, shallowEqual);
   const { paymentAddress } = user;
@@ -41,21 +38,13 @@ const PaymentAddress = () => {
   const [address, setAddress] = useState(paymentAddress);
   const hasErrors = Object.values(errors).some(error => Boolean(error));
   const hasChanged = address !== paymentAddress;
-  const gridFireInterface = new utils.Interface(GridFirePayment.abi);
 
   // Fetch payments received.
   useEffect(() => {
-    const fetch = async () => {
-      const gridFire = getGridFireContract(provider);
-      const purchaseFilter = gridFire.filters.Purchase(null, paymentAddress);
-      const purchases = await gridFire.queryFilter(purchaseFilter);
-      setPurchases(purchases);
-    };
-
-    if (paymentAddress && provider) {
-      fetch();
+    if (paymentAddress) {
+      getGridFirePurchaseEvents(paymentAddress).then(setPurchases);
     }
-  }, [paymentAddress, provider]);
+  }, [paymentAddress]);
 
   const handleChange = e => {
     const { value } = e.target;
@@ -128,9 +117,7 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {purchases.map(event => {
-              const { blockNumber, transactionHash } = event;
-              const { args } = gridFireInterface.parseLog(event);
+            {purchases.map(({ args, blockNumber, transactionHash }) => {
               const { buyer, amount, fee } = args;
 
               return (

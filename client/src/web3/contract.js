@@ -64,6 +64,20 @@ const gridFireCheckout = async basket => {
   return transactionHash;
 };
 
+const getGridFireClaimEvents = async paymentAddress => {
+  const provider = await getProvider();
+  const gridFire = getGridFireContract(provider);
+  const claimFilter = gridFire.filters.Claim(paymentAddress);
+  return gridFire.queryFilter(claimFilter);
+};
+
+const getGridFirePurchaseEvents = async paymentAddress => {
+  const provider = await getProvider();
+  const gridFire = getGridFireContract(provider);
+  const purchaseFilter = gridFire.filters.Purchase(null, paymentAddress);
+  return gridFire.queryFilter(purchaseFilter);
+};
+
 const purchaseRelease = async (paymentAddress, price) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
@@ -92,7 +106,9 @@ export {
   getDaiAllowance,
   getDaiContract,
   getDaiApprovalEvents,
+  getGridFireClaimEvents,
   getGridFireContract,
+  getGridFirePurchaseEvents,
   purchaseRelease,
   setDaiAllowance
 };
