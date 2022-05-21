@@ -8,16 +8,16 @@ const Payment = () => {
     <Container as="main" maxW="container.sm" p={0}>
       <Tabs colorScheme={useColorModeValue("yellow", "purple")} isFitted>
         <TabList mb={16}>
-          <Tab>Payment Address</Tab>
-          <Tab>GridFire Balance</Tab>
-          <Tab>DAI Spending</Tab>
+          <Tab>Account Balance</Tab>
+          <Tab>Sales</Tab>
+          <Tab>DAI Approvals</Tab>
         </TabList>
         <TabPanels>
           <TabPanel p={0}>
-            <PaymentAddress />
+            <Balance />
           </TabPanel>
           <TabPanel p={0}>
-            <Balance />
+            <PaymentAddress />
           </TabPanel>
           <TabPanel p={0}>
             <Allowance />

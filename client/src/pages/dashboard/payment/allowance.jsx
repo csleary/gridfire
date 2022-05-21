@@ -4,12 +4,14 @@ import {
   AlertDescription,
   Button,
   ButtonGroup,
+  Divider,
   Flex,
   Heading,
   Input,
   InputGroup,
   InputLeftAddon,
   InputRightAddon,
+  Link,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -22,9 +24,17 @@ import {
   StatLabel,
   StatHelpText,
   StatNumber,
+  TableContainer,
+  Table,
+  TableCaption,
+  Thead,
+  Td,
+  Tr,
+  Th,
+  Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { setDaiAllowance } from "web3/contract";
+import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
 import { ethers, utils } from "ethers";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -39,6 +49,7 @@ const Allowance = () => {
   const { web3 } = useSelector(state => state, shallowEqual);
   const { account, accountShort, daiAllowance, isConnected, isFetchingAllowance } = web3;
   const [error, setError] = useState("");
+  const [approvals, setApprovals] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [allowance, setAllowance] = useState();
@@ -48,6 +59,12 @@ const Allowance = () => {
       setAllowance(Number(utils.formatEther(daiAllowance)).toFixed(2));
     }
   }, [daiAllowance]);
+
+  useEffect(() => {
+    if (account) {
+      getDaiApprovalEvents(account).then(setApprovals);
+    }
+  }, [account]);
 
   const handleChange = e => {
     const { value } = e.target;
@@ -128,11 +145,41 @@ const Allowance = () => {
         </Button>
       </Flex>
       <Text mb={8}>
-        The connected address used for making payments has a DAI payment limit allowance as a security measure. This is
-        the maximum amount you permit us to transfer when purchasing music. Once this allowance reaches zero, another
-        limit must be approved before payment can be made. As this request costs gas, we advise setting a reasonable
-        budget to avoid inconvenience.
+        Each account you connect with GridFire has a DAI spending allowance, as a security measure to limit the amount a
+        contract can spend on your behalf. Once this allowance reaches zero, another limit must be approved before
+        further paymenta can be made. As this request costs gas, we advise setting a reasonable budget to avoid
+        inconvenience.
       </Text>
+      <Divider mb={12} />
+      <Heading fontWeight={300} mb={8} textAlign="center">
+        DAI Approval History
+      </Heading>
+      <TableContainer>
+        <Table variant="simple">
+          <TableCaption placement="top">GridFire DAI approvals for the connected account</TableCaption>
+          <Thead>
+            <Tr>
+              <Th>Block</Th>
+              <Th isNumeric>Amount</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {approvals.map(event => {
+              const { args, blockNumber, transactionHash } = event;
+              const { wad } = args;
+
+              return (
+                <Tr key={transactionHash}>
+                  <Td>
+                    <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                  </Td>
+                  <Td isNumeric>◈ {Number(utils.formatEther(wad)).toFixed(2)}</Td>
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
       <Modal isOpen={showModal} onClose={handleCloseModal} size="sm" isCentered>
         <ModalOverlay />
         <ModalContent>

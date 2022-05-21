@@ -31,6 +31,14 @@ const getDaiAllowance = async account => {
   return daiContract.allowance(account, REACT_APP_CONTRACT_ADDRESS);
 };
 
+const getDaiApprovalEvents = async account => {
+  const provider = await getProvider();
+  const daiContract = new Contract(daiContractAddress, daiAbi, provider);
+  const approvalsFilter = daiContract.filters.Approval(account, REACT_APP_CONTRACT_ADDRESS);
+  const approvals = await daiContract.queryFilter(approvalsFilter);
+  return approvals;
+};
+
 const getDaiContract = signerOrProvider => {
   return new Contract(daiContractAddress, daiAbi, signerOrProvider);
 };
@@ -83,6 +91,7 @@ export {
   getBalance,
   getDaiAllowance,
   getDaiContract,
+  getDaiApprovalEvents,
   getGridFireContract,
   purchaseRelease,
   setDaiAllowance

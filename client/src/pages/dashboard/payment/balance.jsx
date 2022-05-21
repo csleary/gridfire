@@ -11,6 +11,7 @@ import {
   TableContainer,
   Table,
   TableCaption,
+  Text,
   Thead,
   Td,
   Tr,
@@ -115,13 +116,17 @@ const Balance = () => {
             : "Claim balance"}
         </Button>
       </Flex>
+      <Text mb={12}>
+        Your live GridFire account balance, accruing with every music sale. You may withdraw this at any time using the
+        account matching the sales payment address.
+      </Text>
       <Divider mb={12} />
       <Heading fontWeight={300} mb={8} textAlign="center">
-        Payouts
+        Claim History
       </Heading>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption placement="top">Claim History</TableCaption>
+          <TableCaption placement="top">DAI withdrawals from your GridFire account</TableCaption>
           <Thead>
             <Tr>
               <Th>Block</Th>

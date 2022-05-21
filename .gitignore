@@ -2,4 +2,4 @@
 .vscode
 node_modules/
 hardhat/cache
-client/src/artifacts/build-info
+hardhat/artifacts/build-info

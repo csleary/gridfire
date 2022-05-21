@@ -73,7 +73,7 @@ const PaymentAddress = () => {
   return (
     <>
       <Heading fontWeight={300} mb={8} textAlign="center">
-        Payment Receiving Address
+        Payment Address
       </Heading>
       <InputGroup mb={8}>
         <InputLeftElement
@@ -114,11 +114,11 @@ const PaymentAddress = () => {
       </Text>
       <Divider mb={12} />
       <Heading fontWeight={300} mb={12} textAlign="center">
-        Payments
+        Payment History
       </Heading>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption placement="top">DAI Payments received</TableCaption>
+          <TableCaption placement="top">DAI Payments received from sales</TableCaption>
           <Thead>
             <Tr>
               <Th>Block</Th>
