@@ -117,11 +117,11 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {purchases.map(({ args, blockNumber, transactionHash }) => {
+            {purchases.map(({ args, blockNumber, data, transactionHash }) => {
               const { buyer, amount, fee } = args;
 
               return (
-                <Tr key={transactionHash}>
+                <Tr key={data}>
                   <Td>
                     <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                   </Td>

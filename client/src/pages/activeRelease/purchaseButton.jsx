@@ -56,7 +56,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
       mb={8}
       minWidth="16rem"
-      onClick={allowanceTooLow ? () => navigate("/dashboard/address") : handlePayment}
+      onClick={allowanceTooLow ? () => navigate("/dashboard/payment/approvals") : handlePayment}
     >
       {!price
         ? "Name your price"

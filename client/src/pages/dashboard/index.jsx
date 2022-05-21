@@ -20,7 +20,7 @@ const Dashboard = () => (
       <Route path="/artists" element={<Artists />} />
       <Route path="/collection" element={<Collection />} />
       <Route path="/favourites" element={<Favourites />} />
-      <Route path="/payment" element={<Payment />} />
+      <Route path="/payment/*" element={<Payment />} />
       <Route path="/wishlist" element={<WishList />} />
       <Route path="/" element={<UserReleases />} />
     </Routes>

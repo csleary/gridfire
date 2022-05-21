@@ -64,7 +64,7 @@ const BasketButton = () => {
 
   const handleNavigateToPayment = () => {
     setShowModal(false);
-    navigate("/dashboard/payment");
+    navigate("/dashboard/payment/approvals");
   };
 
   return (
