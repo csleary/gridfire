@@ -1,9 +1,9 @@
-import Release from "../models/Release.js";
-import Sale from "../models/Sale.js";
-import User from "../models/User.js";
+import Release from "gridfire/models/Release.js";
+import Sale from "gridfire/models/Sale.js";
+import User from "gridfire/models/User.js";
 import express from "express";
-import requireLogin from "../middlewares/requireLogin.js";
-import { zipDownload } from "../controllers/archiveController.js";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
+import { zipDownload } from "gridfire/controllers/archiveController.js";
 
 const router = express.Router();
 

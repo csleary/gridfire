@@ -1,10 +1,10 @@
-import { deleteArtwork, uploadArtwork } from "../controllers/artworkController.js";
+import { deleteArtwork, uploadArtwork } from "gridfire/controllers/artworkController.js";
 import Busboy from "busboy";
-import Release from "../models/Release.js";
+import Release from "gridfire/models/Release.js";
 import express from "express";
 import fs from "fs";
 import path from "path";
-import requireLogin from "../middlewares/requireLogin.js";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { TEMP_PATH } = process.env;
 const router = express.Router();

@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
-import Artist from "../models/Artist.js";
-import Release from "../models/Release.js";
+import Artist from "gridfire/models/Artist.js";
+import Release from "gridfire/models/Release.js";
 
 const router = express.Router();
 

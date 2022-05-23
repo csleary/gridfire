@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import express from "express";
-import { getUser } from "../controllers/userController.js";
+import { getUser } from "gridfire/controllers/userController.js";
 import passport from "passport";
 import { randomUUID } from "crypto";
 

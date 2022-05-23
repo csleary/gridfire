@@ -7,7 +7,7 @@ import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { utils } from "ethers";
 
-const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, price, title }) => {
+const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, title }) => {
   const dispatch = useDispatch();
   const { basket, isAddingToBasket } = useSelector(state => state.web3, shallowEqual);
   const isInBasket = basket.some(item => item.id === itemId);

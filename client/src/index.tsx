@@ -18,7 +18,7 @@ const store = configureStore({
   middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false })
 });
 
-const provider = new ethers.providers.JsonRpcProvider(REACT_APP_NETWORK_URL);
+const provider = ethers.getDefaultProvider(REACT_APP_NETWORK_URL);
 const Web3Context = React.createContext(provider);
 const container = document.getElementById("root")!;
 const root = createRoot(container);

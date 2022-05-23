@@ -1,14 +1,14 @@
-import Artist from "../models/Artist.js";
+import Artist from "gridfire/models/Artist.js";
 import { BigNumber, ethers, utils } from "ethers";
-import Favourite from "../models/Favourite.js";
+import Favourite from "gridfire/models/Favourite.js";
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
-import Release from "../models/Release.js";
-import Sale from "../models/Sale.js";
-import User from "../models/User.js";
-import Wishlist from "../models/Wishlist.js";
-import { createArtist } from "../controllers/artistController.js";
+import Release from "gridfire/models/Release.js";
+import Sale from "gridfire/models/Sale.js";
+import User from "gridfire/models/User.js";
+import Wishlist from "gridfire/models/Wishlist.js";
+import { createArtist } from "gridfire/controllers/artistController.js";
 import express from "express";
-import requireLogin from "../middlewares/requireLogin.js";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { NETWORK_URL } = process.env;
 const { abi } = GridFirePayment;
@@ -85,8 +85,14 @@ router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const alreadyBought = await Sale.exists({ user: buyer, release: releaseId });
     if (alreadyBought) throw new Error("You already own this release.");
-    const { price, user: userId } = await Release.findById(releaseId, "user price", { lean: true }).exec();
-    const { account: paymentAddress } = await User.findById(userId, "account", { lean: true }).exec();
+
+    const {
+      price,
+      user: { paymentAddress }
+    } = await Release.findById(releaseId, "price", { lean: true })
+      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+      .exec();
+
     res.json({ paymentAddress, price });
   } catch (error) {
     console.log(error);

@@ -1,13 +1,13 @@
-import { decryptBuffer, encryptStream, encryptString } from "../controllers/encryption.js";
+import { decryptBuffer, encryptStream, encryptString } from "gridfire/controllers/encryption.js";
 import Busboy from "busboy";
-import Release from "../models/Release.js";
-import StreamSession from "../models/StreamSession.js";
-import User from "../models/User.js";
+import Release from "gridfire/models/Release.js";
+import StreamSession from "gridfire/models/StreamSession.js";
+import User from "gridfire/models/User.js";
 import express from "express";
 import mime from "mime-types";
 import mongoose from "mongoose";
-import { publishToQueue } from "../controllers/amqp/publisher.js";
-import requireLogin from "../middlewares/requireLogin.js";
+import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { QUEUE_TRANSCODE } = process.env;
 const router = express.Router();

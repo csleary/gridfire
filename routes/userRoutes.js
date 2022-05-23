@@ -1,10 +1,10 @@
-import { getUser, setPaymentAddress } from "../controllers/userController.js";
-import Favourite from "../models/Favourite.js";
-import Release from "../models/Release.js";
-import Sale from "../models/Sale.js";
-import Wishlist from "../models/Wishlist.js";
+import { getUser, setPaymentAddress } from "gridfire/controllers/userController.js";
+import Favourite from "gridfire/models/Favourite.js";
+import Release from "gridfire/models/Release.js";
+import Sale from "gridfire/models/Sale.js";
+import Wishlist from "gridfire/models/Wishlist.js";
 import express from "express";
-import requireLogin from "../middlewares/requireLogin.js";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const router = express.Router();
 
