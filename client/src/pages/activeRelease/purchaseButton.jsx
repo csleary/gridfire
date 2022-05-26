@@ -24,7 +24,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/purchase/${releaseId}`);
       const { paymentAddress, price } = res.data;
-      const transactionHash = await purchaseRelease(paymentAddress, price);
+      const transactionHash = await purchaseRelease(paymentAddress, releaseId, price);
       await axios.post(`/api/release/purchase/${releaseId}`, { transactionHash });
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));

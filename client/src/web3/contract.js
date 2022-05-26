@@ -52,8 +52,9 @@ const gridFireCheckout = async basket => {
   const signer = provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
 
-  const contractBasket = basket.map(({ paymentAddress, price }) => ({
+  const contractBasket = basket.map(({ id, paymentAddress, price }) => ({
     artist: paymentAddress,
+    id,
     amountPaid: price,
     releasePrice: price
   }));
@@ -78,12 +79,12 @@ const getGridFirePurchaseEvents = async paymentAddress => {
   return gridFire.queryFilter(purchaseFilter);
 };
 
-const purchaseRelease = async (paymentAddress, price) => {
+const purchaseRelease = async (paymentAddress, id, price) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);
   const weiReleasePrice = utils.parseEther(`${price}`);
-  const transactionReceipt = await gridFirePayment.purchase(paymentAddress, weiReleasePrice, weiReleasePrice);
+  const transactionReceipt = await gridFirePayment.purchase(paymentAddress, id, weiReleasePrice, weiReleasePrice);
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;

@@ -18,7 +18,13 @@ const Payment = () => {
 
   return (
     <Container as="main" maxW="container.sm" p={0}>
-      <Tabs index={activeTab} onChange={setActiveTab} colorScheme={useColorModeValue("yellow", "purple")} isFitted>
+      <Tabs
+        index={activeTab}
+        onChange={setActiveTab}
+        colorScheme={useColorModeValue("yellow", "purple")}
+        isFitted
+        variant="solid-rounded"
+      >
         <TabList mb={16}>
           <Tab as={Link} to={`${stem}/balance`}>
             Account Balance

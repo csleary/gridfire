@@ -38,7 +38,7 @@ const EditRelease = () => {
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
   const { artists } = useSelector(state => state.artists, shallowEqual);
-  const { activeRelease: release, versions } = useSelector(state => state.releases, shallowEqual);
+  const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,7 +75,7 @@ const EditRelease = () => {
         return currentTrack;
       })
     }));
-  }, [versions[releaseId]]); // eslint-disable-line
+  }, [release.trackList]);
 
   const handleChange = useCallback(
     (e, trackId) => {

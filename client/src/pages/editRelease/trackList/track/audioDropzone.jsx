@@ -1,29 +1,28 @@
-import { Box, Flex, Progress, Text } from "@chakra-ui/react";
+import { CircularProgress, CircularProgressLabel, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
 import { cancelUpload, uploadAudio } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo } from "state/toast";
 import PropTypes from "prop-types";
-import TextSpinner from "components/textSpinner";
+import Icon from "components/icon";
+import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { updateTrackStatus } from "state/releases";
 import { useDropzone } from "react-dropzone";
-import { useState } from "react";
-import Icon from "components/icon";
-import { faPlusCircle, faSyncAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { faThumbsUp, faTimesCircle } from "@fortawesome/free-regular-svg-icons";
 
 const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => {
   const dispatch = useDispatch();
-  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { _id: releaseId } = useSelector(state => state.releases.activeRelease, shallowEqual);
 
-  const { audioUploadProgress, encodingProgressFLAC, storingProgressFLAC, transcodingProgressAAC } = useSelector(
-    state => state.tracks,
-    shallowEqual
-  );
+  const {
+    audioUploadProgress,
+    encodingProgressFLAC,
+    storingProgressFLAC,
+    transcodingStartedAAC,
+    transcodingCompleteAAC,
+    transcodingStartedMP3,
+    transcodingCompleteMP3
+  } = useSelector(state => state.tracks, shallowEqual);
 
-  const [hoverActive, setHoverActive] = useState(false);
-  const releaseId = release._id;
   const isEncoding = status === "encoding";
-  const isPending = status === "pending";
   const isStored = status === "stored";
   const isTranscoding = status === "transcoding";
   const isUploading = status === "uploading";
@@ -77,93 +76,114 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
     onDrop: onDropAudio
   });
 
+  const progressLabelAAC = useColorModeValue("yellow.400", "yellow.300");
+
   return (
-    <Flex
-      onMouseOver={() => setHoverActive(true)}
-      onMouseOut={() => setHoverActive(false)}
-      alignItems="center"
-      borderColor="gray.300"
+    <Wrap
+      backgroundColor={useColorModeValue("gray.50", "gray.900")}
+      borderColor={useColorModeValue("gray.400", "gray.600")}
       borderStyle="dashed"
       borderWidth="2px"
       color="gray.500"
-      flexDirection="column"
+      flex="0 1 auto"
       fontWeight="500"
       justifyContent="center"
-      flex="0 1 32rem"
-      overflow="hidden"
-      position="relative"
+      padding={4}
       rounded="lg"
-      shadow="inner"
+      spacing={4}
       transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-      _hover={{ cursor: "pointer" }}
-      sx={{
-        ...(isDragReject
-          ? { backgroundColor: "red.50", borderColor: "red.500", color: "red.500" }
-          : isDragAccept || isStored
-          ? { backgroundColor: "green.50", borderColor: "green.500", color: "green.500" }
-          : isUploading || isEncoding || isTranscoding
-          ? { backgroundColor: "blue.50", borderColor: "blue.500", color: "blue.500" }
-          : {})
+      _hover={{
+        backgroundColor: useColorModeValue("white"),
+        borderColor: useColorModeValue("green.400", "purple.300"),
+        cursor: "pointer"
       }}
+      mr={4}
       {...getRootProps({ onClick: handleClick })}
     >
       <input {...getInputProps()} />
-      {isEncoding || isTranscoding ? null : isDragReject ? (
-        <Text>
-          <Icon icon={faTimesCircle} fixedWidth mr={2} />
-          File not accepted!
-        </Text>
-      ) : isDragActive && !isUploading ? (
-        <Text>
-          <Icon icon={faThumbsUp} fixedWidth mr={2} />
-          Drop it!
-        </Text>
-      ) : hoverActive && isUploading ? (
-        <Text>
-          <Icon icon={faTimes} fixedWidth mr={2} />
-          Cancel
-        </Text>
-      ) : isStored ? (
-        <Text>
-          <Icon icon={faSyncAlt} fixedWidth mr={2} />
-          Replace Audio
-        </Text>
-      ) : !isUploading ? (
-        <Text>
-          <Icon icon={faPlusCircle} fixedWidth mr={2} />
-          Upload Audio
-        </Text>
-      ) : null}
-      {!isStored && !isPending ? (
-        <Box as="span">
-          <TextSpinner
-            isActive={isUploading || isEncoding || isTranscoding}
-            type={isUploading ? "lines" : isEncoding ? "nemp3" : "braille"}
-            speed={0.01}
-          />
-          {isUploading
-            ? audioUploadProgress[trackId]
-              ? `Uploading: ${audioUploadProgress[trackId]?.toString(10).padStart(2, "0")}%`
-              : "Uploading…"
-            : isEncoding
-            ? storingProgressFLAC[trackId]?.message ?? encodingProgressFLAC[trackId]?.message ?? "Encoding…"
-            : isTranscoding
-            ? transcodingProgressAAC[trackId]?.message ?? "Transcoding…"
-            : null}
-        </Box>
-      ) : null}
-      <Progress
-        isIndeterminate={isEncoding || isTranscoding}
-        value={audioUploadProgress[trackId]}
-        bottom={0}
-        left={0}
-        right={0}
-        position="absolute"
-        variant={
-          isDragReject ? "dragReject" : isDragAccept || isStored ? "dragAccept" : isUploading ? "uploading" : false
-        }
-      />
-    </Flex>
+      <WrapItem>
+        <CircularProgress
+          trackColor={useColorModeValue("gray.300", "gray.600")}
+          color="blue.200"
+          size="4rem"
+          thickness=".75rem"
+          value={isStored ? 100 : audioUploadProgress[trackId]}
+        >
+          <CircularProgressLabel
+            color={isStored || audioUploadProgress[trackId] > 0 ? "blue.200" : "gray.600"}
+            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+          >
+            {audioUploadProgress[trackId] || <Icon icon={faUpload} />}
+          </CircularProgressLabel>
+        </CircularProgress>
+      </WrapItem>
+      <WrapItem>
+        <CircularProgress
+          trackColor={useColorModeValue("gray.300", "gray.600")}
+          color="purple.200"
+          size="4rem"
+          thickness=".75rem"
+          value={isStored ? 100 : encodingProgressFLAC[trackId]}
+        >
+          <CircularProgressLabel
+            color={isStored || encodingProgressFLAC[trackId] > 0 ? "purple.300" : "gray.600"}
+            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+          >
+            {encodingProgressFLAC[trackId] || "FLAC"}
+          </CircularProgressLabel>
+        </CircularProgress>
+      </WrapItem>
+      <WrapItem>
+        <CircularProgress
+          trackColor={useColorModeValue("gray.300", "gray.600")}
+          color="green.200"
+          size="4rem"
+          thickness=".75rem"
+          value={isStored ? 100 : storingProgressFLAC[trackId]}
+        >
+          <CircularProgressLabel
+            color={isStored || storingProgressFLAC[trackId] > 0 ? "green.300" : "gray.600"}
+            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+          >
+            IPFS
+          </CircularProgressLabel>
+        </CircularProgress>
+      </WrapItem>
+      <WrapItem>
+        <CircularProgress
+          trackColor={useColorModeValue("gray.300", "gray.600")}
+          color={useColorModeValue("yellow.300", "yellow.200")}
+          size="4rem"
+          thickness=".75rem"
+          value={isStored || transcodingCompleteAAC[trackId] ? 100 : 0}
+          isIndeterminate={transcodingStartedAAC[trackId] && !transcodingCompleteAAC[trackId]}
+        >
+          <CircularProgressLabel
+            color={isStored || transcodingStartedAAC[trackId] ? progressLabelAAC : "gray.600"}
+            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+          >
+            AAC
+          </CircularProgressLabel>
+        </CircularProgress>
+      </WrapItem>
+      <WrapItem>
+        <CircularProgress
+          trackColor={useColorModeValue("gray.300", "gray.600")}
+          color="orange.200"
+          size="4rem"
+          thickness=".75rem"
+          value={isStored || transcodingCompleteMP3[trackId] ? 100 : 0}
+          isIndeterminate={transcodingStartedMP3[trackId] && !transcodingCompleteMP3[trackId]}
+        >
+          <CircularProgressLabel
+            color={isStored || transcodingStartedMP3[trackId] ? "orange.300" : "gray.600"}
+            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+          >
+            MP3
+          </CircularProgressLabel>
+        </CircularProgress>
+      </WrapItem>
+    </Wrap>
   );
 };
 

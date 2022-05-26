@@ -18,7 +18,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, title }
       const res = await axios.get(`/api/release/purchase/${itemId}`);
       const { paymentAddress, price } = res.data;
       const priceInWei = utils.parseEther(price.toString());
-      dispatch(addToBasket({ artistName, imageUrl, paymentAddress, price: priceInWei, id: itemId, title }));
+      dispatch(addToBasket({ artistName, id: itemId, imageUrl, paymentAddress, price: priceInWei, title }));
     } catch (error) {
     } finally {
       dispatch(setIsAddingToBasket(false));

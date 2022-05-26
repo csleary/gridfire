@@ -29,7 +29,6 @@ import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import moment from "moment";
 import { useEffect } from "react";
-import { utils } from "ethers";
 
 const ActiveRelease = () => {
   const releaseInfoColor = useColorModeValue("gray.500", "gray.700");

@@ -5,7 +5,11 @@ const { Schema } = mongoose;
 const trackSchema = new Schema(
   {
     trackTitle: { type: String, trim: true },
-    status: { type: String, default: "pending" },
+    status: {
+      type: String,
+      enum: ["pending", "uploading", "uploaded", "encoding", "transcoding", "stored", "error", "deleting"],
+      default: "pending"
+    },
     duration: { type: Number, trim: true },
     mpd: { type: Buffer },
     segmentDuration: { type: Number },

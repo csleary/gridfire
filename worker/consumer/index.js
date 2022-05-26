@@ -4,7 +4,7 @@ import transcodeAAC from "./transcodeAAC.js";
 import transcodeMP3 from "./transcodeMP3.js";
 import { create } from "ipfs-http-client";
 
-const { WORKER_QUEUE } = process.env;
+const { QUEUE_TRANSCODE } = process.env;
 const ipfs = create();
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
 
@@ -31,8 +31,8 @@ const startConsumer = async connection => {
     });
 
     channel.prefetch(1);
-    await channel.assertQueue(WORKER_QUEUE, { durable: true });
-    channel.consume(WORKER_QUEUE, processMessage, { noAck: false });
+    await channel.assertQueue(QUEUE_TRANSCODE, { durable: true });
+    channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false });
   } catch (error) {
     if (closeOnError(connection, error)) return;
   }

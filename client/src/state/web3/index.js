@@ -83,14 +83,14 @@ const checkoutBasket =
 
       const total = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
 
-      // Only do contract checkout if there's something to pay.
+      // Only do contract checkout if there's a non-zero price.
       let transactionHash;
       if (total.gt(constants.Zero)) {
         transactionHash = await gridFireCheckout(basket);
       }
 
       // Backend purchase validation.
-      await axios.post(`/api/release/purchase`, { basket, ...(transactionHash ? { transactionHash } : {}) });
+      await axios.post(`/api/release/purchase`, { transactionHash });
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
     } catch (error) {

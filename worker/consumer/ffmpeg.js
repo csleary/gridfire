@@ -19,7 +19,7 @@ const ffmpegEncodeFragmentedAAC = (srcStream, outputPath, onProgress) =>
         resolve();
       })
       .on("error", reject)
-      .on("progress", onProgress)
+      // .on("progress", onProgress)
       .on("start", console.log)
       .save(outputPath);
   });

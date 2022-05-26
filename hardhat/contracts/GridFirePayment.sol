@@ -11,6 +11,7 @@ contract GridFirePayment is Ownable {
     struct BasketItem {
         address artist;
         uint256 amountPaid;
+        string id;
         uint256 releasePrice;
     }
 
@@ -18,7 +19,7 @@ contract GridFirePayment is Ownable {
 
     event Claim(address indexed artist, uint256 amount);
     event Checkout(address indexed buyer, uint256 amount);
-    event Purchase(address indexed buyer, address indexed artist, uint256 amount, uint256 fee);
+    event Purchase(address indexed buyer, address indexed artist, string id, uint256 amount, uint256 fee);
     event Received(address from, uint256 amount);
 
     receive() external payable {
@@ -27,12 +28,13 @@ contract GridFirePayment is Ownable {
 
     function purchase(
         address artist,
+        string calldata id,
         uint256 amountPaid,
         uint256 releasePrice
     ) public {
         require(amountPaid != 0);
         require(amountPaid >= releasePrice);
-        transferPayment(artist, amountPaid);
+        transferPayment(artist, id, amountPaid);
     }
 
     function checkout(BasketItem[] calldata basket) public {
@@ -47,9 +49,10 @@ contract GridFirePayment is Ownable {
         for (uint256 i = 0; i < basket.length; i++) {
             address artist = basket[i].artist;
             uint256 amountPaid = basket[i].amountPaid;
+            string calldata id = basket[i].id;
             total += amountPaid;
             (uint256 artistShare, uint256 serviceFee) = creditBalances(artist, amountPaid);
-            emit Purchase(msg.sender, artist, artistShare, serviceFee);
+            emit Purchase(msg.sender, artist, id, artistShare, serviceFee);
         }
 
         dai.transferFrom(msg.sender, address(this), total);
@@ -100,9 +103,13 @@ contract GridFirePayment is Ownable {
         return (artistShare, serviceFee);
     }
 
-    function transferPayment(address artist, uint256 amountPaid) private {
+    function transferPayment(
+        address artist,
+        string calldata id,
+        uint256 amountPaid
+    ) private {
         (uint256 artistShare, uint256 serviceFee) = creditBalances(artist, amountPaid);
         dai.transferFrom(msg.sender, address(this), amountPaid);
-        emit Purchase(msg.sender, artist, artistShare, serviceFee);
+        emit Purchase(msg.sender, artist, id, artistShare, serviceFee);
     }
 }

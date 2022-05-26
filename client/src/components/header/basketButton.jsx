@@ -73,8 +73,8 @@ const BasketButton = () => {
         Basket
         {basket.length ? (
           <AvatarGroup size="xs" max={5} ml={2}>
-            {basket.map(({ imageUrl, title }) => (
-              <Avatar loading="lazy" name={title} src={imageUrl} />
+            {basket.map(({ id, imageUrl, title }) => (
+              <Avatar key={id} loading="lazy" name={title} src={imageUrl} />
             ))}
           </AvatarGroup>
         ) : null}
@@ -88,7 +88,7 @@ const BasketButton = () => {
             <VStack spacing={3} alignItems="unset">
               {basket.length ? (
                 <>
-                  {basket.map(({ artistName, imageUrl, price, id, title }) => (
+                  {basket.map(({ artistName, id, imageUrl, price, title }) => (
                     <Flex key={id} alignItems="center">
                       <Avatar name={title} src={imageUrl} mr={4} />
                       <Text as={RouterLink} to={`/release/${id}`}>

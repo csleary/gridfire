@@ -1,14 +1,13 @@
 import {
-  setEncodingComplete,
   setEncodingProgressFLAC,
   setStoringProgressFLAC,
-  setTranscodingComplete,
-  setTranscodingProgressAAC,
-  setUploadProgress
+  setTranscodingStartedAAC,
+  setTranscodingCompleteAAC,
+  setTranscodingStartedMP3,
+  setTranscodingCompleteMP3
 } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
-import { batch } from "react-redux";
 import { setArtworkUploading } from "state/artwork";
 import { useEffect, useRef } from "react";
 import { updateTrackStatus } from "state/releases";
@@ -22,25 +21,6 @@ const useSSE = () => {
   useEffect(() => {
     const uuid = window.crypto.randomUUID();
     const cleanup = () => axios.delete(`/api/sse/${userId}/${uuid}`);
-
-    const handleArtworkUploaded = () => {
-      batch(() => {
-        dispatch(setArtworkUploading(false));
-        dispatch(toastSuccess({ message: "Artwork uploaded.", title: "Done!" }));
-      });
-    };
-
-    const handleEncodingProgressFLAC = event => {
-      const { message, trackId } = JSON.parse(event.data);
-      dispatch(setEncodingProgressFLAC({ message, trackId }));
-    };
-    const handleEncodingCompleteFLAC = event => {
-      const { trackId } = JSON.parse(event.data);
-      batch(() => {
-        dispatch(setEncodingComplete({ trackId }));
-        dispatch(setUploadProgress({ trackId, percent: 0 }));
-      });
-    };
 
     const handleNotify = event => {
       const { type, message } = JSON.parse(event.data);
@@ -59,31 +39,38 @@ const useSSE = () => {
       }
     };
 
-    const handleStoringProgressFLAC = event => {
-      const { message, trackId } = JSON.parse(event.data);
-      dispatch(setStoringProgressFLAC({ message, trackId }));
+    const handleArtworkUploaded = () => {
+      dispatch(setArtworkUploading(false));
     };
 
-    const handleTranscodingProgressAAC = event => {
-      const { message, trackId } = JSON.parse(event.data);
-      dispatch(setTranscodingProgressAAC({ message, trackId }));
+    const handleEncodingProgressFLAC = event => {
+      const { progress, trackId } = JSON.parse(event.data);
+      dispatch(setEncodingProgressFLAC({ progress, trackId }));
+    };
+
+    const handleStoringProgressFLAC = event => {
+      const { progress, trackId } = JSON.parse(event.data);
+      dispatch(setStoringProgressFLAC({ progress, trackId }));
+    };
+
+    const handleTranscodingStartedAAC = event => {
+      const { trackId } = JSON.parse(event.data);
+      dispatch(setTranscodingStartedAAC({ trackId }));
     };
 
     const handleTranscodingCompleteAAC = event => {
-      const { trackId, trackName } = JSON.parse(event.data);
-      batch(() => {
-        dispatch(
-          toastSuccess({
-            message: `Transcoding complete. ${trackName} added!`,
-            title: "Transcode Streaming Audio"
-          })
-        );
-        dispatch(setTranscodingComplete({ trackId }));
-      });
+      const { trackId } = JSON.parse(event.data);
+      dispatch(setTranscodingCompleteAAC({ trackId }));
     };
 
-    const handleTranscodingCompleteMP3 = ({ format, releaseId }) => {
-      //
+    const handleTranscodingStartedMP3 = event => {
+      const { trackId } = JSON.parse(event.data);
+      dispatch(setTranscodingStartedMP3({ trackId }));
+    };
+
+    const handleTranscodingCompleteMP3 = event => {
+      const { trackId } = JSON.parse(event.data);
+      dispatch(setTranscodingCompleteMP3({ trackId }));
     };
 
     const handleUpdateTrackStatus = event => {
@@ -104,11 +91,11 @@ const useSSE = () => {
       source.onerror = error => console.log(`[SSE] Error: ${JSON.stringify(error, null, 2)}`);
       source.addEventListener("artworkUploaded", handleArtworkUploaded);
       source.addEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
-      source.addEventListener("encodingCompleteFLAC", handleEncodingCompleteFLAC);
       source.addEventListener("notify", handleNotify);
       source.addEventListener("storingProgressFLAC", handleStoringProgressFLAC);
-      source.addEventListener("transcodingProgressAAC", handleTranscodingProgressAAC);
+      source.addEventListener("transcodingStartedAAC", handleTranscodingStartedAAC);
       source.addEventListener("transcodingCompleteAAC", handleTranscodingCompleteAAC);
+      source.addEventListener("transcodingStartedMP3", handleTranscodingStartedMP3);
       source.addEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
       source.addEventListener("updateTrackStatus", handleUpdateTrackStatus);
       source.addEventListener("workerMessage", handleWorkerMessage);
@@ -120,11 +107,11 @@ const useSSE = () => {
         const source = sourceRef.current;
         source.removeEventListener("artworkUploaded", handleArtworkUploaded);
         source.removeEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
-        source.removeEventListener("encodingCompleteFLAC", handleEncodingCompleteFLAC);
         source.removeEventListener("notify", handleNotify);
         source.removeEventListener("storingProgressFLAC", handleStoringProgressFLAC);
-        source.removeEventListener("transcodingProgressAAC", handleTranscodingProgressAAC);
+        source.removeEventListener("transcodingStartedAAC", handleTranscodingStartedAAC);
         source.removeEventListener("transcodingCompleteAAC", handleTranscodingCompleteAAC);
+        source.removeEventListener("transcodingStartedMP3", handleTranscodingStartedMP3);
         source.removeEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
         source.removeEventListener("updateTrackStatus", handleUpdateTrackStatus);
         source.removeEventListener("workerMessage", handleWorkerMessage);

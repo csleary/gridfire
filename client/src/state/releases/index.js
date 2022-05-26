@@ -1,7 +1,8 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
 import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
 import { createObjectId } from "utils";
+import { createSlice } from "@reduxjs/toolkit";
+
 const defaultReleaseState = { artwork: {}, releaseDate: "", tags: [], trackList: [] };
 
 const releaseSlice = createSlice({
@@ -16,16 +17,13 @@ const releaseSlice = createSlice({
     catalogueLimit: 12,
     catalogueSkip: 0,
     collection: [],
-    formatExists: {},
-    paymentAddress: "",
     reachedEndOfCat: false,
     releaseIdsForDeletion: {},
     userFavourites: [],
     userReleases: [],
     favCounts: {},
     playCounts: {},
-    userWishList: [],
-    versions: {}
+    userWishList: []
   },
   reducers: {
     addTrack(state, action) {
@@ -41,11 +39,6 @@ const releaseSlice = createSlice({
     },
     removeRelease(state, action) {
       if (state.userReleases) state.userReleases = state.userReleases.filter(release => release._id !== action.payload);
-    },
-    setReleasePurchaseInfo(state, action) {
-      state.activeRelease = action.payload.release;
-      state.paymentAddress = action.payload.paymentInfo.paymentAddress;
-      state.paymentHash = action.payload.paymentInfo.paymentHash;
     },
     setArtistCatalogue(state, action) {
       state.artist = action.payload;
@@ -104,8 +97,6 @@ const releaseSlice = createSlice({
         state.activeRelease.trackList = state.activeRelease.trackList.map(prevTrack =>
           prevTrack._id === trackId ? { ...prevTrack, status } : prevTrack
         );
-
-        state.versions = { ...state.versions, [releaseId]: nanoid(8) };
       }
     },
     updateUserReleases(state, action) {
@@ -230,16 +221,6 @@ const publishStatus = releaseId => async dispatch => {
   }
 };
 
-const purchaseRelease = releaseId => async dispatch => {
-  try {
-    const res = await axios.get(`/api/release/purchase/${releaseId}`);
-    if (res.data.error) dispatch(toastError(res.data.error));
-    dispatch(setReleasePurchaseInfo(res.data));
-  } catch (error) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
-  }
-};
-
 const updateRelease = values => async dispatch => {
   try {
     const res = await axios.post("/api/release", values);
@@ -284,7 +265,6 @@ export {
   fetchUserReleasesFavCounts,
   fetchUserReleasesPlayCounts,
   publishStatus,
-  purchaseRelease,
   updateRelease
 };
 

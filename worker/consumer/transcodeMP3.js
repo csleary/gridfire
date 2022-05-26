@@ -11,17 +11,9 @@ import tar from "tar-stream";
 
 const { TEMP_PATH } = process.env;
 
-const onProgress =
-  userId =>
-  ({ targetSize, timemark }) => {
-    const [hours, mins, seconds] = timemark.split(":");
-    const [s] = seconds.split(".");
-    const h = hours !== "00" ? `${hours}:` : "";
-    postMessage({ message: `Transcoding MP3: ${h}${mins}:${s} (${targetSize}kB complete)`, userId });
-  };
-
 const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
   try {
+    postMessage({ type: "transcodingStartedMP3", trackId, userId });
     const { key } = await User.findById(userId, "key", { lean: true }).exec();
     const release = await Release.findOne({ _id: releaseId, "trackList._id": trackId, user: userId }, "trackList.$", {
       lean: true
@@ -64,10 +56,11 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId, user: userId },
-      { "trackList.$.cids.mp3": cidMP3 }
+      { "trackList.$.cids.mp3": cidMP3, "trackList.$.status": "stored" }
     ).exec();
 
-    postMessage({ type: "transcodingCompleteMP3", format: "mp3", releaseId, userId });
+    postMessage({ type: "transcodingCompleteMP3", trackId, userId });
+    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "stored", userId });
     console.log(`[Worker] Track ${trackId} converted to MP3 and uploaded to IPFS.`);
   } catch (error) {
     console.log(error);

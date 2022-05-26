@@ -1,5 +1,5 @@
+import { ethers, utils } from "ethers";
 import Artist from "gridfire/models/Artist.js";
-import { BigNumber, ethers, utils } from "ethers";
 import Favourite from "gridfire/models/Favourite.js";
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import Release from "gridfire/models/Release.js";
@@ -13,6 +13,7 @@ import requireLogin from "gridfire/middlewares/requireLogin.js";
 const { NETWORK_URL } = process.env;
 const { abi } = GridFirePayment;
 const router = express.Router();
+const sortById = (a, b) => (a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1);
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
@@ -103,20 +104,8 @@ router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
 router.post("/purchase", requireLogin, async (req, res) => {
   try {
     const buyerUserId = req.user._id;
-    const { basket, transactionHash } = req.body;
+    const { transactionHash } = req.body;
     const provider = ethers.getDefaultProvider(NETWORK_URL);
-    const { data } = await provider.getTransaction(transactionHash);
-    const checkoutInterface = new utils.Interface(abi);
-    const decodedData = checkoutInterface.parseTransaction({ data });
-    const [callDataBasket] = decodedData.args;
-    const totalPaidBytes = callDataBasket.reduce((prev, { amountPaid }) => prev.add(amountPaid), BigNumber.from("0"));
-    const basketTotal = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
-    const paidMatchesTotal = totalPaidBytes.eq(basketTotal);
-
-    if (!paidMatchesTotal) {
-      throw { ...new Error("The total amount paid does not match the basket total."), code: 422 };
-    }
-
     const transactionReceipt = await provider.waitForTransaction(transactionHash);
     const { from: buyer, status } = transactionReceipt || {};
 
@@ -124,23 +113,35 @@ router.post("/purchase", requireLogin, async (req, res) => {
       throw new Error("Unsuccessful transaction status returned from receipt.");
     }
 
-    await Promise.allSettled(
-      basket.map(async ({ id }, index) => {
-        const { artist, amountPaid } = callDataBasket[index];
+    const { data } = await provider.getTransaction(transactionHash);
+    const checkoutInterface = new utils.Interface(abi);
+    const decodedData = checkoutInterface.parseTransaction({ data });
+    const { basket } = decodedData.args;
+    const basketSortedById = [...basket].sort(sortById);
+    const filter = { _id: { $in: basket.map(({ id }) => id) } };
 
-        const { price, user: artistUser } = await Release.findById(id, "price", { lean: true })
-          .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
-          .exec();
+    const purchased = await Release.find(filter, "price", { lean: true, sort: { _id: 1 } })
+      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+      .exec();
 
-        if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artist)) {
-          return Promise.reject("Receiver address does not match artist address.");
-        }
+    const isVerified = purchased.every(({ _id, price, user: { paymentAddress } }, index) => {
+      const { amountPaid, artist, id, releasePrice } = basketSortedById[index];
 
-        if (amountPaid.lt(utils.parseEther(price.toString()))) {
-          return Promise.reject("Basket item amount paid is less than release price.");
-        }
+      return (
+        amountPaid.gte(utils.parseEther(price.toString())) &&
+        utils.getAddress(paymentAddress) === utils.getAddress(artist) &&
+        _id.toString().toLowerCase() === id.toLowerCase() &&
+        utils.parseEther(price.toString()).eq(releasePrice)
+      );
+    });
 
-        await Sale.create({
+    if (!isVerified) {
+      throw { ...new Error("Payment verification failed."), code: 422 };
+    }
+
+    await Promise.all(
+      basketSortedById.map(({ amountPaid, id }) =>
+        Sale.create({
           purchaseDate: Date.now(),
           release: id,
           paid: amountPaid,
@@ -151,10 +152,8 @@ router.post("/purchase", requireLogin, async (req, res) => {
           if (error.code === 11000) {
             console.log(error);
           }
-        });
-
-        return Promise.resolve();
-      })
+        })
+      )
     );
 
     res.sendStatus(200);

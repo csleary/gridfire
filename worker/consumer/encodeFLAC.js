@@ -10,34 +10,23 @@ import postMessage from "./postMessage.js";
 import { publishToQueue } from "../publisher/index.js";
 import tar from "tar-stream";
 
-const { TEMP_PATH, WORKER_QUEUE } = process.env;
+const { TEMP_PATH, QUEUE_TRANSCODE } = process.env;
 
 const onProgress =
-  (trackId, userId) =>
-  ({ targetSize, timemark }) => {
-    const [hours, mins, seconds] = timemark.split(":");
-    const [s] = seconds.split(".");
-    const h = hours !== "00" ? `${hours}:` : "";
-
-    postMessage({
-      message: `Encoded FLAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
-      trackId,
-      type: "encodingProgressFLAC",
-      userId
-    });
+  ({ trackId, userId }) =>
+  event => {
+    const { percent } = event;
+    postMessage({ type: "encodingProgressFLAC", progress: Math.round(percent), trackId, userId });
   };
 
 const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
   try {
-    postMessage({ message: "Encoding flac…", title: "Processing", userId });
-
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
       { "trackList.$.status": "encoding" }
     ).exec();
 
     const { key } = await User.findById(userId, "key", { lean: true }).exec();
-    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoding", userId });
     const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
     const tarStream = Readable.from(ipfs.get(cid));
     const tarExtract = tar.extract();
@@ -56,7 +45,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
           const decryptedStream = await decryptStream(srcStream, key);
           srcStream.on("error", handleStreamError(srcStream, decryptedStream));
           decryptedStream.on("error", handleStreamError(srcStream, decryptedStream));
-          await ffmpegEncodeFLAC(decryptedStream, flacPath, onProgress(trackId, userId));
+          await ffmpegEncodeFLAC(decryptedStream, flacPath, onProgress({ trackId, userId }));
           next();
         } catch (error) {
           srcStream.destroy(error);
@@ -74,15 +63,9 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     const encryptedFlacStream = encryptStream(flacFileStream, key);
 
     const ipfsFLAC = await ipfs.add(encryptedFlacStream, {
-      progress: progress => {
-        const percent = Math.floor((progress / size) * 100);
-
-        postMessage({
-          message: `Saving FLAC (${percent}% complete)`,
-          trackId,
-          type: "storingProgressFLAC",
-          userId
-        });
+      progress: progressBytes => {
+        const progress = Math.floor((progressBytes / size) * 100);
+        postMessage({ type: "storingProgressFLAC", progress, trackId, userId });
       }
     });
 
@@ -91,10 +74,8 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
       { "trackList.$.status": "encoded", "trackList.$.cids.flac": ipfsFLAC.cid.toString() }
     ).exec();
 
-    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "encoded", userId });
-    postMessage({ type: "encodingCompleteFLAC", trackId, userId });
-    publishToQueue("", WORKER_QUEUE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
-    publishToQueue("", WORKER_QUEUE, { job: "transcodeMP3", releaseId, trackId, userId });
+    publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
+    publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
   } catch (error) {
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },

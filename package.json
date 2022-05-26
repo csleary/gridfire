@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "server": "nodemon --ignore client/ -r dotenv/config index.js dotenv_config_path=.env",
+    "server": "nodemon -r dotenv/config index.js dotenv_config_path=.env",
     "client": "yarn --cwd ./client/ start",
     "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"npm run hardhat:node\"",
     "worker": "yarn --cwd ./worker/ run dev",
@@ -56,5 +56,12 @@
     "@types/passport": "^1.0.7",
     "concurrently": "^7.1.0",
     "nodemon": "^2.0.7"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "client/*",
+      "hardhat/*",
+      "tmp/*"
+    ]
   }
 }

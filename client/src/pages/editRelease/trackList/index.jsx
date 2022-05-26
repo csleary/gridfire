@@ -48,9 +48,10 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   );
 
   const handleDragStart = useCallback(index => setDragOrigin(index), []);
-  const handleDragEnter = useCallback(index => setDragActive(index), []);
+  const handleDragEnter = useCallback(index => dragOrigin != null && setDragActive(index), [dragOrigin]);
   const handleDragOver = useCallback(() => false, []);
   const handleDragLeave = useCallback(() => setDragActive(), []);
+
   const handleDragEnd = useCallback(() => {
     setDragOrigin(null);
     setDragActive(null);
