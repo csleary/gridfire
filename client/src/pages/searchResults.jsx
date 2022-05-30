@@ -22,11 +22,17 @@ const SearchResults = () => {
       ) : (
         <Heading as="h2">Search for releases by artist, titles and tags.</Heading>
       )}
-      <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8}>
+      <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8} mb={8}>
         {renderReleases}
       </Grid>
       {resultsNum ? (
-        <Button leftIcon={<FontAwesomeIcon icon={faTimes} />} onClick={() => dispatch(clearResults())} size="sm">
+        <Button
+          alignSelf="flex-start"
+          leftIcon={<FontAwesomeIcon icon={faTimes} />}
+          isDisabled={isSearching}
+          onClick={() => dispatch(clearResults())}
+          size="sm"
+        >
           Clear
         </Button>
       ) : null}

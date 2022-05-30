@@ -60,10 +60,11 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
     ).exec();
 
     postMessage({ type: "transcodingCompleteMP3", trackId, userId });
-    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "stored", userId });
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "stored", userId });
     console.log(`[Worker] Track ${trackId} converted to MP3 and uploaded to IPFS.`);
   } catch (error) {
     console.log(error);
+    postMessage({ type: "pipelineError", stage: "mp3", trackId, userId });
   }
 };
 

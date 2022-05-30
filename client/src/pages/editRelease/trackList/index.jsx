@@ -1,21 +1,22 @@
 import { Button, Flex } from "@chakra-ui/react";
 import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useCallback, useState } from "react";
+import Icon from "components/icon";
 import PropTypes from "prop-types";
 import Track from "./track";
 import { addTrack } from "state/releases";
 import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useState } from "react";
-import Icon from "components/icon";
 
 const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   const dispatch = useDispatch();
   const { activeRelease } = useSelector(state => state.releases, shallowEqual);
   const { trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
   const { _id: releaseId } = activeRelease;
-  const [dragOrigin, setDragOrigin] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
+  const [dragOriginId, setDragOriginId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
+  const [dragOriginIsInactive, setDragOriginIsInactive] = useState(false);
 
   const handleAddTrack = async () => {
     const newTrack = {
@@ -47,14 +48,43 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
     [dispatch, releaseId, setValues, trackIdsForDeletion]
   );
 
-  const handleDragStart = useCallback(index => setDragOrigin(index), []);
-  const handleDragEnter = useCallback(index => dragOrigin != null && setDragActive(index), [dragOrigin]);
+  const handleDragStart = useCallback(
+    (trackId, ref) => e => {
+      e.dataTransfer.dropEffect = "none";
+      e.dataTransfer.effectAllowed = "move";
+      setDragOriginId(trackId);
+    },
+    []
+  );
+  const handleDragEnter = useCallback(
+    e => {
+      if (dragOriginId == null) {
+        return void (e.dataTransfer.dropEffect = "none");
+      }
+      e.dataTransfer.dropEffect = "move";
+      setDragOverId(e.target.id);
+    },
+    [dragOriginId]
+  );
+
   const handleDragOver = useCallback(() => false, []);
-  const handleDragLeave = useCallback(() => setDragActive(), []);
+
+  const handleDragLeave = useCallback(
+    e => {
+      if (e.target.id === dragOriginId) {
+        setDragOriginIsInactive(true);
+      }
+
+      e.dataTransfer.dropEffect = "none";
+      setDragOverId(null);
+    },
+    [dragOriginId]
+  );
 
   const handleDragEnd = useCallback(() => {
-    setDragOrigin(null);
-    setDragActive(null);
+    setDragOriginId(null);
+    setDragOriginIsInactive(false);
+    setDragOverId(null);
   }, []);
 
   const handleMoveTrack = useCallback(
@@ -67,12 +97,13 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   );
 
   const handleDrop = useCallback(
-    async indexTo => {
-      const indexFrom = dragOrigin;
+    async e => {
+      const indexFrom = trackList.findIndex(({ _id }) => _id === dragOriginId);
+      const indexTo = trackList.findIndex(({ _id }) => _id === e.target.id);
       if (indexFrom === indexTo) return;
       handleMoveTrack(indexFrom, indexTo);
     },
-    [dragOrigin, handleMoveTrack]
+    [dragOriginId, handleMoveTrack, trackList]
   );
 
   return (
@@ -84,8 +115,7 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
           return (
             <Track
               cancelDeleteTrack={cancelDeleteTrack}
-              dragOverActive={dragActive === index}
-              errorAudio={errors[`trackList.${index}.audio`]}
+              dragOriginIsInactive={dragOriginIsInactive}
               errorTrackTitle={errors[`trackList.${index}.trackTitle`]}
               handleChange={handleChange}
               handleDeleteTrack={handleDeleteTrack}
@@ -97,7 +127,9 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
               handleDragEnd={handleDragEnd}
               handleMoveTrack={handleMoveTrack}
               index={index}
-              isDragOrigin={dragOrigin === index}
+              isActiveDragOver={dragOverId === trackId && dragOverId !== dragOriginId}
+              isDragging={dragOriginId != null}
+              isDragOrigin={dragOriginId === trackId}
               key={trackId}
               setValues={setValues}
               trackId={trackId}

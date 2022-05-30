@@ -1,5 +1,6 @@
 import {
   setEncodingProgressFLAC,
+  setPipelineError,
   setStoringProgressFLAC,
   setTranscodingStartedAAC,
   setTranscodingCompleteAAC,
@@ -73,7 +74,12 @@ const useSSE = () => {
       dispatch(setTranscodingCompleteMP3({ trackId }));
     };
 
-    const handleUpdateTrackStatus = event => {
+    const handlePipelineError = event => {
+      const { message, stage, trackId } = JSON.parse(event.data);
+      dispatch(setPipelineError({ message, stage, trackId }));
+    };
+
+    const handleTrackStatus = event => {
       const { releaseId, status, trackId } = JSON.parse(event.data);
       dispatch(updateTrackStatus({ releaseId, status, trackId }));
     };
@@ -92,12 +98,13 @@ const useSSE = () => {
       source.addEventListener("artworkUploaded", handleArtworkUploaded);
       source.addEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
       source.addEventListener("notify", handleNotify);
+      source.addEventListener("pipelineError", handlePipelineError);
       source.addEventListener("storingProgressFLAC", handleStoringProgressFLAC);
+      source.addEventListener("trackStatus", handleTrackStatus);
       source.addEventListener("transcodingStartedAAC", handleTranscodingStartedAAC);
       source.addEventListener("transcodingCompleteAAC", handleTranscodingCompleteAAC);
       source.addEventListener("transcodingStartedMP3", handleTranscodingStartedMP3);
       source.addEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
-      source.addEventListener("updateTrackStatus", handleUpdateTrackStatus);
       source.addEventListener("workerMessage", handleWorkerMessage);
       window.addEventListener("beforeunload", cleanup);
     }
@@ -108,12 +115,13 @@ const useSSE = () => {
         source.removeEventListener("artworkUploaded", handleArtworkUploaded);
         source.removeEventListener("encodingProgressFLAC", handleEncodingProgressFLAC);
         source.removeEventListener("notify", handleNotify);
+        source.removeEventListener("pipelineError", handlePipelineError);
         source.removeEventListener("storingProgressFLAC", handleStoringProgressFLAC);
+        source.removeEventListener("trackStatus", handleTrackStatus);
         source.removeEventListener("transcodingStartedAAC", handleTranscodingStartedAAC);
         source.removeEventListener("transcodingCompleteAAC", handleTranscodingCompleteAAC);
         source.removeEventListener("transcodingStartedMP3", handleTranscodingStartedMP3);
         source.removeEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
-        source.removeEventListener("updateTrackStatus", handleUpdateTrackStatus);
         source.removeEventListener("workerMessage", handleWorkerMessage);
         sourceRef.current = null;
         window.removeEventListener("beforeunload", cleanup);

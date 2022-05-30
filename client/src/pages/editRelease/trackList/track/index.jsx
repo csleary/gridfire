@@ -1,7 +1,4 @@
 import {
-  Alert,
-  AlertIcon,
-  Button,
   Center,
   Flex,
   IconButton,
@@ -11,68 +8,71 @@ import {
   MenuDivider,
   MenuList,
   MenuItem,
-  Spacer,
   VStack,
   useColorModeValue,
   FormLabel
 } from "@chakra-ui/react";
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { DragHandleIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import AudioDropzone from "./audioDropzone";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { memo } from "react";
+import { memo, useRef } from "react";
 
-const Track = props => {
-  const {
-    cancelDeleteTrack,
-    dragOverActive,
-    errorAudio,
-    errorTrackTitle,
-    index,
-    isDragOrigin,
-    handleChange,
-    handleDeleteTrack,
-    handleDragStart,
-    handleDragEnter,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-    handleDragEnd,
-    handleMoveTrack,
-    trackId,
-    trackTitle,
-    trackListLength,
-    trackMarkedForDeletion,
-    status
-  } = props;
+const Track = ({
+  cancelDeleteTrack,
+  dragOriginIsInactive,
+  errorTrackTitle,
+  handleChange,
+  handleDeleteTrack,
+  handleDragStart,
+  handleDragEnter,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop,
+  handleDragEnd,
+  handleMoveTrack,
+  index,
+  isActiveDragOver,
+  isDragging,
+  isDragOrigin,
+  trackId,
+  trackTitle,
+  trackListLength,
+  trackMarkedForDeletion,
+  status
+}) => {
+  const trackRef = useRef();
 
-  const hasError = status === "error" || errorAudio;
+  const dragOverStyle = isActiveDragOver
+    ? "var(--chakra-colors-purple-300) dashed 2px"
+    : isDragging
+    ? "var(--chakra-colors-gray-500) dashed 2px"
+    : "transparent dashed 2px";
 
   return (
     <Flex
       bg={useColorModeValue("white", "gray.800")}
       borderWidth="1px"
+      id={trackId}
       marginBottom={6}
       padding={4}
       rounded="md"
       boxShadow="lg"
-      draggable="true"
-      onDragStart={() => handleDragStart(index)}
-      onDragEnter={() => handleDragEnter(index)}
+      onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      onDrop={() => handleDrop(index)}
+      onDrop={handleDrop}
       onDragEnd={handleDragEnd}
       opacity={isDragOrigin ? 0.33 : 1}
-      onTouchStart={() => {
-        return;
+      onTouchStart={() => {}}
+      outline={dragOverStyle}
+      ref={el => (trackRef.current = el)}
+      sx={{
+        transition: "outline 150ms",
+        "> *": { ...(isActiveDragOver || (dragOriginIsInactive && isDragOrigin) ? { pointerEvents: "none" } : {}) }
       }}
-      outline={
-        dragOverActive && !isDragOrigin ? "var(--chakra-colors-purple-300) dashed 2px" : "transparent dashed 2px"
-      }
-      sx={{ transition: "outline 250ms", "> *": { ...(dragOverActive ? { pointerEvents: "none" } : {}) } }}
     >
       <VStack spacing={2} alignItems="center" justifyContent="space-between" mr={4}>
         <Center as="label" color="gray.500" fontWeight="500" htmlFor={`trackTitle.${index}`} fontSize="1.5rem">
@@ -81,6 +81,8 @@ const Track = props => {
         <IconButton
           icon={<DragHandleIcon />}
           cursor="grab"
+          draggable="true"
+          onDragStart={handleDragStart(trackId, trackRef)}
           size="md"
           variant="ghost"
           _active={{ cursor: "grabbing" }}
@@ -93,6 +95,7 @@ const Track = props => {
         </FormLabel>
         <Input
           size="lg"
+          isInvalid={errorTrackTitle}
           isRequired
           name="trackTitle"
           onChange={e => handleChange(e, trackId)}

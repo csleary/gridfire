@@ -1,7 +1,8 @@
-import { CircularProgress, CircularProgressLabel, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
+import { Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
 import { cancelUpload, uploadAudio } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo } from "state/toast";
+import ProgressIndicator from "./progressIndicator";
 import PropTypes from "prop-types";
 import Icon from "components/icon";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
@@ -76,8 +77,6 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
     onDrop: onDropAudio
   });
 
-  const progressLabelAAC = useColorModeValue("yellow.400", "yellow.300");
-
   return (
     <Wrap
       backgroundColor={useColorModeValue("gray.50", "gray.900")}
@@ -102,86 +101,69 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
     >
       <input {...getInputProps()} />
       <WrapItem>
-        <CircularProgress
-          trackColor={useColorModeValue("gray.300", "gray.600")}
+        <ProgressIndicator
           color="blue.200"
-          size="4rem"
-          thickness=".75rem"
-          value={isStored ? 100 : audioUploadProgress[trackId]}
+          labelColor="blue.200"
+          isStored={isStored}
+          progress={audioUploadProgress[trackId]}
+          stageHasStarted={audioUploadProgress[trackId] > 0}
+          stageName="upload"
+          tooltipText="Audio file upload progress."
+          trackId={trackId}
         >
-          <CircularProgressLabel
-            color={isStored || audioUploadProgress[trackId] > 0 ? "blue.200" : "gray.600"}
-            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          >
-            {audioUploadProgress[trackId] || <Icon icon={faUpload} />}
-          </CircularProgressLabel>
-        </CircularProgress>
+          <Icon icon={faUpload} />
+        </ProgressIndicator>
       </WrapItem>
       <WrapItem>
-        <CircularProgress
-          trackColor={useColorModeValue("gray.300", "gray.600")}
+        <ProgressIndicator
           color="purple.200"
-          size="4rem"
-          thickness=".75rem"
-          value={isStored ? 100 : encodingProgressFLAC[trackId]}
-        >
-          <CircularProgressLabel
-            color={isStored || encodingProgressFLAC[trackId] > 0 ? "purple.300" : "gray.600"}
-            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          >
-            {encodingProgressFLAC[trackId] || "FLAC"}
-          </CircularProgressLabel>
-        </CircularProgress>
+          labelColor={useColorModeValue("purple.300", "purple.200")}
+          isStored={isStored}
+          progress={encodingProgressFLAC[trackId]}
+          stageHasStarted={encodingProgressFLAC[trackId] > 0}
+          stageName="flac"
+          tooltipText="Lossless FLAC encoding progress."
+          trackId={trackId}
+        />
       </WrapItem>
       <WrapItem>
-        <CircularProgress
-          trackColor={useColorModeValue("gray.300", "gray.600")}
+        <ProgressIndicator
           color="green.200"
-          size="4rem"
-          thickness=".75rem"
-          value={isStored ? 100 : storingProgressFLAC[trackId]}
-        >
-          <CircularProgressLabel
-            color={isStored || storingProgressFLAC[trackId] > 0 ? "green.300" : "gray.600"}
-            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          >
-            IPFS
-          </CircularProgressLabel>
-        </CircularProgress>
+          labelColor={useColorModeValue("green.300", "green.200")}
+          isStored={isStored}
+          progress={storingProgressFLAC[trackId]}
+          stageHasStarted={storingProgressFLAC[trackId] > 0}
+          stageName="ipfs"
+          tooltipText="IPFS storing status. Note: this is via a local node. It will take longer to propagate across nodes."
+          trackId={trackId}
+        />
       </WrapItem>
       <WrapItem>
-        <CircularProgress
-          trackColor={useColorModeValue("gray.300", "gray.600")}
+        <ProgressIndicator
           color={useColorModeValue("yellow.300", "yellow.200")}
-          size="4rem"
-          thickness=".75rem"
-          value={isStored || transcodingCompleteAAC[trackId] ? 100 : 0}
-          isIndeterminate={transcodingStartedAAC[trackId] && !transcodingCompleteAAC[trackId]}
+          labelColor={useColorModeValue("yellow.500", "yellow.300")}
+          isStored={isStored}
+          progress={transcodingCompleteAAC[trackId] ? 100 : 0}
+          stageHasStarted={transcodingStartedAAC[trackId]}
+          stageName="aac"
+          tooltipText="AAC streaming audio encoding progress."
+          trackId={trackId}
         >
-          <CircularProgressLabel
-            color={isStored || transcodingStartedAAC[trackId] ? progressLabelAAC : "gray.600"}
-            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          >
-            AAC
-          </CircularProgressLabel>
-        </CircularProgress>
+          AAC
+        </ProgressIndicator>
       </WrapItem>
       <WrapItem>
-        <CircularProgress
-          trackColor={useColorModeValue("gray.300", "gray.600")}
-          color="orange.200"
-          size="4rem"
-          thickness=".75rem"
-          value={isStored || transcodingCompleteMP3[trackId] ? 100 : 0}
-          isIndeterminate={transcodingStartedMP3[trackId] && !transcodingCompleteMP3[trackId]}
+        <ProgressIndicator
+          color={useColorModeValue("orange.400", "orange.200")}
+          isStored={isStored}
+          progress={transcodingCompleteMP3[trackId] ? 100 : 0}
+          stageHasStarted={transcodingStartedMP3[trackId]}
+          stageName="mp3"
+          tooltipText="MP3 download encoding progress."
+          trackId={trackId}
         >
-          <CircularProgressLabel
-            color={isStored || transcodingStartedMP3[trackId] ? "orange.300" : "gray.600"}
-            transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          >
-            MP3
-          </CircularProgressLabel>
-        </CircularProgress>
+          MP3
+        </ProgressIndicator>
       </WrapItem>
     </Wrap>
   );

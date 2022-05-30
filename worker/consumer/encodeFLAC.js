@@ -77,13 +77,15 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
   } catch (error) {
+    console.log(error);
+
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
       { "trackList.$.status": "error", "trackList.$.dateUpdated": Date.now() }
     ).exec();
 
-    console.log(error);
-    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "error", userId });
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "error", userId });
+    postMessage({ type: "pipelineError", stage: "flac", trackId, userId });
     throw error;
   }
 };

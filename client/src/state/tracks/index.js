@@ -10,6 +10,7 @@ const trackSlice = createSlice({
     audioUploadProgress: {},
     encodingProgressFLAC: {},
     encodingCompleteFLAC: {},
+    pipelineErrors: {},
     storingProgressFLAC: {},
     transcodingStartedAAC: {},
     transcodingCompleteAAC: {},
@@ -29,42 +30,42 @@ const trackSlice = createSlice({
 
       state.uploadProgress = { ...state.audioUploadProgress, [trackId]: 0 };
     },
-
     setUploadProgress(state, action) {
       const { progress, trackId } = action.payload;
       state.audioUploadProgress = { ...state.audioUploadProgress, [trackId]: progress };
     },
-
     setEncodingProgressFLAC(state, action) {
       const { progress, trackId } = action.payload;
       state.encodingProgressFLAC = { ...state.encodingProgressFLAC, [trackId]: progress };
     },
+    setPipelineError(state, action) {
+      const { message, stage, trackId } = action.payload;
 
+      state.pipelineErrors = {
+        ...state.pipelineErrors,
+        [trackId]: { ...state.pipelineErrors[trackId], [stage]: message || "" }
+      };
+    },
     setStoringProgressFLAC(state, action) {
       const { progress, trackId } = action.payload;
       state.storingProgressFLAC = { ...state.storingProgressFLAC, [trackId]: progress };
     },
-
     setTranscodingStartedAAC(state, action) {
       const { trackId } = action.payload;
       state.transcodingStartedAAC = { ...state.transcodingStartedAAC, [trackId]: true };
     },
-
     setTranscodingCompleteAAC(state, action) {
       const { trackId } = action.payload;
       state.transcodingCompleteAAC = { ...state.transcodingCompleteAAC, [trackId]: true };
     },
-
     setTranscodingStartedMP3(state, action) {
       const { trackId } = action.payload;
       state.transcodingStartedMP3 = { ...state.transcodingStartedMP3, [trackId]: true };
     },
-
     setTranscodingCompleteMP3(state, action) {
       const { trackId } = action.payload;
       state.transcodingCompleteMP3 = { ...state.transcodingCompleteMP3, [trackId]: true };
     },
-
     setTrackIdsForDeletion(state, action) {
       const { trackId, isDeleting } = action.payload;
       state.trackIdsForDeletion = { ...state.trackIdsForDeletion, [trackId]: isDeleting };
@@ -128,6 +129,7 @@ export const {
   setDeletingComplete,
   setDeletingStart,
   setEncodingProgressFLAC,
+  setPipelineError,
   setStoringProgressFLAC,
   setTranscodingStartedAAC,
   setTranscodingCompleteAAC,

@@ -31,7 +31,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
   let flacPath, mp4Path, mp4PathEnc, playlistDir;
 
   try {
-    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "transcoding", userId });
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "transcoding", userId });
     postMessage({ type: "transcodingStartedAAC", trackId, userId });
 
     await Release.findOneAndUpdate(
@@ -107,17 +107,19 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     ).exec();
 
     postMessage({ type: "transcodingCompleteAAC", trackId, trackName, userId });
-    await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir });
   } catch (error) {
+    console.log(error);
+
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
       { "trackList.$.status": "error" }
     ).exec();
 
-    console.log(error);
-    postMessage({ type: "updateTrackStatus", releaseId, trackId, status: "error", userId });
-    await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir });
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "error", userId });
+    postMessage({ type: "pipelineError", stage: "aac", trackId, userId });
     throw error;
+  } finally {
+    await removeTempFiles({ flacPath, mp4Path, mp4PathEnc, playlistDir }).catch(console.log);
   }
 };
 

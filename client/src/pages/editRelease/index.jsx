@@ -227,7 +227,7 @@ const EditRelease = () => {
             </TabPanel>
             <TabPanel p={0}>
               <Heading as="h3">Track List</Heading>
-              <Text mb={4}>Upload formats supported: flac, aiff, wav.</Text>
+              <Text mb={4}>Upload formats supported: flac, aiff, wav. Drag and drop to rearrange tracks.</Text>
               <TrackList
                 errors={{ errors: errors.trackList }}
                 handleChange={handleChange}

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { clearResults, searchReleases } from "state/search";
-import { faBackspace, faCog, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
 import Icon from "components/icon";
@@ -22,6 +22,7 @@ import {
   ModalContent,
   ModalBody,
   ModalOverlay,
+  Spinner,
   Text,
   VStack,
   Image
@@ -76,7 +77,7 @@ const SearchBar = () => {
         <ModalContent overflow="none" rounded="md" p={4}>
           <InputGroup size="lg">
             <InputLeftElement
-              children={<Icon icon={isSearching ? faCog : faSearch} />}
+              children={isSearching ? <Spinner /> : <Icon icon={faSearch} />}
               color="gray.400"
               pointerEvents="none"
             />

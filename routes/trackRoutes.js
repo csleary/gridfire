@@ -208,7 +208,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         track = release.trackList.id(trackId);
       }
 
-      sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploading" });
+      sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploading" });
 
       try {
         const encryptedStream = encryptStream(fileStream, key);
@@ -216,7 +216,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         const cid = ipfsFile.cid.toString();
         track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
         await release.save();
-        sse.send(userId, { type: "updateTrackStatus", releaseId, trackId, status: "uploaded" });
+        sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploaded" });
 
         if ([cid, releaseId, trackId, trackName, userId].includes(undefined)) {
           throw new Error("Job parameters missing.");
