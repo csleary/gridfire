@@ -17,6 +17,7 @@ import { NavLink } from "react-router-dom";
 import { ChevronDownIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import {
   faArchive,
+  faFireAlt,
   faHeadphonesAlt,
   faHeart,
   faMagic,
@@ -26,11 +27,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import BasketButton from "./basketButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Icon from "components/icon";
 import SearchBar from "../searchBar";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { logOut } from "state/user";
 import { connectToWeb3 } from "state/web3";
+import { logOut } from "state/user";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
@@ -66,8 +68,17 @@ const Header = () => {
         <SearchBar />
       </WrapItem>
       <WrapItem alignItems="center">
-        <Link as={NavLink} to={"/"}>
+        <Link
+          as={NavLink}
+          to={"/"}
+          color={useColorModeValue("gray.500", "gray.400")}
+          fontStyle="italic"
+          fontWeight="500"
+          textTransform="uppercase"
+          _hover={{ color: useColorModeValue("gray.800", "gray.200"), textDecoration: "none" }}
+        >
           GridFire
+          <Icon icon={faFireAlt} ml="3px" />
         </Link>
       </WrapItem>
       <Spacer />
