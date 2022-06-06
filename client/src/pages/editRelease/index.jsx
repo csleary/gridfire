@@ -26,8 +26,9 @@ import Artwork from "./artwork";
 import Field from "components/field";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
+import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
-import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchRelease } from "state/releases";
 import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
@@ -86,7 +87,7 @@ const EditRelease = () => {
         const trackFieldName = `trackList.${trackIndex}.${name}`;
         setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest); // eslint-disable-line
 
-        return setValues(current => ({
+        return void setValues(current => ({
           ...current,
           trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
         }));
@@ -119,8 +120,8 @@ const EditRelease = () => {
     });
   };
 
-  const { info, credits, catNumber, pubYear, pubName, recYear, recName, tags } = values;
-  const advancedFieldValues = { info, credits, catNumber, pubYear, pubName, recYear, recName, tags };
+  const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = values;
+  const advancedFieldValues = { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags };
 
   return (
     <>
@@ -138,6 +139,17 @@ const EditRelease = () => {
             : isEditing
             ? "Editing Release"
             : "Add Release"}
+          <Button
+            colorScheme={useColorModeValue("yellow", "purple")}
+            leftIcon={<Icon icon={faLink} />}
+            onClick={() => navigate(`/release/${releaseId}`)}
+            size="sm"
+            title="Visit artist page."
+            variant="ghost"
+            ml={2}
+          >
+            Visit page
+          </Button>
         </Heading>
         <Tabs colorScheme={useColorModeValue("yellow", "purple")} isFitted mb={8}>
           <TabList mb={8}>
@@ -145,6 +157,7 @@ const EditRelease = () => {
             <Tab>Artwork</Tab>
             <Tab>Tracks</Tab>
             <Tab>Optional Info</Tab>
+            <Tab>IPFS Storage</Tab>
           </TabList>
           <TabPanels>
             <TabPanel p={0}>
@@ -227,7 +240,14 @@ const EditRelease = () => {
             </TabPanel>
             <TabPanel p={0}>
               <Heading as="h3">Track List</Heading>
-              <Text mb={4}>Upload formats supported: flac, aiff, wav. Drag and drop to rearrange tracks.</Text>
+              <Text mb={4}>
+                Upload formats supported: flac, aiff, wav.
+                <br />
+                Click or drop a file into the dashed box to upload.
+                <br />
+                Drag and drop to rearrange tracks.
+                <br />
+              </Text>
               <TrackList
                 errors={{ errors: errors.trackList }}
                 handleChange={handleChange}
@@ -238,6 +258,10 @@ const EditRelease = () => {
             <TabPanel p={0}>
               <Heading as="h3">Optional Info</Heading>
               <AdvancedFields errors={errors} handleChange={handleChange} values={advancedFieldValues} />
+            </TabPanel>
+            <TabPanel p={0}>
+              <Heading as="h3">IPFS Storage</Heading>
+              <IpfsStorage />
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -56,6 +56,7 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
     },
     []
   );
+
   const handleDragEnter = useCallback(
     e => {
       if (dragOriginId == null) {

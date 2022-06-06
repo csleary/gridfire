@@ -36,8 +36,8 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       file.pipe(write);
 
       write.on("finish", async () => {
-        await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
-        console.log(`[Release ${releaseId}] Artwork uploaded.`);
+        const cid = await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
+        console.log(`[${releaseId}] Artwork uploaded with CID: ${cid}.`);
       });
     });
 
@@ -59,7 +59,9 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const userId = req.user._id;
     const releaseExists = await Release.findOne({ _id: releaseId, user: userId });
     if (!releaseExists) return res.end();
+    console.log(`[${releaseId}] Deleting artwork…`);
     const updated = await deleteArtwork({ ipfs, releaseId });
+    console.log(`[${releaseId}] Artwork deleted successfully.`);
     res.send(updated);
   } catch (error) {
     res.status(400).send({ error: error.message });

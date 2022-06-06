@@ -1,13 +1,34 @@
-import { Box, Container, Fade, Flex, IconButton, Image as Img, Progress, Square, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  CircularProgress,
+  CircularProgressLabel,
+  Container,
+  Fade,
+  Flex,
+  IconButton,
+  Image as Img,
+  Progress,
+  Square,
+  Text,
+  Tooltip,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { deleteArtwork, uploadArtwork } from "state/artwork";
+import { faTimesCircle, faThumbsUp, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { memo, useEffect, useRef, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
-import { memo, useEffect, useRef, useState } from "react";
 import { CLOUD_URL } from "index";
 import Icon from "components/icon";
-import { faTimesCircle, faThumbsUp, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import mime from "mime";
 import { useDropzone } from "react-dropzone";
+
+const acceptedFileTypes = [".gif", ".jpg", ".jpeg", ".png"].reduce(
+  (prev, ext) => ({ ...prev, [mime.getType(ext)]: [...(prev[mime.getType(ext)] || []), ext] }),
+  {}
+);
 
 const Artwork = () => {
   const dispatch = useDispatch();
@@ -24,16 +45,16 @@ const Artwork = () => {
   const [coverArtPreview, setCoverArtPreview] = useState();
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
   const { cid } = artwork || {};
-  const artworkStatus = artwork?.status;
+  const isStored = artwork?.status === "stored";
 
   useEffect(() => {
-    if (artworkStatus === "stored") return setCoverArtPreview(`${CLOUD_URL}/${cid}`);
+    if (isStored) return setCoverArtPreview(`${CLOUD_URL}/${cid}`);
     setCoverArtPreview();
 
     return () => {
       if (artworkFile.current) window.URL.revokeObjectURL(artworkFile.current.preview);
     };
-  }, [artworkStatus, cid, releaseId]);
+  }, [cid, isStored, releaseId]);
 
   const onDrop = (accepted, rejected) => {
     if (rejected.length) {
@@ -68,8 +89,8 @@ const Artwork = () => {
     };
   };
 
-  const { acceptedFiles, getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
-    accept: "image/png, image/jpeg",
+  const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
+    accept: acceptedFileTypes,
     disabled: artworkUploading,
     maxSize: 1024 * 1024 * 20,
     multiple: false,
@@ -82,11 +103,15 @@ const Artwork = () => {
     event.stopPropagation();
     let prevPublished = "";
     if (published) prevPublished = " As your release was previously published, it has also been taken offline.";
-    dispatch(toastWarning({ message: "Deleting artwork…", title: "Deletion" }));
+    dispatch(toastWarning({ message: "Deleting artwork…", title: "Delete" }));
     await dispatch(deleteArtwork(releaseId));
     setCoverArtPreview();
-    dispatch(toastSuccess({ message: `Artwork deleted.${prevPublished}`, title: "Deletion" }));
+    dispatch(toastSuccess({ message: `Artwork deleted.${prevPublished}`, title: "Done!" }));
   };
+
+  const trackColor = useColorModeValue("gray.300", "gray.600");
+  const toolTipBg = useColorModeValue("gray.200", "gray.800");
+  const toolTipColor = useColorModeValue("gray.800", "gray.100");
 
   return (
     <Container maxW="container.sm" p={0}>
@@ -94,8 +119,8 @@ const Artwork = () => {
         {...getRootProps()}
         borderWidth="2px"
         borderStyle="dashed"
-        borderColor="gray.400"
-        bg="white"
+        borderColor={useColorModeValue("gray.400", isDragAccept ? "purple.400" : isDragReject ? "red" : "gray.600")}
+        bg={useColorModeValue("white", "gray.800")}
         fontWeight={500}
         minH={48}
         overflow="hidden"
@@ -104,16 +129,7 @@ const Artwork = () => {
         rounded="md"
         transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
         _after={{ content: '""', paddingBottom: "100%" }}
-        _hover={{ cursor: "pointer" }}
-        sx={
-          isDragActive && !isDragReject
-            ? { borderColor: "blue.100" }
-            : isDragReject
-            ? { borderColor: "red.400" }
-            : artworkUploading
-            ? { borderColor: "blue.100" }
-            : null
-        }
+        _hover={{ bg: useColorModeValue("gray.100", "black"), cursor: "pointer" }}
       >
         <input {...getInputProps()} />
         {coverArtPreview ? (
@@ -139,21 +155,30 @@ const Artwork = () => {
           background={artworkUploading ? "rgb(0 0 0 / 75%)" : "rgb(0 0 0 / 0%)"}
           position="absolute"
         >
-          <Flex height="100%" alignItems="stretch" flexDirection="column" justifyContent="center" padding={8}>
+          <Center height="100%" padding={8}>
             {artworkUploading ? (
-              <>
-                <Text textAlign="center" mb={4} color="blue.100">
-                  <Icon fixedWidth icon={faUpload} mr={2} />
-                  Uploading &lsquo;{acceptedFiles[0]?.path}&rsquo;: {artworkUploadProgress}%
-                </Text>
-                <Progress value={artworkUploadProgress} variant="uploading" />
-              </>
+              <CircularProgress
+                trackColor={trackColor}
+                color="blue.200"
+                size="4rem"
+                thickness=".75rem"
+                value={artworkUploadProgress}
+              >
+                <Tooltip hasArrow openDelay={500} bg={toolTipBg} color={toolTipColor}>
+                  <CircularProgressLabel
+                    color={artworkUploading ? "blue.200" : "gray.600"}
+                    transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+                  >
+                    {artworkUploadProgress || 0}%
+                  </CircularProgressLabel>
+                </Tooltip>
+              </CircularProgress>
             ) : !coverArtPreview && isDragReject ? (
               <Text textAlign="center">
                 <Icon icon={faTimesCircle} mr={2} />
                 Sorry, we don&lsquo;t accept that file type. Please ensure it is a png or jpg image file.
               </Text>
-            ) : !coverArtPreview && isDragActive ? (
+            ) : !coverArtPreview && isDragAccept ? (
               <Text textAlign="center">
                 <Icon icon={faThumbsUp} mr={2} />
                 Drop to upload!
@@ -165,10 +190,11 @@ const Artwork = () => {
                 (will be resized and cropped square).
               </Text>
             ) : null}
-          </Flex>
+          </Center>
         </Box>
         {coverArtPreview ? (
           <IconButton
+            colorScheme="red"
             icon={<Icon icon={faTrashAlt} />}
             onClick={handleDeleteArtwork}
             title="Delete the artwork (will take your track offline)."

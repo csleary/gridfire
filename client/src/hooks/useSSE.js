@@ -42,6 +42,7 @@ const useSSE = () => {
 
     const handleArtworkUploaded = () => {
       dispatch(setArtworkUploading(false));
+      dispatch(toastSuccess({ message: "Artwork uploaded!", title: "Done!" }));
     };
 
     const handleEncodingProgressFLAC = event => {

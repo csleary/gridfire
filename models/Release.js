@@ -37,7 +37,11 @@ const releaseSchema = new Schema(
     artwork: {
       dateCreated: { type: Date },
       dateUpdated: { type: Date },
-      status: { type: String, default: "pending" },
+      status: {
+        type: String,
+        enum: ["pending", "storing", "stored"],
+        default: "pending"
+      },
       cid: { type: String }
     },
     releaseDate: { type: Date },

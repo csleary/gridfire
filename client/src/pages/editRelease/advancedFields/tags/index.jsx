@@ -1,4 +1,15 @@
-import { Button, Flex, Tag, TagCloseButton, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  FormHelperText,
+  Tag,
+  TagCloseButton,
+  Text,
+  Wrap,
+  WrapItem
+} from "@chakra-ui/react";
 import Card from "components/card";
 import Field from "components/field";
 import PropTypes from "prop-types";
@@ -50,67 +61,61 @@ const Tags = ({ handleChange, tags }) => {
 
   return (
     <Card as="section" p={4}>
-      <Text
-        as="label"
-        display="inline-block"
-        htmlFor="tags"
-        color="gray.500"
-        fontWeight={500}
-        justifyContent="space-between"
-        mb={1}
-      >
-        Add Tags
-      </Text>
-      <Text mb={1}>
-        {tagsInput.length
-          ? `Hit return to tag your release with \u2018${tagsInput}\u2019.`
-          : "Enter a tag for your release below:"}
-      </Text>
-      <Field
-        error={tagsError}
-        info={
-          <>
-            e.g. Genres, styles, prominent instruments, or guest artists, remixers, conductors etc.
-            <br />
-            {NUM_MAX_TAGS} tag max, {NUM_MAX_CHARS} characters per tag.
-          </>
-        }
-        mb={2}
-        name="tags"
-        onChange={handleTagsInput}
-        onKeyPress={handleKeyPress}
-        value={tagsInput}
-      />
-      {tags?.length ? (
-        <Flex as="label" htmlFor="tags" justifyContent="space-between" mb={4}>
-          <Text>Tags set so far…</Text>
-          <Button
-            colorScheme="red"
-            size="xs"
-            isDisabled={!tags.length}
-            onClick={handleClearTags}
-            title={"Remove all currently set tags."}
-            variant="ghost"
-            ml={2}
-          >
-            Clear All
-          </Button>
-        </Flex>
-      ) : (
-        <Text>
-          No tags currently set for this release. We strongly recommend setting some tags as they help with searching.
-        </Text>
-      )}
-      <Wrap role="button" tabIndex="-1">
-        {tags?.map((tag, index) => (
-          <WrapItem key={keys[index]}>
-            <Tag whiteSpace="nowrap">
-              {tag}
-              <TagCloseButton onClick={() => handleRemoveTag(index)} title={`Click to delete \u2018${tag}\u2019.`} />
-            </Tag>
-          </WrapItem>
-        ))}
-      </Wrap>
+      <FormControl>
+        <FormLabel htmlFor="tags" color="gray.500" fontWeight={500}>
+          Add Tags
+        </FormLabel>
+        <FormHelperText mb={1}>
+          {tagsInput.length
+            ? `Hit return to tag your release with \u2018${tagsInput}\u2019.`
+            : "Enter a tag for your release below:"}
+        </FormHelperText>
+        <Field
+          error={tagsError}
+          info={
+            <>
+              e.g. Genres, styles, prominent instruments, or guest artists, remixers, conductors etc.
+              <br />
+              {NUM_MAX_TAGS} tag max, {NUM_MAX_CHARS} characters per tag.
+            </>
+          }
+          mb={2}
+          name="tags"
+          onChange={handleTagsInput}
+          onKeyPress={handleKeyPress}
+          value={tagsInput}
+        />
+        {tags?.length ? (
+          <Flex justifyContent="space-between" mb={4}>
+            <Text>Tags set so far…</Text>
+            <Button
+              colorScheme="red"
+              size="xs"
+              isDisabled={!tags.length}
+              onClick={handleClearTags}
+              title={"Remove all currently set tags."}
+              variant="ghost"
+              ml={2}
+            >
+              Clear All
+            </Button>
+          </Flex>
+        ) : (
+          <Text>
+            No tags currently set for this release. We strongly recommend setting some tags as they help with searching.
+          </Text>
+        )}
+        <Wrap role="button" tabIndex="-1">
+          {tags?.map((tag, index) => (
+            <WrapItem key={keys[index]}>
+              <Tag whiteSpace="nowrap">
+                {tag}
+                <TagCloseButton onClick={() => handleRemoveTag(index)} title={`Click to delete \u2018${tag}\u2019.`} />
+              </Tag>
+            </WrapItem>
+          ))}
+        </Wrap>
+      </FormControl>
     </Card>
   );
 };

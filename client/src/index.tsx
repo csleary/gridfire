@@ -5,6 +5,7 @@ import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { createStandaloneToast } from "@chakra-ui/toast";
 import { ethers } from "ethers";
 import rootReducer from "state";
 import theme from "./theme";
@@ -22,6 +23,7 @@ const provider = ethers.getDefaultProvider(REACT_APP_NETWORK_URL);
 const Web3Context = React.createContext(provider);
 const container = document.getElementById("root")!;
 const root = createRoot(container);
+const { ToastContainer } = createStandaloneToast();
 
 root.render(
   <Provider store={store}>
@@ -29,6 +31,7 @@ root.render(
       <ChakraProvider theme={theme}>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <App />
+        <ToastContainer />
       </ChakraProvider>
     </Web3Context.Provider>
   </Provider>

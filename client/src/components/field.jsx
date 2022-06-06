@@ -1,14 +1,14 @@
-import { Alert, AlertIcon, Box, Input, Text, Textarea } from "@chakra-ui/react";
+import { Alert, AlertIcon, FormControl, FormLabel, FormHelperText, Input, Textarea } from "@chakra-ui/react";
 
 const Field = ({ component, error, errors = {}, info, label, mb = 6, name, onChange, value, values = {}, ...rest }) => (
-  <Box as="fieldset" mb={mb}>
-    <Box as="label" htmlFor={name} color="gray.500" display="inline-block" fontWeight={500} mb={1}>
+  <FormControl as="fieldset" mb={mb}>
+    <FormLabel htmlFor={name} color="gray.500" fontWeight={500} mb={1}>
       {label}
-    </Box>
+    </FormLabel>
     {component === "textarea" ? (
-      <Textarea component="textarea" name={name} onChange={onChange} value={value ?? values[name] ?? ""} mb={2} />
+      <Textarea id={name} name={name} onChange={onChange} value={value ?? values[name] ?? ""} />
     ) : (
-      <Input name={name} onChange={onChange} value={value ?? values[name] ?? ""} {...rest} mb={2} />
+      <Input id={name} name={name} onChange={onChange} value={value ?? values[name] ?? ""} {...rest} />
     )}
     {error || errors[name] ? (
       <Alert status="error">
@@ -16,11 +16,9 @@ const Field = ({ component, error, errors = {}, info, label, mb = 6, name, onCha
         {error ?? errors[name]}
       </Alert>
     ) : typeof info !== "undefined" ? (
-      <Text color="gray.500" fontSize="sm">
-        {info}
-      </Text>
+      <FormHelperText>{info}</FormHelperText>
     ) : null}
-  </Box>
+  </FormControl>
 );
 
 export default Field;

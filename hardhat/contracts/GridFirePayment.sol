@@ -5,7 +5,7 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract GridFirePayment is Ownable {
-    uint256 private feePercent = 5;
+    uint256 private serviceFee = 50;
     mapping(address => uint256) balances;
 
     struct BasketItem {
@@ -51,8 +51,8 @@ contract GridFirePayment is Ownable {
             uint256 amountPaid = basket[i].amountPaid;
             string calldata id = basket[i].id;
             total += amountPaid;
-            (uint256 artistShare, uint256 serviceFee) = creditBalances(artist, amountPaid);
-            emit Purchase(msg.sender, artist, id, artistShare, serviceFee);
+            (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
+            emit Purchase(msg.sender, artist, id, artistShare, platformShare);
         }
 
         dai.transferFrom(msg.sender, address(this), total);
@@ -67,9 +67,9 @@ contract GridFirePayment is Ownable {
         emit Claim(msg.sender, amount);
     }
 
-    function setServiceFee(uint256 newFee) public onlyOwner {
-        require(newFee < 100);
-        feePercent = newFee;
+    function setServiceFee(uint256 newServiceFee) public onlyOwner {
+        require(newServiceFee < 1000);
+        serviceFee = newServiceFee;
     }
 
     function withdraw() public onlyOwner {
@@ -81,26 +81,26 @@ contract GridFirePayment is Ownable {
     }
 
     function getServiceFee() public view returns (uint256) {
-        return feePercent;
+        return serviceFee;
     }
 
     function creditBalances(address artist, uint256 artistShare) private returns (uint256, uint256) {
-        uint256 serviceFee = 0;
+        uint256 platformShare = 0;
 
         if (artistShare == 0) {
-            return (artistShare, serviceFee);
+            return (artistShare, platformShare);
         }
 
-        if (feePercent == 0) {
+        if (serviceFee == 0) {
             balances[artist] += artistShare;
         } else {
-            serviceFee = (artistShare * feePercent) / 100;
-            balances[owner()] += serviceFee;
-            artistShare -= serviceFee;
+            platformShare = (artistShare * serviceFee) / 1000;
+            balances[owner()] += platformShare;
+            artistShare -= platformShare;
             balances[artist] += artistShare;
         }
 
-        return (artistShare, serviceFee);
+        return (artistShare, platformShare);
     }
 
     function transferPayment(
@@ -108,8 +108,8 @@ contract GridFirePayment is Ownable {
         string calldata id,
         uint256 amountPaid
     ) private {
-        (uint256 artistShare, uint256 serviceFee) = creditBalances(artist, amountPaid);
+        (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
         dai.transferFrom(msg.sender, address(this), amountPaid);
-        emit Purchase(msg.sender, artist, id, artistShare, serviceFee);
+        emit Purchase(msg.sender, artist, id, artistShare, platformShare);
     }
 }

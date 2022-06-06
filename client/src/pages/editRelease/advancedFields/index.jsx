@@ -7,13 +7,11 @@ import { memo } from "react";
 const AdvancedFields = ({ errors, handleChange, values }) => (
   <Flex as="section">
     <Box flex="1 1 50%" mr={12}>
-      <Box as="label" htmlFor="info" color="gray.500" display="block" fontWeight={500} mb={1}>
-        Release Info
-      </Box>
       <Field
         component="textarea"
         errors={errors}
         info="Notable release information, e.g. press release copy, review quotes, equipment, concepts."
+        label="Release Info"
         name="info"
         onChange={handleChange}
         values={values}
@@ -27,7 +25,7 @@ const AdvancedFields = ({ errors, handleChange, values }) => (
         onChange={handleChange}
         values={values}
       />
-      <Field label="Record Label" name="recordLabel" onChange={handleChange} value={values.recordLabel} />
+      <Field errors={errors} label="Record Label" name="recordLabel" onChange={handleChange} values={values} />
       <Field
         errors={errors}
         info="Your own release identifier, if you have one."

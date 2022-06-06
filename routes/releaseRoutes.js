@@ -80,6 +80,24 @@ router.get("/:releaseId", async (req, res) => {
   }
 });
 
+router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
+  try {
+    const { releaseId } = req.params;
+    const user = req.user._id;
+
+    const release = await Release.findOne(
+      { _id: releaseId, user },
+      { artwork: 1, releaseTitle: 1, "trackList._id": 1, "trackList.cids": 1, "trackList.trackTitle": 1 }
+    ).exec();
+
+    if (!release) return res.sendStatus(404);
+    res.json(release.toJSON({ versionKey: false }));
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message || error.toString() });
+  }
+});
+
 router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
   try {
     const buyer = req.user._id;

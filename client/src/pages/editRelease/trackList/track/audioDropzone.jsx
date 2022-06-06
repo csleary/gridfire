@@ -6,8 +6,14 @@ import ProgressIndicator from "./progressIndicator";
 import PropTypes from "prop-types";
 import Icon from "components/icon";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import mime from "mime";
 import { updateTrackStatus } from "state/releases";
 import { useDropzone } from "react-dropzone";
+
+const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce(
+  (prev, ext) => ({ ...prev, [mime.getType(ext)]: [...(prev[mime.getType(ext)] || []), ext] }),
+  {}
+);
 
 const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => {
   const dispatch = useDispatch();
@@ -60,16 +66,7 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
   };
 
   const { getRootProps, getInputProps, isDragAccept, isDragActive, isDragReject } = useDropzone({
-    accept: [
-      "audio/aiff",
-      "audio/x-aiff",
-      "audio/flac",
-      "audio/x-flac",
-      "audio/wav",
-      "audio/wave",
-      "audio/vnd.wave",
-      "audio/x-wave"
-    ],
+    accept: acceptedFileTypes,
     disabled: isTranscoding || isEncoding,
     multiple: false,
     noDragEventsBubbling: true,
@@ -80,7 +77,7 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
   return (
     <Wrap
       backgroundColor={useColorModeValue("gray.50", "gray.900")}
-      borderColor={useColorModeValue("gray.400", "gray.600")}
+      borderColor={useColorModeValue("gray.400", isDragReject ? "red" : "gray.600")}
       borderStyle="dashed"
       borderWidth="2px"
       color="gray.500"
@@ -92,7 +89,7 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
       spacing={4}
       transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
       _hover={{
-        backgroundColor: useColorModeValue("white"),
+        backgroundColor: useColorModeValue("white", "black"),
         borderColor: useColorModeValue("green.400", "purple.300"),
         cursor: "pointer"
       }}

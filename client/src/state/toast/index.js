@@ -1,9 +1,9 @@
-import { createStandaloneToast } from "@chakra-ui/react";
-import theme from "../../theme";
+import { createStandaloneToast } from "@chakra-ui/toast";
+import theme from "theme";
 
-const toast = createStandaloneToast({
+const { toast } = createStandaloneToast({
   defaultOptions: {
-    position: "bottom-right",
+    position: "top-right",
     duration: 5000,
     isClosable: false
   },
