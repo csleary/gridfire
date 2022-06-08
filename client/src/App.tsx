@@ -1,12 +1,12 @@
 import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import React, { Suspense, lazy, useContext, useEffect, useRef } from "react";
+import React, { Suspense, lazy, useEffect, useRef } from "react";
 import { fetchDaiAllowance, setAccount, setIsConnected, setNetworkName } from "state/web3";
 import Footer from "components/footer";
 import Player from "pages/player";
 import PrivateRoute from "components/privateRoute";
-import { Web3Context } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
+import { ethers } from "ethers";
 import { fetchUser } from "state/user";
 import { useDispatch } from "react-redux";
 import useSSE from "hooks/useSSE";
@@ -25,18 +25,10 @@ declare const window: any; // eslint-disable-line
 const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
-  const provider = useContext(Web3Context);
   const ethereumRef: any = useRef();
 
   useEffect(() => {
-    const handleNetworkChanged = (network: Record<string, unknown>): void => {
-      const { chainId, name } = network;
-      dispatch(setNetworkName({ chainId, networkName: name }));
-    };
-
     dispatch(fetchUser());
-    provider.getNetwork().then(({ chainId, name }) => dispatch(setNetworkName({ chainId, networkName: name })));
-    provider.on("network", handleNetworkChanged);
 
     const handleAccountsChanged = (accounts: string[]): void => {
       const [account] = accounts;
@@ -50,12 +42,16 @@ const App: React.FC = () => {
       }
     };
 
-    const handleReload = (): void => void window.location.reload();
+    const handleReload = (chainId: string): void => {
+      window.location.reload();
+    };
 
     detectEthereumProvider().then((ethereum: any) => {
       ethereumRef.current = ethereum;
       ethereumRef.current.on("accountsChanged", handleAccountsChanged);
       ethereumRef.current.on("chainChanged", handleReload);
+      const provider = new ethers.providers.Web3Provider(ethereumRef.current);
+      provider.getNetwork().then(network => dispatch(setNetworkName(network)));
     });
 
     return () => {
@@ -64,7 +60,7 @@ const App: React.FC = () => {
         ethereumRef.current.removeListener("chainChanged", handleReload);
       }
     };
-  }, [provider]); // eslint-disable-line
+  }, [dispatch]);
 
   return (
     <BrowserRouter>

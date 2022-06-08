@@ -5,15 +5,21 @@ require("@nomiclabs/hardhat-waffle");
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-const { ALCHEMY_API_KEY, MNEMONIC } = process.env;
+const { ALCHEMY_MAINNET_KEY, ALCHEMY_ARBITRUM_MAINNET_KEY, ALCHEMY_ARBITRUM_RINKEBY_KEY } = process.env;
 
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
+    "arb-mainnet": {
+      url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`
+    },
+    "arb-rinkeby": {
+      url: `https://arb-rinkeby.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_RINKEBY_KEY}`
+    },
     hardhat: {
       chainId: 1337,
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+        url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_MAINNET_KEY}`,
         blockNumber: 14730000
       },
       mining: {

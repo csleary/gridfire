@@ -1,9 +1,9 @@
 import { Contract, ethers, utils } from "ethers";
-import { daiAbi, daiContractAddress } from "web3/dai";
+import daiAbi from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
 import GridFirePayment from "web3/GridFirePayment.json";
 
-const { REACT_APP_CONTRACT_ADDRESS } = process.env;
+const { REACT_APP_CONTRACT_ADDRESS, REACT_APP_DAI_CONTRACT_ADDRESS: daiContractAddress } = process.env;
 
 const getProvider = async () => {
   const ethereum = await detectEthereumProvider();

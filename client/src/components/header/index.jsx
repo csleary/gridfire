@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Link,
   Menu,
@@ -21,17 +22,17 @@ import {
   faHeadphonesAlt,
   faHeart,
   faMagic,
+  faNetworkWired,
   faSignInAlt,
   faSignOutAlt,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import BasketButton from "./basketButton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Icon from "components/icon";
 import SearchBar from "../searchBar";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { connectToWeb3 } from "state/web3";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
 import { useNavigate } from "react-router-dom";
 
@@ -52,7 +53,9 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, web3 } = useSelector(state => state, shallowEqual);
   const { account: userAccount } = user;
-  const { account = "", accountShort, isConnected } = web3 || {};
+  const { account = "", accountShort, chainId, isConnected, networkName } = web3 || {};
+  const formattedNetworkName = networkName.replace("-", " ").toUpperCase();
+  const infoTextColor = useColorModeValue("gray.500", "gray.400");
 
   const handleLogout = () => {
     dispatch(logOut()).then(() => navigate("/"));
@@ -71,15 +74,21 @@ const Header = () => {
         <Link
           as={NavLink}
           to={"/"}
-          color={useColorModeValue("gray.500", "gray.400")}
+          color={infoTextColor}
           fontStyle="italic"
           fontWeight="500"
           textTransform="uppercase"
           _hover={{ color: useColorModeValue("gray.800", "gray.200"), textDecoration: "none" }}
         >
           GridFire
-          <Icon icon={faFireAlt} ml="3px" />
+          <Icon icon={faFireAlt} ml={1} />
         </Link>
+      </WrapItem>
+      <WrapItem alignItems="center">
+        <Badge colorScheme={primaryButtonColor} title={`Chain ID: ${chainId}`}>
+          <Icon icon={faNetworkWired} mr={1} />
+          {formattedNetworkName}
+        </Badge>
       </WrapItem>
       <Spacer />
       {!userAccount ? (

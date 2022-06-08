@@ -1,5 +1,3 @@
-const daiContractAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-
 const daiAbi = [
   {
     inputs: [{ internalType: "uint256", name: "chainId_", type: "uint256" }],
@@ -277,4 +275,4 @@ const daiAbi = [
   }
 ];
 
-export { daiAbi, daiContractAddress };
+export { daiAbi as default };

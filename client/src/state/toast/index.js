@@ -3,7 +3,7 @@ import theme from "theme";
 
 const { toast } = createStandaloneToast({
   defaultOptions: {
-    position: "top-right",
+    position: "top-center",
     duration: 5000,
     isClosable: false
   },

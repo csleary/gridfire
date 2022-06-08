@@ -1,4 +1,4 @@
-import { BigNumber, constants, utils } from "ethers";
+import { BigNumber, constants, ethers, utils } from "ethers";
 import { getDaiAllowance, gridFireCheckout } from "web3/contract";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
 import { createSlice } from "@reduxjs/toolkit";
@@ -66,8 +66,9 @@ const web3Slice = createSlice({
     },
 
     setNetworkName(state, action) {
-      state.networkName = action.payload.networkName;
-      state.chainId = action.payload.chainId;
+      const { chainId, name } = action.payload;
+      state.networkName = name;
+      state.chainId = chainId;
     }
   }
 });
@@ -123,6 +124,8 @@ const connectToWeb3 = () => async dispatch => {
   }
 
   try {
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const network = await provider.getNetwork();
     const accounts = await ethereum.request({ method: "eth_requestAccounts" });
     const [firstAccount] = accounts;
 
@@ -130,9 +133,10 @@ const connectToWeb3 = () => async dispatch => {
       return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
     }
 
-    dispatch(setAccount(firstAccount));
     dispatch(fetchDaiAllowance(firstAccount));
+    dispatch(setAccount(firstAccount));
     dispatch(setIsConnected(true));
+    dispatch(setNetworkName(network));
   } catch (error) {
     dispatch(toastError({ message: error.message }));
   }

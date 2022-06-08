@@ -108,8 +108,8 @@ const fetchUser = () => async dispatch => {
 const logOut = () => async dispatch => {
   try {
     await axios.get("/api/auth/logout");
-    const action = createAction("user/logOut");
-    dispatch(action());
+    const actionLogOut = createAction("user/logOut");
+    dispatch(actionLogOut());
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
   } catch (error) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));

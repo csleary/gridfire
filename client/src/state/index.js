@@ -1,7 +1,6 @@
 import artistSlice from "state/artists";
 import artworkSlice from "state/artwork";
 import { combineReducers } from "redux";
-import paymentSlice from "state/payment";
 import playerSlice from "state/player";
 import releaseSlice from "state/releases";
 import searchSlice from "state/search";
@@ -12,7 +11,6 @@ import web3Slice from "state/web3";
 const appReducer = combineReducers({
   artists: artistSlice,
   artwork: artworkSlice,
-  payment: paymentSlice,
   player: playerSlice,
   releases: releaseSlice,
   search: searchSlice,
@@ -23,7 +21,7 @@ const appReducer = combineReducers({
 
 const rootReducer = (state, action) => {
   if (action.type === "user/logOut") {
-    state = undefined;
+    state.user = undefined;
   }
 
   return appReducer(state, action);

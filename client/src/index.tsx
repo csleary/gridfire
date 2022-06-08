@@ -1,16 +1,14 @@
 import * as serviceWorker from "serviceWorker";
-import { configureStore } from "@reduxjs/toolkit";
-import App from "./App";
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
+import App from "./App";
 import { Provider } from "react-redux";
-import React from "react";
+import { configureStore } from "@reduxjs/toolkit";
 import { createRoot } from "react-dom/client";
 import { createStandaloneToast } from "@chakra-ui/toast";
-import { ethers } from "ethers";
 import rootReducer from "state";
 import theme from "./theme";
 
-const { REACT_APP_IPFS_GATEWAY, REACT_APP_NETWORK_URL } = process.env;
+const { REACT_APP_IPFS_GATEWAY } = process.env;
 const CLOUD_URL = `${REACT_APP_IPFS_GATEWAY}`;
 declare const window: any; // eslint-disable-line
 
@@ -19,21 +17,17 @@ const store = configureStore({
   middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false })
 });
 
-const provider = ethers.getDefaultProvider(REACT_APP_NETWORK_URL);
-const Web3Context = React.createContext(provider);
 const container = document.getElementById("root")!;
 const root = createRoot(container);
 const { ToastContainer } = createStandaloneToast();
 
 root.render(
   <Provider store={store}>
-    <Web3Context.Provider value={provider}>
-      <ChakraProvider theme={theme}>
-        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <App />
-        <ToastContainer />
-      </ChakraProvider>
-    </Web3Context.Provider>
+    <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <App />
+      <ToastContainer />
+    </ChakraProvider>
   </Provider>
 );
 
@@ -42,5 +36,5 @@ root.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-export { CLOUD_URL, Web3Context };
+export { CLOUD_URL };
 export type RootState = ReturnType<typeof store.getState>;
