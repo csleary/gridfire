@@ -120,7 +120,7 @@ router.get("/:trackId/stream", async (req, res) => {
     const user = req.user?._id || req.session.user;
 
     if (!release.user.equals(user)) {
-      await StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }, { new: true }).exec();
+      await StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }).exec();
     }
   } catch (error) {
     console.log(error);

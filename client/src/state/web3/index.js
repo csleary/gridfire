@@ -1,5 +1,5 @@
 import { BigNumber, constants, ethers, utils } from "ethers";
-import { getDaiAllowance, gridFireCheckout } from "web3/contract";
+import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3/contract";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchUser } from "state/user";
@@ -16,6 +16,7 @@ const web3Slice = createSlice({
     chainId: "",
     error: "",
     daiAllowance: utils.parseEther("0"),
+    daiBalance: utils.parseEther("0"),
     isAddingToBasket: false,
     isCheckingOut: false,
     isConnected: false,
@@ -43,6 +44,10 @@ const web3Slice = createSlice({
 
     setDaiAllowance(state, action) {
       state.daiAllowance = action.payload;
+    },
+
+    setDaiBalance(state, action) {
+      state.daiBalance = action.payload;
     },
 
     setError(state, action) {
@@ -114,6 +119,15 @@ const fetchDaiAllowance = account => async dispatch => {
   }
 };
 
+const fetchDaiBalance = account => async dispatch => {
+  try {
+    const currentBalance = await getDaiBalance(account);
+    dispatch(setDaiBalance(currentBalance));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const connectToWeb3 = () => async dispatch => {
   const ethereum = await detectEthereumProvider();
 
@@ -133,10 +147,13 @@ const connectToWeb3 = () => async dispatch => {
       return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
     }
 
-    dispatch(fetchDaiAllowance(firstAccount));
-    dispatch(setAccount(firstAccount));
-    dispatch(setIsConnected(true));
-    dispatch(setNetworkName(network));
+    batch(() => {
+      dispatch(fetchDaiAllowance(firstAccount));
+      dispatch(fetchDaiBalance(firstAccount));
+      dispatch(setAccount(firstAccount));
+      dispatch(setIsConnected(true));
+      dispatch(setNetworkName(network));
+    });
   } catch (error) {
     dispatch(toastError({ message: error.message }));
   }
@@ -148,6 +165,7 @@ export const {
   removeFromBasket,
   setAccount,
   setDaiAllowance,
+  setDaiBalance,
   setError,
   setIsAddingToBasket,
   setIsCheckingOut,
@@ -156,5 +174,5 @@ export const {
   setNetworkName
 } = web3Slice.actions;
 
-export { checkoutBasket, connectToWeb3, fetchDaiAllowance };
+export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance };
 export default web3Slice.reducer;

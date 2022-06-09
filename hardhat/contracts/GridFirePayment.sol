@@ -3,8 +3,11 @@ pragma solidity ^0.8.14;
 
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract GridFirePayment is Ownable {
+    using SafeERC20 for IERC20;
+
     uint256 private serviceFee = 50;
     mapping(address => uint256) balances;
 
@@ -15,8 +18,8 @@ contract GridFirePayment is Ownable {
         uint256 releasePrice;
     }
 
-    // IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F); // Mainnet
-    IERC20 dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1); // Rinkeby
+    IERC20 dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1); // Arbitrum Mainnet
+    // IERC20 dai = IERC20(0x2f3C1B6A51A469051A22986aA0dDF98466cc8D3c); // Arbitrum Rinkeby
 
     event Claim(address indexed artist, uint256 amount);
     event Checkout(address indexed buyer, uint256 amount);
@@ -56,7 +59,7 @@ contract GridFirePayment is Ownable {
             emit Purchase(msg.sender, artist, id, artistShare, platformShare);
         }
 
-        dai.transferFrom(msg.sender, address(this), total);
+        dai.safeTransferFrom(msg.sender, address(this), total);
         emit Checkout(msg.sender, total);
     }
 
@@ -64,7 +67,7 @@ contract GridFirePayment is Ownable {
         uint256 amount = balances[msg.sender];
         require(amount != 0, "Nothing to claim.");
         balances[msg.sender] = 0;
-        dai.transferFrom(address(this), msg.sender, amount);
+        dai.safeTransfer(msg.sender, amount);
         emit Claim(msg.sender, amount);
     }
 
@@ -110,7 +113,7 @@ contract GridFirePayment is Ownable {
         uint256 amountPaid
     ) private {
         (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
-        dai.transferFrom(msg.sender, address(this), amountPaid);
+        dai.safeTransferFrom(msg.sender, address(this), amountPaid);
         emit Purchase(msg.sender, artist, id, artistShare, platformShare);
     }
 }

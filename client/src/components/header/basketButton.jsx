@@ -25,6 +25,7 @@ import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { fetchDaiBalance } from "state/web3";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -33,6 +34,7 @@ const BasketButton = () => {
   const navigate = useNavigate();
 
   const {
+    account,
     basket,
     daiAllowance = 0,
     isCheckingOut,
@@ -47,6 +49,7 @@ const BasketButton = () => {
   const handleCheckout = async () => {
     try {
       await dispatch(checkoutBasket(basket));
+      dispatch(fetchDaiBalance(account));
       dispatch(emptyBasket());
       setShowModal(false);
     } catch (error) {

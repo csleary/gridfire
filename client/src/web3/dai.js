@@ -275,4 +275,4 @@ const daiAbi = [
   }
 ];
 
-export { daiAbi as default };
+export default daiAbi;

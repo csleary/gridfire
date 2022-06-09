@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { fetchDaiBalance } from "state/web3";
 import { fetchUser } from "state/user";
 import { purchaseRelease } from "web3/contract";
 import { useState } from "react";
@@ -16,7 +17,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
+  const { account, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance);
 
   const handlePayment = async () => {
@@ -26,6 +27,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       const { paymentAddress, price } = res.data;
       const transactionHash = await purchaseRelease(paymentAddress, releaseId, price);
       await axios.post(`/api/release/purchase/${releaseId}`, { transactionHash });
+      dispatch(fetchDaiBalance(account));
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
     } catch (error) {

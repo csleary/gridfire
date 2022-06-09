@@ -12,9 +12,11 @@ import {
 } from "@chakra-ui/react";
 import Card from "components/card";
 import Field from "components/field";
+import Icon from "components/icon";
 import PropTypes from "prop-types";
 import { nanoid } from "@reduxjs/toolkit";
 import { useState } from "react";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
@@ -85,11 +87,12 @@ const Tags = ({ handleChange, tags }) => {
           onKeyPress={handleKeyPress}
           value={tagsInput}
         />
-        {tags?.length ? (
+        {tags.length ? (
           <Flex justifyContent="space-between" mb={4}>
             <Text>Tags set so far…</Text>
             <Button
               colorScheme="red"
+              leftIcon={<Icon icon={faTimes} />}
               size="xs"
               isDisabled={!tags.length}
               onClick={handleClearTags}
@@ -106,7 +109,7 @@ const Tags = ({ handleChange, tags }) => {
           </Text>
         )}
         <Wrap role="button" tabIndex="-1">
-          {tags?.map((tag, index) => (
+          {tags.map((tag, index) => (
             <WrapItem key={keys[index]}>
               <Tag whiteSpace="nowrap">
                 {tag}

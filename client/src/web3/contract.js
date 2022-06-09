@@ -13,8 +13,13 @@ const getProvider = async () => {
 const claimBalance = async () => {
   const provider = await getProvider();
   const signer = provider.getSigner();
+  //
+  const daiContract = new Contract(daiContractAddress, daiAbi, provider);
+  const allowance = await daiContract.allowance(REACT_APP_CONTRACT_ADDRESS, signer.getAddress());
+  console.log(allowance);
+  //
   const gridFireContract = getGridFireContract(signer);
-  const transactionReceipt = await gridFireContract.claim();
+  const transactionReceipt = await gridFireContract.claim().catch(console.log);
   const { status } = await transactionReceipt.wait(0);
   if (status !== 1) throw new Error("Claim unsuccessful.");
 };
@@ -29,6 +34,12 @@ const getDaiAllowance = async account => {
   const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
   return daiContract.allowance(account, REACT_APP_CONTRACT_ADDRESS);
+};
+
+const getDaiBalance = async account => {
+  const provider = await getProvider();
+  const daiContract = new Contract(daiContractAddress, daiAbi, provider);
+  return daiContract.balanceOf(account);
 };
 
 const getDaiApprovalEvents = async account => {
@@ -105,6 +116,7 @@ export {
   gridFireCheckout,
   getBalance,
   getDaiAllowance,
+  getDaiBalance,
   getDaiContract,
   getDaiApprovalEvents,
   getGridFireClaimEvents,

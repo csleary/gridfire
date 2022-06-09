@@ -19,8 +19,8 @@ module.exports = {
     hardhat: {
       chainId: 1337,
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_MAINNET_KEY}`,
-        blockNumber: 14730000
+        url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`,
+        blockNumber: 14000000
       },
       mining: {
         auto: true,

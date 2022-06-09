@@ -19,7 +19,7 @@ const AdvancedFields = ({ errors, handleChange, values }) => (
       <Field
         component="textarea"
         errors={errors}
-        info="To credit writers, performers, producers, designers and engineers involved."
+        info="Writers, performers, producers, designers and engineers involved."
         label="Credits"
         name="credits"
         onChange={handleChange}

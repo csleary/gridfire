@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const saleSchema = new Schema({
   purchaseDate: Date,
   release: { type: Schema.Types.ObjectId, ref: "Release" },
-  paid: Object,
+  paid: { type: Object },
   transaction: { type: Object },
   user: { type: Schema.Types.ObjectId, ref: "User" },
   userAddress: String

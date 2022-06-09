@@ -28,11 +28,12 @@ import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
-import { faCheck, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchRelease } from "state/releases";
 import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
 import validate from "./validate";
+import { faFileAudio, faHdd, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 
 const EditRelease = () => {
   const dispatch = useDispatch();
@@ -153,11 +154,26 @@ const EditRelease = () => {
         </Heading>
         <Tabs colorScheme={useColorModeValue("yellow", "purple")} isFitted mb={8}>
           <TabList mb={8}>
-            <Tab>Essential Info</Tab>
-            <Tab>Artwork</Tab>
-            <Tab>Tracks</Tab>
-            <Tab>Optional Info</Tab>
-            <Tab>IPFS Storage</Tab>
+            <Tab alignItems="center">
+              <Icon icon={faInfo} mr={2} />
+              Essential Info
+            </Tab>
+            <Tab alignItems="center">
+              <Icon icon={faImage} mr={2} />
+              Artwork
+            </Tab>
+            <Tab alignItems="center">
+              <Icon icon={faFileAudio} mr={2} />
+              Tracks
+            </Tab>
+            <Tab alignItems="center">
+              <Icon icon={faListAlt} mr={2} />
+              Optional Info
+            </Tab>
+            <Tab alignItems="center">
+              <Icon icon={faHdd} mr={2} />
+              IPFS Storage
+            </Tab>
           </TabList>
           <TabPanels>
             <TabPanel p={0}>
@@ -221,8 +237,9 @@ const EditRelease = () => {
                   />
                   <Field
                     errors={errors}
+                    info="We'll round it to the nearest penny."
                     isRequired
-                    label="Price (USD)"
+                    label="Price (DAI/USD)"
                     name="price"
                     onBlur={formatPrice}
                     onChange={handleChange}

@@ -35,6 +35,7 @@ import { connectToWeb3 } from "state/web3";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
 import { useNavigate } from "react-router-dom";
+import { utils } from "ethers";
 
 const Header = () => {
   const { toggleColorMode } = useColorMode();
@@ -53,9 +54,10 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, web3 } = useSelector(state => state, shallowEqual);
   const { account: userAccount } = user;
-  const { account = "", accountShort, chainId, isConnected, networkName } = web3 || {};
+  const { account = "", accountShort, daiBalance, chainId, isConnected, networkName } = web3 || {};
   const formattedNetworkName = networkName.replace("-", " ").toUpperCase();
   const infoTextColor = useColorModeValue("gray.500", "gray.400");
+  const daiDisplayBalance = Number.parseFloat(utils.formatEther(daiBalance)).toFixed(2);
 
   const handleLogout = () => {
     dispatch(logOut()).then(() => navigate("/"));
@@ -71,21 +73,19 @@ const Header = () => {
         <SearchBar />
       </WrapItem>
       <WrapItem alignItems="center">
-        <Link
+        <Button
           as={NavLink}
           to={"/"}
-          color={infoTextColor}
           fontStyle="italic"
-          fontWeight="500"
+          leftIcon={<Icon icon={faFireAlt} />}
           textTransform="uppercase"
-          _hover={{ color: useColorModeValue("gray.800", "gray.200"), textDecoration: "none" }}
+          variant="ghost"
         >
           GridFire
-          <Icon icon={faFireAlt} ml={1} />
-        </Link>
+        </Button>
       </WrapItem>
       <WrapItem alignItems="center">
-        <Badge colorScheme={primaryButtonColor} title={`Chain ID: ${chainId}`}>
+        <Badge colorScheme={primaryButtonColor} fontSize="xs" title={`Chain ID: ${chainId}`}>
           <Icon icon={faNetworkWired} mr={1} />
           {formattedNetworkName}
         </Badge>
@@ -106,18 +106,29 @@ const Header = () => {
       ) : (
         <>
           {isConnected ? (
-            <WrapItem>
-              <Button
-                as={Link}
-                href={`https://etherscan.io/address/${account}`}
-                isExternal
-                leftIcon={<Icon icon={faEthereum} />}
-                title={account}
-                variant="ghost"
-              >
-                {accountShort}
-              </Button>
-            </WrapItem>
+            <>
+              <WrapItem alignItems="center">
+                <Badge
+                  colorScheme={primaryButtonColor}
+                  fontSize="md"
+                  title={`Current DAI balance: ${daiDisplayBalance}`}
+                >
+                  ◈ {daiDisplayBalance}
+                </Badge>
+              </WrapItem>
+              <WrapItem>
+                <Button
+                  as={Link}
+                  href={`https://etherscan.io/address/${account}`}
+                  isExternal
+                  leftIcon={<Icon icon={faEthereum} />}
+                  title={`Active address: ${account}`}
+                  variant="ghost"
+                >
+                  {accountShort}
+                </Button>
+              </WrapItem>
+            </>
           ) : (
             <WrapItem>
               <Button leftIcon={<Icon icon={faEthereum} />} onClick={handleConnect}>
@@ -140,26 +151,57 @@ const Header = () => {
                 Dashboard
               </MenuButton>
               <MenuList>
-                <MenuItem as={NavLink} to={"/dashboard/artists"} icon={<Icon icon={faArchive} />} sx={activeStyle}>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard/artists"}
+                  icon={<Icon icon={faArchive} fixedWidth />}
+                  sx={activeStyle}
+                >
                   Artists
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard"} end icon={<Icon icon={faHeadphonesAlt} />} sx={activeStyle}>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard"}
+                  end
+                  icon={<Icon icon={faHeadphonesAlt} fixedWidth />}
+                  sx={activeStyle}
+                >
                   Releases
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard/payment"} icon={<Icon icon={faEthereum} />} sx={activeStyle}>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard/payment"}
+                  icon={<Icon icon={faEthereum} fixedWidth />}
+                  sx={activeStyle}
+                >
                   Payment
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard/collection"} icon={<Icon icon={faArchive} />} sx={activeStyle}>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard/collection"}
+                  icon={<Icon icon={faArchive} fixedWidth />}
+                  sx={activeStyle}
+                >
                   Collection
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard/favourites"} icon={<Icon icon={faHeart} />} sx={activeStyle}>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard/favourites"}
+                  icon={<Icon icon={faHeart} fixedWidth />}
+                  sx={activeStyle}
+                >
                   Faves
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard/wishlist"} icon={<Icon icon={faMagic} />} sx={activeStyle}>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard/wishlist"}
+                  icon={<Icon icon={faMagic} fixedWidth />}
+                  sx={activeStyle}
+                >
                   List
                 </MenuItem>
                 <MenuDivider />
-                <MenuItem icon={<Icon icon={faSignOutAlt} />} onClick={handleLogout}>
+                <MenuItem icon={<Icon icon={faSignOutAlt} fixedWidth />} onClick={handleLogout}>
                   Sign Out
                 </MenuItem>
               </MenuList>

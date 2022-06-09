@@ -25,6 +25,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useEffect, useState } from "react";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
+import { fetchDaiBalance } from "state/web3";
 import Icon from "components/icon";
 
 const Balance = () => {
@@ -52,11 +53,12 @@ const Balance = () => {
       setIsClaiming(true);
       await claimBalance();
       setBalance(constants.Zero);
-      dispatch(toastSuccess({ message: "DAI balance claimed successfully", title: "Success! 🙌" }));
+      dispatch(fetchDaiBalance(account));
+      dispatch(toastSuccess({ message: "DAI balance claimed successfully", title: "Success!" }));
     } catch (error) {
       if (balance.isZero()) {
         return void dispatch(
-          toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim. 🤔" })
+          toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim." })
         );
       }
 

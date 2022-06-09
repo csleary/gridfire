@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Allowance from "./allowance";
 import Balance from "./balance";
+import Icon from "components/icon";
 import PaymentAddress from "./paymentAddress";
+import { faCheckCircle, faCoins } from "@fortawesome/free-solid-svg-icons";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 const stem = "/dashboard/payment";
 
 const Payment = () => {
@@ -26,13 +29,16 @@ const Payment = () => {
         variant="solid-rounded"
       >
         <TabList mb={16}>
-          <Tab as={Link} to={`${stem}/balance`}>
+          <Tab as={Link} to={`${stem}/balance`} alignItems="center">
+            <Icon icon={faCoins} mr={2} />
             Account Balance
           </Tab>
-          <Tab as={Link} to={`${stem}/address`}>
+          <Tab as={Link} to={`${stem}/address`} alignItems="center">
+            <Icon icon={faEthereum} mr={2} />
             Payment Address
           </Tab>
-          <Tab as={Link} to={`${stem}/approvals`}>
+          <Tab as={Link} to={`${stem}/approvals`} alignItems="center">
+            <Icon icon={faCheckCircle} mr={2} />
             DAI Approvals
           </Tab>
         </TabList>

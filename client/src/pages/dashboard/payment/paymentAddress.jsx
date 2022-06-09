@@ -98,12 +98,12 @@ const PaymentAddress = () => {
         </Button>
       </Center>
       <Text mb={12}>
-        This is the address which payments and rewards will be sent to, if selling music. By default this is also the
-        address you used to sign in, but it can by any address or ENS domain.
+        This is the address to which music sales payments and rewards will be sent. By default this is also the address
+        you used to sign in, but it can be updated to any address or ENS domain.
       </Text>
       <Divider mb={12} />
       <Heading fontWeight={300} mb={12} textAlign="center">
-        Payment History
+        Sales Payment History
       </Heading>
       <TableContainer>
         <Table variant="simple">

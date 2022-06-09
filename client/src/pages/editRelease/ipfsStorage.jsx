@@ -5,7 +5,7 @@ import Icon from "components/icon";
 import axios from "axios";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboard } from "@fortawesome/free-regular-svg-icons";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
 
 const CID = ({ cid }) => {
   const { hasCopied, onCopy } = useClipboard(cid);
@@ -58,9 +58,9 @@ const IpfsStorage = () => {
     <>
       <Text mb={4}>
         Help us by pinning your own release files on an IPFS node.
-        <br /> Click on a CID to copy it to the clipboard.
+        <br /> Click on a single CID to copy it to the clipboard, or copy the whole list using the button below.
       </Text>
-      <Button mb={4} onClick={onCopy} leftIcon={<FontAwesomeIcon icon={faClipboard} />}>
+      <Button mb={8} onClick={onCopy} leftIcon={<FontAwesomeIcon icon={faCopy} />}>
         {hasCopied ? "Copied!" : "Copy all"}
       </Button>
       <VStack alignItems="stretch">

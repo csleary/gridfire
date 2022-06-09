@@ -55,6 +55,12 @@ const Allowance = () => {
   const [allowance, setAllowance] = useState();
 
   useEffect(() => {
+    if (account) {
+      dispatch(fetchDaiAllowance(account));
+    }
+  }, [account, dispatch]);
+
+  useEffect(() => {
     if (daiAllowance) {
       setAllowance(Number(utils.formatEther(daiAllowance)).toFixed(2));
     }

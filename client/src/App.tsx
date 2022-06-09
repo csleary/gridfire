@@ -1,7 +1,7 @@
 import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useEffect, useRef } from "react";
-import { fetchDaiAllowance, setAccount, setIsConnected, setNetworkName } from "state/web3";
+import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
 import Footer from "components/footer";
 import Player from "pages/player";
 import PrivateRoute from "components/privateRoute";
@@ -36,6 +36,7 @@ const App: React.FC = () => {
       if (account) {
         dispatch(setAccount(account));
         dispatch(fetchDaiAllowance(account));
+        dispatch(fetchDaiBalance(account));
         dispatch(setIsConnected(true));
       } else {
         dispatch(setIsConnected(false));
