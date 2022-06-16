@@ -212,7 +212,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
 
       try {
         const encryptedStream = encryptStream(fileStream, key);
-        const ipfsFile = await ipfs.add(encryptedStream);
+        const ipfsFile = await ipfs.add(encryptedStream, { cidVersion: 1 });
         const cid = ipfsFile.cid.toString();
         track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
         await release.save();

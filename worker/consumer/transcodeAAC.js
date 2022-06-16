@@ -88,7 +88,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     // Add fragmented mp4 audio to IPFS.
     const mp4Stream = fs.createReadStream(mp4PathEnc);
-    const ipfsMP4 = await ipfs.add(mp4Stream);
+    const ipfsMP4 = await ipfs.add(mp4Stream, { cidVersion: 1 });
 
     // Save track and clean up.
     await Release.findOneAndUpdate(

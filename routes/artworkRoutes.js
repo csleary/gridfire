@@ -20,7 +20,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     busboy.on("error", async error => {
       console.log(error);
       req.unpipe(busboy);
-      res.status(400).json({ error: "Error. Could not upload this file." });
+      res.status(400).json({ error: "Error. We were unable to store this file." });
     });
 
     busboy.on("file", async (fieldName, file, info) => {
@@ -36,13 +36,13 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       file.pipe(write);
 
       write.on("finish", async () => {
-        const cid = await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
-        console.log(`[${releaseId}] Artwork uploaded with CID: ${cid}.`);
+        try {
+          const cid = await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
+          console.log(`[${releaseId}] Artwork uploaded with CID: ${cid}.`);
+        } catch (error) {
+          busboy.emit("error", error);
+        }
       });
-    });
-
-    busboy.on("finish", () => {
-      if (!res.headersSent) res.end();
     });
 
     req.pipe(busboy);

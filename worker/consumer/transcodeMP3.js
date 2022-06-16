@@ -40,7 +40,7 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
         try {
           const mp3Stream = fs.createReadStream(mp3Path);
           const encryptedFlacStream = encryptStream(mp3Stream, key);
-          const ipfsFile = await ipfs.add(encryptedFlacStream);
+          const ipfsFile = await ipfs.add(encryptedFlacStream, { cidVersion: 1 });
           await fs.promises.unlink(mp3Path);
           resolve(ipfsFile.cid.toString());
         } catch (error) {

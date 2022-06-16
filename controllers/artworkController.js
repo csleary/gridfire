@@ -13,8 +13,11 @@ const deleteArtwork = async ({ ipfs, releaseId }) => {
 
   const { artwork } = release;
   const { cid } = artwork;
-  console.log(`Unpinning artwork with CID: ${cid}`);
-  await ipfs.pin.rm(cid).catch(console.log);
+
+  if (cid) {
+    console.log(`Unpinning artwork with CID: ${cid}`);
+    await ipfs.pin.rm(cid).catch(error => console.error(error.message));
+  }
 
   const updatedRelease = await Release.findByIdAndUpdate(
     releaseId,
@@ -41,21 +44,21 @@ const uploadArtwork = async ({ filePath, ipfs, releaseId, userId, sse }) => {
 
     if (prevCid) {
       console.log(`Unpinning existing artwork with CID: ${prevCid}`);
-      await ipfs.pin.rm(prevCid).catch(console.log);
-
-      await release
-        .updateOne({
-          $unset: { "artwork.cid": 1 },
-          $set: { "artwork.dateUpdated": Date.now(), "artwork.status": "pending" }
-        })
-        .exec();
+      await ipfs.pin.rm(prevCid).catch(error => console.error(error.message));
     }
+
+    await release
+      .updateOne({
+        $unset: { "artwork.cid": 1 },
+        $set: { "artwork.dateUpdated": Date.now(), "artwork.status": "pending" }
+      })
+      .exec();
 
     sse.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
     const artworkStream = file.pipe(optimisedImg);
-    const res = await ipfs.add(artworkStream);
+    const res = await ipfs.add(artworkStream, { cidVersion: 1 });
     const { cid } = res;
 
     await release

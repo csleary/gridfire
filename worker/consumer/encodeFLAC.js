@@ -63,6 +63,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     const encryptedFlacStream = encryptStream(flacFileStream, key);
 
     const ipfsFLAC = await ipfs.add(encryptedFlacStream, {
+      cidVersion: 1,
       progress: progressBytes => {
         const progress = Math.floor((progressBytes / size) * 100);
         postMessage({ type: "storingProgressFLAC", progress, trackId, userId });
