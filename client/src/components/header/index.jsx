@@ -8,6 +8,7 @@ import {
   MenuItem,
   MenuDivider,
   Spacer,
+  Tooltip,
   Wrap,
   WrapItem,
   useColorMode,
@@ -42,6 +43,8 @@ const Header = () => {
   const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
   const colorModeTextHover = useColorModeValue("purple", "yellow");
   const primaryButtonColor = useColorModeValue("yellow", "purple");
+  const tooltipBgColor = useColorModeValue("gray.200", "gray.800");
+  const tooltipColor = useColorModeValue("gray.800", "gray.100");
 
   const activeStyle = {
     "&.active": useColorModeValue(
@@ -112,25 +115,36 @@ const Header = () => {
           {isConnected ? (
             <>
               <WrapItem alignItems="center">
-                <Badge
-                  colorScheme={primaryButtonColor}
-                  fontSize="md"
-                  title={`Current DAI balance: ${daiDisplayBalance}`}
+                <Tooltip
+                  hasArrow
+                  openDelay="500"
+                  label="The active account DAI balance."
+                  bg={tooltipBgColor}
+                  color={tooltipColor}
                 >
-                  ◈ {daiDisplayBalance}
-                </Badge>
+                  <Badge colorScheme={primaryButtonColor} fontSize="md">
+                    ◈ {daiDisplayBalance}
+                  </Badge>
+                </Tooltip>
               </WrapItem>
               <WrapItem>
-                <Button
-                  as={Link}
-                  href={`https://etherscan.io/address/${account}`}
-                  isExternal
-                  leftIcon={<Icon icon={faEthereum} />}
-                  title={`Active web3 address: ${account}`}
-                  variant="ghost"
+                <Tooltip
+                  hasArrow
+                  openDelay="500"
+                  label={`The active web3 account. Click to view the account on the explorer.`}
+                  bg={tooltipBgColor}
+                  color={tooltipColor}
                 >
-                  {accountShort}
-                </Button>
+                  <Button
+                    as={Link}
+                    href={`https://etherscan.io/address/${account}`}
+                    isExternal
+                    leftIcon={<Icon icon={faEthereum} />}
+                    variant="ghost"
+                  >
+                    {accountShort}
+                  </Button>
+                </Tooltip>
               </WrapItem>
             </>
           ) : (
