@@ -1,0 +1,8 @@
+FROM node:16 as build
+WORKDIR /home/node/app
+COPY . .
+RUN yarn install --production=true
+RUN yarn run build
+
+FROM nginx
+COPY --from=build /home/node/app/build /usr/share/nginx/html

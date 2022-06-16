@@ -53,7 +53,7 @@ const BasketButton = () => {
       dispatch(emptyBasket());
       setShowModal(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

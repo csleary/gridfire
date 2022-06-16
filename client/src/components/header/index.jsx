@@ -92,17 +92,22 @@ const Header = () => {
       </WrapItem>
       <Spacer />
       {!userAccount ? (
-        <WrapItem>
-          <Button
-            as={NavLink}
-            to={"/login"}
-            colorScheme={primaryButtonColor}
-            leftIcon={<Icon icon={faSignInAlt} />}
-            title="Click to log in."
-          >
-            Log In
-          </Button>
-        </WrapItem>
+        <>
+          <WrapItem>
+            <Button
+              as={NavLink}
+              to={"/login"}
+              colorScheme={primaryButtonColor}
+              leftIcon={<Icon icon={faSignInAlt} />}
+              title="Click to log in."
+            >
+              Log In
+            </Button>
+          </WrapItem>
+          <WrapItem>
+            <IconButton _hover={{ color: colorModeTextHover }} icon={colorModeIcon} onClick={toggleColorMode} />
+          </WrapItem>
+        </>
       ) : (
         <>
           {isConnected ? (

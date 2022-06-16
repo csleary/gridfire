@@ -13,11 +13,6 @@ const getProvider = async () => {
 const claimBalance = async () => {
   const provider = await getProvider();
   const signer = provider.getSigner();
-  //
-  const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  const allowance = await daiContract.allowance(REACT_APP_CONTRACT_ADDRESS, signer.getAddress());
-  console.log(allowance);
-  //
   const gridFireContract = getGridFireContract(signer);
   const transactionReceipt = await gridFireContract.claim().catch(console.log);
   const { status } = await transactionReceipt.wait(0);

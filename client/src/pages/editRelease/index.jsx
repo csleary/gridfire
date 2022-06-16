@@ -86,7 +86,7 @@ const EditRelease = () => {
       if (trackId) {
         const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
         const trackFieldName = `trackList.${trackIndex}.${name}`;
-        setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest); // eslint-disable-line
+        setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest);
 
         return void setValues(current => ({
           ...current,
@@ -94,14 +94,26 @@ const EditRelease = () => {
         }));
       }
 
-      setErrors(({ [name]: excludedField, ...rest }) => rest); // eslint-disable-line
+      setErrors(({ [name]: excludedField, ...rest }) => rest);
       setValues(current => ({ ...current, [name]: value }));
     },
     [trackList]
   );
 
+  const handleChangePrice = useCallback(({ target: { name, value } }) => {
+    setErrors(({ [name]: excludedField, ...rest }) => rest);
+    const numbersOnly = value.replace(/[^0-9.]/g, "");
+    setValues(current => ({ ...current, [name]: numbersOnly }));
+  }, []);
+
   const formatPrice = () => {
-    setValues(current => ({ ...current, price: Number(current.price).toFixed(2) }));
+    setValues(current => {
+      const [integer = 0, float = 0] = current.price.toString().split(".");
+      const priceAsFloatString = `${integer}.${float}`;
+      const rounded = +(Math.ceil(Math.abs(priceAsFloatString) + "e+2") + "e-2");
+      const price = Number.isNaN(rounded) ? Number.MAX_SAFE_INTEGER.toFixed(2) : rounded.toFixed(2);
+      return { ...current, price };
+    });
   };
 
   const handleSubmit = async () => {
@@ -113,8 +125,8 @@ const EditRelease = () => {
       setIsSubmitting(false);
       dispatch(
         toastSuccess({
-          message: `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} saved!`,
-          title: "Success"
+          message: `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} has been updated.`,
+          title: "Saved"
         })
       );
       navigate("/dashboard");
@@ -237,14 +249,14 @@ const EditRelease = () => {
                   />
                   <Field
                     errors={errors}
-                    info="We'll round it to the nearest penny."
+                    info="We will round this up to the nearest penny."
+                    inputMode="numeric"
                     isRequired
                     label="Price (DAI/USD)"
                     name="price"
                     onBlur={formatPrice}
-                    onChange={handleChange}
-                    min={0}
-                    type="number"
+                    onChange={handleChangePrice}
+                    type="text"
                     values={values}
                     size="lg"
                   />
