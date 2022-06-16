@@ -10,7 +10,7 @@ import { createArtist } from "gridfire/controllers/artistController.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const { NETWORK_URL } = process.env;
+const { NETWORK_URL, NETWORK_KEY } = process.env;
 const { abi } = GridFirePayment;
 const router = express.Router();
 const sortById = (a, b) => (a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1);
@@ -25,7 +25,10 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
 
     // Delete artwork from IPFS.
     console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
-    const deleteArtwork = artwork.cid ? ipfs.pin.rm(artwork.cid).catch(console.log) : Promise.resolve();
+
+    const deleteArtwork = artwork.cid
+      ? ipfs.pin.rm(artwork.cid).catch(error => console.log(error.message))
+      : Promise.resolve();
 
     // Delete track audio and playlists from IPFS.
     const deleteTracks = trackList.reduce(
@@ -33,7 +36,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
         ...prev,
         ...Object.values(track.cids).map(cid => {
           console.log(`Unpinning CID ${cid} for track ${track._id.toString()}…`);
-          ipfs.pin.rm(cid).catch(console.log);
+          ipfs.pin.rm(cid).catch(error => console.log(error.message));
         })
       ],
       []
@@ -123,7 +126,7 @@ router.post("/purchase", requireLogin, async (req, res) => {
   try {
     const buyerUserId = req.user._id;
     const { transactionHash } = req.body;
-    const provider = ethers.getDefaultProvider(NETWORK_URL);
+    const provider = ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
     const transactionReceipt = await provider.waitForTransaction(transactionHash);
     const { from: buyer, status } = transactionReceipt || {};
 
@@ -191,7 +194,7 @@ router.post("/purchase/:releaseId", requireLogin, async (req, res) => {
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
 
-    const provider = ethers.getDefaultProvider(NETWORK_URL);
+    const provider = ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
     const { data } = await provider.getTransaction(transactionHash);
     const purchaseInterface = new utils.Interface(abi);
     const decodedData = purchaseInterface.parseTransaction({ data });

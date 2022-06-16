@@ -1,7 +1,14 @@
-const { MNEMONIC } = process.env;
+const { DEPLOYER_TESTNET_PRIVATE_KEY } = process.env;
+
+/**
+ * Remember to:
+ * 1. Update the DAI address in the contract.
+ * 2. Compile and deploy contract.
+ * 3. Update the contract address in the client and rebuild/redeploy.
+ */
 
 async function main() {
-  const wallet = new ethers.Wallet.fromMnemonic(MNEMONIC);
+  const wallet = new ethers.Wallet(DEPLOYER_TESTNET_PRIVATE_KEY);
   const provider = ethers.getDefaultProvider(hre.config.networks["arb-rinkeby"].url);
   console.log("Provider URL:", provider.connection.url);
   const signer = wallet.connect(provider);

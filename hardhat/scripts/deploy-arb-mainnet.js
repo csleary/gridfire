@@ -1,7 +1,7 @@
-const { MNEMONIC } = process.env;
+const { DEPLOYER_MAINNET_PRIVATE_KEY } = process.env;
 
 async function main() {
-  const wallet = new ethers.Wallet.fromMnemonic(MNEMONIC);
+  const wallet = new ethers.Wallet(DEPLOYER_MAINNET_PRIVATE_KEY);
   const provider = ethers.getDefaultProvider(hre.config.networks["arb-mainnet"].url);
   console.log("Provider URL:", provider.connection.url);
   const signer = wallet.connect(provider);

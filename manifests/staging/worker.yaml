@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gridfire-worker
+  labels:
+    app: gridfire-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gridfire-worker
+  template:
+    metadata:
+      labels:
+        app: gridfire-worker
+    spec:
+      containers:
+        - name: gridfire-worker
+          image: gridfire-worker
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 1.5Gi
+              cpu: 1M
+          envFrom:
+            - configMapRef:
+                name: amqp-config
+            - configMapRef:
+                name: worker-config
+            - secretRef:
+                name: mongodb-uri
+            - secretRef:
+                name: rabbitmq-user

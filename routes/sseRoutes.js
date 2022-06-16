@@ -4,7 +4,13 @@ const router = express.Router();
 
 router.get("/:userId/:uuid", (req, res) => {
   const { userId, uuid } = req.params;
-  const headers = { "Content-Type": "text/event-stream", Connection: "keep-alive", "Cache-Control": "no-cache" };
+
+  const headers = {
+    "Content-Type": "text/event-stream",
+    Connection: "keep-alive",
+    "Cache-Control": "no-cache"
+  };
+
   res.writeHead(200, headers);
   const { sse } = req.app.locals;
   sse.add(res, userId, uuid);

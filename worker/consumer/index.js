@@ -1,11 +1,11 @@
-import closeOnError from "../closeOnError.js";
-import encodeFLAC from "./encodeFLAC.js";
-import transcodeAAC from "./transcodeAAC.js";
-import transcodeMP3 from "./transcodeMP3.js";
+import closeOnError from "gridfire-worker/closeOnError.js";
 import { create } from "ipfs-http-client";
+import encodeFLAC from "gridfire-worker/consumer/encodeFLAC.js";
+import transcodeAAC from "gridfire-worker/consumer/transcodeAAC.js";
+import transcodeMP3 from "gridfire-worker/consumer/transcodeMP3.js";
 
-const { QUEUE_TRANSCODE } = process.env;
-const ipfs = create();
+const { IPFS_NODE_HOST, QUEUE_TRANSCODE } = process.env;
+const ipfs = create(IPFS_NODE_HOST);
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
 
 const startConsumer = async connection => {

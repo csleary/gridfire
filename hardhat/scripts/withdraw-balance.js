@@ -16,8 +16,8 @@ async function main() {
   console.log("GridFire balance: DAI", ethers.utils.formatEther(result));
   const daiOwned = await daiContract.balanceOf(OWNER_ADDRESS);
   console.log("Own balance: DAI", ethers.utils.formatEther(daiOwned));
-  // const withdrawal = await contract.claim();
-  // console.log(withdrawal);
+  const withdrawal = await contract.claim();
+  console.log(withdrawal);
 }
 
 main()

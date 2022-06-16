@@ -1,13 +1,13 @@
-import { encryptStream, decryptStream } from "../../controllers/encryption.js";
+import { encryptStream, decryptStream } from "gridfire-worker/controllers/encryption.js";
 import { Readable } from "stream";
-import Release from "../models/Release.js";
-import User from "../models/User.js";
-import { ffmpegEncodeFLAC } from "./ffmpeg.js";
+import Release from "gridfire-worker/models/Release.js";
+import User from "gridfire-worker/models/User.js";
+import { ffmpegEncodeFLAC } from "gridfire-worker/consumer/ffmpeg.js";
 import fs from "fs";
-import { ipfs } from "./index.js";
+import { ipfs } from "gridfire-worker/consumer/index.js";
 import path from "path";
-import postMessage from "./postMessage.js";
-import { publishToQueue } from "../publisher/index.js";
+import postMessage from "gridfire-worker/consumer/postMessage.js";
+import { publishToQueue } from "gridfire-worker/publisher/index.js";
 import tar from "tar-stream";
 
 const { TEMP_PATH, QUEUE_TRANSCODE } = process.env;

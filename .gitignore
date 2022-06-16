@@ -1,5 +1,8 @@
 *.env*
 .vscode
-node_modules/
-hardhat/cache
 hardhat/artifacts
+hardhat/cache
+keyfile
+manifests/secrets
+node_modules
+worker/bin

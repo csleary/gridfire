@@ -18,11 +18,11 @@ contract GridFirePayment is Ownable {
         uint256 releasePrice;
     }
 
-    IERC20 dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1); // Arbitrum Mainnet
-    // IERC20 dai = IERC20(0x2f3C1B6A51A469051A22986aA0dDF98466cc8D3c); // Arbitrum Rinkeby
+    IERC20 dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1); // Arbitrum Mainnet/fork
+    // IERC20 dai = IERC20(0xe905AaAb78C4160C3FdaC2eBbf7a01C34CA28B4F); // Arbitrum Rinkeby
 
-    event Claim(address indexed artist, uint256 amount);
     event Checkout(address indexed buyer, uint256 amount);
+    event Claim(address indexed artist, uint256 amount);
     event Purchase(address indexed buyer, address indexed artist, string id, uint256 amount, uint256 fee);
     event Received(address from, uint256 amount);
 

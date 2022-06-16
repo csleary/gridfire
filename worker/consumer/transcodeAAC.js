@@ -1,11 +1,11 @@
-import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "./ffmpeg.js";
-import Release from "../models/Release.js";
-import createMPD from "./createMPD.js";
-import encryptMP4 from "./encryptMP4.js";
+import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "gridfire-worker/consumer/ffmpeg.js";
+import Release from "gridfire-worker/models/Release.js";
+import createMPD from "gridfire-worker/consumer/createMPD.js";
+import encryptMP4 from "gridfire-worker/consumer/encryptMP4.js";
 import fs from "fs";
-import { ipfs } from "./index.js";
+import { ipfs } from "gridfire-worker/consumer/index.js";
 import path from "path";
-import postMessage from "./postMessage.js";
+import postMessage from "gridfire-worker/consumer/postMessage.js";
 import { randomBytes } from "crypto";
 import sax from "sax";
 

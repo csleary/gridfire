@@ -28,18 +28,18 @@ import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
-const { COOKIE_KEY, MONGO_URI, PORT = 5000 } = process.env;
+const { COOKIE_KEY, IPFS_NODE_HOST, MONGODB_URI, PORT = 5000 } = process.env;
 
 process
-  .on("uncaughtException", error => console.error("[Unhandled exception]", error))
-  .on("unhandledRejection", error => console.error("[Unhandled promise rejection]", error));
+  .on("uncaughtException", error => console.error("[API] Unhandled exception:", error))
+  .on("unhandledRejection", error => console.error("[API] Unhandled promise rejection:", error));
 
 const app = express();
 const server = createServer(app);
 const sseController = new SSEController();
 
 // IPFS
-const ipfs = create();
+const ipfs = create(IPFS_NODE_HOST);
 app.locals.ipfs = ipfs;
 
 // RabbitMQ
@@ -47,11 +47,11 @@ const amqpConnection = await amqp(sseController).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
-db.once("open", async () => console.log("[Mongoose] Connected."));
-db.on("close", () => console.log("[Mongoose] Connection closed."));
-db.on("disconnected", () => console.log("[Mongoose] Disconnected."));
-db.on("error", error => console.log(`[Mongoose] Error: ${error.message}`));
-await mongoose.connect(MONGO_URI).catch(console.error);
+db.once("open", async () => console.log("[API][Mongoose] Connected."));
+db.on("close", () => console.log("[API][Mongoose] Connection closed."));
+db.on("disconnected", () => console.log("[API][Mongoose] Disconnected."));
+db.on("error", error => console.log(`[API][Mongoose] Error: ${error.message}`));
+await mongoose.connect(MONGODB_URI).catch(console.error);
 
 // Express
 app.locals.sse = sseController;
@@ -75,15 +75,25 @@ app.use("/api/track", track);
 app.use("/api/user", user);
 
 const handleShutdown = async () => {
-  console.log("[Node] Gracefully shutting down…");
-  await amqpConnection.close.bind(amqpConnection);
-  mongoose.connection.close(false, () => {
-    server.close(() => {
-      console.log("[Express] Server closed.");
-      process.exit(0);
+  try {
+    console.log("[API] Gracefully shutting down…");
+
+    if (amqpConnection) {
+      await amqpConnection.close.bind(amqpConnection);
+      console.log("[API][AMQP] Closed.");
+    }
+
+    mongoose.connection.close(false, () => {
+      server.close(() => {
+        console.log("[API][Express] Server closed.");
+        process.exit(0);
+      });
     });
-  });
+  } catch (error) {
+    console.log(error);
+    process.exit(0);
+  }
 };
 
 process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
-server.listen(PORT, () => console.log(`[Express] Server running on port ${PORT}.`));
+server.listen(PORT, () => console.log(`[API][Express] Server running on port ${PORT}.`));

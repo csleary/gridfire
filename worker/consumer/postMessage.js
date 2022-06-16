@@ -1,4 +1,4 @@
-import { publishToQueue } from "../publisher/index.js";
+import { publishToQueue } from "gridfire-worker/publisher/index.js";
 
 const { QUEUE_MESSAGE } = process.env;
 

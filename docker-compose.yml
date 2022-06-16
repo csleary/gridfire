@@ -46,9 +46,9 @@ services:
       - 5672:5672
       - 15672:15672
     restart: always
-  ipfs-host:
-    container_name: ipfs-host
-    image: ipfs/go-ipfs
+  ipfs-node:
+    container_name: ipfs-node
+    image: ipfs-node
     expose:
       - 5001
     ports:
@@ -61,7 +61,7 @@ services:
     networks:
       internal:
         aliases:
-          - ipfs-host
+          - ipfs-node
 networks:
   internal:
     driver: bridge

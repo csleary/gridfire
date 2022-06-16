@@ -5,7 +5,7 @@ require("@nomiclabs/hardhat-waffle");
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-const { ALCHEMY_MAINNET_KEY, ALCHEMY_ARBITRUM_MAINNET_KEY, ALCHEMY_ARBITRUM_RINKEBY_KEY } = process.env;
+const { ALCHEMY_ARBITRUM_MAINNET_KEY, ALCHEMY_ARBITRUM_RINKEBY_KEY } = process.env;
 
 module.exports = {
   defaultNetwork: "hardhat",
