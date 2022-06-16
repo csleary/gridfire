@@ -6,6 +6,7 @@ const userSlice = createSlice({
   name: "user",
   initialState: {
     account: "",
+    accountShort: "",
     email: "",
     favourites: [],
     isLoading: true,
@@ -46,6 +47,7 @@ const userSlice = createSlice({
     updateUser(state, action) {
       const { _id, account, email, favourites, lastLogin, paymentAddress, purchases, wishList } = action.payload;
       state.account = account;
+      state.accountShort = `${account.slice(0, 6)}…${account.slice(-4)}`;
       state.email = email;
       state.lastLogin = lastLogin;
       state.favourites = favourites;

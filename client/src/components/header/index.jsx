@@ -53,10 +53,9 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, web3 } = useSelector(state => state, shallowEqual);
-  const { account: userAccount } = user;
+  const { account: userAccount, accountShort: userAccountShort } = user;
   const { account = "", accountShort, daiBalance, chainId, isConnected, networkName } = web3 || {};
   const formattedNetworkName = networkName.replace("-", " ").toUpperCase();
-  const infoTextColor = useColorModeValue("gray.500", "gray.400");
   const daiDisplayBalance = Number.parseFloat(utils.formatEther(daiBalance)).toFixed(2);
 
   const handleLogout = () => {
@@ -127,7 +126,7 @@ const Header = () => {
                   href={`https://etherscan.io/address/${account}`}
                   isExternal
                   leftIcon={<Icon icon={faEthereum} />}
-                  title={`Active address: ${account}`}
+                  title={`Active web3 address: ${account}`}
                   variant="ghost"
                 >
                   {accountShort}
@@ -149,11 +148,10 @@ const Header = () => {
               <MenuButton
                 as={Button}
                 colorScheme={primaryButtonColor}
-                leftIcon={<Icon icon={faUserCircle} />}
+                leftIcon={<Icon icon={faUserCircle} title={`Login account: ${userAccount}`} />}
                 rightIcon={<ChevronDownIcon />}
-                title="Visit your dashboard."
               >
-                Dashboard
+                {userAccountShort || "Dashboard"}
               </MenuButton>
               <MenuList>
                 <MenuItem
