@@ -5,7 +5,11 @@ const { Schema } = mongoose;
 const trackSchema = new Schema(
   {
     trackTitle: { type: String, trim: true },
-    status: { type: String, default: "pending" },
+    status: {
+      type: String,
+      enum: ["pending", "uploading", "uploaded", "encoding", "encoded", "transcoding", "stored", "error", "deleting"],
+      default: "pending"
+    },
     duration: { type: Number, trim: true },
     mpd: { type: Buffer },
     segmentDuration: { type: Number },
@@ -33,7 +37,11 @@ const releaseSchema = new Schema(
     artwork: {
       dateCreated: { type: Date },
       dateUpdated: { type: Date },
-      status: { type: String, default: "pending" },
+      status: {
+        type: String,
+        enum: ["pending", "storing", "stored"],
+        default: "pending"
+      },
       cid: { type: String }
     },
     releaseDate: { type: Date },

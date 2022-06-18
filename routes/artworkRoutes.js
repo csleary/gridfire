@@ -20,15 +20,18 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     busboy.on("error", async error => {
       console.log(error);
       req.unpipe(busboy);
+      if (res.headersSent) return;
       res.status(400).json({ error: "Error. We were unable to store this file." });
     });
 
     busboy.on("file", async (fieldName, file, info) => {
       if (fieldName !== "artworkImageFile") return res.sendStatus(403);
       const { filename, encoding, mimeType } = info;
+
       console.log(
         `[Release ${releaseId}] Uploading artwork: ${filename}, encoding: ${encoding}, mime type: ${mimeType}`
       );
+
       const releaseExists = await Release.exists({ _id: releaseId, user: userId });
       if (!releaseExists) await Release.create({ _id: releaseId, user: userId });
       const filePath = path.join(TEMP_PATH, releaseId);
@@ -48,6 +51,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     req.pipe(busboy);
   } catch (error) {
     console.log(error);
+    if (res.headersSent) return;
     res.status(400).send({ error: "Error. Could not upload this file" });
   }
 });

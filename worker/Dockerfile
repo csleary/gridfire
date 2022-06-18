@@ -4,6 +4,6 @@ COPY --from=csleary/ffmpeg /root/bin /usr/bin
 WORKDIR /home/node/app
 COPY . .
 RUN apt-get update -qq && apt-get -y install libass-dev libvorbis-dev
-RUN mkdir tmp
+RUN mkdir /home/node/tmp
 RUN yarn install --production=true
 ENTRYPOINT [ "node", "index.js" ]

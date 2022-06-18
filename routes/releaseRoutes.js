@@ -34,10 +34,12 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const deleteTracks = trackList.reduce(
       (prev, track) => [
         ...prev,
-        ...Object.values(track.cids).map(cid => {
-          console.log(`Unpinning CID ${cid} for track ${track._id.toString()}…`);
-          ipfs.pin.rm(cid).catch(error => console.log(error.message));
-        })
+        ...Object.values(track.cids)
+          .filter(Boolean)
+          .map(cid => {
+            console.log(`Unpinning CID ${cid} for track ${track._id.toString()}…`);
+            ipfs.pin.rm(cid).catch(error => console.log(error.message));
+          })
       ],
       []
     );
@@ -93,7 +95,7 @@ router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
       { artwork: 1, releaseTitle: 1, "trackList._id": 1, "trackList.cids": 1, "trackList.trackTitle": 1 }
     ).exec();
 
-    if (!release) return res.sendStatus(404);
+    if (!release) return res.sendStatus(200);
     res.json(release.toJSON({ versionKey: false }));
   } catch (error) {
     console.log(error);
@@ -347,7 +349,7 @@ router.post("/", requireLogin, async (req, res) => {
     }
 
     const updated = await Release.findOne({ _id: releaseId, user }).exec();
-    res.json(updated.toJSON());
+    res.json(updated.toJSON({ versionKey: false }));
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error.message || error.toString() });

@@ -28,8 +28,11 @@ const ffmpegEncodeFLAC = async (srcStream, outputPath, onProgress) => {
   const tempFilename = randomUUID({ disableEntropyCache: true });
   const tempPath = path.resolve(TEMP_PATH, tempFilename);
   const streamToDisk = fs.createWriteStream(tempPath); // Buffer to disk first so FFMPEG can calculate the duration properly.
-  streamToDisk.on("error", console.log);
-  const streamFromIPFS = new Promise(resolve => void streamToDisk.on("finish", resolve));
+  const streamFromIPFS = new Promise((resolve, reject) => {
+    streamToDisk.on("error", reject);
+    streamToDisk.on("finish", resolve);
+  });
+
   srcStream.pipe(streamToDisk);
   await streamFromIPFS;
 

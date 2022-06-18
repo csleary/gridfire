@@ -10,6 +10,7 @@ import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { QUEUE_TRANSCODE } = process.env;
+const { ObjectId } = mongoose.Types;
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -26,6 +27,7 @@ router.post("/", async (req, res) => {
     busboy.on("error", async error => {
       console.log(error);
       req.unpipe(busboy);
+      if (res.headersSent) return;
       res.sendStatus(400);
     });
 
@@ -72,7 +74,8 @@ router.post("/", async (req, res) => {
     req.pipe(busboy);
   } catch (error) {
     console.log(error);
-    if (!req.headersSent) res.sendStatus(400);
+    if (res.headersSent) return;
+    res.sendStatus(400);
   }
 });
 
@@ -85,7 +88,7 @@ router.get("/:trackId/init", async (req, res) => {
     const cidMP4 = cids.mp4;
 
     // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
-    const user = req.user?._id || req.session.user || mongoose.Types.ObjectId();
+    const user = req.user?._id || req.session.user || ObjectId();
     req.session.user = user;
     res.send({ duration, cid: cidMP4, range: initRange });
 
@@ -133,22 +136,30 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
     const { releaseId, trackId } = req.params;
     const { ipfs } = req.app.locals;
     const user = req.user._id;
-    const release = await Release.findOne({ _id: releaseId, user }, "trackList._id trackList.cids").exec();
-    if (!release) return res.sendStatus(403);
-    const trackDoc = release.trackList.id(trackId);
-    if (!trackDoc) return res.sendStatus(200);
-    trackDoc.status = "deleting";
-    await release.save();
 
-    console.log("Unpinning track audio…");
-    for (const cid of Object.values(trackDoc.cids)) {
+    const release = await Release.findOneAndUpdate(
+      { _id: releaseId, user, "trackList._id": trackId },
+      { "trackList.$.status": "deleting" },
+      { fields: { trackList: { _id: 1, cids: 1 } }, lean: true, new: true }
+    ).exec();
+
+    if (!release) return res.sendStatus(404);
+    console.log(`Deleting track ${trackId}…`);
+    const { cids = {} } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
+
+    for (const cid of Object.values(cids).filter(Boolean)) {
       console.log(`Unpinning CID ${cid} for track ${trackId}…`);
-      await ipfs.pin.rm(cid).catch(console.error);
+      await ipfs.pin.rm(cid).catch(error => console.error(error.message));
     }
 
-    trackDoc.remove();
-    if (!release.trackList.length) release.published = false;
-    await release.save();
+    await Release.findOneAndUpdate(
+      { _id: releaseId, user, "trackList._id": trackId },
+      {
+        $pull: { trackList: { _id: trackId } },
+        published: release.trackList.length === 0 ? false : release.status
+      }
+    ).exec();
+
     console.log(`Track ${trackId} deleted.`);
     res.sendStatus(200);
   } catch (error) {
@@ -173,6 +184,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
     busboy.on("error", async error => {
       console.log(error);
       req.unpipe(busboy);
+      if (res.headersSent) return;
       res.status(400).json({ error: "Error. Could not upload this file." });
     });
 
@@ -197,9 +209,9 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         } = await Release.findOne({ _id: releaseId, "trackList._id": trackId }, "trackList.$").exec();
 
         console.log("Unpinning existing track audio…");
-        for (const cid of Object.values(cids)) {
+        for (const cid of Object.values(cids).filter(Boolean)) {
           console.log(`Unpinning CID ${cid} for track ${trackId}…`);
-          await ipfs.pin.rm(cid).catch(console.error);
+          await ipfs.pin.rm(cid).catch(error => console.error(error.message));
         }
 
         track.set({ dateUpdated: Date.now(), status: "uploading" });
@@ -236,6 +248,7 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
     req.pipe(busboy);
   } catch (error) {
     console.log(error);
+    if (res.headersSent) return;
     res.status(400).json({ error: "Error. Could not upload this file." });
   }
 });

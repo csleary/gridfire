@@ -8,6 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/default-backend: gridfire-client
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
 spec:
   ingressClassName: nginx
   # tls:
@@ -18,13 +19,6 @@ spec:
     - host: gridfire-dev.com
       http:
         paths:
-          - pathType: Prefix
-            backend:
-              service:
-                name: gridfire-client
-                port:
-                  number: 80
-            path: /
           - pathType: Prefix
             backend:
               service:
@@ -39,6 +33,13 @@ spec:
                 port:
                   number: 8080
             path: /ipfs
+          - pathType: Prefix
+            backend:
+              service:
+                name: gridfire-client
+                port:
+                  number: 80
+            path: /
 ---
 apiVersion: networking.k8s.io/v1
 kind: IngressClass

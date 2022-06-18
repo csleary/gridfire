@@ -1,6 +1,11 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Center,
   Flex,
+  FormLabel,
   IconButton,
   Input,
   Menu,
@@ -9,8 +14,7 @@ import {
   MenuList,
   MenuItem,
   VStack,
-  useColorModeValue,
-  FormLabel
+  useColorModeValue
 } from "@chakra-ui/react";
 import { DragHandleIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
@@ -43,6 +47,7 @@ const Track = ({
   trackMarkedForDeletion,
   status
 }) => {
+  const errorAlertColor = useColorModeValue("red.800", "red.200");
   const trackRef = useRef();
 
   const dragOverStyle = isActiveDragOver
@@ -89,23 +94,33 @@ const Track = ({
           _grabbed={{ cursor: "grabbing" }}
         />
       </VStack>
-      <Flex alignItems="center" alignSelf="flex-start" flex="1 0 auto">
-        <FormLabel color="gray.400" whiteSpace="nowrap">
-          Title
-        </FormLabel>
-        <Input
-          size="lg"
-          isInvalid={errorTrackTitle}
-          isRequired
-          name="trackTitle"
-          onChange={e => handleChange(e, trackId)}
-          onDrop={() => false}
-          placeholder={`Track ${index + 1} Title`}
-          value={trackTitle || ""}
-          flex="1 1 auto"
-          mr={4}
-        />
-      </Flex>
+      <VStack spacing={2} flex="1 0 auto" mr={4}>
+        <Flex alignItems="center" alignSelf="flex-start" width="100%">
+          <FormLabel color="gray.400" whiteSpace="nowrap">
+            Title
+          </FormLabel>
+          <Input
+            size="lg"
+            isInvalid={errorTrackTitle}
+            isRequired
+            name="trackTitle"
+            onChange={e => handleChange(e, trackId)}
+            onDrop={() => false}
+            placeholder={`Track ${index + 1} Title`}
+            value={trackTitle || ""}
+            flex="1 1 auto"
+          />
+        </Flex>
+        {errorTrackTitle ? (
+          <Alert status="error">
+            <AlertIcon />
+            <AlertTitle color={errorAlertColor} mr={2}>
+              Error!
+            </AlertTitle>
+            <AlertDescription color={errorAlertColor}>{errorTrackTitle}</AlertDescription>
+          </Alert>
+        ) : null}
+      </VStack>
       <AudioDropzone
         disablePreview
         handleChange={handleChange}

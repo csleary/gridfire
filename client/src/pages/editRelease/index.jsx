@@ -3,7 +3,6 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Box,
   Button,
   Container,
   Flex,
@@ -13,112 +12,93 @@ import {
   TabPanels,
   TabPanel,
   Tabs,
-  Text,
   useColorModeValue
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "state/releases";
+import { faFileAudio, faHdd, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AdvancedFields from "./advancedFields";
-import ArtistMenu from "./artistMenu";
 import Artwork from "./artwork";
-import Field from "components/field";
+import DetailedInfo from "./detailedInfo";
+import EssentialInfo from "./essentialInfo";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
+import { WarningIcon } from "@chakra-ui/icons";
 import { faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchRelease } from "state/releases";
 import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
 import validate from "./validate";
-import { faFileAudio, faHdd, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 
 const EditRelease = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
-  const { artists } = useSelector(state => state.artists, shallowEqual);
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showNewArtistName, setShowNewArtistName] = useState(false);
+  const [trackErrors, setTrackErrors] = useState({});
   const [values, setValues] = useState({ tags: [], trackList: [] });
-  const { _id: releaseId, artist, artistName, trackList, releaseTitle } = release;
+  const { _id: releaseId, releaseTitle } = release;
   const prevReleaseId = usePrevious(releaseId);
-  const hasErrors = Object.values(errors).some(error => Boolean(error));
+  const hasError = Object.values(errors).some(Boolean);
+  const hasTrackError = Object.values(trackErrors).some(Boolean);
   const isEditing = typeof releaseIdParam !== "undefined";
   const isPristine = useMemo(() => JSON.stringify(release) === JSON.stringify(values), [release, values]);
+  const errorAlertColor = useColorModeValue("red.800", "red.200");
+  const buttonColor = useColorModeValue("yellow", "purple");
 
   useEffect(() => {
     if (releaseIdParam) {
       setIsLoading(true);
-      dispatch(fetchRelease(releaseIdParam)).then(() => setIsLoading(false));
+      dispatch(fetchRelease(releaseIdParam));
     } else {
       dispatch(createRelease());
     }
   }, [releaseIdParam]); // eslint-disable-line
 
   useEffect(() => {
-    // Initialise with saved release for editing, or apply default values for new release.
-    if ((releaseId === releaseIdParam && !values._id) || (!releaseIdParam && prevReleaseId !== releaseId)) {
+    // Initialise with saved release for editing.
+    if (releaseId === releaseIdParam && !values._id) {
       setValues(release);
+      setIsLoading(false);
     }
-  }, [prevReleaseId, release, releaseId, releaseIdParam, values._id]);
+  }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
 
   useEffect(() => {
-    setValues(current => ({
-      ...current,
-      trackList: current.trackList.map(currentTrack => {
-        const updatedTrack = release.trackList.find(({ _id }) => _id === currentTrack._id);
-        if (updatedTrack) return { ...currentTrack, status: updatedTrack.status };
-        return currentTrack;
-      })
-    }));
-  }, [release.trackList]);
+    // Apply default values for new release.
+    if (!releaseIdParam && prevReleaseId !== releaseId) {
+      setValues(release);
+    }
+  }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
 
-  const handleChange = useCallback(
-    (e, trackId) => {
-      const { name, value } = e.target;
+  const handleChange = useCallback((e, trackId) => {
+    const { name, value } = e.target;
 
-      if (trackId) {
-        const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
-        const trackFieldName = `trackList.${trackIndex}.${name}`;
-        setErrors(({ [trackFieldName]: excludedField, ...rest }) => rest);
+    if (trackId) {
+      setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
 
-        return void setValues(current => ({
-          ...current,
-          trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
-        }));
-      }
+      return void setValues(current => ({
+        ...current,
+        trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
+      }));
+    }
 
-      setErrors(({ [name]: excludedField, ...rest }) => rest);
-      setValues(current => ({ ...current, [name]: value }));
-    },
-    [trackList]
-  );
-
-  const handleChangePrice = useCallback(({ target: { name, value } }) => {
-    setErrors(({ [name]: excludedField, ...rest }) => rest);
-    const numbersOnly = value.replace(/[^0-9.]/g, "");
-    setValues(current => ({ ...current, [name]: numbersOnly }));
+    setErrors(({ [name]: key, ...rest }) => rest);
+    setValues(current => ({ ...current, [name]: value }));
   }, []);
 
-  const formatPrice = () => {
-    setValues(current => {
-      const [integer = 0, float = 0] = current.price.toString().split(".");
-      const priceAsFloatString = `${integer}.${float}`;
-      const rounded = +(Math.ceil(Math.abs(priceAsFloatString) + "e+2") + "e-2");
-      const price = Number.isNaN(rounded) ? Number.MAX_SAFE_INTEGER.toFixed(2) : rounded.toFixed(2);
-      return { ...current, price };
-    });
-  };
-
   const handleSubmit = async () => {
-    const validationErrors = validate(values);
-    if (Object.values(validationErrors).length) return setErrors(validationErrors);
+    const [validationErrors = {}, validationTrackErrors = {}] = validate(values);
+    if (Object.values(validationErrors).length || Object.values(validationTrackErrors).length) {
+      setErrors(validationErrors);
+      return setTrackErrors(validationTrackErrors);
+    }
+
     setIsSubmitting(true);
 
     dispatch(updateRelease({ releaseId, ...values })).then(() => {
@@ -153,7 +133,7 @@ const EditRelease = () => {
             ? "Editing Release"
             : "Add Release"}
           <Button
-            colorScheme={useColorModeValue("yellow", "purple")}
+            colorScheme={buttonColor}
             leftIcon={<Icon icon={faLink} />}
             onClick={() => navigate(`/release/${releaseId}`)}
             size="sm"
@@ -164,11 +144,12 @@ const EditRelease = () => {
             Visit page
           </Button>
         </Heading>
-        <Tabs colorScheme={useColorModeValue("yellow", "purple")} isFitted mb={8}>
+        <Tabs colorScheme={buttonColor} isFitted mb={8}>
           <TabList mb={8}>
             <Tab alignItems="center">
               <Icon icon={faInfo} mr={2} />
               Essential Info
+              {Object.values(errors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
             </Tab>
             <Tab alignItems="center">
               <Icon icon={faImage} mr={2} />
@@ -177,6 +158,7 @@ const EditRelease = () => {
             <Tab alignItems="center">
               <Icon icon={faFileAudio} mr={2} />
               Tracks
+              {Object.values(trackErrors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
             </Tab>
             <Tab alignItems="center">
               <Icon icon={faListAlt} mr={2} />
@@ -189,125 +171,51 @@ const EditRelease = () => {
           </TabList>
           <TabPanels>
             <TabPanel p={0}>
-              <Heading>Essential Info</Heading>
-              <Flex as="section">
-                <Box flex="1 1 50%" mr={12}>
-                  {isEditing && artist ? (
-                    <Field isDisabled isReadOnly label="Artist name" value={artistName} size="lg" />
-                  ) : (
-                    <>
-                      {artists.length ? (
-                        <ArtistMenu
-                          error={errors.artist}
-                          label="Artist name"
-                          name="artist"
-                          onChange={e => {
-                            setErrors(({ artist, artistName, ...rest }) => rest);
-                            handleChange(e);
-                          }}
-                          setShowNewArtist={setShowNewArtistName}
-                          showNewArtistName={showNewArtistName}
-                          value={values.artist}
-                        />
-                      ) : null}
-                      {!artists.length || showNewArtistName ? (
-                        <Field
-                          errors={errors}
-                          isRequired
-                          label={artists.length ? "New artist name" : "Artist name"}
-                          name="artistName"
-                          onChange={e => {
-                            setErrors(({ artist, artistName, ...rest }) => rest);
-                            handleChange(e);
-                          }}
-                          values={values}
-                          size="lg"
-                        />
-                      ) : null}
-                    </>
-                  )}
-                  <Field
-                    errors={errors}
-                    isRequired
-                    label="Release Title"
-                    name="releaseTitle"
-                    onChange={handleChange}
-                    values={values}
-                    size="lg"
-                  />
-                </Box>
-                <Box flex="1 1 50%">
-                  <Field
-                    errors={errors}
-                    isRequired
-                    label="Release Date"
-                    name="releaseDate"
-                    onChange={handleChange}
-                    type="date"
-                    value={(values.releaseDate || new Date(Date.now()).toISOString()).split("T")[0]}
-                    size="lg"
-                  />
-                  <Field
-                    errors={errors}
-                    info="We will round this up to the nearest penny."
-                    inputMode="numeric"
-                    isRequired
-                    label="Price (DAI/USD)"
-                    name="price"
-                    onBlur={formatPrice}
-                    onChange={handleChangePrice}
-                    type="text"
-                    values={values}
-                    size="lg"
-                  />
-                </Box>
-              </Flex>
+              <EssentialInfo
+                errors={errors}
+                isEditing={isEditing}
+                isLoading={isLoading}
+                setErrors={setErrors}
+                setValues={setValues}
+                handleChange={handleChange}
+                values={values}
+              />
             </TabPanel>
             <TabPanel p={0}>
-              <Heading as="h3">Artwork</Heading>
               <Artwork />
             </TabPanel>
             <TabPanel p={0}>
-              <Heading as="h3">Track List</Heading>
-              <Text mb={4}>
-                Upload formats supported: flac, aiff, wav.
-                <br />
-                Click or drop a file into the dashed box to upload.
-                <br />
-                Drag and drop to rearrange tracks.
-                <br />
-              </Text>
               <TrackList
-                errors={{ errors: errors.trackList }}
+                errors={trackErrors}
                 handleChange={handleChange}
                 setValues={setValues}
                 trackList={values.trackList}
               />
             </TabPanel>
             <TabPanel p={0}>
-              <Heading as="h3">Optional Info</Heading>
-              <AdvancedFields errors={errors} handleChange={handleChange} values={advancedFieldValues} />
+              <DetailedInfo errors={errors} handleChange={handleChange} values={advancedFieldValues} />
             </TabPanel>
             <TabPanel p={0}>
-              <Heading as="h3">IPFS Storage</Heading>
               <IpfsStorage />
             </TabPanel>
           </TabPanels>
         </Tabs>
-        {hasErrors ? (
+        {hasError || hasTrackError ? (
           <Alert status="error" mb={8}>
             <AlertIcon />
-            <AlertTitle mr={2}>Error!</AlertTitle>
-            <AlertDescription>Please address the form errors before saving.</AlertDescription>
+            <AlertTitle color={errorAlertColor} mr={2}>
+              Error!
+            </AlertTitle>
+            <AlertDescription color={errorAlertColor}>Please address the form errors before saving.</AlertDescription>
           </Alert>
         ) : null}
         <Flex justifyContent="flex-end">
           <Button
-            colorScheme={useColorModeValue("yellow", "purple")}
+            colorScheme={buttonColor}
             isLoading={isSubmitting}
             loadingText="Saving…"
-            leftIcon={isPristine ? null : <Icon icon={hasErrors ? faTimes : faCheck} />}
-            isDisabled={hasErrors || isPristine || isSubmitting}
+            leftIcon={isPristine ? null : <Icon icon={hasError || hasTrackError ? faTimes : faCheck} />}
+            isDisabled={hasError || hasTrackError || isPristine || isSubmitting}
             onClick={handleSubmit}
           >
             {isEditing ? "Update Release" : "Add Release"}

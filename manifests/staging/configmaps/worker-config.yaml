@@ -8,4 +8,4 @@ data:
   NODE_ENV: production
   QUEUE_MESSAGE: message
   QUEUE_TRANSCODE: transcode
-  TEMP_PATH: ./tmp
+  TEMP_PATH: /home/node/tmp

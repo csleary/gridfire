@@ -5,10 +5,9 @@ import {
   CircularProgressLabel,
   Container,
   Fade,
-  Flex,
+  Heading,
   IconButton,
   Image as Img,
-  Progress,
   Square,
   Text,
   Tooltip,
@@ -115,6 +114,7 @@ const Artwork = () => {
 
   return (
     <Container maxW="container.sm" p={0}>
+      <Heading as="h3">Artwork</Heading>
       <Square
         {...getRootProps()}
         borderWidth="2px"

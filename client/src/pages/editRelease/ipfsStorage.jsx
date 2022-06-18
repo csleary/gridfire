@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Fade, Text, VStack, useClipboard, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, Flex, Fade, Heading, Text, VStack, useClipboard, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Icon from "components/icon";
@@ -43,19 +43,20 @@ const IpfsStorage = () => {
   const fileColor = useColorModeValue("gray.600", "gray.400");
 
   const { hasCopied, onCopy } = useClipboard(
-    [artwork.cid, ...trackList.flatMap(({ cids }) => Object.values(cids))].join("\n")
+    [artwork.cid, ...trackList.flatMap(({ cids }) => Object.values(cids || {}))].join("\n")
   );
 
   useEffect(() => {
     if (releaseId) {
-      try {
-        axios(`/api/release/${releaseId}/ipfs`).then(res => setCids(res.data));
-      } catch (error) {}
+      axios(`/api/release/${releaseId}/ipfs`)
+        .then(res => setCids(res.data))
+        .catch(() => {});
     }
   }, [releaseId]);
 
   return (
     <>
+      <Heading as="h3">IPFS Storage</Heading>
       <Text mb={4}>
         Help us by pinning your own release files on an IPFS node.
         <br /> Click on a single CID to copy it to the clipboard, or copy the whole list using the button below.
@@ -69,7 +70,7 @@ const IpfsStorage = () => {
         </Box>
         <Box>Tracks:</Box>
 
-        {trackList.map(({ _id, cids, trackTitle }, index) => {
+        {trackList.map(({ _id, cids = {}, trackTitle }, index) => {
           const { src, flac, mp4, mp3 } = cids;
           return (
             <Box key={_id} mb={4}>

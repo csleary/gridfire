@@ -1,4 +1,4 @@
-import { Button, Flex } from "@chakra-ui/react";
+import { Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useState } from "react";
@@ -109,6 +109,15 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
 
   return (
     <>
+      <Heading as="h3">Track List</Heading>
+      <Text mb={4}>
+        Upload formats supported: flac, aiff, wav.
+        <br />
+        Click or drop a file into the dashed box to upload.
+        <br />
+        Drag and drop to rearrange tracks.
+        <br />
+      </Text>
       <Flex flexDirection="column">
         {trackList.map((track, index) => {
           const { _id: trackId, trackTitle, status } = track;
@@ -117,7 +126,7 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
             <Track
               cancelDeleteTrack={cancelDeleteTrack}
               dragOriginIsInactive={dragOriginIsInactive}
-              errorTrackTitle={errors[`trackList.${index}.trackTitle`]}
+              errorTrackTitle={errors[`${trackId}.trackTitle`]}
               handleChange={handleChange}
               handleDeleteTrack={handleDeleteTrack}
               handleDragStart={handleDragStart}
