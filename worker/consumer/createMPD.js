@@ -2,10 +2,10 @@ import { execSync } from "child_process";
 
 const { BENTO4_DIR } = process.env;
 
-const createMPD = (audioFile, trackId, outputPath) =>
+const createMPD = (mp4, trackId, outputDirectory) =>
   execSync(
     `${BENTO4_DIR}/mp4dash \
-    -o ${outputPath} \
+    -o ${outputDirectory} \
     --force \
     --mpd-name=${trackId}.mpd \
     --no-media \
@@ -13,7 +13,7 @@ const createMPD = (audioFile, trackId, outputPath) =>
     --use-segment-list \
     --hls \
     --exec-dir=${BENTO4_DIR} \
-    ${audioFile}`
+    ${mp4}`
   );
 
 export default createMPD;

@@ -1,14 +1,14 @@
-import { encryptStream, decryptStream } from "gridfire-worker/controllers/encryption.js";
-import { Readable } from "stream";
 import Release from "gridfire-worker/models/Release.js";
 import User from "gridfire-worker/models/User.js";
+import { decryptToFilePathByCid } from "gridfire-worker/controllers/ipfs.js";
+import { encryptStream } from "gridfire-worker/controllers/encryption.js";
 import { ffmpegEncodeFLAC } from "gridfire-worker/consumer/ffmpeg.js";
 import fs from "fs";
 import { ipfs } from "gridfire-worker/consumer/index.js";
 import path from "path";
 import postMessage from "gridfire-worker/consumer/postMessage.js";
 import { publishToQueue } from "gridfire-worker/publisher/index.js";
-import tar from "tar-stream";
+import { randomUUID } from "crypto";
 
 const { TEMP_PATH, QUEUE_TRANSCODE } = process.env;
 
@@ -19,47 +19,26 @@ const onProgress =
     postMessage({ type: "encodingProgressFLAC", progress: Math.round(percent), trackId, userId });
   };
 
-const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
+const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
+  let flacOutputPath, srcFilepath;
+
   try {
-    await Release.findOneAndUpdate(
+    const release = await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "encoding" }
+      { "trackList.$.status": "encoding" },
+      { fields: "trackList.$", lean: true }
     ).exec();
 
+    const [{ cids }] = release.trackList;
+    const cid = cids.src;
     const { key } = await User.findById(userId, "key", { lean: true }).exec();
-    const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
-    const tarStream = Readable.from(ipfs.get(cid));
-    const tarExtract = tar.extract();
-
-    await new Promise((resolve, reject) => {
-      tarExtract.on("entry", async (header, srcStream, next) => {
-        const handleStreamError =
-          (...streams) =>
-          error => {
-            console.log(error);
-            for (const stream of streams) stream.destory();
-            throw error;
-          };
-
-        try {
-          const decryptedStream = await decryptStream(srcStream, key);
-          srcStream.on("error", handleStreamError(srcStream, decryptedStream));
-          decryptedStream.on("error", handleStreamError(srcStream, decryptedStream));
-          await ffmpegEncodeFLAC(decryptedStream, flacPath, onProgress({ trackId, userId }));
-          next();
-        } catch (error) {
-          srcStream.destroy(error);
-          throw error;
-        }
-      });
-
-      tarExtract.on("finish", resolve);
-      tarExtract.on("error", reject);
-      tarStream.pipe(tarExtract);
-    });
-
-    const { size } = await fs.promises.stat(flacPath);
-    const flacFileStream = fs.createReadStream(flacPath);
+    srcFilepath = await decryptToFilePathByCid(cid, key);
+    const tempFilename = randomUUID({ disableEntropyCache: true });
+    flacOutputPath = path.resolve(TEMP_PATH, tempFilename);
+    await ffmpegEncodeFLAC(srcFilepath, flacOutputPath, onProgress({ trackId, userId }));
+    fs.accessSync(flacOutputPath, fs.constants.R_OK);
+    const { size } = await fs.promises.stat(flacOutputPath);
+    const flacFileStream = fs.createReadStream(flacOutputPath);
     const encryptedFlacStream = encryptStream(flacFileStream, key);
 
     const ipfsFLAC = await ipfs.add(encryptedFlacStream, {
@@ -78,7 +57,7 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
@@ -88,6 +67,10 @@ const encodeFLAC = async ({ cid, releaseId, trackId, trackName, userId }) => {
     postMessage({ type: "trackStatus", releaseId, trackId, status: "error", userId });
     postMessage({ type: "pipelineError", stage: "flac", trackId, userId });
     throw error;
+  } finally {
+    console.log("Removing temp FLAC stage files:\n", srcFilepath, "\n", flacOutputPath);
+    if (srcFilepath) await fs.promises.unlink(srcFilepath).catch(console.error);
+    if (flacOutputPath) await fs.promises.unlink(flacOutputPath).catch(console.error);
   }
 };
 

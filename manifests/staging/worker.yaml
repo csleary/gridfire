@@ -5,7 +5,7 @@ metadata:
   labels:
     app: gridfire-worker
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: gridfire-worker

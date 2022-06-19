@@ -156,7 +156,7 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
       { _id: releaseId, user, "trackList._id": trackId },
       {
         $pull: { trackList: { _id: trackId } },
-        published: release.trackList.length === 0 ? false : release.status
+        published: release.trackList.length === 1 ? false : release.status
       }
     ).exec();
 
@@ -230,11 +230,11 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
         await release.save();
         sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploaded" });
 
-        if ([cid, releaseId, trackId, trackName, userId].includes(undefined)) {
+        if ([releaseId, trackId, trackName, userId].includes(undefined)) {
           throw new Error("Job parameters missing.");
         }
 
-        publishToQueue("", QUEUE_TRANSCODE, { userId, cid, job: "encodeFLAC", releaseId, trackId, trackName });
+        publishToQueue("", QUEUE_TRANSCODE, { job: "encodeFLAC", releaseId, trackId, trackName, userId });
       } catch (error) {
         busboy.emit("error", error);
         fileStream.destroy();

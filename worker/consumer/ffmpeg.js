@@ -1,13 +1,8 @@
 import ffmpeg from "fluent-ffmpeg";
-import fs from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
 
-const { TEMP_PATH } = process.env;
-
-const ffmpegEncodeFragmentedAAC = (srcStream, outputPath, onProgress) =>
+const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
   new Promise((resolve, reject) => {
-    ffmpeg(srcStream)
+    ffmpeg(inputFilepath)
       // .audioCodec('libfdk_aac')
       .audioCodec("aac")
       .audioBitrate(96)
@@ -21,23 +16,12 @@ const ffmpegEncodeFragmentedAAC = (srcStream, outputPath, onProgress) =>
       .on("error", reject)
       // .on("progress", onProgress)
       .on("start", console.log)
-      .save(outputPath);
+      .save(outputFilepath);
   });
 
-const ffmpegEncodeFLAC = async (srcStream, outputPath, onProgress) => {
-  const tempFilename = randomUUID({ disableEntropyCache: true });
-  const tempPath = path.resolve(TEMP_PATH, tempFilename);
-  const streamToDisk = fs.createWriteStream(tempPath); // Buffer to disk first so FFMPEG can calculate the duration properly.
-  const streamFromIPFS = new Promise((resolve, reject) => {
-    streamToDisk.on("error", reject);
-    streamToDisk.on("finish", resolve);
-  });
-
-  srcStream.pipe(streamToDisk);
-  await streamFromIPFS;
-
-  await new Promise((resolve, reject) => {
-    ffmpeg(tempPath)
+const ffmpegEncodeFLAC = async (inputFilepath, outputFilepath, onProgress) =>
+  new Promise((resolve, reject) => {
+    ffmpeg(inputFilepath)
       .audioCodec("flac")
       .audioChannels(2)
       .toFormat("flac")
@@ -50,15 +34,12 @@ const ffmpegEncodeFLAC = async (srcStream, outputPath, onProgress) => {
       .on("progress", onProgress)
       .on("start", console.log)
       .outputOptions("-compression_level 5")
-      .save(outputPath);
+      .save(outputFilepath);
   });
 
-  await fs.promises.unlink(tempPath);
-};
-
-const ffmpegEncodeMP3 = async (srcStream, outputPath, onProgress) =>
+const ffmpegEncodeMP3FromStream = async (inputStream, outputStream, onProgress) =>
   new Promise((resolve, reject) => {
-    ffmpeg(srcStream)
+    ffmpeg(inputStream)
       .audioCodec("libmp3lame")
       .toFormat("mp3")
       .outputOptions("-q:a 0")
@@ -70,7 +51,7 @@ const ffmpegEncodeMP3 = async (srcStream, outputPath, onProgress) =>
       .on("error", reject)
       // .on("progress", onProgress)
       .on("start", console.log)
-      .save(outputPath);
+      .save(outputStream);
   });
 
 const ffprobeGetTrackDuration = probeSrc =>
@@ -81,4 +62,4 @@ const ffprobeGetTrackDuration = probeSrc =>
     })
   );
 
-export { ffmpegEncodeFLAC, ffmpegEncodeFragmentedAAC, ffmpegEncodeMP3, ffprobeGetTrackDuration };
+export { ffmpegEncodeFLAC, ffmpegEncodeFragmentedAAC, ffmpegEncodeMP3FromStream, ffprobeGetTrackDuration };
