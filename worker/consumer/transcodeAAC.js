@@ -48,6 +48,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     postMessage({ type: "transcodingStartedAAC", trackId, userId });
 
     // Probe for track duration.
+    fs.accessSync(flacFilepath, fs.constants.R_OK);
     const probeReadStream = fs.createReadStream(flacFilepath);
     const metadata = await ffprobeGetTrackDuration(probeReadStream);
 
@@ -57,12 +58,14 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     await ffmpegEncodeFragmentedAAC(flacReadStream, mp4Filepath);
 
     // Encrypt.
+    fs.accessSync(mp4Filepath, fs.constants.R_OK);
     mp4EncFilepath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     const key = randomBytes(16).toString("hex");
     const kid = randomBytes(16).toString("hex");
     encryptMP4({ key, kid, mp4Filepath, mp4EncFilepath, trackId });
 
     // Create MPD.
+    fs.accessSync(mp4EncFilepath, fs.constants.R_OK);
     playlistDir = path.resolve(TEMP_PATH, trackId);
     createMPD(mp4EncFilepath, trackId, playlistDir);
     const outputMpd = path.resolve(playlistDir, `${trackId}.mpd`);

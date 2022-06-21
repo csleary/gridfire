@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ipfs-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipfs-node
+  serviceName: ipfs-node
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: ipfs-node
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: ipfs-node
+          image: ipfs-node
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 4001
+            - containerPort: 5001
+            - containerPort: 8080
+          volumeMounts:
+            - name: ipfs-data
+              mountPath: /data/ipfs
+            - name: ipfs-staging
+              mountPath: /export
+  volumeClaimTemplates:
+    - metadata:
+        name: ipfs-data
+      spec:
+        accessModes: ["ReadWriteMany"]
+        storageClassName: hostpath
+        resources:
+          requests:
+            storage: 10Gi
+    - metadata:
+        name: ipfs-staging
+      spec:
+        accessModes: ["ReadWriteMany"]
+        storageClassName: hostpath
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipfs-node
+spec:
+  selector:
+    app: ipfs-node
+  ports:
+    - name: p2p
+      port: 4001
+    - name: rpc
+      port: 5001
+    - name: gateway
+      port: 8080
