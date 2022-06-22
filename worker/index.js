@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
 import amqp from "amqplib";
+import mongoose from "mongoose";
+import net from "net";
 import startConsumer from "gridfire-worker/consumer/index.js";
 import startPublisher from "gridfire-worker/publisher/index.js";
 import "gridfire-worker/models/Release.js";
@@ -9,14 +10,28 @@ const { MONGODB_URI, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST
 let amqpConnection;
 
 process
-  .on("uncaughtException", error => console.log("[Worker] Unhandled exception:", error))
-  .on("unhandledRejection", error => console.log("[Worker] Unhandled promise rejection:", error));
+  .on("uncaughtException", error => console.error("[Worker] Unhandled exception:", error))
+  .on("unhandledRejection", error => console.error("[Worker] Unhandled promise rejection:", error));
 
 const db = mongoose.connection;
 db.once("open", async () => console.log("[Worker][Mongoose] Connected."));
 db.on("close", () => console.log("[Worker][Mongoose] Connection closed."));
 db.on("disconnected", () => console.log("[Worker][Mongoose] Disconnected."));
-db.on("error", console.log);
+db.on("error", console.error);
+
+await new Promise(resolve => {
+  const healthProbeServer = net.createServer(socket => {
+    // console.log("[Worker] Health probe connected.");
+    // socket.on("end", () => console.log("[Worker] Health probe disconnected."));
+  });
+
+  healthProbeServer.on("error", error => console.error(`[Worker] Health probe server error: ${error}`));
+
+  healthProbeServer.listen(9090, () => {
+    console.log("[Worker] Health probe server listening on port 9090.");
+    resolve();
+  });
+});
 
 const amqpConnect = async () => {
   try {

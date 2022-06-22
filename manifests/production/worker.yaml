@@ -34,3 +34,14 @@ spec:
                 name: mongodb-uri
             - secretRef:
                 name: rabbitmq-user
+          ports:
+            - containerPort: 9090
+          startupProbe:
+            tcpSocket:
+              port: 9090
+          readinessProbe:
+            tcpSocket:
+              port: 9090
+          livenessProbe:
+            tcpSocket:
+              port: 9090
