@@ -29,6 +29,7 @@ import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 
 const { COOKIE_KEY, IPFS_NODE_HOST, MONGODB_URI, PORT = 5000 } = process.env;
+let isReady = false;
 
 process
   .on("uncaughtException", error => console.error("[API] Unhandled exception:", error))
@@ -73,6 +74,8 @@ app.use("/api/release", release);
 app.use("/api/sse", sse);
 app.use("/api/track", track);
 app.use("/api/user", user);
+app.use("/livez", (req, res) => res.sendStatus(200));
+app.use("/readyz", (req, res) => (isReady ? res.sendStatus(200) : res.sendStatus(400)));
 
 const handleShutdown = async () => {
   try {
@@ -96,4 +99,8 @@ const handleShutdown = async () => {
 };
 
 process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
-server.listen(PORT, () => console.log(`[API][Express] Server running on port ${PORT}.`));
+
+server.listen(PORT, () => {
+  console.log(`[API][Express] Server running on port ${PORT}.`);
+  isReady = true;
+});

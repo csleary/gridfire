@@ -38,6 +38,18 @@ spec:
                 name: mongodb-uri
             - secretRef:
                 name: rabbitmq-user
+          startupProbe:
+            httpGet:
+              path: /livez
+              port: 5000
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 5000
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 5000
 ---
 apiVersion: v1
 kind: Service
