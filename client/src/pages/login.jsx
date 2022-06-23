@@ -1,10 +1,20 @@
-import { Alert, AlertIcon, Button, Center, Heading, Text, VStack, useColorModeValue } from "@chakra-ui/react";
-import { setAccount, setIsConnected } from "state/web3";
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  Button,
+  Center,
+  Heading,
+  Text,
+  VStack,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { setIsLoading, updateUser } from "state/user";
 import { toastError, toastSuccess } from "state/toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import axios from "axios";
+import { connectToWeb3 } from "state/web3";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
@@ -30,7 +40,7 @@ const Login = () => {
   const handleWeb3Login = async () => {
     const { ethereum } = window;
 
-    if (ethereum !== "undefined") {
+    if (ethereum != null) {
       try {
         setLoginError("");
         const accounts = await ethereum.request({ method: "eth_requestAccounts" });
@@ -38,10 +48,9 @@ const Login = () => {
         const message = await getNonce(address);
         const signature = await ethereum.request({ method: "personal_sign", params: [message, address] });
         const user = await checkMessage({ message, signature });
-        dispatch(setAccount(address));
-        dispatch(setIsConnected(true));
-        dispatch(updateUser(user));
         dispatch(toastSuccess({ message: "You are now logged in with your Ether wallet.", title: "Logged in" }));
+        dispatch(updateUser(user));
+        dispatch(connectToWeb3());
         const { pathname } = location.state || {};
         if (pathname) return navigate(pathname);
         navigate("/");
@@ -56,6 +65,10 @@ const Login = () => {
       } finally {
         dispatch(setIsLoading(false));
       }
+    } else {
+      setLoginError(
+        "No suitable web3 login method detected. Please install a web3 wallet (e.g. Metamask) in order to login."
+      );
     }
   };
 
@@ -75,8 +88,9 @@ const Login = () => {
           Log in with your Ethereum wallet
         </Button>
         {loginError ? (
-          <Alert className="alert alert-danger">
+          <Alert status="warning">
             <AlertIcon />
+            <AlertTitle mr={2}>Warning</AlertTitle>
             {loginError}
           </Alert>
         ) : (

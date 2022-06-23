@@ -47,7 +47,6 @@ const Track = ({
   trackMarkedForDeletion,
   status
 }) => {
-  const errorAlertColor = useColorModeValue("red.800", "red.200");
   const trackRef = useRef();
 
   const dragOverStyle = isActiveDragOver
@@ -114,10 +113,8 @@ const Track = ({
         {errorTrackTitle ? (
           <Alert status="error">
             <AlertIcon />
-            <AlertTitle color={errorAlertColor} mr={2}>
-              Error!
-            </AlertTitle>
-            <AlertDescription color={errorAlertColor}>{errorTrackTitle}</AlertDescription>
+            <AlertTitle mr={2}>Error!</AlertTitle>
+            <AlertDescription>{errorTrackTitle}</AlertDescription>
           </Alert>
         ) : null}
       </VStack>

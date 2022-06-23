@@ -6,13 +6,10 @@ import {
   FormLabel,
   FormHelperText,
   Input,
-  Textarea,
-  useColorModeValue
+  Textarea
 } from "@chakra-ui/react";
 
 const Field = ({ component, error, errors = {}, info, label, mb = 6, name, onChange, value, values = {}, ...rest }) => {
-  const errorAlertColor = useColorModeValue("red.800", "red.200");
-
   return (
     <FormControl as="fieldset" mb={mb}>
       <FormLabel htmlFor={name} color="gray.500" fontWeight={500} mb={1}>
@@ -26,7 +23,7 @@ const Field = ({ component, error, errors = {}, info, label, mb = 6, name, onCha
       {error || errors[name] ? (
         <Alert status="error">
           <AlertIcon />
-          <AlertDescription color={errorAlertColor}>{error ?? errors[name]}</AlertDescription>
+          <AlertDescription>{error ?? errors[name]}</AlertDescription>
           {error ?? errors[name]}
         </Alert>
       ) : typeof info !== "undefined" ? (

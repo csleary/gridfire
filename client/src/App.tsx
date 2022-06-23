@@ -48,6 +48,7 @@ const App: React.FC = () => {
     };
 
     detectEthereumProvider().then((ethereum: any) => {
+      if (ethereum == null) return;
       ethereumRef.current = ethereum;
       ethereumRef.current.on("accountsChanged", handleAccountsChanged);
       ethereumRef.current.on("chainChanged", handleReload);
@@ -56,7 +57,7 @@ const App: React.FC = () => {
     });
 
     return () => {
-      if (ethereumRef.current !== "undefined") {
+      if (ethereumRef.current != null) {
         ethereumRef.current.removeListener("accountsChanged", handleAccountsChanged);
         ethereumRef.current.removeListener("chainChanged", handleReload);
       }

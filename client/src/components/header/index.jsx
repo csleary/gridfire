@@ -38,6 +38,8 @@ import { logOut } from "state/user";
 import { useNavigate } from "react-router-dom";
 import { utils } from "ethers";
 
+const { REACT_APP_CHAIN_ID } = process.env;
+
 const Header = () => {
   const { toggleColorMode } = useColorMode();
   const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
@@ -87,7 +89,11 @@ const Header = () => {
         </Button>
       </WrapItem>
       <WrapItem alignItems="center">
-        <Badge colorScheme={primaryButtonColor} fontSize="xs" title={`Chain ID: ${chainId}`}>
+        <Badge
+          colorScheme={chainId !== Number(REACT_APP_CHAIN_ID) ? "red" : primaryButtonColor}
+          fontSize="xs"
+          title={`Chain ID: ${chainId}`}
+        >
           <Icon icon={faNetworkWired} mr={1} />
           {formattedNetworkName}
         </Badge>
@@ -122,7 +128,7 @@ const Header = () => {
                   bg={tooltipBgColor}
                   color={tooltipColor}
                 >
-                  <Badge colorScheme={primaryButtonColor} fontSize="md">
+                  <Badge colorScheme={account !== userAccount ? "yellow" : primaryButtonColor} fontSize="md">
                     ◈ {daiDisplayBalance}
                   </Badge>
                 </Tooltip>
@@ -137,6 +143,7 @@ const Header = () => {
                 >
                   <Button
                     as={Link}
+                    colorScheme={account !== userAccount && "yellow"}
                     href={`https://etherscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon icon={faEthereum} />}

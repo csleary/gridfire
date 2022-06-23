@@ -203,10 +203,8 @@ const EditRelease = () => {
         {hasError || hasTrackError ? (
           <Alert status="error" mb={8}>
             <AlertIcon />
-            <AlertTitle color={errorAlertColor} mr={2}>
-              Error!
-            </AlertTitle>
-            <AlertDescription color={errorAlertColor}>Please address the form errors before saving.</AlertDescription>
+            <AlertTitle mr={2}>Error!</AlertTitle>
+            <AlertDescription>Please address the form errors before saving.</AlertDescription>
           </Alert>
         ) : null}
         <Flex justifyContent="flex-end">

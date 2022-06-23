@@ -7,6 +7,8 @@ import axios from "axios";
 import { batch } from "react-redux";
 import detectEthereumProvider from "@metamask/detect-provider";
 
+const { REACT_APP_CHAIN_ID } = process.env;
+
 const web3Slice = createSlice({
   name: "web3",
   initialState: {
@@ -130,6 +132,7 @@ const fetchDaiBalance = account => async dispatch => {
 
 const connectToWeb3 = () => async dispatch => {
   const ethereum = await detectEthereumProvider();
+  const requiredChainId = Number.parseInt(REACT_APP_CHAIN_ID);
 
   if (!ethereum) {
     return void dispatch(
@@ -140,6 +143,14 @@ const connectToWeb3 = () => async dispatch => {
   try {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const network = await provider.getNetwork();
+
+    if (network.chainId !== requiredChainId) {
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: utils.hexValue(requiredChainId) }]
+      });
+    }
+
     const accounts = await ethereum.request({ method: "eth_requestAccounts" });
     const [firstAccount] = accounts;
 
@@ -155,6 +166,34 @@ const connectToWeb3 = () => async dispatch => {
       dispatch(setNetworkName(network));
     });
   } catch (error) {
+    if (error.code === 4902) {
+      try {
+        await ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: utils.hexValue(requiredChainId),
+              rpcUrls: ["https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"],
+              chainName: "Arbitrum One",
+              nativeCurrency: {
+                name: "ETH",
+                symbol: "ETH",
+                decimals: 18
+              },
+              blockExplorerUrls: ["https://arbiscan.io/"]
+            }
+          ]
+        });
+      } catch (error) {
+        return void dispatch(
+          toastWarning({
+            message: "Please add the Arbitrum network to Metamask (e.g. via Chainlist.org) in order to switch to it.",
+            title: "Network not recognised"
+          })
+        );
+      }
+    }
+
     dispatch(toastError({ message: error.message }));
   }
 };

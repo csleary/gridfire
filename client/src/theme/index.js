@@ -1,4 +1,3 @@
-import Alert from "./components/alert";
 import Heading from "./components/heading";
 import Input from "./components/input";
 import Textarea from "./components/textarea";
@@ -8,7 +7,6 @@ const config = {
   initialColorMode: "dark",
   useSystemColorMode: false,
   components: {
-    Alert,
     Heading,
     Input,
     Textarea
