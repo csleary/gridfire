@@ -1,138 +1,136 @@
-import { encodeAacFrag, getTrackDuration } from './ffmpeg.js';
-import Release from '../models/Release.js';
-import aws from 'aws-sdk';
-import createMPD from './createMPD.js';
-import fs from 'fs';
-import path from 'path';
-import postMessage from './postMessage.js';
-import sax from 'sax';
+import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "gridfire-worker/consumer/ffmpeg.js";
+import { randomBytes, randomUUID } from "crypto";
+import Release from "gridfire-worker/models/Release.js";
+import User from "gridfire-worker/models/User.js";
+import createMPD from "gridfire-worker/consumer/createMPD.js";
+import { decryptToFilePathByCid } from "gridfire-worker/controllers/ipfs.js";
+import encryptMP4 from "gridfire-worker/consumer/encryptMP4.js";
+import fs from "fs";
+import { ipfs } from "gridfire-worker/consumer/index.js";
+import path from "path";
+import postMessage from "gridfire-worker/consumer/postMessage.js";
+import sax from "sax";
 
-const { AWS_REGION, BUCKET_OPT, TEMP_PATH } = process.env;
-aws.config.update({ region: AWS_REGION });
+const { TEMP_PATH } = process.env;
 const fsPromises = fs.promises;
 
-const removeTempFiles = async (mp4Path, flacPath, playlistDir) => {
+const removeTempFiles = async ({ flacFilepath, mp4Filepath, mp4EncFilepath, playlistDir }) => {
   const dirContents = await fsPromises.readdir(playlistDir);
   const deleteFiles = dirContents.map(file => fsPromises.unlink(path.join(playlistDir, file)));
-  const outcome = await Promise.allSettled([fsPromises.unlink(mp4Path), fsPromises.unlink(flacPath), ...deleteFiles]);
-  if (outcome.some(({ status }) => status === 'rejected')) return;
+
+  const outcome = await Promise.allSettled([
+    fsPromises.unlink(flacFilepath),
+    fsPromises.unlink(mp4Filepath),
+    fsPromises.unlink(mp4EncFilepath),
+    ...deleteFiles
+  ]);
+
+  if (outcome.some(({ status }) => status === "rejected")) return;
   await fsPromises.rmdir(playlistDir);
 };
 
 const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
-  let release, trackDoc, mp4Path, flacPath, playlistDir;
+  let flacFilepath, mp4Filepath, mp4EncFilepath, playlistDir;
 
   try {
-    release = await Release.findById(releaseId).exec();
-    trackDoc = release.trackList.id(trackId);
-    trackDoc.status = 'transcoding';
-    trackDoc.dateUpdated = Date.now();
-    postMessage({ message: 'Transcoding to aac…', userId });
-    postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'transcoding', userId });
+    const release = await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "transcoding" },
+      { fields: "trackList.$", lean: true }
+    ).exec();
 
-    // Probe for track duration
-    flacPath = path.join(TEMP_PATH, `${trackId}.flac`);
-    const probeSrc = fs.createReadStream(flacPath);
-    const metadata = await getTrackDuration(probeSrc);
-    trackDoc.duration = metadata.format.duration;
-    trackDoc.dateUpdated = Date.now();
+    const [{ cids }] = release.trackList;
+    const cidFlac = cids.flac;
+    const { key: decryptionKey } = await User.findById(userId, "key", { lean: true }).exec();
+    flacFilepath = await decryptToFilePathByCid(cidFlac, decryptionKey);
 
-    // Transcode FLAC to AAC
-    mp4Path = path.join(TEMP_PATH, `${trackId}.mp4`);
-    const flacData = fs.createReadStream(flacPath);
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "transcoding", userId });
+    postMessage({ type: "transcodingStartedAAC", trackId, userId });
 
-    const onProgress = ({ targetSize, timemark }) => {
-      const [hours, mins, seconds] = timemark.split(':');
-      const [s] = seconds.split('.');
-      const h = hours !== '00' ? `${hours}:` : '';
+    // Probe for track duration.
+    fs.accessSync(flacFilepath, fs.constants.R_OK);
+    const probeReadStream = fs.createReadStream(flacFilepath);
+    const metadata = await ffprobeGetTrackDuration(probeReadStream);
 
-      postMessage({
-        message: `Transcoded AAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
-        trackId,
-        type: 'transcodingProgressAAC',
-        userId
-      });
-    };
+    // Transcode to AAC.
+    mp4Filepath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
+    const flacReadStream = fs.createReadStream(flacFilepath);
+    await ffmpegEncodeFragmentedAAC(flacReadStream, mp4Filepath);
 
-    await encodeAacFrag(flacData, mp4Path, onProgress);
-    playlistDir = path.join(TEMP_PATH, trackId);
+    // Encrypt.
+    fs.accessSync(mp4Filepath, fs.constants.R_OK);
+    mp4EncFilepath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
+    const key = randomBytes(16).toString("hex");
+    const kid = randomBytes(16).toString("hex");
+    encryptMP4({ key, kid, mp4Filepath, mp4EncFilepath, trackId });
 
-    createMPD(mp4Path, trackId, playlistDir);
-    const outputMpd = path.join(playlistDir, `${trackId}.mpd`);
+    // Create MPD.
+    fs.accessSync(mp4EncFilepath, fs.constants.R_OK);
+    playlistDir = path.resolve(TEMP_PATH, trackId);
+    createMPD(mp4EncFilepath, trackId, playlistDir);
+    const outputMpd = path.resolve(playlistDir, `${trackId}.mpd`);
     const mpdData = await fsPromises.readFile(outputMpd);
     const strict = true;
     const parser = sax.parser(strict);
     const segmentList = [];
+    let segmentDuration;
+    let segmentTimescale;
+    let initRange;
 
     parser.onopentag = node => {
-      if (node.name === 'SegmentList') {
-        trackDoc.segmentDuration = node.attributes.duration;
-        trackDoc.segmentTimescale = node.attributes.timescale;
+      if (node.name === "SegmentList") {
+        segmentDuration = node.attributes.duration;
+        segmentTimescale = node.attributes.timescale;
       }
 
-      if (node.name === 'Initialization') {
-        trackDoc.initRange = node.attributes.range;
+      if (node.name === "Initialization") {
+        initRange = node.attributes.range;
       }
     };
 
     parser.onattribute = attr => {
-      if (attr.name === 'mediaRange') {
+      if (attr.name === "mediaRange") {
         segmentList.push(attr.value);
       }
     };
 
     parser.write(mpdData).close();
-    trackDoc.segmentList = segmentList;
-    trackDoc.mpd = mpdData;
 
-    const mp4Audio = fs.createReadStream(mp4Path);
-    const m3u8Master = await fsPromises.readFile(path.join(playlistDir, 'master.m3u8'));
-    const m3u8Media = await fsPromises.readFile(path.join(playlistDir, 'audio-und-mp4a.m3u8'));
+    // Add fragmented mp4 audio to IPFS.
+    const mp4Stream = fs.createReadStream(mp4EncFilepath);
+    const ipfsMP4 = await ipfs.add(mp4Stream, { cidVersion: 1 });
 
-    const mp4Params = {
-      Bucket: BUCKET_OPT,
-      ContentType: 'audio/mp4',
-      Key: `mp4/${releaseId}/${trackId}.mp4`,
-      Body: mp4Audio
-    };
+    // Save track and clean up.
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId, user: userId },
+      {
+        "trackList.$.cids.mp4": ipfsMP4.cid.toString(),
+        "trackList.$.duration": metadata.format.duration,
+        "trackList.$.initRange": initRange,
+        "trackList.$.key": key,
+        "trackList.$.kid": kid,
+        "trackList.$.mpd": mpdData,
+        "trackList.$.segmentDuration": segmentDuration,
+        "trackList.$.segmentList": segmentList,
+        "trackList.$.segmentTimescale": segmentTimescale
+      }
+    ).exec();
 
-    const m3u8MasterParams = {
-      Bucket: BUCKET_OPT,
-      ContentType: 'application/x-mpegURL',
-      Key: `mp4/${releaseId}/${trackId}/master.m3u8`,
-      Body: m3u8Master
-    };
-
-    const m3u8MediaParams = {
-      Bucket: BUCKET_OPT,
-      ContentType: 'application/x-mpegURL',
-      Key: `mp4/${releaseId}/${trackId}/audio-und-mp4a.m3u8`,
-      Body: m3u8Media
-    };
-
-    const uploads = [];
-    const s3 = new aws.S3();
-    uploads.push(s3.upload(mp4Params).promise());
-    uploads.push(s3.upload(m3u8MasterParams).promise());
-    uploads.push(s3.upload(m3u8MediaParams).promise());
-    await Promise.allSettled(uploads);
-    trackDoc.status = 'stored';
-    trackDoc.dateUpdated = Date.now();
-    await release.save();
-    postMessage({ type: 'transcodingCompleteAAC', trackId, trackName, userId });
-    postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'stored', userId });
-    await removeTempFiles(mp4Path, flacPath, playlistDir);
+    postMessage({ type: "transcodingCompleteAAC", trackId, trackName, userId });
   } catch (error) {
-    console.log(error);
-    if (trackDoc) {
-      trackDoc.status = 'error';
-      trackDoc.dateUpdated = Date.now();
-      await release.save();
-    }
+    console.error(error);
 
-    postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'error', userId });
-    await removeTempFiles(mp4Path, flacPath, playlistDir);
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "error" }
+    ).exec();
+
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "error", userId });
+    postMessage({ type: "pipelineError", stage: "aac", trackId, userId });
     throw error;
+  } finally {
+    console.log("Removing temp AAC stage files…");
+    await removeTempFiles({ flacFilepath, mp4Filepath, mp4EncFilepath, playlistDir }).catch(console.log);
   }
 };
 

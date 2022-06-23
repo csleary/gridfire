@@ -1,111 +1,123 @@
-import './app.css';
-import 'lazysizes';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import React, { useContext, useEffect } from 'react';
-import { setAccount, setIsConnected, setNetworkName } from 'features/web3';
-import About from 'pages/about';
-import ActiveRelease from 'pages/activeRelease';
-import ArtistPage from 'pages/artistPage';
-import Contact from 'pages/contact';
-import Dashboard from 'pages/dashboard';
-import EditRelease from 'pages/editRelease';
-import Footer from 'components/footer';
-import Header from 'components/header';
-import Home from 'pages/home';
-import Login from 'pages/login';
-import NavBar from 'pages/navBar';
-import Player from 'pages/player';
-import PrivateRoute from 'components/privateRoute';
-import SearchResults from 'pages/searchResults';
-import Support from 'pages/support';
-import ToastList from 'components/toastList';
-import { Web3Context } from 'index';
-import { fetchUser } from 'features/user';
-import styles from './App.module.css';
-import { useDispatch } from 'react-redux';
+import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import React, { Suspense, lazy, useEffect, useRef } from "react";
+import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
+import Footer from "components/footer";
+import Player from "pages/player";
+import PrivateRoute from "components/privateRoute";
+import detectEthereumProvider from "@metamask/detect-provider";
+import { ethers } from "ethers";
+import { fetchUser } from "state/user";
+import { useDispatch } from "react-redux";
+import useSSE from "hooks/useSSE";
 
+const About = lazy(() => import("pages/about"));
+const ActiveRelease = lazy(() => import("pages/activeRelease"));
+const ArtistPage = lazy(() => import("pages/artistPage"));
+const Dashboard = lazy(() => import("pages/dashboard"));
+const EditRelease = lazy(() => import("pages/editRelease"));
+const Header = lazy(() => import("components/header"));
+const Home = lazy(() => import("pages/home"));
+const Login = lazy(() => import("pages/login"));
+const SearchResults = lazy(() => import("pages/searchResults"));
 declare const window: any; // eslint-disable-line
 
 const App: React.FC = () => {
+  useSSE();
   const dispatch = useDispatch();
-  const provider = useContext(Web3Context);
+  const ethereumRef: any = useRef();
 
   useEffect(() => {
     dispatch(fetchUser());
-    const signer = provider.getSigner();
 
-    signer
-      .getAddress()
-      .then(address => void dispatch(setAccount(address)))
-      .catch(() => void dispatch(setIsConnected(false)));
+    const handleAccountsChanged = (accounts: string[]): void => {
+      const [account] = accounts;
 
-    const handleNetworkChanged = (network: Record<string, unknown>): void => {
-      const { chainId, name } = network;
-      dispatch(setNetworkName({ chainId, networkName: name }));
-    };
-
-    provider.on('network', handleNetworkChanged);
-    const handleAccountsChanged = (accounts: string[]): void => void dispatch(setAccount(accounts[0]));
-    const handleReload = (): void => void window.location.reload();
-
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleReload);
-    }
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleReload);
+      if (account) {
+        dispatch(setAccount(account));
+        dispatch(fetchDaiAllowance(account));
+        dispatch(fetchDaiBalance(account));
+        dispatch(setIsConnected(true));
+      } else {
+        dispatch(setIsConnected(false));
       }
     };
-  }, []);
+
+    const handleReload = (chainId: string): void => {
+      window.location.reload();
+    };
+
+    detectEthereumProvider().then((ethereum: any) => {
+      if (ethereum == null) return;
+      ethereumRef.current = ethereum;
+      ethereumRef.current.on("accountsChanged", handleAccountsChanged);
+      ethereumRef.current.on("chainChanged", handleReload);
+      const provider = new ethers.providers.Web3Provider(ethereumRef.current);
+      provider.getNetwork().then(network => dispatch(setNetworkName(network)));
+    });
+
+    return () => {
+      if (ethereumRef.current != null) {
+        ethereumRef.current.removeListener("accountsChanged", handleAccountsChanged);
+        ethereumRef.current.removeListener("chainChanged", handleReload);
+      }
+    };
+  }, [dispatch]);
 
   return (
     <BrowserRouter>
-      <div className={styles.wrapper}>
-        <Header />
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/oauth/:service" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/support" element={<Support />} />
-          <Route
-            path="/release/add/"
-            element={
-              <PrivateRoute>
-                <EditRelease />
-              </PrivateRoute>
+      <Container maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" px={8} py={6} display="flex">
+        <Flex direction="column" flex={1}>
+          <Suspense fallback={<></>}>
+            <Header />
+          </Suspense>
+          <Suspense
+            fallback={
+              <Center flex={1}>
+                <Spinner size="xl" />
+              </Center>
             }
-          />
-          <Route
-            path="/release/:releaseId/edit"
-            element={
-              <PrivateRoute>
-                <EditRelease />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/release/:releaseId/*" element={<ActiveRelease />} />
-          <Route path="/artist/:artistId" element={<ArtistPage />} />
-          <Route
-            path="/dashboard/*"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/:artistSlug" element={<ArtistPage />} />
-        </Routes>
-        <Footer />
-        <Player />
-        <ToastList />
-      </div>
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/oauth/:service" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/about" element={<About />} />
+              <Route
+                path="/release/new"
+                element={
+                  <PrivateRoute>
+                    <EditRelease />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/release/:releaseId/edit"
+                element={
+                  <PrivateRoute>
+                    <EditRelease />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/release/:releaseId/*" element={<ActiveRelease />} />
+              <Route path="/artist/:artistId" element={<ArtistPage />} />
+              <Route
+                path="/dashboard/*"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/:artistSlug" element={<ArtistPage />} />
+            </Routes>
+            <Spacer mb={8} />
+          </Suspense>
+          <Footer />
+          <Player />
+        </Flex>
+      </Container>
     </BrowserRouter>
   );
 };

@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import Play from './Play.js';
+import mongoose from "mongoose";
+import Play from "./Play.js";
 const { Schema } = mongoose;
 
 const streamSessionSchema = new Schema({
@@ -7,11 +7,11 @@ const streamSessionSchema = new Schema({
   segmentsFetched: { type: Number, default: 0 },
   segmentsTotal: { type: Number },
   trackId: { type: Schema.Types.ObjectId },
-  release: { type: Schema.Types.ObjectId, ref: 'Release' },
-  user: { type: Schema.Types.ObjectId, ref: 'User' }
+  release: { type: Schema.Types.ObjectId, ref: "Release" },
+  user: { type: Schema.Types.ObjectId, ref: "User" }
 });
 
-streamSessionSchema.post('findOneAndUpdate', async function (stream) {
+streamSessionSchema.post("findOneAndUpdate", async function (stream) {
   if (!stream) return;
   const { _id: streamId, segmentsFetched, segmentsTotal, trackId, release, user } = stream;
 
@@ -27,5 +27,5 @@ streamSessionSchema.post('findOneAndUpdate', async function (stream) {
 streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });
 streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
 
-const StreamSession = mongoose.model('StreamSession', streamSessionSchema, 'stream-sessions');
+const StreamSession = mongoose.model("StreamSession", streamSessionSchema, "stream-sessions");
 export default StreamSession;

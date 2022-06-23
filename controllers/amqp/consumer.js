@@ -1,8 +1,8 @@
-import closeOnError from './closeOnError.js';
+import closeOnError from "./closeOnError.js";
 
-const { MESSAGE_QUEUE } = process.env;
+const { QUEUE_MESSAGE } = process.env;
 
-const startConsumer = async (connection, io) => {
+const startConsumer = async (connection, sse) => {
   try {
     const channel = await connection.createChannel();
 
@@ -11,25 +11,24 @@ const startConsumer = async (connection, io) => {
 
       try {
         const message = JSON.parse(data.content.toString());
-        const { type, userId, ...rest } = message;
-        const operatorUser = io.to(userId);
-        if (type) operatorUser.emit(type, { ...rest });
-        else operatorUser.emit('workerMessage', message);
+        // console.log(`[Worker Message] ${JSON.stringify(message)}`);
+        const { userId, ...rest } = message;
+        sse.send(userId, rest);
         channel.ack(data);
       } catch (error) {
         channel.nack(data, false, false);
       }
     };
 
-    channel.on('close', () => {});
+    channel.on("close", () => {});
 
-    channel.on('error', error => {
-      console.error('[AMQP] Channel error:\n', error.message);
+    channel.on("error", error => {
+      console.error("[AMQP] Channel error:\n", error.message);
     });
 
     channel.prefetch(5);
-    await channel.assertQueue(MESSAGE_QUEUE, { durable: true });
-    channel.consume(MESSAGE_QUEUE, processMessage, { noAck: false });
+    await channel.assertQueue(QUEUE_MESSAGE, { durable: true });
+    channel.consume(QUEUE_MESSAGE, processMessage, { noAck: false });
   } catch (error) {
     if (closeOnError(connection, error)) return;
   }

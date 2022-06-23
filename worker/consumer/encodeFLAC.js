@@ -1,91 +1,76 @@
-import Release from '../models/Release.js';
-import aws from 'aws-sdk';
-import { encodeFlacStream } from './ffmpeg.js';
-import fs from 'fs';
-import path from 'path';
-import postMessage from './postMessage.js';
-import { publishToQueue } from '../publisher/index.js';
+import Release from "gridfire-worker/models/Release.js";
+import User from "gridfire-worker/models/User.js";
+import { decryptToFilePathByCid } from "gridfire-worker/controllers/ipfs.js";
+import { encryptStream } from "gridfire-worker/controllers/encryption.js";
+import { ffmpegEncodeFLAC } from "gridfire-worker/consumer/ffmpeg.js";
+import fs from "fs";
+import { ipfs } from "gridfire-worker/consumer/index.js";
+import path from "path";
+import postMessage from "gridfire-worker/consumer/postMessage.js";
+import { publishToQueue } from "gridfire-worker/publisher/index.js";
+import { randomUUID } from "crypto";
 
-const { AWS_REGION, BUCKET_SRC, TEMP_PATH, WORKER_QUEUE } = process.env;
-aws.config.update({ region: AWS_REGION });
-const fsPromises = fs.promises;
+const { TEMP_PATH, QUEUE_TRANSCODE } = process.env;
 
-const encodeFLAC = async ({ filePath, releaseId, trackId, trackName, userId }) => {
-  let release;
-  let trackDoc;
+const onProgress =
+  ({ trackId, userId }) =>
+  event => {
+    const { percent } = event;
+    postMessage({ type: "encodingProgressFLAC", progress: Math.round(percent), trackId, userId });
+  };
+
+const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
+  let flacOutputPath, srcFilepath;
 
   try {
-    postMessage({ message: 'Encoding flac…', userId });
-
-    release = await Release.findOneAndUpdate(
-      { _id: releaseId, 'trackList._id': trackId },
-      { $set: { 'trackList.$.status': 'encoding', 'trackList.$.dateUpdated': Date.now() } },
-      { new: true }
+    const release = await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "encoding" },
+      { fields: "trackList.$", lean: true }
     ).exec();
 
-    postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'encoding', userId });
-    const readFile = fs.createReadStream(filePath);
-    const flacPath = path.resolve(TEMP_PATH, `${trackId}.flac`);
+    const [{ cids }] = release.trackList;
+    const cid = cids.src;
+    const { key } = await User.findById(userId, "key", { lean: true }).exec();
+    srcFilepath = await decryptToFilePathByCid(cid, key);
+    const tempFilename = randomUUID({ disableEntropyCache: true });
+    flacOutputPath = path.resolve(TEMP_PATH, tempFilename);
+    await ffmpegEncodeFLAC(srcFilepath, flacOutputPath, onProgress({ trackId, userId }));
+    fs.accessSync(flacOutputPath, fs.constants.R_OK);
+    const { size } = await fs.promises.stat(flacOutputPath);
+    const flacFileStream = fs.createReadStream(flacOutputPath);
+    const encryptedFlacStream = encryptStream(flacFileStream, key);
 
-    const onProgress = ({ targetSize, timemark }) => {
-      const [hours, mins, seconds] = timemark.split(':');
-      const [s] = seconds.split('.');
-      const h = hours !== '00' ? `${hours}:` : '';
-
-      postMessage({
-        message: `Encoded FLAC: ${h}${mins}:${s} (${targetSize}kB complete)`,
-        trackId,
-        type: 'encodingProgressFLAC',
-        userId
-      });
-    };
-
-    await encodeFlacStream(readFile, flacPath, onProgress);
-    const readFlac = fs.createReadStream(flacPath);
-    const Key = `${releaseId}/${trackId}.flac`;
-    const params = { Bucket: BUCKET_SRC, Key, Body: readFlac };
-    const s3 = new aws.S3();
-
-    await s3
-      .upload(params)
-      .on('httpUploadProgress', event => {
-        const percent = Math.floor((event.loaded / event.total) * 100);
-
-        postMessage({
-          message: `Saving FLAC (${percent}% complete)`,
-          trackId,
-          type: 'storingProgressFLAC',
-          userId
-        });
-      })
-      .promise();
-
-    trackDoc = release.trackList.id(trackId);
-    trackDoc.status = 'encoded';
-    trackDoc.dateUpdated = Date.now();
-    await release.save();
-    postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'encoded', userId });
-    postMessage({ type: 'encodingCompleteFLAC', trackId, userId });
-
-    publishToQueue('', WORKER_QUEUE, {
-      job: 'transcodeAAC',
-      releaseId,
-      trackId,
-      trackName,
-      userId
+    const ipfsFLAC = await ipfs.add(encryptedFlacStream, {
+      cidVersion: 1,
+      progress: progressBytes => {
+        const progress = Math.floor((progressBytes / size) * 100);
+        postMessage({ type: "storingProgressFLAC", progress, trackId, userId });
+      }
     });
 
-    await fsPromises.unlink(filePath);
-  } catch (error) {
-    if (trackDoc) {
-      trackDoc.status = 'error';
-      trackDoc.dateUpdated = Date.now();
-      await release.save();
-    }
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "encoded", "trackList.$.cids.flac": ipfsFLAC.cid.toString() }
+    ).exec();
 
-    postMessage({ type: 'updateTrackStatus', releaseId, trackId, status: 'error', userId });
-    await fsPromises.unlink(filePath).catch(() => {});
+    publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });
+    publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
+  } catch (error) {
+    console.error(error);
+
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId },
+      { "trackList.$.status": "error", "trackList.$.dateUpdated": Date.now() }
+    ).exec();
+
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "error", userId });
+    postMessage({ type: "pipelineError", stage: "flac", trackId, userId });
     throw error;
+  } finally {
+    console.log("Removing temp FLAC stage files:\n", srcFilepath, "\n", flacOutputPath);
+    if (srcFilepath) await fs.promises.unlink(srcFilepath).catch(console.error);
+    if (flacOutputPath) await fs.promises.unlink(flacOutputPath).catch(console.error);
   }
 };
 

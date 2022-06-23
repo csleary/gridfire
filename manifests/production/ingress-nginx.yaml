@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx
+  namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    nginx.ingress.kubernetes.io/default-backend: gridfire-client
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - gridfire.app
+      secretName: tls-secret
+  rules:
+    - host: gridfire.app
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: gridfire-api
+                port:
+                  number: 5000
+            path: /api
+          - pathType: Prefix
+            backend:
+              service:
+                name: ipfs-node
+                port:
+                  number: 8080
+            path: /ipfs
+          - pathType: Prefix
+            backend:
+              service:
+                name: gridfire-client
+                port:
+                  number: 80
+            path: /

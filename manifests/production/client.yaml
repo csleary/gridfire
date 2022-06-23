@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gridfire-client
+  labels:
+    app: gridfire-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gridfire-client
+  template:
+    metadata:
+      labels:
+        app: gridfire-client
+    spec:
+      containers:
+        - name: gridfire-client
+          image: gridfire-client
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gridfire-client
+spec:
+  selector:
+    app: gridfire-client
+  ports:
+    - port: 80

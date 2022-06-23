@@ -1,77 +1,80 @@
-import Release from '../models/Release.js';
-import aws from 'aws-sdk';
-import fs from 'fs';
-import sharp from 'sharp';
+import Release from "gridfire/models/Release.js";
+import fs from "fs";
+import sharp from "sharp";
 
-const { AWS_REGION, BUCKET_IMG } = process.env;
-aws.config.update({ region: AWS_REGION });
 const fsPromises = fs.promises;
 
-const deleteArtwork = async (releaseId, release) => {
-  release.updateOne({ $set: { 'artwork.status': 'deleting', 'artwork.dateUpdated': Date.now() } }).exec();
-  const listImgParams = { Bucket: BUCKET_IMG, Prefix: `${releaseId}` };
-  const s3 = new aws.S3();
-  const s3ImgData = await s3.listObjectsV2(listImgParams).promise();
+const deleteArtwork = async ({ ipfs, releaseId }) => {
+  const release = await Release.findByIdAndUpdate(
+    releaseId,
+    { "artwork.status": "deleting", "artwork.dateUpdated": Date.now() },
+    { new: true }
+  ).exec();
 
-  if (s3ImgData.Contents.length) {
-    const deleteImgParams = {
-      Bucket: BUCKET_IMG,
-      Key: s3ImgData.Contents[0].Key
-    };
+  const { artwork } = release;
+  const { cid } = artwork;
 
-    await s3.deleteObject(deleteImgParams).promise();
-
-    const updatedRelease = await Release.findByIdAndUpdate(
-      releaseId,
-      { $set: { 'artwork.status': 'deleted', 'artwork.dateUpdated': Date.now(), published: false } },
-      { new: true }
-    ).exec();
-
-    return updatedRelease.toJSON();
-  } else {
-    release
-      .updateOne({ $set: { 'artwork.status': 'error', 'artwork.dateUpdated': Date.now(), published: false } })
-      .exec();
-    throw new Error('Artwork file not found. Please upload a new file.');
+  if (cid) {
+    console.log(`Unpinning artwork with CID: ${cid}`);
+    await ipfs.pin.rm(cid).catch(error => console.error(error.message));
   }
+
+  const updatedRelease = await Release.findByIdAndUpdate(
+    releaseId,
+    {
+      $unset: { "artwork.cid": 1 },
+      $set: { "artwork.status": "pending", "artwork.dateUpdated": Date.now(), published: false }
+    },
+    { new: true }
+  ).exec();
+
+  return updatedRelease.toJSON();
 };
 
-const uploadArtwork = async (workerData, io) => {
-  const s3 = new aws.S3();
-  const { filePath, releaseId, userId } = workerData;
-  const operatorUser = io.to(userId.toString());
-
+const uploadArtwork = async ({ filePath, ipfs, releaseId, userId, sse }) => {
   try {
     const release = await Release.findByIdAndUpdate(
       releaseId,
-      { $set: { 'artwork.status': 'storing', 'artwork.dateCreated': Date.now() } },
+      { "artwork.status": "storing", "artwork.dateCreated": Date.now() },
       { new: true }
     ).exec();
 
-    operatorUser.emit('workerMessage', { message: 'Optimising and storing artwork…' });
+    const { artwork } = release;
+    const { cid: prevCid } = artwork;
+
+    if (prevCid) {
+      console.log(`Unpinning existing artwork with CID: ${prevCid}`);
+      await ipfs.pin.rm(prevCid).catch(error => console.error(error.message));
+    }
+
+    await release
+      .updateOne({
+        $unset: { "artwork.cid": 1 },
+        $set: { "artwork.dateUpdated": Date.now(), "artwork.status": "pending" }
+      })
+      .exec();
+
+    sse.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
-    const optimisedImg = sharp().resize(1000, 1000).toFormat('jpeg');
-    const s3Stream = file.pipe(optimisedImg);
+    const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
+    const artworkStream = file.pipe(optimisedImg);
+    const res = await ipfs.add(artworkStream, { cidVersion: 1 });
+    const { cid } = res;
 
-    const params = {
-      ContentType: 'image/jpeg',
-      Body: s3Stream,
-      Bucket: BUCKET_IMG,
-      Key: `${releaseId}.jpg`
-    };
+    await release
+      .updateOne({
+        $set: {
+          "artwork.cid": cid.toString(),
+          "artwork.dateUpdated": Date.now(),
+          "artwork.status": "stored"
+        }
+      })
+      .exec();
 
-    await s3
-      .upload(params)
-      .promise()
-      .catch(error => console.log(error));
-
-    await release.updateOne({ $set: { 'artwork.status': 'stored', 'artwork.dateUpdated': Date.now() } }).exec();
-
-    operatorUser.emit('artworkUploaded');
-    await fsPromises.unlink(filePath);
-  } catch (error) {
-    await fsPromises.unlink(filePath).catch(() => {});
-    throw error;
+    sse.send(userId, { type: "artworkUploaded" });
+    return cid;
+  } finally {
+    fsPromises.unlink(filePath).catch(console.log);
   }
 };
 

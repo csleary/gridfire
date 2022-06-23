@@ -1,57 +1,71 @@
-import { deleteArtwork, uploadArtwork } from '../controllers/artworkController.js';
-import Busboy from 'busboy';
-import Release from '../models/Release.js';
-import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import releaseOwner from '../middlewares/releaseOwner.js';
-import requireLogin from '../middlewares/requireLogin.js';
+import { deleteArtwork, uploadArtwork } from "gridfire/controllers/artworkController.js";
+import Busboy from "busboy";
+import Release from "gridfire/models/Release.js";
+import express from "express";
+import fs from "fs";
+import path from "path";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { TEMP_PATH } = process.env;
 const router = express.Router();
 
-router.post('/', requireLogin, async (req, res) => {
+router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const io = req.app.get('socketio');
+    const { ipfs } = req.app.locals;
+    const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
-    const formData = {};
+    const { sse } = req.app.locals;
     const userId = req.user._id;
 
-    busboy.on('field', (key, value) => {
-      formData[key] = value;
+    busboy.on("error", async error => {
+      console.log(error);
+      req.unpipe(busboy);
+      if (res.headersSent) return;
+      res.status(400).json({ error: "Error. We were unable to store this file." });
     });
 
-    busboy.on('file', async (filename, file) => {
-      const { releaseId } = formData;
+    busboy.on("file", async (fieldName, file, info) => {
+      if (fieldName !== "artworkImageFile") return res.sendStatus(403);
+      const { filename, encoding, mimeType } = info;
 
-      if (releaseId) {
-        const isUserRelease = await Release.exists({ _id: releaseId, user: userId });
-        if (!isUserRelease) throw new Error('User is not authorised.');
-      }
+      console.log(
+        `[Release ${releaseId}] Uploading artwork: ${filename}, encoding: ${encoding}, mime type: ${mimeType}`
+      );
 
+      const releaseExists = await Release.exists({ _id: releaseId, user: userId });
+      if (!releaseExists) await Release.create({ _id: releaseId, user: userId });
       const filePath = path.join(TEMP_PATH, releaseId);
       const write = fs.createWriteStream(filePath);
       file.pipe(write);
 
-      if ([userId, filePath, releaseId].includes(undefined)) {
-        throw new Error('Job parameters missing.');
-      }
-
-      write.on('finish', () => uploadArtwork({ userId, filePath, releaseId }, io));
+      write.on("finish", async () => {
+        try {
+          const cid = await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
+          console.log(`[${releaseId}] Artwork uploaded with CID: ${cid}.`);
+        } catch (error) {
+          busboy.emit("error", error);
+        }
+      });
     });
 
-    busboy.on('finish', () => res.end());
     req.pipe(busboy);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    console.log(error);
+    if (res.headersSent) return;
+    res.status(400).send({ error: "Error. Could not upload this file" });
   }
 });
 
-router.delete('/:releaseId', requireLogin, releaseOwner, async (req, res) => {
+router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
+    const { ipfs } = req.app.locals;
     const { releaseId } = req.params;
-    const release = await Release.findById(releaseId, '-__v').exec();
-    const updated = await deleteArtwork(releaseId, release);
+    const userId = req.user._id;
+    const releaseExists = await Release.findOne({ _id: releaseId, user: userId });
+    if (!releaseExists) return res.end();
+    console.log(`[${releaseId}] Deleting artwork…`);
+    const updated = await deleteArtwork({ ipfs, releaseId });
+    console.log(`[${releaseId}] Artwork deleted successfully.`);
     res.send(updated);
   } catch (error) {
     res.status(400).send({ error: error.message });

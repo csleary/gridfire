@@ -1,51 +1,70 @@
-version: '3.7'
+version: '3.8'
 services:
   app:
     build:
       context: .
-    command: node /root/nemp3/index.js
-    container_name: 'nemp3-server'
+    command: node /home/node/app/index.js
+    container_name: 'gridfire-server'
     depends_on:
-      - rabbit
+      - rabbitmq
       - mongo
-    env_file: prod.env
     networks:
       - internal
     ports:
-      - '8083:8083'
+      - 5000:5000
     restart: always
-    tmpfs: /root/nemp3/tmp
+    tmpfs: /home/node/app/tmp
   mongo:
-    command: mongod --auth
     container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     image: mongo
     networks:
       internal:
         aliases:
           - mongo
     ports:
-      - '27017:27017'
+      - 27017:27017
     restart: always
     volumes:
-      - data-volume:/data/db
-  rabbit:
-    container_name: rabbit
+      - db-data:/data/db
+  rabbitmq:
+    container_name: rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     expose:
-      - '5672'
-    hostname: rabbit
-    image: rabbitmq:3.8.2-management
+      - 5672
+    hostname: rabbitmq
+    image: rabbitmq:3.9.12-management
     networks:
       internal:
         aliases:
-          - rabbit
+          - rabbitmq
     ports:
-      - '15672:15672'
+      - 5672:5672
+      - 15672:15672
     restart: always
+  ipfs-node:
+    container_name: ipfs-node
+    image: ipfs-node
+    expose:
+      - 5001
+    ports:
+      - 8080:8080
+      - 5001:5001
+    volumes:
+      - ipfs-data:/data/ipfs
+      - ipfs-staging:/export
+    networks:
+      internal:
+        aliases:
+          - ipfs-node
 networks:
   internal:
     driver: bridge
 volumes:
-  data-volume:
+  db-data:
+  ipfs-data:
+  ipfs-staging:

@@ -1,19 +1,34 @@
-import Release from '../models/Release.js';
-import { encodeMp3 } from './ffmpeg.js';
-import postMessage from './postMessage.js';
+import Release from "gridfire-worker/models/Release.js";
+import User from "gridfire-worker/models/User.js";
+import { ffmpegEncodeMP3FromStream } from "gridfire-worker/consumer/ffmpeg.js";
+import postMessage from "gridfire-worker/consumer/postMessage.js";
+import { transformIpfsStreamByCid } from "gridfire-worker/controllers/ipfs.js";
 
-const transcodeMP3 = async ({ releaseId, userId }) => {
-  const release = await Release.findById(releaseId, 'trackList', { lean: true }).exec();
+const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
+  try {
+    postMessage({ type: "transcodingStartedMP3", trackId, userId });
+    const { key } = await User.findById(userId, "key", { lean: true }).exec();
 
-  const onProgress = ({ targetSize, timemark }) => {
-    const [hours, mins, seconds] = timemark.split(':');
-    const [s] = seconds.split('.');
-    const h = hours !== '00' ? `${hours}:` : '';
-    postMessage({ message: `Transcoded MP3: ${h}${mins}:${s} (${targetSize}kB complete)`, userId });
-  };
+    const release = await Release.findOne({ _id: releaseId, "trackList._id": trackId, user: userId }, "trackList.$", {
+      lean: true
+    }).exec();
 
-  await encodeMp3(release, onProgress);
-  postMessage({ type: 'transcodingCompleteMP3', exists: true, format: 'mp3', releaseId, userId });
+    const [{ cids }] = release.trackList;
+    const cid = cids.flac;
+    const cidMP3 = await transformIpfsStreamByCid(cid, key, ffmpegEncodeMP3FromStream);
+
+    await Release.findOneAndUpdate(
+      { _id: releaseId, "trackList._id": trackId, user: userId },
+      { "trackList.$.cids.mp3": cidMP3, "trackList.$.status": "stored" }
+    ).exec();
+
+    postMessage({ type: "transcodingCompleteMP3", trackId, userId });
+    postMessage({ type: "trackStatus", releaseId, trackId, status: "stored", userId });
+    console.log(`[Worker] Track ${trackId} converted to MP3 and uploaded to IPFS.`);
+  } catch (error) {
+    console.error(error);
+    postMessage({ type: "pipelineError", stage: "mp3", trackId, userId });
+  }
 };
 
 export default transcodeMP3;

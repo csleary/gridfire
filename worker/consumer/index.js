@@ -1,9 +1,11 @@
-import closeOnError from '../closeOnError.js';
-import encodeFLAC from './encodeFLAC.js';
-import transcodeAAC from './transcodeAAC.js';
-import transcodeMP3 from './transcodeMP3.js';
+import closeOnError from "gridfire-worker/closeOnError.js";
+import { create } from "ipfs-http-client";
+import encodeFLAC from "gridfire-worker/consumer/encodeFLAC.js";
+import transcodeAAC from "gridfire-worker/consumer/transcodeAAC.js";
+import transcodeMP3 from "gridfire-worker/consumer/transcodeMP3.js";
 
-const { WORKER_QUEUE } = process.env;
+const { IPFS_NODE_HOST, QUEUE_TRANSCODE } = process.env;
+const ipfs = create(IPFS_NODE_HOST);
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
 
 const startConsumer = async connection => {
@@ -14,25 +16,26 @@ const startConsumer = async connection => {
       if (data === null) return; // null message fired if consumer was cancelled.
 
       try {
-        const message = JSON.parse(data.content.toString());
-        const work = jobs[message.job];
+        const { job, ...message } = JSON.parse(data.content.toString());
+        const work = jobs[job];
         await work(message);
         channel.ack(data);
       } catch (error) {
+        console.log(error);
         channel.nack(data, false, false);
       }
     };
 
-    channel.on('error', error => {
-      console.error('[AMQP] Channel error:\n', error.message);
+    channel.on("error", error => {
+      console.error("[AMQP] Channel error:\n", error.message);
     });
 
     channel.prefetch(1);
-    await channel.assertQueue(WORKER_QUEUE, { durable: true });
-    channel.consume(WORKER_QUEUE, processMessage, { noAck: false });
+    await channel.assertQueue(QUEUE_TRANSCODE, { durable: true });
+    channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false });
   } catch (error) {
     if (closeOnError(connection, error)) return;
   }
 };
 
-export default startConsumer;
+export { ipfs, startConsumer as default };

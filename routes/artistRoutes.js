@@ -1,21 +1,21 @@
-import requireLogin from '../middlewares/requireLogin.js';
-import express from 'express';
-import slugify from 'slugify';
-import Artist from '../models/Artist.js';
-import Release from '../models/Release.js';
+import requireLogin from "gridfire/middlewares/requireLogin.js";
+import express from "express";
+import slugify from "slugify";
+import Artist from "gridfire/models/Artist.js";
+import Release from "gridfire/models/Release.js";
 const router = express.Router();
 
-router.get('/', requireLogin, async (req, res) => {
+router.get("/", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
-    const artists = await Artist.find({ user: userId }, '-__v', { lean: true }).exec();
+    const artists = await Artist.find({ user: userId }, "-__v", { lean: true }).exec();
     res.send(artists);
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 });
 
-router.post('/:artistId', requireLogin, async (req, res) => {
+router.post("/:artistId", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
     const { name, slug, biography, links } = req.body;
@@ -35,11 +35,11 @@ router.post('/:artistId', requireLogin, async (req, res) => {
     await Release.updateMany({ artist: req.params.artistId, user: userId }, { artistName: name }).exec();
     res.send(artist);
   } catch (error) {
-    if (error.codeName === 'DuplicateKey') {
+    if (error.codeName === "DuplicateKey") {
       return res.send({
-        error: 'Save failed. This artist slug is already in use. Please try another.',
-        name: 'slug',
-        value: 'This slug is in use. Please try another.'
+        error: "Save failed. This artist slug is already in use. Please try another.",
+        name: "slug",
+        value: "This slug is in use. Please try another."
       });
     }
 
@@ -47,10 +47,10 @@ router.post('/:artistId', requireLogin, async (req, res) => {
   }
 });
 
-router.patch('/:artistId/link', requireLogin, async (req, res) => {
+router.patch("/:artistId/link", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
-    const artist = await Artist.findOne({ _id: req.params.artistId, user: userId }, 'links').exec();
+    const artist = await Artist.findOne({ _id: req.params.artistId, user: userId }, "links").exec();
     const newLink = artist.links.create();
     res.send(newLink);
   } catch (error) {

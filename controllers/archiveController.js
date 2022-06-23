@@ -1,38 +1,59 @@
-import archiver from 'archiver';
-import aws from 'aws-sdk';
+import { Readable } from "stream";
+import archiver from "archiver";
+import { decryptStream } from "./encryption.js";
+import tar from "tar-stream";
 
-const { AWS_REGION, BUCKET_IMG, BUCKET_MP3, BUCKET_SRC } = process.env;
-aws.config.update({ region: AWS_REGION });
+const zipDownload = async ({ ipfs, key, release, res, format }) => {
+  try {
+    const { artistName, artwork, releaseTitle, trackList } = release;
+    const archive = archiver("zip");
+    archive.on("end", () => console.log("Download archiving complete."));
+    archive.on("error", console.log);
+    archive.on("warning", console.log);
+    res.attachment(`${artistName} - ${releaseTitle}.zip`);
+    archive.pipe(res);
 
-const zipDownload = async (res, release, format) => {
-  const Bucket = format === 'flac' ? BUCKET_SRC : BUCKET_MP3;
-  const { artistName, releaseTitle, trackList } = release;
-  const releaseId = release._id.toString();
-  const s3 = new aws.S3();
-  const archive = archiver('zip');
-  archive.on('end', () => {});
-  archive.on('warning', () => {});
-  archive.on('error', () => {});
-  res.attachment(`${artistName} - ${releaseTitle}.zip`);
-  archive.pipe(res);
+    await new Promise((resolve, reject) => {
+      const tarExtract = tar.extract();
+      tarExtract.on("error", reject);
+      tarExtract.on("finish", resolve);
 
-  for (const track of trackList) {
-    const { _id: trackId, trackTitle } = track;
-    const { Contents, KeyCount } = await s3.listObjectsV2({ Bucket, Prefix: `${releaseId}/${trackId}` }).promise();
-    if (!KeyCount) throw new Error('Track not found for archiving.');
-    const [{ Key }] = Contents;
-    const ext = Key.substring(Key.lastIndexOf('.'));
-    const trackNumber = trackList.findIndex(({ _id }) => _id === trackId) + 1;
-    const trackSrc = s3.getObject({ Bucket, Key }).createReadStream();
-    archive.append(trackSrc, { name: `${trackNumber.toString(10).padStart(2, '0')} ${trackTitle}${ext}` });
+      tarExtract.on("entry", (header, artworkStream, next) => {
+        artworkStream.on("end", next);
+        archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.jpg` });
+      });
+
+      const cidArtwork = artwork.cid;
+      const tarStream = Readable.from(ipfs.get(cidArtwork));
+      tarStream.pipe(tarExtract);
+    });
+
+    let trackNumber = 1;
+    for (const { cids, trackTitle } of trackList) {
+      const trackName = `${trackNumber.toString(10).padStart(2, "0")} ${trackTitle}.${format}`;
+
+      await new Promise((resolve, reject) => {
+        const tarExtract = tar.extract();
+        tarExtract.on("error", reject);
+        tarExtract.on("finish", resolve);
+
+        tarExtract.on("entry", async (header, trackStream, next) => {
+          const decryptedStream = await decryptStream(trackStream, key);
+          decryptedStream.on("end", next);
+          archive.append(decryptedStream, { name: trackName });
+        });
+
+        const tarStream = Readable.from(ipfs.get(cids[format]));
+        tarStream.pipe(tarExtract);
+      });
+
+      trackNumber++;
+    }
+
+    archive.finalize();
+  } catch (error) {
+    console.log(error);
   }
-
-  const { Contents, KeyCount } = await s3.listObjectsV2({ Bucket: BUCKET_IMG, Prefix: releaseId }).promise();
-  if (!KeyCount) throw new Error('Release artwork not found for archiving.');
-  const Key = Contents[0].Key;
-  const artSrc = s3.getObject({ Bucket: BUCKET_IMG, Key }).createReadStream();
-  archive.append(artSrc, { name: `${artistName} - ${releaseTitle}.jpg` });
-  await archive.finalize();
 };
 
 export { zipDownload };

@@ -1,4 +1,4 @@
-import closeOnError from '../closeOnError.js';
+import closeOnError from "gridfire-worker/closeOnError.js";
 
 let channel;
 const offlineQueue = [];
@@ -16,7 +16,7 @@ const publishToQueue = (exchange, routingKey, message) => {
 const startPublisher = async connection => {
   try {
     channel = await connection.createConfirmChannel();
-    channel.on('error', error => console.error('[AMQP] Channel error: ', error.message));
+    channel.on("error", error => console.error("[AMQP] Channel error: ", error.message));
 
     while (offlineQueue.length) {
       const job = offlineQueue.shift();
