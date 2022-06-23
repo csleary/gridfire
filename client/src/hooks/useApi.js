@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { useCallback, useEffect, useRef, useState } from "react";
+import axios from "axios";
 
 const percentComplete = (loaded, total) => Math.floor((loaded / total) * 100);
 
-const useApi = (_url, options = {}) => {
-  const { method: _method = 'get', data: _data, shouldFetch = true } = options;
+const useApi = (initUrl, options = {}) => {
+  const { method: initMethod = "get", data: initData, shouldFetch = true } = options;
   const [isLoading, setLoading] = useState(true);
   const [isFetching, setFetching] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [resData, setResData] = useState();
   const [isCancelled, setCancelled] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -15,10 +15,19 @@ const useApi = (_url, options = {}) => {
   const call = useRef();
   const isMounted = useRef(true);
 
+  const handleCancel = () => {
+    if (call.current) {
+      call.current.cancel();
+    }
+  };
+
   const fetch = useCallback(
-    async (url = _url, method = _method, data = _data) => {
-      if (!url) return;
-      if (call.current) call.current.cancel();
+    async (url = initUrl, method = initMethod, data = initData) => {
+      if (!url) {
+        return void setLoading(false);
+      }
+
+      handleCancel();
 
       try {
         call.current = axios.CancelToken.source();
@@ -34,13 +43,13 @@ const useApi = (_url, options = {}) => {
         });
 
         setResData(res.data);
-        setError('');
-      } catch (e) {
-        if (axios.isCancel(e)) {
+        setError("");
+      } catch (requestError) {
+        if (axios.isCancel(requestError)) {
           if (isMounted.current) setCancelled(true);
         } else {
           setCancelled(false);
-          setError(e.response.data.error);
+          setError(requestError.response.data.error || requestError.message || requestError);
         }
       } finally {
         setFetching(false);
@@ -48,7 +57,7 @@ const useApi = (_url, options = {}) => {
         call.current = null;
       }
     },
-    [_url, _method, _data]
+    [initData, initMethod, initUrl]
   );
 
   useEffect(() => {
@@ -64,7 +73,7 @@ const useApi = (_url, options = {}) => {
 
   return {
     fetch,
-    cancel: call.current?.cancel,
+    cancel: handleCancel,
     data: resData,
     error,
     isCancelled,
