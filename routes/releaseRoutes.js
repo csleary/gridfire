@@ -27,7 +27,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
 
     const deleteArtwork = artwork.cid
-      ? ipfs.pin.rm(artwork.cid).catch(error => console.log(error.message))
+      ? ipfs.pin.rm(artwork.cid).catch(error => console.error(error.message))
       : Promise.resolve();
 
     // Delete track audio and playlists from IPFS.
@@ -38,7 +38,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
           .filter(Boolean)
           .map(cid => {
             console.log(`Unpinning CID ${cid} for track ${track._id.toString()}…`);
-            ipfs.pin.rm(cid).catch(error => console.log(error.message));
+            ipfs.pin.rm(cid).catch(error => console.error(error.message));
           })
       ],
       []
@@ -64,7 +64,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     console.log(`Release ${releaseId} deleted.`);
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -78,9 +78,9 @@ router.get("/:releaseId", async (req, res) => {
       throw new Error("This release is currently unavailable.");
     }
 
-    res.json({ release: release.toJSON({ versionKey: false }) });
+    res.json({ release: release.toJSON() });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -96,9 +96,9 @@ router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
     ).exec();
 
     if (!release) return res.sendStatus(200);
-    res.json(release.toJSON({ versionKey: false }));
+    res.json(release.toJSON());
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -119,7 +119,7 @@ router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
 
     res.json({ paymentAddress, price });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -159,7 +159,7 @@ router.post("/purchase", requireLogin, async (req, res) => {
     });
 
     if (!isVerified) {
-      throw { ...new Error("Payment verification failed."), code: 422 };
+      throw new Error("Payment verification failed.");
     }
 
     await Promise.all(
@@ -173,7 +173,7 @@ router.post("/purchase", requireLogin, async (req, res) => {
           userAddress: buyer
         }).catch(error => {
           if (error.code === 11000) {
-            console.log(error);
+            console.error(error);
           }
         })
       )
@@ -181,7 +181,7 @@ router.post("/purchase", requireLogin, async (req, res) => {
 
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.sendStatus(422);
   }
 });
@@ -223,14 +223,14 @@ router.post("/purchase/:releaseId", requireLogin, async (req, res) => {
         userAddress: buyer
       }).catch(error => {
         if (error.code === 11000) {
-          console.log(error);
+          console.error(error);
         }
       });
     }
 
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -264,7 +264,7 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
 
     release.published = !release.published;
     const updatedRelease = await release.save();
-    res.json(updatedRelease.toJSON({ versionKey: false }));
+    res.json(updatedRelease.toJSON());
   } catch (error) {
     res.status(200).json({ error: error.message });
   }
@@ -317,41 +317,45 @@ router.post("/", requireLogin, async (req, res) => {
       tags
     };
 
-    const release = await Release.findOneAndUpdate({ _id: releaseId, user }, update, {
-      new: true,
-      upsert: true
-    }).exec();
-
-    const newTracks = [];
-    trackList.forEach((update, index) => {
-      const existing = release.trackList.id(update._id);
-
-      if (existing) {
-        existing.trackTitle = update.trackTitle;
-        const prevIndex = release.trackList.findIndex(el => el._id.equals(update._id));
-
-        if (prevIndex !== index) {
-          // Track has since been moved.
-          const [trackFrom] = release.trackList.splice(prevIndex, 1);
-          if (trackFrom) release.trackList.splice(index, 0, trackFrom);
+    const updateOps = [
+      // Update release details.
+      {
+        updateOne: {
+          filter: { _id: releaseId, user },
+          update,
+          upsert: true
         }
-      } else {
-        // Add new tracks to be inserted afterwards.
-        newTracks.push([update, index]);
+      },
+      ...trackList.flatMap(({ _id: trackId, trackTitle }, index) => [
+        // Update existing tracks.
+        {
+          updateOne: {
+            filter: { _id: releaseId, "trackList._id": trackId, user },
+            update: { "trackList.$.trackTitle": trackTitle, "trackList.$.position": index + 1 }
+          }
+        },
+        // Add new tracks.
+        {
+          updateOne: {
+            filter: { _id: releaseId, trackList: { $not: { $elemMatch: { _id: trackId } } }, user },
+            update: { $push: { trackList: { _id: trackId, position: index + 1, trackTitle } } }
+          }
+        }
+      ]),
+      // Sort the tracks array according to the new positions.
+      {
+        updateOne: {
+          filter: { _id: releaseId, user },
+          update: { $push: { trackList: { $each: [], $sort: { position: 1 } } } }
+        }
       }
-    });
+    ];
 
-    await release.save();
-
-    // Insert new tracks
-    for (const [update, index] of newTracks) {
-      await release.updateOne({ $push: { trackList: { $each: [update], $position: index } } }).exec();
-    }
-
-    const updated = await Release.findOne({ _id: releaseId, user }).exec();
-    res.json(updated.toJSON({ versionKey: false }));
+    await Release.bulkWrite(updateOps, { ordered: true });
+    const updated = await Release.findOne({ _id: releaseId, user });
+    res.json(updated.toJSON());
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });

@@ -4,7 +4,7 @@ metadata:
   name: ipfs-staging
 spec:
   capacity:
-    storage: 10Gi
+    storage: 100Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -17,6 +17,7 @@ spec:
               values:
                 - ipfs-node
   persistentVolumeReclaimPolicy: Recycle
+  storageClassName: do-block-storage
   local:
     path: /home/chris/ipfs/staging
 ---
@@ -30,5 +31,6 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 10Gi
+      storage: 100Gi
+  storageClassName: do-block-storage
   selector: {}

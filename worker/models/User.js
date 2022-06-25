@@ -10,7 +10,7 @@ const userSchema = new Schema(
     lastLogin: { type: Date },
     paymentAddress: { type: String, trim: true }
   },
-  { timestamps: true, toJSON: { versionKey: false } }
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema, "users");
