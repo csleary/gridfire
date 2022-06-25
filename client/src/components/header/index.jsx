@@ -144,7 +144,7 @@ const Header = () => {
                   <Button
                     as={Link}
                     colorScheme={account !== userAccount && "yellow"}
-                    href={`https://etherscan.io/address/${account}`}
+                    href={`https://arbiscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon icon={faEthereum} />}
                     variant="ghost"

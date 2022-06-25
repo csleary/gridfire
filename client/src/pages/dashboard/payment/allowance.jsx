@@ -176,7 +176,7 @@ const Allowance = () => {
               return (
                 <Tr key={transactionHash}>
                   <Td>
-                    <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                   </Td>
                   <Td isNumeric>◈ {Number(utils.formatEther(wad)).toFixed(2)}</Td>
                 </Tr>

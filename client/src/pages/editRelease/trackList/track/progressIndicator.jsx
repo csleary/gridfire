@@ -24,7 +24,7 @@ const ProgressIndicator = ({
       color={color}
       size="4rem"
       thickness=".75rem"
-      value={isStored || progress ? 100 : 0}
+      value={isStored ? 100 : progress || 0}
       isIndeterminate={error != null ? false : stageHasStarted && !progress}
     >
       <Tooltip

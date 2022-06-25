@@ -1,7 +1,7 @@
 import { Contract, ethers, utils } from "ethers";
 import daiAbi from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
-import GridFirePayment from "web3/GridFirePayment.json";
+import gridFirePaymentAbi from "web3/gridfire";
 
 const { REACT_APP_CONTRACT_ADDRESS, REACT_APP_DAI_CONTRACT_ADDRESS: daiContractAddress } = process.env;
 
@@ -50,7 +50,7 @@ const getDaiContract = signerOrProvider => {
 };
 
 const getGridFireContract = signerOrProvider => {
-  return new Contract(REACT_APP_CONTRACT_ADDRESS, GridFirePayment.abi, signerOrProvider);
+  return new Contract(REACT_APP_CONTRACT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
 };
 
 const gridFireCheckout = async basket => {
