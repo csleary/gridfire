@@ -4,7 +4,7 @@ metadata:
   name: ipfs-data
 spec:
   capacity:
-    storage: 3Gi
+    storage: 5Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -17,7 +17,7 @@ spec:
               values:
                 - ipfs-node
   persistentVolumeReclaimPolicy: Recycle
-  storageClassName: hostpath
+  storageClassName: do-block-storage
   local:
     path: /home/chris/ipfs/data
 ---
@@ -31,6 +31,6 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 10Gi
-  storageClassName: hostpath
+      storage: 5Gi
+  storageClassName: do-block-storage
   selector: {}

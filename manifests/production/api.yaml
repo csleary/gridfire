@@ -16,14 +16,14 @@ spec:
     spec:
       containers:
         - name: gridfire-api
-          image: gridfire-api
-          imagePullPolicy: IfNotPresent
+          image: csleary/gridfire-api
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           resources:
             requests:
               memory: 256Mi
-              cpu: 250m
+              cpu: 25m
             limits:
               memory: 1.5Gi
               cpu: 500m
@@ -50,6 +50,8 @@ spec:
             httpGet:
               path: /readyz
               port: 5000
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service

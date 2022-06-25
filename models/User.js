@@ -10,8 +10,9 @@ const userSchema = new Schema(
     lastLogin: { type: Date },
     paymentAddress: { type: String, trim: true }
   },
-  { timestamps: true, toJSON: { versionKey: false } }
+  { timestamps: true }
 );
 
+userSchema.set("toJSON", { versionKey: false });
 const User = mongoose.model("User", userSchema, "users");
 export default User;

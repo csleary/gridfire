@@ -16,17 +16,19 @@ spec:
     spec:
       containers:
         - name: gridfire-client
-          image: gridfire-client
-          imagePullPolicy: IfNotPresent
+          image: csleary/gridfire-client
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           resources:
             requests:
               memory: 128Mi
-              cpu: 100m
+              cpu: 25m
             limits:
               memory: 1Gi
               cpu: 500m
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service

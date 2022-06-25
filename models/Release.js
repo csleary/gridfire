@@ -2,14 +2,23 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+const trackStatusEnum = [
+  "pending",
+  "uploading",
+  "uploaded",
+  "encoding",
+  "encoded",
+  "transcoding",
+  "stored",
+  "error",
+  "deleting"
+];
+
 const trackSchema = new Schema(
   {
+    position: { type: Number, select: false },
     trackTitle: { type: String, trim: true },
-    status: {
-      type: String,
-      enum: ["pending", "uploading", "uploaded", "encoding", "encoded", "transcoding", "stored", "error", "deleting"],
-      default: "pending"
-    },
+    status: { type: String, enum: trackStatusEnum, default: "pending" },
     duration: { type: Number, trim: true },
     mpd: { type: Buffer },
     segmentDuration: { type: Number },
@@ -76,24 +85,18 @@ releaseSchema.post("save", release => {
 
 releaseSchema.set("toJSON", {
   transform: function (doc, ret) {
-    delete ret.createdAt;
-    delete ret.updatedAt;
-    delete ret.artwork?.dateCreated;
-    delete ret.artwork?.dateUpdated;
-
     ret.trackList.forEach(track => {
-      delete track.createdAt;
       delete track.initRange;
       delete track.mpd;
       delete track.segmentDuration;
       delete track.segmentList;
       delete track.segmentTimescale;
-      delete track.updatedAt;
     });
 
     return ret;
   }
 });
 
+releaseSchema.set("toJSON", { versionKey: false });
 const Release = mongoose.model("Release", releaseSchema, "releases");
 export default Release;

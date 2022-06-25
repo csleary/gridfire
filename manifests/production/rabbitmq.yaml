@@ -23,10 +23,10 @@ spec:
           resources:
             requests:
               memory: 128Mi
-              cpu: 100m
+              cpu: 25m
             limits:
               memory: 1Gi
-              cpu: 500m
+              cpu: 250m
           envFrom:
             - secretRef:
                 name: rabbitmq-user

@@ -1,14 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const linkSchema = new Schema({
-  title: { type: String, trim: true, default: '' },
-  uri: { type: String, trim: true, default: '' }
+  title: { type: String, trim: true, default: "" },
+  uri: { type: String, trim: true, default: "" }
 });
 
 const artistSchema = new Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
     name: { type: String, trim: true },
     slug: { type: String, trim: true },
     biography: { type: String, trim: true },
@@ -22,19 +22,19 @@ artistSchema.index(
   {
     unique: true,
     partialFilterExpression: {
-      slug: { $exists: true, $type: 'string' }
+      slug: { $exists: true, $type: "string" }
     },
     collation: {
-      locale: 'en',
+      locale: "en",
       strength: 2
     }
   }
 );
 
-artistSchema.post('save', release => {
+artistSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-artistSchema.set('toJSON', { versionKey: false });
-const Artist = mongoose.model('Artist', artistSchema, 'artists');
+artistSchema.set("toJSON", { versionKey: false });
+const Artist = mongoose.model("Artist", artistSchema, "artists");
 export default Artist;
