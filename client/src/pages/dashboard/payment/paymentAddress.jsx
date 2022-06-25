@@ -123,7 +123,7 @@ const PaymentAddress = () => {
               return (
                 <Tr key={`${transactionHash}.${id}`}>
                   <Td>
-                    <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                   </Td>
                   <Td>
                     {buyer.slice(0, 6)}…{buyer.slice(-4)}

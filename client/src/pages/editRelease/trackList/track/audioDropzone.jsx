@@ -29,10 +29,11 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
     transcodingCompleteMP3
   } = useSelector(state => state.tracks, shallowEqual);
 
-  const isEncoding = status === "encoding";
+  const isEncoding = status === "encoding" || (encodingProgressFLAC[trackId] > 0 && !storingProgressFLAC);
   const isStored = status === "stored";
-  const isTranscoding = status === "transcoding";
-  const isUploading = status === "uploading";
+  const isTranscoding =
+    status === "transcoding" || (transcodingStartedAAC[trackId] && !transcodingCompleteMP3[trackId]);
+  const isUploading = audioUploadProgress[trackId] > 0 && audioUploadProgress[trackId] < 100;
 
   const handleClick = e => {
     if (isUploading) {
@@ -67,10 +68,10 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
 
   const { getRootProps, getInputProps, isDragAccept, isDragActive, isDragReject } = useDropzone({
     accept: acceptedFileTypes,
-    disabled: isTranscoding || isEncoding,
+    disabled: isEncoding || isTranscoding,
     multiple: false,
     noDragEventsBubbling: true,
-    noKeyboard: true,
+    noKeyboard: false,
     onDrop: onDropAudio
   });
 

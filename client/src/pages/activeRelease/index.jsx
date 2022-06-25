@@ -125,30 +125,32 @@ const ActiveRelease = () => {
                 </WrapItem>
               </Wrap>
               <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
-              {recordLabel && (
+              <Box mb={6}>
+                {recordLabel && (
+                  <Flex mb={2}>
+                    <Flex align="center" bg="purple.200" justify="center" minW={10} mr={3} rounded="sm">
+                      <Icon color={releaseInfoColor} icon={faRecordVinyl} />
+                    </Flex>
+                    <Box color={releaseInfoText}>{recordLabel}</Box>
+                  </Flex>
+                )}
                 <Flex mb={2}>
-                  <Flex align="center" bg="purple.200" justify="center" minW={10} mr={3} rounded="sm">
-                    <Icon color={releaseInfoColor} icon={faRecordVinyl} />
+                  <Flex align="center" bg="blue.100" justify="center" minW={10} mr={3} rounded="sm">
+                    <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
                   </Flex>
-                  <Box color={releaseInfoText}>{recordLabel}</Box>
+                  <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
                 </Flex>
-              )}
-              <Flex mb={2}>
-                <Flex align="center" bg="blue.100" justify="center" minW={10} mr={3} rounded="sm">
-                  <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
-                </Flex>
-                <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
-              </Flex>
-              {catNumber && (
-                <Flex mb={6}>
-                  <Flex align="center" bg="green.100" justify="center" minW={10} mr={3} rounded="sm">
-                    <Badge bg="none" color={releaseInfoColor}>
-                      CAT.
-                    </Badge>
+                {catNumber && (
+                  <Flex>
+                    <Flex align="center" bg="green.100" justify="center" minW={10} mr={3} rounded="sm">
+                      <Badge bg="none" color={releaseInfoColor}>
+                        CAT.
+                      </Badge>
+                    </Flex>
+                    <Box color={releaseInfoText}>{catNumber}</Box>
                   </Flex>
-                  <Box color={releaseInfoText}>{catNumber}</Box>
-                </Flex>
-              )}
+                )}
+              </Box>
               {info && (
                 <Text mb={4} whiteSpace="pre-line">
                   {info}
@@ -159,16 +161,18 @@ const ActiveRelease = () => {
                   {credits}
                 </Text>
               )}
-              {pubYear && (
-                <Text color="gray.400" fontSize="sm" fontWeight={500}>
-                  &copy; {pubYear} {pubName}
-                </Text>
-              )}
-              {recYear && (
-                <Text color="gray.400" fontSize="sm" fontWeight={500} mb={6}>
-                  &#8471; {recYear} {recName}
-                </Text>
-              )}
+              <Box mb={6}>
+                {pubYear && (
+                  <Text color="gray.400" fontSize="sm" fontWeight={500}>
+                    &copy; {pubYear} {pubName}
+                  </Text>
+                )}
+                {recYear && (
+                  <Text color="gray.400" fontSize="sm" fontWeight={500}>
+                    &#8471; {recYear} {recName}
+                  </Text>
+                )}
+              </Box>
               <Tags />
             </Card>
           </WrapItem>

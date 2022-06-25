@@ -28,7 +28,7 @@ const trackSlice = createSlice({
         calls.delete(trackId);
       }
 
-      state.uploadProgress = { ...state.audioUploadProgress, [trackId]: 0 };
+      state.audioUploadProgress = { ...state.audioUploadProgress, [trackId]: 0 };
     },
     setUploadProgress(state, action) {
       const { progress, trackId } = action.payload;

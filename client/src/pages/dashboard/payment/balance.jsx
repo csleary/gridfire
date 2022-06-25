@@ -131,7 +131,7 @@ const Balance = () => {
               return (
                 <Tr key={transactionHash}>
                   <Td>
-                    <Link href={`https://etherscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                   </Td>
                   <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
                 </Tr>
