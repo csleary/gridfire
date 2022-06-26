@@ -44,7 +44,7 @@ const ipfs = create(IPFS_NODE_HOST);
 app.locals.ipfs = ipfs;
 
 // RabbitMQ
-const amqpConnection = await amqp(sseController).catch(console.error);
+const [amqpConnection, consumerChannel, consumerTag] = await amqp(sseController).catch(console.error);
 
 // Mongoose
 const db = mongoose.connection;
@@ -78,10 +78,12 @@ app.use("/livez", (req, res) => res.sendStatus(200));
 app.use("/readyz", (req, res) => (isReady ? res.sendStatus(200) : res.sendStatus(400)));
 
 const handleShutdown = async () => {
-  try {
-    console.log("[API] Gracefully shutting down…");
+  isReady = false;
+  console.log("[API] Gracefully shutting down…");
 
+  try {
     if (amqpConnection) {
+      await consumerChannel.cancel(consumerTag);
       await amqpConnection.close.bind(amqpConnection);
       console.log("[API][AMQP] Closed.");
     }

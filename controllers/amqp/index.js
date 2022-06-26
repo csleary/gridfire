@@ -19,8 +19,9 @@ const connect = async sse => {
     });
 
     startPublisher(connection);
-    startConsumer(connection, sse);
-    return connection;
+    const config = await startConsumer(connection, sse);
+    const { channel, consumerTag } = config || {};
+    return [connection, channel, consumerTag];
   } catch (error) {
     console.error(error);
     setTimeout(connect, 3000);
