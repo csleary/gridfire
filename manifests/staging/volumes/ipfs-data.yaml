@@ -20,17 +20,3 @@ spec:
   storageClassName: hostpath
   local:
     path: /home/chris/ipfs/data
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ipfs-data
-spec:
-  accessModes:
-    - ReadWriteMany
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 3Gi
-  storageClassName: hostpath
-  selector: {}

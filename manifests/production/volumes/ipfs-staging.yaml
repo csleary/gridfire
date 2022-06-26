@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ipfs-data
+  name: ipfs-staging
 spec:
   capacity:
-    storage: 5Gi
+    storage: 100Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -19,18 +19,4 @@ spec:
   persistentVolumeReclaimPolicy: Recycle
   storageClassName: do-block-storage
   local:
-    path: /home/chris/ipfs/data
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ipfs-data
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: do-block-storage
-  selector: {}
+    path: /home/chris/ipfs/staging
