@@ -15,6 +15,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "state/releases";
+import { faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faFileAudio, faHdd, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -27,7 +28,6 @@ import Icon from "components/icon";
 import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
 import { WarningIcon } from "@chakra-ui/icons";
-import { faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchRelease } from "state/releases";
 import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
@@ -115,6 +115,8 @@ const EditRelease = () => {
 
   const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = values;
   const advancedFieldValues = { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags };
+
+  console.log(values);
 
   return (
     <>

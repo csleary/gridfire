@@ -24,7 +24,6 @@ const Field = ({ component, error, errors = {}, info, label, mb = 6, name, onCha
         <Alert status="error">
           <AlertIcon />
           <AlertDescription>{error ?? errors[name]}</AlertDescription>
-          {error ?? errors[name]}
         </Alert>
       ) : typeof info !== "undefined" ? (
         <FormHelperText>{info}</FormHelperText>

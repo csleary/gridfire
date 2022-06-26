@@ -2,12 +2,10 @@ import { Box, Flex, Heading } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import ArtistMenu from "./artistMenu";
 import Field from "components/field";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
-  const { artists } = useSelector(state => state.artists, shallowEqual);
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
-  const [showNewArtistName, setShowNewArtistName] = useState(false);
   const { artist, artistName } = release;
 
   const handleChangePrice = useCallback(
@@ -37,36 +35,14 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
           {isEditing && artist ? (
             <Field isDisabled isReadOnly label="Artist name" value={artistName} size="lg" />
           ) : (
-            <>
-              {artists.length ? (
-                <ArtistMenu
-                  error={errors.artist}
-                  label="Artist name"
-                  name="artist"
-                  onChange={e => {
-                    setErrors(({ artist, artistName, ...rest }) => rest);
-                    handleChange(e);
-                  }}
-                  setShowNewArtist={setShowNewArtistName}
-                  showNewArtistName={showNewArtistName}
-                  value={values.artist}
-                />
-              ) : null}
-              {!artists.length || showNewArtistName ? (
-                <Field
-                  errors={errors}
-                  isRequired
-                  label={artists.length ? "New artist name" : "Artist name"}
-                  name="artistName"
-                  onChange={e => {
-                    setErrors(({ artist, artistName, ...rest }) => rest);
-                    handleChange(e);
-                  }}
-                  values={values}
-                  size="lg"
-                />
-              ) : null}
-            </>
+            <ArtistMenu
+              error={errors.artistName}
+              onChange={e => {
+                setErrors(({ artist, artistName, ...rest }) => rest);
+                handleChange(e);
+              }}
+              value={values.artist || values.artistName}
+            />
           )}
           <Field
             errors={errors}
