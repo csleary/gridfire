@@ -134,34 +134,6 @@ router.get("/:trackId/stream", async (req, res) => {
 router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
   try {
     const { releaseId, trackId } = req.params;
-<<<<<<< HEAD
-
-    // Delete from S3
-    const s3 = new aws.S3();
-
-    // Delete source audio
-    const listSrcParams = {
-      Bucket: BUCKET_SRC,
-      Prefix: `${releaseId}/${trackId}`
-    };
-
-    const s3SrcData = await s3.listObjectsV2(listSrcParams).promise();
-
-    let deleteS3Src;
-    if (s3SrcData.Contents.length) {
-      const deleteImgParams = { Bucket: BUCKET_SRC, Key: s3SrcData.Contents[0].Key };
-      deleteS3Src = await s3.deleteObject(deleteImgParams).promise();
-    }
-
-    // Delete streaming audio
-    const listOptParams = { Bucket: BUCKET_OPT, Prefix: `mp4/${releaseId}/${trackId}` };
-    const s3OptData = await s3.listObjectsV2(listOptParams).promise();
-
-    let deleteS3Opt;
-    if (s3OptData.Contents.length) {
-      const deleteOptParams = { Bucket: BUCKET_OPT, Key: s3OptData.Contents[0].Key };
-      deleteS3Opt = await s3.deleteObject(deleteOptParams).promise();
-=======
     const { ipfs } = req.app.locals;
     const user = req.user._id;
 
@@ -178,7 +150,6 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
     for (const cid of Object.values(cids).filter(Boolean)) {
       console.log(`Unpinning CID ${cid} for track ${trackId}…`);
       await ipfs.pin.rm(cid).catch(error => console.error(error.message));
->>>>>>> dev
     }
 
     await Release.findOneAndUpdate(
