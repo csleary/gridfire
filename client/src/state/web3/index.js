@@ -185,16 +185,25 @@ const connectToWeb3 = () => async dispatch => {
           ]
         });
       } catch (error) {
-        return void dispatch(
+        dispatch(
           toastWarning({
-            message: "Please add the Arbitrum network to Metamask (e.g. via Chainlist.org) in order to switch to it.",
+            message:
+              "Please add the Arbitrum network to your wallet (e.g. via Chainlist.org) in order to switch to it.",
             title: "Network not recognised"
           })
         );
       }
+    } else if (error.code === -32002) {
+      dispatch(
+        toastWarning({
+          message:
+            "Please unlock or open your wallet manually, as a previous request (e.g. account selection) is still pending.",
+          title: "Your wallet is processing a previous request"
+        })
+      );
+    } else {
+      dispatch(toastError({ message: error.message }));
     }
-
-    dispatch(toastError({ message: error.message }));
   }
 };
 
