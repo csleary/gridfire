@@ -69,58 +69,33 @@ router.delete("/favourites/:releaseId", requireLogin, async (req, res) => {
   res.end();
 });
 
-router.get("/plays", requireLogin, async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    const releases = await Release.aggregate([
-      { $match: { user: userId } },
-      { $lookup: { from: "plays", localField: "_id", foreignField: "release", as: "plays" } },
-      { $project: { total: { $size: "$plays" } } }
-    ]).exec();
-
-    res.send(releases);
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-});
-
-router.get("/release/:releaseId", requireLogin, async (req, res) => {
-  const release = await Release.findById(req.params.releaseId, "-__v", { lean: true }).exec();
-  res.send(release);
-});
-
 router.get("/releases/", requireLogin, async (req, res) => {
-  const releases = await Release.find({ user: req.user._id }, "-__v", { lean: true, sort: "-releaseDate" }).exec();
-  res.send(releases);
-});
+  const userId = req.user._id;
 
-router.get("/releases/favourites", requireLogin, async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    const releases = await Release.aggregate([
-      { $match: { user: userId } },
-      { $lookup: { from: "favourites", localField: "_id", foreignField: "release", as: "favourites" } },
-      { $project: { total: { $size: "$favourites" } } }
-    ]).exec();
-
-    res.send(releases);
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-});
-
-router.get("/sales", requireLogin, async (req, res) => {
-  const releases = await Release.find({ user: req.user._id });
-
-  const sales = await Sale.aggregate([
-    { $match: { release: { $in: releases.map(({ _id }) => _id) } } },
-    { $group: { _id: "$release", sum: { $sum: 1 } } },
-    { $sort: { sum: -1 } }
+  const releases = await Release.aggregate([
+    { $match: { user: userId } },
+    { $lookup: { from: "favourites", localField: "_id", foreignField: "release", as: "favourites" } },
+    { $lookup: { from: "plays", localField: "_id", foreignField: "release", as: "plays" } },
+    { $lookup: { from: "sales", localField: "_id", foreignField: "release", as: "sales" } },
+    {
+      $project: {
+        artist: 1,
+        artistName: 1,
+        artwork: { cid: 1, status: 1 },
+        faves: { $size: "$favourites" },
+        plays: { $size: "$plays" },
+        price: 1,
+        published: 1,
+        releaseDate: 1,
+        releaseTitle: 1,
+        sales: { $size: "$sales" },
+        trackList: { status: 1 }
+      }
+    },
+    { $sort: { releaseDate: -1 } }
   ]).exec();
 
-  res.send(sales);
+  res.send(releases);
 });
 
 router.post("/transactions", requireLogin, async (req, res) => {
