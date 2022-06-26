@@ -116,8 +116,6 @@ const EditRelease = () => {
   const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = values;
   const advancedFieldValues = { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags };
 
-  console.log(values);
-
   return (
     <>
       <Helmet>

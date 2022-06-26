@@ -31,10 +31,13 @@ const ArtistMenu = ({ error, onChange, value }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!isLoading && artists.length === 0 && !showNewArtistName) {
+    if (isLoading) return;
+    if (artists.length > 0) {
+      setShowNewArtistName(false);
+    } else {
       setShowNewArtistName(true);
     }
-  }, [artists.length, isLoading, showNewArtistName]);
+  }, [artists.length, isLoading]);
 
   if (showNewArtistName) {
     return (
