@@ -73,7 +73,7 @@ function UserRelease({ favs, numSold, plays, release }) {
           <Box flex={1} pr={2}>
             <Text>
               <Icon color={price > 0 ? "green.200" : "orange.300"} fixedWidth icon={faCircle} mr={2} />
-              {price > 0 ? `$${price} USD` : "Name your price"}
+              {price > 0 ? `◈ ${price} DAI` : "Name your price"}
             </Text>
             <Text>
               <Icon

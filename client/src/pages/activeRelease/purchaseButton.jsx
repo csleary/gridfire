@@ -65,10 +65,10 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
         : inCollection
         ? "In collection"
         : !isConnected
-        ? "Connect wallet"
+        ? `Connect wallet (◈ ${price} DAI)`
         : allowanceTooLow
-        ? "Approval required"
-        : `Purchase ~ ${price} USD`}
+        ? `Approval required (◈ ${price} DAI)`
+        : `Purchase (◈ ${price} DAI)`}
     </Button>
   );
 };
