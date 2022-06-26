@@ -85,18 +85,25 @@ releaseSchema.post("save", release => {
 
 releaseSchema.set("toJSON", {
   transform: function (doc, ret) {
+    delete ret.createdAt;
+    delete ret.updatedAt;
+    delete ret.artwork?.dateCreated;
+    delete ret.artwork?.dateUpdated;
+
     ret.trackList.forEach(track => {
+      delete track.createdAt;
       delete track.initRange;
       delete track.mpd;
       delete track.segmentDuration;
       delete track.segmentList;
       delete track.segmentTimescale;
+      delete track.updatedAt;
     });
 
     return ret;
-  }
+  },
+  versionKey: false
 });
 
-releaseSchema.set("toJSON", { versionKey: false });
 const Release = mongoose.model("Release", releaseSchema, "releases");
 export default Release;
