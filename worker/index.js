@@ -7,7 +7,10 @@ import "gridfire-worker/models/Release.js";
 import "gridfire-worker/models/User.js";
 
 const { MONGODB_URI, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
+let isReady = false;
 let amqpConnection;
+let consumerChannel;
+let consumerTag;
 
 process
   .on("uncaughtException", error => console.error("[Worker] Unhandled exception:", error))
@@ -50,8 +53,9 @@ const amqpConnect = async () => {
     });
 
     startPublisher(connection);
-    startConsumer(connection);
-    return connection;
+    const config = await startConsumer(connection);
+    const { channel, consumerTag } = config || {};
+    return [connection, channel, consumerTag];
   } catch (error) {
     setTimeout(amqpConnect, 3000);
   }
@@ -59,16 +63,19 @@ const amqpConnect = async () => {
 
 try {
   await mongoose.connect(MONGODB_URI);
-  amqpConnection = await amqpConnect();
+  [amqpConnection, consumerChannel, consumerTag] = await amqpConnect();
+  isReady = true;
 } catch (error) {
   console.error(`[Worker] Node execution error: ${error.message}`);
 }
 
 const handleShutdown = async () => {
-  try {
-    console.log("[Worker] Gracefully shutting down…");
+  isReady = true;
+  console.log("[Worker] Gracefully shutting down…");
 
+  try {
     if (amqpConnection) {
+      await consumerChannel.cancel(consumerTag);
       await amqpConnection.close.bind(amqpConnection);
       console.log("[Worker][AMQP] Closed.");
     }

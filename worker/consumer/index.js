@@ -32,7 +32,9 @@ const startConsumer = async connection => {
 
     channel.prefetch(1);
     await channel.assertQueue(QUEUE_TRANSCODE, { durable: true });
-    channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false });
+    const config = channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false });
+    const { consumerTag } = config || {};
+    return { channel, consumerTag };
   } catch (error) {
     if (closeOnError(connection, error)) return;
   }
