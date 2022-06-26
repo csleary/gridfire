@@ -45,6 +45,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       }
 
       dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
+      console.error(error);
     } finally {
       setIsPurchasing(false);
     }
@@ -65,10 +66,10 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
         : inCollection
         ? "In collection"
         : !isConnected
-        ? `Connect wallet (◈ ${price} DAI)`
+        ? `Connect wallet (◈${price} DAI)`
         : allowanceTooLow
-        ? `Approval required (◈ ${price} DAI)`
-        : `Purchase (◈ ${price} DAI)`}
+        ? `Approval required (◈${price} DAI)`
+        : `Purchase (◈${price} DAI)`}
     </Button>
   );
 };

@@ -100,8 +100,8 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
       <input {...getInputProps()} />
       <WrapItem>
         <ProgressIndicator
-          color="blue.200"
-          labelColor="blue.200"
+          color="purple.200"
+          labelColor={useColorModeValue("purple.300", "purple.200")}
           isStored={isStored}
           progress={audioUploadProgress[trackId]}
           stageHasStarted={audioUploadProgress[trackId] > 0}
@@ -114,8 +114,8 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
       </WrapItem>
       <WrapItem>
         <ProgressIndicator
-          color="purple.200"
-          labelColor={useColorModeValue("purple.300", "purple.200")}
+          color="blue.200"
+          labelColor="blue.200"
           isStored={isStored}
           progress={encodingProgressFLAC[trackId]}
           stageHasStarted={encodingProgressFLAC[trackId] > 0}

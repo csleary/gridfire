@@ -20,6 +20,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, title }
       const priceInWei = utils.parseEther(price.toString());
       dispatch(addToBasket({ artistName, id: itemId, imageUrl, paymentAddress, price: priceInWei, title }));
     } catch (error) {
+      console.error(error);
     } finally {
       dispatch(setIsAddingToBasket(false));
     }
