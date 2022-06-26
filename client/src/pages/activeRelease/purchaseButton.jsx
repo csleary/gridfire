@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Box, Button, Divider } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
 import Icon from "components/icon";
@@ -12,6 +12,18 @@ import { purchaseRelease } from "web3/contract";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { utils } from "ethers";
+
+const daiSymbol = (
+  <Box as="span" mr="0.15rem">
+    ◈
+  </Box>
+);
+
+const divider = (
+  <Box alignSelf="stretch" py="0.625rem">
+    <Divider borderColor="gray.500" orientation="vertical" mx={4} />
+  </Box>
+);
 
 const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const dispatch = useDispatch();
@@ -64,18 +76,22 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       {!price
         ? "Name your price"
         : inCollection
-        ? "In collection"
+        ? "Owned"
         : !isConnected
-        ? `Connect wallet (◈${price} DAI)`
+        ? "Connect"
         : allowanceTooLow
-        ? `Approval required (◈${price} DAI)`
-        : `Purchase (◈${price} DAI)`}
+        ? "Set allowance"
+        : "Purchase"}
+      {divider}
+      {daiSymbol}
+      {price} DAI
     </Button>
   );
 };
 
 PurchaseButton.propTypes = {
   inCollection: PropTypes.bool,
+  isLoading: PropTypes.bool,
   price: PropTypes.number,
   releaseId: PropTypes.string
 };

@@ -21,8 +21,6 @@ const releaseSlice = createSlice({
     releaseIdsForDeletion: {},
     userFavourites: [],
     userReleases: [],
-    favCounts: {},
-    playCounts: {},
     userWishList: []
   },
   reducers: {
@@ -75,16 +73,6 @@ const releaseSlice = createSlice({
     },
     setUserReleases(state, action) {
       state.userReleases = action.payload;
-    },
-    setUserReleaseFavs(state, action) {
-      action.payload.forEach(rel => {
-        state.favCounts[rel._id] = rel.total;
-      });
-    },
-    setUserReleasePlays(state, action) {
-      action.payload.forEach(rel => {
-        state.playCounts[rel._id] = rel.total;
-      });
     },
     setUserWishList(state, action) {
       state.userWishList = action.payload;
@@ -168,28 +156,12 @@ const fetchRelease = releaseId => async dispatch => {
     dispatch(setActiveRelease(res.data.release));
   } catch (error) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
-    return error.response.data;
   }
-};
-
-const fetchUserRelease = releaseId => async dispatch => {
-  const res = await axios.get(`/api/user/release/${releaseId}`);
-  dispatch(setActiveRelease(res.data));
 };
 
 const fetchUserReleases = () => async dispatch => {
   const res = await axios.get("/api/user/releases");
   dispatch(setUserReleases(res.data));
-};
-
-const fetchUserReleasesFavCounts = () => async dispatch => {
-  const res = await axios.get("/api/user/releases/favourites");
-  dispatch(setUserReleaseFavs(res.data));
-};
-
-const fetchUserReleasesPlayCounts = () => async dispatch => {
-  const res = await axios.get("/api/user/plays");
-  dispatch(setUserReleasePlays(res.data));
 };
 
 const fetchUserFavourites = () => async dispatch => {
@@ -226,7 +198,7 @@ const updateRelease = values => async dispatch => {
     const res = await axios.post("/api/release", values);
     dispatch(setActiveRelease(res.data));
   } catch (error) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+    dispatch(toastError({ message: error.response?.data?.error || error.message, title: "Error" }));
   }
 };
 
@@ -244,8 +216,6 @@ export const {
   setReleaseIdsForDeletion,
   setReleasePurchaseInfo,
   setUserFavourites,
-  setUserReleaseFavs,
-  setUserReleasePlays,
   setUserReleases,
   setUserWishList,
   updateTrackStatus,
@@ -260,10 +230,7 @@ export {
   fetchRelease,
   fetchUserFavourites,
   fetchUserWishList,
-  fetchUserRelease,
   fetchUserReleases,
-  fetchUserReleasesFavCounts,
-  fetchUserReleasesPlayCounts,
   publishStatus,
   updateRelease
 };

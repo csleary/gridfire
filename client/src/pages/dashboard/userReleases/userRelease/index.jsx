@@ -14,16 +14,19 @@ import { setReleaseIdsForDeletion } from "state/releases";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-function UserRelease({ favs, numSold, plays, release }) {
+function UserRelease({ release }) {
   const {
     _id: releaseId,
     artist,
     artistName,
     artwork,
+    faves,
+    plays,
     price,
     published,
     releaseDate,
     releaseTitle,
+    sales,
     trackList
   } = release;
 
@@ -51,7 +54,7 @@ function UserRelease({ favs, numSold, plays, release }) {
     setPublishingRelease(false);
   };
 
-  const hasAudio = !trackList.length || trackList.some(el => el?.status !== "stored") ? false : true;
+  const hasAudio = !trackList.length || !trackList.some(el => el?.status !== "stored");
 
   return (
     <Flex
@@ -66,14 +69,23 @@ function UserRelease({ favs, numSold, plays, release }) {
     >
       <Artwork artwork={artwork} releaseId={releaseId} releaseTitle={releaseTitle} />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
-      <Title artist={artist} artistName={artistName} favs={favs} releaseId={releaseId} releaseTitle={releaseTitle} />
+      <Title artist={artist} artistName={artistName} favs={faves} releaseId={releaseId} releaseTitle={releaseTitle} />
       <Flex flexDirection="column" px={4} pt={0} pb={4}>
         <Divider borderColor={useColorModeValue("gray.200", "gray.500")} my={4} />
         <Flex marginTop="auto">
           <Box flex={1} pr={2}>
             <Text>
               <Icon color={price > 0 ? "green.200" : "orange.300"} fixedWidth icon={faCircle} mr={2} />
-              {price > 0 ? `◈${price} DAI` : "Name your price"}
+              {price > 0 ? (
+                <>
+                  <Box as="span" mr="0.15rem">
+                    ◈
+                  </Box>
+                  {price} DAI
+                </>
+              ) : (
+                "Name your price"
+              )}
             </Text>
             <Text>
               <Icon
@@ -91,13 +103,13 @@ function UserRelease({ favs, numSold, plays, release }) {
             </Text>
             <Text>
               <Icon
-                color={numSold ? "green.200" : "gray.500"}
+                color={sales > 0 ? "green.200" : "gray.500"}
                 fixedWidth
                 icon={faCircle}
                 title="Number of copies sold."
                 mr={2}
               />
-              {numSold} sold
+              {sales} sold
             </Text>
           </Box>
           <Box>
@@ -106,8 +118,8 @@ function UserRelease({ favs, numSold, plays, release }) {
               <Icon color={plays > 0 ? "green.200" : "gray.500"} fixedWidth icon={faPlay} ml={2} />
             </Text>
             <Text title="Total favourites for this release.">
-              {favs}
-              <Icon color={favs > 0 ? "red.400" : "gray.500"} fixedWidth icon={faHeart} ml={2} />
+              {faves}
+              <Icon color={faves > 0 ? "red.400" : "gray.500"} fixedWidth icon={faHeart} ml={2} />
             </Text>
           </Box>
         </Flex>
@@ -149,11 +161,6 @@ function UserRelease({ favs, numSold, plays, release }) {
   );
 }
 
-UserRelease.propTypes = {
-  favs: PropTypes.number,
-  numSold: PropTypes.number,
-  plays: PropTypes.number,
-  release: PropTypes.object
-};
+UserRelease.propTypes = { release: PropTypes.object };
 
 export default UserRelease;

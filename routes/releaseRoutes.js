@@ -74,6 +74,7 @@ router.get("/:releaseId", async (req, res) => {
     const { releaseId } = req.params;
     const release = await Release.findById(releaseId).exec();
 
+    // Allow artists to see their own unpublished release pages.
     if (!release.published && !release.user.equals(req.user._id)) {
       throw new Error("This release is currently unavailable.");
     }
