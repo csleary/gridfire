@@ -49,9 +49,11 @@ const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
       }
     });
 
-    console.log(`[${trackId}] Unpinning source audio after successfully storing FLAC…`);
-    await ipfs.pin.rm(sourceCid);
-    console.log(`[${trackId}] Source audio succesfully unpinned from IPFS.`);
+    if (ipfsFLAC) {
+      console.log(`[${trackId}] Unpinning source audio after successfully storing FLAC…`);
+      await ipfs.pin.rm(sourceCid);
+      console.log(`[${trackId}] Source audio succesfully unpinned from IPFS.`);
+    }
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },

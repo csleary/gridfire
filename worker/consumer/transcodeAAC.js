@@ -100,7 +100,6 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     const mp4Stream = fs.createReadStream(mp4EncFilepath);
     const ipfsMpd = await ipfs.add(mpdData, { cidVersion: 1 });
     const ipfsMP4 = await ipfs.add(mp4Stream, { cidVersion: 1 });
-    console.log({ ipfsMpd });
 
     // Save track and clean up.
     await Release.findOneAndUpdate(
