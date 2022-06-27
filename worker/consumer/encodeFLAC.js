@@ -30,9 +30,9 @@ const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
     ).exec();
 
     const [{ cids }] = release.trackList;
-    const cid = cids.src;
+    const sourceCid = cids.src;
     const { key } = await User.findById(userId, "key", { lean: true }).exec();
-    srcFilepath = await decryptToFilePathByCid(cid, key);
+    srcFilepath = await decryptToFilePathByCid(sourceCid, key);
     const tempFilename = randomUUID({ disableEntropyCache: true });
     flacOutputPath = path.resolve(TEMP_PATH, tempFilename);
     await ffmpegEncodeFLAC(srcFilepath, flacOutputPath, onProgress({ trackId, userId }));
@@ -49,9 +49,17 @@ const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
       }
     });
 
+    console.log(`[${trackId}] Unpinning source audio after successfully storing FLAC…`);
+    await ipfs.pin.rm(sourceCid);
+    console.log(`[${trackId}] Source audio succesfully unpinned from IPFS.`);
+
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "encoded", "trackList.$.cids.flac": ipfsFLAC.cid.toString() }
+      {
+        "trackList.$.status": "encoded",
+        "trackList.$.cids.flac": ipfsFLAC.cid.toString(),
+        $unset: { "trackList.$.cids.src": 1 }
+      }
     ).exec();
 
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackName, userId });

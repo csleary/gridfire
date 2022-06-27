@@ -140,15 +140,17 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
     const release = await Release.findOneAndUpdate(
       { _id: releaseId, user, "trackList._id": trackId },
       { "trackList.$.status": "deleting" },
-      { fields: { trackList: { _id: 1, cids: 1 } }, lean: true, new: true }
+      { fields: { trackList: { _id: 1, cids: 1, mpd: 1 } }, lean: true, new: true }
     ).exec();
 
     if (!release) return res.sendStatus(404);
-    console.log(`Deleting track ${trackId}…`);
-    const { cids = {} } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
+    console.log(`[${trackId}] Deleting track…`);
+    const { cids = {}, mpd } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
+    console.log(`[${trackId}] Unpinning MPD…`);
+    await ipfs.pin.rm(mpd).catch(error => console.error(error.message));
 
     for (const cid of Object.values(cids).filter(Boolean)) {
-      console.log(`Unpinning CID ${cid} for track ${trackId}…`);
+      console.log(`[${trackId}] Unpinning CID ${cid}…`);
       await ipfs.pin.rm(cid).catch(error => console.error(error.message));
     }
 
@@ -160,7 +162,7 @@ router.delete("/:releaseId/:trackId", requireLogin, async (req, res) => {
       }
     ).exec();
 
-    console.log(`Track ${trackId} deleted.`);
+    console.log(`[${trackId}] Track deleted.`);
     res.sendStatus(200);
   } catch (error) {
     console.log(error);

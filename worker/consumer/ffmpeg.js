@@ -5,7 +5,7 @@ const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
     ffmpeg(inputFilepath)
       // .audioCodec('libfdk_aac')
       .audioCodec("aac")
-      .audioBitrate(96)
+      .audioBitrate(128)
       .toFormat("mp4")
       .outputOptions(["-frag_duration 15000000", "-movflags default_base_moof+empty_moov"])
       // .on("codecData", console.log)

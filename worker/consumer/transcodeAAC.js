@@ -57,7 +57,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     const flacReadStream = fs.createReadStream(flacFilepath);
     await ffmpegEncodeFragmentedAAC(flacReadStream, mp4Filepath);
 
-    // Encrypt.
+    // Encrypt MP4.
     fs.accessSync(mp4Filepath, fs.constants.R_OK);
     mp4EncFilepath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     const key = randomBytes(16).toString("hex");
@@ -96,9 +96,11 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     parser.write(mpdData).close();
 
-    // Add fragmented mp4 audio to IPFS.
+    // Add fragmented mp4 audio and MPD file to IPFS.
     const mp4Stream = fs.createReadStream(mp4EncFilepath);
+    const ipfsMpd = await ipfs.add(mpdData, { cidVersion: 1 });
     const ipfsMP4 = await ipfs.add(mp4Stream, { cidVersion: 1 });
+    console.log({ ipfsMpd });
 
     // Save track and clean up.
     await Release.findOneAndUpdate(
@@ -109,7 +111,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
         "trackList.$.initRange": initRange,
         "trackList.$.key": key,
         "trackList.$.kid": kid,
-        "trackList.$.mpd": mpdData,
+        "trackList.$.mpd": ipfsMpd.cid.toString(),
         "trackList.$.segmentDuration": segmentDuration,
         "trackList.$.segmentList": segmentList,
         "trackList.$.segmentTimescale": segmentTimescale

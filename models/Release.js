@@ -20,7 +20,7 @@ const trackSchema = new Schema(
     trackTitle: { type: String, trim: true },
     status: { type: String, enum: trackStatusEnum, default: "pending" },
     duration: { type: Number, trim: true },
-    mpd: { type: Buffer },
+    mpd: { type: String, select: false },
     segmentDuration: { type: Number },
     segmentTimescale: { type: Number },
     segmentList: { type: Array },

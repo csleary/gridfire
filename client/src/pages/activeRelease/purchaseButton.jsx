@@ -35,10 +35,10 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const handlePayment = async () => {
     try {
       setIsPurchasing(true);
-      const res = await axios.get(`/api/release/purchase/${releaseId}`);
+      const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress, price } = res.data;
       const transactionHash = await purchaseRelease(paymentAddress, releaseId, price);
-      await axios.post(`/api/release/purchase/${releaseId}`, { transactionHash });
+      await axios.post(`/api/release/${releaseId}/purchase`, { transactionHash });
       dispatch(fetchDaiBalance(account));
       dispatch(fetchUser());
       dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));

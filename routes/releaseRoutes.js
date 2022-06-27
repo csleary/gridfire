@@ -23,17 +23,18 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const release = await Release.findOne({ _id: releaseId, user }, "artist artwork trackList").exec();
     const { artist, artwork, trackList } = release;
 
-    // Delete artwork from IPFS.
+    // Unpin artwork from IPFS.
     console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
 
     const deleteArtwork = artwork.cid
       ? ipfs.pin.rm(artwork.cid).catch(error => console.error(error.message))
       : Promise.resolve();
 
-    // Delete track audio and playlists from IPFS.
+    // Unpin track audio and MPD from IPFS.
     const deleteTracks = trackList.reduce(
       (prev, track) => [
         ...prev,
+        track.mpd,
         ...Object.values(track.cids)
           .filter(Boolean)
           .map(cid => {
@@ -104,7 +105,7 @@ router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/purchase/:releaseId", requireLogin, async (req, res) => {
+router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
   try {
     const buyer = req.user._id;
     const { releaseId } = req.params;
@@ -187,7 +188,7 @@ router.post("/purchase", requireLogin, async (req, res) => {
   }
 });
 
-router.post("/purchase/:releaseId", requireLogin, async (req, res) => {
+router.post("/:releaseId/purchase", requireLogin, async (req, res) => {
   try {
     const buyerUserId = req.user._id;
     const { releaseId } = req.params;

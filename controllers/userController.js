@@ -6,7 +6,7 @@ const getUser = async userId => {
     { $lookup: { from: "favourites", localField: "_id", foreignField: "user", as: "favourites" } },
     { $lookup: { from: "wishlists", localField: "_id", foreignField: "user", as: "wishList" } },
     { $lookup: { from: "sales", localField: "_id", foreignField: "user", as: "purchases" } },
-    { $project: { __v: 0, key: 0 } }
+    { $project: { __v: 0, key: 0, purchases: { __v: 0 } } }
   ]).exec();
 
   return user;

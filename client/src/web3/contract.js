@@ -15,7 +15,7 @@ const claimBalance = async () => {
   const signer = provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
   const transactionReceipt = await gridFireContract.claim().catch(console.log);
-  const { status } = await transactionReceipt.wait(0);
+  const { status } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Claim unsuccessful.");
 };
 
