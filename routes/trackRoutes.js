@@ -207,10 +207,13 @@ router.post("/:releaseId/upload", requireLogin, async (req, res) => {
 
       if (track) {
         const {
-          trackList: [{ cids }]
+          trackList: [{ cids, mpd }]
         } = await Release.findOne({ _id: releaseId, "trackList._id": trackId }, "trackList.$").exec();
 
         console.log("Unpinning existing track audio…");
+        console.log(`Unpinning MPD CID ${mpd} for track ${trackId}…`);
+        await ipfs.pin.rm(mpd).catch(error => console.error(error.message));
+
         for (const cid of Object.values(cids).filter(Boolean)) {
           console.log(`Unpinning CID ${cid} for track ${trackId}…`);
           await ipfs.pin.rm(cid).catch(error => console.error(error.message));
