@@ -38,7 +38,7 @@ spec:
         storageClassName: do-block-storage
         resources:
           requests:
-            storage: 5Gi
+            storage: 100Gi
     - metadata:
         name: ipfs-staging
       spec:
@@ -46,7 +46,7 @@ spec:
         storageClassName: do-block-storage
         resources:
           requests:
-            storage: 100Gi
+            storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
