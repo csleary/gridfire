@@ -22,6 +22,7 @@ const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
 const ffmpegEncodeFLAC = async (inputFilepath, outputFilepath, onProgress) =>
   new Promise((resolve, reject) => {
     ffmpeg(inputFilepath)
+      .noVideo() // Strip-out non-audio streams.
       .audioCodec("flac")
       .audioChannels(2)
       .toFormat("flac")

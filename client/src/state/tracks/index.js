@@ -73,10 +73,10 @@ const trackSlice = createSlice({
   }
 });
 
-const deleteTrack = (releaseId, trackId, trackTitle) => async (dispatch, getState) => {
+const deleteTrack = (trackId, trackTitle) => async (dispatch, getState) => {
   try {
     if (getState().tracks.trackIdsForDeletion[trackId]) {
-      await axios.delete(`/api/track/${releaseId}/${trackId}`);
+      await axios.delete(`/api/track/${trackId}`);
       const message = `${trackTitle ? `\u2018${trackTitle}\u2019` : "Track"} deleted.`;
       dispatch(toastSuccess({ message, title: "Done" }));
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
@@ -84,7 +84,8 @@ const deleteTrack = (releaseId, trackId, trackTitle) => async (dispatch, getStat
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: true }));
     }
   } catch (error) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+    if (error.response?.status === 404) return;
+    dispatch(toastError({ message: error.response?.data?.error, title: "Error" }));
   }
 };
 
@@ -100,6 +101,7 @@ const uploadAudio =
     try {
       dispatch(setUploadProgress({ trackId, progress: 0 }));
       const formData = new FormData();
+      formData.append("releaseId", releaseId);
       formData.append("trackId", trackId);
       formData.append("trackName", trackName);
       formData.append("trackAudioFile", audioFile, audioFile.name);
@@ -113,13 +115,13 @@ const uploadAudio =
         cancelToken
       };
 
-      await axios.post(`/api/track/${releaseId}/upload`, formData, config);
+      await axios.put("/api/track", formData, config);
     } catch (error) {
       if (axios.isCancel(error)) {
         return toastInfo({ message: "Upload cancelled.", title: "Cancelled" });
       }
 
-      toastError({ message: error.response.data.error });
+      toastError({ message: "We encountered an error uploading this track." });
       dispatch(setUploadProgress({ trackId, progress: 0 }));
     }
   };

@@ -14,20 +14,13 @@ import sax from "sax";
 const { TEMP_PATH } = process.env;
 const fsPromises = fs.promises;
 
-const removeTempFiles = async ({ flacFilepath, mp4Filepath, mp4EncFilepath, playlistDir }) => {
-  const dirContents = await fsPromises.readdir(playlistDir);
-  const deleteFiles = dirContents.map(file => fsPromises.unlink(path.join(playlistDir, file)));
-
-  const outcome = await Promise.allSettled([
+const removeTempFiles = async ({ flacFilepath, mp4Filepath, mp4EncFilepath, playlistDir }) =>
+  await Promise.allSettled([
     fsPromises.unlink(flacFilepath),
     fsPromises.unlink(mp4Filepath),
     fsPromises.unlink(mp4EncFilepath),
-    ...deleteFiles
+    fsPromises.rm(playlistDir, { recursive: true, force: true })
   ]);
-
-  if (outcome.some(({ status }) => status === "rejected")) return;
-  await fsPromises.rmdir(playlistDir);
-};
 
 const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
   let flacFilepath, mp4Filepath, mp4EncFilepath, playlistDir;

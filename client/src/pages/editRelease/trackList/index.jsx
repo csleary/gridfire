@@ -43,9 +43,9 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
         setValues(prev => ({ ...prev, trackList: prev.trackList.filter(({ _id }) => _id !== trackId) }));
       }
 
-      dispatch(deleteTrack(releaseId, trackId, trackTitle));
+      dispatch(deleteTrack(trackId, trackTitle));
     },
-    [dispatch, releaseId, setValues, trackIdsForDeletion]
+    [dispatch, setValues, trackIdsForDeletion]
   );
 
   const handleDragStart = useCallback(
