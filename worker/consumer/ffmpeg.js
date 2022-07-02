@@ -1,13 +1,15 @@
 import ffmpeg from "fluent-ffmpeg";
+const FRAG_DURATION_MS = 10_000_000;
 
 const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
   new Promise((resolve, reject) => {
     ffmpeg(inputFilepath)
-      // .audioCodec('libfdk_aac')
+      .noVideo()
+      .audioChannels(2)
       .audioCodec("aac")
       .audioBitrate(128)
       .toFormat("mp4")
-      .outputOptions(["-frag_duration 15000000", "-movflags default_base_moof+empty_moov"])
+      .outputOptions([`-frag_duration ${FRAG_DURATION_MS}`])
       // .on("codecData", console.log)
       .on("end", (stdout, stderr) => {
         // console.log(stderr);
@@ -41,7 +43,9 @@ const ffmpegEncodeFLAC = async (inputFilepath, outputFilepath, onProgress) =>
 const ffmpegEncodeMP3FromStream = async (inputStream, outputStream, onProgress) =>
   new Promise((resolve, reject) => {
     ffmpeg(inputStream)
+      .noVideo()
       .audioCodec("libmp3lame")
+      .audioChannels(2)
       .toFormat("mp3")
       .outputOptions("-q:a 0")
       // .on("codecData", console.log)

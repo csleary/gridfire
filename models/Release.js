@@ -20,17 +20,13 @@ const trackSchema = new Schema(
     trackTitle: { type: String, trim: true },
     status: { type: String, enum: trackStatusEnum, default: "pending" },
     duration: { type: Number, trim: true },
-    mpd: { type: String, select: false },
-    segmentDuration: { type: Number },
-    segmentTimescale: { type: Number },
-    segmentList: { type: Array },
-    initRange: { type: String },
-    cids: {
-      flac: { type: String, select: false },
-      mp3: { type: String, select: false },
-      mp4: { type: String, select: false },
-      src: { type: String, select: false }
-    },
+    flac: { type: String },
+    hls: { type: String },
+    mst: { type: String },
+    mp3: { type: String },
+    mp4: { type: String },
+    mpd: { type: String },
+    src: { type: String },
     key: { type: String, select: false },
     kid: { type: String, select: false }
   },
@@ -92,11 +88,10 @@ releaseSchema.set("toJSON", {
 
     ret.trackList.forEach(track => {
       delete track.createdAt;
-      delete track.initRange;
-      delete track.mpd;
-      delete track.segmentDuration;
-      delete track.segmentList;
-      delete track.segmentTimescale;
+      delete track.flac;
+      delete track.mp3;
+      delete track.mp4;
+      delete track.src;
       delete track.updatedAt;
     });
 

@@ -106,12 +106,10 @@ router.get("/", async (req, res) => {
       -artwork.dateUpdated 
       -createdAt
       -updatedAt
-      -trackList.cids.mp4
-      -trackList.initRange
-      -trackList.mpd
-      -trackList.segmentDuration
-      -trackList.segmentTimescale
-      -trackList.segmentList
+      -trackList.flac
+      -trackList.mp3
+      -trackList.mp4
+      -trackList.src
       -trackList.createdAt
       -trackList.updatedAt
       `,

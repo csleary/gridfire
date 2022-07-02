@@ -1,32 +1,192 @@
 import { Box, Flex, IconButton, Spacer, Text, useColorModeValue } from "@chakra-ui/react";
+import { decryptArrayBuffer, encryptArrayBuffer, exportKeyToJWK, generateKey } from "utils";
 import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
-import { Link as RouterLink } from "react-router-dom";
+import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "components/icon";
-import useAudioPlayer from "hooks/useAudioPlayer";
-import { shallowEqual, useSelector } from "react-redux";
+import { Link as RouterLink } from "react-router-dom";
+import axios from "axios";
+import shaka from "shaka-player";
+import { toastWarning } from "state/toast";
 import { useLocation } from "react-router-dom";
+import { usePrevious } from "hooks/usePrevious";
+
+const { REACT_APP_IPFS_GATEWAY } = process.env;
 
 const Player = () => {
-  const { player } = useSelector(state => state, shallowEqual);
+  const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const { artistName, isPlaying, releaseId, showPlayer, trackTitle } = player;
+  const audioPlayerRef = useRef();
+  const keyPairRef = useRef();
+  const seekBarRef = useRef();
+  const serverPublicKeyRef = useRef();
+  const shakaRef = useRef();
+  const { player, releases } = useSelector(state => state, shallowEqual);
+  const [bufferRanges, setBufferRanges] = useState([]);
+  const [elapsedTime, setElapsedTime] = useState("");
+  const [isReady, setIsReady] = useState(false);
+  const [showRemaining, setShowRemaining] = useState(false);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [remainingTime, setRemainingTime] = useState("");
+  const { artistName, isPlaying, trackId: playerTrackId, showPlayer, trackTitle } = player;
+  const release = releases.activeRelease;
+  const { _id: releaseId, trackList } = release;
+  const { mst, mpd } = trackList.find(({ _id }) => _id === playerTrackId) || {};
+  const prevPlayerTrackId = usePrevious(playerTrackId);
 
-  const {
-    audioPlayerRef,
-    bufferRanges,
-    duration,
-    elapsedTime,
-    hidePlayer,
-    playAudio,
-    seekAudio,
-    stopAudio,
-    isReady,
-    progressPercent,
-    remainingTime,
-    seekBarRef,
-    setShowRemaining,
-    showRemaining
-  } = useAudioPlayer();
+  useEffect(() => {
+    generateKey().then(keyPair => (keyPairRef.current = keyPair));
+
+    axios
+      .get("/api/track")
+      .then(res => (serverPublicKeyRef.current = res.data))
+      .catch(console.error);
+  }, []);
+
+  const wrapRequest = useCallback(async (type, request) => {
+    if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) {
+      const { publicKey } = keyPairRef.current;
+      const jwk = await exportKeyToJWK(publicKey);
+      const formData = new FormData();
+      const encryptedMessage = await encryptArrayBuffer(serverPublicKeyRef.current, request.body);
+      formData.append("key", JSON.stringify(jwk));
+      formData.append("message", new Blob([encryptedMessage]));
+      request.responseType = "arraybuffer";
+      request.body = formData;
+    }
+  }, []);
+
+  const unwrapRequest = useCallback(async (type, response) => {
+    if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) {
+      const { privateKey } = keyPairRef.current;
+      response.data = await decryptArrayBuffer(privateKey, response.data);
+    }
+  }, []);
+
+  const onBuffering = () => {
+    const { audio } = shakaRef.current.getBufferedInfo();
+    setBufferRanges(audio);
+  };
+
+  useEffect(() => {
+    if (!shaka.Player.isBrowserSupported()) {
+      return void dispatch(
+        toastWarning({ message: "Audio playback is not supported by this browser.", title: "Warning" })
+      );
+    }
+
+    shakaRef.current = new shaka.Player(audioPlayerRef.current);
+    shakaRef.current.configure({ drm: { servers: { "org.w3.clearkey": "/api/track" } } });
+    shakaRef.current.getNetworkingEngine().registerRequestFilter(wrapRequest);
+    shakaRef.current.getNetworkingEngine().registerResponseFilter(unwrapRequest);
+    const eventManager = new shaka.util.EventManager();
+    eventManager.listen(shakaRef.current, `buffering`, onBuffering);
+  }, [dispatch, unwrapRequest, wrapRequest]);
+
+  const onTimeUpdate = useCallback(() => {
+    const { currentTime, duration } = audioPlayerRef.current;
+    const mins = Math.floor(currentTime / 60);
+    const secs = Math.floor(currentTime % 60);
+    const remaining = Math.floor(duration - (currentTime || 0));
+    const remainingMins = Math.floor(remaining / 60);
+    const remainingSecs = (remaining % 60).toString(10).padStart(2, "0");
+    setElapsedTime(`${mins}:${secs.toString(10).padStart(2, "0")}`);
+    setRemainingTime(`-${remainingMins}:${remainingSecs}`);
+    setProgressPercent(currentTime / duration);
+    const { audio } = shakaRef.current.getBufferedInfo();
+    setBufferRanges(audio);
+  }, []);
+
+  const handleStop = useCallback(() => {
+    audioPlayerRef.current.pause();
+    audioPlayerRef.current.currentTime = 0;
+    dispatch(playerStop());
+  }, [dispatch]);
+
+  const onError = useCallback(
+    error => {
+      console.error(error);
+      setIsReady(false);
+      dispatch(playerStop());
+    },
+    [dispatch]
+  );
+
+  const onEnded = useCallback(() => {
+    const trackIndex = trackList.findIndex(({ _id }) => _id === playerTrackId);
+
+    if (trackList[trackIndex + 1]) {
+      const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
+      const cuedTrack = { releaseId, trackId: nextTrackId, artistName, trackTitle };
+      return void dispatch(playTrack(cuedTrack));
+    }
+
+    handleStop();
+  }, [artistName, dispatch, handleStop, playerTrackId, releaseId, trackList]);
+
+  const onLoadedData = () => {}; // Set up streamSession? logStream
+  const onPlay = useCallback(() => void dispatch(playerPlay()), [dispatch]);
+  const onPlaying = () => setIsReady(true);
+  const onWaiting = () => setIsReady(false);
+
+  useEffect(() => {
+    audioPlayerRef.current.addEventListener("loadeddata", onLoadedData);
+    audioPlayerRef.current.addEventListener("play", onPlay);
+    audioPlayerRef.current.addEventListener("playing", onPlaying);
+    audioPlayerRef.current.addEventListener("waiting", onWaiting);
+    audioPlayerRef.current.addEventListener("timeupdate", onTimeUpdate);
+    audioPlayerRef.current.addEventListener("ended", onEnded);
+    audioPlayerRef.current.addEventListener("onerror", onError);
+
+    return () => {
+      if (!audioPlayerRef.current) return;
+      audioPlayerRef.current.removeEventListener("loadeddata", onLoadedData);
+      audioPlayerRef.current.removeEventListener("play", onPlay);
+      audioPlayerRef.current.removeEventListener("playing", onPlaying);
+      audioPlayerRef.current.removeEventListener("waiting", onWaiting);
+      audioPlayerRef.current.removeEventListener("timeupdate", onTimeUpdate);
+      audioPlayerRef.current.removeEventListener("ended", onEnded);
+      audioPlayerRef.current.removeEventListener("onerror", onError);
+    };
+  }, [onEnded, onError, onPlay, onTimeUpdate]);
+
+  const handlePlay = useCallback(() => {
+    const playPromise = audioPlayerRef.current.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          if (isPlaying) {
+            audioPlayerRef.current.pause();
+            return void dispatch(playerPause());
+          }
+        })
+        .catch(onError);
+    }
+  }, [dispatch, isPlaying, onError]);
+
+  useEffect(() => {
+    if (shakaRef.current && playerTrackId && playerTrackId !== prevPlayerTrackId) {
+      shaka.Player.probeSupport().then(({ manifest: { mpd: dash } }) => {
+        const manifest = dash ? mpd : mst;
+        const mimeType = dash ? "application/dash+xml" : "application/x-mpegURL";
+        shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${manifest}`, null, mimeType).then(handlePlay).catch(onError);
+      });
+    }
+  }, [handlePlay, mpd, mst, onError, playerTrackId, prevPlayerTrackId]);
+
+  const handleSeek = ({ clientX }) => {
+    const width = seekBarRef.current.clientWidth;
+    const seekPercent = clientX / width;
+    audioPlayerRef.current.currentTime = audioPlayerRef.current.duration * seekPercent;
+  };
+
+  const handleHidePlayer = () => {
+    audioPlayerRef.current.pause();
+    dispatch(playerStop());
+    dispatch(playerHide());
+  };
 
   return (
     <Box
@@ -45,7 +205,7 @@ const Player = () => {
     >
       <audio id="player" ref={el => (audioPlayerRef.current = el)} />
       <Box
-        onClick={seekAudio}
+        onClick={handleSeek}
         ref={seekBarRef}
         role="button"
         tabIndex="-1"
@@ -56,7 +216,8 @@ const Player = () => {
         width="100%"
         _groupHover={{ background: "gray.200", cursor: "pointer", height: "8px", marginTop: "6px" }}
       >
-        {bufferRanges.map(([start, end]) => {
+        {bufferRanges.map(({ start, end }) => {
+          const { duration } = audioPlayerRef.current;
           const left = (start / duration) * 100;
           const width = ((end - start) / duration) * 100;
 
@@ -84,7 +245,7 @@ const Player = () => {
         <Flex flex="1 1 50%" justifyContent="flex-end">
           <IconButton
             icon={<Icon icon={!isReady ? faCog : isPlaying ? faPause : faPlay} fixedWidth spin={!isReady} />}
-            onClick={playAudio}
+            onClick={handlePlay}
             variant="ghost"
             fontSize="2rem"
             mr={2}
@@ -92,7 +253,7 @@ const Player = () => {
           />
           <IconButton
             icon={<Icon icon={faStop} fixedWidth />}
-            onClick={stopAudio}
+            onClick={handleStop}
             fontSize="2rem"
             mr={2}
             variant="ghost"
@@ -138,7 +299,7 @@ const Player = () => {
         <IconButton
           icon={<Icon icon={faChevronDown} />}
           mx={[1, 4]}
-          onClick={hidePlayer}
+          onClick={handleHidePlayer}
           title="Hide player (will stop audio)"
           variant="ghost"
           _hover={{ "&:active": { background: "none" }, color: "gray.100" }}

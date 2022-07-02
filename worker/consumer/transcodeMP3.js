@@ -13,13 +13,12 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
       lean: true
     }).exec();
 
-    const [{ cids }] = release.trackList;
-    const cid = cids.flac;
-    const cidMP3 = await transformIpfsStreamByCid(cid, key, ffmpegEncodeMP3FromStream);
+    const [{ flac }] = release.trackList;
+    const cidMP3 = await transformIpfsStreamByCid(flac, key, ffmpegEncodeMP3FromStream);
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId, user: userId },
-      { "trackList.$.cids.mp3": cidMP3, "trackList.$.status": "stored" }
+      { "trackList.$.mp3": cidMP3, "trackList.$.status": "stored" }
     ).exec();
 
     postMessage({ type: "transcodingCompleteMP3", trackId, userId });

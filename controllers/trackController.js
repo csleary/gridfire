@@ -14,17 +14,19 @@ const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
   const release = await Release.findOneAndUpdate(
     { "trackList._id": trackId, user },
     { "trackList.$.status": "deleting" },
-    { fields: { trackList: { _id: 1, cids: 1, mpd: 1 } }, lean: true, new: true }
+    {
+      fields: { trackList: { _id: 1, flac: 1, hls: 1, mst: 1, mp3: 1, mp4: 1, mpd: 1, src: 1 } },
+      lean: true,
+      new: true
+    }
   ).exec();
 
   if (!release) return;
   console.log(`[${trackId}] Deleting track…`);
-  const { cids = {}, mpd } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
-  console.log(`[${trackId}] Unpinning MPD…`);
-  await ipfs.pin.rm(mpd).catch(error => console.error(error.message));
+  const { flac, hls, mst, mp3, mp4, mpd, src } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
 
-  for (const cid of Object.values(cids).filter(Boolean)) {
-    console.log(`[${trackId}] Unpinning CID ${cid}…`);
+  for (const [key, cid] of Object.entries({ flac, hls, mst, mp3, mp4, mpd, src }).filter(([, cid]) => Boolean(cid))) {
+    console.log(`[${trackId}] Unpinning CID '${key}': ${cid}…`);
     await ipfs.pin.rm(cid).catch(error => console.error(error.message));
   }
 
@@ -38,10 +40,6 @@ const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
 
 const getInitSegment = async ({ trackId, userId }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
-  const { _id: releaseId, trackList } = release || {};
-  const { cids, duration, initRange, segmentList } = trackList.id(trackId);
-  const cidMP4 = cids.mp4;
-
   // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
   // Return to add to session for future segment fetches.
   const user = userId || ObjectId();
@@ -51,24 +49,14 @@ const getInitSegment = async ({ trackId, userId }) => {
       error => error.code != 11000 && console.error(error)
     );
   }
-
-  return { duration, cid: cidMP4, range: initRange, user };
 };
 
 const getSegment = async ({ time, trackId, type, user }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
-  const { cids, segmentList, segmentDuration, segmentTimescale } = release.trackList.id(trackId);
-  const segmentTime = Number.parseFloat(time) / (segmentDuration / segmentTimescale);
-  const indexLookup = { 0: 0, 1: Math.ceil(segmentTime), 2: Math.floor(segmentTime) };
-  const index = indexLookup[type];
-  const range = segmentList[index];
-  const end = index + 1 === segmentList.length;
 
   if (!release.user.equals(user)) {
     StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }).exec();
   }
-
-  return { cid: cids.mp4, range, end };
 };
 
 const getStreamKey = async ({ headers, privateKey, req }) => {
@@ -167,15 +155,14 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
 
         if (track) {
           const {
-            trackList: [{ cids, mpd }]
+            trackList: [{ flac, hls, mst, mp3, mp4, mpd, src }]
           } = await Release.findOne({ _id: releaseId, "trackList._id": trackId }, "trackList.$").exec();
 
           console.log("Unpinning existing track audio…");
-          console.log(`Unpinning MPD CID ${mpd} for track ${trackId}…`);
-          await ipfs.pin.rm(mpd).catch(error => console.error(error.message));
-
-          for (const cid of Object.values(cids).filter(Boolean)) {
-            console.log(`Unpinning CID ${cid} for track ${trackId}…`);
+          for (const [key, cid] of Object.entries({ flac, hls, mst, mp3, mp4, mpd, src }).filter(([, cid]) =>
+            Boolean(cid)
+          )) {
+            console.log(`[${trackId}] Unpinning CID '${key}': ${cid}…`);
             await ipfs.pin.rm(cid).catch(error => console.error(error.message));
           }
 
@@ -189,7 +176,7 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
         const encryptedStream = encryptStream(fileStream, key);
         const ipfsFile = await ipfs.add(encryptedStream, { cidVersion: 1 });
         const cid = ipfsFile.cid.toString();
-        track.set({ dateUpdated: Date.now(), status: "uploaded", cids: { src: cid } });
+        track.set({ dateUpdated: Date.now(), status: "uploaded", src: cid });
         await release.save();
         sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploaded" });
 

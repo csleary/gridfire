@@ -43,7 +43,7 @@ const IpfsStorage = () => {
   const fileColor = useColorModeValue("gray.600", "gray.400");
 
   const { hasCopied, onCopy } = useClipboard(
-    [artwork.cid, ...trackList.flatMap(({ cids }) => Object.values(cids || {}))].join("\n")
+    [artwork.cid, ...trackList.flatMap(({ flac, mp3, mp4 }) => Object.values({ flac, mp3, mp4 }))].join("\n")
   );
 
   useEffect(() => {
@@ -70,32 +70,26 @@ const IpfsStorage = () => {
         </Box>
         <Box>Tracks:</Box>
 
-        {trackList.map(({ _id, cids = {}, trackTitle }, index) => {
-          const { src, flac, mp4, mp3 } = cids;
+        {trackList.map(({ _id, flac, mp4, mp3, trackTitle }, index) => {
           return (
             <Box key={_id} mb={4}>
               <Box color={headingColor} mb={2} fontWeight={500}>
                 {`${index + 1}`.padStart(2, "0")}. {trackTitle}:<br />
               </Box>
               <Box as="span" color={fileColor} mr={2}>
-                Source:
-              </Box>
-              <CID cid={src} />
-              <br />
-              <Box as="span" color={fileColor} mr={2}>
                 FLAC:
               </Box>
               <CID cid={flac} />
               <br />
               <Box as="span" color={fileColor} mr={2}>
-                AAC:
-              </Box>
-              <CID cid={mp4} />
-              <br />
-              <Box as="span" color={fileColor} mr={2}>
                 MP3:
               </Box>
               <CID cid={mp3} />
+              <br />
+              <Box as="span" color={fileColor} mr={2}>
+                MP4:
+              </Box>
+              <CID cid={mp4} />
               <br />
             </Box>
           );

@@ -23,22 +23,18 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const release = await Release.findOne({ _id: releaseId, user }, "artist artwork trackList").exec();
     const { artist, artwork, trackList } = release;
 
-    // Unpin artwork from IPFS.
     console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
-
     const deleteArtwork = artwork.cid
       ? ipfs.pin.rm(artwork.cid).catch(error => console.error(error.message))
       : Promise.resolve();
 
-    // Unpin track audio and MPD from IPFS.
     const deleteTracks = trackList.reduce(
-      (prev, track) => [
+      (prev, { _id: trackId, flac, hls, mst, mp3, mp4, mpd, src }) => [
         ...prev,
-        track.mpd,
-        ...Object.values(track.cids)
-          .filter(Boolean)
-          .map(cid => {
-            console.log(`Unpinning CID ${cid} for track ${track._id.toString()}…`);
+        ...Object.entries({ _id: trackId, flac, hls, mst, mp3, mp4, mpd, src })
+          .filter(([, cid]) => Boolean(cid))
+          .map(([key, cid]) => {
+            console.log(`[${trackId.toString()}] Unpinning CID '${key}': ${cid}…`);
             ipfs.pin.rm(cid).catch(error => console.error(error.message));
           })
       ],
@@ -94,11 +90,20 @@ router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
 
     const release = await Release.findOne(
       { _id: releaseId, user },
-      { artwork: 1, releaseTitle: 1, "trackList._id": 1, "trackList.cids": 1, "trackList.trackTitle": 1 }
+      {
+        artwork: 1,
+        releaseTitle: 1,
+        "trackList._id": 1,
+        "trackList.flac": 1,
+        "trackList.mp3": 1,
+        "trackList.mp4": 1,
+        "trackList.trackTitle": 1
+      },
+      { lean: true }
     ).exec();
 
     if (!release) return res.sendStatus(200);
-    res.json(release.toJSON());
+    res.json(release);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message || error.toString() });

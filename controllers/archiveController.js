@@ -29,7 +29,7 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
     });
 
     let trackNumber = 1;
-    for (const { cids, trackTitle } of trackList) {
+    for (const { [format]: cid, trackTitle } of trackList) {
       const trackName = `${trackNumber.toString(10).padStart(2, "0")} ${trackTitle}.${format}`;
 
       await new Promise((resolve, reject) => {
@@ -43,7 +43,7 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
           archive.append(decryptedStream, { name: trackName });
         });
 
-        const tarStream = Readable.from(ipfs.get(cids[format]));
+        const tarStream = Readable.from(ipfs.get(cid));
         tarStream.pipe(tarExtract);
       });
 
