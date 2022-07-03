@@ -1,10 +1,4 @@
-import {
-  deleteTrack,
-  getInitSegment,
-  getSegment,
-  getStreamKey,
-  uploadTrack
-} from "gridfire/controllers/trackController.js";
+import { deleteTrack, getStreamKey, logStream, uploadTrack } from "gridfire/controllers/trackController.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
@@ -42,26 +36,13 @@ router.put("/", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/:trackId/init", async (req, res) => {
+router.post("/:trackId/:type", async (req, res) => {
   try {
     const userId = req.user?._id || req.session.user;
-    const { trackId } = req.params;
-    const { duration, cid, range, user } = await getInitSegment({ trackId, userId });
+    const { trackId, segmentsTotal, type } = req.params;
+    const user = await logStream({ trackId, userId, segmentsTotal, type });
     req.session.user = user;
-    res.send({ duration, cid, range });
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(400);
-  }
-});
-
-router.get("/:trackId/stream", async (req, res) => {
-  try {
-    const { trackId } = req.params;
-    const { time, type } = req.query;
-    const user = req.user?._id || req.session.user;
-    const { cid, range, end } = await getSegment({ time, trackId, type, user });
-    res.send({ cid, range, end });
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
     res.sendStatus(400);

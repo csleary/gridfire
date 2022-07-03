@@ -1,5 +1,6 @@
 import { decryptBuffer, encryptStream, encryptString } from "gridfire/controllers/encryption.js";
 import Busboy from "busboy";
+import Play from "gridfire/models/Play.js";
 import Release from "gridfire/models/Release.js";
 import StreamSession from "gridfire/models/StreamSession.js";
 import User from "gridfire/models/User.js";
@@ -38,25 +39,46 @@ const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
   console.log(`[${trackId}] Track deleted.`);
 };
 
-const getInitSegment = async ({ trackId, userId }) => {
-  const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
-  // If user is not logged in, generate a session userId for play tracking (or use one already present in session from previous anonymous plays).
-  // Return to add to session for future segment fetches.
-  const user = userId || ObjectId();
-
-  if (!release.user.equals(userId)) {
-    StreamSession.create({ user, release: releaseId, trackId, segmentsTotal: segmentList.length }).catch(
-      error => error.code != 11000 && console.error(error)
-    );
-  }
+const logPlay = async (trackId, release, streamId, user) => {
+  await Play.create({ date: Date.now(), trackId, release, user });
+  await StreamSession.findByIdAndDelete(streamId).exec();
 };
 
-const getSegment = async ({ time, trackId, type, user }) => {
+const logStream = async ({ trackId, userId, type }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
+  const user = userId || ObjectId();
 
-  if (!release.user.equals(user)) {
-    StreamSession.findOneAndUpdate({ user, trackId }, { $inc: { segmentsFetched: 1 } }).exec();
+  if (release.user.equals(user)) {
+    return user;
   }
+
+  const releaseId = release._id;
+
+  if (Number.parseInt(type) === 2) {
+    // Licence request, following the decoding of a 'pssh' media box.
+    StreamSession.create({ user, trackId }).catch(error => error.code != 11000 && console.error(error));
+  } else if (Number.parseInt(type) === 1) {
+    // General segment request. Will only increment after creation, following licence request.
+    const stream = await StreamSession.findOneAndUpdate(
+      { user, trackId },
+      { $inc: { segmentsFetched: 1 } },
+      { new: true, lean: true }
+    ).exec();
+
+    if (stream?.segmentsFetched > 3) {
+      // More than 30s played, so log play.
+      logPlay(trackId, releaseId, stream._id, user);
+    }
+  } else if (Number.parseInt(type) === 6) {
+    // Stream finished. Just in case the track was short, check if there's an outstanding session with at least 1 segment.
+    const stream = await StreamSession.findOne({ user, segmentsFetched: { $gte: 1 }, trackId }).exec();
+
+    if (stream) {
+      logPlay(trackId, releaseId, stream._id, user);
+    }
+  }
+
+  return user;
 };
 
 const getStreamKey = async ({ headers, privateKey, req }) => {
@@ -197,4 +219,4 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
   return parseUpload;
 };
 
-export { deleteTrack, getInitSegment, getSegment, getStreamKey, uploadTrack };
+export { deleteTrack, getStreamKey, uploadTrack, logStream };

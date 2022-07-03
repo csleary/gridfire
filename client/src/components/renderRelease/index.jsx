@@ -51,8 +51,9 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
       const [{ _id: trackId, trackTitle }] = trackList;
 
       batch(() => {
-        dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
-        dispatch(fetchRelease(releaseId));
+        dispatch(fetchRelease(releaseId)).then(() => {
+          dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+        });
         dispatch(toastInfo({ message: `${artistName} - '${trackTitle}'`, title: "Loading" }));
       });
     }

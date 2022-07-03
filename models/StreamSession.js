@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Play from "./Play.js";
 const { Schema } = mongoose;
 
 const streamSessionSchema = new Schema({
@@ -9,19 +8,6 @@ const streamSessionSchema = new Schema({
   trackId: { type: Schema.Types.ObjectId },
   release: { type: Schema.Types.ObjectId, ref: "Release" },
   user: { type: Schema.Types.ObjectId, ref: "User" }
-});
-
-streamSessionSchema.post("findOneAndUpdate", async function (stream) {
-  if (!stream) return;
-  const { _id: streamId, segmentsFetched, segmentsTotal, trackId, release, user } = stream;
-
-  if (segmentsFetched === 2) {
-    await Play.create({ date: Date.now(), trackId, release, user });
-  }
-
-  if (segmentsFetched === segmentsTotal) {
-    this.model.findByIdAndDelete(streamId).exec();
-  }
 });
 
 streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });

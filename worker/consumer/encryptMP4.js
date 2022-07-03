@@ -2,17 +2,16 @@ import { randomBytes } from "crypto";
 import { execSync } from "child_process";
 import path from "path";
 
-const { BIN_DIR, IPFS_GATEWAY_URL, TEMP_PATH } = process.env;
+const { IPFS_GATEWAY_URL, TEMP_PATH } = process.env;
 
 const encryptMP4 = (inputPath, output) => {
   const key = randomBytes(16).toString("hex");
   const kid = randomBytes(16).toString("hex");
 
   const command = `
-${BIN_DIR}/shaka-packager \
+packager-linux-x64 \
 -base_urls ${IPFS_GATEWAY_URL} \
 -clear_lead 0 \
--enable_raw_key_decryption \
 -enable_raw_key_encryption \
 -hls_base_url ${IPFS_GATEWAY_URL} \
 -hls_master_playlist_output master.m3u8 \
