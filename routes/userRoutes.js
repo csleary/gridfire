@@ -25,7 +25,7 @@ router.post("/address", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/collection/", requireLogin, async (req, res) => {
+router.get("/collection", requireLogin, async (req, res) => {
   const collection = await Sale.find({ user: req.user._id }, "", { lean: true, sort: "-purchaseDate" })
     .populate({
       path: "release",
@@ -38,7 +38,7 @@ router.get("/collection/", requireLogin, async (req, res) => {
   res.send(collection);
 });
 
-router.get("/favourites/", requireLogin, async (req, res) => {
+router.get("/favourites", requireLogin, async (req, res) => {
   const userFavourites = await Favourite.find({ user: req.user._id }, "", {
     lean: true,
     sort: "-release.releaseDate"
@@ -69,7 +69,7 @@ router.delete("/favourites/:releaseId", requireLogin, async (req, res) => {
   res.end();
 });
 
-router.get("/releases/", requireLogin, async (req, res) => {
+router.get("/releases", requireLogin, async (req, res) => {
   const userId = req.user._id;
 
   const releases = await Release.aggregate([

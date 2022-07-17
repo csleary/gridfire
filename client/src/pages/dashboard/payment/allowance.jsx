@@ -100,6 +100,8 @@ const Allowance = () => {
           title: "Success"
         })
       );
+
+      getDaiApprovalEvents(account).then(setApprovals);
       setShowModal(false);
     } catch (error) {
       console.error(error);
@@ -171,7 +173,7 @@ const Allowance = () => {
           </Thead>
           <Tbody>
             {approvals.map(({ args, blockNumber, transactionHash }) => {
-              const { wad } = args;
+              const { wad = args[2] } = args;
 
               return (
                 <Tr key={transactionHash}>

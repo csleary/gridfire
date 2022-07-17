@@ -7,7 +7,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import axios from "axios";
-import shaka from "shaka-player";
+// import shaka from "shaka-player";
+import shaka from "shaka-player/dist/shaka-player.compiled.debug.js";
 import { toastWarning } from "state/toast";
 import { useLocation } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
@@ -73,14 +74,12 @@ const Player = () => {
     }
 
     shakaRef.current = new shaka.Player(audioPlayerRef.current);
+    const licenseServer = "/api/track";
 
     shakaRef.current.configure({
       drm: {
         servers: {
-          "com.apple.fps": "/api/track",
-          "com.microsoft.playready": "/api/track",
-          "com.widevine.alpha": "/api/track",
-          "org.w3.clearkey": "/api/track"
+          "org.w3.clearkey": licenseServer
         }
       }
     });
@@ -116,15 +115,9 @@ const Player = () => {
   }, []);
 
   const handleStop = useCallback(() => {
-    const playPromise = audioPlayerRef.current.play();
-
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        audioPlayerRef.current.pause();
-        audioPlayerRef.current.currentTime = 0;
-        dispatch(playerStop());
-      });
-    }
+    audioPlayerRef.current.pause();
+    audioPlayerRef.current.currentTime = 0;
+    dispatch(playerStop());
   }, [dispatch]);
 
   const onError = useCallback(
@@ -202,7 +195,7 @@ const Player = () => {
       shaka.Player.probeSupport().then(supportInfo => {
         const supportsDash = supportInfo.manifest.mpd;
         const manifest = supportsDash ? mpd : mst;
-        const mimeType = supportsDash ? "application/dash+xml" : "application/x-mpegurl";
+        const mimeType = supportsDash ? "application/dash+xml" : "application/vnd.apple.mpegurl";
         shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${manifest}`, null, mimeType).then(handlePlay).catch(onError);
       });
 

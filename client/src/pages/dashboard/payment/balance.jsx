@@ -126,7 +126,7 @@ const Balance = () => {
           </Thead>
           <Tbody>
             {claims.map(({ args, blockNumber, transactionHash }) => {
-              const { amount } = args;
+              const { amount = args[1] } = args;
 
               return (
                 <Tr key={transactionHash}>

@@ -118,7 +118,7 @@ const PaymentAddress = () => {
           </Thead>
           <Tbody>
             {purchases.map(({ args, blockNumber, transactionHash }) => {
-              const { buyer, amount, fee, id } = args;
+              const { buyer = args[0], amount = args[3], fee = args[4], id = args[2] } = args;
 
               return (
                 <Tr key={`${transactionHash}.${id}`}>

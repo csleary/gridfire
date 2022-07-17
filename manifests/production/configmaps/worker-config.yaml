@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: worker-config
 data:
+  IPFS_GATEWAY_URL: https://gridfire.app/ipfs/
   IPFS_NODE_HOST: http://ipfs-node.default.svc.cluster.local:5001
   NODE_ENV: production
   QUEUE_MESSAGE: message

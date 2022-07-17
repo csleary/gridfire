@@ -1,4 +1,5 @@
 import { Contract, ethers, utils } from "ethers";
+import axios from "axios";
 import daiAbi from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
 import gridFirePaymentAbi from "web3/gridfire";
@@ -38,11 +39,13 @@ const getDaiBalance = async account => {
 };
 
 const getDaiApprovalEvents = async account => {
-  const provider = await getProvider();
-  const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  const approvalsFilter = daiContract.filters.Approval(account, REACT_APP_CONTRACT_ADDRESS);
-  const approvals = await daiContract.queryFilter(approvalsFilter);
-  return approvals;
+  const res = await axios.get(`/api/web3/${account}/approvals`);
+  return res.data;
+  // const provider = await getProvider();
+  // const daiContract = new Contract(daiContractAddress, daiAbi, provider);
+  // const approvalsFilter = daiContract.filters.Approval(account, REACT_APP_CONTRACT_ADDRESS);
+  // const approvals = await daiContract.queryFilter(approvalsFilter);
+  // return approvals;
 };
 
 const getDaiContract = signerOrProvider => {
@@ -72,17 +75,21 @@ const gridFireCheckout = async basket => {
 };
 
 const getGridFireClaimEvents = async paymentAddress => {
-  const provider = await getProvider();
-  const gridFire = getGridFireContract(provider);
-  const claimFilter = gridFire.filters.Claim(paymentAddress);
-  return gridFire.queryFilter(claimFilter);
+  const res = await axios.get(`/api/web3/${paymentAddress}/claims`);
+  return res.data;
+  // const provider = await getProvider();
+  // const gridFire = getGridFireContract(provider);
+  // const claimFilter = gridFire.filters.Claim(paymentAddress);
+  // return gridFire.queryFilter(claimFilter);
 };
 
 const getGridFirePurchaseEvents = async paymentAddress => {
-  const provider = await getProvider();
-  const gridFire = getGridFireContract(provider);
-  const purchaseFilter = gridFire.filters.Purchase(null, paymentAddress);
-  return gridFire.queryFilter(purchaseFilter);
+  const res = await axios.get(`/api/web3/${paymentAddress}/purchases`);
+  return res.data;
+  // const provider = await getProvider();
+  // const gridFire = getGridFireContract(provider);
+  // const purchaseFilter = gridFire.filters.Purchase(null, paymentAddress);
+  // return gridFire.queryFilter(purchaseFilter);
 };
 
 const purchaseRelease = async (paymentAddress, id, price) => {
