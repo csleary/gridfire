@@ -1,8 +1,9 @@
-import { Box, Button, Center, Grid } from "@chakra-ui/react";
+import { Box, Button, Center } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
 import SortReleases from "./sortReleases";
@@ -69,7 +70,7 @@ const Home = () => {
           currentSortOrder={currentSortOrder}
           setCurrentSortOrder={setCurrentSortOrder}
         />
-        <Grid templateColumns="repeat(auto-fill, minmax(28rem, 1fr))" gap={8}>
+        <Grid>
           {catalogue.map(release => (
             <RenderRelease key={release._id} release={release} />
           ))}

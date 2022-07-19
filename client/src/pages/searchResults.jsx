@@ -1,5 +1,6 @@
-import { Button, Grid, Heading } from "@chakra-ui/react";
+import { Button, Heading } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import Grid from "components/grid";
 import RenderRelease from "components/renderRelease";
 import { clearResults } from "state/search";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -22,9 +23,7 @@ const SearchResults = () => {
       ) : (
         <Heading as="h2">Search for releases by artist, titles and tags.</Heading>
       )}
-      <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8} mb={8}>
-        {renderReleases}
-      </Grid>
+      <Grid mb={8}>{renderReleases}</Grid>
       {resultsNum ? (
         <Button
           alignSelf="flex-start"

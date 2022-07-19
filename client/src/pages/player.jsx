@@ -75,15 +75,7 @@ const Player = () => {
 
     shakaRef.current = new shaka.Player(audioPlayerRef.current);
     const licenseServer = "/api/track";
-
-    shakaRef.current.configure({
-      drm: {
-        servers: {
-          "org.w3.clearkey": licenseServer
-        }
-      }
-    });
-
+    shakaRef.current.configure({ drm: { servers: { "org.w3.clearkey": licenseServer } } });
     shakaRef.current.getNetworkingEngine().registerRequestFilter(wrapRequest);
     shakaRef.current.getNetworkingEngine().registerResponseFilter(unwrapRequest);
     const eventManager = new shaka.util.EventManager();
@@ -193,10 +185,13 @@ const Player = () => {
   useEffect(() => {
     if (trackId && trackId !== prevTrackId) {
       shaka.Player.probeSupport().then(supportInfo => {
-        const supportsDash = supportInfo.manifest.mpd;
-        const manifest = supportsDash ? mpd : mst;
-        const mimeType = supportsDash ? "application/dash+xml" : "application/vnd.apple.mpegurl";
-        shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${manifest}`, null, mimeType).then(handlePlay).catch(onError);
+        if (supportInfo.manifest.mpd) {
+          const mimeType = "application/dash+xml";
+          shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${mpd}`, null, mimeType).then(handlePlay).catch(onError);
+        } else if (supportInfo.manifest.m3u8) {
+          const mimeType = "application/vnd.apple.mpegurl";
+          shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${mst}`, null, mimeType).then(handlePlay).catch(onError);
+        }
       });
 
       shakaRef.current.getNetworkingEngine().registerResponseFilter(onFetchSegment);

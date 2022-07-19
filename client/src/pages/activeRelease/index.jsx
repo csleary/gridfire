@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   Link,
+  Spacer,
   Text,
   VStack,
   Wrap,
@@ -75,15 +76,15 @@ const ActiveRelease = () => {
         <meta name="description" content={`Listen to \u2018${releaseTitle}\u2019 by ${artistName}.`} />
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>
-        <Wrap spacing={4}>
+        <Wrap spacing={4} alignItems="stretch">
           <WrapItem as="section" flex="1 1 36ch">
             <VStack alignItems="stretch" flex="1 1 32rem" spacing={4}>
               <Artwork />
               <Actions />
             </VStack>
           </WrapItem>
-          <WrapItem as="section" flex="1 1 36ch">
-            <Card flex="1 1 32rem" mb={16}>
+          <WrapItem as="section" flex="1 1 36ch" alignItems="stretch">
+            <Card flex="1 1 32rem" mb={0}>
               <Heading as="h2" size="2xl" mb={2}>
                 {releaseTitle}
               </Heading>

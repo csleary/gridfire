@@ -26,7 +26,9 @@ const TrackList = () => {
           <Button
             color={titleColor}
             minWidth={2}
+            textAlign="left"
             variant="link"
+            whiteSpace="break-spaces"
             onClick={async () => {
               if (trackId !== playerTrackId) {
                 dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));

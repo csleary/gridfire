@@ -1,7 +1,8 @@
-import { Box, Flex, Grid, Heading, Link, VStack } from "@chakra-ui/react";
+import { Box, Flex, Heading, Link, VStack } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Card from "components/card";
+import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
 import { fetchArtistCatalogue } from "state/releases";
@@ -34,7 +35,7 @@ const ArtistPage = () => {
           <Heading as="h3">
             {releaseCount} Release{releaseCount > 1 ? "s" : ""}
           </Heading>
-          <Grid templateColumns="repeat(auto-fill, minmax(28rem, 1fr))" gap={8}>
+          <Grid>
             {releases?.map(release => (
               <RenderRelease key={release._id} showArtist={false} release={release} />
             ))}

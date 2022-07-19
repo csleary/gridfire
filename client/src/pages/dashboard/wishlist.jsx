@@ -1,6 +1,7 @@
-import { Box, Heading, Grid, Text, VStack } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import Grid from "components/grid";
 import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
 import { fetchUserWishList } from "state/releases";
@@ -23,7 +24,7 @@ const WishList = () => {
   return (
     <Box as={"main"} flexGrow={1}>
       <Heading as="h3">Wish List</Heading>
-      <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8}>
+      <Grid>
         {userWishList.map(withlisted => (
           <VStack key={withlisted._id}>
             <RenderRelease release={withlisted.release} />

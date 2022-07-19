@@ -1,6 +1,7 @@
-import { Box, Grid, Heading } from "@chakra-ui/react";
+import { Box, Heading } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import Grid from "components/grid";
 import RenderRelease from "components/renderRelease";
 import { fetchCollection } from "state/releases";
 
@@ -23,7 +24,7 @@ const Collection = () => {
       <Heading as="h3">
         Your Collection ({available.length} release{available.length === 1 ? "" : "s"})
       </Heading>
-      <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8}>
+      <Grid>
         {available.map(({ release }) => (
           <RenderRelease key={release?._id} release={release} type="collection" />
         ))}

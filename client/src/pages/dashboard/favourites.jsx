@@ -1,6 +1,7 @@
-import { Box, Heading, Grid } from "@chakra-ui/react";
+import { Box, Heading } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import Grid from "components/grid";
 import RenderRelease from "components/renderRelease";
 import { fetchUserFavourites } from "state/releases";
 
@@ -20,7 +21,7 @@ const Favourites = () => {
   return (
     <Box as={"main"} flexGrow={1}>
       <Heading as="h3">Favourites</Heading>
-      <Grid templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8}>
+      <Grid>
         {userFavourites.map(fav => (
           <RenderRelease key={fav._id} release={fav.release} />
         ))}
