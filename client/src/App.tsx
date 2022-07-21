@@ -1,14 +1,15 @@
 import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import React, { Suspense, lazy, useEffect, useRef } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Footer from "components/footer";
 import Player from "pages/player";
 import PrivateRoute from "components/privateRoute";
+import { RootState } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { ethers } from "ethers";
 import { fetchUser } from "state/user";
-import { useDispatch } from "react-redux";
 import useSSE from "hooks/useSSE";
 
 const About = lazy(() => import("pages/about"));
@@ -26,11 +27,22 @@ const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
   const ethereumRef: any = useRef();
+  const { account } = useSelector((state: RootState) => state.user, shallowEqual);
 
-  useEffect(() => {
-    dispatch(fetchUser());
+  const getAccountInfo = useCallback(() => {
+    if (account) {
+      dispatch(fetchDaiAllowance(account));
+      dispatch(fetchDaiBalance(account));
+    }
+  }, [account, dispatch]);
 
-    const handleAccountsChanged = (accounts: string[]): void => {
+  const getNetwork = useCallback(() => {
+    const provider = new ethers.providers.Web3Provider(ethereumRef.current);
+    provider.getNetwork().then(network => dispatch(setNetworkName(network)));
+  }, [dispatch]);
+
+  const handleAccountsChanged = useCallback(
+    (accounts: string[]): void => {
       const [account] = accounts;
 
       if (account) {
@@ -41,28 +53,37 @@ const App: React.FC = () => {
       } else {
         dispatch(setIsConnected(false));
       }
-    };
+    },
+    [dispatch]
+  );
 
-    const handleReload = (chainId: string): void => {
-      window.location.reload();
-    };
+  const handleChainChanged = useCallback(
+    (chainId: string): void => {
+      // window.location.reload();
+      getAccountInfo();
+      getNetwork();
+    },
+    [getAccountInfo, getNetwork]
+  );
+
+  useEffect(() => {
+    dispatch(fetchUser());
 
     detectEthereumProvider().then((ethereum: any) => {
       if (ethereum == null) return;
       ethereumRef.current = ethereum;
       ethereumRef.current.on("accountsChanged", handleAccountsChanged);
-      ethereumRef.current.on("chainChanged", handleReload);
-      const provider = new ethers.providers.Web3Provider(ethereumRef.current);
-      provider.getNetwork().then(network => dispatch(setNetworkName(network)));
+      ethereumRef.current.on("chainChanged", handleChainChanged);
+      getNetwork();
     });
 
     return () => {
       if (ethereumRef.current != null) {
         ethereumRef.current.removeListener("accountsChanged", handleAccountsChanged);
-        ethereumRef.current.removeListener("chainChanged", handleReload);
+        ethereumRef.current.removeListener("chainChanged", handleChainChanged);
       }
     };
-  }, [dispatch]);
+  }, [dispatch, getNetwork, handleAccountsChanged, handleChainChanged]);
 
   return (
     <BrowserRouter>

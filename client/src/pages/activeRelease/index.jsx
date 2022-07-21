@@ -6,7 +6,6 @@ import {
   Flex,
   Heading,
   Link,
-  Spacer,
   Text,
   VStack,
   Wrap,

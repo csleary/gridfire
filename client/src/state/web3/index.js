@@ -142,13 +142,15 @@ const connectToWeb3 = () => async dispatch => {
 
   try {
     const provider = new ethers.providers.Web3Provider(ethereum);
-    const network = await provider.getNetwork();
+    let network = await provider.getNetwork();
 
     if (network.chainId !== requiredChainId) {
       await ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: utils.hexValue(requiredChainId) }]
       });
+
+      network = await provider.getNetwork();
     }
 
     const accounts = await ethereum.request({ method: "eth_requestAccounts" });

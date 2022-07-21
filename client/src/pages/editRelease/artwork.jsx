@@ -129,7 +129,11 @@ const Artwork = () => {
         rounded="md"
         transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
         _after={{ content: '""', paddingBottom: "100%" }}
-        _hover={{ bg: useColorModeValue("gray.100", "black"), cursor: "pointer" }}
+        _hover={{
+          backgroundColor: useColorModeValue("white", "black"),
+          borderColor: useColorModeValue("green.400", "purple.300"),
+          cursor: "pointer"
+        }}
       >
         <input {...getInputProps()} />
         {coverArtPreview ? (
