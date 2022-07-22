@@ -31,11 +31,10 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, title }
       disabled={inCollection || isAddingToBasket || isInBasket}
       leftIcon={<Icon icon={faShoppingBasket} />}
       isLoading={isAddingToBasket}
-      mb={8}
-      minWidth="10rem"
+      minW="8rem"
       onClick={handleAddToBasket}
     >
-      {isInBasket ? "In Basket" : "Add to Basket"}
+      {isInBasket ? "Added" : "Add"}
     </Button>
   );
 };

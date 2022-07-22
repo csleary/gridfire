@@ -22,6 +22,7 @@ import { CLOUD_URL } from "index";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import AddToBasketButton from "./addToBasketButton";
+import Price from "./price";
 import PurchaseButton from "./purchaseButton";
 import Tags from "./tags";
 import TrackList from "./trackList";
@@ -104,8 +105,9 @@ const ActiveRelease = () => {
                 </Heading>
               </Link>
               <TrackList />
-              <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
-              <Wrap justify="center" spacing={4}>
+              <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={6} />
+              <Price price={price} />
+              <Wrap justify="center" spacing={4} mb={8}>
                 <WrapItem>
                   <PurchaseButton
                     inCollection={isInCollection}

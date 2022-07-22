@@ -1,4 +1,4 @@
-import { Box, Button, Divider } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
 import Icon from "components/icon";
@@ -12,18 +12,6 @@ import { purchaseRelease } from "web3/contract";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { utils } from "ethers";
-
-const daiSymbol = (
-  <Box as="span" mr="0.15rem">
-    ◈
-  </Box>
-);
-
-const divider = (
-  <Box alignSelf="stretch" py="0.625rem">
-    <Divider borderColor="gray.500" orientation="vertical" mx={4} />
-  </Box>
-);
 
 const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const dispatch = useDispatch();
@@ -65,26 +53,28 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
 
   return (
     <Button
-      disabled={inCollection || !isConnected || isFetchingAllowance}
+      disabled={!isConnected || isFetchingAllowance}
       isLoading={isLoading || isPurchasing}
       loadingText={isLoading ? "Loading" : "Purchasing"}
       leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
-      mb={8}
       minWidth="16rem"
-      onClick={allowanceTooLow ? () => navigate("/dashboard/payment/approvals") : handlePayment}
+      onClick={
+        allowanceTooLow
+          ? () => navigate("/dashboard/payment/approvals")
+          : inCollection
+          ? () => navigate("/dashboard/collection")
+          : handlePayment
+      }
     >
-      {!price
-        ? "Name your price"
-        : inCollection
-        ? "Owned"
+      {inCollection
+        ? "In collection"
         : !isConnected
         ? "Connect"
         : allowanceTooLow
         ? "Set allowance"
-        : "Purchase"}
-      {divider}
-      {daiSymbol}
-      {price} DAI
+        : !price
+        ? "Name your price"
+        : "Buy"}
     </Button>
   );
 };
