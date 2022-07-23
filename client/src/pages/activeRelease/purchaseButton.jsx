@@ -1,6 +1,6 @@
-import { Box, Button } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
+import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import axios from "axios";

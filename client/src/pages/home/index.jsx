@@ -1,8 +1,9 @@
-import { Box, Button, Center } from "@chakra-ui/react";
+import { Box, Button, Center, Container, Heading, Highlight, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Features from "./features";
 import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
@@ -21,7 +22,7 @@ const Home = () => {
   );
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentSortPath, setCurrentSortPath] = useState("createdAt");
+  const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
   const [currentSortOrder, setCurrentSortOrder] = useState(-1);
   const { service } = useParams();
 
@@ -52,17 +53,26 @@ const Home = () => {
     }
   }, [service]); // eslint-disable-line
 
-  const head = (
-    <Helmet>
-      <title>GridFire</title>
-      <meta name="description" content="Listen to the latest releases on GridFire." />
-    </Helmet>
-  );
-
   return (
     <>
-      {head}
-      <Box as="main">
+      <Helmet>
+        <title>GridFire</title>
+        <meta name="description" content="Listen to the latest releases on GridFire." />
+      </Helmet>
+      <Container maxWidth="container.xl" mt={12} mb={24}>
+        <Heading lineHeight="tall" m={0}>
+          <Highlight
+            query={["gridfire", "equitable", "sustainable", "supportive"]}
+            styles={{ px: "2", py: "1", rounded: "full", bg: useColorModeValue("yellow.400", "purple.200") }}
+          >
+            GridFire is a new music streaming and download service, powered by decentralised protocols, to create a more
+            equitable, sustainable and supportive creative economy.
+          </Highlight>
+        </Heading>
+      </Container>
+      <Features />
+      <Box as="section">
+        <Heading textAlign="left">Releases</Heading>
         <SortReleases
           handleFetchCatalogue={handleFetchCatalogue}
           currentSortPath={currentSortPath}
