@@ -7,17 +7,17 @@ const Feature = ({ children, title }) => {
     <WrapItem
       alignItems="center"
       bgColor={useColorModeValue("gray.50", "gray.900")}
-      flex="0 1 40ch"
+      flex="0 1 50ch"
       flexDirection="column"
       padding={8}
       transform="skewX(-10deg)"
     >
       <Box transform="skewX(10deg)">
-        <Heading color={color} paddingInlineEnd={6} paddingInlineStart={6} py={1} size="lg" mb={4}>
+        <Heading color={color} fontWeight={500} paddingInlineEnd={6} paddingInlineStart={6} py={1} size="lg" mb={4}>
           {title}
         </Heading>
         <Divider borderColor={useColorModeValue("gray.300", "purple.200")} borderWidth="2px" mb={3} />
-        <Heading textAlign="left" size="md" mb={0}>
+        <Heading fontWeight={500} textAlign="left" size="md" mb={0}>
           {children}
         </Heading>
       </Box>

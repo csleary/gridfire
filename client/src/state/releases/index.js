@@ -126,7 +126,7 @@ const fetchCatalogue =
   ({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging = false }) =>
   async dispatch => {
     try {
-      const res = await axios.get("/api/catalogue/", {
+      const res = await axios.get("/api/catalogue", {
         params: {
           catalogueLimit,
           catalogueSkip: isPaging ? catalogueSkip + catalogueLimit : 0,
@@ -143,7 +143,7 @@ const fetchCatalogue =
 
 const fetchCollection = () => async dispatch => {
   try {
-    const res = await axios.get("/api/user/collection/");
+    const res = await axios.get("/api/user/collection");
     dispatch(setCollection(res.data));
   } catch (error) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
