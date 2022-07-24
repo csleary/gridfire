@@ -7,9 +7,10 @@ import User from "gridfire/models/User.js";
 import mime from "mime-types";
 import mongoose from "mongoose";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
+import { webcrypto } from "crypto";
 
 const { ObjectId } = mongoose.Types;
-const { QUEUE_TRANSCODE } = process.env;
+const { QUEUE_TRANSCODE, STREAMING_PRIVATE_JWK } = process.env;
 
 const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
   const release = await Release.findOneAndUpdate(
@@ -81,7 +82,7 @@ const logStream = async ({ trackId, userId, type }) => {
   return user;
 };
 
-const getStreamKey = async ({ headers, privateKey, req }) => {
+const getStreamKey = async ({ headers, req }) => {
   const busboy = Busboy({ headers, limits: { fileSize: 1024 * 16 } });
   let publicKey;
 
@@ -112,6 +113,13 @@ const getStreamKey = async ({ headers, privateKey, req }) => {
           file.on("error", reject);
         });
 
+        const format = "jwk";
+        const keyData = JSON.parse(STREAMING_PRIVATE_JWK);
+        const publicExponent = new Uint8Array([1, 0, 1]);
+        const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
+        const extractable = true;
+        const keyUsages = ["decrypt"];
+        const privateKey = await webcrypto.subtle.importKey(format, keyData, algorithm, extractable, keyUsages);
         const decrypted = decryptBuffer(kidsBuffer, privateKey);
         const message = JSON.parse(decrypted);
         const [kidBase64] = message.kids;

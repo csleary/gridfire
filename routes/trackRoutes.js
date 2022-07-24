@@ -2,18 +2,17 @@ import { deleteTrack, getStreamKey, logStream, uploadTrack } from "gridfire/cont
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
+const { STREAMING_PUBLIC_JWK } = process.env;
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { publicJWK } = req.app.locals.crypto;
-  res.json(publicJWK);
+  res.json(JSON.parse(STREAMING_PUBLIC_JWK));
 });
 
 router.post("/", async (req, res) => {
   try {
-    const { app, headers } = req;
-    const { privateKey } = app.locals.crypto;
-    const cipherBuffer = await getStreamKey({ headers, privateKey, req });
+    const { headers } = req;
+    const cipherBuffer = await getStreamKey({ headers, req });
     res.send(cipherBuffer);
   } catch (error) {
     console.log(error);

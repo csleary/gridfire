@@ -22,7 +22,6 @@ import auth from "./routes/authRoutes.js";
 import catalogue from "./routes/catalogueRoutes.js";
 import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
-import { generateKey } from "./controllers/encryption.js";
 import release from "./routes/releaseRoutes.js";
 import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
@@ -57,7 +56,6 @@ await mongoose.connect(MONGODB_URI).catch(console.error);
 
 // Express
 app.locals.sse = sseController;
-app.locals.crypto = await generateKey();
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
 app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));
