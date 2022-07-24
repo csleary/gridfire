@@ -14,7 +14,7 @@ class SSEController {
     this.#runHouseKeeping();
   }
 
-  add(res, userId, uuid) {
+  async add(res, userId, uuid) {
     if (this.#has(userId)) {
       const connections = this.get(userId);
 
@@ -31,17 +31,12 @@ class SSEController {
     const connections = new Map();
     connections.set(uuid, { res, lastPing: Date.now() });
     this.#sessions.set(userId, connections);
-
     const queueOptions = { autoDelete: true, durable: false, exclusive: true };
     const userQueue = `user.${userId}`;
-
-    this.#consumerChannel.assertQueue(userQueue, queueOptions).then(() => {
-      this.#consumerChannel.bindQueue(userQueue, "user", userId).then(() => {
-        this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false }).then(({ consumerTag }) => {
-          this.#consumerTags.set(userId, consumerTag);
-        });
-      });
-    });
+    await this.#consumerChannel.assertQueue(userQueue, queueOptions);
+    await this.#consumerChannel.bindQueue(userQueue, "user", userId);
+    const { consumerTag } = await this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false });
+    this.#consumerTags.set(userId, consumerTag);
   }
 
   get(userId) {
@@ -58,15 +53,13 @@ class SSEController {
     connections.set(uuid, { ...connections.get(uuid), lastPing: Date.now() });
   }
 
-  remove(userId) {
+  async remove(userId) {
     console.log(`[SSE] Removing connection for user ${userId}…`);
     this.#sessions.delete(userId);
     const userQueue = `user.${userId}`;
-
-    this.#consumerChannel.unbindQueue(userQueue, "user", userId).then(() => {
-      const consumerTag = this.#consumerTags.get(userId);
-      this.#consumerChannel.cancel(consumerTag);
-    });
+    await this.#consumerChannel.unbindQueue(userQueue, "user", userId);
+    const consumerTag = this.#consumerTags.get(userId);
+    await this.#consumerChannel.cancel(consumerTag);
   }
 
   #runHouseKeeping() {

@@ -2,7 +2,7 @@ import express from "express";
 
 const router = express.Router();
 
-router.get("/:userId/:uuid", (req, res) => {
+router.get("/:userId/:uuid", async (req, res) => {
   req.on("close", () => console.log(`[SSE] Connection [${uuid}] closed for user ${userId}`));
   const { userId, uuid } = req.params;
 
@@ -14,7 +14,7 @@ router.get("/:userId/:uuid", (req, res) => {
 
   res.writeHead(200, headers);
   const { sse } = req.app.locals;
-  sse.add(res, userId, uuid);
+  await sse.add(res, userId, uuid);
   res.write(`data: [SSE] Subscribed to events.\n\n`);
 });
 
