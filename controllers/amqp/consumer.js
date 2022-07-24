@@ -30,6 +30,7 @@ const startConsumer = async (connection, sse) => {
     await channel.assertQueue(QUEUE_MESSAGE, { durable: true });
     const config = await channel.consume(QUEUE_MESSAGE, processMessage, { noAck: false });
     const { consumerTag } = config || {};
+    sse.setConsumerChannel(channel, processMessage);
     return { channel, consumerTag };
   } catch (error) {
     if (closeOnError(connection, error)) return;

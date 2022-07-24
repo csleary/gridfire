@@ -3,6 +3,7 @@ import express from "express";
 const router = express.Router();
 
 router.get("/:userId/:uuid", (req, res) => {
+  req.on("close", () => console.log(`[SSE] Connection [${uuid}] closed for user ${userId}`));
   const { userId, uuid } = req.params;
 
   const headers = {
@@ -15,7 +16,13 @@ router.get("/:userId/:uuid", (req, res) => {
   const { sse } = req.app.locals;
   sse.add(res, userId, uuid);
   res.write(`data: [SSE] Subscribed to events.\n\n`);
-  req.on("close", () => console.log(`[SSE] Connection [${uuid}] closed for user ${userId}`));
+});
+
+router.get("/:userId/:uuid/ping", (req, res) => {
+  const { userId, uuid } = req.params;
+  const { sse } = req.app.locals;
+  sse.ping(userId, uuid);
+  res.sendStatus(200);
 });
 
 router.delete("/:userId/:uuid", (req, res) => {

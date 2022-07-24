@@ -1,8 +1,14 @@
+const CHECK_INTERVAL = 1000 * 60 * 5;
+
 class SSEController {
+  #consumerChannel;
+  #consumerTags;
+  #messageHandler;
   #interval;
   #sessions;
 
   constructor() {
+    this.#consumerTags = new Map();
     this.#interval = null;
     this.#sessions = new Map();
     this.#runHouseKeeping();
@@ -18,43 +24,65 @@ class SSEController {
       }
 
       console.log(`[SSE] Storing additional connection [${uuid}] for user ${userId}…`);
-      return connections.set(uuid, { res, dateConnected: Date.now() });
+      return connections.set(uuid, { res, lastPing: Date.now() });
     }
 
     console.log(`[SSE] Storing first connection [${uuid}] for user ${userId}…`);
     const connections = new Map();
-    connections.set(uuid, { res, dateConnected: Date.now() });
+    connections.set(uuid, { res, lastPing: Date.now() });
     this.#sessions.set(userId, connections);
+
+    const queueOptions = { autoDelete: true, durable: false, exclusive: true };
+    const userQueue = `user.${userId}`;
+
+    this.#consumerChannel.assertQueue(userQueue, queueOptions).then(() => {
+      this.#consumerChannel.bindQueue(userQueue, "user", userId).then(() => {
+        this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false }).then(({ consumerTag }) => {
+          this.#consumerTags.set(userId, consumerTag);
+        });
+      });
+    });
   }
 
   get(userId) {
     return this.#sessions.get(userId.toString());
   }
 
+  #has(userId) {
+    return this.#sessions.has(userId);
+  }
+
+  ping(userId, uuid) {
+    const connections = this.get(userId);
+    if (!connections) return void this.#sessions.delete(userId);
+    connections.set(uuid, { ...connections.get(uuid), lastPing: Date.now() });
+  }
+
   remove(userId) {
     console.log(`[SSE] Removing connection for user ${userId}…`);
     this.#sessions.delete(userId);
-  }
+    const userQueue = `user.${userId}`;
 
-  #has(userId) {
-    return this.#sessions.has(userId);
+    this.#consumerChannel.unbindQueue(userQueue, "user", userId).then(() => {
+      const consumerTag = this.#consumerTags.get(userId);
+      this.#consumerChannel.cancel(consumerTag);
+    });
   }
 
   #runHouseKeeping() {
     if (this.#interval) clearInterval(this.#interval);
 
     const checkUserConnections = () => {
-      console.log("[SSE] Checking for stale sockets…");
+      // console.log("[SSE] Checking for stale sockets…");
       const iterator = this.#sessions.entries();
 
       const checkForStaleConnection = ({ value: [userId, connections] = [], done }) => {
         if (done) return;
-        console.log(`[SSE] User ${userId} has ${connections.size} connections.`);
+        // console.log(`[SSE] User ${userId} has ${connections.size} connections.`);
 
-        for (const [uuid, { dateConnected, res }] of connections.entries()) {
-          // Check if res object is older than a day: 1000 * 60 * 60 * 24
-          if (Date.now() - dateConnected > 1000 * 60 * 60 * 24) {
-            console.log(`[SSE] Stale connection [${uuid}] found for user ${userId}.`);
+        for (const [uuid, { lastPing, res }] of connections.entries()) {
+          if (Date.now() - lastPing > CHECK_INTERVAL) {
+            console.log(`[SSE] Removing stale connection [${uuid}] for user ${userId}.`);
             res.end();
             connections.delete(uuid);
           }
@@ -67,7 +95,7 @@ class SSEController {
       checkForStaleConnection(iterator.next());
     };
 
-    this.#interval = setInterval(checkUserConnections, 1000 * 60 * 15); // 15 minutes
+    this.#interval = setInterval(checkUserConnections, CHECK_INTERVAL);
   }
 
   send(userId, { type, ...message } = {}) {
@@ -87,6 +115,11 @@ class SSEController {
         res.write(`data: ${data}\n\n`);
       }
     });
+  }
+
+  setConsumerChannel(channel, messageHandler) {
+    this.#consumerChannel = channel;
+    this.#messageHandler = messageHandler;
   }
 }
 

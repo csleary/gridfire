@@ -14,14 +14,21 @@ import { useEffect, useRef } from "react";
 import { updateTrackStatus } from "state/releases";
 import axios from "axios";
 
+const PING_INTERVAL = 1000 * 30;
+
 const useSSE = () => {
   const dispatch = useDispatch();
+  const pingInterval = useRef();
   const sourceRef = useRef();
   const { userId } = useSelector(state => state.user, shallowEqual);
 
   useEffect(() => {
     const uuid = window.crypto.randomUUID();
-    const cleanup = () => axios.delete(`/api/sse/${userId}/${uuid}`);
+
+    const cleanup = () => {
+      axios.delete(`/api/sse/${userId}/${uuid}`);
+      clearInterval(pingInterval.current);
+    };
 
     const handleNotify = event => {
       const { type, message } = JSON.parse(event.data);
@@ -92,6 +99,7 @@ const useSSE = () => {
 
     if (userId && !sourceRef.current) {
       sourceRef.current = new EventSource(`/api/sse/${userId}/${uuid}`);
+      pingInterval.current = setInterval(() => axios.get(`/api/sse/${userId}/${uuid}/ping`), PING_INTERVAL);
       const source = sourceRef.current;
       source.onopen = () => console.log("[SSE] Connection to server opened.");
       source.onmessage = event => console.log(event.data);
@@ -108,6 +116,8 @@ const useSSE = () => {
       source.addEventListener("transcodingCompleteMP3", handleTranscodingCompleteMP3);
       source.addEventListener("workerMessage", handleWorkerMessage);
       window.addEventListener("beforeunload", cleanup);
+    } else if (!userId && pingInterval.current) {
+      clearInterval(pingInterval.current);
     }
 
     return () => {
