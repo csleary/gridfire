@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: rabbitmq
   labels:
@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       app: rabbitmq
+  serviceName: rabbitmq
   template:
     metadata:
       labels:
@@ -20,6 +21,9 @@ spec:
           ports:
             - containerPort: 5672
             - containerPort: 15672
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq/mnesia
           resources:
             requests:
               memory: 128Mi
@@ -30,6 +34,15 @@ spec:
           envFrom:
             - secretRef:
                 name: rabbitmq-user
+  volumeClaimTemplates:
+    - metadata:
+        name: rabbitmq-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: do-block-storage
+        resources:
+          requests:
+            storage: 3Gi
 ---
 apiVersion: v1
 kind: Service
