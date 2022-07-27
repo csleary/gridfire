@@ -125,6 +125,13 @@ const getStreamKey = async ({ headers, req }) => {
         const [kidBase64] = message.kids;
         const kid = Buffer.from(kidBase64, "base64url").toString("hex");
         const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
+
+        if (!release) {
+          const error = new Error();
+          error.status = 403;
+          throw error;
+        }
+
         const [track] = release.trackList;
         const { key } = track;
 

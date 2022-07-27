@@ -38,7 +38,7 @@ const fetchDownloadToken = async releaseId => {
 const generateKey = async () => {
   const publicExponent = new Uint8Array([1, 0, 1]);
   const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
-  const extractable = true;
+  const extractable = false;
   const keyUsages = ["encrypt", "decrypt"];
   return crypto.subtle.generateKey(algorithm, extractable, keyUsages);
 };

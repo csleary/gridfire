@@ -42,9 +42,10 @@ const Player = () => {
   const wrapRequest = useCallback(async (type, request) => {
     if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) {
       const { publicKey } = keyPairRef.current;
-      const jwk = await exportKeyToJWK(publicKey);
+      const exportJwk = exportKeyToJWK(publicKey);
+      const encryptMessage = encryptArrayBuffer(serverPublicKeyRef.current, request.body);
+      const [jwk, encryptedMessage] = await Promise.all([exportJwk, encryptMessage]);
       const formData = new FormData();
-      const encryptedMessage = await encryptArrayBuffer(serverPublicKeyRef.current, request.body);
       formData.append("key", JSON.stringify(jwk));
       formData.append("message", new Blob([encryptedMessage]));
       request.responseType = "arraybuffer";
