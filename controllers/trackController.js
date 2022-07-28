@@ -1,4 +1,4 @@
-import { decryptBuffer, encryptStream, encryptString } from "gridfire/controllers/encryption.js";
+import { encryptStream } from "gridfire/controllers/encryption.js";
 import Busboy from "busboy";
 import Play from "gridfire/models/Play.js";
 import Release from "gridfire/models/Release.js";
@@ -7,10 +7,9 @@ import User from "gridfire/models/User.js";
 import mime from "mime-types";
 import mongoose from "mongoose";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
-import { webcrypto } from "crypto";
 
 const { ObjectId } = mongoose.Types;
-const { QUEUE_TRANSCODE, STREAMING_PRIVATE_JWK } = process.env;
+const { QUEUE_TRANSCODE } = process.env;
 
 const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
   const release = await Release.findOneAndUpdate(
@@ -25,12 +24,18 @@ const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
 
   if (!release) return;
   console.log(`[${trackId}] Deleting track…`);
-  const { flac, hls, mst, mp3, mp4, mpd, src } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
+  const releaseId = release._id;
+  const { flac, mp3, src } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
 
-  for (const [key, cid] of Object.entries({ flac, hls, mst, mp3, mp4, mpd, src }).filter(([, cid]) => Boolean(cid))) {
+  for (const [key, cid] of Object.entries({ flac, mp3, src }).filter(([, cid]) => Boolean(cid))) {
     console.log(`[${trackId}] Unpinning CID '${key}': ${cid}…`);
     await ipfs.pin.rm(cid).catch(error => console.error(error.message));
   }
+
+  console.log(`[${trackId}] Deleting IPFS stream files…`);
+  await ipfs.files
+    .rm(`/${releaseId}/${trackId}`, { recursive: true, flush: true, cidVersion: 1 })
+    .catch(error => console.error(error.message));
 
   await Release.findOneAndUpdate(
     { "trackList._id": trackId, user },
@@ -55,7 +60,7 @@ const logStream = async ({ trackId, userId, type }) => {
 
   const releaseId = release._id;
 
-  if (Number.parseInt(type) === 2) {
+  if ([0, 2].includes(Number.parseInt(type))) {
     // Licence request, following the decoding of a 'pssh' media box.
     StreamSession.create({ user, trackId }).catch(error => error.code != 11000 && console.error(error));
   } else if (Number.parseInt(type) === 1) {
@@ -66,7 +71,7 @@ const logStream = async ({ trackId, userId, type }) => {
       { new: true, lean: true }
     ).exec();
 
-    if (stream?.segmentsFetched > 3) {
+    if (stream?.segmentsFetched > 4) {
       // More than 30s played, so log play.
       logPlay(trackId, releaseId, stream._id, user);
     }
@@ -80,76 +85,6 @@ const logStream = async ({ trackId, userId, type }) => {
   }
 
   return user;
-};
-
-const getStreamKey = async ({ headers, req }) => {
-  const busboy = Busboy({ headers, limits: { fileSize: 1024 * 16 } });
-  let publicKey;
-
-  const parseForm = new Promise((resolve, reject) => {
-    busboy.on("error", async error => {
-      req.unpipe(busboy);
-      reject(error);
-    });
-
-    busboy.on("field", async (name, value) => {
-      if (name === "key") {
-        publicKey = JSON.parse(value);
-      }
-    });
-
-    busboy.on("file", async (name, file) => {
-      try {
-        if (name !== "message") {
-          const error = new Error();
-          error.status = 403;
-          throw error;
-        }
-
-        const kidsBuffer = await new Promise((resolve, reject) => {
-          const chunks = [];
-          file.on("data", chunk => chunks.push(chunk));
-          file.on("end", () => resolve(Buffer.concat(chunks)));
-          file.on("error", reject);
-        });
-
-        const format = "jwk";
-        const keyData = JSON.parse(STREAMING_PRIVATE_JWK);
-        const publicExponent = new Uint8Array([1, 0, 1]);
-        const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
-        const extractable = true;
-        const keyUsages = ["decrypt"];
-        const privateKey = await webcrypto.subtle.importKey(format, keyData, algorithm, extractable, keyUsages);
-        const decrypted = decryptBuffer(kidsBuffer, privateKey);
-        const message = JSON.parse(decrypted);
-        const [kidBase64] = message.kids;
-        const kid = Buffer.from(kidBase64, "base64url").toString("hex");
-        const release = await Release.findOne({ "trackList.kid": kid }, "trackList.$", { lean: true }).exec();
-
-        if (!release) {
-          const error = new Error();
-          error.status = 403;
-          throw error;
-        }
-
-        const [track] = release.trackList;
-        const { key } = track;
-
-        const keysObj = {
-          keys: [{ kty: "oct", k: Buffer.from(key, "hex").toString("base64url"), kid: kidBase64 }],
-          type: "temporary"
-        };
-
-        const cipherBuffer = await encryptString(JSON.stringify(keysObj), publicKey);
-        resolve(cipherBuffer);
-      } catch (error) {
-        busboy.emit("error", error);
-      }
-    });
-  });
-
-  req.pipe(busboy);
-  return parseForm;
 };
 
 const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
@@ -192,16 +127,19 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
 
         if (track) {
           const {
-            trackList: [{ flac, hls, mst, mp3, mp4, mpd, src }]
+            trackList: [{ flac, mp3, src }]
           } = await Release.findOne({ _id: releaseId, "trackList._id": trackId }, "trackList.$").exec();
 
           console.log("Unpinning existing track audio…");
-          for (const [key, cid] of Object.entries({ flac, hls, mst, mp3, mp4, mpd, src }).filter(([, cid]) =>
-            Boolean(cid)
-          )) {
+          for (const [key, cid] of Object.entries({ flac, mp3, src }).filter(([, cid]) => Boolean(cid))) {
             console.log(`[${trackId}] Unpinning CID '${key}': ${cid}…`);
             await ipfs.pin.rm(cid).catch(error => console.error(error.message));
           }
+
+          console.log(`[${trackId}] Deleting IPFS stream files…`);
+          await ipfs.files
+            .rm(`/${releaseId}/${trackId}`, { recursive: true, flush: true, cidVersion: 1 })
+            .catch(error => console.error(error.message));
 
           track.set({ dateUpdated: Date.now(), status: "uploading" });
         } else {
@@ -234,4 +172,4 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
   return parseUpload;
 };
 
-export { deleteTrack, getStreamKey, uploadTrack, logStream };
+export { deleteTrack, uploadTrack, logStream };

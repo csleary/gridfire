@@ -12,7 +12,7 @@ const TrackList = () => {
   const dispatch = useDispatch();
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
-  const { _id: releaseId, artistName, trackList } = release;
+  const { _id: releaseId, artistName, releaseTitle, trackList } = release;
   const secondaryColor = useColorModeValue("gray.400", "gray.500");
   const titleColor = useColorModeValue("gray.500", "gray.300");
 
@@ -31,7 +31,7 @@ const TrackList = () => {
             whiteSpace="break-spaces"
             onClick={async () => {
               if (trackId !== playerTrackId) {
-                dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+                dispatch(playTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
                 dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
               } else if (!isPlaying) {
                 const audioPlayer = document.getElementById("player");

@@ -12,7 +12,13 @@ const startConsumer = async (connection, sse) => {
       try {
         const message = JSON.parse(data.content.toString());
         // console.log(`[Worker Message] ${JSON.stringify(message)}`);
-        const { userId, ...rest } = message;
+        const { userId, ping, uuid, ...rest } = message;
+
+        if (ping) {
+          sse.ping(userId, uuid);
+          return void channel.ack(data);
+        }
+
         sse.send(userId, rest);
         channel.ack(data);
       } catch (error) {

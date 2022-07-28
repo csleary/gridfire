@@ -33,12 +33,14 @@ const playerSlice = createSlice({
     },
 
     playTrack(state, action) {
+      const { artistName, releaseId, releaseTitle, trackId, trackTitle } = action.payload;
       state.isPlaying = false;
       state.showPlayer = true;
-      state.artistName = action.payload.artistName;
-      state.releaseId = action.payload.releaseId;
-      state.trackId = action.payload.trackId;
-      state.trackTitle = action.payload.trackTitle;
+      state.artistName = artistName;
+      state.releaseId = releaseId;
+      state.releaseTitle = releaseTitle;
+      state.trackId = trackId;
+      state.trackTitle = trackTitle;
     }
   }
 });

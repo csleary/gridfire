@@ -1,5 +1,4 @@
 import ffmpeg from "fluent-ffmpeg";
-const FRAG_DURATION_MS = 10_000_000;
 
 const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
   new Promise((resolve, reject) => {
@@ -9,7 +8,6 @@ const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
       .audioCodec("aac")
       .audioBitrate(128)
       .toFormat("mp4")
-      .outputOptions([`-frag_duration ${FRAG_DURATION_MS}`])
       // .on("codecData", console.log)
       .on("end", (stdout, stderr) => {
         // console.log(stderr);

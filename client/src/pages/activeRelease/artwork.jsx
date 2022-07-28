@@ -25,7 +25,7 @@ const Artwork = () => {
       dispatch(playerPlay());
     } else {
       const [{ _id: trackId, trackTitle }] = trackList;
-      dispatch(playTrack({ releaseId, trackId, artistName, trackTitle }));
+      dispatch(playTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
       dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
     }
   };

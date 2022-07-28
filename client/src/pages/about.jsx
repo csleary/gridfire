@@ -23,7 +23,7 @@ const About = () => (
       </Text>
       <Text fontSize="xl" mb={6}>
         Music is stored on the IPFS network, with artists able to backup and pin their own audio files created through
-        GridFire. As IPFS is a public network, we take care to encrypt all audio files before they are uploaded.
+        GridFire. As IPFS is a public network all non-streaming audio files are encrypted for storage.
       </Text>
     </Container>
   </>

@@ -1,5 +1,4 @@
 import { Box, Flex, IconButton, Spacer, Text, useColorModeValue } from "@chakra-ui/react";
-import { decryptArrayBuffer, encryptArrayBuffer, exportKeyToJWK, generateKey } from "utils";
 import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -12,6 +11,7 @@ import shaka from "shaka-player";
 import { toastWarning } from "state/toast";
 import { useLocation } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
+import { CLOUD_URL } from "index";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 
@@ -19,9 +19,7 @@ const Player = () => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const audioPlayerRef = useRef();
-  const keyPairRef = useRef();
   const seekBarRef = useRef();
-  const serverPublicKeyRef = useRef();
   const shakaRef = useRef();
 
   const { artistName, isPlaying, trackId, releaseId, showPlayer, trackTitle } = useSelector(
@@ -29,7 +27,7 @@ const Player = () => {
     shallowEqual
   );
 
-  const { trackList } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { artwork = {}, releaseTitle, trackList } = useSelector(state => state.releases.activeRelease, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isReady, setIsReady] = useState(false);
@@ -37,35 +35,21 @@ const Player = () => {
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
   const prevTrackId = usePrevious(trackId);
-  const { mpd, mst } = trackList.find(({ _id }) => _id === trackId) || {};
-
-  const wrapRequest = useCallback(async (type, request) => {
-    if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) {
-      const { publicKey } = keyPairRef.current;
-      const exportJwk = exportKeyToJWK(publicKey);
-      const encryptMessage = encryptArrayBuffer(serverPublicKeyRef.current, request.body);
-      const [jwk, encryptedMessage] = await Promise.all([exportJwk, encryptMessage]);
-      const formData = new FormData();
-      formData.append("key", JSON.stringify(jwk));
-      formData.append("message", new Blob([encryptedMessage]));
-      request.responseType = "arraybuffer";
-      request.body = formData;
-    }
-  }, []);
-
-  const unwrapRequest = useCallback(async (type, response) => {
-    if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) {
-      const { privateKey } = keyPairRef.current;
-      response.data = await decryptArrayBuffer(privateKey, response.data);
-    }
-  }, []);
+  const { cid: artworkCid } = artwork;
+  const { mp4 } = trackList.find(({ _id }) => _id === trackId) || {};
 
   const onBuffering = () => {
     const { audio } = shakaRef.current.getBufferedInfo();
     setBufferRanges(audio);
   };
 
-  const initPlayer = useCallback(() => {
+  useEffect(() => {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
     shaka.polyfill.installAll();
 
     if (!shaka.Player.isBrowserSupported()) {
@@ -75,23 +59,9 @@ const Player = () => {
     }
 
     shakaRef.current = new shaka.Player(audioPlayerRef.current);
-    const licenseServer = "/api/track";
-    shakaRef.current.configure({ drm: { servers: { "org.w3.clearkey": licenseServer } } });
-    shakaRef.current.getNetworkingEngine().registerRequestFilter(wrapRequest);
-    shakaRef.current.getNetworkingEngine().registerResponseFilter(unwrapRequest);
     const eventManager = new shaka.util.EventManager();
     eventManager.listen(shakaRef.current, `buffering`, onBuffering);
-  }, [dispatch, unwrapRequest, wrapRequest]);
-
-  useEffect(() => {
-    generateKey().then(keyPair => (keyPairRef.current = keyPair));
-
-    axios
-      .get("/api/track")
-      .then(res => (serverPublicKeyRef.current = res.data))
-      .then(initPlayer)
-      .catch(console.error);
-  }, [initPlayer]);
+  }, [dispatch]);
 
   const onTimeUpdate = useCallback(() => {
     const { currentTime, duration } = audioPlayerRef.current;
@@ -128,12 +98,12 @@ const Player = () => {
 
     if (trackList[trackIndex + 1]) {
       const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
-      const cuedTrack = { releaseId, trackId: nextTrackId, artistName, trackTitle };
+      const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
       return void dispatch(playTrack(cuedTrack));
     }
 
     handleStop();
-  }, [artistName, dispatch, handleStop, trackId, releaseId, trackList]);
+  }, [trackId, trackList, handleStop, releaseId, releaseTitle, artistName, dispatch]);
 
   const onPlay = useCallback(() => void dispatch(playerPlay()), [dispatch]);
   const onPlaying = () => setIsReady(true);
@@ -174,30 +144,65 @@ const Player = () => {
   }, [dispatch, isPlaying, onError]);
 
   const onFetchSegment = useCallback(
-    type => {
-      const { LICENSE, SEGMENT } = shaka.net.NetworkingEngine.RequestType;
-      if (type === LICENSE || type === SEGMENT) {
+    (type, request) => {
+      const { MANIFEST, SEGMENT } = shaka.net.NetworkingEngine.RequestType;
+
+      if (type === MANIFEST || (type === SEGMENT && request.uri.endsWith("m4s"))) {
         axios.post(`/api/track/${trackId}/${type}`);
       }
     },
     [trackId]
   );
 
+  const setMediaSession = useCallback(() => {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: trackTitle,
+      artist: artistName,
+      album: releaseTitle,
+      artwork: [{ src: `${CLOUD_URL}/${artworkCid}`, sizes: "1000x1000", type: "image/png" }]
+    });
+
+    const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
+    navigator.mediaSession.setActionHandler("play", handlePlay);
+    navigator.mediaSession.setActionHandler("pause", () => void audioPlayerRef.current.pause());
+
+    navigator.mediaSession.setActionHandler("previoustrack", function () {
+      if (trackList[trackIndex - 1]) {
+        const { _id: nextTrackId, trackTitle } = trackList[trackIndex - 1];
+        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
+        return void dispatch(playTrack(cuedTrack));
+      }
+    });
+
+    navigator.mediaSession.setActionHandler("nexttrack", function () {
+      if (trackList[trackIndex + 1]) {
+        const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
+        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
+        return void dispatch(playTrack(cuedTrack));
+      }
+    });
+  }, [artistName, artworkCid, dispatch, handlePlay, releaseId, releaseTitle, trackId, trackList, trackTitle]);
+
   useEffect(() => {
     if (trackId && trackId !== prevTrackId) {
       shaka.Player.probeSupport().then(supportInfo => {
+        const urlStem = `${REACT_APP_IPFS_GATEWAY}/${mp4}`;
         if (supportInfo.manifest.mpd) {
           const mimeType = "application/dash+xml";
-          shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${mpd}`, null, mimeType).then(handlePlay).catch(onError);
+          shakaRef.current.load(`${urlStem}/dash.mpd`, null, mimeType).then(handlePlay).catch(onError);
         } else if (supportInfo.manifest.m3u8) {
           const mimeType = "application/vnd.apple.mpegurl";
-          shakaRef.current.load(`${REACT_APP_IPFS_GATEWAY}/${mst}`, null, mimeType).then(handlePlay).catch(onError);
+          shakaRef.current.load(`${urlStem}/master.m3u8`, null, mimeType).then(handlePlay).catch(onError);
         }
       });
 
       shakaRef.current.getNetworkingEngine().registerResponseFilter(onFetchSegment);
+
+      if ("mediaSession" in navigator) {
+        setMediaSession();
+      }
     }
-  }, [handlePlay, mpd, mst, onError, onFetchSegment, prevTrackId, trackId]);
+  }, [handlePlay, mp4, onError, onFetchSegment, prevTrackId, setMediaSession, trackId]);
 
   useEffect(() => {
     if (shakaRef.current) {

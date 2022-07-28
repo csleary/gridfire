@@ -42,6 +42,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
         try {
           const cid = await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
           console.log(`[${releaseId}] Artwork uploaded with CID: ${cid}.`);
+          res.sendStatus(200);
         } catch (error) {
           busboy.emit("error", error);
         }

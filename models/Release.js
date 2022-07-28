@@ -26,9 +26,7 @@ const trackSchema = new Schema(
     mp3: { type: String },
     mp4: { type: String },
     mpd: { type: String },
-    src: { type: String },
-    key: { type: String, select: false },
-    kid: { type: String, select: false }
+    src: { type: String }
   },
   { timestamps: true }
 );
@@ -90,7 +88,6 @@ releaseSchema.set("toJSON", {
       delete track.createdAt;
       delete track.flac;
       delete track.mp3;
-      delete track.mp4;
       delete track.src;
       delete track.updatedAt;
     });

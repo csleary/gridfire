@@ -23,15 +23,16 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const release = await Release.findOne({ _id: releaseId, user }, "artist artwork trackList").exec();
     const { artist, artwork, trackList } = release;
 
-    console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
-    const deleteArtwork = artwork.cid
-      ? ipfs.pin.rm(artwork.cid).catch(error => console.error(error.message))
-      : Promise.resolve();
+    let deleteArtwork = Promise.resolve();
+    if (artwork.cid) {
+      console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
+      deleteArtwork = ipfs.pin.rm(artwork.cid).catch(error => console.error(error.message));
+    }
 
     const deleteTracks = trackList.reduce(
-      (prev, { _id: trackId, flac, hls, mst, mp3, mp4, mpd, src }) => [
+      (prev, { _id: trackId, flac, mp3 }) => [
         ...prev,
-        ...Object.entries({ _id: trackId, flac, hls, mst, mp3, mp4, mpd, src })
+        ...Object.entries({ flac, mp3 })
           .filter(([, cid]) => Boolean(cid))
           .map(([key, cid]) => {
             console.log(`[${trackId.toString()}] Unpinning CID '${key}': ${cid}…`);
@@ -40,6 +41,9 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
       ],
       []
     );
+
+    console.log(`[${releaseId}] Deleting IPFS stream files…`);
+    ipfs.files.rm(`/${releaseId}`, { recursive: true, flush: true, cidVersion: 1 });
 
     // Delete from Mongo.
     const deleteRelease = await Release.findOneAndRemove({ _id: releaseId, user }).exec();

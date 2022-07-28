@@ -1,4 +1,5 @@
 import express from "express";
+import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 
 const router = express.Router();
 
@@ -20,8 +21,7 @@ router.get("/:userId/:uuid", async (req, res) => {
 
 router.get("/:userId/:uuid/ping", (req, res) => {
   const { userId, uuid } = req.params;
-  const { sse } = req.app.locals;
-  sse.ping(userId, uuid);
+  publishToQueue("user", userId, { ping: true, userId, uuid });
   res.sendStatus(200);
 });
 
