@@ -4,7 +4,7 @@ const { DEPLOYER_MAINNET_PRIVATE_KEY } = process.env;
  * Remember to:
  * 1. Update the DAI address in the contract.
  * 2. Compile and deploy contract.
- * 3. Update the contract address in the client and rebuild/redeploy.
+ * 3. Update the contract address in the client and server, and rebuild/redeploy.
  */
 
 async function main() {

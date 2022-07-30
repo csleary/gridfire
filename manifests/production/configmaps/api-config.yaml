@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: api-config
 data:
-  CONTRACT_ADDRESS: "0x7Bc4F4FF48865aD87Ed0033359e0f2dcc537c1dF"
+  CONTRACT_ADDRESS: "0x80241623699c5815dA9e8EE9F6ff7f7009a95989"
   DAI_CONTRACT_ADDRESS: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
   IPFS_NODE_HOST: http://ipfs-node.default.svc.cluster.local:5001
   NETWORK_URL: https://arb-mainnet.g.alchemy.com/v2

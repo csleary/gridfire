@@ -2,7 +2,7 @@ const { DEPLOYER_TESTNET_PRIVATE_KEY } = process.env;
 
 /**
  * Remember to:
- * 1. Update the DAI address in the contract.
+ * 1. Update the DAI address in the contract: 0xe905AaAb78C4160C3FdaC2eBbf7a01C34CA28B4F
  * 2. Compile and deploy contract.
  * 3. Update the contract address in the client and rebuild/redeploy.
  */
