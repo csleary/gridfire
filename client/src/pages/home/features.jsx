@@ -8,31 +8,31 @@ const Features = () => {
         <Feature title="Low platform fees">
           Artists receive 95% of the price they set.{" "}
           <Box as="span" color="gray.400">
-            We take just 5% of sales to support development.
+            We take just 5% of sales to support development. The rest is yours.
           </Box>
         </Feature>
         <Feature title="Smarter payments">
           Payments are immediately transferred to secure artist smart contract accounts.{" "}
           <Box as="span" color="gray.400">
-            Withdraw at any time, to an address of your choosing.
+            Withdraw at any time to an account you control.
           </Box>
         </Feature>
         <Feature title="A global currency">
           Payments are made using the DAI stablecoin &ndash; the original USD-pegged digital currency.{" "}
           <Box as="span" color="gray.400">
-            Your audience is global. Payments should be too.
+            Your audience is global. Payments can be too.
           </Box>
         </Feature>
         <Feature title="Secure audio">
           Optimised and encrypted audio is stored on the IPFS network.{" "}
           <Box as="span" color="gray.400">
-            Add extra pinning locations or host your own files. It's your audio.
+            Add extra pinning locations or host your own files.
           </Box>
         </Feature>
         <Feature title="Low network fees">
           Arbitrum, an Ethereum layer-two roll-up, is our payment network.{" "}
           <Box as="span" color="gray.400">
-            For fast transactions and low fees in comparison to the mainnet.
+            For fast transactions and low fees compared to the mainnet.
           </Box>
         </Feature>
       </Wrap>

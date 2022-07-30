@@ -35,8 +35,6 @@ spec:
             - secretRef:
                 name: api-secrets
             - secretRef:
-                name: api-stream-keys
-            - secretRef:
                 name: mongodb-uri
             - secretRef:
                 name: rabbitmq-user
