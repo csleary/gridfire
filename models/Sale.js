@@ -5,6 +5,8 @@ const saleSchema = new Schema({
   purchaseDate: Date,
   release: { type: Schema.Types.ObjectId, ref: "Release" },
   paid: { type: Object },
+  fee: { type: Object },
+  netAmount: { type: Object },
   transaction: { type: Object },
   user: { type: Schema.Types.ObjectId, ref: "User" },
   userAddress: String

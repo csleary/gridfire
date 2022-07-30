@@ -88,6 +88,8 @@ gridFire.on(
         purchaseDate: Date.now(),
         release: releaseId,
         paid: amountPaid,
+        fee: platformFee,
+        netAmount: artistShare,
         transaction: transactionReceipt,
         user: userId,
         userAddress: buyer
