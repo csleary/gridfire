@@ -10,18 +10,19 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { setIsLoading, updateUser } from "state/user";
-import { toastError, toastSuccess } from "state/toast";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { toastSuccess, toastWarning } from "state/toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import axios from "axios";
 import { connectToWeb3 } from "state/web3";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { useDispatch } from "react-redux";
 import { useState } from "react";
 
 const Login = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const { isLoading } = useSelector(state => state.user, shallowEqual);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 
@@ -43,6 +44,7 @@ const Login = () => {
     if (ethereum != null) {
       try {
         setLoginError("");
+        dispatch(setIsLoading(true));
         const accounts = await ethereum.request({ method: "eth_requestAccounts" });
         const [address] = accounts;
         const message = await getNonce(address);
@@ -56,7 +58,12 @@ const Login = () => {
         navigate("/");
       } catch (error) {
         if (error.code === 4001) {
-          return void dispatch(toastError({ message: error.message, title: "Error" }));
+          return void dispatch(
+            toastWarning({
+              message: "Please approve our signature request in order to log in.",
+              title: "Login cancelled"
+            })
+          );
         }
 
         setLoginError(
@@ -81,7 +88,10 @@ const Login = () => {
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
           leftIcon={<Icon icon={faEthereum} />}
+          isLoading={isLoading}
+          loadingText="Logging in…"
           size="lg"
+          minWidth="24rem"
           onClick={handleWeb3Login}
           mb={8}
         >

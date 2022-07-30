@@ -1,7 +1,11 @@
+import { Contract, ethers, utils } from "ethers";
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
+import Release from "gridfire/models/Release.js";
+import Sale from "gridfire/models/Sale.js";
+import User from "gridfire/models/User.js";
 import daiAbi from "gridfire/controllers/web3/dai.js";
-import { Contract, ethers } from "ethers";
 import express from "express";
+import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { CONTRACT_ADDRESS, DAI_CONTRACT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
@@ -45,5 +49,69 @@ router.get("/:account/purchases", requireLogin, async (req, res) => {
   const purchases = await gridFire.queryFilter(purchaseFilter);
   res.send(purchases);
 });
+
+/**
+ * Contract Events
+ */
+
+const gridFire = getGridFireContract();
+
+gridFire.on(
+  "Purchase",
+  async (buyerAddress, artistAddress, releaseId, userId, amountPaid, artistShare, platformFee, event) => {
+    const {
+      artistName,
+      price,
+      releaseTitle,
+      user: artistUser
+    } = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })
+      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+      .exec();
+
+    if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
+      return;
+    }
+
+    if (amountPaid.lt(utils.parseEther(price.toString()))) {
+      return;
+    }
+
+    if (await Sale.exists({ release: releaseId, user: userId })) {
+      return;
+    }
+
+    const transactionReceipt = await event.getTransactionReceipt();
+    const { from: buyer, status } = transactionReceipt;
+
+    if (status === 1) {
+      await Sale.create({
+        purchaseDate: Date.now(),
+        release: releaseId,
+        paid: amountPaid,
+        transaction: transactionReceipt,
+        user: userId,
+        userAddress: buyer
+      }).catch(error => {
+        if (error.code === 11000) {
+          return;
+        }
+        console.error(error);
+      });
+
+      publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
+      const artistUserId = artistUser._id.toString();
+
+      publishToQueue("user", artistUserId, {
+        artistName,
+        artistShare: utils.formatEther(artistShare),
+        buyerAddress,
+        platformFee: utils.formatEther(platformFee),
+        releaseTitle,
+        type: "saleEvent",
+        userId: artistUserId
+      });
+    }
+  }
+);
 
 export default router;

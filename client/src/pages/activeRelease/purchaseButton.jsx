@@ -1,13 +1,11 @@
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toastError, toastSuccess, toastWarning } from "state/toast";
+import { toastError, toastWarning } from "state/toast";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { fetchDaiBalance } from "state/web3";
-import { fetchUser } from "state/user";
 import { purchaseRelease } from "web3/contract";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +15,8 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const { account, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
+  const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
+  const { userId } = useSelector(state => state.user, shallowEqual);
   const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance);
 
   const handlePayment = async () => {
@@ -25,11 +24,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress, price } = res.data;
-      const transactionHash = await purchaseRelease(paymentAddress, releaseId, price);
-      await axios.post(`/api/release/${releaseId}/purchase`, { transactionHash });
-      dispatch(fetchDaiBalance(account));
-      dispatch(fetchUser());
-      dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
+      await purchaseRelease(paymentAddress, releaseId, userId, price);
     } catch (error) {
       if (error.code === 4001) {
         return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));

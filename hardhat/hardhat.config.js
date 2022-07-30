@@ -31,5 +31,5 @@ module.exports = {
   paths: {
     artifacts: "./artifacts"
   },
-  solidity: "0.8.14"
+  solidity: "0.8.9"
 };

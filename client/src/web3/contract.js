@@ -15,7 +15,7 @@ const claimBalance = async () => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
-  const transactionReceipt = await gridFireContract.claim().catch(console.log);
+  const transactionReceipt = await gridFireContract.claim();
   const { status } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Claim unsuccessful.");
 };
@@ -41,11 +41,6 @@ const getDaiBalance = async account => {
 const getDaiApprovalEvents = async account => {
   const res = await axios.get(`/api/web3/${account}/approvals`);
   return res.data;
-  // const provider = await getProvider();
-  // const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  // const approvalsFilter = daiContract.filters.Approval(account, REACT_APP_CONTRACT_ADDRESS);
-  // const approvals = await daiContract.queryFilter(approvalsFilter);
-  // return approvals;
 };
 
 const getDaiContract = signerOrProvider => {
@@ -56,19 +51,19 @@ const getGridFireContract = signerOrProvider => {
   return new Contract(REACT_APP_CONTRACT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
 };
 
-const gridFireCheckout = async basket => {
+const gridFireCheckout = async (basket, userId) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
 
-  const contractBasket = basket.map(({ id, paymentAddress, price }) => ({
+  const contractBasket = basket.map(({ paymentAddress, price, releaseId }) => ({
     artist: paymentAddress,
-    id,
+    releaseId,
     amountPaid: price,
     releasePrice: price
   }));
 
-  const transactionReceipt = await gridFireContract.checkout(contractBasket);
+  const transactionReceipt = await gridFireContract.checkout(contractBasket, userId);
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;
@@ -77,27 +72,27 @@ const gridFireCheckout = async basket => {
 const getGridFireClaimEvents = async paymentAddress => {
   const res = await axios.get(`/api/web3/${paymentAddress}/claims`);
   return res.data;
-  // const provider = await getProvider();
-  // const gridFire = getGridFireContract(provider);
-  // const claimFilter = gridFire.filters.Claim(paymentAddress);
-  // return gridFire.queryFilter(claimFilter);
 };
 
 const getGridFirePurchaseEvents = async paymentAddress => {
   const res = await axios.get(`/api/web3/${paymentAddress}/purchases`);
   return res.data;
-  // const provider = await getProvider();
-  // const gridFire = getGridFireContract(provider);
-  // const purchaseFilter = gridFire.filters.Purchase(null, paymentAddress);
-  // return gridFire.queryFilter(purchaseFilter);
 };
 
-const purchaseRelease = async (paymentAddress, id, price) => {
+const purchaseRelease = async (paymentAddress, releaseId, userId, price) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);
   const weiReleasePrice = utils.parseEther(`${price}`);
-  const transactionReceipt = await gridFirePayment.purchase(paymentAddress, id, weiReleasePrice, weiReleasePrice);
+
+  const transactionReceipt = await gridFirePayment.purchase(
+    paymentAddress,
+    releaseId,
+    userId,
+    weiReleasePrice,
+    weiReleasePrice
+  );
+
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;

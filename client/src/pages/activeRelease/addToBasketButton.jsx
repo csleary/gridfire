@@ -7,18 +7,18 @@ import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { utils } from "ethers";
 
-const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, title }) => {
+const AddToBasketButton = ({ artistName, imageUrl, inCollection, releaseId, title }) => {
   const dispatch = useDispatch();
   const { basket, isAddingToBasket } = useSelector(state => state.web3, shallowEqual);
-  const isInBasket = basket.some(item => item.id === itemId);
+  const isInBasket = basket.some(item => item.releaseId === releaseId);
 
   const handleAddToBasket = async () => {
     try {
       dispatch(setIsAddingToBasket(true));
-      const res = await axios.get(`/api/release/${itemId}/purchase`);
+      const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress, price } = res.data;
       const priceInWei = utils.parseEther(price.toString());
-      dispatch(addToBasket({ artistName, id: itemId, imageUrl, paymentAddress, price: priceInWei, title }));
+      dispatch(addToBasket({ artistName, releaseId, imageUrl, paymentAddress, price: priceInWei, title }));
     } catch (error) {
       console.error(error);
     } finally {
@@ -41,7 +41,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, itemId, title }
 
 AddToBasketButton.propTypes = {
   artistName: PropTypes.string,
-  itemId: PropTypes.string,
+  releaseId: PropTypes.string,
   price: PropTypes.object, // BigNumber
   title: PropTypes.string
 };

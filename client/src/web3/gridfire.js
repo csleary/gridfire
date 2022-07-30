@@ -74,19 +74,31 @@ const gridFireAbi = [
       {
         indexed: false,
         internalType: "string",
-        name: "id",
+        name: "releaseId",
+        type: "string"
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "userId",
         type: "string"
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "amountPaid",
         type: "uint256"
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "fee",
+        name: "artistShare",
+        type: "uint256"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "platformFee",
         type: "uint256"
       }
     ],
@@ -128,7 +140,7 @@ const gridFireAbi = [
           },
           {
             internalType: "string",
-            name: "id",
+            name: "releaseId",
             type: "string"
           },
           {
@@ -140,6 +152,11 @@ const gridFireAbi = [
         internalType: "struct GridFirePayment.BasketItem[]",
         name: "basket",
         type: "tuple[]"
+      },
+      {
+        internalType: "string",
+        name: "userId",
+        type: "string"
       }
     ],
     name: "checkout",
@@ -208,7 +225,12 @@ const gridFireAbi = [
       },
       {
         internalType: "string",
-        name: "id",
+        name: "releaseId",
+        type: "string"
+      },
+      {
+        internalType: "string",
+        name: "userId",
         type: "string"
       },
       {

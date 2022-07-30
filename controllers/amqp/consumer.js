@@ -11,7 +11,6 @@ const startConsumer = async (connection, sse) => {
 
       try {
         const message = JSON.parse(data.content.toString());
-        // console.log(`[Worker Message] ${JSON.stringify(message)}`);
         const { userId, ping, uuid, ...rest } = message;
 
         if (ping) {

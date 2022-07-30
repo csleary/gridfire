@@ -10,7 +10,7 @@ const { MONGODB_URI, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST
 let isReady = false;
 let amqpConnection;
 let consumerChannel;
-let consumerTag;
+let consumerTags = [];
 
 process
   .on("uncaughtException", error => console.error("[Worker] Unhandled exception:", error))
@@ -53,9 +53,8 @@ const amqpConnect = async () => {
     });
 
     startPublisher(connection);
-    const config = await startConsumer(connection);
-    const { channel, consumerTag } = config || {};
-    return [connection, channel, consumerTag];
+    const channel = await startConsumer(connection, consumerTags);
+    return [connection, channel];
   } catch (error) {
     setTimeout(amqpConnect, 3000);
   }
@@ -63,19 +62,22 @@ const amqpConnect = async () => {
 
 try {
   await mongoose.connect(MONGODB_URI);
-  [amqpConnection, consumerChannel, consumerTag] = await amqpConnect();
+  [amqpConnection, consumerChannel] = await amqpConnect();
   isReady = true;
 } catch (error) {
-  console.error(`[Worker] Node execution error: ${error.message}`);
+  console.error(`[Worker] Startup error: ${error.message}`);
 }
 
 const handleShutdown = async () => {
-  isReady = true;
+  isReady = false;
   console.log("[Worker] Gracefully shutting down…");
 
   try {
     if (amqpConnection) {
-      await consumerChannel.cancel(consumerTag);
+      for (const tag of consumerTags) {
+        await consumerChannel.cancel(tag);
+      }
+
       await amqpConnection.close.bind(amqpConnection);
       console.log("[Worker][AMQP] Closed.");
     }

@@ -13,7 +13,8 @@ const userSlice = createSlice({
     lastLogin: null,
     paymentAddress: "",
     purchases: [],
-    wishList: []
+    wishList: [],
+    userId: ""
   },
   reducers: {
     addFavouritesItem(state, action) {

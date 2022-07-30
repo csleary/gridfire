@@ -76,8 +76,8 @@ const BasketButton = () => {
         Basket
         {basket.length ? (
           <AvatarGroup size="xs" max={5} ml={2}>
-            {basket.map(({ id, imageUrl, title }) => (
-              <Avatar key={id} loading="lazy" name={title} src={imageUrl} />
+            {basket.map(({ imageUrl, releaseId, title }) => (
+              <Avatar key={releaseId} loading="lazy" name={title} src={imageUrl} />
             ))}
           </AvatarGroup>
         ) : null}
@@ -91,15 +91,18 @@ const BasketButton = () => {
             <VStack spacing={3} alignItems="unset">
               {basket.length ? (
                 <>
-                  {basket.map(({ artistName, id, imageUrl, price, title }) => (
-                    <Flex key={id} alignItems="center">
+                  {basket.map(({ artistName, imageUrl, price, releaseId, title }) => (
+                    <Flex key={releaseId} alignItems="center">
                       <Avatar name={title} src={imageUrl} mr={4} />
-                      <Text as={RouterLink} to={`/release/${id}`}>
+                      <Text as={RouterLink} to={`/release/${releaseId}`}>
                         {artistName} &bull; <Text as="em">{title}</Text>
                       </Text>
                       <Spacer />
                       <Box mr={4}>◈ {Number(utils.formatEther(price)).toFixed(2)}</Box>
-                      <IconButton icon={<Icon icon={faTimes} />} onClick={() => dispatch(removeFromBasket(id))} />
+                      <IconButton
+                        icon={<Icon icon={faTimes} />}
+                        onClick={() => dispatch(removeFromBasket(releaseId))}
+                      />
                     </Flex>
                   ))}
                   <Flex>
@@ -131,7 +134,7 @@ const BasketButton = () => {
                 ? "Connect wallet"
                 : allowanceTooLow
                 ? "Approval required"
-                : `Checkout ~ ${utils.formatEther(total)} USD`}
+                : `Checkout ~ ${Number(utils.formatEther(total)).toFixed(2)} USD`}
             </Button>
           </ModalFooter>
         </ModalContent>

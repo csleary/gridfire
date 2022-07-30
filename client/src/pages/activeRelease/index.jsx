@@ -121,7 +121,7 @@ const ActiveRelease = () => {
                     imageUrl={`${CLOUD_URL}/${artwork.cid}`}
                     artistName={artistName}
                     inCollection={isInCollection}
-                    itemId={releaseId}
+                    releaseId={releaseId}
                     title={releaseTitle}
                   />
                 </WrapItem>

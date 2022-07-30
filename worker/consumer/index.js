@@ -3,12 +3,14 @@ import { create } from "ipfs-http-client";
 import encodeFLAC from "gridfire-worker/consumer/encodeFLAC.js";
 import transcodeAAC from "gridfire-worker/consumer/transcodeAAC.js";
 import transcodeMP3 from "gridfire-worker/consumer/transcodeMP3.js";
+import { strict as assert } from "assert/strict";
 
-const { IPFS_NODE_HOST, QUEUE_TRANSCODE } = process.env;
+const { IPFS_NODE_HOST, QUEUE_PURCHASE, QUEUE_TRANSCODE } = process.env;
 const ipfs = create(IPFS_NODE_HOST);
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
+assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE is not set.");
 
-const startConsumer = async connection => {
+const startConsumer = async (connection, consumerTags) => {
   try {
     const channel = await connection.createChannel();
 
@@ -32,9 +34,11 @@ const startConsumer = async connection => {
 
     channel.prefetch(1);
     await channel.assertQueue(QUEUE_TRANSCODE, { durable: true });
-    const config = await channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false });
-    const { consumerTag } = config || {};
-    return { channel, consumerTag };
+    channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false }).then(({ consumerTag }) => {
+      consumerTags.push(consumerTag);
+    });
+
+    return channel;
   } catch (error) {
     if (closeOnError(connection, error)) return;
   }

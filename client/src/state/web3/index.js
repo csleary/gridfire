@@ -1,9 +1,7 @@
 import { BigNumber, constants, ethers, utils } from "ethers";
 import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3/contract";
-import { toastError, toastSuccess, toastWarning } from "state/toast";
+import { toastError, toastWarning } from "state/toast";
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchUser } from "state/user";
-import axios from "axios";
 import { batch } from "react-redux";
 import detectEthereumProvider from "@metamask/detect-provider";
 
@@ -27,6 +25,9 @@ const web3Slice = createSlice({
   },
   reducers: {
     addToBasket(state, action) {
+      if (state.basket.some(({ releaseId }) => releaseId === action.payload.releaseId)) {
+        return;
+      }
       state.basket = [...state.basket, action.payload];
     },
 
@@ -35,7 +36,7 @@ const web3Slice = createSlice({
     },
 
     removeFromBasket(state, action) {
-      state.basket = state.basket.filter(item => item.id !== action.payload);
+      state.basket = state.basket.filter(({ releaseId }) => releaseId !== action.payload);
     },
 
     setAccount(state, action) {
@@ -82,7 +83,7 @@ const web3Slice = createSlice({
 
 const checkoutBasket =
   (basket = []) =>
-  async dispatch => {
+  async (dispatch, getState) => {
     try {
       batch(() => {
         dispatch(setError(""));
@@ -92,15 +93,10 @@ const checkoutBasket =
       const total = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
 
       // Only do contract checkout if there's a non-zero price.
-      let transactionHash;
       if (total.gt(constants.Zero)) {
-        transactionHash = await gridFireCheckout(basket);
+        const { userId } = getState().user;
+        await gridFireCheckout(basket, userId);
       }
-
-      // Backend purchase validation.
-      await axios.post(`/api/release/purchase`, { transactionHash });
-      dispatch(fetchUser());
-      dispatch(toastSuccess({ message: "Purchased!", title: "Success" }));
     } catch (error) {
       dispatch(setError(error));
       throw error;

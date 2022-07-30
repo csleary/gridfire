@@ -63,6 +63,7 @@ const Balance = () => {
       }
 
       dispatch(toastError({ message: error.message, title: "Error" }));
+      console.error(error);
     } finally {
       setIsClaiming(false);
     }
@@ -126,7 +127,7 @@ const Balance = () => {
           </Thead>
           <Tbody>
             {claims.map(({ args, blockNumber, transactionHash }) => {
-              const { amount = args[1] } = args;
+              const amount = args[1];
 
               return (
                 <Tr key={transactionHash}>

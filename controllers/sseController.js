@@ -1,4 +1,4 @@
-const CHECK_INTERVAL = 1000 * 60 * 5;
+const CHECK_INTERVAL = 1000 * 60 * 2;
 
 class SSEController {
   #consumerChannel;
@@ -76,7 +76,7 @@ class SSEController {
         for (const [uuid, { lastPing, res }] of connections.entries()) {
           if (Date.now() - lastPing > CHECK_INTERVAL) {
             console.log(`[SSE] Removing stale connection [${uuid}] for user ${userId}.`);
-            res.end();
+            if (res) res.end();
             connections.delete(uuid);
           }
         }

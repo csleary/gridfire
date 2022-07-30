@@ -173,14 +173,14 @@ const Allowance = () => {
           </Thead>
           <Tbody>
             {approvals.map(({ args, blockNumber, transactionHash }) => {
-              const { wad = args[2] } = args;
+              const approvalAmount = args[2];
 
               return (
                 <Tr key={transactionHash}>
                   <Td>
                     <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                   </Td>
-                  <Td isNumeric>◈ {Number(utils.formatEther(wad)).toFixed(2)}</Td>
+                  <Td isNumeric>◈ {Number(utils.formatEther(approvalAmount)).toFixed(2)}</Td>
                 </Tr>
               );
             })}

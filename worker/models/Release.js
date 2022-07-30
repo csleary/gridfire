@@ -21,11 +21,8 @@ const trackSchema = new Schema(
     status: { type: String, enum: trackStatusEnum, default: "pending" },
     duration: { type: Number, trim: true },
     flac: { type: String },
-    hls: { type: String },
-    mst: { type: String },
     mp3: { type: String },
     mp4: { type: String },
-    mpd: { type: String },
     src: { type: String }
   },
   { timestamps: true }
