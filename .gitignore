@@ -1,8 +1,7 @@
-*.env*
+.env*
 .vscode
 hardhat/artifacts
 hardhat/cache
-keyfile
 manifests/secrets
 node_modules
 worker/bin
