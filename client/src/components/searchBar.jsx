@@ -1,17 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
-import { clearResults, searchReleases } from "state/search";
-import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useState } from "react";
-import Icon from "components/icon";
-import debounce from "lodash.debounce";
-import { useDisclosure } from "@chakra-ui/react";
-import { usePrevious } from "hooks/usePrevious";
 import {
   Box,
   Button,
   Fade,
   IconButton,
+  Image,
   Input,
   InputLeftElement,
   InputRightElement,
@@ -25,8 +17,17 @@ import {
   Spinner,
   Text,
   VStack,
-  Image
+  useColorModeValue
 } from "@chakra-ui/react";
+import { Link, useNavigate } from "react-router-dom";
+import { clearResults, searchReleases } from "state/search";
+import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect, useState } from "react";
+import Icon from "components/icon";
+import debounce from "lodash.debounce";
+import { useDisclosure } from "@chakra-ui/react";
+import { usePrevious } from "hooks/usePrevious";
 import { CLOUD_URL } from "index";
 
 const SearchBar = () => {
@@ -98,7 +99,7 @@ const SearchBar = () => {
                   onClick={handleClearSearch}
                   size="sm"
                   variant="unstyled"
-                  _hover={{ color: "gray.800" }}
+                  _hover={{ color: useColorModeValue("gray.800", "gray.200") }}
                 />
               </Fade>
             </InputRightElement>
