@@ -109,13 +109,13 @@ contract GridFirePayment is Ownable {
         if (serviceFee == 0) {
             balances[artist] += amountPaid;
             return (amountPaid, 0);
-        } else {
-            uint256 platformShare = (amountPaid / 1000) * serviceFee;
-            uint256 artistShare = amountPaid - platformShare;
-            balances[owner()] += platformShare;
-            balances[artist] += artistShare;
-            return (artistShare, platformShare);
         }
+
+        uint256 platformShare = (amountPaid / 1000) * serviceFee;
+        uint256 artistShare = amountPaid - platformShare;
+        balances[owner()] += platformShare;
+        balances[artist] += artistShare;
+        return (artistShare, platformShare);
     }
 
     function transferPayment(

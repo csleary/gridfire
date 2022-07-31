@@ -3,10 +3,9 @@ const { Schema } = mongoose;
 
 const streamSessionSchema = new Schema({
   date: { type: Date, default: Date.now() },
-  segmentsFetched: { type: Number, default: 0 },
-  segmentsTotal: { type: Number },
+  totalTimePlayed: { type: Number, default: 0 },
+  startTime: { type: Number, default: Date.now() },
   trackId: { type: Schema.Types.ObjectId },
-  release: { type: Schema.Types.ObjectId, ref: "Release" },
   user: { type: Schema.Types.ObjectId, ref: "User" }
 });
 

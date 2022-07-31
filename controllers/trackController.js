@@ -10,6 +10,7 @@ import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 
 const { ObjectId } = mongoose.Types;
 const { QUEUE_TRANSCODE } = process.env;
+const MIN_DURATION = 1000 * 30;
 
 const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
   const release = await Release.findOneAndUpdate(
@@ -60,28 +61,39 @@ const logStream = async ({ trackId, userId, type }) => {
 
   const releaseId = release._id;
 
-  if ([0, 2].includes(Number.parseInt(type))) {
-    // Licence request, following the decoding of a 'pssh' media box.
-    StreamSession.create({ user, trackId }).catch(error => error.code != 11000 && console.error(error));
-  } else if (Number.parseInt(type) === 1) {
-    // General segment request. Will only increment after creation, following licence request.
-    const stream = await StreamSession.findOneAndUpdate(
-      { user, trackId },
-      { $inc: { segmentsFetched: 1 } },
-      { new: true, lean: true }
-    ).exec();
+  switch (Number.parseInt(type)) {
+    case 0:
+      StreamSession.findOneAndUpdate({ user, trackId }, { startTime: Date.now() }, { upsert: true })
+        .exec()
+        .catch(error => error.code != 11000 && console.error(error));
+      break;
+    case 1:
+      {
+        const stream = await StreamSession.findOne({ user, trackId }, "", { lean: true }).exec();
+        if (!stream) break;
 
-    if (stream?.segmentsFetched > 4) {
-      // More than 30s played, so log play.
-      logPlay(trackId, releaseId, stream._id, user);
-    }
-  } else if (Number.parseInt(type) === 6) {
-    // Stream finished. Just in case the track was short, check if there's an outstanding session with at least 1 segment.
-    const stream = await StreamSession.findOne({ user, segmentsFetched: { $gte: 1 }, trackId }).exec();
+        StreamSession.findOneAndUpdate(
+          { user, trackId },
+          { totalTimePlayed: stream.totalTimePlayed + Date.now() - stream.startTime, startTime: null }
+        ).exec();
+      }
+      break;
+    case 2:
+      {
+        const stream = await StreamSession.findOne({ user, trackId }, "", { lean: true }).exec();
+        if (!stream) break;
 
-    if (stream) {
-      logPlay(trackId, releaseId, stream._id, user);
-    }
+        if (
+          stream != null &&
+          stream.startTime !== null &&
+          stream.totalTimePlayed + Date.now() - stream.startTime > MIN_DURATION
+        ) {
+          logPlay(trackId, releaseId, stream._id, user);
+        }
+      }
+      break;
+    default:
+      break;
   }
 
   return user;

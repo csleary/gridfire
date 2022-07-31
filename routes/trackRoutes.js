@@ -21,8 +21,8 @@ router.put("/", requireLogin, async (req, res) => {
 router.post("/:trackId/:type", async (req, res) => {
   try {
     const userId = req.user?._id || req.session.user;
-    const { trackId, segmentsTotal, type } = req.params;
-    const user = await logStream({ trackId, userId, segmentsTotal, type });
+    const { trackId, type } = req.params;
+    const user = await logStream({ trackId, userId, type });
     req.session.user = user;
     res.sendStatus(200);
   } catch (error) {

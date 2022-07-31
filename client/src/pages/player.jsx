@@ -5,7 +5,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
-import axios from "axios";
+import PlayLogger from "./playLogger";
 import shaka from "shaka-player";
 // import shaka from "shaka-player/dist/shaka-player.compiled.debug.js";
 import { toastWarning } from "state/toast";
@@ -19,6 +19,7 @@ const Player = () => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const audioPlayerRef = useRef();
+  const playLoggerRef = useRef();
   const seekBarRef = useRef();
   const shakaRef = useRef();
 
@@ -75,6 +76,7 @@ const Player = () => {
     setProgressPercent(currentTime / duration);
     const { audio } = shakaRef.current.getBufferedInfo();
     setBufferRanges(audio);
+    playLoggerRef.current.checkPlayTime();
   }, []);
 
   const handleStop = useCallback(() => {
@@ -93,7 +95,7 @@ const Player = () => {
   );
 
   const onEnded = useCallback(() => {
-    axios.post(`/api/track/${trackId}/6`);
+    playLoggerRef.current.checkPlayTime();
     const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
 
     if (trackList[trackIndex + 1]) {
@@ -105,13 +107,26 @@ const Player = () => {
     handleStop();
   }, [trackId, trackList, handleStop, releaseId, releaseTitle, artistName, dispatch]);
 
-  const onPlay = useCallback(() => void dispatch(playerPlay()), [dispatch]);
-  const onPlaying = () => setIsReady(true);
+  const onPlaying = () => {
+    playLoggerRef.current.setStartTime();
+    setIsReady(true);
+  };
+
+  const onPlay = useCallback(() => {
+    dispatch(playerPlay());
+  }, [dispatch]);
+
+  const onPause = () => {
+    playLoggerRef.current.updatePlayTime();
+    setIsReady(true);
+  };
+
   const onWaiting = () => setIsReady(false);
 
   useEffect(() => {
-    audioPlayerRef.current.addEventListener("play", onPlay);
     audioPlayerRef.current.addEventListener("playing", onPlaying);
+    audioPlayerRef.current.addEventListener("play", onPlay);
+    audioPlayerRef.current.addEventListener("pause", onPause);
     audioPlayerRef.current.addEventListener("waiting", onWaiting);
     audioPlayerRef.current.addEventListener("timeupdate", onTimeUpdate);
     audioPlayerRef.current.addEventListener("ended", onEnded);
@@ -119,8 +134,9 @@ const Player = () => {
 
     return () => {
       if (!audioPlayerRef.current) return;
-      audioPlayerRef.current.removeEventListener("play", onPlay);
       audioPlayerRef.current.removeEventListener("playing", onPlaying);
+      audioPlayerRef.current.removeEventListener("play", onPlay);
+      audioPlayerRef.current.removeEventListener("pause", onPause);
       audioPlayerRef.current.removeEventListener("waiting", onWaiting);
       audioPlayerRef.current.removeEventListener("timeupdate", onTimeUpdate);
       audioPlayerRef.current.removeEventListener("ended", onEnded);
@@ -142,17 +158,6 @@ const Player = () => {
         .catch(onError);
     }
   }, [dispatch, isPlaying, onError]);
-
-  const onFetchSegment = useCallback(
-    (type, request) => {
-      const { MANIFEST, SEGMENT } = shaka.net.NetworkingEngine.RequestType;
-
-      if (type === MANIFEST || (type === SEGMENT && request.uri.endsWith("m4s"))) {
-        axios.post(`/api/track/${trackId}/${type}`);
-      }
-    },
-    [trackId]
-  );
 
   const setMediaSession = useCallback(() => {
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -196,25 +201,13 @@ const Player = () => {
         }
       });
 
-      shakaRef.current.getNetworkingEngine().registerResponseFilter(onFetchSegment);
-
       if ("mediaSession" in navigator) {
         setMediaSession();
       }
-    }
-  }, [handlePlay, mp4, onError, onFetchSegment, prevTrackId, setMediaSession, trackId]);
 
-  useEffect(() => {
-    if (shakaRef.current) {
-      shakaRef.current.getNetworkingEngine().registerResponseFilter(onFetchSegment);
+      playLoggerRef.current = new PlayLogger(trackId);
     }
-
-    return () => {
-      if (shakaRef.current) {
-        shakaRef.current.getNetworkingEngine().unregisterResponseFilter(onFetchSegment);
-      }
-    };
-  }, [onFetchSegment]);
+  }, [handlePlay, mp4, onError, prevTrackId, setMediaSession, trackId]);
 
   const handleSeek = ({ clientX }) => {
     const width = seekBarRef.current.clientWidth;
