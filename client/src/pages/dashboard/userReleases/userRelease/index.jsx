@@ -26,7 +26,7 @@ function UserRelease({ release }) {
     published,
     releaseDate,
     releaseTitle,
-    sales,
+    sales = 0,
     trackList
   } = release;
 
