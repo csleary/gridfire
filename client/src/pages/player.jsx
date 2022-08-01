@@ -171,19 +171,23 @@ const Player = () => {
     navigator.mediaSession.setActionHandler("play", handlePlay);
     navigator.mediaSession.setActionHandler("pause", () => void audioPlayerRef.current.pause());
 
-    navigator.mediaSession.setActionHandler("previoustrack", function () {
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
       if (trackList[trackIndex - 1]) {
         const { _id: nextTrackId, trackTitle } = trackList[trackIndex - 1];
         const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-        return void dispatch(playTrack(cuedTrack));
+        dispatch(playTrack(cuedTrack));
+      } else {
+        audioPlayerRef.current.currentTime = 0;
       }
     });
 
-    navigator.mediaSession.setActionHandler("nexttrack", function () {
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
       if (trackList[trackIndex + 1]) {
         const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
         const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-        return void dispatch(playTrack(cuedTrack));
+        dispatch(playTrack(cuedTrack));
+      } else {
+        return false;
       }
     });
   }, [artistName, artworkCid, dispatch, handlePlay, releaseId, releaseTitle, trackId, trackList, trackTitle]);
@@ -199,13 +203,13 @@ const Player = () => {
           const mimeType = "application/vnd.apple.mpegurl";
           shakaRef.current.load(`${urlStem}/master.m3u8`, null, mimeType).then(handlePlay).catch(onError);
         }
+
+        playLoggerRef.current = new PlayLogger(trackId);
       });
 
       if ("mediaSession" in navigator) {
         setMediaSession();
       }
-
-      playLoggerRef.current = new PlayLogger(trackId);
     }
   }, [handlePlay, mp4, onError, prevTrackId, setMediaSession, trackId]);
 
