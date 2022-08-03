@@ -114,12 +114,14 @@ const Player = () => {
 
   const onPlay = useCallback(() => {
     dispatch(playerPlay());
+    navigator.mediaSession.playbackState = "playing";
   }, [dispatch]);
 
-  const onPause = () => {
+  const onPause = useCallback(() => {
+    dispatch(playerPause());
+    navigator.mediaSession.playbackState = "paused";
     playLoggerRef.current.updatePlayTime();
-    setIsReady(true);
-  };
+  }, [dispatch]);
 
   const onWaiting = () => setIsReady(false);
 
@@ -142,7 +144,7 @@ const Player = () => {
       audioPlayerRef.current.removeEventListener("ended", onEnded);
       audioPlayerRef.current.removeEventListener("onerror", onError);
     };
-  }, [onEnded, onError, onPlay, onTimeUpdate]);
+  }, [onEnded, onError, onPause, onPlay, onTimeUpdate]);
 
   const handlePlay = useCallback(() => {
     const playPromise = audioPlayerRef.current.play();
@@ -170,6 +172,22 @@ const Player = () => {
     const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
     navigator.mediaSession.setActionHandler("play", handlePlay);
     navigator.mediaSession.setActionHandler("pause", () => void audioPlayerRef.current.pause());
+
+    navigator.mediaSession.setActionHandler("seekbackward", ({ seekOffset }) => {
+      audioPlayerRef.current.currentTime -= seekOffset || 10;
+    });
+
+    navigator.mediaSession.setActionHandler("seekforward", ({ seekOffset }) => {
+      audioPlayerRef.current.currentTime += seekOffset || 10;
+    });
+
+    navigator.mediaSession.setActionHandler("seekto", ({ fastSeek, seekTime }) => {
+      if (fastSeek && "fastSeek" in audioPlayerRef.current) {
+        return void audioPlayerRef.current.fastSeek(seekTime);
+      }
+
+      audioPlayerRef.current.currentTime = seekTime || audioPlayerRef.current.currentTime;
+    });
 
     navigator.mediaSession.setActionHandler("previoustrack", () => {
       if (trackList[trackIndex - 1]) {
@@ -205,11 +223,11 @@ const Player = () => {
         }
 
         playLoggerRef.current = new PlayLogger(trackId);
-      });
 
-      if ("mediaSession" in navigator) {
-        setMediaSession();
-      }
+        if ("mediaSession" in navigator) {
+          setMediaSession();
+        }
+      });
     }
   }, [handlePlay, mp4, onError, prevTrackId, setMediaSession, trackId]);
 
@@ -319,9 +337,7 @@ const Player = () => {
           textOverflow="ellipsis"
           whiteSpace="nowrap"
         >
-          {!isReady ? (
-            <Text>Loading&hellip;</Text>
-          ) : pathname === `/release/${releaseId}` ? (
+          {pathname === `/release/${releaseId}` ? (
             <Text>
               {artistName} &bull; <Text as="em">{trackTitle}</Text>
             </Text>

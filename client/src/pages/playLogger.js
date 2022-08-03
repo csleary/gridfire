@@ -16,19 +16,19 @@ class PlayLogger {
 
   setStartTime() {
     if (!this.#startTime) {
-      axios.post(`/api/track/${this.#trackId}/0`);
       this.#startTime = Date.now();
+      axios.post(`/api/track/${this.#trackId}/0`);
     }
   }
 
   checkPlayTime() {
     if (
       this.#hasLoggedPlay === false &&
-      this.#startTime != null &&
+      this.#startTime !== null &&
       this.#totalTimePlayed + Date.now() - this.#startTime > this.#minDuration
     ) {
-      axios.post(`/api/track/${this.#trackId}/2`);
       this.#hasLoggedPlay = true;
+      axios.post(`/api/track/${this.#trackId}/2`);
     }
   }
 

@@ -10,14 +10,14 @@ import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 
 const { ObjectId } = mongoose.Types;
 const { QUEUE_TRANSCODE } = process.env;
-const MIN_DURATION = 1000 * 30;
+const MIN_DURATION = 1000 * 25;
 
 const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
   const release = await Release.findOneAndUpdate(
     { "trackList._id": trackId, user },
     { "trackList.$.status": "deleting" },
     {
-      fields: { trackList: { _id: 1, flac: 1, hls: 1, mst: 1, mp3: 1, mp4: 1, mpd: 1, src: 1 } },
+      fields: { trackList: { _id: 1, flac: 1, mp3: 1, mp4: 1, src: 1 } },
       lean: true,
       new: true
     }
@@ -53,24 +53,25 @@ const logPlay = async (trackId, release, streamId, user) => {
 
 const logStream = async ({ trackId, userId, type }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
+  const releaseId = release._id;
   const user = userId || ObjectId();
 
   if (release.user.equals(user)) {
     return user;
   }
 
-  const releaseId = release._id;
-
   switch (Number.parseInt(type)) {
     case 0:
+      // console.log(`[${trackId}] Logging start of playback.`);
       StreamSession.findOneAndUpdate({ user, trackId }, { startTime: Date.now() }, { upsert: true })
         .exec()
-        .catch(error => error.code != 11000 && console.error(error));
+        .catch(error => error.code !== 11000 && console.error(error));
       break;
-    case 1:
+    case 1: // Update total time on pause/stop.
       {
         const stream = await StreamSession.findOne({ user, trackId }, "", { lean: true }).exec();
         if (!stream) break;
+        // console.log(`[${trackId}] Updating playback time.`);
 
         StreamSession.findOneAndUpdate(
           { user, trackId },
@@ -82,12 +83,14 @@ const logStream = async ({ trackId, userId, type }) => {
       {
         const stream = await StreamSession.findOne({ user, trackId }, "", { lean: true }).exec();
         if (!stream) break;
+        // console.log(`[${trackId}] Total playback time: ${stream.totalTimePlayed + Date.now() - stream.startTime}ms.`);
 
         if (
           stream != null &&
           stream.startTime !== null &&
           stream.totalTimePlayed + Date.now() - stream.startTime > MIN_DURATION
         ) {
+          console.log(`[${trackId}] Logging play.`);
           logPlay(trackId, releaseId, stream._id, user);
         }
       }
