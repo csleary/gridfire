@@ -32,7 +32,7 @@ const ArtistPage = () => {
       </Helmet>
       <Heading as="h2">{name}</Heading>
       <Wrap spacing={8}>
-        <WrapItem as="section" flex="1 1 64rem" flexDirection="column" order={[2, 2, 1]}>
+        <WrapItem as="section" alignItems="stretch" flex="1 1 64rem" flexDirection="column" order={[2, 2, 1]}>
           <Heading as="h3">
             {releaseCount} Release{releaseCount > 1 ? "s" : ""}
           </Heading>
