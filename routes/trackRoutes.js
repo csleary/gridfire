@@ -26,7 +26,7 @@ router.post("/:trackId/:type", async (req, res) => {
     req.session.user = user;
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.sendStatus(400);
   }
 });
@@ -39,7 +39,7 @@ router.delete("/:trackId", requireLogin, async (req, res) => {
     await deleteTrack({ trackId, userId, ipfs });
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.sendStatus(400);
   }
 });

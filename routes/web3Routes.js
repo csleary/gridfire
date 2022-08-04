@@ -27,27 +27,42 @@ const getGridFireContract = () => {
 };
 
 router.get("/:account/approvals", requireLogin, async (req, res) => {
-  const { account } = req.params;
-  const daiContract = getDaiContract();
-  const approvalsFilter = daiContract.filters.Approval(account, CONTRACT_ADDRESS);
-  const approvals = await daiContract.queryFilter(approvalsFilter);
-  res.send(approvals);
+  try {
+    const { account } = req.params;
+    const daiContract = getDaiContract();
+    const approvalsFilter = daiContract.filters.Approval(account, CONTRACT_ADDRESS);
+    const approvals = await daiContract.queryFilter(approvalsFilter);
+    res.send(approvals);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
 });
 
 router.get("/:account/claims", requireLogin, async (req, res) => {
-  const { account } = req.params;
-  const gridFire = getGridFireContract();
-  const claimFilter = gridFire.filters.Claim(account);
-  const claims = await gridFire.queryFilter(claimFilter);
-  res.send(claims);
+  try {
+    const { account } = req.params;
+    const gridFire = getGridFireContract();
+    const claimFilter = gridFire.filters.Claim(account);
+    const claims = await gridFire.queryFilter(claimFilter);
+    res.send(claims);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
 });
 
 router.get("/:account/purchases", requireLogin, async (req, res) => {
-  const { account } = req.params;
-  const gridFire = getGridFireContract();
-  const purchaseFilter = gridFire.filters.Purchase(null, account);
-  const purchases = await gridFire.queryFilter(purchaseFilter);
-  res.send(purchases);
+  try {
+    const { account } = req.params;
+    const gridFire = getGridFireContract();
+    const purchaseFilter = gridFire.filters.Purchase(null, account);
+    const purchases = await gridFire.queryFilter(purchaseFilter);
+    res.send(purchases);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
 });
 
 /**
@@ -59,59 +74,64 @@ const gridFire = getGridFireContract();
 gridFire.on(
   "Purchase",
   async (buyerAddress, artistAddress, releaseId, userId, amountPaid, artistShare, platformFee, event) => {
-    const {
-      artistName,
-      price,
-      releaseTitle,
-      user: artistUser
-    } = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })
-      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
-      .exec();
-
-    if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
-      return;
-    }
-
-    if (amountPaid.lt(utils.parseEther(price.toString()))) {
-      return;
-    }
-
-    if (await Sale.exists({ release: releaseId, user: userId })) {
-      return;
-    }
-
-    const transactionReceipt = await event.getTransactionReceipt();
-    const { from: buyer, status } = transactionReceipt;
-
-    if (status === 1) {
-      await Sale.create({
-        purchaseDate: Date.now(),
-        release: releaseId,
-        paid: amountPaid,
-        fee: platformFee,
-        netAmount: artistShare,
-        transaction: transactionReceipt,
-        user: userId,
-        userAddress: buyer
-      }).catch(error => {
-        if (error.code === 11000) {
-          return;
-        }
-        console.error(error);
-      });
-
-      publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
-      const artistUserId = artistUser._id.toString();
-
-      publishToQueue("user", artistUserId, {
+    try {
+      const {
         artistName,
-        artistShare: utils.formatEther(artistShare),
-        buyerAddress,
-        platformFee: utils.formatEther(platformFee),
+        price,
         releaseTitle,
-        type: "saleEvent",
-        userId: artistUserId
-      });
+        user: artistUser
+      } = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })
+        .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+        .exec();
+
+      if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
+        return;
+      }
+
+      if (amountPaid.lt(utils.parseEther(price.toString()))) {
+        return;
+      }
+
+      if (await Sale.exists({ release: releaseId, user: userId })) {
+        return;
+      }
+
+      const transactionReceipt = await event.getTransactionReceipt();
+      const { from: buyer, status } = transactionReceipt;
+
+      if (status === 1) {
+        await Sale.create({
+          purchaseDate: Date.now(),
+          release: releaseId,
+          paid: amountPaid,
+          fee: platformFee,
+          netAmount: artistShare,
+          transaction: transactionReceipt,
+          user: userId,
+          userAddress: buyer
+        }).catch(error => {
+          if (error.code === 11000) {
+            return;
+          }
+          console.error(error);
+        });
+
+        publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
+        const artistUserId = artistUser._id.toString();
+
+        publishToQueue("user", artistUserId, {
+          artistName,
+          artistShare: utils.formatEther(artistShare),
+          buyerAddress,
+          platformFee: utils.formatEther(platformFee),
+          releaseTitle,
+          type: "saleEvent",
+          userId: artistUserId
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      res.sendStatus(400);
     }
   }
 );

@@ -59,39 +59,44 @@ router.get("/count", async (req, res) => {
 });
 
 router.get("/:artistIdOrSlug", async (req, res) => {
-  const { artistIdOrSlug } = req.params;
-  const { isValidObjectId, Types } = mongoose;
-  const { ObjectId } = Types;
+  try {
+    const { artistIdOrSlug } = req.params;
+    const { isValidObjectId, Types } = mongoose;
+    const { ObjectId } = Types;
 
-  const [catalogue] = await Artist.aggregate([
-    { $match: isValidObjectId(artistIdOrSlug) ? { _id: ObjectId(artistIdOrSlug) } : { slug: artistIdOrSlug } },
-    {
-      $lookup: {
-        from: "releases",
-        let: { artistId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $and: [{ $eq: ["$artist", "$$artistId"] }, { $eq: ["$published", true] }] }
-            }
-          },
-          { $sort: { releaseDate: -1 } }
-        ],
-        as: "releases"
+    const [catalogue] = await Artist.aggregate([
+      { $match: isValidObjectId(artistIdOrSlug) ? { _id: ObjectId(artistIdOrSlug) } : { slug: artistIdOrSlug } },
+      {
+        $lookup: {
+          from: "releases",
+          let: { artistId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $and: [{ $eq: ["$artist", "$$artistId"] }, { $eq: ["$published", true] }] }
+              }
+            },
+            { $sort: { releaseDate: -1 } }
+          ],
+          as: "releases"
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          slug: 1,
+          biography: 1,
+          links: 1,
+          releases: 1
+        }
       }
-    },
-    {
-      $project: {
-        name: 1,
-        slug: 1,
-        biography: 1,
-        links: 1,
-        releases: 1
-      }
-    }
-  ]).exec();
+    ]).exec();
 
-  res.send(catalogue);
+    res.send(catalogue);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
 });
 
 router.get("/", async (req, res) => {
@@ -122,7 +127,7 @@ router.get("/", async (req, res) => {
 
     res.send(releases);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).send({ error: "Music catalogue could not be fetched." });
   }
 });

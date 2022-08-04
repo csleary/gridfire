@@ -2,15 +2,18 @@
 pragma solidity ^0.8.9;
 
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/utils/Counters.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract GridFirePayment is Ownable {
+abstract contract GridFirePayment is Ownable, ERC1155 {
+    using Counters for Counters.Counter;
     using SafeERC20 for IERC20;
 
-    // Global fee variable in thousandths (e.g. 50 = 5%).
-    uint256 private serviceFee = 50;
+    uint256 private serviceFee = 50; // Global fee variable in thousandths (e.g. 50 = 5%).
     mapping(address => uint256) balances;
+    Counters.Counter private _tokenIdTracker;
 
     struct BasketItem {
         address artist;
@@ -19,7 +22,14 @@ contract GridFirePayment is Ownable {
         uint256 releasePrice;
     }
 
-    IERC20 dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
+    struct NewEdition {
+        address artist;
+        string releaseId;
+        string metadata;
+        uint256 quantity;
+    }
+
+    IERC20 constant dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
 
     event Checkout(address indexed buyer, uint256 amount);
     event Claim(address indexed artist, uint256 amount);
@@ -82,6 +92,13 @@ contract GridFirePayment is Ownable {
         balances[msg.sender] = 0;
         dai.safeTransfer(msg.sender, amount);
         emit Claim(msg.sender, amount);
+    }
+
+    function mintEdition(NewEdition calldata newEdition) public {
+        uint256 quantity = newEdition.quantity;
+        string calldata releaseId = newEdition.releaseId;
+        _mint(address(this), _tokenIdTracker.current(), quantity, abi.encodePacked(releaseId));
+        _tokenIdTracker.increment();
     }
 
     function setServiceFee(uint256 newServiceFee) public onlyOwner {

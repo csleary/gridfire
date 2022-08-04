@@ -11,7 +11,8 @@ router.get("/", requireLogin, async (req, res) => {
     const artists = await Artist.find({ user: userId }, "-__v", { lean: true }).exec();
     res.send(artists);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    console.error(error);
+    res.sendStatus(400);
   }
 });
 
@@ -43,7 +44,8 @@ router.post("/:artistId", requireLogin, async (req, res) => {
       });
     }
 
-    res.status(400).send({ error: error.message });
+    console.error(error);
+    res.sendStatus(400);
   }
 });
 
@@ -54,7 +56,8 @@ router.patch("/:artistId/link", requireLogin, async (req, res) => {
     const newLink = artist.links.create();
     res.send(newLink);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    console.error(error);
+    res.sendStatus(400);
   }
 });
 

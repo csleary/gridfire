@@ -1,7 +1,5 @@
-import { ethers, utils } from "ethers";
 import Artist from "gridfire/models/Artist.js";
 import Favourite from "gridfire/models/Favourite.js";
-import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import Release from "gridfire/models/Release.js";
 import Sale from "gridfire/models/Sale.js";
 import User from "gridfire/models/User.js";
@@ -10,10 +8,7 @@ import { createArtist } from "gridfire/controllers/artistController.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const { NETWORK_URL, NETWORK_KEY } = process.env;
-const { abi } = GridFirePayment;
 const router = express.Router();
-const sortById = (a, b) => (a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1);
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
@@ -66,7 +61,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     res.sendStatus(200);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    res.sendStatus(400);
   }
 });
 
@@ -83,7 +78,7 @@ router.get("/:releaseId", async (req, res) => {
     res.json({ release: release.toJSON() });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    res.sendStatus(400);
   }
 });
 
@@ -110,7 +105,7 @@ router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
     res.json(release);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    res.sendStatus(400);
   }
 });
 
@@ -256,7 +251,7 @@ router.post("/", requireLogin, async (req, res) => {
     res.json(updated.toJSON());
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    res.sendStatus(400);
   }
 });
 

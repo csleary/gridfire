@@ -69,7 +69,8 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     console.log(`[${releaseId}] Artwork deleted successfully.`);
     res.send(updated);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    console.error(error);
+    res.sendStatus(400);
   }
 });
 
