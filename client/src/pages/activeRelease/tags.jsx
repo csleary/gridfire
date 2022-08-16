@@ -13,7 +13,10 @@ const Tags = () => {
   const keys = tags.map(() => nanoid(8));
 
   if (!tags.length) return null;
-  const handleTagSearch = tag => dispatch(searchReleases(tag)).then(navigate("/search"));
+  const handleTagSearch = tag => {
+    dispatch(searchReleases(tag));
+    navigate("/search");
+  };
 
   return (
     <Wrap spacing={2}>

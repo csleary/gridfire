@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Box,
   Container,
   Divider,
@@ -29,9 +30,12 @@ import TrackList from "./trackList";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import moment from "moment";
+import { searchReleases } from "state/search";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ActiveRelease = () => {
+  const navigate = useNavigate();
   const releaseInfoColor = useColorModeValue("gray.500", "gray.700");
   const releaseInfoText = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
@@ -130,14 +134,44 @@ const ActiveRelease = () => {
               <Box mb={6}>
                 {recordLabel && (
                   <Flex mb={2}>
-                    <Flex align="center" bg="purple.200" justify="center" minW={10} mr={3} rounded="sm">
+                    <Flex
+                      as={Button}
+                      align="center"
+                      bg="purple.200"
+                      height="unset"
+                      justify="center"
+                      minW={10}
+                      mr={3}
+                      onClick={() => {
+                        dispatch(searchReleases(`label:${recordLabel}`));
+                        navigate("/search");
+                      }}
+                      rounded="sm"
+                      variant="unstyled"
+                      _hover={{ backgroundColor: "purple.300" }}
+                    >
                       <Icon color={releaseInfoColor} icon={faRecordVinyl} />
                     </Flex>
                     <Box color={releaseInfoText}>{recordLabel}</Box>
                   </Flex>
                 )}
                 <Flex mb={2}>
-                  <Flex align="center" bg="blue.100" justify="center" minW={10} mr={3} rounded="sm">
+                  <Flex
+                    as={Button}
+                    align="center"
+                    bg="blue.100"
+                    height="unset"
+                    justify="center"
+                    minW={10}
+                    mr={3}
+                    onClick={() => {
+                      dispatch(searchReleases(`year:${new Date(releaseDate).getFullYear()}`));
+                      navigate("/search");
+                    }}
+                    rounded="sm"
+                    variant="unstyled"
+                    _hover={{ backgroundColor: "blue.200" }}
+                  >
                     <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
                   </Flex>
                   <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>

@@ -17,7 +17,7 @@ const mapKeyToModel = {
 
 router.get("/search", async (req, res) => {
   const query = Object.entries(req.query).reduce((prev, [key, value]) => {
-    if (key === "text") return { ...prev, $text: { $search: value } };
+    if (["artist", "label", "title", "text", "track"].includes(key)) return { ...prev, $text: { $search: value } };
 
     if (key === "year")
       return {
@@ -28,7 +28,7 @@ router.get("/search", async (req, res) => {
         }
       };
 
-    if (["artist", "cat", "label", "title", "text", "track"].includes(key)) {
+    if (["cat", "price"].includes(key)) {
       return { ...prev, [mapKeyToModel[key]]: value };
     }
 
@@ -36,7 +36,7 @@ router.get("/search", async (req, res) => {
   }, {});
 
   const results = await Release.find(
-    { published: true, ...query },
+    { ...query, published: true },
     {
       artistName: 1,
       artwork: 1,
