@@ -26,8 +26,8 @@ router.get("/search", async (req, res) => {
       return {
         ...prev,
         [mapKeyToModel[key]]: {
-          $gt: new Date().setFullYear(value - 1),
-          $lte: new Date().setFullYear(value)
+          $gt: new Date(Date.UTC(Number.parseInt(value), 0)),
+          $lte: new Date(Date.UTC(Number.parseInt(value) + 1, 0))
         }
       };
 

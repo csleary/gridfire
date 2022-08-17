@@ -164,6 +164,8 @@ const SearchBar = () => {
                     </LinkBox>
                   );
                 })
+              ) : isSearching ? (
+                <Text>Searching for &lsquo;{searchQuery} &rsquo;…</Text>
               ) : searchQuery && !searchResults.length ? (
                 <Text>Nothing found for &lsquo;{searchQuery} &rsquo;.</Text>
               ) : null}
