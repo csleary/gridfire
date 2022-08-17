@@ -61,15 +61,6 @@ const releaseSchema = new Schema(
   { timestamps: true, usePushEach: true }
 );
 
-releaseSchema.index({
-  artistName: "text",
-  catNumber: "text",
-  recordLabel: "text",
-  releaseTitle: "text",
-  "trackList.trackTitle": "text",
-  tags: "text"
-});
-
 releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });

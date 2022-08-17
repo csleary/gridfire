@@ -73,6 +73,12 @@ const ActiveRelease = () => {
     dispatch(fetchUser());
   }, []); // eslint-disable-line
 
+  const handleSearch = terms => {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of terms) searchParams.append(key, value);
+    navigate(`/search?${searchParams.toString()}`);
+  };
+
   return (
     <>
       <Helmet>
@@ -142,10 +148,7 @@ const ActiveRelease = () => {
                       justify="center"
                       minW={10}
                       mr={3}
-                      onClick={() => {
-                        dispatch(searchReleases(`label:${recordLabel}`));
-                        navigate("/search");
-                      }}
+                      onClick={handleSearch.bind(null, [["label", recordLabel]])}
                       rounded="sm"
                       variant="unstyled"
                       _hover={{ backgroundColor: "purple.300" }}
@@ -164,10 +167,7 @@ const ActiveRelease = () => {
                     justify="center"
                     minW={10}
                     mr={3}
-                    onClick={() => {
-                      dispatch(searchReleases(`year:${new Date(releaseDate).getFullYear()}`));
-                      navigate("/search");
-                    }}
+                    onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear()]])}
                     rounded="sm"
                     variant="unstyled"
                     _hover={{ backgroundColor: "blue.200" }}

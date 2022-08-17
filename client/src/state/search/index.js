@@ -36,7 +36,7 @@ const searchReleases = searchQuery => async dispatch => {
       key = key?.trim().toLowerCase();
       value = value?.trim();
 
-      if (["artist", "cat", "label", "price", "title", "track", "year"].includes(key)) {
+      if (["artist", "cat", "label", "price", "tag", "title", "track", "year"].includes(key)) {
         return { ...prev, [key]: value };
       }
 

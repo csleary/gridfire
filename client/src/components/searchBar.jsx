@@ -23,19 +23,30 @@ import { Link, useNavigate } from "react-router-dom";
 import { clearResults, searchReleases } from "state/search";
 import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import debounce from "lodash.debounce";
 import { useDisclosure } from "@chakra-ui/react";
+import { useLocation } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
-import { CLOUD_URL } from "index";
 
 const SearchBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
+  const { search } = useLocation();
   const navigate = useNavigate();
+  const inputRef = useRef();
   const { isSearching, searchQuery, searchResults } = useSelector(state => state.search, shallowEqual);
   const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(search);
+    const listQuery = [];
+    for (const [key, value] of searchParams.entries()) listQuery.push(`${key}:${value}`);
+    const stringQuery = listQuery.join(",");
+    if (stringQuery) dispatch(searchReleases(stringQuery));
+  }, [dispatch, search]);
 
   const handleKeyDown = e => {
     if (e.key === "Enter") {
@@ -48,6 +59,7 @@ const SearchBar = () => {
     debounce(query => void dispatch(searchReleases(query)), 500),
     []
   );
+
   const previousQuery = usePrevious(searchText);
 
   useEffect(() => {
@@ -61,6 +73,7 @@ const SearchBar = () => {
   const handleClearSearch = () => {
     dispatch(clearResults());
     setSearchText("");
+    inputRef.current.focus();
   };
 
   const handleClose = () => {
@@ -88,6 +101,7 @@ const SearchBar = () => {
               onChange={handleSearchInput}
               onKeyDown={handleKeyDown}
               placeholder="Search…"
+              ref={el => (inputRef.current = el)}
               value={searchText}
               variant="flushed"
             />
