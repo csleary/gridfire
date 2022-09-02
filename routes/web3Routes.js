@@ -59,6 +59,8 @@ const gridFire = getGridFireContract();
 gridFire.on(
   "Purchase",
   async (buyerAddress, artistAddress, releaseId, userId, amountPaid, artistShare, platformFee, event) => {
+    console.log(`[${new Date()}] Purchase made by user ${userId}: paid ${utils.formatEther(amountPaid)} DAI for release ${releaseId}.`);
+
     const {
       artistName,
       price,
