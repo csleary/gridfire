@@ -72,7 +72,7 @@ const Header = () => {
   };
 
   return (
-    <Wrap spacing={4} alignItems="center" mb={4}>
+    <Wrap spacing={4} alignItems="center" mb={4} overflow="visible">
       <WrapItem>
         <SearchBar />
       </WrapItem>

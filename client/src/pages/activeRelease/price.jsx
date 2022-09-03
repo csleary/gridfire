@@ -8,7 +8,7 @@ const Price = ({ price = "" }) => {
   return (
     <Flex justifyContent="center" mb={6}>
       <Flex alignItems="flex-start">
-        <Heading alignSelf="center" color="gray.500" as="span" mb={0} mr="0.2rem" size="xl">
+        <Heading as="span" alignSelf="center" color="gray.500" mb={0} mr="0.2rem" size="xl">
           ◈
         </Heading>
         <Heading as="span" size="2xl" mr={1} mb={0}>

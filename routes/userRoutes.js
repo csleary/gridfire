@@ -28,7 +28,10 @@ router.post("/address", requireLogin, async (req, res) => {
 router.get("/collection", requireLogin, async (req, res) => {
   const [albums, singles] = await Promise.all([
     // Get full-releases.
-    Sale.find({ type: { $ne: "single" }, user: req.user._id }, "", { lean: true, sort: "-purchaseDate" })
+    Sale.find({ type: { $ne: "single" }, user: req.user._id }, "paid purchaseDate transaction.transactionHash type", {
+      lean: true,
+      sort: "-purchaseDate"
+    })
       .populate({
         path: "release",
         model: Release,
@@ -53,18 +56,18 @@ router.get("/collection", requireLogin, async (req, res) => {
       { $sort: { purchaseDate: -1 } },
       {
         $project: {
+          paid: 1,
           purchaseDate: 1,
           release: {
             _id: 1,
             artistName: 1,
             artwork: 1,
             releaseTitle: 1,
-            trackList: {
-              _id: 1,
-              trackTitle: 1
-            }
+            "trackList._id": 1,
+            "trackList.trackTitle": 1
           },
           trackId: 1,
+          "transaction.transactionHash": 1,
           type: 1
         }
       }
