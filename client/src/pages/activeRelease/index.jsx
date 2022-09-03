@@ -30,7 +30,6 @@ import TrackList from "./trackList";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import moment from "moment";
-import { searchReleases } from "state/search";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -109,6 +108,7 @@ const ActiveRelease = () => {
                   color={useColorModeValue("gray.400", "gray.500")}
                   _hover={{ color: useColorModeValue("gray.600", "gray.400") }}
                   size="xl"
+                  transition="color var(--chakra-transition-duration-normal)"
                   mb={8}
                 >
                   {artistName}

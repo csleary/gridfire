@@ -16,7 +16,7 @@ const releaseSlice = createSlice({
     catalogue: [],
     catalogueLimit: 12,
     catalogueSkip: 0,
-    collection: [],
+    collection: {},
     reachedEndOfCat: false,
     releaseIdsForDeletion: {},
     userFavourites: [],

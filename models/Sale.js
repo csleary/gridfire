@@ -8,6 +8,7 @@ const saleSchema = new Schema({
   fee: { type: Object },
   netAmount: { type: Object },
   transaction: { type: Object },
+  type: { type: String, enum: ["single", "album"], default: "album" },
   user: { type: Schema.Types.ObjectId, ref: "User" },
   userAddress: String
 });

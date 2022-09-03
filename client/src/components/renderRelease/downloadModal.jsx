@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import placeholder from "placeholder.svg";
 
-const DownloadModal = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
+const DownloadModal = ({ artistName, artworkCID, purchaseId, releaseTitle }) => {
   return (
     <>
       <Heading>
@@ -29,7 +29,7 @@ const DownloadModal = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
               <Button
                 as={Link}
                 download={`${artistName} - ${releaseTitle}.zip`}
-                href={`/api/download/${releaseId}/mp3`}
+                href={`/api/download/${purchaseId}/mp3`}
                 leftIcon={<Icon icon={faCloudDownloadAlt} />}
                 mb="1"
                 size="lg"
@@ -41,7 +41,7 @@ const DownloadModal = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
               <Button
                 as={Link}
                 download={`${artistName} - ${releaseTitle}.zip`}
-                href={`/api/download/${releaseId}/flac`}
+                href={`/api/download/${purchaseId}/flac`}
                 leftIcon={<Icon icon={faCloudDownloadAlt} />}
                 mb="1"
                 size="lg"

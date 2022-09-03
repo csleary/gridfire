@@ -23,6 +23,7 @@ const trackSchema = new Schema(
     flac: { type: String },
     mp3: { type: String },
     mp4: { type: String },
+    price: { type: Number, default: 1.5 },
     src: { type: String }
   },
   { timestamps: true }

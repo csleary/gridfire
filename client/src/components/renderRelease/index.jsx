@@ -35,7 +35,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
     );
   }
 
-  const { _id: releaseId, artist, artistName, artwork = {}, releaseTitle, trackList } = release;
+  const { _id: releaseId, artist, artistName, artwork = {}, purchaseId = "", releaseTitle, trackList } = release;
   const { cid } = artwork;
 
   const handlePlayTrack = () => {
@@ -155,7 +155,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
             <OverlayDownloadButton
               artistName={artistName}
               artworkCID={cid}
-              releaseId={releaseId}
+              purchaseId={purchaseId}
               releaseTitle={releaseTitle}
             />
           ) : null}

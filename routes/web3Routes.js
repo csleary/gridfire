@@ -59,16 +59,34 @@ const gridFire = getGridFireContract();
 gridFire.on(
   "Purchase",
   async (buyerAddress, artistAddress, releaseId, userId, amountPaid, artistShare, platformFee, event) => {
-    console.log(`[${new Date()}] Purchase made by user ${userId}: paid ${utils.formatEther(amountPaid)} DAI for release ${releaseId}.`);
+    console.log(
+      `[${new Date()}] Purchase made by user ${userId}: paid ${utils.formatEther(
+        amountPaid
+      )} DAI for track/release ${releaseId}.`
+    );
 
-    const {
-      artistName,
-      price,
-      releaseTitle,
-      user: artistUser
-    } = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })
+    let price;
+    let releaseTitle;
+    let type = "album";
+
+    let release = await Release.findOne({ "trackList._id": releaseId }, "artistName trackList.$")
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
+
+    if (release) {
+      const [track] = release.trackList;
+      releaseTitle = track.trackTitle;
+      price = track.price;
+      type = "single";
+    } else {
+      release = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })
+        .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+        .exec();
+
+      ({ price, releaseTitle } = release);
+    }
+
+    const { artistName, user: artistUser } = release;
 
     if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
       return;
@@ -93,6 +111,7 @@ gridFire.on(
         fee: platformFee,
         netAmount: artistShare,
         transaction: transactionReceipt,
+        type,
         user: userId,
         userAddress: buyer
       }).catch(error => {

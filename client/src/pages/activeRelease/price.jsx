@@ -3,7 +3,7 @@ import { Flex, Heading } from "@chakra-ui/react";
 const Price = ({ price = "" }) => {
   if (price === 0) return null;
 
-  const [dai, pennies] = price.toString().split(".");
+  const [dai, pennies] = Number(price).toFixed(2).split(".");
 
   return (
     <Flex justifyContent="center" mb={6}>

@@ -7,8 +7,8 @@ import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { purchaseRelease } from "web3/contract";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { utils } from "ethers";
 
 const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
@@ -24,7 +24,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress, price } = res.data;
-      await purchaseRelease(paymentAddress, releaseId, userId, price);
+      await purchaseRelease({ paymentAddress, price, releaseId, userId });
     } catch (error) {
       if (error.code === 4001) {
         return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));

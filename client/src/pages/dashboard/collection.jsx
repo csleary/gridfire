@@ -7,9 +7,10 @@ import { fetchCollection } from "state/releases";
 
 const Collection = () => {
   const dispatch = useDispatch();
-  const { collection } = useSelector(state => state.releases, shallowEqual);
+  const { collection = {} } = useSelector(state => state.releases, shallowEqual);
+  const { albums = [], singles = [] } = collection;
   const [isLoading, setLoading] = useState(false);
-  const available = collection.filter(({ release }) => Boolean(release));
+  const available = [...albums, ...singles].filter(({ release }) => Boolean(release));
 
   useEffect(() => {
     if (!available.length) setLoading(true);
@@ -24,11 +25,39 @@ const Collection = () => {
       <Heading as="h3">
         Your Collection ({available.length} release{available.length === 1 ? "" : "s"})
       </Heading>
-      <Grid>
-        {available.map(({ release }) => (
-          <RenderRelease key={release?._id} release={release} type="collection" />
-        ))}
-      </Grid>
+      {albums.length ? (
+        <>
+          <Heading as="h3">Albums</Heading>
+          <Grid>
+            {albums.map(({ _id: purchaseId, purchaseDate, release }) => (
+              <RenderRelease key={purchaseId} release={{ ...release, purchaseDate, purchaseId }} type="collection" />
+            ))}
+          </Grid>
+        </>
+      ) : null}
+      {singles.length ? (
+        <>
+          <Heading as="h3">Singles</Heading>
+          <Grid>
+            {singles.map(({ _id: purchaseId, release, purchaseDate, trackId }) => {
+              const single = release.trackList.find(({ _id }) => _id === trackId);
+
+              return (
+                <RenderRelease
+                  key={purchaseId}
+                  release={{
+                    ...release,
+                    purchaseDate,
+                    releaseTitle: `${single.trackTitle} (taken from \u2018${release.releaseTitle}\u2019)`,
+                    purchaseId
+                  }}
+                  type="collection"
+                />
+              );
+            })}
+          </Grid>
+        </>
+      ) : null}
     </Box>
   );
 };

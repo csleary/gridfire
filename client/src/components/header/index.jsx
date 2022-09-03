@@ -124,7 +124,7 @@ const Header = () => {
                 <Tooltip
                   hasArrow
                   openDelay="500"
-                  label="The active account DAI balance."
+                  label="Your active account's DAI balance."
                   bg={tooltipBgColor}
                   color={tooltipColor}
                 >
@@ -137,7 +137,7 @@ const Header = () => {
                 <Tooltip
                   hasArrow
                   openDelay="500"
-                  label={`The active web3 account. Click to view the account on the explorer.`}
+                  label={`Your active web3 account. Click to view account details on the explorer.`}
                   bg={tooltipBgColor}
                   color={tooltipColor}
                 >

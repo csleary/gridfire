@@ -1,7 +1,5 @@
-import { ethers, utils } from "ethers";
 import Artist from "gridfire/models/Artist.js";
 import Favourite from "gridfire/models/Favourite.js";
-import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import Release from "gridfire/models/Release.js";
 import Sale from "gridfire/models/Sale.js";
 import User from "gridfire/models/User.js";
@@ -10,10 +8,7 @@ import { createArtist } from "gridfire/controllers/artistController.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const { NETWORK_URL, NETWORK_KEY } = process.env;
-const { abi } = GridFirePayment;
 const router = express.Router();
-const sortById = (a, b) => (a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1);
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
@@ -226,19 +221,32 @@ router.post("/", requireLogin, async (req, res) => {
           upsert: true
         }
       },
-      ...trackList.flatMap(({ _id: trackId, trackTitle }, index) => [
+      ...trackList.flatMap(({ _id: trackId, price: trackPrice, trackTitle }, index) => [
         // Update existing tracks.
         {
           updateOne: {
             filter: { _id: releaseId, "trackList._id": trackId, user },
-            update: { "trackList.$.trackTitle": trackTitle, "trackList.$.position": index + 1 }
+            update: {
+              "trackList.$.price": trackPrice,
+              "trackList.$.trackTitle": trackTitle,
+              "trackList.$.position": index + 1
+            }
           }
         },
         // Add new tracks.
         {
           updateOne: {
             filter: { _id: releaseId, trackList: { $not: { $elemMatch: { _id: trackId } } }, user },
-            update: { $push: { trackList: { _id: trackId, position: index + 1, trackTitle } } }
+            update: {
+              $push: {
+                trackList: {
+                  _id: trackId,
+                  position: index + 1,
+                  price: trackPrice,
+                  trackTitle
+                }
+              }
+            }
           }
         }
       ]),
