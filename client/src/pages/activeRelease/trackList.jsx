@@ -35,10 +35,11 @@ const TrackList = () => {
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
-  const secondaryColor = useColorModeValue("gray.400", "gray.500");
-  const titleColor = useColorModeValue("gray.500", "gray.300");
-  const tooltipBgColor = useColorModeValue("gray.200", "gray.800");
-  const tooltipColor = useColorModeValue("gray.800", "gray.100");
+  const secondaryColour = useColorModeValue("gray.400", "gray.500");
+  const titleColour = useColorModeValue("gray.500", "gray.300");
+  const tooltipBgColour = useColorModeValue("gray.200", "gray.800");
+  const tooltipColour = useColorModeValue("gray.800", "gray.100");
+  const checkColour = useColorModeValue("yellow.400", "purple.200");
 
   const handleAddToBasket = async ({ price, trackId, trackTitle }) => {
     try {
@@ -84,11 +85,11 @@ const TrackList = () => {
 
         return (
           <ListItem key={trackId} display="flex" alignItems="center" role="group">
-            <Box as="span" color={secondaryColor} fontWeight="600" mr="2">
+            <Box as="span" color={secondaryColour} fontWeight="600" mr="2">
               {(index + 1).toString(10).padStart(2, "0")}
             </Box>
             <Button
-              color={titleColor}
+              color={titleColour}
               minWidth={2}
               textAlign="left"
               variant="link"
@@ -107,7 +108,7 @@ const TrackList = () => {
               {trackTitle}
             </Button>
             {duration ? (
-              <Box as="span" color={secondaryColor} fontWeight="600" ml="2">
+              <Box as="span" color={secondaryColour} fontWeight="600" ml="2">
                 ({Math.floor(duration / 60)}:{(Math.ceil(duration) % 60).toString(10).padStart(2, "0")})
               </Box>
             ) : null}
@@ -121,8 +122,8 @@ const TrackList = () => {
               hasArrow
               openDelay="500"
               label={`Purchase \u2018${trackTitle}\u2019, by ${artistName}.`}
-              bg={tooltipBgColor}
-              color={tooltipColor}
+              bg={tooltipBgColour}
+              color={tooltipColour}
             >
               <Button
                 isDisabled={!isConnected || isFetchingAllowance || inCollection || isPurchasing || trackInCollection}
@@ -153,14 +154,14 @@ const TrackList = () => {
                     ? "You own this track."
                     : `Add \u2018${trackTitle}\u2019, by ${artistName}, to your basket.`
                 }
-                bg={tooltipBgColor}
-                color={tooltipColor}
+                bg={tooltipBgColour}
+                color={tooltipColour}
               >
                 <IconButton
                   isDisabled={inBasket}
                   icon={
                     <Icon
-                      color={trackInCollection ? "green.300" : null}
+                      color={trackInCollection ? checkColour : null}
                       icon={trackInCollection ? faCheck : faShoppingBasket}
                     />
                   }

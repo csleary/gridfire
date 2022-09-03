@@ -15,7 +15,8 @@ const Collection = () => {
   const { albums = [], singles = [] } = collection;
   const [isLoading, setLoading] = useState(false);
   const available = [...albums, ...singles].filter(({ release }) => Boolean(release));
-  const receiptColour = useColorModeValue("gray.600", "gray.300");
+  const receiptTextColour = useColorModeValue("gray.600", "gray.300");
+  const receiptColour = useColorModeValue("blue.200", "blue.100");
 
   useEffect(() => {
     if (!available.length) setLoading(true);
@@ -38,8 +39,8 @@ const Collection = () => {
               <VStack key={purchaseId}>
                 <RenderRelease release={{ ...release, purchaseDate, purchaseId }} type="collection" />
                 <Box alignSelf="flex-end">
-                  <Text color={receiptColour}>
-                    <Icon color="blue.300" icon={faReceipt} mr={2} />
+                  <Text color={receiptTextColour}>
+                    <Icon color={receiptColour} icon={faReceipt} mr={2} />
                     <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
                       {moment(new Date(purchaseDate)).format("Do of MMM, YYYY")}
                     </Link>
@@ -57,7 +58,9 @@ const Collection = () => {
       ) : null}
       {singles.length ? (
         <>
-          <Heading as="h3">Singles</Heading>
+          <Heading as="h3" mt={8}>
+            Singles
+          </Heading>
           <Grid>
             {singles.map(({ _id: purchaseId, paid, purchaseDate, release, trackId, transaction = {} }) => {
               const single = release.trackList.find(({ _id }) => _id === trackId);
@@ -73,8 +76,8 @@ const Collection = () => {
                     type="collection"
                   />
                   <Box alignSelf="flex-end">
-                    <Text color={receiptColour}>
-                      <Icon color="blue.300" icon={faReceipt} mr={2} />
+                    <Text color={receiptTextColour}>
+                      <Icon color={receiptColour} icon={faReceipt} mr={2} />
                       <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
                         {moment(new Date(purchaseDate)).format("Do of MMM, YYYY")}
                       </Link>
