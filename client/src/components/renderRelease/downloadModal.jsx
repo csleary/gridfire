@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Image, Link, Wrap, VStack, WrapItem } from "@chakra-ui/react";
+import { Box, Button, Image, Link, Wrap, VStack, WrapItem, Text, useColorModeValue } from "@chakra-ui/react";
 import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
@@ -6,16 +6,12 @@ import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import placeholder from "placeholder.svg";
 
 const DownloadModal = ({ artistName, artworkCID, purchaseId, releaseTitle }) => {
+  const primaryButtonColor = useColorModeValue("yellow", "purple");
+
   return (
     <>
-      <Heading>
-        Download{" "}
-        <Box as="span" fontStyle="italic">
-          {releaseTitle}
-        </Box>
-      </Heading>
-      <Wrap as="section" mb={4}>
-        <WrapItem flex="1 1 24ch">
+      <Wrap as="section" mb={4} spacing={8}>
+        <WrapItem flex="1 1 24rem">
           <Image
             alt={`${artistName} - ${releaseTitle}`}
             className="lazyload"
@@ -23,32 +19,36 @@ const DownloadModal = ({ artistName, artworkCID, purchaseId, releaseTitle }) => 
             src={`${CLOUD_URL}/${artworkCID}`}
           />
         </WrapItem>
-        <WrapItem alignItems="stretch" flex="1 1 24ch" p={4}>
-          <VStack flex="1" justifyContent="center" spacing={12}>
+        <WrapItem alignItems="stretch" flex="1 1 24rem">
+          <VStack flex="1" justifyContent="space-between" spacing={12}>
+            <Text>Choose your preferred audio format. All formats will be delivered as a zip file, with artwork.</Text>
             <Box>
               <Button
                 as={Link}
+                colorScheme={primaryButtonColor}
                 download={`${artistName} - ${releaseTitle}.zip`}
                 href={`/api/download/${purchaseId}/mp3`}
                 leftIcon={<Icon icon={faCloudDownloadAlt} />}
                 mb="1"
                 size="lg"
               >
-                Download MP3
+                MP3
               </Button>
             </Box>
             <Box>
               <Button
                 as={Link}
+                colorScheme={primaryButtonColor}
                 download={`${artistName} - ${releaseTitle}.zip`}
                 href={`/api/download/${purchaseId}/flac`}
                 leftIcon={<Icon icon={faCloudDownloadAlt} />}
                 mb="1"
                 size="lg"
               >
-                Download FLAC
+                FLAC
               </Button>
             </Box>
+            <Box />
           </VStack>
         </WrapItem>
       </Wrap>

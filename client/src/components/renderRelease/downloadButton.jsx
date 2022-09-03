@@ -1,13 +1,16 @@
 import {
   Button,
   Box,
+  Divider,
   IconButton,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalBody,
   ModalCloseButton,
-  ModalFooter
+  ModalFooter,
+  ModalHeader,
+  useColorModeValue
 } from "@chakra-ui/react";
 import DownloadModal from "components/renderRelease/downloadModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -46,16 +49,24 @@ const OverlayDownloadButton = ({ artistName, artworkCID, purchaseId, releaseTitl
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="4xl">
         <ModalOverlay />
         <ModalContent>
+          <ModalHeader fontSize="4xl" fontWeight={300} textAlign="center">
+            Download{" "}
+            <Box as="span" fontStyle="italic">
+              {releaseTitle}
+            </Box>
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody px={8} py={0}>
+            <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
             <DownloadModal
               artistName={artistName}
               artworkCID={artworkCID}
               purchaseId={purchaseId}
               releaseTitle={releaseTitle}
             />
+            <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mt={8} />
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter p={8}>
             <Button onClick={() => setShowModal(false)}>Close</Button>
           </ModalFooter>
         </ModalContent>
