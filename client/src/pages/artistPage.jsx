@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, Heading, Link, VStack, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
+import { Box, Divider, Heading, Link, VStack, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Card from "components/card";
