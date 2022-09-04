@@ -7,7 +7,6 @@ import "gridfire-worker/models/Release.js";
 import "gridfire-worker/models/User.js";
 
 const { MONGODB_URI, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
-let isReady = false;
 let amqpConnection;
 let consumerChannel;
 let consumerTags = [];
@@ -22,19 +21,16 @@ db.on("close", () => console.log("[Worker][Mongoose] Connection closed."));
 db.on("disconnected", () => console.log("[Worker][Mongoose] Disconnected."));
 db.on("error", console.error);
 
-await new Promise(resolve => {
-  const healthProbeServer = net.createServer(socket => {
-    // console.log("[Worker] Health probe connected.");
-    // socket.on("end", () => console.log("[Worker] Health probe disconnected."));
-  });
+const setupHealthProbe = () =>
+  new Promise(resolve => {
+    const healthProbeServer = net.createServer();
+    healthProbeServer.on("error", console.error.bind(null, "[Worker] Health probe server error:"));
 
-  healthProbeServer.on("error", error => console.error(`[Worker] Health probe server error: ${error}`));
-
-  healthProbeServer.listen(9090, () => {
-    console.log("[Worker] Health probe server listening on port 9090.");
-    resolve();
+    healthProbeServer.listen(9090, () => {
+      console.log("[Worker] Health probe server listening on port 9090.");
+      resolve();
+    });
   });
-});
 
 const amqpConnect = async () => {
   try {
@@ -63,13 +59,12 @@ const amqpConnect = async () => {
 try {
   await mongoose.connect(MONGODB_URI);
   [amqpConnection, consumerChannel] = await amqpConnect();
-  isReady = true;
+  await setupHealthProbe();
 } catch (error) {
   console.error(`[Worker] Startup error: ${error.message}`);
 }
 
 const handleShutdown = async () => {
-  isReady = false;
   console.log("[Worker] Gracefully shutting down…");
 
   try {

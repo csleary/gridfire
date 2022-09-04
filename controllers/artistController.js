@@ -1,7 +1,7 @@
-import slugify from 'slugify';
-import Artist from '../models/Artist.js';
+import slugify from "slugify";
+import Artist from "../models/Artist.js";
 
-const createArtist = async (artistName, userId, suffix = '') =>
+const createArtist = async (artistName, userId, suffix = "") =>
   Artist.create(
     [
       {
@@ -16,9 +16,9 @@ const createArtist = async (artistName, userId, suffix = '') =>
       let newSuffix;
 
       if (!suffix) {
-        newSuffix = '-1';
+        newSuffix = "-1";
       } else {
-        newSuffix = `-${Number.parseInt(suffix.split('-').pop()) + 1}`;
+        newSuffix = `-${Number.parseInt(suffix.split("-").pop()) + 1}`;
       }
 
       return createArtist(artistName, userId, newSuffix);

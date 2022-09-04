@@ -1,36 +1,18 @@
 {
   "env": {
-    "browser": true,
-    "es6": true,
-    "node": true
+    "node": true,
+    "es2021": true
   },
   "extends": "eslint:recommended",
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly",
-    "__basedir": false
-  },
+  "overrides": [],
   "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": 2018,
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": [],
   "rules": {
-    "indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "flatTernaryExpressions": true
-      }
-    ],
+    "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],
-    "no-shadow": ["error"],
-    "quotes": ["error", "single"],
-    "semi": ["error", "always"],
-    "sort-imports": ["error"]
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"]
   }
 }

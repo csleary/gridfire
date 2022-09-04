@@ -69,6 +69,7 @@ gridFire.on(
     let releaseTitle;
     let type = "album";
 
+    // Check if the purchase is a single track or an entire album.
     let release = await Release.findOne({ "trackList._id": releaseId }, "artistName trackList.$")
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
@@ -121,9 +122,11 @@ gridFire.on(
         console.error(error);
       });
 
+      // Notify user of successful purchase.
       publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
       const artistUserId = artistUser._id.toString();
 
+      // Notify artist of sale.
       publishToQueue("user", artistUserId, {
         artistName,
         artistShare: utils.formatEther(artistShare),

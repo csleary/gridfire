@@ -137,18 +137,6 @@ router.get("/releases", requireLogin, async (req, res) => {
   res.send(releases);
 });
 
-router.post("/transactions", requireLogin, async (req, res) => {
-  try {
-    const { releaseId, paymentHash } = req.body;
-    const { price } = req.session;
-    const transations = await getUserTransactions({ user: req.user, releaseId, paymentHash, price });
-    res.send(transations);
-  } catch (error) {
-    if (error.data) return res.status(400).send({ error: error.data.message });
-    res.status(400).send({ error: error.message });
-  }
-});
-
 router.get("/wishlist", requireLogin, async (req, res) => {
   const userWishList = await Wishlist.find({ user: req.user._id }, "", { lean: true, sort: "-release.releaseDate" })
     .populate({

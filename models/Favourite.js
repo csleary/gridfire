@@ -1,14 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const favouriteSchema = new Schema({
-  release: { type: Schema.Types.ObjectId, ref: 'Release' },
+  release: { type: Schema.Types.ObjectId, ref: "Release" },
   dateAdded: { type: Date },
-  user: { type: Schema.Types.ObjectId, ref: 'User' }
+  user: { type: Schema.Types.ObjectId, ref: "User" }
 });
 
 favouriteSchema.index({ user: 1, release: 1 }, { unique: true });
-mongoose.model('favourites', favouriteSchema);
+mongoose.model("favourites", favouriteSchema);
 
-const Favourite = mongoose.model('Favourite', favouriteSchema, 'favourites');
+const Favourite = mongoose.model("Favourite", favouriteSchema, "favourites");
 export default Favourite;
