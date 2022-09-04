@@ -1,25 +1,15 @@
-import {
-  Box,
-  Button,
-  IconButton,
-  ListItem,
-  Spacer,
-  Tooltip,
-  UnorderedList,
-  keyframes,
-  useColorModeValue
-} from "@chakra-ui/react";
-import { faCheck, faPause, faPlay, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
+import { Box, Button, ListItem, Spacer, UnorderedList, keyframes, useColorModeValue } from "@chakra-ui/react";
+import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPlay } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Icon from "components/icon";
-import { addToBasket } from "state/web3";
+import AddToBasketButton from "./addToBasketButton";
 import { CLOUD_URL } from "index";
+import PurchaseTrackButton from "./purchaseTrackButton";
+import { addToBasket } from "state/web3";
 import axios from "axios";
 import { purchaseRelease } from "web3/contract";
-import { toastInfo } from "state/toast";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { utils } from "ethers";
 
@@ -28,8 +18,7 @@ const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate inf
 
 const TrackList = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { basket, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
+  const { basket, daiAllowance } = useSelector(state => state.web3, shallowEqual);
   const { purchases, userId } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
@@ -37,9 +26,6 @@ const TrackList = () => {
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
-  const tooltipBgColour = useColorModeValue("gray.200", "gray.800");
-  const tooltipColour = useColorModeValue("gray.800", "gray.100");
-  const checkColour = useColorModeValue("yellow.400", "purple.200");
 
   const handleAddToBasket = async ({ price, trackId, trackTitle }) => {
     try {
@@ -69,6 +55,20 @@ const TrackList = () => {
       const { paymentAddress } = res.data;
       await purchaseRelease({ paymentAddress, price, releaseId: trackId, userId });
     } catch (error) {
+      if (error.code === "ACTION_REJECTED") {
+        return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
+      }
+
+      if (error.code === -32603) {
+        return void dispatch(
+          toastError({
+            message: "DAI balance too low. Please add more DAI or use a different account.",
+            title: "Payment Error"
+          })
+        );
+      }
+
+      dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
       console.error(error);
     } finally {
       setIsPurchasing(false);
@@ -118,65 +118,27 @@ const TrackList = () => {
               <Box as={FontAwesomeIcon} icon={faPause} animation={animation} ml={2} />
             ) : null}
             <Spacer />
-            <Tooltip
-              hasArrow
-              openDelay="500"
-              label={`Purchase \u2018${trackTitle}\u2019, by ${artistName}.`}
-              bg={tooltipBgColour}
-              color={tooltipColour}
-            >
-              <Button
-                isDisabled={!isConnected || isFetchingAllowance || inCollection || isPurchasing || trackInCollection}
-                icon={<Icon icon={inCollection || trackInCollection ? faCheck : faShoppingBasket} />}
-                onClick={
-                  allowanceTooLow
-                    ? () => navigate("/dashboard/payment/approvals")
-                    : handlePurchaseTrack.bind(null, { price, trackId })
-                }
-                size="sm"
-                alignSelf="stretch"
-                height="unset"
-                ml={1}
-                variant="ghost"
-              >
-                <Box as="span" color="gray.500" mr="0.2rem">
-                  ◈
-                </Box>
-                {Number(price).toFixed(2)}
-              </Button>
-            </Tooltip>
-            {inCollection ? null : (
-              <Tooltip
-                hasArrow
-                openDelay="500"
-                label={
-                  trackInCollection
-                    ? "You own this track."
-                    : `Add \u2018${trackTitle}\u2019, by ${artistName}, to your basket.`
-                }
-                bg={tooltipBgColour}
-                color={tooltipColour}
-              >
-                <IconButton
-                  isDisabled={inBasket}
-                  icon={
-                    <Icon
-                      color={trackInCollection ? checkColour : null}
-                      icon={trackInCollection ? faCheck : faShoppingBasket}
-                    />
-                  }
-                  onClick={
-                    trackInCollection
-                      ? () => navigate("/dashboard/collection")
-                      : handleAddToBasket.bind(null, { price, trackId, trackTitle })
-                  }
-                  size="sm"
-                  alignSelf="stretch"
-                  height="unset"
-                  variant="ghost"
-                />
-              </Tooltip>
-            )}
+            <PurchaseTrackButton
+              allowanceTooLow={allowanceTooLow}
+              artistName={artistName}
+              handlePurchaseTrack={handlePurchaseTrack}
+              inCollection={inCollection}
+              isPurchasing={isPurchasing}
+              price={price}
+              trackId={trackId}
+              trackInCollection={trackInCollection}
+              trackTitle={trackTitle}
+            />
+            <AddToBasketButton
+              artistName={artistName}
+              handleAddToBasket={handleAddToBasket}
+              inBasket={inBasket}
+              inCollection={inCollection}
+              price={price}
+              trackId={trackId}
+              trackInCollection={trackInCollection}
+              trackTitle={trackTitle}
+            />
           </ListItem>
         );
       })}
