@@ -4,6 +4,19 @@ import Icon from "components/icon";
 import NameYourPriceModal from "../nameYourPriceModal";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { BasketItem } from "./index";
+
+interface Props {
+  artistName: string;
+  handleAddToBasket: (item: BasketItem) => Promise<void>;
+  inBasket: boolean;
+  inCollection: boolean;
+  price: string;
+  trackId: string;
+  trackInCollection: boolean;
+  trackTitle: string;
+}
 
 const AddToBasketButton = ({
   artistName,
@@ -14,7 +27,7 @@ const AddToBasketButton = ({
   trackId,
   trackInCollection,
   trackTitle
-}) => {
+}: Props) => {
   const tooltipBgColour = useColorModeValue("gray.200", "gray.800");
   const tooltipColour = useColorModeValue("gray.800", "gray.100");
   const checkColour = useColorModeValue("yellow.400", "purple.200");
@@ -22,7 +35,7 @@ const AddToBasketButton = ({
   const [showModal, setShowModal] = useState(false);
   const [isAddingToBasket, setIsAddingToBasket] = useState(false);
 
-  const handleSubmit = async price => {
+  const handleSubmit = async (price: string) => {
     try {
       setIsAddingToBasket(true);
       await handleAddToBasket({ price, trackId, trackTitle });
@@ -33,7 +46,7 @@ const AddToBasketButton = ({
 
   const handleClick = () => {
     if (trackInCollection) return void navigate("/dashboard/collection");
-    if (price === 0) return void setShowModal(true);
+    if (Number(price) === 0) return void setShowModal(true);
     handleSubmit(price);
   };
 
@@ -43,7 +56,7 @@ const AddToBasketButton = ({
     <>
       <Tooltip
         hasArrow
-        openDelay="500"
+        openDelay={500}
         label={
           trackInCollection ? "You own this track." : `Add \u2018${trackTitle}\u2019, by ${artistName}, to your basket.`
         }
@@ -51,11 +64,12 @@ const AddToBasketButton = ({
         color={tooltipColour}
       >
         <IconButton
+          aria-label="Set a price for a release and add it to the basket."
           isDisabled={inBasket}
           icon={
             <Icon
-              color={trackInCollection ? checkColour : null}
-              icon={trackInCollection ? faCheck : faShoppingBasket}
+              color={trackInCollection ? (checkColour as string) : undefined}
+              icon={trackInCollection ? (faCheck as IconProp) : (faShoppingBasket as IconProp)}
             />
           }
           onClick={handleClick}
@@ -72,7 +86,6 @@ const AddToBasketButton = ({
         info="Enter the amount you wish to pay for this track, before adding it to your basket."
         isSubmitting={isAddingToBasket}
         showModal={showModal}
-        submitInfo={null}
         submitButton="Add to Basket"
         submitButtonLoading="Adding…"
       />

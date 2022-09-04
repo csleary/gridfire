@@ -1,22 +1,41 @@
-import { Button } from "@chakra-ui/react";
+import { BigNumber, utils } from "ethers";
 import { addToBasket, setIsAddingToBasket } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import NameYourPriceModal from "./nameYourPriceModal";
-import PropTypes from "prop-types";
+import { RootState } from "index";
 import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { toastError } from "state/toast";
-import { utils } from "ethers";
 import { useState } from "react";
 
-const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title }) => {
-  const dispatch = useDispatch();
-  const { basket, isAddingToBasket } = useSelector(state => state.web3, shallowEqual);
-  const [showModal, setShowModal] = useState(false);
-  const isInBasket = basket.some(item => item.releaseId === releaseId);
+interface Props {
+  artistName: string;
+  imageUrl: string;
+  inCollection: boolean;
+  price: number;
+  releaseId: string;
+  title: string;
+}
 
-  const handleAddToBasket = async price => {
+interface BasketItem {
+  artistName: string;
+  imageUrl: string;
+  paymentAddress: string;
+  price: BigNumber;
+  title: string;
+  releaseId: string;
+}
+
+const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title }: Props) => {
+  const dispatch = useDispatch();
+  const { basket, isAddingToBasket } = useSelector((state: RootState) => state.web3, shallowEqual);
+  const [showModal, setShowModal] = useState(false);
+  const isInBasket = basket.some((item: BasketItem) => item.releaseId === releaseId);
+
+  const handleAddToBasket = async (price: string) => {
     try {
       dispatch(setIsAddingToBasket(true));
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
@@ -26,9 +45,9 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
         throw new Error(`Price must be at least ◈${releasePrice}.`);
       }
 
-      const priceInWei = utils.parseEther(price.toString());
+      const priceInWei = utils.parseEther(price);
       dispatch(addToBasket({ artistName, releaseId, imageUrl, paymentAddress, price: priceInWei, title }));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(toastError({ message: error.message, title: "Error" }));
       console.error(error);
     } finally {
@@ -41,14 +60,14 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
       return void setShowModal(true);
     }
 
-    handleAddToBasket(price);
+    handleAddToBasket(price.toFixed(2));
   };
 
   return (
     <>
       <Button
         disabled={inCollection || isAddingToBasket || isInBasket}
-        leftIcon={<Icon icon={faShoppingBasket} />}
+        leftIcon={<Icon icon={faShoppingBasket as IconProp} />}
         isLoading={isAddingToBasket}
         minW="8rem"
         onClick={handleClick}
@@ -62,19 +81,12 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
         info="Enter the amount you wish to pay for this release, before adding it to your basket."
         isSubmitting={isAddingToBasket}
         showModal={showModal}
-        submitInfo={null}
+        submitInfo=""
         submitButton="Add to Basket"
         submitButtonLoading="Adding…"
       />
     </>
   );
-};
-
-AddToBasketButton.propTypes = {
-  artistName: PropTypes.string,
-  releaseId: PropTypes.string,
-  price: PropTypes.number,
-  title: PropTypes.string
 };
 
 export default AddToBasketButton;

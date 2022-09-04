@@ -2,7 +2,7 @@ import { Box, Button, ListItem, Spacer, UnorderedList, keyframes, useColorModeVa
 import { constants, utils } from "ethers";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPlay } from "state/player";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AddToBasketButton from "./addToBasketButton";
@@ -11,7 +11,32 @@ import PurchaseTrackButton from "./purchaseTrackButton";
 import { addToBasket } from "state/web3";
 import axios from "axios";
 import { purchaseRelease } from "web3/contract";
+import { shallowEqual } from "react-redux";
 import { useState } from "react";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+
+export interface BasketItem {
+  price: string;
+  releaseId?: string;
+  trackId?: string;
+  trackTitle: string;
+}
+
+interface ReleaseTrack {
+  _id: string;
+  duration: number;
+  price: number;
+  trackTitle: string;
+}
+
+interface TrackForPurchase {
+  price: string;
+  trackId: string;
+}
+
+interface Sale {
+  release: string;
+}
 
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;
@@ -27,7 +52,7 @@ const TrackList = () => {
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
 
-  const handleAddToBasket = async ({ price, trackId, trackTitle }) => {
+  const handleAddToBasket = async ({ price, trackId, trackTitle }: BasketItem) => {
     try {
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress } = res.data;
@@ -48,13 +73,13 @@ const TrackList = () => {
     }
   };
 
-  const handlePurchaseTrack = async ({ price, trackId }) => {
+  const handlePurchaseTrack = async ({ price, trackId }: TrackForPurchase) => {
     try {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress } = res.data;
       await purchaseRelease({ paymentAddress, price, releaseId: trackId, userId });
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === "ACTION_REJECTED") {
         return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
       }
@@ -77,11 +102,11 @@ const TrackList = () => {
 
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
-      {trackList.map(({ _id: trackId, duration, price, trackTitle }, index) => {
+      {trackList.map(({ _id: trackId, duration, price, trackTitle }: ReleaseTrack, index) => {
         const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
-        const inBasket = basket.some(item => item.releaseId === trackId);
-        const inCollection = purchases.some(sale => sale.release === releaseId);
-        const trackInCollection = purchases.some(sale => sale.release === trackId);
+        const inBasket = basket.some((item: BasketItem) => item.releaseId === trackId);
+        const inCollection = purchases.some((sale: Sale) => sale.release === releaseId);
+        const trackInCollection = purchases.some((sale: Sale) => sale.release === trackId);
 
         return (
           <ListItem key={trackId} display="flex" alignItems="center" role="group">
@@ -99,7 +124,7 @@ const TrackList = () => {
                   dispatch(playTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
                   dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
                 } else if (!isPlaying) {
-                  const audioPlayer = document.getElementById("player");
+                  const audioPlayer = document.getElementById("player") as HTMLAudioElement;
                   await audioPlayer.play().catch(console.log);
                   dispatch(playerPlay());
                 }
@@ -113,9 +138,9 @@ const TrackList = () => {
               </Box>
             ) : null}
             {trackId === playerTrackId && isPlaying ? (
-              <Box as={FontAwesomeIcon} icon={faPlay} animation={animation} ml={2} />
+              <Box as={FontAwesomeIcon} icon={faPlay as IconProp} animation={animation} ml={2} />
             ) : trackId === playerTrackId && isPaused ? (
-              <Box as={FontAwesomeIcon} icon={faPause} animation={animation} ml={2} />
+              <Box as={FontAwesomeIcon} icon={faPause as IconProp} animation={animation} ml={2} />
             ) : null}
             <Spacer />
             <PurchaseTrackButton
@@ -124,7 +149,7 @@ const TrackList = () => {
               handlePurchaseTrack={handlePurchaseTrack}
               inCollection={inCollection}
               isPurchasing={isPurchasing}
-              price={price}
+              price={price.toFixed(2)}
               trackId={trackId}
               trackInCollection={trackInCollection}
               trackTitle={trackTitle}
@@ -134,7 +159,7 @@ const TrackList = () => {
               handleAddToBasket={handleAddToBasket}
               inBasket={inBasket}
               inCollection={inCollection}
-              price={price}
+              price={price.toFixed(2)}
               trackId={trackId}
               trackInCollection={trackInCollection}
               trackTitle={trackTitle}

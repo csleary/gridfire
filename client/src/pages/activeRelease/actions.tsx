@@ -1,4 +1,3 @@
-import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "state/user";
 import {
   Box,
   Button,
@@ -14,12 +13,22 @@ import {
   PopoverBody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "state/user";
+import { shallowEqual } from "react-redux";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
-import Icon from "components/icon";
-import { toastInfo } from "state/toast";
+import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
+import Icon from "components/icon";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { toastInfo } from "state/toast";
+
+interface ListItem {
+  _id: string;
+  dateAdded: Date;
+  release: string;
+  note: string;
+}
 
 const Actions = () => {
   const dispatch = useDispatch();
@@ -29,22 +38,27 @@ const Actions = () => {
   const { account, favourites, wishList } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const releaseId = release._id;
-  const isInFaves = favourites?.some(item => item.release === releaseId);
-  const isInWishList = wishList?.some(item => item.release === releaseId);
+  const isInFaves = favourites?.some((item: ListItem) => item.release === releaseId);
+  const isInWishList = wishList?.some((item: ListItem) => item.release === releaseId);
 
   useEffect(() => {
     if (wishList.length && releaseId) {
-      const { note } = wishList?.find(item => item.release === releaseId) || {};
+      const { note } = wishList?.find((item: ListItem) => item.release === releaseId) || { note: "" };
       if (note) setNote(note);
     }
   }, [releaseId, wishList]);
 
   return (
-    <ButtonGroup size="sm" isAttached variant="outline" bg={useColorModeValue("white")} mb={4}>
+    <ButtonGroup size="sm" isAttached variant="outline" bg={useColorModeValue("white", undefined)} mb={4}>
       <Button
         isLoading={isSavingToFaves}
         loadingText="Saving…"
-        leftIcon={<Icon color={isInFaves && "red.400"} icon={isInFaves ? faHeart : heartOutline} />}
+        leftIcon={
+          <Icon
+            color={isInFaves ? "red.400" : undefined}
+            icon={isInFaves ? (faHeart as IconProp) : (heartOutline as IconProp)}
+          />
+        }
         onClick={() => {
           if (!account)
             return dispatch(
@@ -65,7 +79,10 @@ const Actions = () => {
       </Button>
       <Popover>
         <PopoverTrigger>
-          <Button leftIcon={<Icon color={isInWishList && "purple.400"} icon={faMagic} />} flex={1}>
+          <Button
+            leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic as IconProp} />}
+            flex={1}
+          >
             List
           </Button>
         </PopoverTrigger>
@@ -95,7 +112,7 @@ const Actions = () => {
             <Button
               colorScheme="red"
               isDisabled={!isInWishList}
-              leftIcon={<Icon icon={faMinusCircle} />}
+              leftIcon={<Icon icon={faMinusCircle as IconProp} />}
               onClick={() => dispatch(removeFromWishList(releaseId))}
               title="Remove from wish list."
               variant="ghost"
@@ -105,7 +122,7 @@ const Actions = () => {
             <Button
               isLoading={isSavingToList}
               loadingText="Saving…"
-              leftIcon={<Icon icon={faMagic} />}
+              leftIcon={<Icon icon={faMagic as IconProp} />}
               onClick={() => {
                 if (!account) {
                   return dispatch(

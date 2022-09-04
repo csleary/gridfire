@@ -21,6 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import Icon from "components/icon";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
 
@@ -29,17 +30,29 @@ const SUBMIT_INFO = "When you hit 'buy now', you will be prompted by your web3 w
 const SUBMIT_BUTTON = "Buy Now";
 const SUBMIT_BUTTON_LOADING = "Purchasing…";
 
+interface Props {
+  initialPrice: string;
+  isSubmitting: boolean;
+  handleCloseModal: () => void;
+  handleSubmit: (price: string) => Promise<void>;
+  info?: string;
+  showModal: boolean;
+  submitInfo?: string;
+  submitButton?: string;
+  submitButtonLoading?: string;
+}
+
 const NameYourPriceModal = ({
-  handleCloseModal,
   initialPrice,
   isSubmitting = false,
+  handleCloseModal,
   handleSubmit,
   info = INFO_TEXT,
   showModal,
   submitInfo = SUBMIT_INFO,
   submitButton = SUBMIT_BUTTON,
   submitButtonLoading = SUBMIT_BUTTON_LOADING
-}) => {
+}: Props) => {
   const [error, setError] = useState("");
   const [price, setPrice] = useState(initialPrice);
 
@@ -65,7 +78,7 @@ const NameYourPriceModal = ({
     setPrice(formatPrice);
   };
 
-  const handleAddAmount = amount => () => {
+  const handleAddAmount = (amount: number) => () => {
     setError("");
     setPrice(prev => (Number(prev) + amount).toFixed(2));
   };
@@ -85,8 +98,7 @@ const NameYourPriceModal = ({
               bgColor={useColorModeValue("white", "gray.800")}
               inputMode="numeric"
               isDisabled={isSubmitting}
-              isInvalid={error}
-              label={"Set payment allowance"}
+              isInvalid={Boolean(error)}
               min={0}
               name="allowance"
               onBlur={handleBlur}
@@ -124,7 +136,7 @@ const NameYourPriceModal = ({
           <Button onClick={handleCloseModal}>Cancel</Button>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}
-            leftIcon={<Icon icon={faEthereum} />}
+            leftIcon={<Icon icon={faEthereum as IconProp} />}
             isDisabled={isSubmitting}
             isLoading={isSubmitting}
             loadingText={submitButtonLoading}

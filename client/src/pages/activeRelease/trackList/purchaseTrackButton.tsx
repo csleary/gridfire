@@ -1,11 +1,27 @@
 import { Box, Button, Tooltip, useColorModeValue } from "@chakra-ui/react";
-import { faCheck, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import Icon from "components/icon";
+import { useDispatch, useSelector } from "hooks";
 import NameYourPriceModal from "../nameYourPriceModal";
+import { shallowEqual } from "react-redux";
 import { toastWarning } from "state/toast";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+
+interface TrackForPurchase {
+  price: string;
+  trackId: string;
+}
+
+interface Props {
+  allowanceTooLow: boolean;
+  artistName: string;
+  handlePurchaseTrack: (trackForPurchase: TrackForPurchase) => Promise<void>;
+  inCollection: boolean;
+  isPurchasing: boolean;
+  price: string;
+  trackId: string;
+  trackInCollection: boolean;
+  trackTitle: string;
+}
 
 const PurchaseTrackButton = ({
   allowanceTooLow,
@@ -17,7 +33,7 @@ const PurchaseTrackButton = ({
   trackId,
   trackInCollection,
   trackTitle
-}) => {
+}: Props) => {
   const nypColour = useColorModeValue("yellow", "purple");
   const tooltipBgColour = useColorModeValue("gray.200", "gray.800");
   const tooltipColour = useColorModeValue("gray.800", "gray.100");
@@ -30,15 +46,14 @@ const PurchaseTrackButton = ({
     <>
       <Tooltip
         hasArrow
-        openDelay="500"
+        openDelay={500}
         label={`Purchase \u2018${trackTitle}\u2019, by ${artistName}.`}
         bg={tooltipBgColour}
         color={tooltipColour}
       >
         <Button
-          colorScheme={price === 0 ? nypColour : null}
+          colorScheme={Number(price) === 0 ? nypColour : undefined}
           isDisabled={!isConnected || isFetchingAllowance || inCollection || isPurchasing || trackInCollection}
-          icon={<Icon icon={inCollection || trackInCollection ? faCheck : faShoppingBasket} />}
           onClick={
             allowanceTooLow
               ? () => {
@@ -50,9 +65,9 @@ const PurchaseTrackButton = ({
                   );
                   navigate("/dashboard/payment/approvals");
                 }
-              : price === 0
+              : Number(price) === 0
               ? () => setShowModal(true)
-              : handlePurchaseTrack.bind(null, { price, trackId })
+              : () => handlePurchaseTrack({ price, trackId })
           }
           size="sm"
           alignSelf="stretch"
@@ -60,14 +75,14 @@ const PurchaseTrackButton = ({
           ml={1}
           variant="ghost"
         >
-          {price === 0 ? (
+          {Number(price) === 0 ? (
             "N.Y.P."
           ) : (
             <>
               <Box as="span" color="gray.500" mr="0.2rem">
                 ◈
               </Box>
-              {Number(price).toFixed(2)}
+              {price}
             </>
           )}
         </Button>

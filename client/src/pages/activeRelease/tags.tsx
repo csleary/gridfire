@@ -1,8 +1,10 @@
 import { Tag, Wrap, WrapItem } from "@chakra-ui/react";
-import { shallowEqual, useSelector } from "react-redux";
 import Icon from "components/icon";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "@reduxjs/toolkit";
+import { shallowEqual } from "react-redux";
+import { useSelector } from "hooks";
 import { useNavigate } from "react-router-dom";
 
 const Tags = () => {
@@ -12,7 +14,7 @@ const Tags = () => {
 
   if (!tags.length) return null;
 
-  const handleTagSearch = tag => {
+  const handleTagSearch = (tag: string) => {
     const searchParams = new URLSearchParams();
     searchParams.append("tag", tag);
     navigate(`/search?${searchParams.toString()}`);
@@ -21,7 +23,7 @@ const Tags = () => {
   return (
     <Wrap spacing={2}>
       <WrapItem alignItems={"center"}>
-        <Icon color="gray.500" icon={faTags} />
+        <Icon color="gray.500" icon={faTags as IconProp} />
       </WrapItem>
       {tags.map((tag, index) => (
         <WrapItem key={keys[index]}>

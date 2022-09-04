@@ -3,7 +3,25 @@ import axios from "axios";
 import { createObjectId } from "utils";
 import { createSlice } from "@reduxjs/toolkit";
 
-const defaultReleaseState = { artwork: {}, releaseDate: "", tags: [], trackList: [] };
+const defaultReleaseState = {
+  _id: "",
+  artist: "",
+  artistName: "",
+  artwork: { cid: "", status: "" },
+  catNumber: "",
+  credits: "",
+  info: "",
+  price: 0,
+  pubName: "",
+  pubYear: null,
+  recName: "",
+  recYear: null,
+  recordLabel: "",
+  releaseDate: "",
+  releaseTitle: "",
+  tags: [],
+  trackList: []
+};
 
 const releaseSlice = createSlice({
   name: "releases",

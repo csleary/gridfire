@@ -1,18 +1,26 @@
 import { constants, utils } from "ethers";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { toastError, toastWarning } from "state/toast";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import NameYourPriceModal from "./nameYourPriceModal";
-import PropTypes from "prop-types";
 import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { purchaseRelease } from "web3/contract";
+import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
+interface Props {
+  inCollection: boolean;
+  isLoading: boolean;
+  price: number;
+  releaseId: string;
+}
+
+const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }: Props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -21,7 +29,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const { userId } = useSelector(state => state.user, shallowEqual);
   const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
 
-  const handlePayment = async price => {
+  const handlePayment = async (price: string) => {
     try {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
@@ -32,7 +40,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       }
 
       await purchaseRelease({ paymentAddress, price, releaseId, userId });
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === "ACTION_REJECTED") {
         return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
       }
@@ -57,7 +65,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
     if (allowanceTooLow) return void navigate("/dashboard/payment/approvals");
     if (inCollection) return void navigate("/dashboard/collection");
     if (price === 0) return void setShowModal(true);
-    handlePayment(price);
+    handlePayment(price.toFixed(2));
   };
 
   return (
@@ -66,7 +74,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
         disabled={!isConnected || isFetchingAllowance}
         isLoading={isLoading || isPurchasing}
         loadingText={isLoading ? "Loading" : "Purchasing"}
-        leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
+        leftIcon={<Icon icon={inCollection ? (faCheckCircle as IconProp) : (faEthereum as IconProp)} />}
         minWidth="16rem"
         onClick={handleClick}
       >
@@ -89,13 +97,6 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       />
     </>
   );
-};
-
-PurchaseButton.propTypes = {
-  inCollection: PropTypes.bool,
-  isLoading: PropTypes.bool,
-  price: PropTypes.number,
-  releaseId: PropTypes.string
 };
 
 export default PurchaseButton;

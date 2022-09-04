@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { fetchRelease, setIsLoading } from "state/releases";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import Actions from "./actions";
 import Artwork from "./artwork";
 import Card from "components/card";
@@ -30,18 +30,24 @@ import TrackList from "./trackList/index";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import moment from "moment";
+import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+
+interface Sale {
+  release: string;
+}
 
 const ActiveRelease = () => {
   const navigate = useNavigate();
   const releaseInfoColor = useColorModeValue("gray.500", "gray.700");
   const releaseInfoText = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
-  const { releaseId } = useParams();
+  const { releaseId = "" } = useParams();
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { purchases } = useSelector(state => state.user, shallowEqual);
-  const isInCollection = purchases.some(sale => sale.release === releaseId);
+  const isInCollection = purchases.some((sale: Sale) => sale.release === releaseId);
 
   const {
     artist,
@@ -72,7 +78,7 @@ const ActiveRelease = () => {
     dispatch(fetchUser());
   }, []); // eslint-disable-line
 
-  const handleSearch = terms => {
+  const handleSearch = (terms: Array<Array<string>>) => {
     const searchParams = new URLSearchParams();
     for (const [key, value] of terms) searchParams.append(key, value);
     navigate(`/search?${searchParams.toString()}`);
@@ -154,7 +160,7 @@ const ActiveRelease = () => {
                       variant="unstyled"
                       _hover={{ backgroundColor: "purple.300" }}
                     >
-                      <Icon color={releaseInfoColor} icon={faRecordVinyl} />
+                      <Icon color={releaseInfoColor} icon={faRecordVinyl as IconProp} />
                     </Flex>
                     <Box color={releaseInfoText}>{recordLabel}</Box>
                   </Flex>
@@ -168,12 +174,12 @@ const ActiveRelease = () => {
                     justify="center"
                     minW={10}
                     mr={3}
-                    onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear()]])}
+                    onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
                     rounded="sm"
                     variant="unstyled"
                     _hover={{ backgroundColor: "blue.200" }}
                   >
-                    <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
+                    <Icon color={releaseInfoColor} icon={faCalendar as IconProp} title="Release date" />
                   </Flex>
                   <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
                 </Flex>

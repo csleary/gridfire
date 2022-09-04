@@ -1,6 +1,10 @@
 import { Flex, Heading } from "@chakra-ui/react";
 
-const Price = ({ price = "" }) => {
+interface Props {
+  price: number;
+}
+
+const Price = ({ price }: Props) => {
   if (price === 0) return null;
 
   const [dai, pennies] = Number(price).toFixed(2).split(".");
