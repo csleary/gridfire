@@ -26,7 +26,7 @@ import AddToBasketButton from "./addToBasketButton";
 import Price from "./price";
 import PurchaseButton from "./purchaseButton";
 import Tags from "./tags";
-import TrackList from "./trackList";
+import TrackList from "./trackList/index";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import moment from "moment";
@@ -131,6 +131,7 @@ const ActiveRelease = () => {
                     imageUrl={`${CLOUD_URL}/${artwork.cid}`}
                     artistName={artistName}
                     inCollection={isInCollection}
+                    price={price}
                     releaseId={releaseId}
                     title={releaseTitle}
                   />

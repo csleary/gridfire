@@ -30,7 +30,7 @@ const Track = ({
   cancelDeleteTrack,
   dragOriginIsInactive,
   errorTrackTitle,
-  formatPrice,
+  handleBlur,
   handleChange,
   handleChangePrice,
   handleDeleteTrack,
@@ -123,7 +123,7 @@ const Track = ({
             <Input
               size="lg"
               name="price"
-              onBlur={formatPrice}
+              onBlur={handleBlur}
               onChange={handleChangePrice}
               onDrop={() => false}
               placeholder="e.g. 1.50"

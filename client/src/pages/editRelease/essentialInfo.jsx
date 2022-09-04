@@ -2,6 +2,7 @@ import { Box, Flex, Heading } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import ArtistMenu from "./artistMenu";
 import Field from "components/field";
+import { formatPrice } from "utils";
 import { useCallback } from "react";
 
 const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
@@ -17,14 +18,11 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
     [setErrors, setValues]
   );
 
-  const formatPrice = () => {
-    setValues(current => {
-      const [integer = 0, float = 0] = current.price.toString().split(".");
-      const priceAsFloatString = `${integer}.${float}`;
-      const rounded = +(Math.ceil(Math.abs(priceAsFloatString) + "e+2") + "e-2");
-      const price = Number.isNaN(rounded) ? Number.MAX_SAFE_INTEGER.toFixed(2) : rounded.toFixed(2);
-      return { ...current, price };
-    });
+  const handleBlur = () => {
+    setValues(current => ({
+      ...current,
+      price: formatPrice(current.price)
+    }));
   };
 
   return (
@@ -72,7 +70,7 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             isRequired
             label="Price (DAI/USD)"
             name="price"
-            onBlur={formatPrice}
+            onBlur={handleBlur}
             onChange={handleChangePrice}
             type="text"
             values={values}

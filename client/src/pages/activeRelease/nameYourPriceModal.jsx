@@ -22,6 +22,7 @@ import {
 import { useCallback, useState } from "react";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { formatPrice } from "utils";
 
 const INFO_TEXT = "Enter the amount you wish to pay for this release.";
 const SUBMIT_INFO = "When you hit 'buy now', you will be prompted by your web3 wallet to finalise the payment.";
@@ -60,14 +61,8 @@ const NameYourPriceModal = ({
     [setError, setPrice]
   );
 
-  const formatPrice = () => {
-    setPrice(current => {
-      const [integer = 0, float = 0] = current.toString().split(".");
-      const priceAsFloatString = `${integer}.${float}`;
-      const rounded = +(Math.ceil(Math.abs(priceAsFloatString) + "e+2") + "e-2");
-      const price = Number.isNaN(rounded) ? Number.MAX_SAFE_INTEGER.toFixed(2) : rounded.toFixed(2);
-      return price;
-    });
+  const handleBlur = () => {
+    setPrice(formatPrice);
   };
 
   const handleAddAmount = amount => () => {
@@ -94,7 +89,7 @@ const NameYourPriceModal = ({
               label={"Set payment allowance"}
               min={0}
               name="allowance"
-              onBlur={formatPrice}
+              onBlur={handleBlur}
               onChange={handleChange}
               textAlign="center"
               title=""

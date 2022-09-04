@@ -53,6 +53,13 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
     }
   };
 
+  const handleClick = () => {
+    if (allowanceTooLow) return void navigate("/dashboard/payment/approvals");
+    if (inCollection) return void navigate("/dashboard/collection");
+    if (price === 0) return void setShowModal(true);
+    handlePayment(price);
+  };
+
   return (
     <>
       <Button
@@ -61,15 +68,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
         loadingText={isLoading ? "Loading" : "Purchasing"}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
         minWidth="16rem"
-        onClick={
-          allowanceTooLow
-            ? () => navigate("/dashboard/payment/approvals")
-            : inCollection
-            ? () => navigate("/dashboard/collection")
-            : price === 0
-            ? () => setShowModal(true)
-            : () => handlePayment(price)
-        }
+        onClick={handleClick}
       >
         {inCollection
           ? "In collection"

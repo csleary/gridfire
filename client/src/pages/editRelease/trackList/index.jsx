@@ -8,6 +8,7 @@ import Track from "./track";
 import { addTrack } from "state/releases";
 import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { formatPrice } from "utils";
 
 const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   const dispatch = useDispatch();
@@ -114,14 +115,10 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
     [handleChange]
   );
 
-  const formatPrice = useCallback(
+  const handleBlur = useCallback(
     trackId =>
       ({ target: { name, value } }) => {
-        const [integer = 0, float = 0] = value.toString().split(".");
-        const priceAsFloatString = `${integer}.${float}`;
-        const rounded = +(Math.ceil(Math.abs(priceAsFloatString) + "e+2") + "e-2");
-        const price = Number.isNaN(rounded) ? Number.MAX_SAFE_INTEGER.toFixed(2) : rounded.toFixed(2);
-        handleChange({ target: { name, value: price } }, trackId);
+        handleChange({ target: { name, value: formatPrice(value) } }, trackId);
       },
     [handleChange]
   );
@@ -144,7 +141,7 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
               cancelDeleteTrack={cancelDeleteTrack}
               dragOriginIsInactive={dragOriginIsInactive}
               errorTrackTitle={errors[`${trackId}.trackTitle`]}
-              formatPrice={formatPrice(trackId)}
+              handleBlur={handleBlur(trackId)}
               handleChange={handleChange}
               handleChangePrice={handleChangePrice(trackId)}
               handleDeleteTrack={handleDeleteTrack}

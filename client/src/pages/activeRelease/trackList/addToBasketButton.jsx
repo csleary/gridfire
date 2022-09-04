@@ -31,6 +31,12 @@ const AddToBasketButton = ({
     }
   };
 
+  const handleClick = () => {
+    if (trackInCollection) return void navigate("/dashboard/collection");
+    if (price === 0) return void setShowModal(true);
+    handleSubmit(price);
+  };
+
   if (inCollection) return null;
 
   return (
@@ -52,13 +58,7 @@ const AddToBasketButton = ({
               icon={trackInCollection ? faCheck : faShoppingBasket}
             />
           }
-          onClick={
-            trackInCollection
-              ? () => navigate("/dashboard/collection")
-              : price === 0
-              ? () => setShowModal(true)
-              : handleSubmit.bind(null, price)
-          }
+          onClick={handleClick}
           size="sm"
           alignSelf="stretch"
           height="unset"
@@ -72,7 +72,7 @@ const AddToBasketButton = ({
         info="Enter the amount you wish to pay for this track, before adding it to your basket."
         isSubmitting={isAddingToBasket}
         showModal={showModal}
-        submitInfo=""
+        submitInfo={null}
         submitButton="Add to Basket"
         submitButtonLoading="Adding…"
       />
