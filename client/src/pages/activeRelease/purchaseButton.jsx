@@ -1,3 +1,4 @@
+import { constants, utils } from "ethers";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastWarning } from "state/toast";
 import { Button } from "@chakra-ui/react";
@@ -10,7 +11,6 @@ import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { purchaseRelease } from "web3/contract";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { utils } from "ethers";
 
 const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const dispatch = useDispatch();
@@ -19,7 +19,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
   const [showModal, setShowModal] = useState(false);
   const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const { userId } = useSelector(state => state.user, shallowEqual);
-  const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance);
+  const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
 
   const handlePayment = async price => {
     try {
@@ -40,8 +40,8 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
       if (error.code === -32603) {
         return void dispatch(
           toastError({
-            message: "DAI balance too low. Please add more DAI or use a different account.",
-            title: "Payment Error"
+            message: "Please add more DAI or use a different account.",
+            title: "DAI balance too low."
           })
         );
       }

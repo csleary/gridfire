@@ -1,4 +1,5 @@
 import { Box, Button, ListItem, Spacer, UnorderedList, keyframes, useColorModeValue } from "@chakra-ui/react";
+import { constants, utils } from "ethers";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPlay } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -11,7 +12,6 @@ import { addToBasket } from "state/web3";
 import axios from "axios";
 import { purchaseRelease } from "web3/contract";
 import { useState } from "react";
-import { utils } from "ethers";
 
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;
@@ -78,7 +78,7 @@ const TrackList = () => {
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
       {trackList.map(({ _id: trackId, duration, price, trackTitle }, index) => {
-        const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance);
+        const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
         const inBasket = basket.some(item => item.releaseId === trackId);
         const inCollection = purchases.some(sale => sale.release === releaseId);
         const trackInCollection = purchases.some(sale => sale.release === trackId);

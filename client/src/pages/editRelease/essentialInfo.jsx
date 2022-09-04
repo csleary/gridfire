@@ -67,7 +67,7 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
           />
           <Field
             errors={errors}
-            info="We will round this up to the nearest penny."
+            info="We will round this up to the nearest penny. Set to zero for 'name your price'."
             inputMode="numeric"
             isRequired
             label="Price (DAI/USD)"
