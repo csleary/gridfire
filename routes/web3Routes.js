@@ -70,14 +70,14 @@ gridFire.on(
     let type = "album";
 
     // Check if the purchase is a single track or an entire album.
-    let release = await Release.findOne({ "trackList._id": releaseId }, "artistName trackList.$")
+    let release = await Release.findOne({ "trackList._id": releaseId }, "artistName trackList.$", { lean: true })
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
 
     if (release) {
       const [track] = release.trackList;
       releaseTitle = track.trackTitle;
-      price = track.price;
+      ({ price } = track);
       type = "single";
     } else {
       release = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })

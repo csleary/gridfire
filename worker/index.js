@@ -21,17 +21,6 @@ db.on("close", () => console.log("[Worker][Mongoose] Connection closed."));
 db.on("disconnected", () => console.log("[Worker][Mongoose] Disconnected."));
 db.on("error", console.error);
 
-const setupHealthProbe = () =>
-  new Promise(resolve => {
-    const healthProbeServer = net.createServer();
-    healthProbeServer.on("error", console.error.bind(null, "[Worker] Health probe server error:"));
-
-    healthProbeServer.listen(9090, () => {
-      console.log("[Worker] Health probe server listening on port 9090.");
-      resolve();
-    });
-  });
-
 const amqpConnect = async () => {
   try {
     const url = `amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@${RABBITMQ_HOST}:5672`;
@@ -55,6 +44,17 @@ const amqpConnect = async () => {
     setTimeout(amqpConnect, 3000);
   }
 };
+
+const setupHealthProbe = () =>
+  new Promise(resolve => {
+    const healthProbeServer = net.createServer();
+    healthProbeServer.on("error", console.error.bind(null, "[Worker] Health probe server error:"));
+
+    healthProbeServer.listen(9090, () => {
+      console.log("[Worker] Health probe server listening on port 9090.");
+      resolve();
+    });
+  });
 
 try {
   await mongoose.connect(MONGODB_URI);
