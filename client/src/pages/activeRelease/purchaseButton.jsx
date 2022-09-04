@@ -68,7 +68,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }) => {
             ? () => navigate("/dashboard/collection")
             : price === 0
             ? () => setShowModal(true)
-            : handlePayment
+            : () => handlePayment(price)
         }
       >
         {inCollection
