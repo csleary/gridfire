@@ -51,6 +51,9 @@ class SSEController {
     const connections = this.get(userId);
     if (!connections) return void this.#sessions.delete(userId);
     connections.set(uuid, { ...connections.get(uuid), lastPing: Date.now() });
+    const { res } = connections.get(uuid);
+    res.write("event: pong\n");
+    res.write("data: \n\n");
   }
 
   async remove(userId) {
