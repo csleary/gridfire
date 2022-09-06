@@ -15,7 +15,7 @@ interface Props {
   artistName: string;
   imageUrl: string;
   inCollection: boolean;
-  price: number;
+  price: string;
   releaseId: string;
   title: string;
 }
@@ -56,11 +56,11 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
   };
 
   const handleClick = () => {
-    if (price === 0) {
+    if (Number(price) === 0) {
       return void setShowModal(true);
     }
 
-    handleAddToBasket(price.toFixed(2));
+    handleAddToBasket(Number(price).toFixed(2));
   };
 
   return (

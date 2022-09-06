@@ -16,11 +16,11 @@ import { useState } from "react";
 interface Props {
   inCollection: boolean;
   isLoading: boolean;
-  price: number;
+  price: string;
   releaseId: string;
 }
 
-const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }: Props) => {
+const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -64,8 +64,8 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }: Props
   const handleClick = () => {
     if (allowanceTooLow) return void navigate("/dashboard/payment/approvals");
     if (inCollection) return void navigate("/dashboard/collection");
-    if (price === 0) return void setShowModal(true);
-    handlePayment(price.toFixed(2));
+    if (Number(price) === 0) return void setShowModal(true);
+    handlePayment(Number(price).toFixed(2));
   };
 
   return (
@@ -84,7 +84,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = 0, releaseId }: Props
           ? "Connect"
           : allowanceTooLow
           ? "Set allowance"
-          : price === 0
+          : Number(price) === 0
           ? "Name your price"
           : "Buy"}
       </Button>

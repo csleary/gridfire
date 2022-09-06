@@ -23,7 +23,7 @@ const trackSchema = new Schema(
     flac: { type: String },
     mp3: { type: String },
     mp4: { type: String },
-    price: { type: Number, default: 1.5 },
+    price: { type: String, default: "1.50" },
     src: { type: String }
   },
   { timestamps: true }
@@ -46,7 +46,7 @@ const releaseSchema = new Schema(
       cid: { type: String }
     },
     releaseDate: { type: Date },
-    price: { type: Number },
+    price: { type: String },
     recordLabel: { type: String, trim: true },
     catNumber: { type: String, trim: true },
     credits: { type: String, trim: true },

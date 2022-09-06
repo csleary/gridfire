@@ -1,11 +1,11 @@
 import { Flex, Heading } from "@chakra-ui/react";
 
 interface Props {
-  price: number;
+  price: string;
 }
 
 const Price = ({ price }: Props) => {
-  if (price === 0) return null;
+  if (Number(price) === 0) return null;
 
   const [dai, pennies] = Number(price).toFixed(2).split(".");
 

@@ -25,7 +25,7 @@ export interface BasketItem {
 interface ReleaseTrack {
   _id: string;
   duration: number;
-  price: number;
+  price: string;
   trackTitle: string;
 }
 
@@ -149,7 +149,7 @@ const TrackList = () => {
               handlePurchaseTrack={handlePurchaseTrack}
               inCollection={inCollection}
               isPurchasing={isPurchasing}
-              price={price.toFixed(2)}
+              price={price}
               trackId={trackId}
               trackInCollection={trackInCollection}
               trackTitle={trackTitle}
@@ -159,7 +159,7 @@ const TrackList = () => {
               handleAddToBasket={handleAddToBasket}
               inBasket={inBasket}
               inCollection={inCollection}
-              price={price.toFixed(2)}
+              price={price}
               trackId={trackId}
               trackInCollection={trackInCollection}
               trackTitle={trackTitle}
