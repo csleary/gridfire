@@ -27,6 +27,11 @@ spec:
             limits:
               memory: 1.5Gi
               cpu: 500m
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           envFrom:
             - configMapRef:
                 name: amqp-config

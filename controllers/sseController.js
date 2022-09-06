@@ -1,4 +1,5 @@
 const CHECK_INTERVAL = 1000 * 60 * 2;
+const { POD_NAME = "dev" } = process.env;
 
 class SSEController {
   #consumerChannel;
@@ -32,7 +33,7 @@ class SSEController {
     connections.set(socketId, { res, lastPing: Date.now() });
     this.#sessions.set(userId, connections);
     const queueOptions = { autoDelete: true, durable: false };
-    const userQueue = `user.${userId}`;
+    const userQueue = `user.${userId}.${POD_NAME}`;
     await this.#consumerChannel.assertQueue(userQueue, queueOptions);
     await this.#consumerChannel.bindQueue(userQueue, "user", userId);
     const { consumerTag } = await this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false });
@@ -51,15 +52,21 @@ class SSEController {
     const connections = this.get(userId);
     if (!connections) return void this.#sessions.delete(userId);
     connections.set(socketId, { ...connections.get(socketId), lastPing: Date.now() });
-    const { res } = connections.get(socketId);
-    res.write("event: pong\n");
-    res.write("data: \n\n");
+    const connection = connections.get(socketId);
+
+    if (connection) {
+      connection.res.write("event: pong\n");
+      connection.res.write("data: \n\n");
+      return;
+    }
+
+    console.log(`Connection ${socketId} for user ${userId} not present on this pod.`);
   }
 
   async remove(userId) {
     console.log(`[SSE] Removing connection for user ${userId}…`);
     this.#sessions.delete(userId);
-    const userQueue = `user.${userId}`;
+    const userQueue = `user.${userId}.${POD_NAME}`;
     await this.#consumerChannel.unbindQueue(userQueue, "user", userId);
     const consumerTag = this.#consumerTags.get(userId);
     await this.#consumerChannel.cancel(consumerTag);
@@ -76,11 +83,11 @@ class SSEController {
         if (done) return;
         // console.log(`[SSE] User ${userId} has ${connections.size} connections.`);
 
-        for (const [uuid, { lastPing, res }] of connections.entries()) {
+        for (const [socketId, { lastPing, res }] of connections.entries()) {
           if (Date.now() - lastPing > CHECK_INTERVAL) {
-            console.log(`[SSE] Removing stale connection [${uuid}] for user ${userId}.`);
+            console.log(`[SSE] Removing stale connection [${socketId}] for user ${userId}.`);
             if (res) res.end();
-            connections.delete(uuid);
+            connections.delete(socketId);
           }
         }
 
