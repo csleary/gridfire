@@ -221,19 +221,32 @@ router.post("/", requireLogin, async (req, res) => {
           upsert: true
         }
       },
-      ...trackList.flatMap(({ _id: trackId, trackTitle }, index) => [
+      ...trackList.flatMap(({ _id: trackId, price: trackPrice, trackTitle }, index) => [
         // Update existing tracks.
         {
           updateOne: {
             filter: { _id: releaseId, "trackList._id": trackId, user },
-            update: { "trackList.$.trackTitle": trackTitle, "trackList.$.position": index + 1 }
+            update: {
+              "trackList.$.price": trackPrice,
+              "trackList.$.trackTitle": trackTitle,
+              "trackList.$.position": index + 1
+            }
           }
         },
         // Add new tracks.
         {
           updateOne: {
             filter: { _id: releaseId, trackList: { $not: { $elemMatch: { _id: trackId } } }, user },
-            update: { $push: { trackList: { _id: trackId, position: index + 1, trackTitle } } }
+            update: {
+              $push: {
+                trackList: {
+                  _id: trackId,
+                  position: index + 1,
+                  price: trackPrice,
+                  trackTitle
+                }
+              }
+            }
           }
         }
       ]),

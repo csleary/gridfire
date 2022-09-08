@@ -1,14 +1,18 @@
 import { Flex, Heading } from "@chakra-ui/react";
 
-const Price = ({ price = "" }) => {
-  if (price === 0) return null;
+interface Props {
+  price: string;
+}
 
-  const [dai, pennies] = price.toString().split(".");
+const Price = ({ price }: Props) => {
+  if (Number(price) === 0) return null;
+
+  const [dai, pennies] = Number(price).toFixed(2).split(".");
 
   return (
     <Flex justifyContent="center" mb={6}>
       <Flex alignItems="flex-start">
-        <Heading alignSelf="center" color="gray.500" as="span" mb={0} mr="0.2rem" size="xl">
+        <Heading as="span" alignSelf="center" color="gray.500" mb={0} mr="0.2rem" size="xl">
           ◈
         </Heading>
         <Heading as="span" size="2xl" mr={1} mb={0}>

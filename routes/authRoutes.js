@@ -8,7 +8,7 @@ const { NODE_ENV } = process.env;
 const router = express.Router();
 
 router.get("/web3", (req, res) => {
-  const { keccak256, toUtf8Bytes, verifyMessage } = ethers.utils;
+  const { keccak256, toUtf8Bytes } = ethers.utils;
   const nonce = randomUUID();
   const { address } = req.query;
 

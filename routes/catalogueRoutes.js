@@ -8,8 +8,9 @@ const router = express.Router();
 const mapKeyToModel = {
   artist: "artistName",
   cat: "catNumber",
-  price: "price",
   label: "recordLabel",
+  price: "price",
+  tag: "tags",
   title: "releaseTitle",
   track: "trackList.trackTitle",
   year: "releaseDate"
@@ -17,26 +18,36 @@ const mapKeyToModel = {
 
 router.get("/search", async (req, res) => {
   const query = Object.entries(req.query).reduce((prev, [key, value]) => {
-    if (key === "text") return { ...prev, $text: { $search: value } };
+    if (["artist", "cat", "label", "price", "tag", "title", "track"].includes(key)) {
+      return { ...prev, [mapKeyToModel[key]]: value };
+    }
 
     if (key === "year")
       return {
         ...prev,
         [mapKeyToModel[key]]: {
-          $gt: new Date().setFullYear(value - 1),
-          $lte: new Date().setFullYear(value)
+          $gt: new Date(Date.UTC(Number.parseInt(value), 0)),
+          $lte: new Date(Date.UTC(Number.parseInt(value) + 1, 0))
         }
       };
 
-    if (["artist", "cat", "label", "title", "text", "track"].includes(key)) {
-      return { ...prev, [mapKeyToModel[key]]: value };
-    }
-
-    return prev;
+    return {
+      ...prev,
+      $or: [
+        { artistName: { $regex: value, $options: "i" } },
+        { releaseTitle: { $regex: value, $options: "i" } },
+        { recordLabel: { $regex: value, $options: "i" } },
+        { tags: { $regex: value, $options: "i" } },
+        { "trackList.trackTitle": { $regex: value, $options: "i" } },
+        { catNumber: { $regex: value, $options: "i" } },
+        { info: { $regex: value, $options: "i" } },
+        { credits: { $regex: value, $options: "i" } }
+      ]
+    };
   }, {});
 
   const results = await Release.find(
-    { published: true, ...query },
+    { ...query, published: true },
     {
       artistName: 1,
       artwork: 1,

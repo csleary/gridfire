@@ -1,8 +1,24 @@
-import { Center, Container, Divider, HStack, Link, List, ListItem, Text, useColorModeValue } from "@chakra-ui/react";
+import {
+  Center,
+  Container,
+  Divider,
+  HStack,
+  Link,
+  List,
+  ListItem,
+  Text,
+  Wrap,
+  WrapItem,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+import Icon from "./icon";
 import React from "react";
 import { RootState } from "index";
+import { faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
+
+const { REACT_APP_CONTRACT_ADDRESS } = process.env;
 
 const Footer: React.FC = () => {
   const { account } = useSelector((state: RootState) => state.user, shallowEqual);
@@ -17,6 +33,11 @@ const Footer: React.FC = () => {
             <ListItem>
               <Link as={RouterLink} to={"/about"}>
                 About
+              </Link>
+            </ListItem>
+            <ListItem>
+              <Link href={`https://arbiscan.io/address/${REACT_APP_CONTRACT_ADDRESS}`} isExternal>
+                Contract
               </Link>
             </ListItem>
           </List>
@@ -44,13 +65,27 @@ const Footer: React.FC = () => {
         ) : null}
       </HStack>
       <Divider borderColor={useColorModeValue("gray.300", "gray.600")} my={8} />
-      <Center fontSize="small">
-        <Text>
-          &copy; 2017&ndash;{year}{" "}
-          <Link href="https://ochremusic.com" isExternal>
-            Christopher Leary
-          </Link>
-        </Text>
+      <Center>
+        <Wrap spacing={3}>
+          <WrapItem>
+            <Text fontSize="small">
+              &copy; 2017&ndash;{year}{" "}
+              <Link href="https://ochremusic.com" isExternal>
+                Christopher Leary
+              </Link>
+            </Text>
+          </WrapItem>
+          <WrapItem>
+            <Link href="https://twitter.com/ochremusic" isExternal>
+              <Icon icon={faTwitter} />
+            </Link>
+          </WrapItem>
+          <WrapItem>
+            <Link href="https://github.com/csleary/gridfire" isExternal>
+              <Icon icon={faGithub} />
+            </Link>
+          </WrapItem>
+        </Wrap>
       </Center>
     </Container>
   );

@@ -23,6 +23,7 @@ const trackSchema = new Schema(
     flac: { type: String },
     mp3: { type: String },
     mp4: { type: String },
+    price: { type: String, default: "1.50" },
     src: { type: String }
   },
   { timestamps: true }
@@ -45,7 +46,7 @@ const releaseSchema = new Schema(
       cid: { type: String }
     },
     releaseDate: { type: Date },
-    price: { type: Number },
+    price: { type: String },
     recordLabel: { type: String, trim: true },
     catNumber: { type: String, trim: true },
     credits: { type: String, trim: true },
@@ -60,15 +61,6 @@ const releaseSchema = new Schema(
   },
   { timestamps: true, usePushEach: true }
 );
-
-releaseSchema.index({
-  artistName: "text",
-  catNumber: "text",
-  recordLabel: "text",
-  releaseTitle: "text",
-  "trackList.trackTitle": "text",
-  tags: "text"
-});
 
 releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();

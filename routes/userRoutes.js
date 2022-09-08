@@ -27,21 +27,55 @@ router.post("/address", requireLogin, async (req, res) => {
 });
 
 router.get("/collection", requireLogin, async (req, res) => {
-  try {
-    const collection = await Sale.find({ user: req.user._id }, "", { lean: true, sort: "-purchaseDate" })
+  const [albums, singles] = await Promise.all([
+    // Get full-releases.
+    Sale.find({ type: { $ne: "single" }, user: req.user._id }, "paid purchaseDate transaction.transactionHash type", {
+      lean: true,
+      sort: "-purchaseDate"
+    })
       .populate({
         path: "release",
         model: Release,
         options: { lean: true },
         select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
-      .exec();
+      .exec(),
 
-    res.send(collection);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
-  }
+    // Get singles.
+    Sale.aggregate([
+      { $match: { type: "single", user: req.user._id } },
+      { $addFields: { trackId: "$release" } },
+      {
+        $lookup: {
+          from: "releases",
+          localField: "release",
+          foreignField: "trackList._id",
+          as: "release"
+        }
+      },
+      { $unwind: { path: "$release", preserveNullAndEmptyArrays: true } },
+      { $sort: { purchaseDate: -1 } },
+      {
+        $project: {
+          paid: 1,
+          purchaseDate: 1,
+          release: {
+            _id: 1,
+            artistName: 1,
+            artwork: 1,
+            releaseTitle: 1,
+            "trackList._id": 1,
+            "trackList.trackTitle": 1
+          },
+          trackId: 1,
+          "transaction.transactionHash": 1,
+          type: 1
+        }
+      }
+    ]).exec()
+  ]);
+
+  res.send({ albums, singles });
 });
 
 router.get("/favourites", requireLogin, async (req, res) => {
@@ -121,18 +155,6 @@ router.get("/releases", requireLogin, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
-  }
-});
-
-router.post("/transactions", requireLogin, async (req, res) => {
-  try {
-    const { releaseId, paymentHash } = req.body;
-    const { price } = req.session;
-    const transations = await getUserTransactions({ user: req.user, releaseId, paymentHash, price });
-    res.send(transations);
-  } catch (error) {
-    if (error.data) return res.status(400).send({ error: error.data.message });
-    res.status(400).send({ error: error.message });
   }
 });
 

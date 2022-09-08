@@ -1,10 +1,11 @@
 import { Box, Flex, IconButton, Square, Image } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "state/player";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { CLOUD_URL } from "index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import placeholder from "placeholder.svg";
+import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const Artwork = () => {
@@ -15,7 +16,7 @@ const Artwork = () => {
   const { cid } = artwork;
 
   const handlePlayRelease = () => {
-    const audioPlayer = document.getElementById("player");
+    const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
     if (isPlaying && playerReleaseId === releaseId) {
       audioPlayer.pause();
@@ -67,6 +68,7 @@ const Artwork = () => {
         visibility="hidden"
       >
         <IconButton
+          aria-label="Start audio playback."
           alignItems="center"
           color="hsla(233, 10%, 75%, 1)"
           display="flex"

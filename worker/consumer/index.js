@@ -5,7 +5,7 @@ import transcodeAAC from "gridfire-worker/consumer/transcodeAAC.js";
 import transcodeMP3 from "gridfire-worker/consumer/transcodeMP3.js";
 import { strict as assert } from "assert/strict";
 
-const { IPFS_NODE_HOST, QUEUE_PURCHASE, QUEUE_TRANSCODE } = process.env;
+const { IPFS_NODE_HOST, QUEUE_TRANSCODE } = process.env;
 const ipfs = create(IPFS_NODE_HOST);
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
 assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE is not set.");

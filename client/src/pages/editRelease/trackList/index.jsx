@@ -8,12 +8,11 @@ import Track from "./track";
 import { addTrack } from "state/releases";
 import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { formatPrice } from "utils";
 
 const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   const dispatch = useDispatch();
-  const { activeRelease } = useSelector(state => state.releases, shallowEqual);
   const { trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
-  const { _id: releaseId } = activeRelease;
   const [dragOriginId, setDragOriginId] = useState(null);
   const [dragOverId, setDragOverId] = useState(null);
   const [dragOriginIsInactive, setDragOriginIsInactive] = useState(false);
@@ -107,6 +106,23 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
     [dragOriginId, handleMoveTrack, trackList]
   );
 
+  const handleChangePrice = useCallback(
+    trackId =>
+      ({ target: { name, value } }) => {
+        const numbersOnly = value.replace(/[^0-9.]/g, "");
+        handleChange({ target: { name, value: numbersOnly } }, trackId);
+      },
+    [handleChange]
+  );
+
+  const handleBlur = useCallback(
+    trackId =>
+      ({ target: { name, value } }) => {
+        handleChange({ target: { name, value: formatPrice(value) } }, trackId);
+      },
+    [handleChange]
+  );
+
   return (
     <>
       <Heading as="h3">Track List</Heading>
@@ -119,15 +135,15 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
         <br />
       </Text>
       <Flex flexDirection="column">
-        {trackList.map((track, index) => {
-          const { _id: trackId, trackTitle, status } = track;
-
+        {trackList.map(({ _id: trackId, price, status, trackTitle }, index) => {
           return (
             <Track
               cancelDeleteTrack={cancelDeleteTrack}
               dragOriginIsInactive={dragOriginIsInactive}
               errorTrackTitle={errors[`${trackId}.trackTitle`]}
+              handleBlur={handleBlur(trackId)}
               handleChange={handleChange}
+              handleChangePrice={handleChangePrice(trackId)}
               handleDeleteTrack={handleDeleteTrack}
               handleDragStart={handleDragStart}
               handleDragEnter={handleDragEnter}
@@ -141,6 +157,7 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
               isDragging={dragOriginId != null}
               isDragOrigin={dragOriginId === trackId}
               key={trackId}
+              price={price}
               setValues={setValues}
               trackId={trackId}
               trackListLength={trackList.length}

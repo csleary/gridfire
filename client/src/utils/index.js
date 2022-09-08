@@ -35,6 +35,14 @@ const fetchDownloadToken = async releaseId => {
   return res.headers.authorization.split(" ")[1];
 };
 
+const formatPrice = value => {
+  const [integer = 0, float = 0] = value.toString().split(".");
+  const priceAsFloatString = `${integer}.${float}`;
+  const rounded = +(Math.ceil(Math.abs(priceAsFloatString) + "e+2") + "e-2");
+  const price = Number.isNaN(rounded) ? Number.MAX_SAFE_INTEGER.toFixed(2) : rounded.toFixed(2);
+  return price;
+};
+
 const generateKey = async () => {
   const publicExponent = new Uint8Array([1, 0, 1]);
   const algorithm = { name: "RSA-OAEP", modulusLength: 4096, publicExponent, hash: "SHA-256" };
@@ -50,5 +58,6 @@ export {
   encryptArrayBuffer,
   exportKeyToJWK,
   fetchDownloadToken,
+  formatPrice,
   generateKey
 };

@@ -1,13 +1,16 @@
 import {
   Button,
   Box,
+  Divider,
   IconButton,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalBody,
   ModalCloseButton,
-  ModalFooter
+  ModalFooter,
+  ModalHeader,
+  useColorModeValue
 } from "@chakra-ui/react";
 import DownloadModal from "components/renderRelease/downloadModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,7 +18,7 @@ import PropTypes from "prop-types";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
-const OverlayDownloadButton = ({ artistName, artworkCID, releaseId, releaseTitle }) => {
+const OverlayDownloadButton = ({ artistName, artworkCID, purchaseId, releaseTitle }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -46,16 +49,24 @@ const OverlayDownloadButton = ({ artistName, artworkCID, releaseId, releaseTitle
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="4xl">
         <ModalOverlay />
         <ModalContent>
+          <ModalHeader fontSize="4xl" fontWeight={300} textAlign="center">
+            Download{" "}
+            <Box as="span" fontStyle="italic">
+              {releaseTitle}
+            </Box>
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody px={8} py={0}>
+            <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
             <DownloadModal
               artistName={artistName}
               artworkCID={artworkCID}
-              releaseId={releaseId}
+              purchaseId={purchaseId}
               releaseTitle={releaseTitle}
             />
+            <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mt={8} />
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter p={8}>
             <Button onClick={() => setShowModal(false)}>Close</Button>
           </ModalFooter>
         </ModalContent>
@@ -66,7 +77,8 @@ const OverlayDownloadButton = ({ artistName, artworkCID, releaseId, releaseTitle
 
 OverlayDownloadButton.propTypes = {
   artistName: PropTypes.string,
-  releaseId: PropTypes.string,
+  artworkCID: PropTypes.string,
+  purchaseId: PropTypes.string,
   releaseTitle: PropTypes.string
 };
 

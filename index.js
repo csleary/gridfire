@@ -32,7 +32,7 @@ const { COOKIE_KEY, IPFS_NODE_HOST, MONGODB_URI, PORT = 5000 } = process.env;
 let isReady = false;
 
 process
-  .on("uncaughtException", error => console.error("[API] Unhandled exception:", error))
+  .on("uncaughtException", error => console.error("[API] Uncaught exception:", error))
   .on("unhandledRejection", error => console.error("[API] Unhandled promise rejection:", error));
 
 const app = express();
@@ -48,10 +48,10 @@ const [amqpConnection, consumerChannel, consumerTag] = await amqp(sseController)
 
 // Mongoose
 const db = mongoose.connection;
-db.once("open", async () => console.log("[API][Mongoose] Connected."));
-db.on("close", () => console.log("[API][Mongoose] Connection closed."));
-db.on("disconnected", () => console.log("[API][Mongoose] Disconnected."));
-db.on("error", error => console.log(`[API][Mongoose] Error: ${error.message}`));
+db.once("open", async () => console.log("[API] Mongoose connected."));
+db.on("close", () => console.log("[API] Mongoose connection closed."));
+db.on("disconnected", () => console.log("[API] Mongoose disconnected."));
+db.on("error", error => console.log(`[API] Mongoose error: ${error.message}`));
 await mongoose.connect(MONGODB_URI).catch(console.error);
 
 // Express
@@ -85,24 +85,24 @@ const handleShutdown = async () => {
     if (amqpConnection) {
       await consumerChannel.cancel(consumerTag);
       await amqpConnection.close.bind(amqpConnection);
-      console.log("[API][AMQP] Closed.");
+      console.log("[API] AMQP closed.");
     }
 
     mongoose.connection.close(false, () => {
       server.close(() => {
-        console.log("[API][Express] Server closed.");
+        console.log("[API] Express server closed.");
         process.exit(0);
       });
     });
   } catch (error) {
     console.log(error);
-    process.exit(0);
+    process.exitCode = 1;
   }
 };
 
 process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
 
 server.listen(PORT, () => {
-  console.log(`[API][Express] Server running on port ${PORT}.`);
+  console.log(`[API] Express server running on port ${PORT}.`);
   isReady = true;
 });

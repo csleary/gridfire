@@ -13,7 +13,7 @@ const web3Slice = createSlice({
     account: "",
     accountShort: "",
     basket: [],
-    chainId: "",
+    chainId: 0,
     error: "",
     daiAllowance: utils.parseEther("0"),
     daiBalance: utils.parseEther("0"),

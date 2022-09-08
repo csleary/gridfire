@@ -87,7 +87,15 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Container maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" px={8} py={6} display="flex">
+      <Container
+        maxW="100%"
+        bg={useColorModeValue("gray.50", "gray.900")}
+        minH="100vh"
+        px={[1, 4, null, 8]}
+        py={[1, 3, null, 6]}
+        display="flex"
+        overflow="hidden"
+      >
         <Flex direction="column" flex={1}>
           <Suspense fallback={<></>}>
             <Header />

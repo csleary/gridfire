@@ -79,7 +79,7 @@ const getGridFirePurchaseEvents = async paymentAddress => {
   return res.data;
 };
 
-const purchaseRelease = async (paymentAddress, releaseId, userId, price) => {
+const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);

@@ -14,6 +14,8 @@ import {
   MenuList,
   MenuItem,
   VStack,
+  Wrap,
+  WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
 import { DragHandleIcon, HamburgerIcon } from "@chakra-ui/icons";
@@ -28,7 +30,9 @@ const Track = ({
   cancelDeleteTrack,
   dragOriginIsInactive,
   errorTrackTitle,
+  handleBlur,
   handleChange,
+  handleChangePrice,
   handleDeleteTrack,
   handleDragStart,
   handleDragEnter,
@@ -41,6 +45,7 @@ const Track = ({
   isActiveDragOver,
   isDragging,
   isDragOrigin,
+  price,
   trackId,
   trackTitle,
   trackListLength,
@@ -93,23 +98,41 @@ const Track = ({
           _grabbed={{ cursor: "grabbing" }}
         />
       </VStack>
-      <VStack spacing={2} flex="1 0 auto" mr={4}>
-        <Flex alignItems="center" alignSelf="flex-start" width="100%">
-          <FormLabel color="gray.400" whiteSpace="nowrap">
-            Title
-          </FormLabel>
-          <Input
-            size="lg"
-            isInvalid={errorTrackTitle}
-            isRequired
-            name="trackTitle"
-            onChange={e => handleChange(e, trackId)}
-            onDrop={() => false}
-            placeholder={`Track ${index + 1} Title`}
-            value={trackTitle || ""}
-            flex="1 1 auto"
-          />
-        </Flex>
+      <VStack spacing={2} flex="1 1 auto" mr={4}>
+        <Wrap spacing={8} width="100%">
+          <WrapItem alignItems="center" flex="1 1 auto">
+            <FormLabel color="gray.400" whiteSpace="nowrap" mb={0}>
+              Title
+            </FormLabel>
+            <Input
+              size="lg"
+              isInvalid={errorTrackTitle}
+              isRequired
+              name="trackTitle"
+              onChange={e => handleChange(e, trackId)}
+              onDrop={() => false}
+              placeholder={`Track ${index + 1} title`}
+              value={trackTitle || ""}
+              flex="1 1 auto"
+            />
+          </WrapItem>
+          <WrapItem alignItems="center" flex="0 1 10rem">
+            <FormLabel color="gray.400" whiteSpace="nowrap" mb={0}>
+              Price
+            </FormLabel>
+            <Input
+              size="lg"
+              name="price"
+              onBlur={handleBlur}
+              onChange={handleChangePrice}
+              onDrop={() => false}
+              placeholder="e.g. 1.50"
+              value={price ?? 1.5}
+              flex="1 1 auto"
+              inputMode="numeric"
+            />
+          </WrapItem>
+        </Wrap>
         {errorTrackTitle ? (
           <Alert status="error">
             <AlertIcon />

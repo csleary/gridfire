@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gridfire-web3-events
+  labels:
+    app: gridfire-web3-events
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gridfire-web3-events
+  template:
+    metadata:
+      labels:
+        app: gridfire-web3-events
+    spec:
+      containers:
+        - name: gridfire-web3-events
+          image: csleary/gridfire-web3-events
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 25m
+            limits:
+              memory: 1.5Gi
+              cpu: 1000m
+          env:
+            - name: HEALTH_PROBE_PORT
+              value: "9090"
+          envFrom:
+            - configMapRef:
+                name: amqp-config
+            - configMapRef:
+                name: api-config
+            - secretRef:
+                name: api-secrets
+            - secretRef:
+                name: mongodb-uri
+            - secretRef:
+                name: rabbitmq-user
+          ports:
+            - containerPort: 9090
+          startupProbe:
+            tcpSocket:
+              port: 9090
+          readinessProbe:
+            tcpSocket:
+              port: 9090
+          livenessProbe:
+            tcpSocket:
+              port: 9090
+      imagePullSecrets:
+        - name: regcred

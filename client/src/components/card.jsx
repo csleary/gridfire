@@ -6,7 +6,8 @@ const Card = props => (
     borderWidth="1px"
     borderColor={useColorModeValue("gray.200", "gray.700")}
     boxShadow="md"
-    p={8}
+    px={[1, 4, null, 8]}
+    py={8}
     rounded="md"
     marginBottom={6}
     {...props}

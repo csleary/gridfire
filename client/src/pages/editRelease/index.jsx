@@ -76,9 +76,7 @@ const EditRelease = () => {
     }
   }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
 
-  const handleChange = useCallback((e, trackId) => {
-    const { name, value } = e.target;
-
+  const handleChange = useCallback(({ target: { name, value } }, trackId) => {
     if (trackId) {
       setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
 

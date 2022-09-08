@@ -20,14 +20,24 @@ import {
 } from "@chakra-ui/react";
 import { BigNumber, utils } from "ethers";
 import { checkoutBasket, connectToWeb3, emptyBasket, removeFromBasket } from "state/web3";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiBalance } from "state/web3";
+import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+
+export interface BasketItem {
+  artistName: string;
+  imageUrl: string;
+  paymentAddress: string;
+  price: BigNumber;
+  title: string;
+  releaseId: string;
+}
 
 const BasketButton = () => {
   const dispatch = useDispatch();
@@ -43,7 +53,7 @@ const BasketButton = () => {
   } = useSelector(state => state.web3, shallowEqual);
 
   const [showModal, setShowModal] = useState(false);
-  const total = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
+  const total = basket.reduce((prev, curr: BasketItem) => prev.add(curr.price), BigNumber.from("0"));
   const allowanceTooLow = total.gt(daiAllowance);
 
   const handleCheckout = async () => {
@@ -100,6 +110,7 @@ const BasketButton = () => {
                       <Spacer />
                       <Box mr={4}>◈ {Number(utils.formatEther(price)).toFixed(2)}</Box>
                       <IconButton
+                        aria-label="Remove item from the basket."
                         icon={<Icon icon={faTimes} />}
                         onClick={() => dispatch(removeFromBasket(releaseId))}
                       />

@@ -237,6 +237,7 @@ const Allowance = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             ) : null}
+            <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mt={8} />
           </ModalBody>
           <ModalFooter>
             <Button onClick={handleCloseModal}>Cancel</Button>

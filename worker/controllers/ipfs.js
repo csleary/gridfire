@@ -78,6 +78,7 @@ const transformIpfsStreamByCid = async (cid, key, ffmpegProcessStream) => {
         const ipfsFile = await ipfs.add(encryptedReadStream, { cidVersion: 1 });
         resolve(ipfsFile.cid.toString());
       } catch (error) {
+        console.error(error);
         throw error;
       } finally {
         console.log("Removing temp IPFS file:", tempFilePath);

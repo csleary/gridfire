@@ -28,9 +28,9 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
       tarStream.pipe(tarExtract);
     });
 
-    let trackNumber = 1;
-    for (const { [format]: cid, trackTitle } of trackList) {
-      const trackName = `${trackNumber.toString(10).padStart(2, "0")} ${trackTitle}.${format}`;
+    for (const { [format]: cid, position, trackTitle } of trackList) {
+      if (!cid) continue;
+      const trackName = `${position.toString(10).padStart(2, "0")} ${trackTitle}.${format}`;
 
       await new Promise((resolve, reject) => {
         const tarExtract = tar.extract();
@@ -46,8 +46,6 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
         const tarStream = Readable.from(ipfs.get(cid));
         tarStream.pipe(tarExtract);
       });
-
-      trackNumber++;
     }
 
     archive.finalize();
