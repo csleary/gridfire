@@ -1,6 +1,5 @@
 import { Tag, Wrap, WrapItem } from "@chakra-ui/react";
 import Icon from "components/icon";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "@reduxjs/toolkit";
 import { shallowEqual } from "react-redux";
@@ -23,7 +22,7 @@ const Tags = () => {
   return (
     <Wrap spacing={2}>
       <WrapItem alignItems={"center"}>
-        <Icon color="gray.500" icon={faTags as IconProp} />
+        <Icon color="gray.500" icon={faTags} />
       </WrapItem>
       {tags.map((tag, index) => (
         <WrapItem key={keys[index]}>

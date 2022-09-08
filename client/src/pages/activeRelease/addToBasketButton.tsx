@@ -1,15 +1,15 @@
-import { BigNumber, utils } from "ethers";
 import { addToBasket, setIsAddingToBasket } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { BasketItem } from "components/header/basketButton";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import NameYourPriceModal from "./nameYourPriceModal";
 import { RootState } from "index";
 import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { toastError } from "state/toast";
 import { useState } from "react";
+import { utils } from "ethers";
 
 interface Props {
   artistName: string;
@@ -18,15 +18,6 @@ interface Props {
   price: string;
   releaseId: string;
   title: string;
-}
-
-interface BasketItem {
-  artistName: string;
-  imageUrl: string;
-  paymentAddress: string;
-  price: BigNumber;
-  title: string;
-  releaseId: string;
 }
 
 const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title }: Props) => {
@@ -67,7 +58,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
     <>
       <Button
         disabled={inCollection || isAddingToBasket || isInBasket}
-        leftIcon={<Icon icon={faShoppingBasket as IconProp} />}
+        leftIcon={<Icon icon={faShoppingBasket} />}
         isLoading={isAddingToBasket}
         minW="8rem"
         onClick={handleClick}

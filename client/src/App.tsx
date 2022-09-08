@@ -94,6 +94,7 @@ const App: React.FC = () => {
         px={[1, 4, null, 8]}
         py={[1, 3, null, 6]}
         display="flex"
+        overflow="hidden"
       >
         <Flex direction="column" flex={1}>
           <Suspense fallback={<></>}>

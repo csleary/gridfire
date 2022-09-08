@@ -13,7 +13,6 @@ import axios from "axios";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 export interface BasketItem {
   price: string;
@@ -138,9 +137,9 @@ const TrackList = () => {
               </Box>
             ) : null}
             {trackId === playerTrackId && isPlaying ? (
-              <Box as={FontAwesomeIcon} icon={faPlay as IconProp} animation={animation} ml={2} />
+              <Box as={FontAwesomeIcon} icon={faPlay} animation={animation} ml={2} />
             ) : trackId === playerTrackId && isPaused ? (
-              <Box as={FontAwesomeIcon} icon={faPause as IconProp} animation={animation} ml={2} />
+              <Box as={FontAwesomeIcon} icon={faPause} animation={animation} ml={2} />
             ) : null}
             <Spacer />
             <PurchaseTrackButton

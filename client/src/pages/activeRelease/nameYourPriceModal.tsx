@@ -21,7 +21,6 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import Icon from "components/icon";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
 
@@ -136,7 +135,7 @@ const NameYourPriceModal = ({
           <Button onClick={handleCloseModal}>Cancel</Button>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}
-            leftIcon={<Icon icon={faEthereum as IconProp} />}
+            leftIcon={<Icon icon={faEthereum} />}
             isDisabled={isSubmitting}
             isLoading={isSubmitting}
             loadingText={submitButtonLoading}

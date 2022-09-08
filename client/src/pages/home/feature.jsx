@@ -9,14 +9,14 @@ const Feature = ({ children, title }) => {
       bgColor={useColorModeValue("gray.50", "gray.900")}
       flex="0 1 50ch"
       flexDirection="column"
-      padding={8}
+      padding={12}
       transform="skewX(-10deg)"
     >
       <Box transform="skewX(10deg)">
         <Heading color={color} fontWeight={500} paddingInlineEnd={6} paddingInlineStart={6} py={1} size="lg" mb={4}>
           {title}
         </Heading>
-        <Divider borderColor={useColorModeValue("gray.300", "purple.200")} borderWidth="2px" mb={3} />
+        <Divider borderColor={useColorModeValue("gray.300", "purple.200")} borderWidth="2px 0" mb={3} />
         <Heading fontWeight={500} textAlign="left" size="md" mb={0}>
           {children}
         </Heading>

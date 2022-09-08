@@ -33,7 +33,6 @@ import moment from "moment";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 interface Sale {
   release: string;
@@ -160,7 +159,7 @@ const ActiveRelease = () => {
                       variant="unstyled"
                       _hover={{ backgroundColor: "purple.300" }}
                     >
-                      <Icon color={releaseInfoColor} icon={faRecordVinyl as IconProp} />
+                      <Icon color={releaseInfoColor} icon={faRecordVinyl} />
                     </Flex>
                     <Box color={releaseInfoText}>{recordLabel}</Box>
                   </Flex>
@@ -179,7 +178,7 @@ const ActiveRelease = () => {
                     variant="unstyled"
                     _hover={{ backgroundColor: "blue.200" }}
                   >
-                    <Icon color={releaseInfoColor} icon={faCalendar as IconProp} title="Release date" />
+                    <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
                   </Flex>
                   <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
                 </Flex>

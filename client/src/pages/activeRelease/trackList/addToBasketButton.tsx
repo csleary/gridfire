@@ -4,7 +4,6 @@ import Icon from "components/icon";
 import NameYourPriceModal from "../nameYourPriceModal";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { BasketItem } from "./index";
 
 interface Props {
@@ -68,8 +67,8 @@ const AddToBasketButton = ({
           isDisabled={inBasket}
           icon={
             <Icon
-              color={trackInCollection ? (checkColour as string) : undefined}
-              icon={trackInCollection ? (faCheck as IconProp) : (faShoppingBasket as IconProp)}
+              color={trackInCollection ? checkColour : undefined}
+              icon={trackInCollection ? faCheck : faShoppingBasket}
             />
           }
           onClick={handleClick}

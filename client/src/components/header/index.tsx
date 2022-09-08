@@ -28,13 +28,14 @@ import {
   faSignOutAlt,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import BasketButton from "./basketButton";
 import Icon from "components/icon";
 import SearchBar from "../searchBar";
 import { connectToWeb3 } from "state/web3";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
+import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { utils } from "ethers";
 
@@ -113,7 +114,12 @@ const Header = () => {
             </Button>
           </WrapItem>
           <WrapItem>
-            <IconButton _hover={{ color: colorModeTextHover }} icon={colorModeIcon} onClick={toggleColorMode} />
+            <IconButton
+              aria-label="Switch between light and dark modes."
+              _hover={{ color: colorModeTextHover }}
+              icon={colorModeIcon}
+              onClick={toggleColorMode}
+            />
           </WrapItem>
         </>
       ) : (
@@ -123,7 +129,7 @@ const Header = () => {
               <WrapItem alignItems="center">
                 <Tooltip
                   hasArrow
-                  openDelay="500"
+                  openDelay={500}
                   label="Your active account's DAI balance."
                   bg={tooltipBgColor}
                   color={tooltipColor}
@@ -136,14 +142,14 @@ const Header = () => {
               <WrapItem>
                 <Tooltip
                   hasArrow
-                  openDelay="500"
+                  openDelay={500}
                   label={`Your active web3 account. Click to view account details on the explorer.`}
                   bg={tooltipBgColor}
                   color={tooltipColor}
                 >
                   <Button
                     as={Link}
-                    colorScheme={account !== userAccount && "yellow"}
+                    colorScheme={account !== userAccount ? "yellow" : undefined}
                     href={`https://arbiscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon icon={faEthereum} />}
@@ -232,7 +238,12 @@ const Header = () => {
             </Menu>
           </WrapItem>
           <WrapItem>
-            <IconButton _hover={{ color: colorModeTextHover }} icon={colorModeIcon} onClick={toggleColorMode} />
+            <IconButton
+              aria-label="Switch between light and dark modes."
+              _hover={{ color: colorModeTextHover }}
+              icon={colorModeIcon}
+              onClick={toggleColorMode}
+            />
           </WrapItem>
         </>
       )}

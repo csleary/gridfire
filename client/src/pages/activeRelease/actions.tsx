@@ -20,7 +20,6 @@ import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-ico
 import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import Icon from "components/icon";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { toastInfo } from "state/toast";
 
 interface ListItem {
@@ -53,12 +52,7 @@ const Actions = () => {
       <Button
         isLoading={isSavingToFaves}
         loadingText="Saving…"
-        leftIcon={
-          <Icon
-            color={isInFaves ? "red.400" : undefined}
-            icon={isInFaves ? (faHeart as IconProp) : (heartOutline as IconProp)}
-          />
-        }
+        leftIcon={<Icon color={isInFaves ? "red.400" : undefined} icon={isInFaves ? faHeart : heartOutline} />}
         onClick={() => {
           if (!account)
             return dispatch(
@@ -79,10 +73,7 @@ const Actions = () => {
       </Button>
       <Popover>
         <PopoverTrigger>
-          <Button
-            leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic as IconProp} />}
-            flex={1}
-          >
+          <Button leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />} flex={1}>
             List
           </Button>
         </PopoverTrigger>
@@ -112,7 +103,7 @@ const Actions = () => {
             <Button
               colorScheme="red"
               isDisabled={!isInWishList}
-              leftIcon={<Icon icon={faMinusCircle as IconProp} />}
+              leftIcon={<Icon icon={faMinusCircle} />}
               onClick={() => dispatch(removeFromWishList(releaseId))}
               title="Remove from wish list."
               variant="ghost"
@@ -122,7 +113,7 @@ const Actions = () => {
             <Button
               isLoading={isSavingToList}
               loadingText="Saving…"
-              leftIcon={<Icon icon={faMagic as IconProp} />}
+              leftIcon={<Icon icon={faMagic} />}
               onClick={() => {
                 if (!account) {
                   return dispatch(

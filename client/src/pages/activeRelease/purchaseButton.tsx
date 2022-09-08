@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "hooks";
 import { toastError, toastWarning } from "state/toast";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import NameYourPriceModal from "./nameYourPriceModal";
 import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
@@ -74,7 +73,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Pro
         disabled={!isConnected || isFetchingAllowance}
         isLoading={isLoading || isPurchasing}
         loadingText={isLoading ? "Loading" : "Purchasing"}
-        leftIcon={<Icon icon={inCollection ? (faCheckCircle as IconProp) : (faEthereum as IconProp)} />}
+        leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
         minWidth="16rem"
         onClick={handleClick}
       >

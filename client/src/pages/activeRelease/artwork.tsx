@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import placeholder from "placeholder.svg";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 const Artwork = () => {
   const dispatch = useDispatch();
@@ -81,7 +80,7 @@ const Artwork = () => {
           icon={
             <Box
               as={FontAwesomeIcon}
-              icon={isPlaying && releaseId === playerReleaseId ? (faPause as IconProp) : (faPlay as IconProp)}
+              icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
               transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
               _groupHover={{ transform: "scale(1.2)" }}
             />
