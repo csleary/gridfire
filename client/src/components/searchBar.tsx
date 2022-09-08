@@ -17,26 +17,42 @@ import {
   Spinner,
   Text,
   VStack,
-  useColorModeValue
+  useColorModeValue,
+  Wrap,
+  WrapItem
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { clearResults, searchReleases } from "state/search";
 import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import debounce from "lodash.debounce";
+import { shallowEqual } from "react-redux";
 import { useDisclosure } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
 
+interface Release {
+  _id: string;
+  artistName: string;
+  artwork: { cid: string };
+  catNumber: string;
+  info: string;
+  price: string;
+  recordLabel: string;
+  releaseTitle: string;
+  trackList: Array<{}>;
+}
+
 const SearchBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const metaColour = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
   const { search } = useLocation();
   const navigate = useNavigate();
-  const inputRef = useRef();
+  const inputRef: any = useRef();
   const { isSearching, searchQuery, searchResults } = useSelector(state => state.search, shallowEqual);
   const [searchText, setSearchText] = useState("");
 
@@ -48,7 +64,7 @@ const SearchBar = () => {
     if (stringQuery) dispatch(searchReleases(stringQuery));
   }, [dispatch, search]);
 
-  const handleKeyDown = e => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Enter") {
       navigate("/search");
     }
@@ -68,7 +84,7 @@ const SearchBar = () => {
     }
   }, [handleSearch, previousQuery, searchText]);
 
-  const handleSearchInput = e => setSearchText(e.target.value);
+  const handleSearchInput = (e: FormEvent<HTMLInputElement>) => setSearchText(e.currentTarget.value);
 
   const handleClearSearch = () => {
     dispatch(clearResults());
@@ -77,7 +93,7 @@ const SearchBar = () => {
   };
 
   const handleClose = () => {
-    onClose(false);
+    onClose();
     setSearchText("");
   };
 
@@ -108,6 +124,7 @@ const SearchBar = () => {
             <InputRightElement>
               <Fade in={Boolean(searchText)}>
                 <IconButton
+                  aria-label="Clear the search term."
                   color="gray.400"
                   icon={<Icon icon={faBackspace} />}
                   onClick={handleClearSearch}
@@ -121,7 +138,7 @@ const SearchBar = () => {
           <ModalBody p={0} mt={6}>
             <VStack spacing={4} alignItems="stretch" role="listbox">
               {searchResults.length ? (
-                searchResults.map(release => {
+                searchResults.map((release: Release) => {
                   const {
                     _id: releaseId,
                     artistName,
@@ -135,32 +152,42 @@ const SearchBar = () => {
                   } = release;
 
                   return (
-                    <LinkBox alignItems="center" key={releaseId} rounded="lg" display="flex" role="option">
-                      <Image
-                        boxSize="8rem"
-                        objectFit="cover"
-                        loading="lazy"
-                        rounded="full"
-                        src={`${CLOUD_URL}/${cid}`}
-                      />
-                      <LinkOverlay as={Link} to={`/release/${releaseId}`} flex={1} p={4}>
-                        <Box>
-                          <Text fontSize="2xl" isTruncated>
-                            {releaseTitle}
-                          </Text>
-                          <Text fontSize="xl" isTruncated>
-                            {artistName}
-                          </Text>
-                          <Text>
-                            {recordLabel} {recordLabel ? <>&bull;</> : null} {catNumber}
-                          </Text>
-                          <Text>{price}$ USD</Text>
-                          <Text>
-                            {trackList.length} track{trackList.length > 1 ? "s" : ""}
-                          </Text>
-                          <Text isTruncated>{info}</Text>
-                        </Box>
-                      </LinkOverlay>
+                    <LinkBox key={releaseId} role="option">
+                      <Wrap alignItems="center" justify={["center", "flex-start"]}>
+                        <WrapItem>
+                          <Image
+                            boxSize="8rem"
+                            objectFit="cover"
+                            loading="lazy"
+                            rounded="full"
+                            src={`${CLOUD_URL}/${cid}`}
+                          />
+                        </WrapItem>
+                        <WrapItem flex="1 1 32ch">
+                          <LinkOverlay as={Link} to={`/release/${releaseId}`} flex={1} p={4} onClick={onClose}>
+                            <Box>
+                              <Text fontSize="2xl" fontStyle="italic" noOfLines={2}>
+                                {releaseTitle}
+                              </Text>
+                              <Text fontSize="xl" fontWeight="300" noOfLines={2}>
+                                {artistName}
+                              </Text>
+                              <Text color={metaColour}>
+                                {recordLabel} {recordLabel ? <>&bull;</> : null} {catNumber}
+                              </Text>
+                              {Number(price) === 0 ? (
+                                <Text color={metaColour}>Name your price</Text>
+                              ) : (
+                                <Text color={metaColour}>◈{price}</Text>
+                              )}
+                              <Text color={metaColour}>
+                                {trackList.length} track{trackList.length > 1 ? "s" : ""}
+                              </Text>
+                              <Text noOfLines={6}>{info}</Text>
+                            </Box>
+                          </LinkOverlay>
+                        </WrapItem>
+                      </Wrap>
                     </LinkBox>
                   );
                 })
