@@ -1,5 +1,5 @@
-import { Box, Flex, IconButton, Spacer, Text, useColorModeValue } from "@chakra-ui/react";
-import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
+import { Box, Flex, IconButton, Spacer, Text, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
+import { faChevronDown, faCog, faEllipsis, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -9,15 +9,17 @@ import PlayLogger from "./playLogger";
 import shaka from "shaka-player";
 // import shaka from "shaka-player/dist/shaka-player.compiled.debug.js";
 import { toastWarning } from "state/toast";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
 import { CLOUD_URL } from "index";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 
 const Player = () => {
+  const isSmallScreen = useBreakpointValue({ base: true, sm: false });
   const dispatch = useDispatch();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const audioPlayerRef = useRef();
   const playLoggerRef = useRef();
   const seekBarRef = useRef();
@@ -295,7 +297,7 @@ const Player = () => {
           width={`${progressPercent * 100}%`}
         />
       </Box>
-      <Flex alignItems="center" flex="1" justifyContent="center" height="3.25rem">
+      <Flex alignItems="center" flex="1" justifyContent="space-between">
         <Flex flex="1 1 50%" justifyContent="flex-end">
           <IconButton
             icon={<Icon icon={!isReady ? faCog : isPlaying ? faPause : faPlay} fixedWidth spin={!isReady} />}
@@ -328,25 +330,36 @@ const Player = () => {
         >
           {showRemaining ? remainingTime : elapsedTime}
         </Box>
-        <Flex
-          alignItems="center"
-          flex="1 1 50%"
-          overflow="hidden"
-          pl={[1, 4]}
-          textAlign="left"
-          textOverflow="ellipsis"
-          whiteSpace="nowrap"
-        >
-          {pathname === `/release/${releaseId}` ? (
-            <Text>
-              {artistName} &bull; <Text as="em">{trackTitle}</Text>
-            </Text>
-          ) : (
-            <Text as={RouterLink} to={`/release/${releaseId}`}>
-              {artistName} &bull; <Text as="em">{trackTitle}</Text>
-            </Text>
-          )}
-        </Flex>
+        {isSmallScreen ? (
+          <IconButton
+            icon={<Icon icon={faEllipsis} fixedWidth />}
+            onClick={() => navigate(`/release/${releaseId}`)}
+            fontSize="2rem"
+            mr={2}
+            variant="ghost"
+            _hover={{ "&:active": { background: "none" }, color: "gray.100" }}
+          />
+        ) : (
+          <Flex
+            alignItems="center"
+            flex="1 1 50%"
+            overflow="hidden"
+            pl={[1, 4]}
+            textAlign="left"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            {pathname === `/release/${releaseId}` ? (
+              <Text>
+                {artistName} &bull; <Text as="em">{trackTitle}</Text>
+              </Text>
+            ) : (
+              <Text as={RouterLink} to={`/release/${releaseId}`}>
+                {artistName} &bull; <Text as="em">{trackTitle}</Text>
+              </Text>
+            )}
+          </Flex>
+        )}
         <Spacer />
         <IconButton
           icon={<Icon icon={faChevronDown} />}
