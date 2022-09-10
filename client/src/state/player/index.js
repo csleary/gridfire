@@ -3,11 +3,13 @@ import { createSlice } from "@reduxjs/toolkit";
 const playerSlice = createSlice({
   name: "player",
   initialState: {
+    artistName: "",
     isPlaying: false,
     isPaused: false,
     releaseId: "",
+    showPlayer: false,
     trackId: "",
-    showPlayer: false
+    trackTitle: ""
   },
   reducers: {
     playerHide(state) {

@@ -13,7 +13,6 @@ import {
   MenuItem,
   MenuList,
   Text,
-  Textarea,
   VStack,
   Wrap,
   WrapItem,
@@ -38,6 +37,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import Icon from "components/icon";
 import { useNavigate } from "react-router-dom";
 import Field from "components/field";
+import TextAreaWithCharLimit from "components/textAreaWithCharLimit";
 
 const Artists = () => {
   const buttonColorScheme = useColorModeValue("yellow", "purple");
@@ -50,7 +50,6 @@ const Artists = () => {
   );
   const [isAddingLink, setIsAddingLink] = useState(false);
   const activeArtist = artists.find(artist => artist._id === activeArtistId);
-  const charsRemaining = 2000 - (activeArtist?.biography?.length ?? 0);
 
   useEffect(() => {
     if (!artists.length) {
@@ -160,12 +159,7 @@ const Artists = () => {
             <Box as="label" htmlFor="biography" color="gray.500" display="block" fontSize="xl" fontWeight={500} mb={4}>
               Biography
             </Box>
-            <Textarea id="biography" name="biography" onChange={handleChange} value={activeArtist.biography || ""} />
-            <Text
-              color={charsRemaining === 0 ? "red.500" : charsRemaining < 100 ? "orange.500" : "gray.500"}
-              fontSize="sm"
-              fontWeight={charsRemaining === 0 && 500}
-            >{`${charsRemaining} character${charsRemaining === 1 ? "" : "s"} remaining`}</Text>
+            <TextAreaWithCharLimit limit={2000} onChange={handleChange} value={activeArtist.biography || ""} />
             {errors.biography ? (
               <Alert status="warning" mt={2}>
                 <AlertIcon />
