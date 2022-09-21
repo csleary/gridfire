@@ -1,28 +1,17 @@
-import { Contract, ethers } from "ethers";
-import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
-import daiAbi from "gridfire/controllers/web3/dai.js";
+import {
+  getDaiContract,
+  getGridFireContract,
+  getGridFireEditionsByReleaseId,
+  getUserGridFireEditions
+} from "gridfire/controllers/web3/index.js";
+import Release from "gridfire/models/Release.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const { CONTRACT_ADDRESS, DAI_CONTRACT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
-const { abi } = GridFirePayment;
+const { CONTRACT_ADDRESS } = process.env;
 const router = express.Router();
 
-const getProvider = () => {
-  return ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
-};
-
-const getDaiContract = () => {
-  const provider = getProvider();
-  return new Contract(DAI_CONTRACT_ADDRESS, daiAbi, provider);
-};
-
-const getGridFireContract = () => {
-  const provider = getProvider();
-  return new Contract(CONTRACT_ADDRESS, abi, provider);
-};
-
-router.get("/:account/approvals", requireLogin, async (req, res) => {
+router.get("/approvals/:account", requireLogin, async (req, res) => {
   try {
     const { account } = req.params;
     const daiContract = getDaiContract();
@@ -35,12 +24,12 @@ router.get("/:account/approvals", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/:account/claims", requireLogin, async (req, res) => {
+router.get("/claims/:account", requireLogin, async (req, res) => {
   try {
     const { account } = req.params;
-    const gridFire = getGridFireContract();
-    const claimFilter = gridFire.filters.Claim(account);
-    const claims = await gridFire.queryFilter(claimFilter);
+    const gridFireContract = getGridFireContract();
+    const claimFilter = gridFireContract.filters.Claim(account);
+    const claims = await gridFireContract.queryFilter(claimFilter);
     res.send(claims);
   } catch (error) {
     console.error(error);
@@ -48,16 +37,71 @@ router.get("/:account/claims", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/:account/purchases", requireLogin, async (req, res) => {
+router.get("/purchases/:account", requireLogin, async (req, res) => {
   try {
     const { account } = req.params;
-    const gridFire = getGridFireContract();
-    const purchaseFilter = gridFire.filters.Purchase(null, account);
-    const purchases = await gridFire.queryFilter(purchaseFilter);
+    const gridFireContract = getGridFireContract();
+    const purchaseFilter = gridFireContract.filters.Purchase(null, account);
+    const purchases = await gridFireContract.queryFilter(purchaseFilter);
     res.send(purchases);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
+  }
+});
+
+router.get("/editions/:releaseId", requireLogin, async (req, res) => {
+  try {
+    const { releaseId } = req.params;
+    const editions = await getGridFireEditionsByReleaseId(releaseId);
+    res.json(editions);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message || error.toString() });
+  }
+});
+
+router.post("/mint", requireLogin, async (req, res) => {
+  try {
+    const { ipfs } = req.app.locals;
+    const { description, price, releaseId, amount } = req.body;
+    const release = await Release.findById(releaseId, "", { lean: true });
+    const { catNumber, credits, info, releaseDate, releaseTitle: title, artistName: artist, artwork } = release;
+    const priceInDai = Number(price).toFixed(2);
+
+    const tokenMetadata = {
+      name: title,
+      description: description || `${artist} - ${title} (GridFire edition)`,
+      image: `ipfs://${artwork.cid}`,
+      properties: {
+        artist,
+        title,
+        totalSupply: amount,
+        priceInDai,
+        releaseDate: new Date(releaseDate).toUTCString(),
+        catalogueNumber: catNumber,
+        info,
+        credits
+      }
+    };
+
+    const upload = await ipfs.add(JSON.stringify(tokenMetadata), { cidVersion: 1 });
+    const metadataUri = `ipfs://${upload.cid.toString()}`;
+    res.send(metadataUri);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/editions/user/:userId", requireLogin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const editions = await getUserGridFireEditions(userId);
+    res.json(editions);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 

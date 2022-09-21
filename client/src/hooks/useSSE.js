@@ -72,6 +72,19 @@ const useSSE = () => {
       );
     };
 
+    const onPurchaseEditionEvent = event => {
+      const { artistName, releaseTitle } = JSON.parse(event.data);
+      dispatch(fetchDaiBalance(account));
+      dispatch(fetchUser());
+
+      dispatch(
+        toastSuccess({
+          message: `GridFire Edition \u2018${releaseTitle}\u2019 by ${artistName} has been added to your wallet.`,
+          title: "Purchased!"
+        })
+      );
+    };
+
     const onSaleEvent = event => {
       const { artistName, artistShare, buyerAddress, releaseTitle } = JSON.parse(event.data);
       dispatch(fetchDaiBalance(account));
@@ -139,6 +152,7 @@ const useSSE = () => {
       source.addEventListener("notify", onNotify);
       source.addEventListener("pipelineError", onPipelineError);
       source.addEventListener("purchaseEvent", onPurchaseEvent);
+      source.addEventListener("purchaseEditionEvent", onPurchaseEditionEvent);
       source.addEventListener("saleEvent", onSaleEvent);
       source.addEventListener("storingProgressFLAC", onStoringProgressFLAC);
       source.addEventListener("trackStatus", onTrackStatus);
@@ -160,6 +174,7 @@ const useSSE = () => {
         source.removeEventListener("notify", onNotify);
         source.removeEventListener("pipelineError", onPipelineError);
         source.removeEventListener("purchaseEvent", onPurchaseEvent);
+        source.removeEventListener("purchaseEditionEvent", onPurchaseEditionEvent);
         source.removeEventListener("saleEvent", onSaleEvent);
         source.removeEventListener("storingProgressFLAC", onStoringProgressFLAC);
         source.removeEventListener("trackStatus", onTrackStatus);

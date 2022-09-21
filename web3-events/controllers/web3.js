@@ -2,61 +2,10 @@ import { Contract, ethers, utils } from "ethers";
 import Release from "gridfire-web3-events/models/Release.js";
 import Sale from "gridfire-web3-events/models/Sale.js";
 import User from "gridfire-web3-events/models/User.js";
+import abi from "gridfire-web3-events/controllers/abi.js";
 import { publishToQueue } from "./amqp.js";
 
 const { CONTRACT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
-
-const abi = [
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "buyer",
-        type: "address"
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "artist",
-        type: "address"
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "releaseId",
-        type: "string"
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "userId",
-        type: "string"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amountPaid",
-        type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "artistShare",
-        type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "platformFee",
-        type: "uint256"
-      }
-    ],
-    name: "Purchase",
-    type: "event"
-  }
-];
 
 const getProvider = () => {
   return ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
@@ -155,8 +104,54 @@ const onPurchase = async (
       });
     }
   } catch (error) {
-    console.error("[Web3 Events] 🔴 Error:", error);
+    console.error("[Web3 Events] 🔴 Purchase error:", error);
   }
 };
 
-export { gridFire, onPurchase };
+const onPurchaseEdition = async (
+  buyerAddress,
+  artistAddress,
+  releaseId,
+  userId,
+  amountPaid,
+  artistShare,
+  platformFee,
+  editionId,
+  event
+) => {
+  try {
+    const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
+    const daiPaid = utils.formatEther(amountPaid);
+    const id = editionId.toString();
+    console.log(`[${date}] 🙌 User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), release ${releaseId}!`);
+
+    const release = await Release.findById(releaseId, "artistName releaseTitle", { lean: true })
+      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+      .exec();
+
+    const { artistName, releaseTitle, user: artistUser } = release;
+    const transactionReceipt = await event.getTransactionReceipt();
+    const { status } = transactionReceipt;
+
+    if (status === 1) {
+      // Notify user of successful purchase.
+      publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEditionEvent", userId });
+      const artistUserId = artistUser._id.toString();
+
+      // Notify artist of sale.
+      publishToQueue("user", artistUserId, {
+        artistName,
+        artistShare: utils.formatEther(artistShare),
+        buyerAddress,
+        platformFee: utils.formatEther(platformFee),
+        releaseTitle,
+        type: "saleEvent",
+        userId: artistUserId
+      });
+    }
+  } catch (error) {
+    console.error("[Web3 Events] 🔴 Edition Purchase error:", error);
+  }
+};
+
+export { gridFire, onPurchase, onPurchaseEdition };

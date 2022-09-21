@@ -1,4 +1,4 @@
-import { Box, Flex, Heading } from "@chakra-ui/react";
+import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import Field from "components/field";
 import PropTypes from "prop-types";
 import Tags from "./tags";
@@ -7,8 +7,8 @@ import { memo } from "react";
 const DetailedInfo = ({ errors, handleChange, values }) => (
   <>
     <Heading as="h3">Optional Info</Heading>
-    <Flex as="section">
-      <Box flex="1 1 50%" mr={12}>
+    <SimpleGrid as="section" columns={[1, null, 2]} spacing={12}>
+      <Box>
         <Field
           component="textarea"
           errors={errors}
@@ -37,7 +37,7 @@ const DetailedInfo = ({ errors, handleChange, values }) => (
           values={values}
         />
       </Box>
-      <Box flex="1 1 50%">
+      <Box>
         <Field
           errors={errors}
           label="Copyright Year"
@@ -75,7 +75,7 @@ const DetailedInfo = ({ errors, handleChange, values }) => (
         />
         <Tags handleChange={handleChange} tags={values.tags || []} />
       </Box>
-    </Flex>
+    </SimpleGrid>
   </>
 );
 

@@ -1,4 +1,4 @@
-import { Contract, ethers, utils } from "ethers";
+import { BigNumber, Contract, ethers, utils } from "ethers";
 import axios from "axios";
 import daiAbi from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
@@ -39,7 +39,7 @@ const getDaiBalance = async account => {
 };
 
 const getDaiApprovalEvents = async account => {
-  const res = await axios.get(`/api/web3/${account}/approvals`);
+  const res = await axios.get(`/api/web3/approvals/${account}`);
   return res.data;
 };
 
@@ -49,6 +49,26 @@ const getDaiContract = signerOrProvider => {
 
 const getGridFireContract = signerOrProvider => {
   return new Contract(REACT_APP_CONTRACT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
+};
+
+const getGridFireClaimEvents = async paymentAddress => {
+  const res = await axios.get(`/api/web3/claims/${paymentAddress}`);
+  return res.data;
+};
+
+const getGridFireEditionsByReleaseId = async releaseId => {
+  const res = await axios.get(`/api/web3/editions/${releaseId}`);
+  return res.data;
+};
+
+const getGridFirePurchaseEvents = async paymentAddress => {
+  const res = await axios.get(`/api/web3/purchases/${paymentAddress}`);
+  return res.data;
+};
+
+const getUserEditions = async userId => {
+  const res = await axios.get(`/api/web3/editions/user/${userId}`);
+  return res.data;
 };
 
 const gridFireCheckout = async (basket, userId) => {
@@ -69,14 +89,27 @@ const gridFireCheckout = async (basket, userId) => {
   return transactionHash;
 };
 
-const getGridFireClaimEvents = async paymentAddress => {
-  const res = await axios.get(`/api/web3/${paymentAddress}/claims`);
-  return res.data;
+const mintEdition = async ({ description, price, releaseId, amount }) => {
+  const provider = await getProvider();
+  const signer = provider.getSigner();
+  const gridFireContract = getGridFireContract(signer);
+  const res = await axios.post(`/api/web3/mint`, { description, price, releaseId, amount });
+  const metadataUri = res.data;
+  const bigNumAmount = BigNumber.from(`${amount}`);
+  const weiPrice = utils.parseEther(`${price}`);
+  const mintReceipt = await gridFireContract.mintEdition(bigNumAmount, weiPrice, metadataUri, releaseId);
+  const { status } = await mintReceipt.wait();
+  if (status !== 1) throw new Error("Edition mint unsuccessful.");
 };
 
-const getGridFirePurchaseEvents = async paymentAddress => {
-  const res = await axios.get(`/api/web3/${paymentAddress}/purchases`);
-  return res.data;
+const purchaseEdition = async ({ id, paymentAddress, price, userId }) => {
+  const provider = await getProvider();
+  const signer = provider.getSigner();
+  const gridFirePayment = getGridFireContract(signer);
+  const transactionReceipt = await gridFirePayment.purchaseGridFireEdition(paymentAddress, id, userId, price);
+  const { status, transactionHash } = await transactionReceipt.wait();
+  if (status !== 1) throw new Error("Transaction unsuccessful.");
+  return transactionHash;
 };
 
 const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => {
@@ -118,7 +151,11 @@ export {
   getDaiApprovalEvents,
   getGridFireClaimEvents,
   getGridFireContract,
+  getGridFireEditionsByReleaseId,
   getGridFirePurchaseEvents,
+  getUserEditions,
+  mintEdition,
+  purchaseEdition,
   purchaseRelease,
   setDaiAllowance
 };

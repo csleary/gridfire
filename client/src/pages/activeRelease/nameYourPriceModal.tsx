@@ -19,7 +19,7 @@ import {
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
@@ -65,7 +65,7 @@ const NameYourPriceModal = ({
   };
 
   const handleChange = useCallback(
-    ({ target: { value } }) => {
+    ({ currentTarget: { value } }: FormEvent<HTMLInputElement>) => {
       setError("");
       const numbersOnly = value.replace(/[^0-9.]/g, "");
       setPrice(numbersOnly);

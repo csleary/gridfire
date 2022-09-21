@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import User from "gridfire/models/User.js";
 
 const getUser = async userId => {
   const [user] = await User.aggregate([

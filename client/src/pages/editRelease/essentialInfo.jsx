@@ -1,9 +1,10 @@
-import { Box, Flex, Heading } from "@chakra-ui/react";
+import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import ArtistMenu from "./artistMenu";
 import Field from "components/field";
 import { formatPrice } from "utils";
 import { useCallback } from "react";
+import MintEdition from "./mintEdition";
 
 const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
@@ -28,8 +29,8 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
   return (
     <>
       <Heading>Essential Info</Heading>
-      <Flex as="section">
-        <Box flex="1 1 50%" mr={12}>
+      <SimpleGrid as="section" columns={[1, null, 2]} spacing={12}>
+        <Box>
           {isEditing && artist ? (
             <Field isDisabled isReadOnly label="Artist name" value={artistName} size="lg" />
           ) : (
@@ -52,7 +53,7 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             size="lg"
           />
         </Box>
-        <Box flex="1 1 50%">
+        <Box>
           <Field
             errors={errors}
             isRequired
@@ -77,7 +78,8 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             size="lg"
           />
         </Box>
-      </Flex>
+      </SimpleGrid>
+      <MintEdition />
     </>
   );
 };

@@ -6,10 +6,28 @@ import {
   FormLabel,
   FormHelperText,
   Input,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
   Textarea
 } from "@chakra-ui/react";
 
-const Field = ({ component, error, errors = {}, info, label, mb = 6, name, onChange, value, values = {}, ...rest }) => {
+const Field = ({
+  component = null,
+  error = "",
+  errors = {},
+  info = "",
+  label = "",
+  mb = 6,
+  name,
+  onChange,
+  type = "text",
+  value = null,
+  values = {},
+  ...rest
+}) => {
   return (
     <FormControl as="fieldset" mb={mb}>
       <FormLabel htmlFor={name} color="gray.500" fontWeight={500} mb={1}>

@@ -1,17 +1,18 @@
 import { Box, Heading, Link, Text, VStack, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { fetchCollection, fetchUserEditions } from "state/releases";
 import { useEffect, useState } from "react";
 import Grid from "components/grid";
 import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
-import { fetchCollection } from "state/releases";
 import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { utils } from "ethers";
 
 const Collection = () => {
   const dispatch = useDispatch();
-  const { collection = {} } = useSelector(state => state.releases, shallowEqual);
+  const { collection = {}, userEditions = [] } = useSelector(state => state.releases, shallowEqual);
+  const { userId } = useSelector(state => state.user, shallowEqual);
   const { albums = [], singles = [] } = collection;
   const [isLoading, setLoading] = useState(false);
   const available = [...albums, ...singles].filter(({ release }) => Boolean(release));
@@ -26,11 +27,43 @@ const Collection = () => {
     dispatch(fetchCollection()).then(() => setLoading(false));
   }, []); // eslint-disable-line
 
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchUserEditions(userId));
+    }
+  }, [dispatch, userId]);
+
   return (
     <Box as={"main"} flexGrow={1}>
       <Heading as="h3">
         Your Collection ({available.length} release{available.length === 1 ? "" : "s"})
       </Heading>
+      {userEditions.length ? (
+        <>
+          <Heading as="h3">GridFire Editions</Heading>
+          <Grid>
+            {userEditions.map(({ _id: purchaseId, paid, purchaseDate, release, transaction = {} }) => (
+              <VStack key={purchaseId}>
+                <RenderRelease release={{ ...release, purchaseDate, purchaseId }} type="collection" />
+                <Box alignSelf="flex-end">
+                  <Text color={receiptTextColour}>
+                    <Icon color={receiptColour} icon={faReceipt} mr={2} />
+                    <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
+                      {transaction.transactionHash.slice(0, 4) + "…" + transaction.transactionHash.slice(-4)}
+                    </Link>
+                    ,{" "}
+                    <Box as="span" mr="0.2rem">
+                      ◈
+                    </Box>
+                    {Number(utils.formatEther(paid)).toFixed(2)}.
+                  </Text>
+                </Box>
+              </VStack>
+            ))}
+          </Grid>
+        </>
+      ) : null}
+
       {albums.length ? (
         <>
           <Heading as="h3">Albums</Heading>

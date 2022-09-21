@@ -39,6 +39,7 @@ const releaseSlice = createSlice({
     releaseIdsForDeletion: {},
     userFavourites: [],
     userReleases: [],
+    userEditions: [],
     userWishList: []
   },
   reducers: {
@@ -85,6 +86,9 @@ const releaseSlice = createSlice({
     setReleaseIdsForDeletion(state, action) {
       const { releaseId, isDeleting } = action.payload;
       state.releaseIdsForDeletion = { ...state.releaseIdsForDeletion, [releaseId]: isDeleting };
+    },
+    setUserEditions(state, action) {
+      state.userEditions = action.payload;
     },
     setUserFavourites(state, action) {
       state.userFavourites = action.payload;
@@ -177,9 +181,13 @@ const fetchRelease = releaseId => async dispatch => {
   }
 };
 
-const fetchUserReleases = () => async dispatch => {
-  const res = await axios.get("/api/user/releases");
-  dispatch(setUserReleases(res.data));
+const fetchUserEditions = userId => async dispatch => {
+  try {
+    const res = await axios.get(`/api/web3/editions/user/${userId}`);
+    dispatch(setUserEditions(res.data));
+  } catch (error) {
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  }
 };
 
 const fetchUserFavourites = () => async dispatch => {
@@ -189,6 +197,11 @@ const fetchUserFavourites = () => async dispatch => {
   } catch (error) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
+};
+
+const fetchUserReleases = () => async dispatch => {
+  const res = await axios.get("/api/user/releases");
+  dispatch(setUserReleases(res.data));
 };
 
 const fetchUserWishList = () => async dispatch => {
@@ -233,6 +246,7 @@ export const {
   setIsLoading,
   setReleaseIdsForDeletion,
   setReleasePurchaseInfo,
+  setUserEditions,
   setUserFavourites,
   setUserReleases,
   setUserWishList,
@@ -246,6 +260,7 @@ export {
   fetchCatalogue,
   fetchCollection,
   fetchRelease,
+  fetchUserEditions,
   fetchUserFavourites,
   fetchUserWishList,
   fetchUserReleases,

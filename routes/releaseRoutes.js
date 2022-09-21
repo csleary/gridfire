@@ -1,7 +1,6 @@
 import Artist from "gridfire/models/Artist.js";
 import Favourite from "gridfire/models/Favourite.js";
 import Release from "gridfire/models/Release.js";
-import Sale from "gridfire/models/Sale.js";
 import User from "gridfire/models/User.js";
 import Wishlist from "gridfire/models/Wishlist.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
@@ -111,10 +110,7 @@ router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
 
 router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
   try {
-    const buyer = req.user._id;
     const { releaseId } = req.params;
-    const alreadyBought = await Sale.exists({ user: buyer, release: releaseId });
-    if (alreadyBought) throw new Error("You already own this release.");
 
     const {
       price,

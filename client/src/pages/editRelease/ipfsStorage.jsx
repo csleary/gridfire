@@ -22,6 +22,7 @@ const CID = ({ cid }) => {
         fontSize="lg"
         mr={2}
         px={1}
+        wordBreak="break-all"
         _hover={{ color: "gray.300" }}
       >
         {cid}

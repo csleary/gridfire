@@ -1,1 +1,3 @@
 const deleteRelease = () => {};
+
+export { deleteRelease };

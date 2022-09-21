@@ -10,7 +10,7 @@ interface Props {
 }
 
 const TrackInfo = ({ artistName, releaseId, trackTitle }: Props) => {
-  const isSmallScreen = useBreakpointValue({ base: true, sm: false });
+  const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false });
   const { pathname } = useLocation();
   const navigate = useNavigate();
 

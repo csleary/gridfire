@@ -1,4 +1,4 @@
-import { gridFire, onPurchase } from "gridfire-web3-events/controllers/web3.js";
+import { gridFire, onPurchase, onPurchaseEdition } from "gridfire-web3-events/controllers/web3.js";
 import { logger } from "gridfire-web3-events/controllers/logger.js";
 import { amqpConnect } from "gridfire-web3-events/controllers/amqp.js";
 import mongoose from "mongoose";
@@ -76,6 +76,7 @@ try {
   [amqpConnection] = await amqpConnect();
   await setupHealthProbe();
   gridFire.on("Purchase", onPurchase);
+  gridFire.on("PurchaseEdition", onPurchaseEdition);
 } catch (error) {
   logger.error(`Startup error: ${error.message}`);
 }

@@ -10,7 +10,7 @@ const saleSchema = new Schema({
   transaction: { type: Object },
   type: { type: String, enum: ["single", "album"], default: "album" },
   user: { type: Schema.Types.ObjectId, ref: "User" },
-  userAddress: String
+  userAddress: { type: String }
 });
 
 saleSchema.index({ user: 1, release: 1 }, { unique: true });

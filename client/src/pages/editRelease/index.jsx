@@ -12,6 +12,7 @@ import {
   TabPanels,
   TabPanel,
   Tabs,
+  useBreakpointValue,
   useColorModeValue
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "state/releases";
@@ -34,6 +35,7 @@ import { usePrevious } from "hooks/usePrevious";
 import validate from "./validate";
 
 const EditRelease = () => {
+  const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
@@ -146,25 +148,25 @@ const EditRelease = () => {
           <TabList mb={8}>
             <Tab alignItems="center">
               <Icon icon={faInfo} mr={2} />
-              Essential Info
+              {isSmallScreen ? null : "Essential Info"}
               {Object.values(errors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
             </Tab>
             <Tab alignItems="center">
               <Icon icon={faImage} mr={2} />
-              Artwork
+              {isSmallScreen ? null : "Artwork"}
             </Tab>
             <Tab alignItems="center">
               <Icon icon={faFileAudio} mr={2} />
-              Tracks
+              {isSmallScreen ? null : "Tracks"}
               {Object.values(trackErrors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
             </Tab>
             <Tab alignItems="center">
               <Icon icon={faListAlt} mr={2} />
-              Optional Info
+              {isSmallScreen ? null : "Optional Info"}
             </Tab>
             <Tab alignItems="center">
               <Icon icon={faHdd} mr={2} />
-              IPFS Storage
+              {isSmallScreen ? null : "IPFS Storage"}
             </Tab>
           </TabList>
           <TabPanels>
