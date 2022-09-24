@@ -30,7 +30,7 @@ const getGridFireEdition = async editionId => {
 const getGridFireEditionsByReleaseId = async releaseId => {
   const provider = getProvider();
   const gridFireContract = getGridFireContract(provider);
-  const release = await Release.findById(releaseId, "", { lean: true }).populate("user").exec();
+  const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
   const artistAccount = utils.getAddress(release.user.account);
   const mintFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
   const mintEvents = await gridFireContract.queryFilter(mintFilter);
@@ -45,6 +45,18 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   const balances = await gridFireContract.balanceOfBatch(accounts, ids);
   editions.forEach((edition, index) => (edition.balance = balances[index]));
   return editions;
+};
+
+const getGridFireEditionUris = async releaseId => {
+  const provider = getProvider();
+  const gridFireContract = getGridFireContract(provider);
+  const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
+  const artistAccount = utils.getAddress(release.user.account);
+  const mintFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
+  const mintEvents = await gridFireContract.queryFilter(mintFilter);
+  const ids = mintEvents.map(({ args }) => args.editionId);
+  const uris = Promise.all(ids.map(id => gridFireContract.uri(id)));
+  return uris;
 };
 
 const getTransaction = async txId => {
@@ -69,7 +81,7 @@ const getUserGridFireEditions = async userId => {
     { lean: true }
   ).exec();
 
-  const ids = purchases.map(purchase => purchase.args.editionId);
+  const ids = purchases.map(({ args }) => args.editionId);
   const accounts = Array(ids.length).fill(account);
   const balances = await gridFireContract.balanceOfBatch(accounts, ids);
 
@@ -90,6 +102,7 @@ export {
   getGridFireContract,
   getGridFireEdition,
   getGridFireEditionsByReleaseId,
+  getGridFireEditionUris,
   getProvider,
   getTransaction,
   getUserGridFireEditions

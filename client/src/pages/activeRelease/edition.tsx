@@ -3,7 +3,7 @@ import { Box, Button, ScaleFade } from "@chakra-ui/react";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
-import { GridFireEdition } from "./editions";
+import { GridFireEdition } from "types";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
 import { purchaseEdition } from "web3/contract";

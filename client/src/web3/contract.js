@@ -61,6 +61,11 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   return res.data;
 };
 
+const getGridFireEditionUris = async releaseId => {
+  const res = await axios.get(`/api/web3/editions/uri/${releaseId}`);
+  return res.data;
+};
+
 const getGridFirePurchaseEvents = async paymentAddress => {
   const res = await axios.get(`/api/web3/purchases/${paymentAddress}`);
   return res.data;
@@ -144,6 +149,7 @@ export {
   getGridFireClaimEvents,
   getGridFireContract,
   getGridFireEditionsByReleaseId,
+  getGridFireEditionUris,
   getGridFirePurchaseEvents,
   getUserEditions,
   mintEdition,

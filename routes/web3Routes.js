@@ -2,6 +2,7 @@ import {
   getDaiContract,
   getGridFireContract,
   getGridFireEditionsByReleaseId,
+  getGridFireEditionUris,
   getUserGridFireEditions
 } from "gridfire/controllers/web3/index.js";
 import Release from "gridfire/models/Release.js";
@@ -61,6 +62,28 @@ router.get("/editions/:releaseId", requireLogin, async (req, res) => {
   }
 });
 
+router.get("/editions/uri/:releaseId", requireLogin, async (req, res) => {
+  try {
+    const { releaseId } = req.params;
+    const uris = await getGridFireEditionUris(releaseId);
+    res.json(uris);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message || error.toString() });
+  }
+});
+
+router.get("/editions/user/:userId", requireLogin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const editions = await getUserGridFireEditions(userId);
+    res.json(editions);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message || error.toString() });
+  }
+});
+
 router.post("/mint", requireLogin, async (req, res) => {
   try {
     const { ipfs } = req.app.locals;
@@ -91,17 +114,6 @@ router.post("/mint", requireLogin, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
-  }
-});
-
-router.get("/editions/user/:userId", requireLogin, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const editions = await getUserGridFireEditions(userId);
-    res.json(editions);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 

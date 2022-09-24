@@ -1,17 +1,8 @@
 import { Box, Divider, Flex, VStack, useColorModeValue } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
-import { BigNumber } from "ethers";
 import Edition from "./edition";
 import { getGridFireEditionsByReleaseId } from "web3/contract";
 import { useParams } from "react-router-dom";
-
-export interface GridFireEdition {
-  allowanceTooLow?: boolean;
-  amount?: BigNumber;
-  balance?: BigNumber;
-  editionId: BigNumber;
-  price: BigNumber;
-}
 
 const Editions = () => {
   const textColor = useColorModeValue("gray.400", "gray.500");

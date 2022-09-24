@@ -4,6 +4,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Link,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -14,10 +15,11 @@ import {
   ScaleFade,
   useColorModeValue
 } from "@chakra-ui/react";
-import { getGridFireEditionsByReleaseId, mintEdition } from "web3/contract";
+import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useState } from "react";
 import { BigNumber, utils } from "ethers";
 import Field from "components/field";
+import { GridFireEdition } from "types";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
@@ -36,33 +38,34 @@ const colors = [
   "var(--chakra-colors-gray-400)"
 ];
 
+const defaultValues = { amount: 100, description: "", price: "50.00" };
+
 const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
   const isEditing = typeof releaseIdParam !== "undefined";
   const bgColour = useColorModeValue("white", "gray.800");
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { _id: releaseId } = release;
-
-  const defaultValues = {
-    amount: 100,
-    description: "",
-    price: "20.00"
-  };
-
   const [editions, setEditions] = useState([]);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [values, setValues] = useState(defaultValues);
   const [errors, setErrors] = useState({ amount: "", description: "", price: "" });
+  const hasError = Object.values(errors).some(Boolean);
 
   useEffect(() => {
     const { artistName, releaseTitle } = release;
-    setValues({ amount: 100, description: `${artistName} - ${releaseTitle}`, price: "20.00" });
+    setValues(prev => ({ ...prev, description: `${artistName} - ${releaseTitle}` }));
   }, [release]);
 
   const fetchEditions = useCallback(async () => {
-    if (isEditing) {
-      const editions = await getGridFireEditionsByReleaseId(releaseId);
+    if (isEditing && releaseId) {
+      const [editions, uris] = await Promise.all([
+        getGridFireEditionsByReleaseId(releaseId),
+        getGridFireEditionUris(releaseId)
+      ]);
+
+      editions.forEach((edition: GridFireEdition, index: number) => (edition.uri = uris[index]));
       setEditions(editions);
     }
   }, [isEditing, releaseId]);
@@ -99,9 +102,10 @@ const MintEdition = () => {
       <Heading size="lg" textAlign="left">
         Minted Editions
       </Heading>
-      {editions.map(({ editionId, amount, balance, price }, index) => {
+      {editions.map(({ editionId, amount, balance, price, uri = "" }: GridFireEdition, index) => {
         const color1 = colors[index % colors.length];
         const color2 = colors[(index + 1) % colors.length];
+        const shortUri = `${uri.slice(0, 13)}…${uri.slice(-6)}`;
 
         return (
           <ScaleFade initialScale={0.9} in={true} key={BigNumber.from(editionId).toString()}>
@@ -136,6 +140,9 @@ const MintEdition = () => {
                 </Box>
                 {utils.formatEther(price)}
               </Box>
+              <Link href={uri} isExternal mr={4} zIndex={1}>
+                Meta: {shortUri}
+              </Link>
             </Flex>
           </ScaleFade>
         );
@@ -190,7 +197,7 @@ const MintEdition = () => {
               colorScheme={useColorModeValue("yellow", "purple")}
               leftIcon={<Icon icon={faEthereum} />}
               loadingText="Minting…"
-              isDisabled={isPurchasing}
+              isDisabled={hasError || isPurchasing}
               isLoading={isPurchasing}
               onClick={handleMint}
               ml="auto"
