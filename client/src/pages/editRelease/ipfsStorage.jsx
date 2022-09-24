@@ -22,6 +22,7 @@ const CID = ({ cid }) => {
         fontSize="lg"
         mr={2}
         px={1}
+        transition="color var(--chakra-transition-duration-normal)"
         wordBreak="break-all"
         _hover={{ color: "gray.300" }}
       >

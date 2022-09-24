@@ -3,6 +3,7 @@ import {
   Button,
   Divider,
   Flex,
+  Heading,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -10,18 +11,19 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  useColorModeValue,
-  Heading
+  ScaleFade,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { getGridFireEditionsByReleaseId, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useState } from "react";
+import { BigNumber, utils } from "ethers";
 import Field from "components/field";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
 import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
-import { BigNumber, utils } from "ethers";
+import { useParams } from "react-router-dom";
 
 interface HandleChangeInterface {
   currentTarget: HTMLInputElement;
@@ -35,6 +37,8 @@ const colors = [
 ];
 
 const MintEdition = () => {
+  const { releaseId: releaseIdParam } = useParams();
+  const isEditing = typeof releaseIdParam !== "undefined";
   const bgColour = useColorModeValue("white", "gray.800");
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { _id: releaseId } = release;
@@ -57,11 +61,11 @@ const MintEdition = () => {
   }, [release]);
 
   const fetchEditions = useCallback(async () => {
-    if (releaseId) {
+    if (isEditing) {
       const editions = await getGridFireEditionsByReleaseId(releaseId);
       setEditions(editions);
     }
-  }, [releaseId]);
+  }, [isEditing, releaseId]);
 
   useEffect(() => {
     fetchEditions();
@@ -100,42 +104,43 @@ const MintEdition = () => {
         const color2 = colors[(index + 1) % colors.length];
 
         return (
-          <Flex
-            color="var(--chakra-colors-blackAlpha-700)"
-            fontSize="lg"
-            fontWeight="semibold"
-            key={BigNumber.from(editionId).toString()}
-            mb={6}
-            p={4}
-            position="relative"
-          >
-            <Box
-              background={`linear-gradient(to right, ${color1}, ${color2})`}
-              position="absolute"
-              top={0}
-              right={0}
-              bottom={0}
-              left={0}
-              rounded="lg"
-              transform="skewX(-10deg)"
-            />
-            <Box mr={4} zIndex={1}>
-              {index + 1}.
-            </Box>
-            <Box mr={4} zIndex={1}>
-              Qty.: {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
-            </Box>
-            <Box mr={4} zIndex={1}>
-              Price:{" "}
-              <Box as="span" mr="0.2rem">
-                ◈
+          <ScaleFade initialScale={0.9} in={true} key={BigNumber.from(editionId).toString()}>
+            <Flex
+              color="var(--chakra-colors-blackAlpha-700)"
+              fontSize="lg"
+              fontWeight="semibold"
+              mb={6}
+              p={4}
+              position="relative"
+            >
+              <Box
+                background={`linear-gradient(to right, ${color1}, ${color2})`}
+                position="absolute"
+                top={0}
+                right={0}
+                bottom={0}
+                left={0}
+                rounded="lg"
+                transform="skewX(-10deg)"
+              />
+              <Box mr={4} zIndex={1}>
+                {index + 1}.
               </Box>
-              {utils.formatEther(price)}
-            </Box>
-          </Flex>
+              <Box mr={4} zIndex={1}>
+                Qty.: {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
+              </Box>
+              <Box mr={4} zIndex={1}>
+                Price:{" "}
+                <Box as="span" mr="0.2rem">
+                  ◈
+                </Box>
+                {utils.formatEther(price)}
+              </Box>
+            </Flex>
+          </ScaleFade>
         );
       })}
-      <Button leftIcon={<Icon icon={faEthereum} />} onClick={handleOpenModal}>
+      <Button isDisabled={!isEditing} leftIcon={<Icon icon={faEthereum} />} onClick={handleOpenModal}>
         Mint GridFire Edition
       </Button>
       <Modal isOpen={showModal} onClose={handleCloseModal} size="md" isCentered>
