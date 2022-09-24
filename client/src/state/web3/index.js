@@ -40,7 +40,7 @@ const web3Slice = createSlice({
     },
 
     setAccount(state, action) {
-      const account = action.payload;
+      const account = utils.getAddress(action.payload);
       state.account = account;
       state.accountShort = `${account.slice(0, 6)}…${account.slice(-4)}`;
     },

@@ -25,17 +25,24 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
     }
 
     struct GridFireEdition {
-        address artist;
         uint256 price;
-        string uri;
+        address artist;
         string releaseId;
+        string uri;
     }
 
     IERC20 constant dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
 
     event Checkout(address indexed buyer, uint256 amount);
     event Claim(address indexed artist, uint256 amount);
-    event EditionMinted(address indexed artist, uint256 indexed id, uint256 amount, uint256 price, string indexed releaseId);
+
+    event EditionMinted(
+        string indexed releaseId,
+        address indexed artist,
+        uint256 editionId,
+        uint256 amount,
+        uint256 price
+    );
 
     event Purchase(
         address indexed buyer,
@@ -50,12 +57,11 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
     event PurchaseEdition(
         address indexed buyer,
         address indexed artist,
-        string releaseId,
-        string userId,
+        uint256 indexed editionId,
         uint256 amountPaid,
         uint256 artistShare,
         uint256 platformFee,
-        uint256 editionId
+        string releaseId
     );
 
     event Received(address from, uint256 amount);
@@ -70,26 +76,10 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         address artist,
         string calldata releaseId,
         string calldata userId,
-        uint256 amountPaid,
-        uint256 releasePrice
-    ) public {
-        require(amountPaid != 0);
-        require(amountPaid >= releasePrice);
-        transferPayment(artist, releaseId, userId, amountPaid);
-    }
-
-    function purchaseGridFireEdition(
-        address artist,
-        uint256 editionId,
-        string calldata userId,
         uint256 amountPaid
     ) public {
-        require(balanceOf(address(this), editionId) != 0, "This GridFire Edition is sold out.");
         require(amountPaid != 0);
-        require(amountPaid >= editions[editionId].price);
-        string memory releaseId = editions[editionId].releaseId;
-        transferEditionPayment(artist, releaseId, userId, amountPaid, editionId);
-        _safeTransferFrom(address(this), msg.sender, editionId, 1, "");
+        transferPayment(artist, releaseId, userId, amountPaid);
     }
 
     function checkout(BasketItem[] calldata basket, string calldata userId) public {
@@ -131,13 +121,27 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         string calldata releaseId
     ) public {
         editionIdTracker.increment();
-        uint256 tokenId = editionIdTracker.current();
-        _mint(address(this), tokenId, amount, "");
-        // setEditionArtist(tokenId, msg.sender);
-        // setEditionPrice(tokenId, price);
-        // setEditionRelease(tokenId, releaseId);
-        setEditionUri(tokenId, metadataUri);
-            emit EditionMinted(address  msg.sender, uint256  tokenId, uint256 amount, uint256 price, string indexed releaseId);
+        uint256 editionId = editionIdTracker.current();
+        _mint(address(this), editionId, amount, "");
+        setEditionArtist(editionId, msg.sender);
+        setEditionPrice(editionId, price);
+        setEditionRelease(editionId, releaseId);
+        setEditionUri(editionId, metadataUri);
+        emit EditionMinted(releaseId, msg.sender, editionId, amount, price);
+    }
+
+    function purchaseGridFireEdition(
+        uint256 editionId,
+        uint256 amountPaid,
+        address paymentAddress
+    ) public {
+        require(balanceOf(address(this), editionId) != 0, "This GridFire Edition is sold out.");
+        require(amountPaid >= editions[editionId].price);
+        address artist = editions[editionId].artist;
+        require(address(paymentAddress) == address(artist));
+        string memory releaseId = editions[editionId].releaseId;
+        transferEditionPayment(editionId, amountPaid, artist, releaseId);
+        _safeTransferFrom(address(this), msg.sender, editionId, 1, "");
     }
 
     function _beforeTokenTransfer(
@@ -170,7 +174,6 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
     }
 
     function setEditionRelease(uint256 editionId, string memory releaseId) private {
-        editionsByReleaseId[releaseId].push(editionId);
         editions[editionId].releaseId = releaseId;
     }
 
@@ -183,39 +186,12 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         serviceFee = newServiceFee;
     }
 
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-
     function getBalance(address artist) public view returns (uint256) {
         return balances[artist];
     }
 
     function getEdition(uint256 id) public view returns (GridFireEdition memory) {
         return editions[id];
-    }
-
-    function getEditionsByReleaseId(string calldata releaseId)
-        public
-        view
-        returns (
-            uint256[] memory,
-            GridFireEdition[] memory,
-            uint256[] memory
-        )
-    {
-        uint256[] memory editionIds = editionsByReleaseId[releaseId];
-        address[] memory accounts = new address[](editionIds.length);
-        for (uint256 i = 0; i < accounts.length; i++) accounts[i] = address(this);
-        uint256[] memory editionBalances = balanceOfBatch(accounts, editionIds);
-        GridFireEdition[] memory releaseEditions = new GridFireEdition[](editionIds.length);
-
-        for (uint256 i = 0; i < editionIds.length; i++) {
-            uint256 id = editionIds[i];
-            releaseEditions[i] = editions[id];
-        }
-
-        return (editionIds, releaseEditions, editionBalances);
     }
 
     function getServiceFee() public view returns (uint256) {
@@ -255,14 +231,17 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
     }
 
     function transferEditionPayment(
-        address artist,
-        string memory releaseId,
-        string calldata userId,
+        uint256 editionId,
         uint256 amountPaid,
-        uint256 editionId
+        address artist,
+        string memory releaseId
     ) private {
         dai.safeTransferFrom(msg.sender, address(this), amountPaid);
         (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
-        emit PurchaseEdition(msg.sender, artist, releaseId, userId, amountPaid, artistShare, platformShare, editionId);
+        emit PurchaseEdition(msg.sender, artist, editionId, amountPaid, artistShare, platformShare, releaseId);
+    }
+
+    function withdraw() public onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
     }
 }

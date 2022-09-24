@@ -64,16 +64,10 @@ const abi = [
         type: "address"
       },
       {
-        indexed: false,
-        internalType: "string",
-        name: "releaseId",
-        type: "string"
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "userId",
-        type: "string"
+        indexed: true,
+        internalType: "uint256",
+        name: "editionId",
+        type: "uint256"
       },
       {
         indexed: false,
@@ -95,9 +89,9 @@ const abi = [
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "editionId",
-        type: "uint256"
+        internalType: "string",
+        name: "releaseId",
+        type: "string"
       }
     ],
     name: "PurchaseEdition",

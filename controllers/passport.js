@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import crypto from "crypto";
-import { ethers } from "ethers";
+import { utils } from "ethers";
 import passport from "passport";
 import passportCustom from "passport-custom";
 
@@ -28,7 +28,7 @@ const loginWeb3 = async (req, done) => {
   try {
     const { address, messageHash } = JSON.parse(req.signedCookies.web3Login);
     const { message, signature } = req.body;
-    const { keccak256, toUtf8Bytes, verifyMessage } = ethers.utils;
+    const { getAddress, keccak256, toUtf8Bytes, verifyMessage } = utils;
 
     if (keccak256(toUtf8Bytes(message)) !== messageHash) {
       return done(null, false, "Could not verify signature.");
@@ -36,7 +36,7 @@ const loginWeb3 = async (req, done) => {
 
     const outputAddress = verifyMessage(message, signature);
 
-    if (address.toLowerCase() !== outputAddress.toLowerCase()) {
+    if (getAddress(address) !== getAddress(outputAddress)) {
       return done(null, false, "Could not verify signature.");
     }
 
@@ -48,10 +48,10 @@ const loginWeb3 = async (req, done) => {
     }
 
     const newUser = await User.create({
-      account: address,
+      account: getAddress(address),
       key: await createKey(address),
       lastLogin: Date.now(),
-      paymentAddress: address
+      paymentAddress: getAddress(address)
     });
 
     done(null, newUser);

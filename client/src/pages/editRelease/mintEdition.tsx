@@ -95,7 +95,7 @@ const MintEdition = () => {
       <Heading size="lg" textAlign="left">
         Minted Editions
       </Heading>
-      {editions.map(({ id, amount, balance, price }, index) => {
+      {editions.map(({ editionId, amount, balance, price }, index) => {
         const color1 = colors[index % colors.length];
         const color2 = colors[(index + 1) % colors.length];
 
@@ -104,7 +104,7 @@ const MintEdition = () => {
             color="var(--chakra-colors-blackAlpha-700)"
             fontSize="lg"
             fontWeight="semibold"
-            key={BigNumber.from(id).toString()}
+            key={BigNumber.from(editionId).toString()}
             mb={6}
             p={4}
             position="relative"

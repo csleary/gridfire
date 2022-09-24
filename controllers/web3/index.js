@@ -30,27 +30,21 @@ const getGridFireEdition = async editionId => {
 const getGridFireEditionsByReleaseId = async releaseId => {
   const provider = getProvider();
   const gridFireContract = getGridFireContract(provider);
-  const [ids, editions, balances] = await gridFireContract.getEditionsByReleaseId(releaseId);
   const release = await Release.findById(releaseId, "", { lean: true }).populate("user").exec();
-  const { account: artistAccount } = release.user;
-  const mintFilter = gridFireContract.filters.TransferSingle(artistAccount, null, CONTRACT_ADDRESS);
+  const artistAccount = utils.getAddress(release.user.account);
+  const mintFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
   const mintEvents = await gridFireContract.queryFilter(mintFilter);
 
-  const amounts = await Promise.all(
-    ids.map(async id => {
-      const mintEvent = mintEvents.find(mint => mint.args.id._hex === id._hex);
-      return mintEvent.args.value;
-    })
-  );
+  const editions = mintEvents.map(({ args }) => {
+    const { amount, editionId, artist, price } = args;
+    return { amount, editionId, artist, price, releaseId };
+  });
 
-  return editions
-    .map((edition, index) => ({
-      ...edition,
-      id: ids[index],
-      amount: amounts[index],
-      balance: balances[index]
-    }))
-    .filter(({ artist }) => artist.toLowerCase() === artistAccount.toLowerCase()); // Don't trust minted editions.
+  const accounts = Array(editions.length).fill(CONTRACT_ADDRESS);
+  const ids = editions.map(({ editionId }) => editionId);
+  const balances = await gridFireContract.balanceOfBatch(accounts, ids);
+  editions.forEach((edition, index) => (edition.balance = balances[index]));
+  return editions;
 };
 
 const getTransaction = async txId => {
@@ -65,11 +59,9 @@ const getUserGridFireEditions = async userId => {
   const { account } = await User.findById(userId).exec();
   const provider = getProvider();
   const gridFireContract = getGridFireContract(provider);
-  const editionsPurchaseFilter = gridFireContract.filters.PurchaseEdition(account);
+  const editionsPurchaseFilter = gridFireContract.filters.PurchaseEdition(utils.getAddress(account));
   const purchases = await gridFireContract.queryFilter(editionsPurchaseFilter);
-  const ids = purchases.map(purchase => purchase.args.editionId);
-  const releaseIds = purchases.map(purchase => purchase.args.releaseId);
-  4;
+  const releaseIds = purchases.map(({ args }) => args.releaseId);
 
   const releases = await Release.find(
     { _id: { $in: releaseIds } },
@@ -77,6 +69,7 @@ const getUserGridFireEditions = async userId => {
     { lean: true }
   ).exec();
 
+  const ids = purchases.map(purchase => purchase.args.editionId);
   const accounts = Array(ids.length).fill(account);
   const balances = await gridFireContract.balanceOfBatch(accounts, ids);
 
@@ -85,7 +78,7 @@ const getUserGridFireEditions = async userId => {
     balance,
     id: ids[index],
     paid: purchases[index].args.amountPaid,
-    release: releases[index],
+    release: releases.find(({ _id }) => _id.toString() === releaseIds[index]), // As there could be duplicate releaseIds, the db results length may not match releaseIds array.
     transaction: { transactionHash: purchases[index].transactionHash }
   }));
 

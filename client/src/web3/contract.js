@@ -102,11 +102,11 @@ const mintEdition = async ({ description, price, releaseId, amount }) => {
   if (status !== 1) throw new Error("Edition mint unsuccessful.");
 };
 
-const purchaseEdition = async ({ id, paymentAddress, price, userId }) => {
+const purchaseEdition = async ({ artist, editionId, price }) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);
-  const transactionReceipt = await gridFirePayment.purchaseGridFireEdition(paymentAddress, id, userId, price);
+  const transactionReceipt = await gridFirePayment.purchaseGridFireEdition(editionId, price, artist);
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;
@@ -117,15 +117,7 @@ const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => 
   const signer = provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);
   const weiReleasePrice = utils.parseEther(`${price}`);
-
-  const transactionReceipt = await gridFirePayment.purchase(
-    paymentAddress,
-    releaseId,
-    userId,
-    weiReleasePrice,
-    weiReleasePrice
-  );
-
+  const transactionReceipt = await gridFirePayment.purchase(paymentAddress, releaseId, userId, weiReleasePrice);
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;

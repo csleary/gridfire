@@ -58,15 +58,15 @@ const onPurchase = async (
     const { artistName, user: artistUser } = release;
 
     if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
-      return;
+      throw new Error("Payment address and release artist address do not match.");
     }
 
     if (amountPaid.lt(utils.parseEther(price.toString()))) {
-      return;
+      throw new Error("The amount paid is lower than the release price.");
     }
 
     if (await Sale.exists({ release: releaseId, user: userId })) {
-      return;
+      throw new Error("The buyer already owns this release.");
     }
 
     const transactionReceipt = await event.getTransactionReceipt();
@@ -111,19 +111,26 @@ const onPurchase = async (
 const onPurchaseEdition = async (
   buyerAddress,
   artistAddress,
-  releaseId,
-  userId,
+  editionId,
   amountPaid,
   artistShare,
   platformFee,
-  editionId,
+  releaseId,
   event
 ) => {
   try {
+    const buyerAddressNormalised = utils.getAddress(buyerAddress);
+    const buyerUser = await User.findOne({ account: buyerAddressNormalised }, "_id", { lean: true }).exec();
+    if (!buyerUser) throw new Error("Buyer user not found.", "Address:", buyerAddressNormalised);
+    const userId = buyerUser._id.toString();
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
     const daiPaid = utils.formatEther(amountPaid);
     const id = editionId.toString();
-    console.log(`[${date}] 🙌 User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), release ${releaseId}!`);
+
+    console.log(
+      `[${date}] 🙌 User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), \
+release ${releaseId}! Artist address: ${artistAddress}`
+    );
 
     const release = await Release.findById(releaseId, "artistName releaseTitle", { lean: true })
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })

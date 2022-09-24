@@ -134,7 +134,12 @@ const Header = () => {
                   bg={tooltipBgColor}
                   color={tooltipColor}
                 >
-                  <Badge colorScheme={account !== userAccount ? "yellow" : primaryButtonColor} fontSize="md">
+                  <Badge
+                    colorScheme={
+                      utils.getAddress(account) !== utils.getAddress(userAccount) ? "yellow" : primaryButtonColor
+                    }
+                    fontSize="md"
+                  >
                     ◈ {daiDisplayBalance}
                   </Badge>
                 </Tooltip>
@@ -149,7 +154,7 @@ const Header = () => {
                 >
                   <Button
                     as={Link}
-                    colorScheme={account !== userAccount ? "yellow" : undefined}
+                    colorScheme={utils.getAddress(account) !== utils.getAddress(userAccount) ? "yellow" : undefined}
                     href={`https://arbiscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon icon={faEthereum} />}

@@ -72,6 +72,43 @@ const gridFireAbi = [
     inputs: [
       {
         indexed: true,
+        internalType: "string",
+        name: "releaseId",
+        type: "string"
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "artist",
+        type: "address"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "editionId",
+        type: "uint256"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "price",
+        type: "uint256"
+      }
+    ],
+    name: "EditionMinted",
+    type: "event"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "previousOwner",
         type: "address"
@@ -151,16 +188,10 @@ const gridFireAbi = [
         type: "address"
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "uint256",
         name: "editionId",
         type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "userId",
-        type: "string"
       },
       {
         indexed: false,
@@ -179,6 +210,12 @@ const gridFireAbi = [
         internalType: "uint256",
         name: "platformFee",
         type: "uint256"
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "releaseId",
+        type: "string"
       }
     ],
     name: "PurchaseEdition",
@@ -432,49 +469,39 @@ const gridFireAbi = [
   {
     inputs: [
       {
-        internalType: "string",
-        name: "releaseId",
-        type: "string"
+        internalType: "uint256",
+        name: "id",
+        type: "uint256"
       }
     ],
-    name: "getEditionsByReleaseId",
+    name: "getEdition",
     outputs: [
       {
-        internalType: "uint256[]",
-        name: "",
-        type: "uint256[]"
-      },
-      {
         components: [
-          {
-            internalType: "address",
-            name: "artist",
-            type: "address"
-          },
           {
             internalType: "uint256",
             name: "price",
             type: "uint256"
           },
           {
-            internalType: "string",
-            name: "uri",
-            type: "string"
+            internalType: "address",
+            name: "artist",
+            type: "address"
           },
           {
             internalType: "string",
             name: "releaseId",
             type: "string"
+          },
+          {
+            internalType: "string",
+            name: "uri",
+            type: "string"
           }
         ],
-        internalType: "struct GridFirePayment.GridFireEdition[]",
+        internalType: "struct GridFirePayment.GridFireEdition",
         name: "",
-        type: "tuple[]"
-      },
-      {
-        internalType: "uint256[]",
-        name: "",
-        type: "uint256[]"
+        type: "tuple"
       }
     ],
     stateMutability: "view",
@@ -657,11 +684,6 @@ const gridFireAbi = [
         internalType: "uint256",
         name: "amountPaid",
         type: "uint256"
-      },
-      {
-        internalType: "uint256",
-        name: "releasePrice",
-        type: "uint256"
       }
     ],
     name: "purchase",
@@ -672,24 +694,19 @@ const gridFireAbi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "artist",
-        type: "address"
-      },
-      {
         internalType: "uint256",
         name: "editionId",
         type: "uint256"
       },
       {
-        internalType: "string",
-        name: "userId",
-        type: "string"
-      },
-      {
         internalType: "uint256",
         name: "amountPaid",
         type: "uint256"
+      },
+      {
+        internalType: "address",
+        name: "paymentAddress",
+        type: "address"
       }
     ],
     name: "purchaseGridFireEdition",

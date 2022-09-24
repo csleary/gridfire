@@ -19,11 +19,13 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
   if (isEdition) {
     const tx = await getTransaction(purchaseId);
     const { editionId } = tx.args;
+    const paymentAddress = utils.getAddress(tx.args.paymentAddress);
+    const artistUser = await User.findOne({ paymentAddress }).exec();
     const edition = await getGridFireEdition(editionId);
     const { releaseId } = edition;
 
     release = await Release.findOne(
-      { _id: releaseId, published: true },
+      { _id: releaseId, published: true, user: artistUser._id },
       "artistName artwork releaseTitle trackList user",
       { lean: true }
     ).exec();
