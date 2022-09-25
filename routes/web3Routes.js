@@ -86,15 +86,22 @@ router.get("/editions/user/:userId", requireLogin, async (req, res) => {
 
 router.post("/mint", requireLogin, async (req, res) => {
   try {
-    const { ipfs } = req.app.locals;
-    const { description, price, releaseId, amount } = req.body;
+    const { app, body, hostname, protocol } = req;
+    const { ipfs } = app.locals;
+    const { description, price, releaseId, amount } = body;
     const release = await Release.findById(releaseId, "", { lean: true });
     const { catNumber, credits, info, releaseDate, releaseTitle: title, artistName: artist, artwork } = release;
     const priceInDai = Number(price).toFixed(2);
 
     const tokenMetadata = {
+      attributes: {
+        display_type: "date",
+        trait_type: "Release date",
+        value: Date.parse(releaseDate)
+      },
       name: title,
       description: description || `${artist} - ${title} (GridFire edition)`,
+      external_url: `${protocol}://${hostname}/release/${releaseId}`,
       image: `ipfs://${artwork.cid}`,
       properties: {
         artist,

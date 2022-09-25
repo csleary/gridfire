@@ -1,4 +1,4 @@
-import { Contract, ethers, utils } from "ethers";
+import { BigNumber, Contract, ethers, utils } from "ethers";
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import Release from "gridfire/models/Release.js";
 import User from "gridfire/models/User.js";
@@ -68,31 +68,70 @@ const getTransaction = async txId => {
 };
 
 const getUserGridFireEditions = async userId => {
-  const { account } = await User.findById(userId).exec();
+  const user = await User.findById(userId).exec();
+  const userAccount = utils.getAddress(user.account);
   const provider = getProvider();
   const gridFireContract = getGridFireContract(provider);
-  const editionsPurchaseFilter = gridFireContract.filters.PurchaseEdition(utils.getAddress(account));
-  const purchases = await gridFireContract.queryFilter(editionsPurchaseFilter);
-  const releaseIds = purchases.map(({ args }) => args.releaseId);
 
-  const releases = await Release.find(
-    { _id: { $in: releaseIds } },
-    "artistName artwork releaseTitle trackList._id trackList.trackTitle",
-    { lean: true }
-  ).exec();
+  // Get all editions sent to user (untrusted):
+  const editionsTransferFilter = gridFireContract.filters.TransferSingle(null, null, userAccount);
+  const transfers = await gridFireContract.queryFilter(editionsTransferFilter);
+  const ids = transfers.map(({ args }) => args.id);
+  const onChainEditions = await Promise.all(ids.map(id => gridFireContract.getEdition(id)));
+  const onChainReleaseIds = onChainEditions.map(({ releaseId }) => releaseId);
+  const projection = "artistName artwork releaseTitle trackList._id trackList.trackTitle";
 
-  const ids = purchases.map(({ args }) => args.editionId);
-  const accounts = Array(ids.length).fill(account);
+  const releases = await Release.find({ _id: { $in: onChainReleaseIds } }, projection, { lean: true })
+    .populate({ path: "user", model: User, options: { lean: true }, select: "account" })
+    .exec();
+
+  // Important: get editions minted by the release owner account, for cross-checking.
+  const verifiedMintedEditions = await Promise.all(
+    releases.map(({ _id, user }) => {
+      const releaseId = _id.toString();
+      const artistAccount = utils.getAddress(user.account);
+      const artistMintedFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
+      return gridFireContract.queryFilter(artistMintedFilter);
+    })
+  );
+
+  // All editions purchased by user (to get amount paid).
+  const purchasedEditions = await Promise.all(
+    releases.map(({ user }) => {
+      const artistAccount = utils.getAddress(user.account);
+      const editionsPurchaseFilter = gridFireContract.filters.PurchaseEdition(userAccount, artistAccount);
+      return gridFireContract.queryFilter(editionsPurchaseFilter);
+    })
+  );
+
+  const accounts = Array(ids.length).fill(userAccount);
   const balances = await gridFireContract.balanceOfBatch(accounts, ids);
 
-  const editions = balances.map((balance, index) => ({
-    _id: purchases[index].transactionHash,
-    balance,
-    id: ids[index],
-    paid: purchases[index].args.amountPaid,
-    release: releases.find(({ _id }) => _id.toString() === releaseIds[index]), // As there could be duplicate releaseIds, the db results length may not match releaseIds array.
-    transaction: { transactionHash: purchases[index].transactionHash }
-  }));
+  const editions = ids.reduce((total, id, index) => {
+    const editionMatch = verifiedMintedEditions
+      .flat()
+      .find(edition => BigNumber.from(edition.args.editionId).eq(BigNumber.from(id)));
+
+    if (!editionMatch) return total;
+
+    const purchasedMatch = purchasedEditions
+      .flat()
+      .find(edition => BigNumber.from(edition.args.editionId).eq(BigNumber.from(id)));
+
+    const transactionHash = purchasedMatch?.transactionHash || editionMatch.transactionHash;
+
+    return [
+      ...total,
+      {
+        _id: transactionHash,
+        balance: balances[index],
+        id,
+        paid: purchasedMatch ? purchasedMatch.args.amountPaid : undefined,
+        release: releases.find(({ _id }) => _id.toString() === onChainReleaseIds[index]), // As there could be duplicate releaseIds, the db results length may not match releaseIds array.
+        transaction: { transactionHash }
+      }
+    ];
+  }, []);
 
   return editions;
 };

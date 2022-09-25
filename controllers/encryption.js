@@ -85,7 +85,7 @@ const decryptStream = async (encryptedStream, key) => {
     const decryptedStream = encryptedFileStream.pipe(decrypt);
 
     // Delete temp file.
-    decryptedStream.on("close", () => fs.promises.unlink(encryptedFilePath));
+    decrypt.on("finish", () => fs.promises.unlink(encryptedFilePath));
     return decryptedStream;
   } catch (error) {
     if (encryptedFilePath) fs.promises.unlink(encryptedFilePath).catch(console.log);

@@ -15,7 +15,7 @@ const Collection = () => {
   const { userId } = useSelector(state => state.user, shallowEqual);
   const { albums = [], singles = [] } = collection;
   const [isLoading, setLoading] = useState(false);
-  const available = [...albums, ...singles].filter(({ release }) => Boolean(release));
+  const available = [...albums, ...singles, ...userEditions].filter(({ release }) => Boolean(release));
   const receiptTextColour = useColorModeValue("gray.600", "gray.300");
   const receiptColour = useColorModeValue("blue.200", "blue.100");
 
@@ -51,11 +51,16 @@ const Collection = () => {
                     <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
                       {transaction.transactionHash.slice(0, 4) + "…" + transaction.transactionHash.slice(-4)}
                     </Link>
-                    ,{" "}
-                    <Box as="span" mr="0.2rem">
-                      ◈
-                    </Box>
-                    {Number(utils.formatEther(paid)).toFixed(2)}.
+                    {paid ? (
+                      <>
+                        ,{" "}
+                        <Box as="span" mr="0.2rem">
+                          ◈
+                        </Box>
+                        {Number(utils.formatEther(paid)).toFixed(2)}
+                      </>
+                    ) : null}
+                    .
                   </Text>
                 </Box>
               </VStack>

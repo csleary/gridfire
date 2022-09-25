@@ -2,6 +2,7 @@ import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
 import { createObjectId } from "utils";
 import { createSlice } from "@reduxjs/toolkit";
+import { getUserEditions } from "web3/contract";
 
 const defaultReleaseState = {
   _id: "",
@@ -183,8 +184,8 @@ const fetchRelease = releaseId => async dispatch => {
 
 const fetchUserEditions = userId => async dispatch => {
   try {
-    const res = await axios.get(`/api/web3/editions/user/${userId}`);
-    dispatch(setUserEditions(res.data));
+    const editions = await getUserEditions(userId);
+    dispatch(setUserEditions(editions));
   } catch (error) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
