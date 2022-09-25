@@ -104,19 +104,21 @@ const getUserGridFireEditions = async userId => {
     })
   );
 
+  const verifiedMintedEditionsFlat = verifiedMintedEditions.flat();
+  const purchasedEditionsFlat = purchasedEditions.flat();
   const accounts = Array(ids.length).fill(userAccount);
   const balances = await gridFireContract.balanceOfBatch(accounts, ids);
 
   const editions = ids.reduce((total, id, index) => {
-    const editionMatch = verifiedMintedEditions
-      .flat()
-      .find(edition => BigNumber.from(edition.args.editionId).eq(BigNumber.from(id)));
+    const editionMatch = verifiedMintedEditionsFlat.find(edition =>
+      BigNumber.from(edition.args.editionId).eq(BigNumber.from(id))
+    );
 
     if (!editionMatch) return total;
 
-    const purchasedMatch = purchasedEditions
-      .flat()
-      .find(edition => BigNumber.from(edition.args.editionId).eq(BigNumber.from(id)));
+    const purchasedMatch = purchasedEditionsFlat.find(edition =>
+      BigNumber.from(edition.args.editionId).eq(BigNumber.from(id))
+    );
 
     const transactionHash = purchasedMatch?.transactionHash || editionMatch.transactionHash;
 
