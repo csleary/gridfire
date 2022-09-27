@@ -40,7 +40,7 @@ const Balance = () => {
   // Fetch payments received.
   useEffect(() => {
     if (paymentAddress) {
-      getGridFireClaimEvents(paymentAddress).then(setClaims);
+      getGridFireClaimEvents().then(setClaims);
     }
   }, [balance, paymentAddress]);
 
@@ -126,18 +126,14 @@ const Balance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {claims.map(({ args, blockNumber, transactionHash }) => {
-              const amount = args[1];
-
-              return (
-                <Tr key={transactionHash}>
-                  <Td>
-                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
-                  </Td>
-                  <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
-                </Tr>
-              );
-            })}
+            {claims.map(({ amount, blockNumber, transactionHash }) => (
+              <Tr key={transactionHash}>
+                <Td>
+                  <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                </Td>
+                <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </TableContainer>

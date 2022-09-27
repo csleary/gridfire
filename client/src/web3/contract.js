@@ -51,8 +51,8 @@ const getGridFireContract = signerOrProvider => {
   return new Contract(REACT_APP_CONTRACT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
 };
 
-const getGridFireClaimEvents = async paymentAddress => {
-  const res = await axios.get(`/api/web3/claims/${paymentAddress}`);
+const getGridFireClaimEvents = async () => {
+  const res = await axios.get("/api/web3/claims");
   return res.data;
 };
 
@@ -62,17 +62,17 @@ const getGridFireEditionsByReleaseId = async releaseId => {
 };
 
 const getGridFireEditionUris = async releaseId => {
-  const res = await axios.get(`/api/web3/editions/uri/${releaseId}`);
+  const res = await axios.get(`/api/web3/editions/${releaseId}/uri`);
   return res.data;
 };
 
-const getGridFirePurchaseEvents = async paymentAddress => {
-  const res = await axios.get(`/api/web3/purchases/${paymentAddress}`);
+const getGridFirePurchaseEvents = async () => {
+  const res = await axios.get("/api/web3/purchases");
   return res.data;
 };
 
-const getUserEditions = async userId => {
-  const res = await axios.get(`/api/web3/editions/user/${userId}`);
+const getUserEditions = async () => {
+  const res = await axios.get("/api/web3/editions/user");
   return res.data;
 };
 
@@ -83,12 +83,12 @@ const gridFireCheckout = async (basket, userId) => {
 
   const contractBasket = basket.map(({ paymentAddress, price, releaseId }) => ({
     artist: paymentAddress,
-    releaseId,
+    releaseId: utils.formatBytes32String(releaseId),
     amountPaid: price,
     releasePrice: price
   }));
 
-  const transactionReceipt = await gridFireContract.checkout(contractBasket, userId);
+  const transactionReceipt = await gridFireContract.checkout(contractBasket, utils.formatBytes32String(userId));
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;
@@ -98,11 +98,21 @@ const mintEdition = async ({ description, price, releaseId, amount }) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
-  const res = await axios.post(`/api/web3/mint`, { description, price, releaseId, amount });
-  const metadataUri = res.data;
+  const res = await axios.post(`/api/web3/editions/mint`, { description, price, releaseId, amount });
+  const { metadataUri, objectId } = res.data;
   const bigNumAmount = BigNumber.from(`${amount}`);
   const weiPrice = utils.parseEther(`${price}`);
-  const mintReceipt = await gridFireContract.mintEdition(bigNumAmount, weiPrice, metadataUri, releaseId);
+  const releaseIdBytes = utils.formatBytes32String(releaseId);
+  const objectIdBytes = utils.formatBytes32String(objectId);
+
+  const mintReceipt = await gridFireContract.mintEdition(
+    bigNumAmount,
+    weiPrice,
+    metadataUri,
+    releaseIdBytes,
+    objectIdBytes
+  );
+
   const { status } = await mintReceipt.wait();
   if (status !== 1) throw new Error("Edition mint unsuccessful.");
 };
@@ -122,7 +132,16 @@ const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => 
   const signer = provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);
   const weiReleasePrice = utils.parseEther(`${price}`);
-  const transactionReceipt = await gridFirePayment.purchase(paymentAddress, releaseId, userId, weiReleasePrice);
+  const releaseIdBytes = utils.formatBytes32String(releaseId);
+  const userIdBytes = utils.formatBytes32String(userId);
+
+  const transactionReceipt = await gridFirePayment.purchase(
+    paymentAddress,
+    releaseIdBytes,
+    userIdBytes,
+    weiReleasePrice
+  );
+
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;

@@ -18,6 +18,7 @@ import {
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useState } from "react";
 import { BigNumber, utils } from "ethers";
+import { CLOUD_URL } from "index";
 import Field from "components/field";
 import { GridFireEdition } from "types";
 import Icon from "components/icon";
@@ -59,16 +60,16 @@ const MintEdition = () => {
   }, [release]);
 
   const fetchEditions = useCallback(async () => {
-    if (isEditing && releaseId) {
+    if (releaseIdParam) {
       const [editions, uris] = await Promise.all([
-        getGridFireEditionsByReleaseId(releaseId),
-        getGridFireEditionUris(releaseId)
+        getGridFireEditionsByReleaseId(releaseIdParam),
+        getGridFireEditionUris(releaseIdParam)
       ]);
 
       editions.forEach((edition: GridFireEdition, index: number) => (edition.uri = uris[index]));
       setEditions(editions);
     }
-  }, [isEditing, releaseId]);
+  }, [releaseIdParam]);
 
   useEffect(() => {
     fetchEditions();
@@ -140,7 +141,7 @@ const MintEdition = () => {
                 </Box>
                 {utils.formatEther(price)}
               </Box>
-              <Link href={uri} isExternal mr={4} zIndex={1}>
+              <Link href={`${CLOUD_URL}/${uri.slice(7)}`} isExternal mr={4} zIndex={1}>
                 Meta: {shortUri}
               </Link>
             </Flex>

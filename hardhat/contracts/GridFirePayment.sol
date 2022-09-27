@@ -1,44 +1,52 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.9;
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+pragma solidity ^0.8.16;
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155HolderUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
-    using Counters for Counters.Counter;
-    using SafeERC20 for IERC20;
+contract GridFirePayment is
+    Initializable,
+    ERC1155Upgradeable,
+    ERC1155HolderUpgradeable,
+    ERC1155SupplyUpgradeable,
+    OwnableUpgradeable
+{
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    uint256 private serviceFee = 50; // Global fee variable in thousandths (e.g. 50 = 5%).
+    uint256 private serviceFee;
     mapping(address => uint256) private balances;
     mapping(uint256 => GridFireEdition) private editions;
-    Counters.Counter private editionIdTracker;
+    CountersUpgradeable.Counter private editionIdTracker;
 
     struct BasketItem {
         address artist;
         uint256 amountPaid;
-        string releaseId;
+        bytes32 releaseId;
         uint256 releasePrice;
     }
 
     struct GridFireEdition {
         uint256 price;
         address artist;
-        string releaseId;
+        bytes32 releaseId;
         string uri;
     }
 
-    IERC20 constant dai = IERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
+    IERC20Upgradeable constant dai = IERC20Upgradeable(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
 
     event Checkout(address indexed buyer, uint256 amount);
     event Claim(address indexed artist, uint256 amount);
 
     event EditionMinted(
-        string indexed releaseId,
+        bytes32 indexed releaseId,
         address indexed artist,
+        bytes32 indexed objectId,
         uint256 editionId,
         uint256 amount,
         uint256 price
@@ -47,8 +55,8 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
     event Purchase(
         address indexed buyer,
         address indexed artist,
-        string releaseId,
-        string userId,
+        bytes32 releaseId,
+        bytes32 userId,
         uint256 amountPaid,
         uint256 artistShare,
         uint256 platformFee
@@ -61,12 +69,16 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         uint256 amountPaid,
         uint256 artistShare,
         uint256 platformFee,
-        string releaseId
+        bytes32 releaseId
     );
 
     event Received(address from, uint256 amount);
 
-    constructor() ERC1155("") {}
+    function initialize() public initializer {
+        __ERC1155_init("");
+        __Ownable_init();
+        serviceFee = 50;
+    }
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
@@ -74,15 +86,15 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
 
     function purchase(
         address artist,
-        string calldata releaseId,
-        string calldata userId,
+        bytes32 releaseId,
+        bytes32 userId,
         uint256 amountPaid
     ) public {
         require(amountPaid != 0);
         transferPayment(artist, releaseId, userId, amountPaid);
     }
 
-    function checkout(BasketItem[] calldata basket, string calldata userId) public {
+    function checkout(BasketItem[] calldata basket, bytes32 userId) public {
         uint256 total = 0;
 
         for (uint256 i = 0; i < basket.length; i++) {
@@ -98,7 +110,7 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         for (uint256 i = 0; i < basket.length; i++) {
             address artist = basket[i].artist;
             uint256 amountPaid = basket[i].amountPaid;
-            string calldata releaseId = basket[i].releaseId;
+            bytes32 releaseId = basket[i].releaseId;
             (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
             emit Purchase(msg.sender, artist, releaseId, userId, amountPaid, artistShare, platformShare);
         }
@@ -118,7 +130,8 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         uint256 amount,
         uint256 price,
         string calldata metadataUri,
-        string calldata releaseId
+        bytes32 releaseId,
+        bytes32 objectId
     ) public {
         editionIdTracker.increment();
         uint256 editionId = editionIdTracker.current();
@@ -127,7 +140,7 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         setEditionPrice(editionId, price);
         setEditionRelease(editionId, releaseId);
         setEditionUri(editionId, metadataUri);
-        emit EditionMinted(releaseId, msg.sender, editionId, amount, price);
+        emit EditionMinted(releaseId, msg.sender, objectId, editionId, amount, price);
     }
 
     function purchaseGridFireEdition(
@@ -136,10 +149,10 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         address paymentAddress
     ) public {
         require(balanceOf(address(this), editionId) != 0, "This GridFire Edition is sold out.");
-        require(amountPaid >= editions[editionId].price);
+        require(amountPaid >= editions[editionId].price, "Payment too low for this GridFire Edition.");
         address artist = editions[editionId].artist;
         require(address(paymentAddress) == address(artist));
-        string memory releaseId = editions[editionId].releaseId;
+        bytes32 releaseId = editions[editionId].releaseId;
         transferEditionPayment(editionId, amountPaid, artist, releaseId);
         _safeTransferFrom(address(this), msg.sender, editionId, 1, "");
     }
@@ -151,7 +164,7 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override(ERC1155, ERC1155Supply) {
+    ) internal virtual override(ERC1155Upgradeable, ERC1155SupplyUpgradeable) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
@@ -159,7 +172,7 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         public
         view
         virtual
-        override(ERC1155, ERC1155Receiver)
+        override(ERC1155Upgradeable, ERC1155ReceiverUpgradeable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -173,7 +186,7 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         editions[editionId].price = price;
     }
 
-    function setEditionRelease(uint256 editionId, string memory releaseId) private {
+    function setEditionRelease(uint256 editionId, bytes32 releaseId) private {
         editions[editionId].releaseId = releaseId;
     }
 
@@ -221,8 +234,8 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
 
     function transferPayment(
         address artist,
-        string calldata releaseId,
-        string calldata userId,
+        bytes32 releaseId,
+        bytes32 userId,
         uint256 amountPaid
     ) private {
         dai.safeTransferFrom(msg.sender, address(this), amountPaid);
@@ -234,7 +247,7 @@ contract GridFirePayment is Ownable, ERC1155, ERC1155Holder, ERC1155Supply {
         uint256 editionId,
         uint256 amountPaid,
         address artist,
-        string memory releaseId
+        bytes32 releaseId
     ) private {
         dai.safeTransferFrom(msg.sender, address(this), amountPaid);
         (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);

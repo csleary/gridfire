@@ -1,3 +1,4 @@
+const { ethers } = require("hardhat");
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
 const CONTRACT_ADDRESS = "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0";
 const OWNER_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";

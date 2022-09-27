@@ -172,18 +172,14 @@ const Allowance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {approvals.map(({ args, blockNumber, transactionHash }) => {
-              const approvalAmount = args[2];
-
-              return (
-                <Tr key={transactionHash}>
-                  <Td>
-                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
-                  </Td>
-                  <Td isNumeric>◈ {Number(utils.formatEther(approvalAmount)).toFixed(2)}</Td>
-                </Tr>
-              );
-            })}
+            {approvals.map(({ amount, blockNumber, transactionHash }) => (
+              <Tr key={transactionHash}>
+                <Td>
+                  <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                </Td>
+                <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </TableContainer>

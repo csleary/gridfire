@@ -1,6 +1,7 @@
 const { ethers, upgrades } = require("hardhat");
 const hre = require("hardhat");
 const { DEPLOYER_MAINNET_PRIVATE_KEY } = process.env;
+const address = "";
 
 /**
  * Remember to:
@@ -15,7 +16,7 @@ async function main() {
   console.log("Provider URL:", provider.connection.url);
   const signer = wallet.connect(provider);
   const Contract = await ethers.getContractFactory("GridFirePayment", signer);
-  const contract = await upgrades.deployProxy(Contract);
+  const contract = await upgrades.upgradeProxy(address, Contract);
   await contract.deployed();
   console.log("GridFirePayment deployed to:", contract.address, "by", signer.address);
 }

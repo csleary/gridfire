@@ -1,5 +1,6 @@
 import { BigNumber, constants, utils } from "ethers";
-import { Box, Button, ScaleFade } from "@chakra-ui/react";
+import { Box, Button, chakra, shouldForwardProp } from "@chakra-ui/react";
+import { motion, isValidMotionProp } from "framer-motion";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,6 +10,10 @@ import { fetchDaiBalance } from "state/web3";
 import { purchaseEdition } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
+
+const ScaleFadeCustom = chakra(motion.div, {
+  shouldForwardProp: prop => isValidMotionProp(prop) || shouldForwardProp(prop)
+});
 
 const colors = [
   "var(--chakra-colors-green-200)",
@@ -36,7 +41,6 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const formattedAmount = BigNumber.from(amount).toString();
   const formattedBalance = BigNumber.from(balance).toString();
   const formattedPrice = utils.formatEther(price);
-  const formattedTokenId = BigNumber.from(editionId).toString();
   const isSoldOut = BigNumber.from(balance).eq(constants.Zero);
   const isDisabled = !isConnected || isFetchingAllowance || isPurchasing || isSoldOut;
 
@@ -66,7 +70,11 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   };
 
   return (
-    <ScaleFade initialScale={0.9} in={true} key={formattedTokenId}>
+    <ScaleFadeCustom
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: "1", ease: "easeOut" }}
+    >
       <Button
         color="var(--chakra-colors-blackAlpha-700)"
         disabled={isDisabled}
@@ -109,7 +117,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
           {isPurchasing ? "Purchasing…" : isSoldOut ? "Sold Out" : `${formattedBalance}/${formattedAmount}`}
         </Box>
       </Button>
-    </ScaleFade>
+    </ScaleFadeCustom>
   );
 };
 

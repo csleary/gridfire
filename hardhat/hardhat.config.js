@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-waffle");
+require("@openzeppelin/hardhat-upgrades");
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -31,5 +32,5 @@ module.exports = {
   paths: {
     artifacts: "./artifacts"
   },
-  solidity: "0.8.9"
+  solidity: "0.8.16"
 };

@@ -1,3 +1,5 @@
+const { ethers } = require("hardhat");
+const hre = require("hardhat");
 const { DEPLOYER_TESTNET_PRIVATE_KEY } = process.env;
 
 /**

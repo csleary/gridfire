@@ -28,11 +28,13 @@ const getGridFireEdition = async editionId => {
 };
 
 const getGridFireEditionsByReleaseId = async releaseId => {
+  console.log(releaseId);
   const provider = getProvider();
   const gridFireContract = getGridFireContract(provider);
   const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
   const artistAccount = utils.getAddress(release.user.account);
-  const mintFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
+  const releaseIdBytes = utils.formatBytes32String(releaseId);
+  const mintFilter = gridFireContract.filters.EditionMinted(releaseIdBytes, artistAccount);
   const mintEvents = await gridFireContract.queryFilter(mintFilter);
 
   const editions = mintEvents.map(({ args }) => {
@@ -52,7 +54,8 @@ const getGridFireEditionUris = async releaseId => {
   const gridFireContract = getGridFireContract(provider);
   const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
   const artistAccount = utils.getAddress(release.user.account);
-  const mintFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
+  const releaseIdBytes = utils.formatBytes32String(releaseId);
+  const mintFilter = gridFireContract.filters.EditionMinted(releaseIdBytes, artistAccount);
   const mintEvents = await gridFireContract.queryFilter(mintFilter);
   const ids = mintEvents.map(({ args }) => args.editionId);
   const uris = Promise.all(ids.map(id => gridFireContract.uri(id)));
@@ -78,7 +81,7 @@ const getUserGridFireEditions = async userId => {
   const transfers = await gridFireContract.queryFilter(editionsTransferFilter);
   const ids = transfers.map(({ args }) => args.id);
   const onChainEditions = await Promise.all(ids.map(id => gridFireContract.getEdition(id)));
-  const onChainReleaseIds = onChainEditions.map(({ releaseId }) => releaseId);
+  const onChainReleaseIds = onChainEditions.map(({ releaseId }) => utils.parseBytes32String(releaseId));
   const projection = "artistName artwork releaseTitle trackList._id trackList.trackTitle";
 
   const releases = await Release.find({ _id: { $in: onChainReleaseIds } }, projection, { lean: true })
@@ -90,7 +93,8 @@ const getUserGridFireEditions = async userId => {
     releases.map(({ _id, user }) => {
       const releaseId = _id.toString();
       const artistAccount = utils.getAddress(user.account);
-      const artistMintedFilter = gridFireContract.filters.EditionMinted(releaseId, artistAccount);
+      const releaseIdBytes = utils.formatBytes32String(releaseId);
+      const artistMintedFilter = gridFireContract.filters.EditionMinted(releaseIdBytes, artistAccount);
       return gridFireContract.queryFilter(artistMintedFilter);
     })
   );

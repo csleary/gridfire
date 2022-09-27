@@ -1,4 +1,9 @@
-import { gridFire, onPurchase, onPurchaseEdition } from "gridfire-web3-events/controllers/web3.js";
+import {
+  getGridFireContract,
+  onEditionMinted,
+  onPurchase,
+  onPurchaseEdition
+} from "gridfire-web3-events/controllers/web3.js";
 import { logger } from "gridfire-web3-events/controllers/logger.js";
 import { amqpConnect } from "gridfire-web3-events/controllers/amqp.js";
 import mongoose from "mongoose";
@@ -75,6 +80,9 @@ try {
   await mongoose.connect(MONGODB_URI);
   [amqpConnection] = await amqpConnect();
   await setupHealthProbe();
+
+  const gridFire = getGridFireContract();
+  gridFire.on("EditionMinted", onEditionMinted);
   gridFire.on("Purchase", onPurchase);
   gridFire.on("PurchaseEdition", onPurchaseEdition);
 } catch (error) {

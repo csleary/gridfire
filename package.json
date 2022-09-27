@@ -21,6 +21,7 @@
     "docker:build:ipfs": "docker build -f ./manifests/production/ipfs/Dockerfile -t csleary/ipfs-node manifests/production/ipfs/",
     "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\"",
     "hardhat:dev": "npm run hardhat:compile && npm run hardhat:deploy && npm run hardhat:fund",
+    "hardhat:upgrade": "yarn --cwd ./hardhat/ hardhat compile --force && yarn --cwd ./hardhat/ hardhat --network localhost run scripts/upgrade.js",
     "hardhat:compile": "yarn --cwd ./hardhat/ hardhat compile --force",
     "hardhat:deploy": "yarn --cwd ./hardhat/ hardhat --network localhost run scripts/deploy.js",
     "hardhat:deploy:mainnet": "yarn --cwd ./hardhat/ hardhat run scripts/deploy-arb-mainnet.js",

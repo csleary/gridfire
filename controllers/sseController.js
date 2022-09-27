@@ -32,8 +32,8 @@ class SSEController {
     const connections = new Map();
     connections.set(socketId, { res, lastPing: Date.now() });
     this.#sessions.set(userId, connections);
-    const queueOptions = { autoDelete: true, durable: false };
     const userQueue = `user.${userId}.${POD_NAME}`;
+    const queueOptions = { autoDelete: true, durable: false };
     await this.#consumerChannel.assertQueue(userQueue, queueOptions);
     await this.#consumerChannel.bindQueue(userQueue, "user", userId);
     const { consumerTag } = await this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false });

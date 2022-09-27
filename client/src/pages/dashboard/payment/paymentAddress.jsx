@@ -42,7 +42,7 @@ const PaymentAddress = () => {
   // Fetch payments received.
   useEffect(() => {
     if (paymentAddress) {
-      getGridFirePurchaseEvents(paymentAddress).then(setPurchases);
+      getGridFirePurchaseEvents().then(setPurchases);
     }
   }, [paymentAddress]);
 
@@ -117,25 +117,20 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {purchases.map(({ args, blockNumber, transactionHash }) => {
-              const buyerAddress = args[0];
-              const releaseId = args[2];
-              const artistShare = args[5];
-              const platformFee = args[6];
-
-              return (
+            {purchases.map(
+              ({ blockNumber, buyer, editionId, releaseId, artistShare, platformFee, transactionHash }) => (
                 <Tr key={`${transactionHash}.${releaseId}`}>
                   <Td>
                     <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                   </Td>
                   <Td>
-                    {buyerAddress.slice(0, 6)}…{buyerAddress.slice(-4)}
+                    {buyer.slice(0, 6)}…{buyer.slice(-4)}
                   </Td>
                   <Td isNumeric>◈ {Number(utils.formatEther(platformFee)).toFixed(2)}</Td>
                   <Td isNumeric>◈ {Number(utils.formatEther(artistShare)).toFixed(2)}</Td>
                 </Tr>
-              );
-            })}
+              )
+            )}
           </Tbody>
         </Table>
       </TableContainer>

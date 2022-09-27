@@ -29,7 +29,7 @@ const Collection = () => {
 
   useEffect(() => {
     if (userId) {
-      dispatch(fetchUserEditions(userId));
+      dispatch(fetchUserEditions());
     }
   }, [dispatch, userId]);
 

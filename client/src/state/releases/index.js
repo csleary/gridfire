@@ -182,9 +182,9 @@ const fetchRelease = releaseId => async dispatch => {
   }
 };
 
-const fetchUserEditions = userId => async dispatch => {
+const fetchUserEditions = () => async dispatch => {
   try {
-    const editions = await getUserEditions(userId);
+    const editions = await getUserEditions();
     dispatch(setUserEditions(editions));
   } catch (error) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));

@@ -8,6 +8,7 @@ import { create } from "ipfs-http-client";
 import mongoose from "mongoose";
 import passport from "passport";
 import "./models/Artist.js";
+import "./models/Edition.js";
 import "./models/Favourite.js";
 import "./models/Release.js";
 import "./models/Sale.js";

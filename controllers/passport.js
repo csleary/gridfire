@@ -40,7 +40,7 @@ const loginWeb3 = async (req, done) => {
       return done(null, false, "Could not verify signature.");
     }
 
-    const existingUser = await User.findOne({ account: address }).exec();
+    const existingUser = await User.findOne({ account: getAddress(address) }).exec();
 
     if (existingUser) {
       await existingUser.updateOne({ lastLogin: Date.now() }).exec();

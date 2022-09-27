@@ -1,4 +1,5 @@
 import { Contract, ethers, utils } from "ethers";
+import Edition from "gridfire-web3-events/models/Edition.js";
 import Release from "gridfire-web3-events/models/Release.js";
 import Sale from "gridfire-web3-events/models/Sale.js";
 import User from "gridfire-web3-events/models/User.js";
@@ -16,13 +17,23 @@ const getGridFireContract = () => {
   return new Contract(CONTRACT_ADDRESS, abi, provider);
 };
 
-const gridFire = getGridFireContract();
+const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId) => {
+  try {
+    const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
+    const releaseId = utils.parseBytes32String(releaseIdBytes);
+    const objectId = utils.parseBytes32String(objectIdBytes);
+    console.log(`[${date}] Edition minted by address: ${artist} for releaseId ${releaseId}.`);
+    await Edition.findOneAndUpdate({ _id: objectId, release: releaseId }, { editionId, status: "minted" }).exec();
+  } catch (error) {
+    console.error("EditionMinted error:", error);
+  }
+};
 
 const onPurchase = async (
   buyerAddress,
   artistAddress,
-  releaseId,
-  userId,
+  releaseIdBytes,
+  userIdBytes,
   amountPaid,
   artistShare,
   platformFee,
@@ -31,7 +42,9 @@ const onPurchase = async (
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
     const daiPaid = utils.formatEther(amountPaid);
-    console.log(`[${date}] 🙌 User ${userId} paid ${daiPaid} DAI for release ${releaseId}!`);
+    const releaseId = utils.parseBytes32String(releaseIdBytes);
+    const userId = utils.parseBytes32String(userIdBytes);
+    console.log(`[${date}] User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
 
     let price;
     let releaseTitle;
@@ -115,21 +128,21 @@ const onPurchaseEdition = async (
   amountPaid,
   artistShare,
   platformFee,
-  releaseId,
+  releaseIdBytes,
   event
 ) => {
   try {
     const buyerAddressNormalised = utils.getAddress(buyerAddress);
     const buyerUser = await User.findOne({ account: buyerAddressNormalised }, "_id", { lean: true }).exec();
-    if (!buyerUser) throw new Error("Buyer user not found.", "Address:", buyerAddressNormalised);
+    if (!buyerUser) throw new Error(`Buyer user not found. Address: ${buyerAddressNormalised}`);
+    const releaseId = utils.parseBytes32String(releaseIdBytes);
     const userId = buyerUser._id.toString();
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
     const daiPaid = utils.formatEther(amountPaid);
     const id = editionId.toString();
 
     console.log(
-      `[${date}] 🙌 User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), \
-release ${releaseId}! Artist address: ${artistAddress}`
+      `[${date}] User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), release ${releaseId}, artist address: ${artistAddress}.`
     );
 
     const release = await Release.findById(releaseId, "artistName releaseTitle", { lean: true })
@@ -161,4 +174,4 @@ release ${releaseId}! Artist address: ${artistAddress}`
   }
 };
 
-export { gridFire, onPurchase, onPurchaseEdition };
+export { getGridFireContract, onEditionMinted, onPurchase, onPurchaseEdition };
