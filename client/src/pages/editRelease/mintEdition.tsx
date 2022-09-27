@@ -12,7 +12,6 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  ScaleFade,
   useColorModeValue
 } from "@chakra-ui/react";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
@@ -22,6 +21,7 @@ import { CLOUD_URL } from "index";
 import Field from "components/field";
 import { GridFireEdition } from "types";
 import Icon from "components/icon";
+import ScaleFade from "components/transitions/scaleFade";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
 import { shallowEqual } from "react-redux";
@@ -109,7 +109,7 @@ const MintEdition = () => {
         const shortUri = `${uri.slice(0, 13)}…${uri.slice(-6)}`;
 
         return (
-          <ScaleFade initialScale={0.9} in={true} key={BigNumber.from(editionId).toString()}>
+          <ScaleFade key={BigNumber.from(editionId).toString()}>
             <Flex
               color="var(--chakra-colors-blackAlpha-700)"
               fontSize="lg"

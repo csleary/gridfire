@@ -1,19 +1,15 @@
 import { BigNumber, constants, utils } from "ethers";
-import { Box, Button, chakra, shouldForwardProp } from "@chakra-ui/react";
-import { motion, isValidMotionProp } from "framer-motion";
+import { Box, Button } from "@chakra-ui/react";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { GridFireEdition } from "types";
+import ScaleFade from "components/transitions/scaleFade";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
 import { purchaseEdition } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
-
-const ScaleFadeCustom = chakra(motion.div, {
-  shouldForwardProp: prop => isValidMotionProp(prop) || shouldForwardProp(prop)
-});
 
 const colors = [
   "var(--chakra-colors-green-200)",
@@ -70,11 +66,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   };
 
   return (
-    <ScaleFadeCustom
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: "1", ease: "easeOut" }}
-    >
+    <ScaleFade>
       <Button
         color="var(--chakra-colors-blackAlpha-700)"
         disabled={isDisabled}
@@ -117,7 +109,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
           {isPurchasing ? "Purchasing…" : isSoldOut ? "Sold Out" : `${formattedBalance}/${formattedAmount}`}
         </Box>
       </Button>
-    </ScaleFadeCustom>
+    </ScaleFade>
   );
 };
 
