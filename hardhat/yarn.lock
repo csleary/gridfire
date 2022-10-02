@@ -666,19 +666,19 @@
   integrity sha512-yywl0OC8ZGyRLDf0hQqGt2qtm5DZcDf6CggfE+J0bNw2mF6ySaXW6lovAZwXI/frtevUGog4WKNm6EPXtpoh3A==
 
 "@openzeppelin/hardhat-upgrades@^1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.20.0.tgz#fe1bddc4ab591ccf185caf4cfa269a4851b73599"
-  integrity sha512-ign7fc/ZdPe+KAYCB91619o+wlBr7sIEEt1nqLhoXAJ9f0qVuXkwAaTdLB0MTSWH85TzlUUT2fTJp1ZnZ1o4LQ==
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.21.0.tgz#e90fb7d858093f35a300b3a5a2fd32bca6179dfc"
+  integrity sha512-Kwl7IN0Hlhj4HluMTTl0DrtU90OI/Q6rG3sAyd2pv3fababe9EuZqs9DydOlkWM45JwTzC+eBzX3TgHsqI13eA==
   dependencies:
-    "@openzeppelin/upgrades-core" "^1.18.0"
+    "@openzeppelin/upgrades-core" "^1.20.0"
     chalk "^4.1.0"
     debug "^4.1.1"
     proper-lockfile "^4.1.1"
 
-"@openzeppelin/upgrades-core@^1.18.0":
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/upgrades-core/-/upgrades-core-1.19.1.tgz#46da1cc1825ed1175ff3eaf5aa6cb5620f7da4d0"
-  integrity sha512-g0x/7xIXLHjYzvhsAyzkbIcIxLv87GEdEfq6KmEhljP2hEzcN3krNhGbjpoqZlJcV+sIEFcxSkDkYgOffAQmvA==
+"@openzeppelin/upgrades-core@^1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/upgrades-core/-/upgrades-core-1.20.0.tgz#0b9a7753dfe0b86370e113b48a1d241e92e57f5f"
+  integrity sha512-SYHguWgiVB5vqvIr8JrB+Dr6+Nbn1MnC+8NJJu42B7GwINM8u3IISAceGFD25g/jfWOAMxZwFqtkeoUCwITY0w==
   dependencies:
     cbor "^8.0.0"
     chalk "^4.1.0"
@@ -913,9 +913,9 @@
     form-data "^3.0.0"
 
 "@types/node@*":
-  version "18.7.21"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.21.tgz#63ee6688070e456325b6748dc492a7b948593871"
-  integrity sha512-rLFzK5bhM0YPyCoTC8bolBjMk7bwnZ8qeZUBslBfjZQou2ssJdWslx9CZ8DGM+Dx7QXQiiTVZ/6QO6kwtHkZCA==
+  version "18.7.23"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.23.tgz#75c580983846181ebe5f4abc40fe9dfb2d65665f"
+  integrity sha512-DWNcCHolDq0ZKGizjx2DZjR/PqsYwAcYUJmfMWqtVU2MBMG5Mo+xFZrhGId5r/O5HOuMPyQEcM6KUBp5lBZZBg==
 
 "@types/node@^12.12.6":
   version "12.20.55"
@@ -2525,9 +2525,9 @@ copy-descriptor@^0.1.0:
   integrity sha512-XgZ0pFcakEUlbwQEVNg3+QAis1FyTL3Qel9FYy8pSkQqoG3PNoT0bOCQtOXcOkur21r2Eq2kI+IE+gsmAEVlYw==
 
 core-js-pure@^3.0.1:
-  version "3.25.2"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.25.2.tgz#44a4fd873bdd4fecf6ca11512bcefedbe87e744a"
-  integrity sha512-ItD7YpW1cUB4jaqFLZXe1AXkyqIxz6GqPnsDV4uF4hVcWh/WAGIqSqw5p0/WdsILM0Xht9s3Koyw05R3K6RtiA==
+  version "3.25.3"
+  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.25.3.tgz#66ac5bfa5754b47fdfd14f3841c5ed21c46db608"
+  integrity sha512-T/7qvgv70MEvRkZ8p6BasLZmOVYKzOaWNBEHAU8FmveCJkl4nko2quqPQOmy6AJIp5MBanhz9no3A94NoRb0XA==
 
 core-js@^2.4.0, core-js@^2.5.0:
   version "2.6.12"
@@ -2855,9 +2855,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.3.47:
-  version "1.4.261"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.261.tgz#31f14ad60c6f95bec404a77a2fd5e1962248e112"
-  integrity sha512-fVXliNUGJ7XUVJSAasPseBbVgJIeyw5M1xIkgXdTSRjlmCqBbiSTsEdLOCJS31Fc8B7CaloQ/BFAg8By3ODLdg==
+  version "1.4.264"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.264.tgz#2f68a062c38b7a04bf57f3e6954b868672fbdcd3"
+  integrity sha512-AZ6ZRkucHOQT8wke50MktxtmcWZr67kE17X/nAXFf62NIdMdgY6xfsaJD5Szoy84lnkuPWH+4tTNE3s2+bPCiw==
 
 elliptic@6.5.4, elliptic@^6.4.0, elliptic@^6.5.2, elliptic@^6.5.3, elliptic@^6.5.4:
   version "6.5.4"

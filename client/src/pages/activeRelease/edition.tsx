@@ -45,7 +45,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress: artist } = res.data;
-      await purchaseEdition({ artist, editionId, price });
+      await purchaseEdition({ artist, editionId, price, releaseId });
       fetchEditions();
       dispatch(fetchDaiBalance(account));
     } catch (error: any) {

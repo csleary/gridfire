@@ -1,5 +1,6 @@
 import {
-  getGridFireContract,
+  getGridFireEditionsContract,
+  getGridFirePaymentContract,
   onEditionMinted,
   onPurchase,
   onPurchaseEdition
@@ -81,10 +82,11 @@ try {
   [amqpConnection] = await amqpConnect();
   await setupHealthProbe();
 
-  const gridFire = getGridFireContract();
-  gridFire.on("EditionMinted", onEditionMinted);
-  gridFire.on("Purchase", onPurchase);
-  gridFire.on("PurchaseEdition", onPurchaseEdition);
+  const gridFirePayment = getGridFirePaymentContract();
+  const gridFireEditions = getGridFireEditionsContract();
+  gridFireEditions.on("EditionMinted", onEditionMinted);
+  gridFireEditions.on("PurchaseEdition", onPurchaseEdition);
+  gridFirePayment.on("Purchase", onPurchase);
 } catch (error) {
   logger.error(`Startup error: ${error.message}`);
 }

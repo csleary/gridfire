@@ -1,5 +1,4 @@
-const { ethers } = require("hardhat");
-const hre = require("hardhat");
+/* eslint-disable no-undef */
 const { DEPLOYER_ADDRESS } = process.env;
 
 const ADDRESS_1 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";

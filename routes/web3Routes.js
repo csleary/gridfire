@@ -1,6 +1,7 @@
 import {
   getDaiContract,
-  getGridFireContract,
+  getGridFirePaymentContract,
+  getGridFireEditionsContract,
   getGridFireEditionsByReleaseId,
   getGridFireEditionUris,
   getUserGridFireEditions
@@ -12,14 +13,14 @@ import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 import { utils } from "ethers";
 
-const { CONTRACT_ADDRESS } = process.env;
+const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 const router = express.Router();
 
 router.get("/approvals/:account", requireLogin, async (req, res) => {
   try {
     const { account } = req.params;
     const daiContract = getDaiContract();
-    const approvalsFilter = daiContract.filters.Approval(account, CONTRACT_ADDRESS);
+    const approvalsFilter = daiContract.filters.Approval(account, GRIDFIRE_PAYMENT_ADDRESS);
     const approvals = await daiContract.queryFilter(approvalsFilter);
 
     const leanApprovals = approvals.map(({ args, blockNumber, transactionHash }) => ({
@@ -39,9 +40,9 @@ router.get("/claims", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user;
     const { account } = await User.findById(userId);
-    const gridFireContract = getGridFireContract();
-    const claimFilter = gridFireContract.filters.Claim(account);
-    const claims = await gridFireContract.queryFilter(claimFilter);
+    const gridFirePaymentContract = getGridFirePaymentContract();
+    const claimFilter = gridFirePaymentContract.filters.Claim(account);
+    const claims = await gridFirePaymentContract.queryFilter(claimFilter);
 
     const leanClaims = claims.map(({ args, blockNumber, transactionHash }) => {
       const { amount } = args;
@@ -59,13 +60,14 @@ router.get("/purchases", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user;
     const { paymentAddress } = await User.findById(userId);
-    const gridFireContract = getGridFireContract();
-    const purchaseFilter = gridFireContract.filters.Purchase(null, paymentAddress);
-    const purchaseEditionFilter = gridFireContract.filters.PurchaseEdition(null, paymentAddress);
+    const gridFirePaymentContract = getGridFirePaymentContract();
+    const purchaseFilter = gridFirePaymentContract.filters.Purchase(null, paymentAddress);
+    const gridFireEditionsContract = getGridFireEditionsContract();
+    const purchaseEditionFilter = gridFireEditionsContract.filters.PurchaseEdition(null, paymentAddress);
 
     const [purchases, editionPurchases] = await Promise.all([
-      gridFireContract.queryFilter(purchaseFilter),
-      gridFireContract.queryFilter(purchaseEditionFilter)
+      gridFirePaymentContract.queryFilter(purchaseFilter),
+      gridFireEditionsContract.queryFilter(purchaseEditionFilter)
     ]);
 
     const leanPurchases = [...purchases, ...editionPurchases]

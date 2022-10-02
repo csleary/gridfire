@@ -29,44 +29,6 @@ const gridFireAbi = [
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "buyer",
-        type: "address"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256"
-      }
-    ],
-    name: "Checkout",
-    type: "event"
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "artist",
-        type: "address"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256"
-      }
-    ],
-    name: "Claim",
-    type: "event"
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
         internalType: "bytes32",
         name: "releaseId",
         type: "bytes32"
@@ -135,55 +97,6 @@ const gridFireAbi = [
       }
     ],
     name: "OwnershipTransferred",
-    type: "event"
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "buyer",
-        type: "address"
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "artist",
-        type: "address"
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "releaseId",
-        type: "bytes32"
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "userId",
-        type: "bytes32"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amountPaid",
-        type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "artistShare",
-        type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "platformFee",
-        type: "uint256"
-      }
-    ],
-    name: "Purchase",
     type: "event"
   },
   {
@@ -398,53 +311,6 @@ const gridFireAbi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "address",
-            name: "artist",
-            type: "address"
-          },
-          {
-            internalType: "uint256",
-            name: "amountPaid",
-            type: "uint256"
-          },
-          {
-            internalType: "bytes32",
-            name: "releaseId",
-            type: "bytes32"
-          },
-          {
-            internalType: "uint256",
-            name: "releasePrice",
-            type: "uint256"
-          }
-        ],
-        internalType: "struct GridFirePayment.BasketItem[]",
-        name: "basket",
-        type: "tuple[]"
-      },
-      {
-        internalType: "bytes32",
-        name: "userId",
-        type: "bytes32"
-      }
-    ],
-    name: "checkout",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    inputs: [],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "id",
         type: "uint256"
@@ -465,77 +331,10 @@ const gridFireAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "artist",
+        name: "_gridFirePaymentAddress",
         type: "address"
       }
     ],
-    name: "getBalance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "id",
-        type: "uint256"
-      }
-    ],
-    name: "getEdition",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256"
-          },
-          {
-            internalType: "address",
-            name: "artist",
-            type: "address"
-          },
-          {
-            internalType: "bytes32",
-            name: "releaseId",
-            type: "bytes32"
-          },
-          {
-            internalType: "string",
-            name: "uri",
-            type: "string"
-          }
-        ],
-        internalType: "struct GridFirePayment.GridFireEdition",
-        name: "",
-        type: "tuple"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    inputs: [],
-    name: "getServiceFee",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    inputs: [],
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
@@ -692,34 +491,6 @@ const gridFireAbi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "artist",
-        type: "address"
-      },
-      {
-        internalType: "bytes32",
-        name: "releaseId",
-        type: "bytes32"
-      },
-      {
-        internalType: "bytes32",
-        name: "userId",
-        type: "bytes32"
-      },
-      {
-        internalType: "uint256",
-        name: "amountPaid",
-        type: "uint256"
-      }
-    ],
-    name: "purchase",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "editionId",
         type: "uint256"
@@ -733,6 +504,11 @@ const gridFireAbi = [
         internalType: "address",
         name: "paymentAddress",
         type: "address"
+      },
+      {
+        internalType: "bytes32",
+        name: "releaseId",
+        type: "bytes32"
       }
     ],
     name: "purchaseGridFireEdition",
@@ -834,19 +610,6 @@ const gridFireAbi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "newServiceFee",
-        type: "uint256"
-      }
-    ],
-    name: "setServiceFee",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "interfaceId",
         type: "bytes4"
@@ -926,4 +689,5 @@ const gridFireAbi = [
     type: "receive"
   }
 ];
+
 export default gridFireAbi;

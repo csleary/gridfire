@@ -18,7 +18,7 @@ import React from "react";
 import { RootState } from "index";
 import { faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 
-const { REACT_APP_CONTRACT_ADDRESS } = process.env;
+const { REACT_APP_GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 
 const Footer: React.FC = () => {
   const { account } = useSelector((state: RootState) => state.user, shallowEqual);
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
               </Link>
             </ListItem>
             <ListItem>
-              <Link href={`https://arbiscan.io/address/${REACT_APP_CONTRACT_ADDRESS}`} isExternal>
+              <Link href={`https://arbiscan.io/address/${REACT_APP_GRIDFIRE_PAYMENT_ADDRESS}`} isExternal>
                 Contract
               </Link>
             </ListItem>

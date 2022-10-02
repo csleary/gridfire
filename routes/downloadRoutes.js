@@ -1,4 +1,5 @@
-import { getGridFireEdition, getTransaction } from "gridfire/controllers/web3/index.js";
+import { getTransaction } from "gridfire/controllers/web3/index.js";
+import Edition from "gridfire/models/Edition.js";
 import Release from "gridfire/models/Release.js";
 import Sale from "gridfire/models/Sale.js";
 import User from "gridfire/models/User.js";
@@ -20,19 +21,17 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
     if (isEdition) {
       const tx = await getTransaction(purchaseId);
       const { editionId, id } = tx.args; // 'editionId' from PurchaseEdition event, or 'id' from TransferSingle event.
-      const edition = await getGridFireEdition(editionId || id);
-      const { artist, releaseId } = edition;
-      const account = utils.getAddress(artist);
-      const projection = "artistName artwork releaseTitle trackList user";
 
-      release = await Release.findById(releaseId, projection, { lean: true })
-        .populate({ path: "user", model: User, options: { lean: true }, select: "account key" })
+      const edition = await Edition.findOne({ editionId: editionId || id })
+        .populate({
+          path: "release",
+          model: Release,
+          options: { lean: true },
+          select: "account key"
+        })
         .exec();
 
-      // Check release user is the same as the
-      if (account !== utils.getAddress(release.user.account)) {
-        throw new Error("Edition and release artist address mismatch");
-      }
+      ({ release } = edition);
     } else {
       const sale = await Sale.findOne({ user: userId, _id: purchaseId }).exec();
       if (!sale) return res.status(401).send({ error: "Not authorised." });

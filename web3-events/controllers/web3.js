@@ -3,18 +3,23 @@ import Edition from "gridfire-web3-events/models/Edition.js";
 import Release from "gridfire-web3-events/models/Release.js";
 import Sale from "gridfire-web3-events/models/Sale.js";
 import User from "gridfire-web3-events/models/User.js";
-import abi from "gridfire-web3-events/controllers/abi.js";
+import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditionsABI.js";
+import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
 import { publishToQueue } from "./amqp.js";
 
-const { CONTRACT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
+const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
 
 const getProvider = () => {
   return ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
 };
 
-const getGridFireContract = () => {
+const getGridFireEditionsContract = () => {
   const provider = getProvider();
-  return new Contract(CONTRACT_ADDRESS, abi, provider);
+  return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsABI, provider);
+};
+const getGridFirePaymentContract = () => {
+  const provider = getProvider();
+  return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
 };
 
 const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId) => {
@@ -174,4 +179,4 @@ const onPurchaseEdition = async (
   }
 };
 
-export { getGridFireContract, onEditionMinted, onPurchase, onPurchaseEdition };
+export { getGridFireEditionsContract, getGridFirePaymentContract, onEditionMinted, onPurchase, onPurchaseEdition };

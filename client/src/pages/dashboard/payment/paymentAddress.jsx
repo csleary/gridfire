@@ -103,7 +103,7 @@ const PaymentAddress = () => {
       </Text>
       <Divider mb={12} />
       <Heading fontWeight={300} mb={12} textAlign="center">
-        Sales Payment History
+        Sales History
       </Heading>
       <TableContainer>
         <Table variant="simple">

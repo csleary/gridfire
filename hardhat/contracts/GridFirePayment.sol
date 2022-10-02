@@ -1,81 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0
+
 pragma solidity ^0.8.16;
+
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "./IGridFirePayment.sol";
 
-contract GridFirePayment is
-    Initializable,
-    ERC1155Upgradeable,
-    ERC1155HolderUpgradeable,
-    ERC1155SupplyUpgradeable,
-    OwnableUpgradeable
-{
-    using CountersUpgradeable for CountersUpgradeable.Counter;
+contract GridFirePayment is IGridFirePayment, Initializable, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     uint256 private serviceFee;
     mapping(address => uint256) private balances;
-    mapping(uint256 => GridFireEdition) private editions;
-    CountersUpgradeable.Counter private editionIdTracker;
-
-    struct BasketItem {
-        address artist;
-        uint256 amountPaid;
-        bytes32 releaseId;
-        uint256 releasePrice;
-    }
-
-    struct GridFireEdition {
-        uint256 price;
-        address artist;
-        bytes32 releaseId;
-        string uri;
-    }
-
     IERC20Upgradeable constant dai = IERC20Upgradeable(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
 
-    event Checkout(address indexed buyer, uint256 amount);
-    event Claim(address indexed artist, uint256 amount);
-
-    event EditionMinted(
-        bytes32 indexed releaseId,
-        address indexed artist,
-        bytes32 indexed objectId,
-        uint256 editionId,
-        uint256 amount,
-        uint256 price
-    );
-
-    event Purchase(
-        address indexed buyer,
-        address indexed artist,
-        bytes32 releaseId,
-        bytes32 userId,
-        uint256 amountPaid,
-        uint256 artistShare,
-        uint256 platformFee
-    );
-
-    event PurchaseEdition(
-        address indexed buyer,
-        address indexed artist,
-        uint256 indexed editionId,
-        uint256 amountPaid,
-        uint256 artistShare,
-        uint256 platformFee,
-        bytes32 releaseId
-    );
-
-    event Received(address from, uint256 amount);
-
     function initialize() public initializer {
-        __ERC1155_init("");
         __Ownable_init();
         serviceFee = 50;
     }
@@ -84,23 +24,61 @@ contract GridFirePayment is
         emit Received(msg.sender, msg.value);
     }
 
-    function purchase(
-        address artist,
-        bytes32 releaseId,
-        bytes32 userId,
-        uint256 amountPaid
-    ) public {
-        require(amountPaid != 0);
-        transferPayment(artist, releaseId, userId, amountPaid);
+    function _creditBalances(address artist, uint256 amountPaid) private returns (uint256, uint256) {
+        if (amountPaid == 0) {
+            return (amountPaid, 0);
+        }
+
+        if (serviceFee == 0) {
+            balances[artist] += amountPaid;
+            return (amountPaid, 0);
+        }
+
+        uint256 platformShare = (amountPaid / 1000) * serviceFee;
+        uint256 artistShare = amountPaid - platformShare;
+        balances[owner()] += platformShare;
+        balances[artist] += artistShare;
+        return (artistShare, platformShare);
     }
 
-    function checkout(BasketItem[] calldata basket, bytes32 userId) public {
+    function _transferEditionPayment(
+        address buyer,
+        address artist,
+        uint256 amountPaid
+    ) private returns (uint256, uint256) {
+        dai.safeTransferFrom(buyer, address(this), amountPaid);
+        (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
+        return (artistShare, platformShare);
+    }
+
+    function _transferPayment(
+        address artist,
+        uint256 amountPaid,
+        bytes32 releaseId,
+        bytes32 userId
+    ) private {
+        dai.safeTransferFrom(msg.sender, address(this), amountPaid);
+        (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
+        emit Purchase(msg.sender, artist, releaseId, userId, amountPaid, artistShare, platformShare);
+    }
+
+    function claim() public {
+        uint256 amount = balances[msg.sender];
+        require(amount != 0);
+        balances[msg.sender] = 0;
+        dai.safeTransfer(msg.sender, amount);
+        emit Claim(msg.sender, amount);
+    }
+
+    function creditBalances(address artist, uint256 amountPaid) public returns (uint256, uint256) {
+        return _creditBalances(artist, amountPaid);
+    }
+
+    function checkout(BasketItem[] calldata basket, bytes32 userId) external {
         uint256 total = 0;
 
         for (uint256 i = 0; i < basket.length; i++) {
             uint256 amountPaid = basket[i].amountPaid;
-            uint256 releasePrice = basket[i].releasePrice;
-            require(amountPaid >= releasePrice, "Payment amount too low.");
             total += amountPaid;
         }
 
@@ -118,143 +96,51 @@ contract GridFirePayment is
         emit Checkout(msg.sender, total);
     }
 
-    function claim() public {
-        uint256 amount = balances[msg.sender];
-        require(amount != 0, "Nothing to claim.");
-        balances[msg.sender] = 0;
-        dai.safeTransfer(msg.sender, amount);
-        emit Claim(msg.sender, amount);
+    function getBalance(address artist) external view returns (uint256) {
+        return balances[artist];
     }
 
-    function mintEdition(
-        uint256 amount,
-        uint256 price,
-        string calldata metadataUri,
-        bytes32 releaseId,
-        bytes32 objectId
-    ) public {
-        editionIdTracker.increment();
-        uint256 editionId = editionIdTracker.current();
-        _mint(address(this), editionId, amount, "");
-        setEditionArtist(editionId, msg.sender);
-        setEditionPrice(editionId, price);
-        setEditionRelease(editionId, releaseId);
-        setEditionUri(editionId, metadataUri);
-        emit EditionMinted(releaseId, msg.sender, objectId, editionId, amount, price);
+    function getServiceFee() external view returns (uint256) {
+        return serviceFee;
     }
 
-    function purchaseGridFireEdition(
-        uint256 editionId,
+    function purchase(
+        address artist,
         uint256 amountPaid,
-        address paymentAddress
-    ) public {
-        require(balanceOf(address(this), editionId) != 0, "This GridFire Edition is sold out.");
-        require(amountPaid >= editions[editionId].price, "Payment too low for this GridFire Edition.");
-        address artist = editions[editionId].artist;
-        require(address(paymentAddress) == address(artist));
-        bytes32 releaseId = editions[editionId].releaseId;
-        transferEditionPayment(editionId, amountPaid, artist, releaseId);
-        _safeTransferFrom(address(this), msg.sender, editionId, 1, "");
+        bytes32 releaseId,
+        bytes32 userId
+    ) external {
+        require(artist != address(0) && amountPaid != 0);
+        transferPayment(artist, amountPaid, releaseId, userId);
     }
 
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual override(ERC1155Upgradeable, ERC1155SupplyUpgradeable) {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC1155Upgradeable, ERC1155ReceiverUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
-    function setEditionArtist(uint256 editionId, address artist) private {
-        editions[editionId].artist = artist;
-    }
-
-    function setEditionPrice(uint256 editionId, uint256 price) private {
-        editions[editionId].price = price;
-    }
-
-    function setEditionRelease(uint256 editionId, bytes32 releaseId) private {
-        editions[editionId].releaseId = releaseId;
-    }
-
-    function setEditionUri(uint256 editionId, string memory metadataUri) private {
-        editions[editionId].uri = metadataUri;
-    }
-
-    function setServiceFee(uint256 newServiceFee) public onlyOwner {
+    function setServiceFee(uint256 newServiceFee) external onlyOwner {
         require(newServiceFee < 1000);
         serviceFee = newServiceFee;
     }
 
-    function getBalance(address artist) public view returns (uint256) {
-        return balances[artist];
-    }
-
-    function getEdition(uint256 id) public view returns (GridFireEdition memory) {
-        return editions[id];
-    }
-
-    function getServiceFee() public view returns (uint256) {
-        return serviceFee;
-    }
-
-    function uri(uint256 editionId) public view override returns (string memory) {
-        return (editions[editionId].uri);
-    }
-
-    function creditBalances(address artist, uint256 amountPaid) private returns (uint256, uint256) {
-        if (amountPaid == 0) {
-            return (amountPaid, 0);
-        }
-
-        if (serviceFee == 0) {
-            balances[artist] += amountPaid;
-            return (amountPaid, 0);
-        }
-
-        uint256 platformShare = (amountPaid / 1000) * serviceFee;
-        uint256 artistShare = amountPaid - platformShare;
-        balances[owner()] += platformShare;
-        balances[artist] += artistShare;
+    function transferEditionPayment(
+        address buyer,
+        address artist,
+        uint256 amountPaid
+    ) external returns (uint256, uint256) {
+        require(buyer != address(0) && artist != address(0));
+        (uint256 artistShare, uint256 platformShare) = _transferEditionPayment(buyer, artist, amountPaid);
         return (artistShare, platformShare);
     }
 
     function transferPayment(
         address artist,
-        bytes32 releaseId,
-        bytes32 userId,
-        uint256 amountPaid
-    ) private {
-        dai.safeTransferFrom(msg.sender, address(this), amountPaid);
-        (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
-        emit Purchase(msg.sender, artist, releaseId, userId, amountPaid, artistShare, platformShare);
-    }
-
-    function transferEditionPayment(
-        uint256 editionId,
         uint256 amountPaid,
-        address artist,
-        bytes32 releaseId
-    ) private {
-        dai.safeTransferFrom(msg.sender, address(this), amountPaid);
-        (uint256 artistShare, uint256 platformShare) = creditBalances(artist, amountPaid);
-        emit PurchaseEdition(msg.sender, artist, editionId, amountPaid, artistShare, platformShare, releaseId);
+        bytes32 releaseId,
+        bytes32 userId
+    ) public {
+        require(artist != address(0));
+        require(releaseId.length > 0 && userId.length > 0);
+        _transferPayment(artist, amountPaid, releaseId, userId);
     }
 
-    function withdraw() public onlyOwner {
+    function withdraw() external onlyOwner {
         payable(msg.sender).transfer(address(this).balance);
     }
 }
