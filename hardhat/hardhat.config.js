@@ -47,9 +47,9 @@ task("deploy", "Deploy contracts to Arbitrum mainnet")
     const { ethers, upgrades } = hre;
     const { account } = taskArgs;
     const wallet = new ethers.Wallet(account);
-    const provider = ethers.getDefaultProvider(hre.config.networks["arb-mainnet"].url);
-    console.log(`Provider URL: ${provider.connection.url}`);
+    const provider = ethers.getDefaultProvider(config.networks["arb-mainnet"].url);
     const deployer = wallet.connect(provider);
+    console.log(`Provider URL: ${provider.connection.url}`);
 
     const gridFirePaymentContract = await ethers.getContractFactory("GridFirePayment", deployer);
     const gridFirePayment = await upgrades.deployProxy(gridFirePaymentContract);
@@ -66,7 +66,7 @@ task("upgrade", "Upgrade contracts on Arbitrum mainnet")
     const { ethers, upgrades } = hre;
     const { account } = taskArgs;
     const wallet = new ethers.Wallet(account);
-    const provider = ethers.getDefaultProvider(hre.config.networks["arb-mainnet"].url);
+    const provider = ethers.getDefaultProvider(config.networks["arb-mainnet"].url);
     console.log("Provider URL:", provider.connection.url);
     const deployer = wallet.connect(provider);
 

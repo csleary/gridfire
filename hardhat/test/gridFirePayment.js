@@ -1,16 +1,11 @@
 /* eslint-disable no-undef */
 const { BigNumber, utils } = require("ethers");
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
-const { ethers } = require("hardhat");
 const assert = require("assert");
+const { daiAbi } = require("./utils");
+const { ethers } = require("hardhat");
 
-const daiAbi = [
-  "function approve(address, uint) public returns (uint, string, uint)",
-  "function name() view returns (string)",
-  "function symbol() view returns (string)",
-  "function balanceOf(address) view returns (uint)",
-  "function transfer(address to, uint amount)"
-];
+// Run on localhost mainnet fork with funded accounts.
 
 describe("GridFirePayment contract", async () => {
   let gridFirePayment;
@@ -55,7 +50,7 @@ describe("GridFirePayment contract", async () => {
     assert(utils.parseEther("0.75").eq(platformShare));
   });
 
-  it("should checkout a basket of tracks", async () => {
+  it("should be able to checkout a basket of tracks", async () => {
     const [owner, buyer, artist] = await ethers.getSigners();
     const dai = new ethers.Contract(DAI_CONTRACT_ADDRESS, daiAbi, buyer);
     const instance = await gridFirePayment.connect(buyer);
@@ -93,7 +88,7 @@ describe("GridFirePayment contract", async () => {
     assert(utils.parseEther("0.3").eq(platformShare));
   });
 
-  it("should let artist claim balance", async () => {
+  it("should let the artist claim their balance", async () => {
     const [owner, buyer, artist] = await ethers.getSigners();
     const dai = new ethers.Contract(DAI_CONTRACT_ADDRESS, daiAbi, buyer);
     const instanceBuyer = await gridFirePayment.connect(buyer);
