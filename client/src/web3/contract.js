@@ -146,9 +146,9 @@ const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => 
 
   const transactionReceipt = await gridFirePayment.purchase(
     paymentAddress,
+    weiReleasePrice,
     releaseIdBytes,
-    userIdBytes,
-    weiReleasePrice
+    userIdBytes
   );
 
   const { status, transactionHash } = await transactionReceipt.wait();

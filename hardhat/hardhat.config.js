@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 require("dotenv").config();
+require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require("@openzeppelin/hardhat-upgrades");
 
@@ -10,12 +11,16 @@ require("@openzeppelin/hardhat-upgrades");
 const {
   ALCHEMY_ARBITRUM_MAINNET_KEY,
   ALCHEMY_ARBITRUM_RINKEBY_KEY,
+  ARBISCAN_API_KEY,
   GRIDFIRE_EDITIONS_ADDRESS,
   GRIDFIRE_PAYMENT_ADDRESS
 } = process.env;
 
 config = {
   defaultNetwork: "hardhat",
+  etherscan: {
+    apiKey: ARBISCAN_API_KEY
+  },
   networks: {
     "arb-mainnet": {
       url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`
