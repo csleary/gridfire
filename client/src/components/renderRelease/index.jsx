@@ -1,4 +1,4 @@
-import { Box, Flex, IconButton, Image, Square } from "@chakra-ui/react";
+import { Box, Fade, Flex, IconButton, Image, useDisclosure } from "@chakra-ui/react";
 import { batch, shallowEqual, useDispatch, useSelector } from "react-redux";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "state/player";
@@ -12,13 +12,18 @@ import placeholder from "placeholder.svg";
 import { toastInfo } from "state/toast";
 
 const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) => {
+  const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
 
   if (!release) {
     return (
-      <Square position="relative">
-        <Image alt="Release not found." loading="lazy" src={placeholder} />
+      <Box position="relative">
+        <Fade in={isOpen}>
+          <Box display="block" pt="100%" position="relative">
+            <Image alt="Release not found." inset={0} loading="lazy" position="absolute" src={placeholder} />
+          </Box>
+        </Fade>
         <Box
           bottom={0}
           color="gray.600"
@@ -31,7 +36,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
         >
           Release not found
         </Box>
-      </Square>
+      </Box>
     );
   }
 
@@ -60,29 +65,34 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
   };
 
   return (
-    <Square
+    <Box
       key={releaseId}
       position={"relative"}
       _hover={{
         "> *": { boxShadow: "lg", opacity: 1, transition: "0.5s cubic-bezier(0.2, 0.8, 0.4, 1)", visibility: "visible" }
       }}
     >
-      <Image
-        alt={`${artistName} - ${releaseTitle}`}
-        fallbackSrc={placeholder}
-        loading="lazy"
-        src={artwork.status === "stored" ? `${CLOUD_URL}/${cid}` : placeholder}
-      />
+      <Fade in={isOpen}>
+        <Box display="block" pt="100%" position="relative">
+          <Image
+            alt={`${artistName} - ${releaseTitle}`}
+            fallbackSrc={placeholder}
+            inset={0}
+            loading="lazy"
+            onLoad={onOpen}
+            onError={onOpen}
+            position="absolute"
+            src={artwork.status === "stored" ? `${CLOUD_URL}/${cid}` : placeholder}
+          />
+        </Box>
+      </Fade>
       <Flex
         background="rgba(0, 0, 0, 0.5)"
-        bottom={0}
         direction="column"
-        left={0}
+        inset={0}
         opacity={0}
         position="absolute"
-        right={0}
         title={`${artistName} - ${releaseTitle}`}
-        top={0}
         transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
         visibility="hidden"
       >
@@ -178,7 +188,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
           </Flex>
         ) : null}
       </Flex>
-    </Square>
+    </Box>
   );
 };
 

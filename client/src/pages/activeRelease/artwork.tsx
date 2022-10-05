@@ -1,4 +1,4 @@
-import { Box, Flex, IconButton, Square, Image } from "@chakra-ui/react";
+import { Box, Fade, Flex, IconButton, Image, useDisclosure } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
@@ -9,6 +9,7 @@ import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const Artwork = () => {
+  const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
@@ -32,7 +33,7 @@ const Artwork = () => {
   };
 
   return (
-    <Square
+    <Box
       key={releaseId}
       position={"relative"}
       _hover={{
@@ -44,16 +45,24 @@ const Artwork = () => {
         }
       }}
     >
-      <Image
-        alt={releaseTitle}
-        fallbackSrc={placeholder}
-        loading="lazy"
-        src={
-          artwork.status === "stored" && !isLoading
-            ? `${CLOUD_URL}/${cid}`
-            : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-        }
-      />
+      <Fade in={isOpen}>
+        <Box display="block" pt="100%" position="relative">
+          <Image
+            alt={releaseTitle}
+            fallbackSrc={placeholder}
+            inset={0}
+            loading="lazy"
+            onLoad={onOpen}
+            onError={onOpen}
+            position="absolute"
+            src={
+              artwork.status === "stored" && !isLoading
+                ? `${CLOUD_URL}/${cid}`
+                : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+            }
+          />
+        </Box>
+      </Fade>
       <Flex
         alignItems="stretch"
         background="rgba(0, 0, 0, 0.5)"
@@ -91,7 +100,7 @@ const Artwork = () => {
           _hover={{ color: "#fff" }}
         />
       </Flex>
-    </Square>
+    </Box>
   );
 };
 

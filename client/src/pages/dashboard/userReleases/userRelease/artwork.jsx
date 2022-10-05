@@ -11,14 +11,17 @@ const Artwork = ({ artwork, releaseId, releaseTitle }) => {
 
   return (
     <Fade in={isOpen}>
-      <Link as={RouterLink} to={`/release/${releaseId}`}>
+      <Link as={RouterLink} to={`/release/${releaseId}`} display="block" pt="100%" position="relative">
         <Image
           to={`/release/${releaseId}`}
           alt={isStored ? `\u2018${releaseTitle}\u2019 artwork.` : "No artwork uploaded."}
+          fallbackSrc={placeholder}
+          inset={0}
+          loading="lazy"
           objectFit="cover"
           onLoad={onOpen}
           onError={onOpen}
-          fallbackSrc={placeholder}
+          position="absolute"
           src={isStored ? `${CLOUD_URL}/${cid}` : placeholder}
         />
       </Link>
