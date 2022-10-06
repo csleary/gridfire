@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const streamSessionSchema = new Schema({
-  date: { type: Date, default: Date.now() },
+  date: { type: Date, default: Date.now },
   totalTimePlayed: { type: Number, default: 0 },
-  startTime: { type: Number, default: Date.now() },
+  startTime: { type: Number },
   trackId: { type: Schema.Types.ObjectId },
   user: { type: Schema.Types.ObjectId, ref: "User" }
 });

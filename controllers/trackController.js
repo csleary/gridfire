@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { encryptStream } from "gridfire/controllers/encryption.js";
 import Busboy from "busboy";
 import Play from "gridfire/models/Play.js";
@@ -65,7 +66,10 @@ const logStream = async ({ trackId, userId, type }) => {
       // console.log(`[${trackId}] Logging start of playback.`);
       StreamSession.findOneAndUpdate({ user, trackId }, { startTime: Date.now() }, { upsert: true })
         .exec()
-        .catch(error => error.code !== 11000 && console.error(error));
+        .catch(error => {
+          if (error.code === 11000) return;
+          console.error(error);
+        });
       break;
     case 1: // Update total time on pause/stop.
       {

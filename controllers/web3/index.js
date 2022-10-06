@@ -84,8 +84,8 @@ const getUserGridFireEditions = async userId => {
   const transferEditionIds = transfers.map(({ args }) => args.id);
   const accounts = Array(transferEditionIds.length).fill(userAccount);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
-  const posessedEditions = transfers.filter((_, index) => balances[index].isZero() === false);
-  const hexIds = posessedEditions.map(({ args }) => args.id._hex);
+  const inPossession = transfers.filter((_, index) => balances[index].isZero() === false);
+  const hexIds = inPossession.map(({ args }) => args.id._hex);
 
   // From these IDs, fetch minted Editions that we have recorded off-chain, for release info.
   const mintedEditions = await Edition.find({ "editionId._hex": { $in: hexIds }, status: "minted" }, "-cid", {
