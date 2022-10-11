@@ -10,8 +10,8 @@ const About = () => (
     <Container as="main" p={0}>
       <Heading as="h2">About GridFire</Heading>
       <Text fontSize="xl" mb={6}>
-        GridFire is a music download store, using the Arbitrum blockchain for payments, and the IPFS network for
-        storage.
+        GridFire is a music download store, using the Arbitrum blockchain for payments and NFT-backed releases, with
+        data stored on the IPFS network.
       </Text>
       <Text fontSize="xl" mb={6}>
         Artists set a price for their releases in DAI (arguably the most trusted and decentralised USD stablecoin),
@@ -19,7 +19,8 @@ const About = () => (
         made by the artist.
       </Text>
       <Text fontSize="xl" mb={6}>
-        Fans can make purchases using popular in-browser web3 wallets such as Metamask.
+        Fans can pay using popular in-browser web3 wallets such as Metamask, and can purchase NFTs representing
+        particular releases, to be stored in their wallet.
       </Text>
       <Text fontSize="xl" mb={6}>
         Music is stored on the IPFS network, with artists able to backup and pin their own audio files created through
