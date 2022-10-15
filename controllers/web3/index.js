@@ -81,6 +81,7 @@ const getUserGridFireEditions = async userId => {
   // Get all editions sent to user (may not still be in possession, so check balances).
   const editionsTransferFilter = gridFireEditionsContract.filters.TransferSingle(null, null, userAccount);
   const transfers = await gridFireEditionsContract.queryFilter(editionsTransferFilter);
+  if (!transfers.length) return []; // User account has never received anything.
   const transferEditionIds = transfers.map(({ args }) => args.id);
   const accounts = Array(transferEditionIds.length).fill(userAccount);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
