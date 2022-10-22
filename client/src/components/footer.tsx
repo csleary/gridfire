@@ -40,6 +40,11 @@ const Footer: React.FC = () => {
                 Contract
               </Link>
             </ListItem>
+            <ListItem>
+              <Link href={"https://github.com/csleary/gridfire/discussions"} isExternal>
+                Discussion
+              </Link>
+            </ListItem>
           </List>
         </Center>
         {account ? (
@@ -69,7 +74,7 @@ const Footer: React.FC = () => {
         <Wrap spacing={3}>
           <WrapItem>
             <Text fontSize="small">
-              &copy; 2017&ndash;{year}{" "}
+              &copy; {year}{" "}
               <Link href="https://ochremusic.com" isExternal>
                 Christopher Leary
               </Link>

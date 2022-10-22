@@ -12,6 +12,7 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
+  Text,
   useColorModeValue
 } from "@chakra-ui/react";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
@@ -23,6 +24,7 @@ import { GridFireEdition } from "types";
 import Icon from "components/icon";
 import ScaleFade from "components/transitions/scaleFade";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { formatPrice } from "utils";
 import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
@@ -101,6 +103,13 @@ const MintEdition = () => {
   return (
     <>
       <Heading size="lg" textAlign="left">
+        Editions
+      </Heading>
+      <Text mb={6}>
+        Mint a limited run of NFT-backed GridFire Editions for your release. These will be listed on the release page,
+        below the standard audio-only release.
+      </Text>
+      <Heading size="lg" textAlign="left">
         Minted Editions
       </Heading>
       {editions.map(({ editionId, amount, balance, price, uri = "" }: GridFireEdition, index) => {
@@ -148,7 +157,7 @@ const MintEdition = () => {
           </ScaleFade>
         );
       })}
-      <Button isDisabled={!isEditing} leftIcon={<Icon icon={faEthereum} />} onClick={handleOpenModal}>
+      <Button isDisabled={!isEditing} leftIcon={<Icon icon={faPlusCircle} />} onClick={handleOpenModal}>
         Mint GridFire Edition
       </Button>
       <Modal isOpen={showModal} onClose={handleCloseModal} size="md" isCentered>

@@ -28,7 +28,9 @@ import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
+import Editions from "./mintEdition";
 import { WarningIcon } from "@chakra-ui/icons";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchRelease } from "state/releases";
 import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
@@ -156,6 +158,10 @@ const EditRelease = () => {
               {isSmallScreen ? null : "Artwork"}
             </Tab>
             <Tab alignItems="center">
+              <Icon icon={faEthereum} mr={2} />
+              {isSmallScreen ? null : "Editions"}
+            </Tab>
+            <Tab alignItems="center">
               <Icon icon={faFileAudio} mr={2} />
               {isSmallScreen ? null : "Tracks"}
               {Object.values(trackErrors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
@@ -183,6 +189,9 @@ const EditRelease = () => {
             </TabPanel>
             <TabPanel p={0}>
               <Artwork />
+            </TabPanel>
+            <TabPanel p={0}>
+              <Editions />
             </TabPanel>
             <TabPanel p={0}>
               <TrackList

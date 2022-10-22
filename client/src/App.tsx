@@ -1,8 +1,9 @@
-import { Center, Container, Flex, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
+import { Box, Center, Container, Flex, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import Icon from "components/icon";
 import Footer from "components/footer";
 import Player from "pages/player";
 import PrivateRoute from "components/privateRoute";
@@ -11,7 +12,9 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { ethers } from "ethers";
 import { fetchUser } from "state/user";
 import useSSE from "hooks/useSSE";
+import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 
+const { REACT_APP_CHAIN_ID } = process.env;
 const About = lazy(() => import("pages/about"));
 const ActiveRelease = lazy(() => import("pages/activeRelease"));
 const ArtistPage = lazy(() => import("pages/artistPage"));
@@ -21,13 +24,14 @@ const Header = lazy(() => import("components/header"));
 const Home = lazy(() => import("pages/home"));
 const Login = lazy(() => import("pages/login"));
 const SearchResults = lazy(() => import("pages/searchResults"));
-declare const window: any; // eslint-disable-line
+// declare const window: any; // eslint-disable-line
 
 const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
   const ethereumRef: any = useRef();
   const { account } = useSelector((state: RootState) => state.user, shallowEqual);
+  const { chainId } = useSelector((state: RootState) => state.web3, shallowEqual);
 
   const getAccountInfo = useCallback(() => {
     if (account) {
@@ -87,19 +91,19 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Container
-        maxW="100%"
-        bg={useColorModeValue("gray.50", "gray.900")}
-        minH="100vh"
-        px={[1, 4, null, 8]}
-        py={[1, 3, null, 6]}
-        display="flex"
-        overflow="hidden"
-      >
-        <Flex direction="column" flex={1}>
-          <Suspense fallback={<></>}>
-            <Header />
-          </Suspense>
+      <Slide direction="bottom" in={chainId !== 0 && chainId !== Number(REACT_APP_CHAIN_ID)} style={{ zIndex: 10 }}>
+        <Box bg="yellow.400" color="gray.800" fontWeight="semibold" p={4} shadow="md">
+          <Container>
+            <Icon icon={faNetworkWired} mr={2} />
+            Please switch to the Arbitrum network to use GridFire.
+          </Container>
+        </Box>
+      </Slide>
+      <Flex maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" flexDirection="column">
+        <Suspense fallback={<></>}>
+          <Header />
+        </Suspense>
+        <Flex direction="column" flex={1} px={[1, 4, null, 8]} py={[1, 3, null, 6]}>
           <Suspense
             fallback={
               <Center flex={1}>
@@ -146,7 +150,7 @@ const App: React.FC = () => {
           <Footer />
           <Player />
         </Flex>
-      </Container>
+      </Flex>
     </BrowserRouter>
   );
 };

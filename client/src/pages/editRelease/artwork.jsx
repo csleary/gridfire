@@ -201,7 +201,7 @@ const Artwork = () => {
             colorScheme="red"
             icon={<Icon icon={faTrashAlt} />}
             onClick={handleDeleteArtwork}
-            title="Delete the artwork (will take your track offline)."
+            title="Delete the artwork (will take your release offline)."
             opacity={0}
             position="absolute"
             right={12}

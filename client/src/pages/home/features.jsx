@@ -3,12 +3,18 @@ import Feature from "./feature";
 
 const Features = () => {
   return (
-    <Box as="section" bg={useColorModeValue("whiteAlpha.800", "blackAlpha.500")} mx={-8} mb={24} py={12}>
+    <Box
+      as="section"
+      bg={useColorModeValue("whiteAlpha.800", "blackAlpha.500")}
+      mx={[-1, -4, null, -8]} // Mirror parent padding.
+      mb={24}
+      py={12}
+    >
       <Wrap spacing={12} justify="center">
         <Feature title="Low fees">
           Our cut is just 5%. The rest is yours.{" "}
           <Box as="span" color="gray.400">
-            All on Arbitrum, for fast transactions and low payment fees.
+            All on Arbitrum, an Ethereum layer 2 roll-up, for fast transactions and low payment fees.
           </Box>
         </Feature>
         <Feature title="NFT Editions">

@@ -13,6 +13,7 @@ import {
   WrapItem,
   useColorMode,
   IconButton,
+  useBoolean,
   useColorModeValue
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
@@ -23,11 +24,11 @@ import {
   faHeadphonesAlt,
   faHeart,
   faMagic,
-  faNetworkWired,
   faSignInAlt,
   faSignOutAlt,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "hooks";
 import BasketButton from "./basketButton";
 import Icon from "components/icon";
@@ -38,13 +39,19 @@ import { logOut } from "state/user";
 import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { utils } from "ethers";
-
-const { REACT_APP_CHAIN_ID } = process.env;
+import debounce from "lodash.debounce";
 
 const Header = () => {
+  const [isTop, setIsTop] = useBoolean(true);
   const { toggleColorMode } = useColorMode();
   const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
   const colorModeTextHover = useColorModeValue("purple", "yellow");
+
+  const navBackgroundColor = useColorModeValue(
+    isTop ? "var(--chakra-colors-gray-50)" : "var(--chakra-colors-blackAlpha-200)",
+    isTop ? "var(--chakra-colors-gray-900)" : "var(--chakra-colors-blackAlpha-500)"
+  );
+
   const primaryButtonColor = useColorModeValue("yellow", "purple");
   const tooltipBgColor = useColorModeValue("gray.200", "gray.800");
   const tooltipColor = useColorModeValue("gray.800", "gray.100");
@@ -57,12 +64,30 @@ const Header = () => {
   };
 
   const dispatch = useDispatch();
+  const navRef = useRef<HTMLDivElement | null>();
   const navigate = useNavigate();
-  const { user, web3 } = useSelector(state => state, shallowEqual);
-  const { account: userAccount, accountShort: userAccountShort } = user;
-  const { account = "", accountShort, daiBalance, chainId, isConnected, networkName } = web3 || {};
-  const formattedNetworkName = networkName.replace("-", " ").toUpperCase();
+  const { account: userAccount, accountShort: userAccountShort } = useSelector(state => state.user, shallowEqual);
+  const { account = "", accountShort, daiBalance, isConnected } = useSelector(state => state.web3, shallowEqual);
   const daiDisplayBalance = Number.parseFloat(utils.formatEther(daiBalance)).toFixed(2);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleScroll = useCallback(
+    debounce(
+      () => {
+        const navbarPos = navRef.current?.offsetTop ?? 0;
+        if (navbarPos === 0) return void setIsTop.on();
+        setIsTop.off();
+      },
+      100,
+      { leading: true }
+    ),
+    [setIsTop]
+  );
+
+  useEffect(() => {
+    document.addEventListener("scroll", handleScroll);
+    return () => document.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   const handleLogout = () => {
     dispatch(logOut()).then(() => navigate("/"));
@@ -73,7 +98,20 @@ const Header = () => {
   };
 
   return (
-    <Wrap spacing={4} alignItems="center" mb={4} overflow="visible">
+    <Wrap
+      spacing={4}
+      alignItems="center"
+      backdropFilter="blur(10px)"
+      backgroundColor={navBackgroundColor}
+      overflow="visible"
+      py={3}
+      px={8}
+      position="sticky"
+      ref={el => (navRef.current = el)}
+      top={0}
+      transition="background-color 300ms ease-in-out"
+      zIndex={1}
+    >
       <WrapItem>
         <SearchBar />
       </WrapItem>
@@ -88,16 +126,6 @@ const Header = () => {
         >
           GridFire
         </Button>
-      </WrapItem>
-      <WrapItem alignItems="center">
-        <Badge
-          colorScheme={chainId !== Number(REACT_APP_CHAIN_ID) ? "red" : primaryButtonColor}
-          fontSize="xs"
-          title={`Chain ID: ${chainId}`}
-        >
-          <Icon icon={faNetworkWired} mr={1} />
-          {formattedNetworkName}
-        </Badge>
       </WrapItem>
       <Spacer />
       {!userAccount ? (

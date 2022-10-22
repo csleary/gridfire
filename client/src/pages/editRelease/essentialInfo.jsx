@@ -4,7 +4,6 @@ import ArtistMenu from "./artistMenu";
 import Field from "components/field";
 import { formatPrice } from "utils";
 import { useCallback } from "react";
-import MintEdition from "./mintEdition";
 
 const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
@@ -79,7 +78,6 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
           />
         </Box>
       </SimpleGrid>
-      <MintEdition />
     </>
   );
 };
