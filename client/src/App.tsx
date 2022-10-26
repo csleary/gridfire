@@ -31,7 +31,7 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
   const ethereumRef: any = useRef();
   const { account } = useSelector((state: RootState) => state.user, shallowEqual);
-  const { chainId } = useSelector((state: RootState) => state.web3, shallowEqual);
+  const { chainId, isConnected } = useSelector((state: RootState) => state.web3, shallowEqual);
 
   const getAccountInfo = useCallback(() => {
     if (account) {
@@ -91,7 +91,11 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Slide direction="bottom" in={chainId !== 0 && chainId !== Number(REACT_APP_CHAIN_ID)} style={{ zIndex: 10 }}>
+      <Slide
+        direction="bottom"
+        in={isConnected && chainId !== 0 && chainId !== Number(REACT_APP_CHAIN_ID)}
+        style={{ zIndex: 10 }}
+      >
         <Box bg="yellow.400" color="gray.800" fontWeight="semibold" p={4} shadow="md">
           <Container>
             <Icon icon={faNetworkWired} mr={2} />

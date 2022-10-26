@@ -30,9 +30,23 @@ const getGridFirePaymentContract = () => {
   return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
 };
 
+const matchingEdition =
+  id =>
+  ({ editionId }) =>
+    BigNumber.from(editionId).eq(id);
+
 const getGridFireEditionsByReleaseId = async releaseId => {
   const provider = getProvider();
   const gridFireEditionsContract = getGridFireEditionsContract(provider);
+
+  const offChainEditions = await Edition.find(
+    { release: releaseId, status: "minted" },
+    "createdAt editionId metadata",
+    {
+      lean: true
+    }
+  ).exec();
+
   const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
   const artistAccount = utils.getAddress(release.user.account);
   const releaseIdBytes = utils.formatBytes32String(releaseId);
@@ -47,7 +61,14 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   const accounts = Array(editions.length).fill(GRIDFIRE_EDITIONS_ADDRESS);
   const ids = editions.map(({ editionId }) => editionId);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, ids);
-  editions.forEach((edition, index) => (edition.balance = balances[index]));
+
+  editions.forEach((edition, index) => {
+    const offChainMatch = offChainEditions.find(matchingEdition(edition.editionId));
+    edition.balance = balances[index];
+    edition.createdAt = offChainMatch.createdAt;
+    edition.metadata = offChainMatch.metadata;
+  });
+
   return editions;
 };
 

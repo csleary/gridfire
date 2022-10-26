@@ -110,7 +110,7 @@ const Header = () => {
       ref={el => (navRef.current = el)}
       top={0}
       transition="background-color 300ms ease-in-out"
-      zIndex={1}
+      zIndex={1000}
     >
       <WrapItem>
         <SearchBar />
