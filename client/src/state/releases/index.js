@@ -179,6 +179,7 @@ const fetchRelease = releaseId => async dispatch => {
     dispatch(setActiveRelease(res.data.release));
   } catch (error) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
+    throw error;
   }
 };
 
