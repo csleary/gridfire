@@ -135,7 +135,7 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
         <br />
       </Text>
       <Flex flexDirection="column">
-        {trackList.map(({ _id: trackId, price, status, trackTitle }, index) => {
+        {trackList.map(({ _id: trackId, isBonus, isEditionOnly, price, status, trackTitle }, index) => {
           return (
             <Track
               cancelDeleteTrack={cancelDeleteTrack}
@@ -154,6 +154,8 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
               handleMoveTrack={handleMoveTrack}
               index={index}
               isActiveDragOver={dragOverId === trackId && dragOverId !== dragOriginId}
+              isBonus={isBonus}
+              isEditionOnly={isEditionOnly}
               isDragging={dragOriginId != null}
               isDragOrigin={dragOriginId === trackId}
               key={trackId}

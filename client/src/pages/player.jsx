@@ -2,7 +2,7 @@ import { Box, Flex, IconButton, Spacer, Text, useBreakpointValue, useColorModeVa
 import { faChevronDown, faCog, faEllipsis, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import PlayLogger from "./player/playLogger";
@@ -39,6 +39,7 @@ const Player = () => {
   const [remainingTime, setRemainingTime] = useState("");
   const prevTrackId = usePrevious(trackId);
   const { cid: artworkCid } = artwork;
+  const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
   const { mp4 } = trackList.find(({ _id }) => _id === trackId) || {};
 
   const onBuffering = () => {
@@ -70,8 +71,8 @@ const Player = () => {
     const { currentTime, duration } = audioPlayerRef.current;
     const mins = Math.floor(currentTime / 60);
     const secs = Math.floor(currentTime % 60);
-    const remaining = Math.floor(duration - (currentTime || 0));
-    const remainingMins = Math.floor(remaining / 60);
+    const remaining = Math.floor(duration - (currentTime || 0)) || 0;
+    const remainingMins = Math.floor(remaining / 60) || 0;
     const remainingSecs = (remaining % 60).toString(10).padStart(2, "0");
     setElapsedTime(`${mins}:${secs.toString(10).padStart(2, "0")}`);
     setRemainingTime(`-${remainingMins}:${remainingSecs}`);
@@ -96,18 +97,24 @@ const Player = () => {
     [dispatch]
   );
 
+  const cueNextTrack = useCallback(
+    (skip = 1) => {
+      if (trackList[trackIndex + skip]) {
+        const { _id: nextTrackId, mp4, trackTitle } = trackList[trackIndex + skip];
+        if (!mp4) return void cueNextTrack(++skip);
+        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
+        return void dispatch(playTrack(cuedTrack));
+      }
+
+      handleStop();
+    },
+    [artistName, dispatch, handleStop, releaseId, releaseTitle, trackIndex, trackList]
+  );
+
   const onEnded = useCallback(() => {
     playLoggerRef.current.checkPlayTime();
-    const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
-
-    if (trackList[trackIndex + 1]) {
-      const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
-      const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-      return void dispatch(playTrack(cuedTrack));
-    }
-
-    handleStop();
-  }, [trackId, trackList, handleStop, releaseId, releaseTitle, artistName, dispatch]);
+    cueNextTrack();
+  }, [cueNextTrack]);
 
   const onPlaying = () => {
     playLoggerRef.current.setStartTime();
@@ -171,7 +178,6 @@ const Player = () => {
       artwork: [{ src: `${CLOUD_URL}/${artworkCid}`, sizes: "1000x1000", type: "image/png" }]
     });
 
-    const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
     navigator.mediaSession.setActionHandler("play", handlePlay);
     navigator.mediaSession.setActionHandler("pause", () => void audioPlayerRef.current.pause());
 
@@ -201,19 +207,27 @@ const Player = () => {
       }
     });
 
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
-      if (trackList[trackIndex + 1]) {
-        const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
-        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-        dispatch(playTrack(cuedTrack));
-      } else {
-        return false;
-      }
-    });
-  }, [artistName, artworkCid, dispatch, handlePlay, releaseId, releaseTitle, trackId, trackList, trackTitle]);
+    navigator.mediaSession.setActionHandler("nexttrack", cueNextTrack);
+  }, [
+    artistName,
+    artworkCid,
+    cueNextTrack,
+    dispatch,
+    handlePlay,
+    releaseId,
+    releaseTitle,
+    trackIndex,
+    trackList,
+    trackTitle
+  ]);
 
   useEffect(() => {
     if (trackId && trackId !== prevTrackId) {
+      if (!mp4) {
+        // Skip non-streaming tracks.
+        return void cueNextTrack();
+      }
+
       shaka.Player.probeSupport().then(supportInfo => {
         const urlStem = `${REACT_APP_IPFS_GATEWAY}/${mp4}`;
         if (supportInfo.manifest.mpd) {
@@ -231,7 +245,22 @@ const Player = () => {
         }
       });
     }
-  }, [handlePlay, mp4, onError, prevTrackId, setMediaSession, trackId]);
+  }, [
+    artistName,
+    cueNextTrack,
+    dispatch,
+    handlePlay,
+    handleStop,
+    mp4,
+    onError,
+    prevTrackId,
+    releaseId,
+    releaseTitle,
+    setMediaSession,
+    trackId,
+    trackIndex,
+    trackList
+  ]);
 
   const handleSeek = ({ clientX }) => {
     const width = seekBarRef.current.clientWidth;

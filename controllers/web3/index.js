@@ -30,11 +30,6 @@ const getGridFirePaymentContract = () => {
   return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
 };
 
-const matchingEdition =
-  id =>
-  ({ editionId }) =>
-    BigNumber.from(editionId).eq(id);
-
 const getGridFireEditionsByReleaseId = async releaseId => {
   const provider = getProvider();
   const gridFireEditionsContract = getGridFireEditionsContract(provider);
@@ -42,9 +37,7 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   const offChainEditions = await Edition.find(
     { release: releaseId, status: "minted" },
     "createdAt editionId metadata",
-    {
-      lean: true
-    }
+    { lean: true }
   ).exec();
 
   const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
@@ -62,11 +55,16 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   const ids = editions.map(({ editionId }) => editionId);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, ids);
 
+  const offChainEditionsMap = offChainEditions.reduce(
+    (map, edition) => map.set(BigNumber.from(edition.editionId).toString(), edition),
+    new Map()
+  );
+
   editions.forEach((edition, index) => {
-    const offChainMatch = offChainEditions.find(matchingEdition(edition.editionId));
+    const { createdAt, metadata } = offChainEditionsMap.get(BigNumber.from(edition.editionId).toString());
     edition.balance = balances[index];
-    edition.createdAt = offChainMatch.createdAt;
-    edition.metadata = offChainMatch.metadata;
+    edition.createdAt = createdAt;
+    edition.metadata = metadata;
   });
 
   return editions;

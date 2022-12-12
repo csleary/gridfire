@@ -71,7 +71,13 @@ const ActiveRelease = () => {
   }, [release._id, releaseId]); // eslint-disable-line
 
   useEffect(() => {
-    dispatch(fetchRelease(releaseId)).then(() => dispatch(setIsLoading(false)));
+    dispatch(fetchRelease(releaseId))
+      .then(() => dispatch(setIsLoading(false)))
+      .catch(error => {
+        if (error.response.status === 404) {
+          navigate("/");
+        }
+      });
   }, [releaseId]); // eslint-disable-line
 
   useEffect(() => {

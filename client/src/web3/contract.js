@@ -102,11 +102,11 @@ const gridFireCheckout = async (basket, userId) => {
   return transactionHash;
 };
 
-const mintEdition = async ({ description, price, releaseId, amount }) => {
+const mintEdition = async ({ amount, description, price, releaseId, tracks }) => {
   const provider = await getProvider();
   const signer = provider.getSigner();
   const gridFireEditions = getGridFireEditionsContract(signer);
-  const res = await axios.post(`/api/web3/editions/mint`, { description, price, releaseId, amount });
+  const res = await axios.post(`/api/web3/editions/mint`, { amount, description, price, releaseId, tracks });
   const { metadataUri, objectId } = res.data;
   const bigNumAmount = BigNumber.from(`${amount}`);
   const weiPrice = utils.parseEther(`${price}`);

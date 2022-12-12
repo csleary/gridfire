@@ -5,6 +5,7 @@ import User from "gridfire/models/User.js";
 import Wishlist from "gridfire/models/Wishlist.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
 import express from "express";
+import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const router = express.Router();
@@ -67,14 +68,57 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
 router.get("/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const release = await Release.findById(releaseId).exec();
+    const userId = req.user._id;
 
-    // Allow artists to see their own unpublished release pages.
-    if (!release.published && !release.user.equals(req.user._id)) {
-      throw new Error("This release is currently unavailable.");
+    const [release] = await Release.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(releaseId),
+          $or: [{ published: true }, { published: false, user: { $eq: userId } }] // Allow artists to see their own unpublished release pages.
+        }
+      },
+      {
+        $project: {
+          artist: 1,
+          artistName: 1,
+          artwork: 1,
+          catNumber: 1,
+          credits: 1,
+          info: 1,
+          price: 1,
+          pubName: 1,
+          recName: 1,
+          recYear: 1,
+          recordLabel: 1,
+          releaseTitle: 1,
+          releaseDate: 1,
+          tags: 1,
+          trackList: {
+            $map: {
+              input: "$trackList",
+              as: "track",
+              in: {
+                _id: "$$track._id",
+                duration: "$$track.duration",
+                isBonus: "$$track.isBonus",
+                isEditionOnly: "$$track.isEditionOnly",
+                price: "$$track.price",
+                trackTitle: "$$track.trackTitle",
+                mp4: {
+                  $cond: [{ $eq: ["$$track.isBonus", true] }, false, "$$track.mp4"]
+                }
+              }
+            }
+          }
+        }
+      }
+    ]).exec();
+
+    if (!release) {
+      return void res.sendStatus(404);
     }
 
-    res.json({ release: release.toJSON() });
+    res.json({ release });
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
@@ -217,12 +261,14 @@ router.post("/", requireLogin, async (req, res) => {
           upsert: true
         }
       },
-      ...trackList.flatMap(({ _id: trackId, price: trackPrice, trackTitle }, index) => [
+      ...trackList.flatMap(({ _id: trackId, isBonus, isEditionOnly, price: trackPrice, trackTitle }, index) => [
         // Update existing tracks.
         {
           updateOne: {
             filter: { _id: releaseId, "trackList._id": trackId, user },
             update: {
+              ...(isBonus ? { "trackList.$.isBonus": isBonus } : {}),
+              ...(isEditionOnly ? { "trackList.$.isEditionOnly": isEditionOnly } : {}),
               "trackList.$.price": trackPrice,
               "trackList.$.trackTitle": trackTitle,
               "trackList.$.position": index + 1
@@ -237,6 +283,8 @@ router.post("/", requireLogin, async (req, res) => {
               $push: {
                 trackList: {
                   _id: trackId,
+                  ...(isBonus ? { isBonus } : {}),
+                  ...(isEditionOnly ? { isEditionOnly } : {}),
                   position: index + 1,
                   price: trackPrice,
                   trackTitle

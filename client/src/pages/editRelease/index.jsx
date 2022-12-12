@@ -80,13 +80,15 @@ const EditRelease = () => {
     }
   }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
 
-  const handleChange = useCallback(({ target: { name, value } }, trackId) => {
+  const handleChange = useCallback(({ target: { checked, name, value } }, trackId) => {
     if (trackId) {
       setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
 
       return void setValues(current => ({
         ...current,
-        trackList: current.trackList.map(track => (track._id === trackId ? { ...track, [name]: value } : track))
+        trackList: current.trackList.map(track =>
+          track._id === trackId ? { ...track, [name]: checked ?? value } : track
+        )
       }));
     }
 

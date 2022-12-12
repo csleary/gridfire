@@ -14,9 +14,11 @@ const offlineQueue = [];
 
 const publishToQueue = (exchange, routingKey, message) => {
   const data = Buffer.from(JSON.stringify(message));
+
   try {
     channel.publish(exchange, routingKey, data, { persistent: true });
   } catch (error) {
+    logger.error(error);
     offlineQueue.push([exchange, routingKey, data]);
     if (channel) channel.connection.close();
   }
@@ -34,6 +36,7 @@ const startPublisher = async connection => {
       publishToQueue(exchange, routingKey, data);
     }
   } catch (error) {
+    logger.error(error);
     if (closeOnError(connection, error)) return;
   }
 };

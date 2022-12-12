@@ -4,6 +4,7 @@ import {
   AlertIcon,
   AlertTitle,
   Center,
+  Checkbox,
   Flex,
   FormLabel,
   IconButton,
@@ -43,8 +44,10 @@ const Track = ({
   handleMoveTrack,
   index,
   isActiveDragOver,
+  isBonus,
   isDragging,
   isDragOrigin,
+  isEditionOnly,
   price,
   trackId,
   trackTitle,
@@ -52,6 +55,7 @@ const Track = ({
   trackMarkedForDeletion,
   status
 }) => {
+  const checkboxColour = useColorModeValue("yellow", "purple");
   const trackRef = useRef();
 
   const dragOverStyle = isActiveDragOver
@@ -98,7 +102,7 @@ const Track = ({
           _grabbed={{ cursor: "grabbing" }}
         />
       </VStack>
-      <VStack spacing={2} flex="1 1 auto" mr={4}>
+      <VStack spacing={2} alignItems="flex-start" justifyContent="space-between" flex="1 1 auto" mr={4}>
         <Wrap spacing={8} width="100%">
           <WrapItem alignItems="center" flex="1 1 auto">
             <FormLabel color="gray.400" whiteSpace="nowrap" mb={0}>
@@ -133,13 +137,37 @@ const Track = ({
             />
           </WrapItem>
         </Wrap>
-        {errorTrackTitle ? (
-          <Alert status="error">
-            <AlertIcon />
-            <AlertTitle mr={2}>Error!</AlertTitle>
-            <AlertDescription>{errorTrackTitle}</AlertDescription>
-          </Alert>
-        ) : null}
+        <Wrap spacing={4}>
+          {errorTrackTitle ? (
+            <WrapItem>
+              <Alert status="error">
+                <AlertIcon />
+                <AlertTitle mr={2}>Error!</AlertTitle>
+                <AlertDescription>{errorTrackTitle}</AlertDescription>
+              </Alert>
+            </WrapItem>
+          ) : null}
+          <WrapItem>
+            <Checkbox
+              colorScheme={checkboxColour}
+              isChecked={isBonus}
+              name="isBonus"
+              onChange={e => handleChange(e, trackId)}
+            >
+              Bonus
+            </Checkbox>
+          </WrapItem>
+          <WrapItem>
+            <Checkbox
+              colorScheme={checkboxColour}
+              isChecked={isEditionOnly}
+              name="isEditionOnly"
+              onChange={e => handleChange(e, trackId)}
+            >
+              Edition Exclusive
+            </Checkbox>
+          </WrapItem>
+        </Wrap>
       </VStack>
       <AudioDropzone
         disablePreview

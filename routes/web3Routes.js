@@ -83,6 +83,7 @@ router.get("/purchases", requireLogin, async (req, res) => {
     res.sendStatus(400);
   }
 });
+
 router.get("/editions/user", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user;
@@ -98,11 +99,26 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
   try {
     const { app, body, hostname, protocol } = req;
     const { ipfs } = app.locals;
-    const { description, price, releaseId, amount } = body;
-    const release = await Release.findById(releaseId, "", { lean: true });
-    const { catNumber, credits, info, releaseDate, releaseTitle: title, artistName: artist, artwork } = release;
+    const { amount, description, price, releaseId, tracks: trackIds } = body;
+    const release = await Release.findById(releaseId);
+
+    const {
+      artistName: artist,
+      artwork,
+      catNumber,
+      credits,
+      info,
+      releaseDate,
+      releaseTitle: title,
+      trackList
+    } = release;
+
     const priceInDai = Number(price).toFixed(2);
     const weiPrice = utils.parseEther(`${price}`);
+
+    const tracks = trackList
+      .filter(track => trackIds.some(id => track._id.equals(id)))
+      .map(({ _id, trackTitle }) => ({ id: _id.toString(), title: trackTitle }));
 
     const tokenMetadata = {
       attributes: {
@@ -118,6 +134,7 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
         artist,
         title,
         totalSupply: amount,
+        tracks,
         price: weiPrice,
         priceInDai,
         releaseDate: new Date(releaseDate).toUTCString(),

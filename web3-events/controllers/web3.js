@@ -26,9 +26,15 @@ const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId)
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
     const releaseId = utils.parseBytes32String(releaseIdBytes);
-    const objectId = utils.parseBytes32String(objectIdBytes);
+    const _id = utils.parseBytes32String(objectIdBytes);
     console.log(`[${date}] Edition minted by address: ${artist} for releaseId ${releaseId}.`);
-    await Edition.findOneAndUpdate({ _id: objectId, release: releaseId }, { editionId, status: "minted" }).exec();
+
+    const { release } = await Edition.findOneAndUpdate({ _id, release: releaseId }, { editionId, status: "minted" })
+      .populate({ path: "release", model: Release, options: { lean: true }, select: "user" })
+      .exec();
+
+    const userId = release.user.toString();
+    publishToQueue("user", userId, { editionId: _id, type: "mintedEvent", userId });
   } catch (error) {
     console.error("EditionMinted error:", error);
   }

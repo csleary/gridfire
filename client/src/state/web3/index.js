@@ -21,6 +21,7 @@ const web3Slice = createSlice({
     isCheckingOut: false,
     isConnected: false,
     isFetchingAllowance: false,
+    mintedEditionIds: [],
     networkName: ""
   },
   reducers: {
@@ -51,6 +52,10 @@ const web3Slice = createSlice({
 
     setDaiBalance(state, action) {
       state.daiBalance = action.payload;
+    },
+
+    setMintedEditionIds(state, action) {
+      state.mintedEditionIds = [...state.mintedEditionIds, action.payload];
     },
 
     setError(state, action) {
@@ -217,6 +222,7 @@ export const {
   setIsCheckingOut,
   setIsConnected,
   setIsFetchingAllowance,
+  setMintedEditionIds,
   setNetworkName
 } = web3Slice.actions;
 

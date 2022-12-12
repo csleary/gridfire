@@ -1,3 +1,4 @@
+import { fetchDaiBalance, setMintedEditionIds } from "state/web3";
 import {
   setEncodingProgressFLAC,
   setPipelineError,
@@ -12,7 +13,6 @@ import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
 import { useEffect, useRef } from "react";
 import axios from "axios";
 import { fetchUser } from "state/user";
-import { fetchDaiBalance } from "state/web3";
 import { setArtworkUploading } from "state/artwork";
 import { updateTrackStatus } from "state/releases";
 
@@ -57,6 +57,11 @@ const useSSE = () => {
     const onEncodingProgressFLAC = event => {
       const { progress, trackId } = JSON.parse(event.data);
       dispatch(setEncodingProgressFLAC({ progress, trackId }));
+    };
+
+    const onEditionMinted = event => {
+      const { editionId } = JSON.parse(event.data);
+      dispatch(setMintedEditionIds(editionId));
     };
 
     const onPurchaseEvent = event => {
@@ -149,6 +154,7 @@ const useSSE = () => {
       source.onerror = error => console.log(`[SSE] Error: ${JSON.stringify(error, null, 2)}`);
       source.addEventListener("artworkUploaded", onArtworkUploaded);
       source.addEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
+      source.addEventListener("mintedEvent", onEditionMinted);
       source.addEventListener("notify", onNotify);
       source.addEventListener("pipelineError", onPipelineError);
       source.addEventListener("purchaseEvent", onPurchaseEvent);
@@ -171,6 +177,7 @@ const useSSE = () => {
         const source = sourceRef.current;
         source.removeEventListener("artworkUploaded", onArtworkUploaded);
         source.removeEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
+        source.removeEventListener("mintedEvent", onEditionMinted);
         source.removeEventListener("notify", onNotify);
         source.removeEventListener("pipelineError", onPipelineError);
         source.removeEventListener("purchaseEvent", onPurchaseEvent);

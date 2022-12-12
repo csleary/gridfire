@@ -1,8 +1,11 @@
 import {
   Box,
   Button,
+  Checkbox,
   Divider,
   Flex,
+  FormLabel,
+  FormHelperText,
   Heading,
   Link,
   Modal,
@@ -13,14 +16,15 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-  useColorModeValue
+  useColorModeValue,
+  FormControl
 } from "@chakra-ui/react";
+import { BigNumber, utils } from "ethers";
+import { GridFireEdition, MintedGridFireEdition } from "types";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useState } from "react";
-import { BigNumber, utils } from "ethers";
 import { CLOUD_URL } from "index";
 import Field from "components/field";
-import { GridFireEdition } from "types";
 import Icon from "components/icon";
 import ScaleFade from "components/transitions/scaleFade";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
@@ -34,6 +38,13 @@ interface HandleChangeInterface {
   currentTarget: HTMLInputElement;
 }
 
+interface ValuesInterface {
+  amount: Number;
+  description: String;
+  price: String;
+  tracks: String[];
+}
+
 const colors = [
   "var(--chakra-colors-green-200)",
   "var(--chakra-colors-blue-100)",
@@ -41,20 +52,29 @@ const colors = [
   "var(--chakra-colors-gray-400)"
 ];
 
-const defaultValues = { amount: 100, description: "", price: "50.00" };
+const Label = ({ children }: { children: any }) => (
+  <Box as="span" fontWeight="400" mr={2}>
+    {children}
+  </Box>
+);
+
+const defaultValues: ValuesInterface = { amount: 100, description: "", price: "50.00", tracks: [] };
 
 const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
   const isEditing = typeof releaseIdParam !== "undefined";
   const bgColour = useColorModeValue("white", "gray.800");
+  const checkboxColour = useColorModeValue("yellow", "purple");
   const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
-  const { _id: releaseId } = release;
+  const { mintedEditionIds } = useSelector(state => state.web3, shallowEqual);
+  const { _id: releaseId, trackList } = release;
   const [editions, setEditions] = useState([]);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [values, setValues] = useState(defaultValues);
   const [errors, setErrors] = useState({ amount: "", description: "", price: "" });
   const hasError = Object.values(errors).some(Boolean);
+  const editionTrackPool = trackList.filter(({ isEditionOnly }) => Boolean(isEditionOnly));
 
   useEffect(() => {
     const { artistName, releaseTitle } = release;
@@ -75,13 +95,22 @@ const MintEdition = () => {
 
   useEffect(() => {
     fetchEditions();
-  }, [fetchEditions]);
+  }, [fetchEditions, mintedEditionIds]);
 
   const handleChange = useCallback(({ currentTarget: { name, value } }: HandleChangeInterface) => {
     const nextValue = ["price"].includes(name) ? value.replace(/[^0-9.]/g, "") : value;
     setErrors(prev => ({ ...prev, [name]: "" }));
     setValues(prev => ({ ...prev, [name]: nextValue }));
   }, []);
+
+  const handleChangeTrack = (e: HandleChangeInterface) => {
+    const { name: trackId, checked } = e.currentTarget;
+
+    setValues(prev => ({
+      ...prev,
+      tracks: checked ? [...new Set([...prev.tracks, trackId])] : prev.tracks.filter(id => id !== trackId)
+    }));
+  };
 
   const handleBlur = () => setValues(prev => ({ ...prev, price: formatPrice(prev.price) }));
   const handleOpenModal = () => setShowModal(true);
@@ -90,11 +119,11 @@ const MintEdition = () => {
   const handleMint = async () => {
     try {
       setIsPurchasing(true);
-      const { amount, description, price } = values;
-      await mintEdition({ description, price, releaseId, amount });
+      const { amount, description, price, tracks } = values;
+      await mintEdition({ amount, description, price, releaseId, tracks });
       handleCloseModal();
-      fetchEditions();
     } catch (error) {
+      console.log(error);
     } finally {
       setIsPurchasing(false);
     }
@@ -112,7 +141,9 @@ const MintEdition = () => {
       <Heading size="lg" textAlign="left">
         Minted Editions
       </Heading>
-      {editions.map(({ editionId, amount, balance, price, uri = "" }: GridFireEdition, index) => {
+      {editions.map(({ amount, balance, editionId, metadata, price, uri = "" }: MintedGridFireEdition, index) => {
+        const { description, properties } = metadata;
+        const { tracks } = properties;
         const color1 = colors[index % colors.length];
         const color2 = colors[(index + 1) % colors.length];
         const shortUri = `${uri.slice(0, 13)}…${uri.slice(-6)}`;
@@ -121,10 +152,13 @@ const MintEdition = () => {
           <ScaleFade key={BigNumber.from(editionId).toString()}>
             <Flex
               color="var(--chakra-colors-blackAlpha-700)"
+              flexDirection="column"
               fontSize="lg"
               fontWeight="semibold"
-              mb={6}
-              p={4}
+              mb={8}
+              mx={12}
+              px={8}
+              py={6}
               position="relative"
             >
               <Box
@@ -135,24 +169,38 @@ const MintEdition = () => {
                 bottom={0}
                 left={0}
                 rounded="lg"
-                transform="skewX(-10deg)"
               />
-              <Box mr={4} zIndex={1}>
-                {index + 1}.
-              </Box>
-              <Box mr={4} zIndex={1}>
-                Qty.: {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
-              </Box>
-              <Box mr={4} zIndex={1}>
-                Price:{" "}
-                <Box as="span" mr="0.2rem">
-                  ◈
+              <Box fontWeight="500" zIndex={1}>
+                <Box>
+                  <Label>Current balance/total run:</Label>
+                  {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
                 </Box>
-                {utils.formatEther(price)}
+                <Box>
+                  <Label>Price in DAI:</Label>
+                  <Box as="span" mr="0.2rem">
+                    ◈
+                  </Box>
+                  {Number(utils.formatEther(price)).toFixed(2)}
+                </Box>
+                <Box>
+                  <Label>Metadata URI:</Label>
+                  <Link href={`${CLOUD_URL}/${uri.slice(7)}`} isExternal>
+                    {shortUri}
+                  </Link>
+                </Box>
+                <Box>
+                  <Label>Description:</Label>
+                  <Text>{description}</Text>
+                </Box>
+                <Box mt={2}>
+                  <Label>Exclusive tracks:</Label>
+                </Box>
+                {tracks.map(({ id, title }, trackIndex) => (
+                  <Box mx={3} zIndex={1} key={id}>
+                    {trackIndex + 1}. {title}
+                  </Box>
+                ))}
               </Box>
-              <Link href={`${CLOUD_URL}/${uri.slice(7)}`} isExternal mr={4} zIndex={1}>
-                Meta: {shortUri}
-              </Link>
             </Flex>
           </ScaleFade>
         );
@@ -199,6 +247,24 @@ const MintEdition = () => {
               size="lg"
               values={values}
             />
+            <FormLabel color="gray.500" fontWeight={500} mb={1}>
+              Select Edition-only tracks
+            </FormLabel>
+            {editionTrackPool.map(({ _id: trackId, trackTitle }, index) => {
+              return (
+                <Box key={trackId}>
+                  <Checkbox colorScheme={checkboxColour} name={trackId} onChange={handleChangeTrack}>
+                    <Box as="span" mr={2}>
+                      {index + 1}.
+                    </Box>
+                    {trackTitle}
+                  </Checkbox>
+                </Box>
+              );
+            })}
+            <FormControl>
+              <FormHelperText>Select optional Edition-exclusive tracks</FormHelperText>
+            </FormControl>
             <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mt={8} />
           </ModalBody>
           <ModalFooter>

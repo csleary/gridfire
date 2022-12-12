@@ -6,11 +6,6 @@ import {
   FormLabel,
   FormHelperText,
   Input,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
   Textarea
 } from "@chakra-ui/react";
 
