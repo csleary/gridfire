@@ -55,6 +55,11 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   const ids = editions.map(({ editionId }) => editionId);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, ids);
 
+  const balancesMap = balances.reduce(
+    (map, balance, index) => map.set(BigNumber.from(ids[index]).toString(), balance),
+    new Map()
+  );
+
   const offChainEditionsMap = offChainEditions.reduce(
     (map, edition) => map.set(BigNumber.from(edition.editionId).toString(), edition),
     new Map()
@@ -63,9 +68,9 @@ const getGridFireEditionsByReleaseId = async releaseId => {
   const matchedOffChain = ({ editionId }) => offChainEditionsMap.has(BigNumber.from(editionId).toString());
 
   // Filter out editions we don't have in the db, add balances and metadata for convenience.
-  return editions.filter(matchedOffChain).map((edition, index) => {
+  return editions.filter(matchedOffChain).map(edition => {
     const { createdAt, metadata } = offChainEditionsMap.get(BigNumber.from(edition.editionId).toString());
-    edition.balance = balances[index];
+    edition.balance = balancesMap.get(BigNumber.from(edition.editionId).toString());
     edition.createdAt = createdAt;
     edition.metadata = metadata;
     return edition;
