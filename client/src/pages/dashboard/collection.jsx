@@ -1,4 +1,4 @@
-import { Box, Heading, Link, Text, VStack, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, Heading, Link, Text, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { fetchCollection, fetchUserEditions } from "state/releases";
 import { useEffect, useState } from "react";
@@ -42,10 +42,10 @@ const Collection = () => {
         <>
           <Heading as="h3">GridFire Editions</Heading>
           <Grid>
-            {userEditions.map(({ _id: purchaseId, paid, purchaseDate, release, transaction = {} }) => (
-              <VStack key={purchaseId}>
-                <RenderRelease release={{ ...release, purchaseDate, purchaseId }} type="collection" />
-                <Box alignSelf="flex-end">
+            {userEditions.map(({ _id: purchaseId, paid, release, transaction = {} }) => (
+              <Box key={purchaseId}>
+                <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
+                <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
                     <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
@@ -62,8 +62,8 @@ const Collection = () => {
                     ) : null}
                     .
                   </Text>
-                </Box>
-              </VStack>
+                </Flex>
+              </Box>
             ))}
           </Grid>
         </>
@@ -74,9 +74,9 @@ const Collection = () => {
           <Heading as="h3">Albums</Heading>
           <Grid>
             {albums.map(({ _id: purchaseId, paid, purchaseDate, release, transaction = {} }) => (
-              <VStack key={purchaseId}>
-                <RenderRelease release={{ ...release, purchaseDate, purchaseId }} type="collection" />
-                <Box alignSelf="flex-end">
+              <Box key={purchaseId}>
+                <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
+                <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
                     <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
@@ -88,12 +88,13 @@ const Collection = () => {
                     </Box>
                     {Number(utils.formatEther(paid)).toFixed(2)}.
                   </Text>
-                </Box>
-              </VStack>
+                </Flex>
+              </Box>
             ))}
           </Grid>
         </>
       ) : null}
+
       {singles.length ? (
         <>
           <Heading as="h3" mt={8}>
@@ -104,7 +105,7 @@ const Collection = () => {
               const single = release.trackList.find(({ _id }) => _id === trackId);
 
               return (
-                <VStack key={purchaseId}>
+                <Box key={purchaseId}>
                   <RenderRelease
                     release={{
                       ...release,
@@ -112,8 +113,9 @@ const Collection = () => {
                       purchaseId
                     }}
                     type="collection"
+                    mb={2}
                   />
-                  <Box alignSelf="flex-end">
+                  <Flex justifyContent="flex-end">
                     <Text color={receiptTextColour}>
                       <Icon color={receiptColour} icon={faReceipt} mr={2} />
                       <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
@@ -125,8 +127,8 @@ const Collection = () => {
                       </Box>
                       {Number(utils.formatEther(paid)).toFixed(2)}.
                     </Text>
-                  </Box>
-                </VStack>
+                  </Flex>
+                </Box>
               );
             })}
           </Grid>

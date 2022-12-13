@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, VStack, useColorModeValue } from "@chakra-ui/react";
+import { Accordion, Box, Divider, Flex, VStack, useColorModeValue, ScaleFade } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { BigNumber } from "ethers";
 import Edition from "./edition";
@@ -32,13 +32,17 @@ const Editions = () => {
         </Box>
         <Divider borderColor={color} />
       </Flex>
-      <VStack spacing={6} mb={8}>
-        {editions.map((edition, index) => {
-          const { editionId } = edition;
-          const formattedTokenId = BigNumber.from(editionId).toString();
-          return <Edition edition={edition} fetchEditions={fetchEditions} index={index} key={formattedTokenId} />;
-        })}
-      </VStack>
+      <ScaleFade in>
+        <Accordion defaultIndex={[]} allowMultiple>
+          <VStack spacing={6} mb={8}>
+            {editions.map((edition, index) => {
+              const { editionId } = edition;
+              const formattedTokenId = BigNumber.from(editionId).toString();
+              return <Edition edition={edition} fetchEditions={fetchEditions} index={index} key={formattedTokenId} />;
+            })}
+          </VStack>
+        </Accordion>
+      </ScaleFade>
     </>
   );
 };

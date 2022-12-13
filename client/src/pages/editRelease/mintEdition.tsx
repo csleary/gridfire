@@ -141,70 +141,74 @@ const MintEdition = () => {
       <Heading size="lg" textAlign="left">
         Minted Editions
       </Heading>
-      {editions.map(({ amount, balance, editionId, metadata, price, uri = "" }: MintedGridFireEdition, index) => {
-        const { description, properties } = metadata;
-        const { tracks } = properties;
-        const color1 = colors[index % colors.length];
-        const color2 = colors[(index + 1) % colors.length];
-        const shortUri = `${uri.slice(0, 13)}…${uri.slice(-6)}`;
+      {editions.length ? (
+        editions.map(({ amount, balance, editionId, metadata, price, uri = "" }: MintedGridFireEdition, index) => {
+          const { description, properties } = metadata;
+          const { tracks } = properties;
+          const color1 = colors[index % colors.length];
+          const color2 = colors[(index + 1) % colors.length];
+          const shortUri = `${uri.slice(0, 13)}…${uri.slice(-6)}`;
 
-        return (
-          <ScaleFade key={BigNumber.from(editionId).toString()}>
-            <Flex
-              color="var(--chakra-colors-blackAlpha-700)"
-              flexDirection="column"
-              fontSize="lg"
-              fontWeight="semibold"
-              mb={8}
-              mx={12}
-              px={8}
-              py={6}
-              position="relative"
-            >
-              <Box
-                background={`linear-gradient(to right, ${color1}, ${color2})`}
-                position="absolute"
-                top={0}
-                right={0}
-                bottom={0}
-                left={0}
-                rounded="lg"
-              />
-              <Box fontWeight="500" zIndex={1}>
-                <Box>
-                  <Label>Current balance/total run:</Label>
-                  {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
-                </Box>
-                <Box>
-                  <Label>Price in DAI:</Label>
-                  <Box as="span" mr="0.2rem">
-                    ◈
+          return (
+            <ScaleFade key={BigNumber.from(editionId).toString()}>
+              <Flex
+                color="var(--chakra-colors-blackAlpha-700)"
+                flexDirection="column"
+                fontSize="lg"
+                fontWeight="semibold"
+                mb={8}
+                mx={12}
+                px={8}
+                py={6}
+                position="relative"
+              >
+                <Box
+                  background={`linear-gradient(to right, ${color1}, ${color2})`}
+                  position="absolute"
+                  top={0}
+                  right={0}
+                  bottom={0}
+                  left={0}
+                  rounded="lg"
+                />
+                <Box fontWeight="500" zIndex={1}>
+                  <Box>
+                    <Label>Current balance/total run:</Label>
+                    {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
                   </Box>
-                  {Number(utils.formatEther(price)).toFixed(2)}
-                </Box>
-                <Box>
-                  <Label>Metadata URI:</Label>
-                  <Link href={`${CLOUD_URL}/${uri.slice(7)}`} isExternal>
-                    {shortUri}
-                  </Link>
-                </Box>
-                <Box>
-                  <Label>Description:</Label>
-                  <Text>{description}</Text>
-                </Box>
-                <Box mt={2}>
-                  <Label>Exclusive tracks:</Label>
-                </Box>
-                {tracks.map(({ id, title }, trackIndex) => (
-                  <Box mx={3} zIndex={1} key={id}>
-                    {trackIndex + 1}. {title}
+                  <Box>
+                    <Label>Price in DAI:</Label>
+                    <Box as="span" mr="0.2rem">
+                      ◈
+                    </Box>
+                    {Number(utils.formatEther(price)).toFixed(2)}
                   </Box>
-                ))}
-              </Box>
-            </Flex>
-          </ScaleFade>
-        );
-      })}
+                  <Box>
+                    <Label>Metadata URI:</Label>
+                    <Link href={`${CLOUD_URL}/${uri.slice(7)}`} isExternal>
+                      {shortUri}
+                    </Link>
+                  </Box>
+                  <Box>
+                    <Label>Description:</Label>
+                    <Text>{description}</Text>
+                  </Box>
+                  <Box mt={2}>
+                    <Label>Exclusive tracks:</Label>
+                  </Box>
+                  {tracks.map(({ id, title }, trackIndex) => (
+                    <Box mx={3} zIndex={1} key={id}>
+                      {trackIndex + 1}. {title}
+                    </Box>
+                  ))}
+                </Box>
+              </Flex>
+            </ScaleFade>
+          );
+        })
+      ) : (
+        <Text mb={8}>You haven't minted any editions for this release. Use the button below to get started!</Text>
+      )}
       <Button isDisabled={!isEditing} leftIcon={<Icon icon={faPlusCircle} />} onClick={handleOpenModal}>
         Mint GridFire Edition
       </Button>

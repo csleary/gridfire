@@ -5,6 +5,7 @@ export interface GridFireEdition {
   amount?: BigNumber;
   balance?: BigNumber;
   editionId: BigNumber;
+  metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
   price: BigNumber;
   uri?: string;
 }

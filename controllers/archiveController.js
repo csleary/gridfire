@@ -3,12 +3,12 @@ import archiver from "archiver";
 import { decryptStream } from "./encryption.js";
 import tar from "tar-stream";
 
-const zipDownload = async ({ ipfs, key, release, res, format }) => {
+const zipDownload = async ({ ipfs, isEdition, key, release, res, format }) => {
   try {
-    const { artistName, artwork, releaseTitle, trackList } = release;
+    const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
     const archive = archiver("zip");
-    archive.on("end", () => console.log("Download archiving complete."));
-    archive.on("error", console.log);
+    archive.on("end", () => console.log(`Download archiving complete for release ${releaseId}.`));
+    archive.on("error", console.error);
     archive.on("warning", console.log);
     res.attachment(`${artistName} - ${releaseTitle}.zip`);
     archive.pipe(res);
@@ -28,8 +28,8 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
       tarStream.pipe(tarExtract);
     });
 
-    for (const { [format]: cid, position, trackTitle } of trackList) {
-      if (!cid) continue;
+    for (const { [format]: cid, isEditionOnly, position, trackTitle } of trackList) {
+      if (!cid || (!isEdition && isEditionOnly)) continue;
       const trackName = `${position.toString(10).padStart(2, "0")} ${trackTitle}.${format}`;
 
       await new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ const zipDownload = async ({ ipfs, key, release, res, format }) => {
 
     archive.finalize();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

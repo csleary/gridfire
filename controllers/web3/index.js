@@ -60,14 +60,16 @@ const getGridFireEditionsByReleaseId = async releaseId => {
     new Map()
   );
 
-  editions.forEach((edition, index) => {
+  const matchedOffChain = ({ editionId }) => offChainEditionsMap.has(BigNumber.from(editionId).toString());
+
+  // Filter out editions we don't have in the db, add balances and metadata for convenience.
+  return editions.filter(matchedOffChain).map((edition, index) => {
     const { createdAt, metadata } = offChainEditionsMap.get(BigNumber.from(edition.editionId).toString());
     edition.balance = balances[index];
     edition.createdAt = createdAt;
     edition.metadata = metadata;
+    return edition;
   });
-
-  return editions;
 };
 
 const getGridFireEditionUris = async releaseId => {
@@ -86,7 +88,7 @@ const getGridFireEditionUris = async releaseId => {
 const getTransaction = async txId => {
   const provider = getProvider();
   const tx = await provider.getTransaction(txId);
-  const iface = new utils.Interface(abi);
+  const iface = new utils.Interface(gridFireEditionsABI);
   const parsedTx = iface.parseTransaction(tx);
   return parsedTx;
 };

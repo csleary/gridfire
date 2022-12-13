@@ -11,14 +11,14 @@ import { fetchRelease } from "state/releases";
 import placeholder from "placeholder.svg";
 import { toastInfo } from "state/toast";
 
-const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) => {
+const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }) => {
   const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
 
   if (!release) {
     return (
-      <Box position="relative">
+      <Box position="relative" {...rest}>
         <Fade in={isOpen}>
           <Box display="block" pt="100%" position="relative">
             <Image alt="Release not found." inset={0} loading="lazy" position="absolute" src={placeholder} />
@@ -71,6 +71,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type }) =
       _hover={{
         "> *": { boxShadow: "lg", opacity: 1, transition: "0.5s cubic-bezier(0.2, 0.8, 0.4, 1)", visibility: "visible" }
       }}
+      {...rest}
     >
       <Fade in={isOpen}>
         <Box display="block" pt="100%" position="relative">

@@ -1,15 +1,28 @@
+import {
+  AccordionButton,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Button,
+  Center,
+  Flex,
+  ListItem,
+  OrderedList,
+  Text,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { BigNumber, constants, utils } from "ethers";
-import { Box, Button } from "@chakra-ui/react";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { GridFireEdition } from "types";
-import ScaleFade from "components/transitions/scaleFade";
+import Icon from "components/icon";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
 import { purchaseEdition } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 const colors = [
   "var(--chakra-colors-green-200)",
@@ -28,10 +41,15 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId = "" } = useParams();
-  const { editionId, amount, balance, price } = edition;
+  const { editionId, amount, balance, metadata, price } = edition;
+  const { description, properties } = metadata;
+  const { tracks } = properties;
   const { account, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const allowanceTooLow = BigNumber.from(price).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
+  const bgColor = useColorModeValue("var(--chakra-colors-whiteAlpha-800)", "rgba(26,32,44,0.85)");
+  const descriptionColor = useColorModeValue("var(--chakra-colors-chakra-body-text)", "gray.300");
+  const infoColor = useColorModeValue("var(--chakra-colors-chakra-body-text)", "gray.300");
   const color1 = colors[index % colors.length];
   const color2 = colors[(index + 1) % colors.length];
   const formattedAmount = BigNumber.from(amount).toString();
@@ -39,6 +57,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const formattedPrice = utils.formatEther(price);
   const isSoldOut = BigNumber.from(balance).eq(constants.Zero);
   const isDisabled = !isConnected || isFetchingAllowance || isPurchasing || isSoldOut;
+  const transition = "200ms ease-in-out";
 
   const handlePurchase = async ({ editionId, price }: GridFireEdition) => {
     try {
@@ -62,54 +81,92 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
 
   const handleClick = ({ allowanceTooLow, editionId, price }: GridFireEdition) => {
     if (allowanceTooLow) return void navigate("/dashboard/payment/approvals");
-    handlePurchase({ editionId, price });
+    handlePurchase({ editionId, metadata, price });
   };
 
   return (
-    <ScaleFade>
-      <Button
-        color="var(--chakra-colors-blackAlpha-700)"
-        disabled={isDisabled}
-        display="flex"
-        fontSize="lg"
-        fontWeight="bold"
-        height="unset"
-        justifyContent="space-between"
-        minWidth="16rem"
-        onClick={handleClick.bind(null, { allowanceTooLow, editionId, price })}
-        pt={3}
-        pr={4}
-        pb={3}
-        pl={4}
-        position="relative"
-        role="group"
-        transition="100ms ease-in"
-        variant="unstyled"
-        _hover={isDisabled ? undefined : { color: "blackAlpha.800" }}
-      >
-        <Box
-          background={`linear-gradient(to right, ${color1}, ${color2})`}
-          position="absolute"
-          top={0}
-          right={0}
-          bottom={0}
-          left={0}
-          rounded="lg"
-          transition="100ms ease-in"
-          transform="skewX(-10deg)"
-          _groupHover={isDisabled ? undefined : { transform: "skewX(-10deg) scale(1.03)" }}
-        />
-        <Box mr={4} zIndex={1}>
-          <Box as="span" mr="0.2rem">
-            ◈
-          </Box>
-          {formattedPrice}
-        </Box>
-        <Box mr={4} zIndex={1}>
-          {isPurchasing ? "Purchasing…" : isSoldOut ? "Sold Out" : `${formattedBalance}/${formattedAmount}`}
-        </Box>
-      </Button>
-    </ScaleFade>
+    <AccordionItem border="none" width="100%">
+      {({ isExpanded }) => (
+        <Flex flexDirection="column">
+          <Flex justifyContent="center">
+            <AccordionButton
+              color="var(--chakra-colors-blackAlpha-700)"
+              display="flex"
+              flex={`${isExpanded ? 1 : 0} 0 16rem`}
+              fontSize="lg"
+              fontWeight="bold"
+              height="unset"
+              justifyContent="space-between"
+              px={4}
+              py={3}
+              position="relative"
+              role="group"
+              transition={transition}
+              width="unset"
+              _hover={{ color: "blackAlpha.800" }}
+            >
+              <Box
+                background={`linear-gradient(to right, ${color1}, ${color2})`}
+                position="absolute"
+                top={0}
+                right={0}
+                bottom={0}
+                left={0}
+                rounded="lg"
+                transition={transition}
+                transform={isExpanded ? "none" : "skewX(-10deg)"}
+                _groupHover={isExpanded ? undefined : { transform: "skewX(-10deg) scale(1.03)" }}
+              />
+              <Box mr={4} zIndex={1}>
+                <Box as="span" mr="0.2rem">
+                  ◈
+                </Box>
+                {formattedPrice}
+              </Box>
+              <Box mr={4} zIndex={1}>
+                {isPurchasing ? "Purchasing…" : isSoldOut ? "Sold Out" : `${formattedBalance}/${formattedAmount}`}
+              </Box>
+            </AccordionButton>
+          </Flex>
+          <AccordionPanel
+            background={`linear-gradient(to right, ${color1}, ${color2})`}
+            mt={4}
+            p={4}
+            position="relative"
+            rounded="lg"
+            _before={{
+              backgroundColor: bgColor,
+              content: '""',
+              inset: "0",
+              position: "absolute"
+            }}
+          >
+            <Box position="relative">
+              <Center color={descriptionColor} fontSize="2xl" fontWeight="300" mb={4} width="100%">
+                {description}
+              </Center>
+              <Text color={infoColor}>Featuring these exclusive tracks:</Text>
+              <OrderedList fontWeight="500" mx={12} my={4} mb={12}>
+                {tracks.map(({ id, title }, index) => (
+                  <ListItem key={id}>{title}</ListItem>
+                ))}
+              </OrderedList>
+              <Center>
+                <Button
+                  display="block"
+                  isDisabled={isDisabled}
+                  leftIcon={<Icon icon={faEthereum} />}
+                  minWidth="16rem"
+                  onClick={handleClick.bind(null, { allowanceTooLow, editionId, metadata, price })}
+                >
+                  Buy {description}
+                </Button>
+              </Center>
+            </Box>
+          </AccordionPanel>
+        </Flex>
+      )}
+    </AccordionItem>
   );
 };
 
