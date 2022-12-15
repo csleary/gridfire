@@ -14,7 +14,7 @@ import {
 import { BigNumber, constants, utils } from "ethers";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { GridFireEdition } from "types";
 import Icon from "components/icon";
 import axios from "axios";
@@ -39,6 +39,7 @@ interface Props {
 
 const Edition = ({ edition, fetchEditions, index }: Props) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
   const { releaseId = "" } = useParams();
   const { editionId, amount, balance, metadata, price } = edition;
@@ -80,7 +81,18 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   };
 
   const handleClick = ({ allowanceTooLow, editionId, price }: GridFireEdition) => {
-    if (allowanceTooLow) return void navigate("/dashboard/payment/approvals");
+    if (allowanceTooLow) {
+      dispatch(
+        toastWarning({
+          message: "Please increase your DAI spending allowance in order to make a purchase",
+          title: "Allowance too low"
+        })
+      );
+
+      const { pathname } = location;
+      return void navigate("/dashboard/payment/approvals", { state: { pathname } });
+    }
+
     handlePurchase({ editionId, metadata, price });
   };
 
@@ -142,15 +154,22 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
             }}
           >
             <Box position="relative">
-              <Center color={descriptionColor} fontSize="2xl" fontWeight="300" mb={4} width="100%">
+              <Center color={descriptionColor} fontSize="2xl" fontWeight="500" mb={4} mt={-2} width="100%">
                 {description}
               </Center>
-              <Text color={infoColor}>Featuring these exclusive tracks:</Text>
-              <OrderedList fontWeight="500" mx={12} my={4} mb={12}>
-                {tracks.map(({ id, title }, index) => (
-                  <ListItem key={id}>{title}</ListItem>
-                ))}
-              </OrderedList>
+              <Text color={infoColor}>
+                Edition of {formattedAmount} ({formattedBalance} remaining).
+              </Text>
+              {tracks.length ? (
+                <>
+                  <Text color={infoColor}>Featuring these exclusive tracks:</Text>
+                  <OrderedList fontWeight="500" mx={12} my={4} mb={12}>
+                    {tracks.map(({ id, title }) => (
+                      <ListItem key={id}>{title}</ListItem>
+                    ))}
+                  </OrderedList>
+                </>
+              ) : null}
               <Center>
                 <Button
                   display="block"

@@ -53,11 +53,8 @@ const TrackList = () => {
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
-  const badgeColour = useColorModeValue("yellow", "purple");
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
-  const tooltipBgColor = useColorModeValue("gray.200", "gray.800");
-  const tooltipColor = useColorModeValue("gray.800", "gray.100");
 
   const handleAddToBasket = async ({ price, trackId, trackTitle }: BasketItem) => {
     try {
@@ -156,24 +153,12 @@ const TrackList = () => {
               <Box as={FontAwesomeIcon} icon={faPause} animation={animation} ml={2} />
             ) : null}
             {isBonus ? (
-              <Tooltip
-                hasArrow
-                openDelay={500}
-                label={`\u2018${trackTitle}\u2019 is a download exclusive.`}
-                bg={tooltipBgColor}
-                color={tooltipColor}
-              >
+              <Tooltip label={`\u2018${trackTitle}\u2019 is a download exclusive.`}>
                 <Icon color="gray.300" icon={faCloudDownload} ml={2} />
               </Tooltip>
             ) : null}
             {isEditionOnly ? (
-              <Tooltip
-                hasArrow
-                openDelay={500}
-                label={`\u2018${trackTitle}\u2019 is an exclusive for one or more Editions.`}
-                bg={tooltipBgColor}
-                color={tooltipColor}
-              >
+              <Tooltip label={`\u2018${trackTitle}\u2019 is an exclusive for one or more Editions.`}>
                 <Badge
                   _before={{
                     content: '""',
@@ -209,27 +194,31 @@ const TrackList = () => {
               </Tooltip>
             ) : null}
             <Spacer />
-            <PurchaseTrackButton
-              allowanceTooLow={allowanceTooLow}
-              artistName={artistName}
-              handlePurchaseTrack={handlePurchaseTrack}
-              inCollection={inCollection}
-              isPurchasing={isPurchasing}
-              price={price}
-              trackId={trackId}
-              trackInCollection={trackInCollection}
-              trackTitle={trackTitle}
-            />
-            <AddToBasketButton
-              artistName={artistName}
-              handleAddToBasket={handleAddToBasket}
-              inBasket={inBasket}
-              inCollection={inCollection}
-              price={price}
-              trackId={trackId}
-              trackInCollection={trackInCollection}
-              trackTitle={trackTitle}
-            />
+            {isEditionOnly ? null : (
+              <PurchaseTrackButton
+                allowanceTooLow={allowanceTooLow}
+                artistName={artistName}
+                handlePurchaseTrack={handlePurchaseTrack}
+                inCollection={inCollection}
+                isPurchasing={isPurchasing}
+                price={price}
+                trackId={trackId}
+                trackInCollection={trackInCollection}
+                trackTitle={trackTitle}
+              />
+            )}
+            {isEditionOnly ? null : (
+              <AddToBasketButton
+                artistName={artistName}
+                handleAddToBasket={handleAddToBasket}
+                inBasket={inBasket}
+                inCollection={inCollection}
+                price={price}
+                trackId={trackId}
+                trackInCollection={trackInCollection}
+                trackTitle={trackTitle}
+              />
+            )}
           </ListItem>
         );
       })}

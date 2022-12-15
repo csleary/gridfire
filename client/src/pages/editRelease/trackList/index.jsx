@@ -1,4 +1,4 @@
-import { Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useState } from "react";
@@ -126,14 +126,30 @@ const TrackList = ({ errors = {}, handleChange, setValues, trackList }) => {
   return (
     <>
       <Heading as="h3">Track List</Heading>
-      <Text mb={4}>
-        Upload formats supported: flac, aiff, wav.
-        <br />
-        Click or drop a file into the dashed box to upload.
-        <br />
-        Drag and drop to rearrange tracks.
-        <br />
-      </Text>
+      <Text mb={2}>Tips:</Text>
+      <UnorderedList>
+        <ListItem>
+          <Text>Click or drop a file into the dashed box to upload. Supported formats: flac, aiff, wav.</Text>
+        </ListItem>
+      </UnorderedList>
+      <UnorderedList>
+        <ListItem>
+          <Text>Download bonus: these tracks will only available for download, and will not be streamable.</Text>
+        </ListItem>
+      </UnorderedList>
+      <UnorderedList>
+        <ListItem>
+          <Text>
+            Edition exclusive: these tracks will be selectable in the pool of Edition-only tracks, and will no longer be
+            available in standard purchases. These will be streamable unless you also mark these as download bonuses.
+          </Text>
+        </ListItem>
+      </UnorderedList>
+      <UnorderedList>
+        <ListItem>
+          <Text mb={12}>Drag and drop to rearrange tracks.</Text>
+        </ListItem>
+      </UnorderedList>
       <Flex flexDirection="column">
         {trackList.map(({ _id: trackId, isBonus, isEditionOnly, price, status, trackTitle }, index) => {
           return (

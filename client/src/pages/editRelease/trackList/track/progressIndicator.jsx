@@ -27,13 +27,7 @@ const ProgressIndicator = ({
       value={isStored ? 100 : progress || 0}
       isIndeterminate={error != null ? false : stageHasStarted && !progress}
     >
-      <Tooltip
-        hasArrow
-        label={tooltipText}
-        openDelay={500}
-        bg={useColorModeValue("gray.200", "gray.800")}
-        color={useColorModeValue("gray.800", "gray.100")}
-      >
+      <Tooltip label={tooltipText}>
         <CircularProgressLabel
           animation={error != null ? animation : false}
           color={error != null ? "red.400" : isStored || stageHasStarted ? labelColor : "gray.600"}

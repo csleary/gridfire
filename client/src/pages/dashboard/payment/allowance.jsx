@@ -38,6 +38,7 @@ import { ethers, utils } from "ethers";
 import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
@@ -46,6 +47,8 @@ import { toastSuccess } from "state/toast";
 
 const Allowance = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { web3 } = useSelector(state => state, shallowEqual);
   const { account, accountShort, daiAllowance, isConnected, isFetchingAllowance } = web3;
   const [error, setError] = useState("");
@@ -103,6 +106,9 @@ const Allowance = () => {
 
       getDaiApprovalEvents(account).then(setApprovals);
       setShowModal(false);
+      console.log(location.state);
+      const { pathname } = location.state || {};
+      if (pathname) return navigate(pathname);
     } catch (error) {
       console.error(error);
     } finally {

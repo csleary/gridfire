@@ -1,6 +1,7 @@
 import { constants, utils } from "ethers";
 import { useDispatch, useSelector } from "hooks";
 import { toastError, toastWarning } from "state/toast";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
 import NameYourPriceModal from "./nameYourPriceModal";
@@ -9,7 +10,6 @@ import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 interface Props {
@@ -21,6 +21,7 @@ interface Props {
 
 const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Props) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -61,7 +62,8 @@ const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Pro
   };
 
   const handleClick = () => {
-    if (allowanceTooLow) return void navigate("/dashboard/payment/approvals");
+    const { pathname } = location;
+    if (allowanceTooLow) return void navigate("/dashboard/payment/approvals", { state: { pathname } });
     if (inCollection) return void navigate("/dashboard/collection");
     if (Number(price) === 0) return void setShowModal(true);
     handlePayment(Number(price).toFixed(2));

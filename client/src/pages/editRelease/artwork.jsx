@@ -10,7 +10,6 @@ import {
   Image as Img,
   Square,
   Text,
-  Tooltip,
   useColorModeValue
 } from "@chakra-ui/react";
 import { deleteArtwork, uploadArtwork } from "state/artwork";
@@ -168,14 +167,12 @@ const Artwork = () => {
                 thickness=".75rem"
                 value={artworkUploadProgress}
               >
-                <Tooltip hasArrow openDelay={500} bg={toolTipBg} color={toolTipColor}>
-                  <CircularProgressLabel
-                    color={artworkUploading ? "blue.200" : "gray.600"}
-                    transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-                  >
-                    {artworkUploadProgress || 0}%
-                  </CircularProgressLabel>
-                </Tooltip>
+                <CircularProgressLabel
+                  color={artworkUploading ? "blue.200" : "gray.600"}
+                  transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
+                >
+                  {artworkUploadProgress || 0}%
+                </CircularProgressLabel>
               </CircularProgress>
             ) : !coverArtPreview && isDragReject ? (
               <Text textAlign="center">

@@ -27,8 +27,6 @@ const AddToBasketButton = ({
   trackInCollection,
   trackTitle
 }: Props) => {
-  const tooltipBgColour = useColorModeValue("gray.200", "gray.800");
-  const tooltipColour = useColorModeValue("gray.800", "gray.100");
   const checkColour = useColorModeValue("yellow.400", "purple.200");
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -54,13 +52,9 @@ const AddToBasketButton = ({
   return (
     <>
       <Tooltip
-        hasArrow
-        openDelay={500}
         label={
           trackInCollection ? "You own this track." : `Add \u2018${trackTitle}\u2019, by ${artistName}, to your basket.`
         }
-        bg={tooltipBgColour}
-        color={tooltipColour}
       >
         <IconButton
           aria-label="Set a price for a release and add it to the basket."

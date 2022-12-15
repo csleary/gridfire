@@ -46,15 +46,7 @@ const Header = () => {
   const { toggleColorMode } = useColorMode();
   const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
   const colorModeTextHover = useColorModeValue("purple", "yellow");
-
-  const navBackgroundColor = useColorModeValue(
-    isTop ? "var(--chakra-colors-gray-50)" : "var(--chakra-colors-blackAlpha-200)",
-    isTop ? "var(--chakra-colors-gray-900)" : "var(--chakra-colors-blackAlpha-500)"
-  );
-
   const primaryButtonColor = useColorModeValue("yellow", "purple");
-  const tooltipBgColor = useColorModeValue("gray.200", "gray.800");
-  const tooltipColor = useColorModeValue("gray.800", "gray.100");
 
   const activeStyle = {
     "&.active": useColorModeValue(
@@ -62,6 +54,11 @@ const Header = () => {
       { backgroundColor: "purple.200", color: "purple.900" }
     )
   };
+
+  const navBackgroundColor = useColorModeValue(
+    isTop ? "var(--chakra-colors-gray-50)" : "var(--chakra-colors-blackAlpha-200)",
+    isTop ? "var(--chakra-colors-gray-900)" : "var(--chakra-colors-blackAlpha-500)"
+  );
 
   const dispatch = useDispatch();
   const navRef = useRef<HTMLDivElement | null>();
@@ -155,13 +152,7 @@ const Header = () => {
           {isConnected ? (
             <>
               <WrapItem alignItems="center">
-                <Tooltip
-                  hasArrow
-                  openDelay={500}
-                  label="Your active account's DAI balance."
-                  bg={tooltipBgColor}
-                  color={tooltipColor}
-                >
+                <Tooltip label="Your active account's DAI balance.">
                   <Badge
                     colorScheme={
                       utils.getAddress(account) !== utils.getAddress(userAccount) ? "yellow" : primaryButtonColor
@@ -173,13 +164,7 @@ const Header = () => {
                 </Tooltip>
               </WrapItem>
               <WrapItem>
-                <Tooltip
-                  hasArrow
-                  openDelay={500}
-                  label={`Your active web3 account. Click to view account details on the explorer.`}
-                  bg={tooltipBgColor}
-                  color={tooltipColor}
-                >
+                <Tooltip label={`Your active web3 account. Click to view account details on the explorer.`}>
                   <Button
                     as={Link}
                     colorScheme={utils.getAddress(account) !== utils.getAddress(userAccount) ? "yellow" : undefined}

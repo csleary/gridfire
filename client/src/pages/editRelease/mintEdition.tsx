@@ -17,12 +17,13 @@ import {
   ModalHeader,
   Text,
   useColorModeValue,
-  FormControl
+  FormControl,
+  Badge
 } from "@chakra-ui/react";
 import { BigNumber, utils } from "ethers";
-import { GridFireEdition, MintedGridFireEdition } from "types";
+import { MintedGridFireEdition } from "types";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CLOUD_URL } from "index";
 import Field from "components/field";
 import Icon from "components/icon";
@@ -76,6 +77,17 @@ const MintEdition = () => {
   const hasError = Object.values(errors).some(Boolean);
   const editionTrackPool = trackList.filter(({ isEditionOnly }) => Boolean(isEditionOnly));
 
+  const trackIdsInEditions = useMemo(
+    () =>
+      new Set(
+        editions.flatMap(
+          ({ metadata }: MintedGridFireEdition) => metadata.properties.tracks.map(({ id }) => id),
+          [editions]
+        )
+      ),
+    [editions]
+  );
+
   useEffect(() => {
     const { artistName, releaseTitle } = release;
     setValues(prev => ({ ...prev, description: `${artistName} - ${releaseTitle}` }));
@@ -88,7 +100,7 @@ const MintEdition = () => {
         getGridFireEditionUris(releaseIdParam)
       ]);
 
-      editions.forEach((edition: GridFireEdition, index: number) => (edition.uri = uris[index]));
+      editions.forEach((edition: MintedGridFireEdition, index: number) => (edition.uri = uris[index]));
       setEditions(editions);
     }
   }, [releaseIdParam]);
@@ -135,8 +147,8 @@ const MintEdition = () => {
         Editions
       </Heading>
       <Text mb={6}>
-        Mint a limited run of NFT-backed GridFire Editions for your release. These will be listed on the release page,
-        below the standard audio-only release.
+        Mint a limited run of NFT-backed GridFire Editions for your release, with exclusive tracks. These will be listed
+        on the release page, below the standard audio-only release.
       </Text>
       <Heading size="lg" textAlign="left">
         Minted Editions
@@ -221,7 +233,7 @@ const MintEdition = () => {
             <Field
               backgroundColor={bgColour}
               errors={errors}
-              info="This will be used for the edition NFT metadata, set to the artist and release title by default."
+              info="This will be used for the Edition NFT metadata. It might be useful to name these according to theme, depending on the exclusive tracks selected, e.g. 'Outtakes', 'Remixes', 'Live Sets', 'Superfan Pack' etc."
               label="Description"
               name="description"
               onChange={handleChange}
@@ -231,7 +243,7 @@ const MintEdition = () => {
             <Field
               backgroundColor={bgColour}
               errors={errors}
-              info="The total supply amount for this edition."
+              info="The total supply or amount to mint for this edition. Think how rare or unique you wish this edition to be."
               inputMode="numeric"
               label="Amount"
               name="amount"
@@ -243,7 +255,7 @@ const MintEdition = () => {
             <Field
               backgroundColor={bgColour}
               errors={errors}
-              info="The price you wish to sell each edition for."
+              info="The price you wish to sell each edition for. As a guide, the lower the amount, the higher the price."
               label="Price (DAI/USD)"
               name="price"
               onBlur={handleBlur}
@@ -262,12 +274,20 @@ const MintEdition = () => {
                       {index + 1}.
                     </Box>
                     {trackTitle}
+                    {trackIdsInEditions.has(trackId) ? null : (
+                      <Badge colorScheme="blue" ml={2}>
+                        Unused
+                      </Badge>
+                    )}
                   </Checkbox>
                 </Box>
               );
             })}
             <FormControl>
-              <FormHelperText>Select optional Edition-exclusive tracks</FormHelperText>
+              <FormHelperText>
+                Select optional Edition-exclusive tracks. Add more to the pool on the tracks tab. Unused tracks will
+                still be hidden from normal release downloads.
+              </FormHelperText>
             </FormControl>
             <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mt={8} />
           </ModalBody>

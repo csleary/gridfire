@@ -35,8 +35,6 @@ const PurchaseTrackButton = ({
   trackTitle
 }: Props) => {
   const nypColour = useColorModeValue("yellow", "purple");
-  const tooltipBgColour = useColorModeValue("gray.200", "gray.800");
-  const tooltipColour = useColorModeValue("gray.800", "gray.100");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
@@ -44,13 +42,7 @@ const PurchaseTrackButton = ({
 
   return (
     <>
-      <Tooltip
-        hasArrow
-        openDelay={500}
-        label={`Purchase \u2018${trackTitle}\u2019, by ${artistName}.`}
-        bg={tooltipBgColour}
-        color={tooltipColour}
-      >
+      <Tooltip label={`Purchase \u2018${trackTitle}\u2019, by ${artistName}.`}>
         <Button
           colorScheme={Number(price) === 0 ? nypColour : undefined}
           isDisabled={!isConnected || isFetchingAllowance || inCollection || isPurchasing || trackInCollection}

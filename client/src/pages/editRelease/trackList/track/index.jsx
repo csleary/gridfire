@@ -154,7 +154,7 @@ const Track = ({
               name="isBonus"
               onChange={e => handleChange(e, trackId)}
             >
-              Bonus
+              Download bonus
             </Checkbox>
           </WrapItem>
           <WrapItem>
@@ -164,7 +164,7 @@ const Track = ({
               name="isEditionOnly"
               onChange={e => handleChange(e, trackId)}
             >
-              Edition Exclusive
+              Edition exclusive
             </Checkbox>
           </WrapItem>
         </Wrap>

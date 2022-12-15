@@ -21,13 +21,13 @@ import {
 import { BigNumber, utils } from "ethers";
 import { checkoutBasket, connectToWeb3, emptyBasket, removeFromBasket } from "state/web3";
 import { useDispatch, useSelector } from "hooks";
+import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiBalance } from "state/web3";
 import { shallowEqual } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export interface BasketItem {
@@ -41,6 +41,7 @@ export interface BasketItem {
 
 const BasketButton = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const {
@@ -77,7 +78,8 @@ const BasketButton = () => {
 
   const handleNavigateToPayment = () => {
     setShowModal(false);
-    navigate("/dashboard/payment/approvals");
+    const { pathname } = location;
+    navigate("/dashboard/payment/approvals", { state: { pathname } });
   };
 
   return (
