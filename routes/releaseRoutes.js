@@ -68,13 +68,13 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
 router.get("/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const userId = req.user._id;
+    const userId = req.user?._id;
 
     const [release] = await Release.aggregate([
       {
         $match: {
           _id: mongoose.Types.ObjectId(releaseId),
-          $or: [{ published: true }, { published: false, user: { $eq: userId } }] // Allow artists to see their own unpublished release pages.
+          $or: [{ published: true }, ...(userId ? [{ published: false, user: { $eq: userId } }] : [])] // Allow artists to see their own unpublished release pages.
         }
       },
       {
