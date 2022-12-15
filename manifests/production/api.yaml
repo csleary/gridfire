@@ -22,11 +22,11 @@ spec:
             - containerPort: 5000
           resources:
             requests:
-              memory: 256Mi
+              memory: 128Mi
               cpu: 25m
             limits:
               memory: 1.5Gi
-              cpu: 500m
+              cpu: 1000m
           env:
             - name: POD_NAME
               valueFrom:

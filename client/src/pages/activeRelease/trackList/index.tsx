@@ -194,7 +194,7 @@ const TrackList = () => {
               </Tooltip>
             ) : null}
             <Spacer />
-            {isEditionOnly ? null : (
+            {isBonus || isEditionOnly ? null : (
               <PurchaseTrackButton
                 allowanceTooLow={allowanceTooLow}
                 artistName={artistName}
@@ -207,7 +207,7 @@ const TrackList = () => {
                 trackTitle={trackTitle}
               />
             )}
-            {isEditionOnly ? null : (
+            {isBonus || isEditionOnly ? null : (
               <AddToBasketButton
                 artistName={artistName}
                 handleAddToBasket={handleAddToBasket}
