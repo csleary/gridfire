@@ -23,7 +23,6 @@ const startConsumer = async (connection, consumerTags) => {
         await work(message);
         channel.ack(data);
       } catch (error) {
-        console.log(error);
         channel.nack(data, false, false);
       }
     };

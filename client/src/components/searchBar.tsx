@@ -26,7 +26,6 @@ import { clearResults, searchReleases } from "state/search";
 import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "hooks";
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
-import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import debounce from "lodash.debounce";
 import { shallowEqual } from "react-redux";
@@ -34,10 +33,12 @@ import { useDisclosure } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
 
+const { REACT_APP_CDN_IMG } = process.env;
+
 interface Release {
   _id: string;
   artistName: string;
-  artwork: { cid: string };
+  artwork: { status: string };
   catNumber: string;
   info: string;
   price: string;
@@ -142,7 +143,6 @@ const SearchBar = () => {
                   const {
                     _id: releaseId,
                     artistName,
-                    artwork: { cid },
                     catNumber,
                     info,
                     price,
@@ -160,7 +160,7 @@ const SearchBar = () => {
                             objectFit="cover"
                             loading="lazy"
                             rounded="full"
-                            src={`${CLOUD_URL}/${cid}`}
+                            src={`${REACT_APP_CDN_IMG}/${releaseId}`}
                           />
                         </WrapItem>
                         <WrapItem flex="1 1 32ch">

@@ -11,7 +11,6 @@ const router = express.Router();
 
 router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { ipfs } = req.app.locals;
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
     const { sse } = req.app.locals;
@@ -40,8 +39,8 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
 
       write.on("finish", async () => {
         try {
-          const cid = await uploadArtwork({ userId, filePath, ipfs, releaseId, sse });
-          console.log(`[${releaseId}] Artwork uploaded with CID: ${cid}.`);
+          await uploadArtwork({ userId, filePath, releaseId, sse });
+          console.log(`[${releaseId}] Artwork uploaded.`);
           res.sendStatus(200);
         } catch (error) {
           busboy.emit("error", error);
@@ -59,13 +58,12 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { ipfs } = req.app.locals;
     const { releaseId } = req.params;
     const userId = req.user._id;
     const releaseExists = await Release.findOne({ _id: releaseId, user: userId });
     if (!releaseExists) return res.end();
     console.log(`[${releaseId}] Deleting artwork…`);
-    const updated = await deleteArtwork({ ipfs, releaseId });
+    const updated = await deleteArtwork(releaseId);
     console.log(`[${releaseId}] Artwork deleted successfully.`);
     res.send(updated);
   } catch (error) {

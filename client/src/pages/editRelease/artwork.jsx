@@ -17,11 +17,12 @@ import { faTimesCircle, faThumbsUp, faTrashAlt } from "@fortawesome/free-regular
 import { memo, useEffect, useRef, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
-import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import mime from "mime";
 import { useDropzone } from "react-dropzone";
+
+const { REACT_APP_CDN_IMG } = process.env;
 
 const acceptedFileTypes = [".gif", ".jpg", ".jpeg", ".png"].reduce(
   (prev, ext) => ({ ...prev, [mime.getType(ext)]: [...(prev[mime.getType(ext)] || []), ext] }),
@@ -42,17 +43,16 @@ const Artwork = () => {
   const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
   const [coverArtPreview, setCoverArtPreview] = useState();
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
-  const { cid } = artwork || {};
   const isStored = artwork?.status === "stored";
 
   useEffect(() => {
-    if (isStored) return setCoverArtPreview(`${CLOUD_URL}/${cid}`);
+    if (isStored) return setCoverArtPreview(`${REACT_APP_CDN_IMG}/${releaseId}`);
     setCoverArtPreview();
 
     return () => {
       if (artworkFile.current) window.URL.revokeObjectURL(artworkFile.current.preview);
     };
-  }, [cid, isStored, releaseId]);
+  }, [isStored, releaseId]);
 
   const onDrop = (accepted, rejected) => {
     if (rejected.length) {
@@ -108,8 +108,6 @@ const Artwork = () => {
   };
 
   const trackColor = useColorModeValue("gray.300", "gray.600");
-  const toolTipBg = useColorModeValue("gray.200", "gray.800");
-  const toolTipColor = useColorModeValue("gray.800", "gray.100");
 
   return (
     <Container maxW="container.sm" p={0}>

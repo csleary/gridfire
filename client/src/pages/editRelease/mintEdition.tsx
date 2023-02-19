@@ -24,7 +24,6 @@ import { BigNumber, utils } from "ethers";
 import { MintedGridFireEdition } from "types";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CLOUD_URL } from "index";
 import Field from "components/field";
 import Icon from "components/icon";
 import ScaleFade from "components/transitions/scaleFade";
@@ -34,6 +33,8 @@ import { formatPrice } from "utils";
 import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
 import { useParams } from "react-router-dom";
+
+const { REACT_APP_IPFS_GATEWAY } = process.env;
 
 interface HandleChangeInterface {
   currentTarget: HTMLInputElement;
@@ -197,7 +198,7 @@ const MintEdition = () => {
                   </Box>
                   <Box>
                     <Label>Metadata URI:</Label>
-                    <Link href={`${CLOUD_URL}/${uri.slice(7)}`} isExternal>
+                    <Link href={`${REACT_APP_IPFS_GATEWAY}/${uri.slice(7)}`} isExternal>
                       {shortUri}
                     </Link>
                   </Box>

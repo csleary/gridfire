@@ -8,8 +8,6 @@ import { createStandaloneToast } from "@chakra-ui/toast";
 import rootReducer from "state";
 import theme from "./theme";
 
-const { REACT_APP_IPFS_GATEWAY } = process.env;
-const CLOUD_URL = `${REACT_APP_IPFS_GATEWAY}`;
 declare const window: any; // eslint-disable-line
 
 const store = configureStore({
@@ -36,6 +34,5 @@ root.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-export { CLOUD_URL };
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -2,5 +2,5 @@ FROM node:16
 WORKDIR /home/node/app
 COPY . .
 RUN mkdir /home/node/tmp
-RUN yarn install --production=true
+RUN yarn install --production --frozen-lockfile
 ENTRYPOINT [ "node", "index.js" ]

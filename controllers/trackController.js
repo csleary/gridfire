@@ -1,49 +1,40 @@
 /* eslint-disable indent */
-import { encryptStream } from "gridfire/controllers/encryption.js";
+import { deleteObject, deleteObjects, streamToBucket } from "gridfire/controllers/storage.js";
 import Busboy from "busboy";
 import Play from "gridfire/models/Play.js";
 import Release from "gridfire/models/Release.js";
 import StreamSession from "gridfire/models/StreamSession.js";
 import User from "gridfire/models/User.js";
+import { encryptStream } from "gridfire/controllers/encryption.js";
 import mime from "mime-types";
 import mongoose from "mongoose";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 
-const { ObjectId } = mongoose.Types;
-const { QUEUE_TRANSCODE } = process.env;
+const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
 const MIN_DURATION = 1000 * 25;
+const { ObjectId } = mongoose.Types;
 
-const deleteTrack = async ({ trackId, userId: user, ipfs }) => {
+const deleteTrack = async (trackId, user) => {
   const release = await Release.findOneAndUpdate(
     { "trackList._id": trackId, user },
     { "trackList.$.status": "deleting" },
-    {
-      fields: { trackList: { _id: 1, flac: 1, mp3: 1, mp4: 1, src: 1 } },
-      lean: true,
-      new: true
-    }
+    { fields: { _id: 1 }, lean: true, new: true }
   ).exec();
 
   if (!release) return;
-  console.log(`[${trackId}] Deleting track…`);
-  const releaseId = release._id;
-  const { flac, mp3, src } = release.trackList.find(({ _id }) => _id.equals(trackId)) || {};
+  const { _id: releaseId } = release;
+  console.log(`[${releaseId}] Deleting track: ${trackId}…`);
+  const objectKey = `${releaseId}/${trackId}`;
 
-  for (const [key, cid] of Object.entries({ flac, mp3, src }).filter(([, cid]) => Boolean(cid))) {
-    console.log(`[${trackId}] Unpinning CID '${key}': ${cid}…`);
-    await ipfs.pin.rm(cid).catch(error => console.error(error.message));
-  }
+  await Promise.all([
+    deleteObject(BUCKET_FLAC, objectKey),
+    deleteObject(BUCKET_MP3, objectKey),
+    deleteObject(BUCKET_SRC, objectKey),
+    deleteObjects(BUCKET_MP4, objectKey)
+  ]);
 
-  console.log(`[${trackId}] Deleting IPFS stream files…`);
-  await ipfs.files
-    .rm(`/${releaseId}/${trackId}`, { recursive: true, flush: true, cidVersion: 1 })
-    .catch(error => console.error(error.message));
-
-  await Release.findOneAndUpdate(
-    { "trackList._id": trackId, user },
-    { $pull: { trackList: { _id: trackId } }, published: release.trackList.length === 1 ? false : release.status }
-  ).exec();
-
+  await Release.findOneAndUpdate({ "trackList._id": trackId, user }, { $pull: { trackList: { _id: trackId } } }).exec();
+  await Release.findOneAndUpdate({ _id: releaseId, user, trackList: { $size: 0 } }, { published: false }).exec();
   console.log(`[${trackId}] Track deleted.`);
 };
 
@@ -106,9 +97,9 @@ const logStream = async ({ trackId, userId, type }) => {
   return user;
 };
 
-const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
+const uploadTrack = async ({ headers, req, sse, userId }) => {
   const formData = {};
-  const busboy = Busboy({ headers, limits: { fileSize: 1024 * 1024 * 1024 } });
+  const busboy = Busboy({ headers, limits: { fileSize: 1 << 30 } });
 
   const parseUpload = new Promise((resolve, reject) => {
     busboy.on("error", async error => {
@@ -120,7 +111,7 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
       formData[key] = value;
     });
 
-    busboy.on("file", async (fieldName, fileStream, { mimeType }) => {
+    busboy.on("file", async (fieldName, fileStream, { filename, mimeType }) => {
       const { releaseId, trackId, trackName } = formData;
 
       try {
@@ -138,39 +129,18 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
           throw new Error("File type not recognised. Needs to be flac/aiff/wav.");
         }
 
+        console.log(`Uploading src file ${filename} for track ${trackId}…`);
         const filter = { _id: releaseId, user: userId };
         const options = { new: true, upsert: true };
         const release = await Release.findOneAndUpdate(filter, {}, options).exec();
         const { key } = await User.findById(userId, "key", { lean: true }).exec();
         let track = release.trackList.id(trackId);
-
-        if (track) {
-          const {
-            trackList: [{ flac, mp3, src }]
-          } = await Release.findOne({ _id: releaseId, "trackList._id": trackId }, "trackList.$").exec();
-
-          console.log("Unpinning existing track audio…");
-          for (const [key, cid] of Object.entries({ flac, mp3, src }).filter(([, cid]) => Boolean(cid))) {
-            console.log(`[${trackId}] Unpinning CID '${key}': ${cid}…`);
-            await ipfs.pin.rm(cid).catch(error => console.error(error.message));
-          }
-
-          console.log(`[${trackId}] Deleting IPFS stream files…`);
-          await ipfs.files
-            .rm(`/${releaseId}/${trackId}`, { recursive: true, flush: true, cidVersion: 1 })
-            .catch(error => console.error(error.message));
-
-          track.set({ dateUpdated: Date.now(), status: "uploading" });
-        } else {
-          release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
-          track = release.trackList.id(trackId);
-        }
-
+        release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
+        track = release.trackList.id(trackId);
         sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploading" });
-        const encryptedStream = encryptStream(fileStream, key);
-        const ipfsFile = await ipfs.add(encryptedStream, { cidVersion: 1 });
-        const cid = ipfsFile.cid.toString();
-        track.set({ dateUpdated: Date.now(), status: "uploaded", src: cid });
+        await streamToBucket(BUCKET_SRC, `${releaseId}/${trackId}`, encryptStream(fileStream, key));
+        console.log(`Uploaded src file ${filename} for track ${trackId}.`);
+        track.set({ dateUpdated: Date.now(), status: "uploaded" });
         await release.save();
         sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploaded" });
 
@@ -181,6 +151,7 @@ const uploadTrack = async ({ headers, ipfs, req, sse, userId }) => {
         publishToQueue("", QUEUE_TRANSCODE, { job: "encodeFLAC", releaseId, trackId, trackName, userId });
         resolve();
       } catch (error) {
+        console.log(error);
         busboy.emit("error", error);
         fileStream.destroy();
       }

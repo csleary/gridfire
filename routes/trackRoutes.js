@@ -7,9 +7,9 @@ const router = express.Router();
 router.put("/", requireLogin, async (req, res) => {
   try {
     const { app, headers, user } = req;
-    const { ipfs, sse } = app.locals;
+    const { sse } = app.locals;
     const userId = user._id.toString();
-    await uploadTrack({ headers, ipfs, req, sse, userId });
+    await uploadTrack({ headers, req, sse, userId });
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
@@ -34,9 +34,8 @@ router.post("/:trackId/:type", async (req, res) => {
 router.delete("/:trackId", requireLogin, async (req, res) => {
   try {
     const { trackId } = req.params;
-    const { ipfs } = req.app.locals;
     const userId = req.user._id;
-    await deleteTrack({ trackId, userId, ipfs });
+    await deleteTrack(trackId, userId);
     res.sendStatus(200);
   } catch (error) {
     console.error(error);

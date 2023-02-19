@@ -8,7 +8,7 @@ const defaultReleaseState = {
   _id: "",
   artist: "",
   artistName: "",
-  artwork: { cid: "", status: "" },
+  artwork: { status: "" },
   catNumber: "",
   credits: "",
   info: "",

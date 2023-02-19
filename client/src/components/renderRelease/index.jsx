@@ -2,7 +2,6 @@ import { Box, Fade, Flex, IconButton, Image, useDisclosure } from "@chakra-ui/re
 import { batch, shallowEqual, useDispatch, useSelector } from "react-redux";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "state/player";
-import { CLOUD_URL } from "index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
@@ -10,6 +9,8 @@ import PropTypes from "prop-types";
 import { fetchRelease } from "state/releases";
 import placeholder from "placeholder.svg";
 import { toastInfo } from "state/toast";
+
+const { REACT_APP_CDN_IMG } = process.env;
 
 const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }) => {
   const { isOpen, onOpen } = useDisclosure();
@@ -41,7 +42,6 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
   }
 
   const { _id: releaseId, artist, artistName, artwork = {}, purchaseId = "", releaseTitle, trackList } = release;
-  const { cid } = artwork;
 
   const handlePlayTrack = () => {
     const audioPlayer = document.getElementById("player");
@@ -83,7 +83,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             onLoad={onOpen}
             onError={onOpen}
             position="absolute"
-            src={artwork.status === "stored" ? `${CLOUD_URL}/${cid}` : placeholder}
+            src={artwork.status === "stored" ? `${REACT_APP_CDN_IMG}/${releaseId}` : placeholder}
           />
         </Box>
       </Fade>
@@ -165,8 +165,8 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
           {type === "collection" ? (
             <OverlayDownloadButton
               artistName={artistName}
-              artworkCID={cid}
               purchaseId={purchaseId}
+              releaseId={releaseId}
               releaseTitle={releaseTitle}
             />
           ) : null}

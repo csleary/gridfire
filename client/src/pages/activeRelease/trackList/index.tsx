@@ -16,7 +16,6 @@ import { useDispatch, useSelector } from "hooks";
 import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AddToBasketButton from "./addToBasketButton";
-import { CLOUD_URL } from "index";
 import PurchaseTrackButton from "./purchaseTrackButton";
 import { ReleaseTrack } from "types";
 import { addToBasket } from "state/web3";
@@ -42,6 +41,7 @@ interface Sale {
   release: string;
 }
 
+const { REACT_APP_CDN_IMG } = process.env;
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;
 
@@ -52,7 +52,7 @@ const TrackList = () => {
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
+  const { _id: releaseId, artistName, releaseTitle, trackList } = release;
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
 
@@ -66,7 +66,7 @@ const TrackList = () => {
         addToBasket({
           artistName,
           releaseId: trackId,
-          imageUrl: `${CLOUD_URL}/${artwork.cid}`,
+          imageUrl: `${REACT_APP_CDN_IMG}/${releaseId}`,
           paymentAddress,
           price: priceInWei,
           title: trackTitle

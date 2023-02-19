@@ -20,11 +20,9 @@ const trackSchema = new Schema(
     trackTitle: { type: String, trim: true },
     status: { type: String, enum: trackStatusEnum, default: "pending" },
     duration: { type: Number, trim: true },
-    flac: { type: String },
-    mp3: { type: String },
-    mp4: { type: String },
-    price: { type: String, default: "1.50" },
-    src: { type: String }
+    isBonus: { type: Boolean },
+    isEditionOnly: { type: Boolean },
+    price: { type: String, default: "1.50" }
   },
   { timestamps: true }
 );

@@ -157,7 +157,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
               <Center color={descriptionColor} fontSize="2xl" fontWeight="500" mb={4} mt={-2} width="100%">
                 {description}
               </Center>
-              <Text color={infoColor}>
+              <Text color={infoColor} mb={4}>
                 Edition of {formattedAmount} ({formattedBalance} remaining).
               </Text>
               {tracks.length ? (

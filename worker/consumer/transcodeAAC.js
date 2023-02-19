@@ -1,74 +1,66 @@
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "gridfire-worker/consumer/ffmpeg.js";
+import { streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
 import Release from "gridfire-worker/models/Release.js";
 import User from "gridfire-worker/models/User.js";
-import { decryptToFilePathByCid } from "gridfire-worker/controllers/ipfs.js";
-import packageMP4 from "gridfire-worker/consumer/packageMP4.js";
+import { strict as assert } from "assert/strict";
+import { decryptStream } from "gridfire-worker/controllers/encryption.js";
 import fs from "fs";
-import { ipfs } from "gridfire-worker/consumer/index.js";
+import packageMP4 from "gridfire-worker/consumer/packageMP4.js";
 import path from "path";
+import { pipeline } from "node:stream/promises";
 import postMessage from "gridfire-worker/consumer/postMessage.js";
 import { randomUUID } from "crypto";
-import { strict as assert } from "assert/strict";
 
-const { TEMP_PATH } = process.env;
+const { BUCKET_FLAC, BUCKET_MP4, TEMP_PATH } = process.env;
 assert(TEMP_PATH, "TEMP_PATH is not set.");
 const fsPromises = fs.promises;
 
 const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
-  let flacPath, inputPath, outputDirName;
+  const inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
+  const outputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
+  const outputDir = randomUUID({ disableEntropyCache: true });
 
   try {
-    const release = await Release.findOneAndUpdate(
+    await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "transcoding" },
-      { fields: "trackList.$", lean: true }
+      { "trackList.$.status": "transcoding" }
     ).exec();
 
-    const [{ flac }] = release.trackList;
-    const { key: decryptionKey } = await User.findById(userId, "key", { lean: true }).exec();
-    flacPath = await decryptToFilePathByCid(flac, decryptionKey);
+    const { key } = await User.findById(userId, "key", { lean: true }).exec();
+    const srcStream = await streamFromBucket(BUCKET_FLAC, `${releaseId}/${trackId}`);
+    const decryptedStream = await decryptStream(srcStream, key);
+    await pipeline(decryptedStream, fs.createWriteStream(inputPath));
     console.log(`[${trackId}] Downloaded flac…`);
     postMessage({ type: "trackStatus", releaseId, trackId, status: "transcoding", userId });
     postMessage({ type: "transcodingStartedAAC", trackId, userId });
 
     // Probe for track duration.
-    fs.accessSync(flacPath, fs.constants.R_OK);
-    const probeReadStream = fs.createReadStream(flacPath);
+    fs.accessSync(inputPath, fs.constants.R_OK);
+    const probeReadStream = fs.createReadStream(inputPath);
     const metadata = await ffprobeGetTrackDuration(probeReadStream);
 
     // Transcode to AAC MP4.
-    inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
-    console.log(`[${trackId}] Transcoding flac to mp4 file: ${inputPath}…`);
-    const flacReadStream = fs.createReadStream(flacPath);
-    await ffmpegEncodeFragmentedAAC(flacReadStream, inputPath);
+    console.log(`[${trackId}] Transcoding flac to aac file: ${outputPath}…`);
+    await ffmpegEncodeFragmentedAAC(fs.createReadStream(inputPath), outputPath);
 
     // Package MP4.
-    fs.accessSync(inputPath, fs.constants.R_OK);
-    outputDirName = randomUUID({ disableEntropyCache: true });
-    await fsPromises.mkdir(path.resolve(TEMP_PATH, outputDirName));
-    console.log(`[${trackId}] Packaging mp4 files in dir: ${outputDirName}…`);
-    await packageMP4(inputPath, outputDirName);
+    fs.accessSync(outputPath, fs.constants.R_OK);
+    await fsPromises.mkdir(path.resolve(TEMP_PATH, outputDir));
+    console.log(`[${trackId}] Packaging mp4 files in dir: ${outputDir}…`);
+    await packageMP4(outputPath, outputDir);
 
-    // Upload to IPFS and save directory CID.
-    const files = await fsPromises.readdir(path.resolve(TEMP_PATH, outputDirName));
-    await ipfs.files.mkdir(`/${releaseId}/${trackId}`, { parents: true });
+    // Upload packaged mp4 files.
+    const files = await fsPromises.readdir(path.resolve(TEMP_PATH, outputDir));
 
     for (const file of files) {
-      const mp4Stream = fs.createReadStream(path.resolve(TEMP_PATH, outputDirName, file));
-
-      await ipfs.files.write(`/${releaseId}/${trackId}/${file}`, mp4Stream, {
-        cidVersion: 1,
-        create: true
-      });
+      const mp4Stream = fs.createReadStream(path.resolve(TEMP_PATH, outputDir, file));
+      await streamToBucket(BUCKET_MP4, `${releaseId}/${trackId}/${file}`, mp4Stream);
     }
-
-    const mp4Ipfs = await ipfs.files.stat(`/${releaseId}/${trackId}`);
-    const cid = mp4Ipfs.cid.toV1().toString();
 
     // Save track and clean up.
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId, user: userId },
-      { "trackList.$.duration": metadata.format.duration, "trackList.$.mp4": cid }
+      { "trackList.$.duration": metadata.format.duration }
     ).exec();
 
     postMessage({ type: "transcodingCompleteAAC", trackId, trackName, userId });
@@ -84,12 +76,12 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
     postMessage({ type: "pipelineError", stage: "aac", trackId, userId });
     throw error;
   } finally {
-    console.log("Removing temp AAC stage files…");
+    console.log("Removing temp AAC stage files:\n", inputPath, "\n", outputPath);
 
     await Promise.allSettled([
-      fsPromises.unlink(flacPath),
       fsPromises.unlink(inputPath),
-      fsPromises.rm(path.resolve(TEMP_PATH, outputDirName), { recursive: true })
+      fsPromises.unlink(outputPath),
+      fsPromises.rm(path.resolve(TEMP_PATH, outputDir), { recursive: true })
     ]);
   }
 };

@@ -5,5 +5,5 @@ WORKDIR /home/node/app
 COPY . .
 RUN apt-get update -qq && apt-get -y install libass-dev libvorbis-dev
 RUN mkdir /home/node/tmp
-RUN yarn install --production=true
+RUN yarn install --production --frozen-lockfile
 ENTRYPOINT [ "node", "index.js" ]

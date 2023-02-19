@@ -1,11 +1,12 @@
 import { Box, Button, Image, Link, Wrap, VStack, WrapItem, Text, useColorModeValue } from "@chakra-ui/react";
-import { CLOUD_URL } from "index";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import placeholder from "placeholder.svg";
 
-const DownloadModal = ({ artistName, artworkCID, purchaseId, releaseTitle }) => {
+const { REACT_APP_CDN_IMG } = process.env;
+
+const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }) => {
   const primaryButtonColor = useColorModeValue("yellow", "purple");
 
   return (
@@ -16,7 +17,7 @@ const DownloadModal = ({ artistName, artworkCID, purchaseId, releaseTitle }) => 
             alt={`${artistName} - ${releaseTitle}`}
             className="lazyload"
             fallbackSrc={placeholder}
-            src={`${CLOUD_URL}/${artworkCID}`}
+            src={`${REACT_APP_CDN_IMG}/${releaseId}`}
           />
         </WrapItem>
         <WrapItem alignItems="stretch" flex="1 1 24rem">

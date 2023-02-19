@@ -16,7 +16,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "state/releases";
-import { faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeftLong, faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faFileAudio, faHdd, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,7 +26,7 @@ import DetailedInfo from "./detailedInfo";
 import EssentialInfo from "./essentialInfo";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
-import IpfsStorage from "./ipfsStorage";
+// import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
 import Editions from "./mintEdition";
 import { WarningIcon } from "@chakra-ui/icons";
@@ -80,20 +80,25 @@ const EditRelease = () => {
     }
   }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
 
-  const handleChange = useCallback(({ target: { checked, name, value } }, trackId) => {
+  const handleChange = useCallback(({ target: { checked, name, type, value } }, trackId) => {
     if (trackId) {
       setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
 
       return void setValues(current => ({
         ...current,
         trackList: current.trackList.map(track =>
-          track._id === trackId ? { ...track, [name]: checked ?? value } : track
+          track._id === trackId
+            ? {
+                ...track,
+                [name]: type === "checkbox" ? checked : value
+              }
+            : track
         )
       }));
     }
 
     setErrors(({ [name]: key, ...rest }) => rest);
-    setValues(current => ({ ...current, [name]: value }));
+    setValues(current => ({ ...current, [name]: type === "checkbox" ? checked : value }));
   }, []);
 
   const handleSubmit = async () => {
@@ -148,6 +153,16 @@ const EditRelease = () => {
             Visit page
           </Button>
         </Heading>
+        <Button
+          colorScheme={buttonColor}
+          leftIcon={<Icon icon={faArrowLeftLong} />}
+          onClick={() => navigate("/dashboard")}
+          size="sm"
+          variant="ghost"
+          mb={4}
+        >
+          Return to your releases
+        </Button>
         <Tabs colorScheme={buttonColor} isFitted mb={8}>
           <TabList mb={8}>
             <Tab alignItems="center">
@@ -171,10 +186,6 @@ const EditRelease = () => {
             <Tab alignItems="center">
               <Icon icon={faListAlt} mr={2} />
               {isSmallScreen ? null : "Optional Info"}
-            </Tab>
-            <Tab alignItems="center">
-              <Icon icon={faHdd} mr={2} />
-              {isSmallScreen ? null : "IPFS Storage"}
             </Tab>
           </TabList>
           <TabPanels>
@@ -205,9 +216,6 @@ const EditRelease = () => {
             </TabPanel>
             <TabPanel p={0}>
               <DetailedInfo errors={errors} handleChange={handleChange} values={advancedFieldValues} />
-            </TabPanel>
-            <TabPanel p={0}>
-              <IpfsStorage />
             </TabPanel>
           </TabPanels>
         </Tabs>

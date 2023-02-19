@@ -2,11 +2,12 @@ import { Box, Fade, Flex, IconButton, Image, useDisclosure } from "@chakra-ui/re
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
-import { CLOUD_URL } from "index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import placeholder from "placeholder.svg";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
+
+const { REACT_APP_CDN_IMG } = process.env;
 
 const Artwork = () => {
   const { isOpen, onOpen } = useDisclosure();
@@ -14,7 +15,6 @@ const Artwork = () => {
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
-  const { cid } = artwork;
 
   const handlePlayRelease = () => {
     const audioPlayer = document.getElementById("player") as HTMLAudioElement;
@@ -57,7 +57,7 @@ const Artwork = () => {
             position="absolute"
             src={
               artwork.status === "stored" && !isLoading
-                ? `${CLOUD_URL}/${cid}`
+                ? `${REACT_APP_CDN_IMG}/${releaseId}`
                 : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
             }
           />

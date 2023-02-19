@@ -2,7 +2,7 @@ import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
 import { useDispatch, useSelector } from "hooks";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PlaybackTime from "./playbackTime";
 import PlayLogger from "./playLogger";
 import PlayerButton from "./playerButton";
@@ -12,10 +12,9 @@ import shaka from "shaka-player";
 import { shallowEqual } from "react-redux";
 import { toastWarning } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
-import { CLOUD_URL } from "index";
 import SeekBar from "./seekbar";
 
-const { REACT_APP_IPFS_GATEWAY } = process.env;
+const { REACT_APP_CDN_IMG, REACT_APP_CDN_MP4 } = process.env;
 
 const Player = () => {
   const dispatch = useDispatch();
@@ -29,15 +28,15 @@ const Player = () => {
     shallowEqual
   );
 
-  const { artwork, releaseTitle, trackList } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { releaseTitle, trackList } = useSelector(state => state.releases.activeRelease, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isReady, setIsReady] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
   const prevTrackId = usePrevious(trackId);
-  const { cid: artworkCid } = artwork;
-  const { mp4 } = trackList.find(({ _id }) => _id === trackId) || { mp4: "" };
+  const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
+  const { isBonus } = trackList.find(({ _id }) => _id === trackId) || { isBonus: false };
 
   const onBuffering = () => {
     const { audio } = shakaRef.current.getBufferedInfo();
@@ -68,8 +67,8 @@ const Player = () => {
     const { currentTime, duration } = audioPlayerRef.current;
     const mins = Math.floor(currentTime / 60);
     const secs = Math.floor(currentTime % 60);
-    const remaining = Math.floor(duration - (currentTime || 0));
-    const remainingMins = Math.floor(remaining / 60);
+    const remaining = Math.floor(duration - (currentTime || 0)) || 0;
+    const remainingMins = Math.floor(remaining / 60) || 0;
     const remainingSecs = (remaining % 60).toString(10).padStart(2, "0");
     setElapsedTime(`${mins}:${secs.toString(10).padStart(2, "0")}`);
     setRemainingTime(`-${remainingMins}:${remainingSecs}`);
@@ -94,18 +93,24 @@ const Player = () => {
     [dispatch]
   );
 
+  const cueNextTrack = useCallback(
+    (skip = 1) => {
+      if (trackList[trackIndex + skip]) {
+        const { _id: nextTrackId, isBonus, trackTitle } = trackList[trackIndex + skip];
+        if (isBonus) return void cueNextTrack(++skip);
+        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
+        return void dispatch(playTrack(cuedTrack));
+      }
+
+      handleStop();
+    },
+    [artistName, dispatch, handleStop, releaseId, releaseTitle, trackIndex, trackList]
+  );
+
   const onEnded = useCallback(() => {
     playLoggerRef.current.checkPlayTime();
-    const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
-
-    if (trackList[trackIndex + 1]) {
-      const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
-      const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-      return void dispatch(playTrack(cuedTrack));
-    }
-
-    handleStop();
-  }, [trackId, trackList, handleStop, releaseId, releaseTitle, artistName, dispatch]);
+    cueNextTrack();
+  }, [cueNextTrack]);
 
   const onPlaying = () => {
     playLoggerRef.current.setStartTime();
@@ -166,10 +171,9 @@ const Player = () => {
       title: trackTitle,
       artist: artistName,
       album: releaseTitle,
-      artwork: [{ src: `${CLOUD_URL}/${artworkCid}`, sizes: "1000x1000", type: "image/png" }]
+      artwork: [{ src: `${REACT_APP_CDN_IMG}/${releaseId}`, sizes: "1000x1000", type: "image/png" }]
     });
 
-    const trackIndex = trackList.findIndex(({ _id }) => _id === trackId);
     navigator.mediaSession.setActionHandler("play", handlePlay);
     navigator.mediaSession.setActionHandler("pause", () => void audioPlayerRef.current.pause());
 
@@ -199,21 +203,19 @@ const Player = () => {
       }
     });
 
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
-      if (trackList[trackIndex + 1]) {
-        const { _id: nextTrackId, trackTitle } = trackList[trackIndex + 1];
-        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-        dispatch(playTrack(cuedTrack));
-      } else {
-        return false;
-      }
-    });
-  }, [artistName, artworkCid, dispatch, handlePlay, releaseId, releaseTitle, trackId, trackList, trackTitle]);
+    navigator.mediaSession.setActionHandler("nexttrack", cueNextTrack);
+  }, [artistName, cueNextTrack, dispatch, handlePlay, releaseId, releaseTitle, trackIndex, trackList, trackTitle]);
 
   useEffect(() => {
     if (trackId && trackId !== prevTrackId) {
+      if (isBonus) {
+        // Skip non-streaming tracks.
+        return void cueNextTrack();
+      }
+
       shaka.Player.probeSupport().then(supportInfo => {
-        const urlStem = `${REACT_APP_IPFS_GATEWAY}/${mp4}`;
+        const urlStem = `${REACT_APP_CDN_MP4}/${releaseId}/${trackId}`;
+
         if (supportInfo.manifest.mpd) {
           const mimeType = "application/dash+xml";
           shakaRef.current.load(`${urlStem}/dash.mpd`, null, mimeType).then(handlePlay).catch(onError);
@@ -229,7 +231,7 @@ const Player = () => {
         }
       });
     }
-  }, [handlePlay, mp4, onError, prevTrackId, setMediaSession, trackId]);
+  }, [cueNextTrack, handlePlay, isBonus, onError, prevTrackId, releaseId, setMediaSession, trackId]);
 
   const handleSeek = ({ clientX }) => {
     const width = seekBarRef.current.clientWidth;

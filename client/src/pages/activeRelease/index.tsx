@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from "hooks";
 import Actions from "./actions";
 import Artwork from "./artwork";
 import Card from "components/card";
-import { CLOUD_URL } from "index";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import AddToBasketButton from "./addToBasketButton";
@@ -34,6 +33,8 @@ import moment from "moment";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+const { REACT_APP_CDN_IMG } = process.env;
 
 interface Sale {
   release: string;
@@ -52,7 +53,6 @@ const ActiveRelease = () => {
   const {
     artist,
     artistName,
-    artwork,
     catNumber,
     credits,
     info,
@@ -140,7 +140,7 @@ const ActiveRelease = () => {
                 </WrapItem>
                 <WrapItem>
                   <AddToBasketButton
-                    imageUrl={`${CLOUD_URL}/${artwork.cid}`}
+                    imageUrl={`${REACT_APP_CDN_IMG}/${releaseId}`}
                     artistName={artistName}
                     inCollection={isInCollection}
                     price={price}

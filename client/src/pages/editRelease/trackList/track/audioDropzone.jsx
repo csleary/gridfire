@@ -1,11 +1,11 @@
 import { Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
 import { cancelUpload, uploadAudio } from "state/tracks";
+import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo } from "state/toast";
 import ProgressIndicator from "./progressIndicator";
 import PropTypes from "prop-types";
 import Icon from "components/icon";
-import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import mime from "mime";
 import { updateTrackStatus } from "state/releases";
 import { useDropzone } from "react-dropzone";
@@ -131,10 +131,12 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
           isStored={isStored}
           progress={storingProgressFLAC[trackId]}
           stageHasStarted={storingProgressFLAC[trackId] > 0}
-          stageName="ipfs"
-          tooltipText="IPFS storing status. Note: this is via a local node. It will take longer to propagate across nodes."
+          stageName="storage"
+          tooltipText="Storage status."
           trackId={trackId}
-        />
+        >
+          <Icon icon={faServer} />
+        </ProgressIndicator>
       </WrapItem>
       <WrapItem>
         <ProgressIndicator

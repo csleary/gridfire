@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
   try {
-    const { ipfs } = req.app.locals;
     const { format, purchaseId } = req.params;
     const userId = req.user._id;
     const isEdition = utils.isHexString(purchaseId);
@@ -60,7 +59,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
 
     if (!release) return res.sendStatus(404);
     const { key } = release.user;
-    zipDownload({ ipfs, isEdition, key, release, res, format });
+    zipDownload({ isEdition, key, release, res, format });
   } catch (error) {
     console.error(error);
     res.sendStatus(403);

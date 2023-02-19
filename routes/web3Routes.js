@@ -10,6 +10,7 @@ import Edition from "gridfire/models/Edition.js";
 import Release from "gridfire/models/Release.js";
 import User from "gridfire/models/User.js";
 import express from "express";
+import { getArtworkStream } from "gridfire/controllers/artworkController.js";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 import { utils } from "ethers";
 
@@ -101,24 +102,17 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
     const { ipfs } = app.locals;
     const { amount, description, price, releaseId, tracks: trackIds } = body;
     const release = await Release.findById(releaseId);
-
-    const {
-      artistName: artist,
-      artwork,
-      catNumber,
-      credits,
-      info,
-      releaseDate,
-      releaseTitle: title,
-      trackList
-    } = release;
-
+    const { artistName: artist, catNumber, credits, info, releaseDate, releaseTitle: title, trackList } = release;
     const priceInDai = Number(price).toFixed(2);
     const weiPrice = utils.parseEther(`${price}`);
 
     const tracks = trackList
       .filter(track => trackIds.some(id => track._id.equals(id)))
       .map(({ _id, trackTitle }) => ({ id: _id.toString(), title: trackTitle }));
+
+    const artworkStream = await getArtworkStream(releaseId);
+    const uploadArtwork = await ipfs.add(artworkStream, { cidVersion: 1 });
+    const cidArtwork = uploadArtwork.cid.toString();
 
     const tokenMetadata = {
       attributes: {
@@ -129,7 +123,7 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
       name: title,
       description: description || `${artist} - ${title} (GridFire edition)`,
       external_url: `${protocol}://${hostname}/release/${releaseId}`,
-      image: `ipfs://${artwork.cid}`,
+      image: `ipfs://${cidArtwork}`,
       properties: {
         artist,
         title,

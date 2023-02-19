@@ -4,59 +4,37 @@ import Release from "gridfire/models/Release.js";
 import User from "gridfire/models/User.js";
 import Wishlist from "gridfire/models/Wishlist.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
+import { deleteArtwork } from "gridfire/controllers/artworkController.js";
+import { deleteTrack } from "gridfire/controllers/trackController.js";
 import express from "express";
-import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const router = express.Router();
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { ipfs } = req.app.locals;
     const user = req.user._id;
     const { releaseId } = req.params;
     const release = await Release.findOne({ _id: releaseId, user }, "artist artwork trackList").exec();
-    const { artist, artwork, trackList } = release;
+    const { artist, trackList } = release;
 
-    let deleteArtwork = Promise.resolve();
-    if (artwork.cid) {
-      console.log(`Unpinning artwork CID ${artwork.cid} for release ${releaseId}…`);
-      deleteArtwork = ipfs.pin.rm(artwork.cid).catch(error => console.error(error.message));
-    }
+    // Delete from buckets.
+    console.log(`[${releaseId}] Deleting release…`);
+    console.log(`[${releaseId}] Deleting artwork…`);
+    await deleteArtwork(releaseId);
+    console.log(`[${releaseId}] Artwork deleted.`);
+    console.log(`[${releaseId}] Deleting audio files…`);
+    await Promise.all(trackList.map(({ _id: trackId }) => deleteTrack(trackId, user)));
+    console.log(`[${releaseId}] Audio files deleted.`);
 
-    const deleteTracks = trackList.reduce(
-      (prev, { _id: trackId, flac, mp3 }) => [
-        ...prev,
-        ...Object.entries({ flac, mp3 })
-          .filter(([, cid]) => Boolean(cid))
-          .map(([key, cid]) => {
-            console.log(`[${trackId.toString()}] Unpinning CID '${key}': ${cid}…`);
-            ipfs.pin.rm(cid).catch(error => console.error(error.message));
-          })
-      ],
-      []
-    );
-
-    console.log(`[${releaseId}] Deleting IPFS stream files…`);
-    ipfs.files.rm(`/${releaseId}`, { recursive: true, flush: true, cidVersion: 1 });
-
-    // Delete from Mongo.
-    const deleteRelease = await Release.findOneAndRemove({ _id: releaseId, user }).exec();
-    const artistHasReleases = await Release.exists({ artist });
+    // Delete from database.
+    await Release.findOneAndRemove({ _id: releaseId, user }).exec();
+    const artistHasOtherReleases = await Release.exists({ artist });
     let deleteArtist = Promise.resolve();
-    if (!artistHasReleases) deleteArtist = Artist.findOneAndRemove({ _id: artist, user }).exec();
+    if (!artistHasOtherReleases) deleteArtist = Artist.findOneAndRemove({ _id: artist, user }).exec();
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();
     const deleteFromWishlists = Wishlist.deleteMany({ release: releaseId }).exec();
-
-    await Promise.all([
-      deleteRelease,
-      deleteArtwork,
-      deleteArtist,
-      ...deleteTracks,
-      deleteFromFavourites,
-      deleteFromWishlists
-    ]);
-
+    await Promise.all([deleteArtist, deleteFromFavourites, deleteFromWishlists]);
     console.log(`Release ${releaseId} deleted.`);
     res.sendStatus(200);
   } catch (error) {
@@ -70,49 +48,10 @@ router.get("/:releaseId", async (req, res) => {
     const { releaseId } = req.params;
     const userId = req.user?._id;
 
-    const [release] = await Release.aggregate([
-      {
-        $match: {
-          _id: mongoose.Types.ObjectId(releaseId),
-          $or: [{ published: true }, ...(userId ? [{ published: false, user: { $eq: userId } }] : [])] // Allow artists to see their own unpublished release pages.
-        }
-      },
-      {
-        $project: {
-          artist: 1,
-          artistName: 1,
-          artwork: 1,
-          catNumber: 1,
-          credits: 1,
-          info: 1,
-          price: 1,
-          pubName: 1,
-          recName: 1,
-          recYear: 1,
-          recordLabel: 1,
-          releaseTitle: 1,
-          releaseDate: 1,
-          tags: 1,
-          trackList: {
-            $map: {
-              input: "$trackList",
-              as: "track",
-              in: {
-                _id: "$$track._id",
-                duration: "$$track.duration",
-                isBonus: "$$track.isBonus",
-                isEditionOnly: "$$track.isEditionOnly",
-                price: "$$track.price",
-                trackTitle: "$$track.trackTitle",
-                mp4: {
-                  $cond: [{ $eq: ["$$track.isBonus", true] }, false, "$$track.mp4"]
-                }
-              }
-            }
-          }
-        }
-      }
-    ]).exec();
+    const release = await Release.findOne({
+      _id: releaseId,
+      $or: [{ published: true }, { published: false, user: { $eq: userId } }] // Allow artists to see their own unpublished release pages.
+    }).exec();
 
     if (!release) {
       return void res.sendStatus(404);
@@ -267,8 +206,8 @@ router.post("/", requireLogin, async (req, res) => {
           updateOne: {
             filter: { _id: releaseId, "trackList._id": trackId, user },
             update: {
-              ...(isBonus ? { "trackList.$.isBonus": isBonus } : {}),
-              ...(isEditionOnly ? { "trackList.$.isEditionOnly": isEditionOnly } : {}),
+              "trackList.$.isBonus": isBonus,
+              "trackList.$.isEditionOnly": isEditionOnly,
               "trackList.$.price": trackPrice,
               "trackList.$.trackTitle": trackTitle,
               "trackList.$.position": index + 1
@@ -283,8 +222,8 @@ router.post("/", requireLogin, async (req, res) => {
               $push: {
                 trackList: {
                   _id: trackId,
-                  ...(isBonus ? { isBonus } : {}),
-                  ...(isEditionOnly ? { isEditionOnly } : {}),
+                  isBonus,
+                  isEditionOnly,
                   position: index + 1,
                   price: trackPrice,
                   trackTitle
