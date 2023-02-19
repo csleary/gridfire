@@ -7,8 +7,8 @@ import {
 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 
-const ENDPOINT = "https://s3.us-west-004.backblazeb2.com";
-const client = new S3Client({ endpoint: ENDPOINT, region: "us-east-1" });
+const { S3_ENDPOINT } = process.env;
+const client = new S3Client({ endpoint: S3_ENDPOINT, region: "us-east-1" });
 
 const streamFromBucket = async (bucketName, objectKey) => {
   const getObjectCommand = new GetObjectCommand({ Bucket: bucketName, Key: objectKey });
