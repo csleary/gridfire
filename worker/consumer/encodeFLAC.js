@@ -1,8 +1,6 @@
 /* eslint-disable indent */
 import { deleteObject, streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
-import { decryptStream, encryptStream } from "gridfire-worker/controllers/encryption.js";
 import Release from "gridfire-worker/models/Release.js";
-import User from "gridfire-worker/models/User.js";
 import { ffmpegEncodeFLAC } from "gridfire-worker/consumer/ffmpeg.js";
 import fs from "fs";
 import path from "path";
@@ -31,17 +29,14 @@ const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
       { fields: "trackList.$", lean: true }
     ).exec();
 
-    const { key } = await User.findById(userId, "key", { lean: true }).exec();
     const srcStream = await streamFromBucket(BUCKET_SRC, `${releaseId}/${trackId}`);
-    const decryptedStream = await decryptStream(srcStream, key);
     inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     const streamToDisk = fs.createWriteStream(inputPath);
-    await pipeline(decryptedStream, streamToDisk);
+    await pipeline(srcStream, streamToDisk);
     outputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     await ffmpegEncodeFLAC(inputPath, outputPath, onProgress({ trackId, userId }));
     fs.accessSync(outputPath, fs.constants.R_OK);
-    const encryptedFlacStream = encryptStream(fs.createReadStream(outputPath), key);
-    await streamToBucket(BUCKET_FLAC, `${releaseId}/${trackId}`, encryptedFlacStream);
+    await streamToBucket(BUCKET_FLAC, `${releaseId}/${trackId}`, fs.createReadStream(outputPath));
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },

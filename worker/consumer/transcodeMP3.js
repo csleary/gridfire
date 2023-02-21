@@ -1,7 +1,5 @@
-import { decryptStream, encryptStream } from "gridfire-worker/controllers/encryption.js";
 import { streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
 import Release from "gridfire-worker/models/Release.js";
-import User from "gridfire-worker/models/User.js";
 import { ffmpegEncodeMP3FromStream } from "gridfire-worker/consumer/ffmpeg.js";
 import fs from "fs";
 import path from "path";
@@ -16,14 +14,11 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }) => {
 
   try {
     postMessage({ type: "transcodingStartedMP3", trackId, userId });
-    const { key } = await User.findById(userId, "key", { lean: true }).exec();
     const srcStream = await streamFromBucket(BUCKET_FLAC, `${releaseId}/${trackId}`);
     const tempFilename = randomUUID({ disableEntropyCache: true });
-    const decryptedStream = await decryptStream(srcStream, key);
     mp3FilePath = path.resolve(TEMP_PATH, tempFilename);
-    await ffmpegEncodeMP3FromStream(decryptedStream, mp3FilePath);
-    const encryptedMp3Stream = encryptStream(fs.createReadStream(mp3FilePath), key);
-    await streamToBucket(BUCKET_MP3, `${releaseId}/${trackId}`, encryptedMp3Stream);
+    await ffmpegEncodeMP3FromStream(srcStream, mp3FilePath);
+    await streamToBucket(BUCKET_MP3, `${releaseId}/${trackId}`, fs.createReadStream(mp3FilePath));
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId, user: userId },

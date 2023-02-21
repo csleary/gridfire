@@ -28,8 +28,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
           options: {
             lean: true,
             select: "artistName artwork releaseTitle trackList"
-          },
-          populate: { path: "user", model: User, options: { lean: true }, select: "key" }
+          }
         })
         .exec();
 
@@ -43,23 +42,18 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
           { "trackList._id": sale.release, published: true },
           "artistName artwork releaseTitle trackList.$",
           { lean: true }
-        )
-          .populate({ path: "user", model: User, options: { lean: true }, select: "key" })
-          .exec();
+        ).exec();
       } else {
         release = await Release.findOne(
           { _id: sale.release, published: true },
           "artistName artwork releaseTitle trackList",
           { lean: true }
-        )
-          .populate({ path: "user", model: User, options: { lean: true }, select: "key" })
-          .exec();
+        ).exec();
       }
     }
 
     if (!release) return res.sendStatus(404);
-    const { key } = release.user;
-    zipDownload({ isEdition, key, release, res, format });
+    zipDownload({ isEdition, release, res, format });
   } catch (error) {
     console.error(error);
     res.sendStatus(403);

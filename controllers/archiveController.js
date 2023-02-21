@@ -1,12 +1,11 @@
 import archiver from "archiver";
-import { decryptStream } from "./encryption.js";
 import { getArtworkStream } from "gridfire/controllers/artworkController.js";
 import { streamFromBucket } from "gridfire/controllers/storage.js";
 
 const { BUCKET_FLAC, BUCKET_MP3 } = process.env;
 const buckets = { flac: BUCKET_FLAC, mp3: BUCKET_MP3 };
 
-const zipDownload = async ({ isEdition, key, release, res, format }) => {
+const zipDownload = async ({ isEdition, release, res, format }) => {
   try {
     const { _id, artistName, releaseTitle, trackList } = release;
     const releaseId = _id.toString();
@@ -24,8 +23,7 @@ const zipDownload = async ({ isEdition, key, release, res, format }) => {
       const trackId = _id.toString();
       const trackName = `${position.toString(10).padStart(2, "0")} ${trackTitle}.${format}`;
       const trackStream = await streamFromBucket(buckets[format], `${releaseId}/${trackId}`);
-      const decryptedStream = await decryptStream(trackStream, key);
-      archive.append(decryptedStream, { name: trackName });
+      archive.append(trackStream, { name: trackName });
     }
 
     archive.finalize();

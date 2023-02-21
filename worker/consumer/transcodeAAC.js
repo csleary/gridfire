@@ -1,9 +1,7 @@
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "gridfire-worker/consumer/ffmpeg.js";
 import { streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
 import Release from "gridfire-worker/models/Release.js";
-import User from "gridfire-worker/models/User.js";
 import { strict as assert } from "assert/strict";
-import { decryptStream } from "gridfire-worker/controllers/encryption.js";
 import fs from "fs";
 import packageMP4 from "gridfire-worker/consumer/packageMP4.js";
 import path from "path";
@@ -26,10 +24,8 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
       { "trackList.$.status": "transcoding" }
     ).exec();
 
-    const { key } = await User.findById(userId, "key", { lean: true }).exec();
     const srcStream = await streamFromBucket(BUCKET_FLAC, `${releaseId}/${trackId}`);
-    const decryptedStream = await decryptStream(srcStream, key);
-    await pipeline(decryptedStream, fs.createWriteStream(inputPath));
+    await pipeline(srcStream, fs.createWriteStream(inputPath));
     console.log(`[${trackId}] Downloaded flac…`);
     postMessage({ type: "trackStatus", releaseId, trackId, status: "transcoding", userId });
     postMessage({ type: "transcodingStartedAAC", trackId, userId });
