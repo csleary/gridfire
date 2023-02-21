@@ -31,6 +31,8 @@ spec:
             - configMapRef:
                 name: worker-config
             - secretRef:
+                name: aws-secrets
+            - secretRef:
                 name: mongodb-uri
             - secretRef:
                 name: rabbitmq-user

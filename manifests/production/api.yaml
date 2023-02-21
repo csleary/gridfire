@@ -40,6 +40,8 @@ spec:
             - secretRef:
                 name: api-secrets
             - secretRef:
+                name: aws-secrets
+            - secretRef:
                 name: mongodb-uri
             - secretRef:
                 name: rabbitmq-user

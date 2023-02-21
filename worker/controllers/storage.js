@@ -16,9 +16,10 @@ const streamFromBucket = async (bucketName, objectKey, readableStream) => {
   return Body;
 };
 
-const streamToBucket = (bucketName, objectKey, readableStream) => {
+const streamToBucket = (bucketName, objectKey, readableStream, onProgress) => {
   const params = { Bucket: bucketName, Key: objectKey, Body: readableStream };
   const upload = new Upload({ client, params });
+  if (onProgress) upload.on("httpUploadProgress", onProgress);
   return upload.done();
 };
 

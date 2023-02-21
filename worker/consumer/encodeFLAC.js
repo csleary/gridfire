@@ -12,11 +12,17 @@ const fsPromises = fs.promises;
 
 const { BUCKET_FLAC, BUCKET_SRC, TEMP_PATH, QUEUE_TRANSCODE } = process.env;
 
-const onProgress =
+const onEncodingProgress =
   ({ trackId, userId }) =>
-  event => {
-    const { percent } = event;
+  ({ percent }) => {
     postMessage({ type: "encodingProgressFLAC", progress: Math.round(percent), trackId, userId });
+  };
+
+const onStorageProgress =
+  ({ trackId, userId }) =>
+  ({ loaded, total }) => {
+    const progress = Math.floor((loaded / total) * 100);
+    postMessage({ type: "storingProgressFLAC", progress, trackId, userId });
   };
 
 const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
@@ -34,9 +40,11 @@ const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
     const streamToDisk = fs.createWriteStream(inputPath);
     await pipeline(srcStream, streamToDisk);
     outputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
-    await ffmpegEncodeFLAC(inputPath, outputPath, onProgress({ trackId, userId }));
+    await ffmpegEncodeFLAC(inputPath, outputPath, onEncodingProgress({ trackId, userId }));
     fs.accessSync(outputPath, fs.constants.R_OK);
-    await streamToBucket(BUCKET_FLAC, `${releaseId}/${trackId}`, fs.createReadStream(outputPath));
+    const key = `${releaseId}/${trackId}`;
+    const body = fs.createReadStream(outputPath);
+    await streamToBucket(BUCKET_FLAC, key, body, onStorageProgress({ trackId, userId }));
 
     await Release.findOneAndUpdate(
       { _id: releaseId, "trackList._id": trackId },

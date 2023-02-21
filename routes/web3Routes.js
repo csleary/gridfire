@@ -157,7 +157,7 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/editions/:releaseId", requireLogin, async (req, res) => {
+router.get("/editions/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
     const editions = await getGridFireEditionsByReleaseId(releaseId);

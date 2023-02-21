@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { createRelease, updateRelease } from "state/releases";
 import { faArrowLeftLong, faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { faFileAudio, faHdd, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
+import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -26,7 +26,6 @@ import DetailedInfo from "./detailedInfo";
 import EssentialInfo from "./essentialInfo";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
-// import IpfsStorage from "./ipfsStorage";
 import TrackList from "./trackList";
 import Editions from "./mintEdition";
 import { WarningIcon } from "@chakra-ui/icons";
