@@ -17,7 +17,7 @@ const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce(
 
 const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => {
   const dispatch = useDispatch();
-  const { _id: releaseId } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { _id: releaseId } = useSelector(state => state.releases.releaseEditing, shallowEqual);
 
   const {
     audioUploadProgress,

@@ -36,6 +36,7 @@ const releaseSlice = createSlice({
     catalogueLimit: 12,
     catalogueSkip: 0,
     collection: {},
+    releaseEditing: defaultReleaseState,
     reachedEndOfCat: false,
     releaseIdsForDeletion: {},
     userFavourites: [],
@@ -49,7 +50,7 @@ const releaseSlice = createSlice({
       state.activeRelease.trackList = [...trackList, action.payload];
     },
     createRelease(state) {
-      state.activeRelease = {
+      state.releaseEditing = {
         ...defaultReleaseState,
         _id: createObjectId(),
         releaseDate: new Date(Date.now()).toISOString()
@@ -83,6 +84,9 @@ const releaseSlice = createSlice({
     },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
+    },
+    setReleaseEditing(state, action) {
+      state.releaseEditing = action.payload;
     },
     setReleaseIdsForDeletion(state, action) {
       const { releaseId, isDeleting } = action.payload;
@@ -183,6 +187,16 @@ const fetchRelease = releaseId => async dispatch => {
   }
 };
 
+const fetchReleaseForEditing = releaseId => async dispatch => {
+  try {
+    const res = await axios.get(`/api/release/${releaseId}`);
+    dispatch(setReleaseEditing(res.data.release));
+  } catch (error) {
+    dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
+    throw error;
+  }
+};
+
 const fetchUserEditions = () => async dispatch => {
   try {
     const editions = await getUserEditions();
@@ -228,8 +242,7 @@ const publishStatus = releaseId => async dispatch => {
 
 const updateRelease = values => async dispatch => {
   try {
-    const res = await axios.post("/api/release", values);
-    dispatch(setActiveRelease(res.data));
+    await axios.post("/api/release", values);
   } catch (error) {
     dispatch(toastError({ message: error.response?.data?.error || error.message, title: "Error" }));
   }
@@ -246,6 +259,7 @@ export const {
   setCatalogue,
   setCollection,
   setIsLoading,
+  setReleaseEditing,
   setReleaseIdsForDeletion,
   setReleasePurchaseInfo,
   setUserEditions,
@@ -262,6 +276,7 @@ export {
   fetchCatalogue,
   fetchCollection,
   fetchRelease,
+  fetchReleaseForEditing,
   fetchUserEditions,
   fetchUserFavourites,
   fetchUserWishList,

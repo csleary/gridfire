@@ -1,18 +1,18 @@
 import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
-import { useDispatch, useSelector } from "hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
 import PlaybackTime from "./playbackTime";
-import PlayLogger from "./playLogger";
 import PlayerButton from "./playerButton";
+import PlayLogger from "./playLogger";
+import SeekBar from "./seekbar";
 import TrackInfo from "./trackInfo";
 import shaka from "shaka-player";
 // import shaka from "shaka-player/dist/shaka-player.compiled.debug.js";
 import { shallowEqual } from "react-redux";
 import { toastWarning } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
-import SeekBar from "./seekbar";
 
 const { REACT_APP_CDN_IMG, REACT_APP_CDN_MP4 } = process.env;
 
@@ -36,7 +36,7 @@ const Player = () => {
   const [remainingTime, setRemainingTime] = useState("");
   const prevTrackId = usePrevious(trackId);
   const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
-  const { isBonus } = trackList.find(({ _id }) => _id === trackId) || { isBonus: false };
+  const { isBonus = false } = trackList.find(({ _id }) => _id === trackId) || {};
 
   const onBuffering = () => {
     const { audio } = shakaRef.current.getBufferedInfo();

@@ -243,8 +243,7 @@ router.post("/", requireLogin, async (req, res) => {
     ];
 
     await Release.bulkWrite(updateOps, { ordered: true });
-    const updated = await Release.findOne({ _id: releaseId, user });
-    res.json(updated.toJSON());
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);

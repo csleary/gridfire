@@ -32,6 +32,7 @@ const ArtistMenu = ({ error, onChange, value }) => {
 
   useEffect(() => {
     if (isLoading) return;
+
     if (artists.length > 0) {
       setShowNewArtistName(false);
     } else {

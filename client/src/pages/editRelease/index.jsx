@@ -30,7 +30,7 @@ import TrackList from "./trackList";
 import Editions from "./mintEdition";
 import { WarningIcon } from "@chakra-ui/icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { fetchRelease } from "state/releases";
+import { fetchReleaseForEditing } from "state/releases";
 import { toastSuccess } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
 import validate from "./validate";
@@ -40,7 +40,7 @@ const EditRelease = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
-  const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
+  const { releaseEditing: release } = useSelector(state => state.releases, shallowEqual);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,7 +58,7 @@ const EditRelease = () => {
   useEffect(() => {
     if (releaseIdParam) {
       setIsLoading(true);
-      dispatch(fetchRelease(releaseIdParam));
+      dispatch(fetchReleaseForEditing(releaseIdParam));
     } else {
       dispatch(createRelease());
     }
@@ -101,24 +101,28 @@ const EditRelease = () => {
   }, []);
 
   const handleSubmit = async () => {
-    const [validationErrors = {}, validationTrackErrors = {}] = validate(values);
-    if (Object.values(validationErrors).length || Object.values(validationTrackErrors).length) {
-      setErrors(validationErrors);
-      return setTrackErrors(validationTrackErrors);
-    }
+    try {
+      const [validationErrors = {}, validationTrackErrors = {}] = validate(values);
 
-    setIsSubmitting(true);
+      if (Object.values(validationErrors).length || Object.values(validationTrackErrors).length) {
+        setErrors(validationErrors);
+        return void setTrackErrors(validationTrackErrors);
+      }
 
-    dispatch(updateRelease({ releaseId, ...values })).then(() => {
-      setIsSubmitting(false);
+      setIsSubmitting(true);
+
+      await dispatch(updateRelease({ releaseId, ...values }));
+      navigate("/dashboard");
+
       dispatch(
         toastSuccess({
           message: `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} has been updated.`,
           title: "Saved"
         })
       );
-      navigate("/dashboard");
-    });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = values;

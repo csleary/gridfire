@@ -38,7 +38,7 @@ const Artwork = () => {
     artwork,
     published,
     releaseTitle
-  } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  } = useSelector(state => state.releases.releaseEditing, shallowEqual);
 
   const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
   const [coverArtPreview, setCoverArtPreview] = useState();
