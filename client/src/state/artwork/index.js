@@ -14,7 +14,6 @@ const artworkSlice = createSlice({
     setArtworkUploading(state, action) {
       state.artworkUploading = action.payload;
     },
-
     setArtworkUploadProgress(state, action) {
       state.artworkUploadProgress = action.payload;
     }

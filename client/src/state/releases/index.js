@@ -45,9 +45,15 @@ const releaseSlice = createSlice({
     userWishList: []
   },
   reducers: {
+    addFavouritesItem(state, action) {
+      state.userFavourites = [action.payload, ...state.userFavourites];
+    },
     addTrack(state, action) {
       const { trackList } = state.activeRelease;
       state.activeRelease.trackList = [...trackList, action.payload];
+    },
+    addWishListItem(state, action) {
+      state.userWishList = [action.payload, ...state.userWishList];
     },
     createRelease(state) {
       state.releaseEditing = {
@@ -56,8 +62,14 @@ const releaseSlice = createSlice({
         releaseDate: new Date(Date.now()).toISOString()
       };
     },
+    removeFavouritesItem(state, action) {
+      state.userFavourites = state.userFavourites.filter(({ release }) => release._id !== action.payload);
+    },
     removeRelease(state, action) {
       if (state.userReleases) state.userReleases = state.userReleases.filter(release => release._id !== action.payload);
+    },
+    removeWishListItem(state, action) {
+      state.userWishList = state.userWishList.filter(({ release }) => release._id !== action.payload);
     },
     setArtistCatalogue(state, action) {
       state.artist = action.payload;
@@ -249,9 +261,13 @@ const updateRelease = values => async dispatch => {
 };
 
 export const {
+  addFavouritesItem,
   addTrack,
+  addWishListItem,
   createRelease,
+  removeFavouritesItem,
   removeRelease,
+  removeWishListItem,
   setActiveRelease,
   setArtistCatalogue,
   setArtworkUploading,

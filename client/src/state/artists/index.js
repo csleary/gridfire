@@ -23,23 +23,19 @@ const artistSlice = createSlice({
         return artist;
       });
     },
-
     setActiveArtistId(state, action) {
       state.activeArtistId = action.payload;
     },
-
     setArtist(state, action) {
       state.artists = state.artists.map(artist => {
         if (artist._id === action.payload._id) return action.payload;
         return artist;
       });
     },
-
     setArtists(state, action) {
       state.artists = action.payload;
       if (action.payload.length === 1) state.activeArtistId = action.payload[0]._id;
     },
-
     setErrors(state, action) {
       if (!action.payload) {
         state.errors = {};
@@ -48,19 +44,15 @@ const artistSlice = createSlice({
 
       state.errors[action.payload.name] = action.payload.value;
     },
-
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
-
     setIsPristine(state, action) {
       state.isPristine = action.payload;
     },
-
     setIsSubmitting(state, action) {
       state.isSubmitting = action.payload;
     },
-
     setLink(state, action) {
       const { artistId, link } = action.payload;
       state.isPristine = false;
@@ -69,7 +61,6 @@ const artistSlice = createSlice({
         return artist;
       });
     },
-
     setValues(state, action) {
       const { artistId, name, value } = action.payload;
 

@@ -2,7 +2,7 @@ import { getUser, setPaymentAddress } from "gridfire/controllers/userController.
 import Favourite from "gridfire/models/Favourite.js";
 import Release from "gridfire/models/Release.js";
 import Sale from "gridfire/models/Sale.js";
-import Wishlist from "gridfire/models/Wishlist.js";
+import WishList from "gridfire/models/WishList.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
@@ -104,8 +104,22 @@ router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId: release } = req.params;
     const user = req.user._id;
-    const favourite = await Favourite.create({ release, dateAdded: Date.now(), user });
-    res.send(favourite.toJSON());
+
+    const favourite = await Favourite.findOneAndUpdate(
+      { release },
+      { dateAdded: Date.now(), user },
+      { new: true, upsert: true }
+    )
+      .populate({
+        path: "release",
+        match: { published: true },
+        model: Release,
+        options: { lean: true },
+        select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
+      })
+      .exec();
+
+    res.json(favourite);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
@@ -160,7 +174,7 @@ router.get("/releases", requireLogin, async (req, res) => {
 
 router.get("/wishlist", requireLogin, async (req, res) => {
   try {
-    const userWishList = await Wishlist.find({ user: req.user._id }, "", { lean: true, sort: "-release.releaseDate" })
+    const userWishList = await WishList.find({ user: req.user._id }, "", { lean: true, sort: "-release.releaseDate" })
       .populate({
         path: "release",
         match: { published: true },
@@ -183,13 +197,21 @@ router.post("/wishlist/:releaseId", requireLogin, async (req, res) => {
     const { releaseId: release } = req.params;
     const user = req.user._id;
 
-    const wishlistItem = await Wishlist.findOneAndUpdate(
+    const wishListItem = await WishList.findOneAndUpdate(
       { release },
       { dateAdded: Date.now(), note, user },
       { new: true, upsert: true }
-    );
+    )
+      .populate({
+        path: "release",
+        match: { published: true },
+        model: Release,
+        options: { lean: true },
+        select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
+      })
+      .exec();
 
-    res.send(wishlistItem.toJSON());
+    res.json(wishListItem);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
@@ -200,7 +222,7 @@ router.delete("/wishlist/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId: release } = req.params;
     const user = req.user._id;
-    await Wishlist.findOneAndDelete({ release, user });
+    await WishList.findOneAndDelete({ release, user });
     res.end();
   } catch (error) {
     console.error(error);

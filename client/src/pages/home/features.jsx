@@ -35,12 +35,6 @@ const Features = () => {
             Streamlined payments for a global audience.
           </Box>
         </Feature>
-        <Feature title="Secure audio">
-          Optimised and encrypted audio is stored on the IPFS network.{" "}
-          <Box as="span" color="gray.400">
-            Add extra pinning locations or host your own files.
-          </Box>
-        </Feature>
       </Wrap>
     </Box>
   );

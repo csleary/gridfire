@@ -31,53 +31,41 @@ const web3Slice = createSlice({
       }
       state.basket = [...state.basket, action.payload];
     },
-
     emptyBasket(state) {
       state.basket = [];
     },
-
     removeFromBasket(state, action) {
       state.basket = state.basket.filter(({ releaseId }) => releaseId !== action.payload);
     },
-
     setAccount(state, action) {
       const account = utils.getAddress(action.payload);
       state.account = account;
       state.accountShort = `${account.slice(0, 6)}…${account.slice(-4)}`;
     },
-
     setDaiAllowance(state, action) {
       state.daiAllowance = action.payload;
     },
-
     setDaiBalance(state, action) {
       state.daiBalance = action.payload;
     },
-
     setMintedEditionIds(state, action) {
       state.mintedEditionIds = [...state.mintedEditionIds, action.payload];
     },
-
     setError(state, action) {
       state.error = action.payload;
     },
-
     setIsAddingToBasket(state, action) {
       state.isAddingToBasket = action.payload;
     },
-
     setIsCheckingOut(state, action) {
       state.isCheckingOut = action.payload;
     },
-
     setIsConnected(state, action) {
       state.isConnected = action.payload;
     },
-
     setIsFetchingAllowance(state, action) {
       state.isFetchingAllowance = action.payload;
     },
-
     setNetworkName(state, action) {
       const { chainId, name } = action.payload;
       state.networkName = name;

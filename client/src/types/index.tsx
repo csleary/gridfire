@@ -33,3 +33,10 @@ export interface ReleaseTrack {
   price: string;
   trackTitle: string;
 }
+
+export interface ListItem {
+  _id: string;
+  dateAdded: Date;
+  release: ReleaseTrack;
+  note?: string;
+}

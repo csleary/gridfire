@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-const wishlistSchema = new Schema({
+const wishListSchema = new Schema({
   release: { type: Schema.Types.ObjectId, ref: "Release" },
   dateAdded: { type: Date },
   note: { type: String },
   user: { type: Schema.Types.ObjectId, ref: "User" }
 });
 
-wishlistSchema.index({ user: 1, release: 1 }, { unique: true });
-const Wishlist = mongoose.model("Wishlist", wishlistSchema, "wishlists");
-export default Wishlist;
+wishListSchema.index({ user: 1, release: 1 }, { unique: true });
+const WishList = mongoose.model("WishList", wishListSchema, "wishLists");
+export default WishList;

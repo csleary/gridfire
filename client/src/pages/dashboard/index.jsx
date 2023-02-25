@@ -5,7 +5,7 @@ import Collection from "./collection";
 import Favourites from "./favourites";
 import { Helmet } from "react-helmet";
 import UserReleases from "./userReleases";
-import WishList from "./wishlist";
+import WishList from "./wishList";
 
 const Dashboard = () => (
   <>

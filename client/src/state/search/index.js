@@ -13,11 +13,9 @@ const searchSlice = createSlice({
       state.searchResults = [];
       state.searchQuery = "";
     },
-
     setSearchResults(state, action) {
       state.searchResults = action.payload;
     },
-
     setSearching(state, action) {
       state.isSearching = action.payload.isSearching;
       state.searchQuery = action.payload.searchQuery;

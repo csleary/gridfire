@@ -2,7 +2,7 @@ import Artist from "gridfire/models/Artist.js";
 import Favourite from "gridfire/models/Favourite.js";
 import Release from "gridfire/models/Release.js";
 import User from "gridfire/models/User.js";
-import Wishlist from "gridfire/models/Wishlist.js";
+import WishList from "gridfire/models/WishList.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
 import { deleteArtwork } from "gridfire/controllers/artworkController.js";
 import { deleteTrack } from "gridfire/controllers/trackController.js";
@@ -33,7 +33,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     let deleteArtist = Promise.resolve();
     if (!artistHasOtherReleases) deleteArtist = Artist.findOneAndRemove({ _id: artist, user }).exec();
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();
-    const deleteFromWishlists = Wishlist.deleteMany({ release: releaseId }).exec();
+    const deleteFromWishlists = WishList.deleteMany({ release: releaseId }).exec();
     await Promise.all([deleteArtist, deleteFromFavourites, deleteFromWishlists]);
     console.log(`Release ${releaseId} deleted.`);
     res.sendStatus(200);

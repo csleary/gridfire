@@ -6,34 +6,37 @@ const playerSlice = createSlice({
     artistName: "",
     isPlaying: false,
     isPaused: false,
+    playList: [],
     releaseId: "",
     showPlayer: false,
     trackId: "",
     trackTitle: ""
   },
   reducers: {
+    addToPlayList(state, action) {
+      state.playList = [...state.playList, action.payload];
+    },
+    removeFromPlayList(state, action) {
+      state.playList = state.playList.filter(({ releaseId }) => releaseId !== action.payload);
+    },
     playerHide(state) {
       state.isPlaying = false;
       state.isPaused = false;
       state.showPlayer = false;
     },
-
     playerPause(state) {
       state.isPlaying = false;
       state.isPaused = true;
     },
-
     playerPlay(state) {
       state.isPlaying = true;
       state.isPaused = false;
       state.showPlayer = true;
     },
-
     playerStop(state) {
       state.isPlaying = false;
       state.isPaused = false;
     },
-
     playTrack(state, action) {
       const { artistName, releaseId, releaseTitle, trackId, trackTitle } = action.payload;
       state.isPlaying = false;

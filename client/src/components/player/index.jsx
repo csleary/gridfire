@@ -1,5 +1,6 @@
 import { Box, Flex, Spacer } from "@chakra-ui/react";
-import { faChevronDown, faCog, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
+import { addToFavourites, removeFromFavourites } from "state/user";
+import { faChevronDown, faCog, faHeart, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "hooks";
@@ -8,8 +9,8 @@ import PlayerButton from "./playerButton";
 import PlayLogger from "./playLogger";
 import SeekBar from "./seekbar";
 import TrackInfo from "./trackInfo";
+import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import shaka from "shaka-player";
-// import shaka from "shaka-player/dist/shaka-player.compiled.debug.js";
 import { shallowEqual } from "react-redux";
 import { toastWarning } from "state/toast";
 import { usePrevious } from "hooks/usePrevious";
@@ -22,21 +23,19 @@ const Player = () => {
   const playLoggerRef = useRef();
   const seekBarRef = useRef();
   const shakaRef = useRef();
-
-  const { artistName, isPlaying, trackId, releaseId, showPlayer, trackTitle } = useSelector(
-    state => state.player,
-    shallowEqual
-  );
-
-  const { releaseTitle, trackList } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const player = useSelector(state => state.player, shallowEqual);
+  const { activeRelease, userFavourites } = useSelector(state => state.releases, shallowEqual);
+  const { releaseTitle, trackList } = activeRelease;
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isReady, setIsReady] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
+  const { artistName, isPlaying, releaseId, showPlayer, trackId, trackTitle } = player;
   const prevTrackId = usePrevious(trackId);
   const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
   const { isBonus = false } = trackList.find(({ _id }) => _id === trackId) || {};
+  const isInFaves = userFavourites.some(({ release }) => release._id === releaseId);
 
   const onBuffering = () => {
     const { audio } = shakaRef.current.getBufferedInfo();
@@ -233,6 +232,13 @@ const Player = () => {
     }
   }, [cueNextTrack, handlePlay, isBonus, onError, prevTrackId, releaseId, setMediaSession, trackId]);
 
+  const handleClickFavourites = () => {
+    if (isInFaves) {
+      return void dispatch(removeFromFavourites(releaseId));
+    }
+    dispatch(addToFavourites(releaseId));
+  };
+
   const handleSeek = ({ clientX }) => {
     const width = seekBarRef.current.clientWidth;
     const seekPercent = clientX / width;
@@ -277,6 +283,13 @@ const Player = () => {
             mr={2}
           />
           <PlayerButton ariaLabel="Stop audio playback." icon={faStop} onClick={handleStop} mr={2} />
+          <PlayerButton
+            ariaLabel="Save this track to your favourites."
+            color={isInFaves ? "red" : null}
+            icon={isInFaves ? faHeart : heartOutline}
+            onClick={handleClickFavourites}
+            mr={2}
+          />
         </Flex>
         <PlaybackTime elapsedTime={elapsedTime} remainingTime={remainingTime} />
         <TrackInfo artistName={artistName} releaseId={releaseId} trackTitle={trackTitle} />

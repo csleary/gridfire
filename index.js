@@ -15,7 +15,7 @@ import "./models/Sale.js";
 import "./models/Play.js";
 import "./models/StreamSession.js";
 import "./models/User.js";
-import "./models/Wishlist.js";
+import "./models/WishList.js";
 import "./controllers/passport.js";
 import artists from "./routes/artistRoutes.js";
 import artwork from "./routes/artworkRoutes.js";

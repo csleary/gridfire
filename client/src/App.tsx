@@ -5,11 +5,12 @@ import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetw
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Icon from "components/icon";
 import Footer from "components/footer";
-import Player from "pages/player";
+import Player from "components/player";
 import PrivateRoute from "components/privateRoute";
 import { RootState } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { ethers } from "ethers";
+import { fetchUserFavourites, fetchUserWishList } from "state/releases";
 import { fetchUser } from "state/user";
 import useSSE from "hooks/useSSE";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
@@ -72,6 +73,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchUser());
+    dispatch(fetchUserFavourites());
+    dispatch(fetchUserWishList());
 
     detectEthereumProvider().then((ethereum: any) => {
       if (ethereum == null) return;

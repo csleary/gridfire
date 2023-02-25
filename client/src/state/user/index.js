@@ -1,3 +1,4 @@
+import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "state/releases";
 import { createAction, createSlice } from "@reduxjs/toolkit";
 import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
@@ -8,43 +9,22 @@ const userSlice = createSlice({
     account: "",
     accountShort: "",
     email: "",
-    favourites: [],
     isLoading: true,
     lastLogin: null,
     paymentAddress: "",
     purchases: [],
-    wishList: [],
     userId: ""
   },
   reducers: {
-    addFavouritesItem(state, action) {
-      state.favourites = [action.payload, ...state.favourites];
-    },
-
-    removeFavouritesItem(state, action) {
-      state.favourites = state.favourites.filter(({ release }) => release !== action.payload);
-    },
-
-    addWishListItem(state, action) {
-      state.wishList = [action.payload, ...state.wishList];
-    },
-
-    removeWishListItem(state, action) {
-      state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
-    },
-
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
-
     setPaymentAddress(state, action) {
       state.paymentAddress = action.payload;
     },
-
     updateFavourites(state, action) {
       state.favourites = action.payload;
     },
-
     updateUser(state, action) {
       const { _id, account, email, favourites, lastLogin, paymentAddress, purchases, wishList } = action.payload;
       state.account = account;
@@ -121,18 +101,7 @@ const logOut = () => async dispatch => {
 
 export default userSlice.reducer;
 
-export const {
-  addFavouritesItem,
-  addWishListItem,
-  removeFavouritesItem,
-  removeWishListItem,
-  setFavourites,
-  setIsLoading,
-  setLoading,
-  setPaymentAddress,
-  updateFavourites,
-  updateUser
-} = userSlice.actions;
+export const { setIsLoading, setLoading, setPaymentAddress, updateFavourites, updateUser } = userSlice.actions;
 
 export {
   addPaymentAddress,

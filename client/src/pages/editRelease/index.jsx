@@ -58,10 +58,10 @@ const EditRelease = () => {
   useEffect(() => {
     if (releaseIdParam) {
       setIsLoading(true);
-      dispatch(fetchReleaseForEditing(releaseIdParam));
-    } else {
-      dispatch(createRelease());
+      return void dispatch(fetchReleaseForEditing(releaseIdParam));
     }
+
+    dispatch(createRelease());
   }, [releaseIdParam]); // eslint-disable-line
 
   useEffect(() => {
@@ -70,7 +70,7 @@ const EditRelease = () => {
       setValues(release);
       setIsLoading(false);
     }
-  }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
+  }, [isLoading, release, releaseId, releaseIdParam, values._id]);
 
   useEffect(() => {
     // Apply default values for new release.
