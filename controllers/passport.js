@@ -1,6 +1,6 @@
-import User from "../models/User.js";
+import { getAddress, keccak256, toUtf8Bytes, verifyMessage } from "ethers";
+import User from "gridfire/models/User.js";
 import crypto from "crypto";
-import { utils } from "ethers";
 import passport from "passport";
 import passportCustom from "passport-custom";
 
@@ -28,7 +28,6 @@ const loginWeb3 = async (req, done) => {
   try {
     const { address, messageHash } = JSON.parse(req.signedCookies.web3Login);
     const { message, signature } = req.body;
-    const { getAddress, keccak256, toUtf8Bytes, verifyMessage } = utils;
 
     if (keccak256(toUtf8Bytes(message)) !== messageHash) {
       return done(null, false, "Could not verify signature.");

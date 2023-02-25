@@ -1,26 +1,23 @@
-import { BigNumber } from "ethers";
-
 export interface GridFireEdition {
   allowanceTooLow?: boolean;
-  amount?: BigNumber;
-  balance?: BigNumber;
-  editionId: BigNumber;
+  amount?: bigint;
+  balance?: bigint;
+  editionId: bigint;
   metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
-  price: BigNumber;
+  price: bigint;
   uri?: string;
 }
 
-export interface MintedGridFireEdition {
-  amount: BigNumber;
-  balance: BigNumber;
-  editionId: BigNumber;
-  price: BigNumber;
-  metadata: {
-    description: string;
-    properties: {
-      tracks: [{ id: string; title: string }];
-    };
-  };
+export interface GridFireEditionPurchase {
+  allowanceTooLow?: boolean;
+  editionId: bigint;
+  price: bigint;
+}
+
+export interface MintedGridFireEdition extends GridFireEdition {
+  allowanceTooLow: boolean;
+  amount: bigint;
+  balance: bigint;
   uri: string;
 }
 

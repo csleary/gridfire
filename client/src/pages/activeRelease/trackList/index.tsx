@@ -9,7 +9,6 @@ import {
   Badge,
   Tooltip
 } from "@chakra-ui/react";
-import { constants, utils } from "ethers";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
@@ -20,6 +19,7 @@ import PurchaseTrackButton from "./purchaseTrackButton";
 import { ReleaseTrack } from "types";
 import { addToBasket } from "state/web3";
 import axios from "axios";
+import { parseEther } from "ethers";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
@@ -60,7 +60,7 @@ const TrackList = () => {
     try {
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress } = res.data;
-      const priceInWei = utils.parseEther(price.toString());
+      const priceInWei = parseEther(price.toString());
 
       dispatch(
         addToBasket({
@@ -107,7 +107,7 @@ const TrackList = () => {
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
       {trackList.map(({ _id: trackId, duration, isBonus, isEditionOnly, price, trackTitle }: ReleaseTrack, index) => {
-        const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
+        const allowanceTooLow = parseEther(price.toString()) > daiAllowance || daiAllowance === 0n;
         const inBasket = basket.some((item: BasketItem) => item.releaseId === trackId);
         const inCollection = purchases.some((sale: Sale) => sale.release === releaseId);
         const trackInCollection = purchases.some((sale: Sale) => sale.release === trackId);

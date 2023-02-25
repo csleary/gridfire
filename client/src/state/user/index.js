@@ -3,18 +3,20 @@ import { createAction, createSlice } from "@reduxjs/toolkit";
 import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
 
+const initialState = {
+  account: "",
+  accountShort: "",
+  email: "",
+  isLoading: false,
+  lastLogin: null,
+  paymentAddress: "",
+  purchases: [],
+  userId: ""
+};
+
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    account: "",
-    accountShort: "",
-    email: "",
-    isLoading: true,
-    lastLogin: null,
-    paymentAddress: "",
-    purchases: [],
-    userId: ""
-  },
+  initialState,
   reducers: {
     setIsLoading(state, action) {
       state.isLoading = action.payload;
@@ -79,6 +81,7 @@ const addPaymentAddress = values => async dispatch => {
 
 const fetchUser = () => async dispatch => {
   try {
+    dispatch(setIsLoading(true));
     const res = await axios.get("/api/user");
     if (res.data) dispatch(updateUser(res.data));
   } catch (error) {

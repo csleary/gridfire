@@ -1,4 +1,3 @@
-import { constants, utils } from "ethers";
 import { useDispatch, useSelector } from "hooks";
 import { toastError, toastWarning } from "state/toast";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,6 +7,7 @@ import NameYourPriceModal from "./nameYourPriceModal";
 import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { parseEther } from "ethers";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
@@ -27,7 +27,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Pro
   const [showModal, setShowModal] = useState(false);
   const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const { userId } = useSelector(state => state.user, shallowEqual);
-  const allowanceTooLow = utils.parseEther(price.toString()).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
+  const allowanceTooLow = parseEther(price.toString()) > daiAllowance || daiAllowance === 0n;
 
   const handlePayment = async (price: string) => {
     try {

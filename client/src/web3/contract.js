@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers, utils } from "ethers";
+import { BrowserProvider, Contract, encodeBytes32String, parseEther } from "ethers";
 import axios from "axios";
 import daiAbi from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
@@ -13,12 +13,12 @@ const {
 
 const getProvider = async () => {
   const ethereum = await detectEthereumProvider();
-  return new ethers.providers.Web3Provider(ethereum);
+  return new BrowserProvider(ethereum);
 };
 
 const claimBalance = async () => {
   const provider = await getProvider();
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
   const transactionReceipt = await gridFireContract.claim();
   const { status } = await transactionReceipt.wait();
@@ -87,16 +87,16 @@ const getUserEditions = async () => {
 
 const gridFireCheckout = async (basket, userId) => {
   const provider = await getProvider();
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
   const gridFireContract = getGridFireContract(signer);
 
   const contractBasket = basket.map(({ paymentAddress, price, releaseId }) => ({
     artist: paymentAddress,
-    releaseId: utils.formatBytes32String(releaseId),
+    releaseId: encodeBytes32String(releaseId),
     amountPaid: price
   }));
 
-  const transactionReceipt = await gridFireContract.checkout(contractBasket, utils.formatBytes32String(userId));
+  const transactionReceipt = await gridFireContract.checkout(contractBasket, encodeBytes32String(userId));
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
   return transactionHash;
@@ -104,14 +104,14 @@ const gridFireCheckout = async (basket, userId) => {
 
 const mintEdition = async ({ amount, description, price, releaseId, tracks }) => {
   const provider = await getProvider();
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
   const gridFireEditions = getGridFireEditionsContract(signer);
   const res = await axios.post(`/api/web3/editions/mint`, { amount, description, price, releaseId, tracks });
   const { metadataUri, objectId } = res.data;
-  const bigNumAmount = BigNumber.from(`${amount}`);
-  const weiPrice = utils.parseEther(`${price}`);
-  const releaseIdBytes = utils.formatBytes32String(releaseId);
-  const objectIdBytes = utils.formatBytes32String(objectId);
+  const bigNumAmount = BigInt(`${amount}`);
+  const weiPrice = parseEther(`${price}`);
+  const releaseIdBytes = encodeBytes32String(releaseId);
+  const objectIdBytes = encodeBytes32String(objectId);
 
   const mintReceipt = await gridFireEditions.mintEdition(
     bigNumAmount,
@@ -127,9 +127,9 @@ const mintEdition = async ({ amount, description, price, releaseId, tracks }) =>
 
 const purchaseEdition = async ({ artist, editionId, price, releaseId }) => {
   const provider = await getProvider();
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
   const gridFireEditions = getGridFireEditionsContract(signer);
-  const releaseIdBytes = utils.formatBytes32String(releaseId);
+  const releaseIdBytes = encodeBytes32String(releaseId);
   const transactionReceipt = await gridFireEditions.purchaseGridFireEdition(editionId, price, artist, releaseIdBytes);
   const { status, transactionHash } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Transaction unsuccessful.");
@@ -138,11 +138,11 @@ const purchaseEdition = async ({ artist, editionId, price, releaseId }) => {
 
 const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => {
   const provider = await getProvider();
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
   const gridFirePayment = getGridFireContract(signer);
-  const weiReleasePrice = utils.parseEther(`${price}`);
-  const releaseIdBytes = utils.formatBytes32String(releaseId);
-  const userIdBytes = utils.formatBytes32String(userId);
+  const weiReleasePrice = parseEther(`${price}`);
+  const releaseIdBytes = encodeBytes32String(releaseId);
+  const userIdBytes = encodeBytes32String(userId);
 
   const transactionReceipt = await gridFirePayment.purchase(
     paymentAddress,
@@ -158,9 +158,9 @@ const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }) => 
 
 const setDaiAllowance = async (newLimitInDai = "") => {
   const provider = await getProvider();
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
   const daiContract = getDaiContract(signer);
-  const requestedAllowance = utils.parseEther(newLimitInDai);
+  const requestedAllowance = parseEther(newLimitInDai);
   const approvalReceipt = await daiContract.approve(REACT_APP_GRIDFIRE_PAYMENT_ADDRESS, requestedAllowance);
   const { status } = await approvalReceipt.wait();
   if (status !== 1) throw new Error("Approval unsuccessful.");

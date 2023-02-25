@@ -1,3 +1,6 @@
+import "gridfire-web3-events/models/Release.js";
+import "gridfire-web3-events/models/Sale.js";
+import "gridfire-web3-events/models/User.js";
 import {
   getGridFireEditionsContract,
   getGridFirePaymentContract,
@@ -5,14 +8,11 @@ import {
   onPurchase,
   onPurchaseEdition
 } from "gridfire-web3-events/controllers/web3.js";
-import { logger } from "gridfire-web3-events/controllers/logger.js";
 import { amqpConnect } from "gridfire-web3-events/controllers/amqp.js";
+import { strict as assert } from "assert/strict";
+import { logger } from "gridfire-web3-events/controllers/logger.js";
 import mongoose from "mongoose";
 import net from "net";
-import { strict as assert } from "assert/strict";
-import "gridfire-web3-events/models/Release.js";
-import "gridfire-web3-events/models/Sale.js";
-import "gridfire-web3-events/models/User.js";
 
 const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
 assert(HEALTH_PROBE_PORT, "Health probe port env var missing.");

@@ -1,5 +1,5 @@
 import User from "gridfire/models/User.js";
-import { utils } from "ethers";
+import { getAddress } from "ethers";
 
 const getUser = async userId => {
   const [user] = await User.aggregate([
@@ -14,7 +14,7 @@ const getUser = async userId => {
 };
 
 const setPaymentAddress = async ({ paymentAddress, userId }) => {
-  return User.findByIdAndUpdate(userId, { paymentAddress: utils.getAddress(paymentAddress) }).exec();
+  return User.findByIdAndUpdate(userId, { paymentAddress: getAddress(paymentAddress) }).exec();
 };
 
 export { getUser, setPaymentAddress };

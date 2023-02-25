@@ -1,11 +1,10 @@
-import { getTransaction } from "gridfire/controllers/web3/index.js";
 import Edition from "gridfire/models/Edition.js";
 import Release from "gridfire/models/Release.js";
 import Sale from "gridfire/models/Sale.js";
-import User from "gridfire/models/User.js";
 import express from "express";
+import { getTransaction } from "gridfire/controllers/web3/index.js";
+import { isHexString } from "ethers";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
-import { utils } from "ethers";
 import { zipDownload } from "gridfire/controllers/archiveController.js";
 
 const router = express.Router();
@@ -14,7 +13,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
   try {
     const { format, purchaseId } = req.params;
     const userId = req.user._id;
-    const isEdition = utils.isHexString(purchaseId);
+    const isEdition = isHexString(purchaseId);
     let release;
 
     if (isEdition) {

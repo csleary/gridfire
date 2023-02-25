@@ -1,6 +1,5 @@
 import { Accordion, Box, Divider, Flex, VStack, useColorModeValue, ScaleFade } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
-import { BigNumber } from "ethers";
 import Edition from "./edition";
 import { getGridFireEditionsByReleaseId } from "web3/contract";
 import { useParams } from "react-router-dom";
@@ -37,7 +36,7 @@ const Editions = () => {
           <VStack spacing={6} mb={8}>
             {editions.map((edition, index) => {
               const { editionId } = edition;
-              const formattedTokenId = BigNumber.from(editionId).toString();
+              const formattedTokenId = BigInt(editionId).toString();
               return <Edition edition={edition} fetchEditions={fetchEditions} index={index} key={formattedTokenId} />;
             })}
           </VStack>

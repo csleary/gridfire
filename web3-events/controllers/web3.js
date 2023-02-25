@@ -1,4 +1,4 @@
-import { Contract, ethers, utils } from "ethers";
+import { Contract, decodeBytes32String, formatEther, getAddress, getDefaultProvider, parseEther } from "ethers";
 import Edition from "gridfire-web3-events/models/Edition.js";
 import Release from "gridfire-web3-events/models/Release.js";
 import Sale from "gridfire-web3-events/models/Sale.js";
@@ -10,7 +10,7 @@ import { publishToQueue } from "./amqp.js";
 const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
 
 const getProvider = () => {
-  return ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
+  return getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
 };
 
 const getGridFireEditionsContract = () => {
@@ -25,16 +25,19 @@ const getGridFirePaymentContract = () => {
 const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId) => {
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
-    const releaseId = utils.parseBytes32String(releaseIdBytes);
-    const _id = utils.parseBytes32String(objectIdBytes);
+    const releaseId = decodeBytes32String(releaseIdBytes);
+    const _id = decodeBytes32String(objectIdBytes);
     console.log(`[${date}] Edition minted by address: ${artist} for releaseId ${releaseId}.`);
 
-    const { release } = await Edition.findOneAndUpdate({ _id, release: releaseId }, { editionId, status: "minted" })
+    const { release } = await Edition.findOneAndUpdate(
+      { _id, release: releaseId },
+      { editionId: editionId.toString(), status: "minted" }
+    )
       .populate({ path: "release", model: Release, options: { lean: true }, select: "user" })
       .exec();
 
     const userId = release.user.toString();
-    publishToQueue("user", userId, { editionId: _id, type: "mintedEvent", userId });
+    publishToQueue("user", userId, { editionId: _id.toString(), type: "mintedEvent", userId });
   } catch (error) {
     console.error("EditionMinted error:", error);
   }
@@ -51,10 +54,11 @@ const onPurchase = async (
   event
 ) => {
   try {
+    console.log({ buyerAddress, artistAddress, releaseIdBytes, userIdBytes, amountPaid, artistShare, platformFee });
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
-    const daiPaid = utils.formatEther(amountPaid);
-    const releaseId = utils.parseBytes32String(releaseIdBytes);
-    const userId = utils.parseBytes32String(userIdBytes);
+    const daiPaid = formatEther(amountPaid);
+    const releaseId = decodeBytes32String(releaseIdBytes);
+    const userId = decodeBytes32String(userIdBytes);
     console.log(`[${date}] User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
 
     let price;
@@ -81,11 +85,11 @@ const onPurchase = async (
 
     const { artistName, user: artistUser } = release;
 
-    if (utils.getAddress(artistUser.paymentAddress) !== utils.getAddress(artistAddress)) {
+    if (getAddress(artistUser.paymentAddress) !== getAddress(artistAddress)) {
       throw new Error("Payment address and release artist address do not match.");
     }
 
-    if (amountPaid.lt(utils.parseEther(price.toString()))) {
+    if (amountPaid < parseEther(price.toString())) {
       throw new Error("The amount paid is lower than the release price.");
     }
 
@@ -94,16 +98,22 @@ const onPurchase = async (
     }
 
     const transactionReceipt = await event.getTransactionReceipt();
-    const { from: buyer, status } = transactionReceipt;
+    const { gasUsed, cumulativeGasUsed, gasPrice, ...restTxReceipt } = transactionReceipt;
+    const { from: buyer, status } = restTxReceipt;
+    const bigIntValues = { gasUsed, cumulativeGasUsed, gasPrice };
+    const bigIntValuesAsString = Object.entries(bigIntValues).reduce(
+      (prev, [key, value]) => ({ ...prev, [key]: value.toString() }),
+      {}
+    );
 
     if (status === 1) {
       await Sale.create({
         purchaseDate: Date.now(),
         release: releaseId,
-        paid: amountPaid,
-        fee: platformFee,
-        netAmount: artistShare,
-        transaction: transactionReceipt,
+        paid: amountPaid.toString(),
+        fee: platformFee.toString(),
+        netAmount: artistShare.toString(),
+        transaction: { ...restTxReceipt, ...bigIntValuesAsString },
         type,
         user: userId,
         userAddress: buyer
@@ -119,9 +129,9 @@ const onPurchase = async (
       // Notify artist of sale.
       publishToQueue("user", artistUserId, {
         artistName,
-        artistShare: utils.formatEther(artistShare),
+        artistShare: formatEther(artistShare),
         buyerAddress,
-        platformFee: utils.formatEther(platformFee),
+        platformFee: formatEther(platformFee),
         releaseTitle,
         type: "saleEvent",
         userId: artistUserId
@@ -143,13 +153,13 @@ const onPurchaseEdition = async (
   event
 ) => {
   try {
-    const buyerAddressNormalised = utils.getAddress(buyerAddress);
+    const buyerAddressNormalised = getAddress(buyerAddress);
     const buyerUser = await User.findOne({ account: buyerAddressNormalised }, "_id", { lean: true }).exec();
     if (!buyerUser) throw new Error(`Buyer user not found. Address: ${buyerAddressNormalised}`);
-    const releaseId = utils.parseBytes32String(releaseIdBytes);
+    const releaseId = decodeBytes32String(releaseIdBytes);
     const userId = buyerUser._id.toString();
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
-    const daiPaid = utils.formatEther(amountPaid);
+    const daiPaid = formatEther(amountPaid);
     const id = editionId.toString();
 
     console.log(
@@ -172,9 +182,9 @@ const onPurchaseEdition = async (
       // Notify artist of sale.
       publishToQueue("user", artistUserId, {
         artistName,
-        artistShare: utils.formatEther(artistShare),
+        artistShare: formatEther(artistShare),
         buyerAddress,
-        platformFee: utils.formatEther(platformFee),
+        platformFee: formatEther(platformFee),
         releaseTitle,
         type: "saleEvent",
         userId: artistUserId

@@ -9,6 +9,7 @@ import {
   VStack,
   useColorModeValue
 } from "@chakra-ui/react";
+import { fetchUserFavourites, fetchUserWishList } from "state/releases";
 import { setIsLoading, updateUser } from "state/user";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastSuccess, toastWarning } from "state/toast";
@@ -52,6 +53,8 @@ const Login = () => {
         const user = await checkMessage({ message, signature });
         dispatch(toastSuccess({ message: "You are now logged in with your Ether wallet.", title: "Logged in" }));
         dispatch(updateUser(user));
+        dispatch(fetchUserFavourites());
+        dispatch(fetchUserWishList());
         dispatch(connectToWeb3());
         const { pathname } = location.state || {};
         if (pathname) return navigate(pathname);

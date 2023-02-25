@@ -3,19 +3,18 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { BrowserProvider } from "ethers";
 import Icon from "components/icon";
 import Footer from "components/footer";
 import Player from "components/player";
 import PrivateRoute from "components/privateRoute";
 import { RootState } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { ethers } from "ethers";
-import { fetchUserFavourites, fetchUserWishList } from "state/releases";
+import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import useSSE from "hooks/useSSE";
-import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 
-const { REACT_APP_CHAIN_ID } = process.env;
+const { REACT_APP_CHAIN_ID = "" } = process.env;
 const About = lazy(() => import("pages/about"));
 const ActiveRelease = lazy(() => import("pages/activeRelease"));
 const ArtistPage = lazy(() => import("pages/artistPage"));
@@ -42,7 +41,7 @@ const App: React.FC = () => {
   }, [account, dispatch]);
 
   const getNetwork = useCallback(() => {
-    const provider = new ethers.providers.Web3Provider(ethereumRef.current);
+    const provider = new BrowserProvider(ethereumRef.current);
     provider.getNetwork().then(network => dispatch(setNetworkName(network)));
   }, [dispatch]);
 
@@ -63,7 +62,7 @@ const App: React.FC = () => {
   );
 
   const handleChainChanged = useCallback(
-    (chainId: string): void => {
+    (chainId: bigint): void => {
       // window.location.reload();
       getAccountInfo();
       getNetwork();
@@ -73,8 +72,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchUser());
-    dispatch(fetchUserFavourites());
-    dispatch(fetchUserWishList());
 
     detectEthereumProvider().then((ethereum: any) => {
       if (ethereum == null) return;
@@ -96,7 +93,7 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Slide
         direction="bottom"
-        in={isConnected && chainId !== 0 && chainId !== Number(REACT_APP_CHAIN_ID)}
+        in={isConnected && chainId !== 0n && chainId !== BigInt(REACT_APP_CHAIN_ID)}
         style={{ zIndex: 10 }}
       >
         <Box bg="yellow.400" color="gray.800" fontWeight="semibold" p={4} shadow="md">

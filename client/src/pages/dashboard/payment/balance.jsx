@@ -20,7 +20,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { claimBalance, getBalance, getGridFireClaimEvents } from "web3/contract";
-import { constants, utils } from "ethers";
+import { formatEther, parseEther } from "ethers";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useEffect, useState } from "react";
@@ -33,7 +33,7 @@ const Balance = () => {
   const { user, web3 } = useSelector(state => state, shallowEqual);
   const { paymentAddress } = user;
   const { account, isConnected } = web3;
-  const [balance, setBalance] = useState(utils.parseEther("0"));
+  const [balance, setBalance] = useState(parseEther("0"));
   const [isClaiming, setIsClaiming] = useState(false);
   const [claims, setClaims] = useState([]);
 
@@ -52,11 +52,11 @@ const Balance = () => {
     try {
       setIsClaiming(true);
       await claimBalance();
-      setBalance(constants.Zero);
+      setBalance(0n);
       dispatch(fetchDaiBalance(account));
       dispatch(toastSuccess({ message: "DAI balance claimed successfully", title: "Success!" }));
     } catch (error) {
-      if (balance.isZero()) {
+      if (balance === 0n) {
         return void dispatch(
           toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim." })
         );
@@ -87,14 +87,14 @@ const Balance = () => {
         <Stat mb={4}>
           <StatLabel textAlign="center">Current DAI balance</StatLabel>
           <StatNumber fontSize="4xl" textAlign="center">
-            ◈ {Number(utils.formatEther(balance)).toFixed(2)}
+            ◈ {Number(formatEther(balance)).toFixed(2)}
           </StatNumber>
           <StatHelpText textAlign="center">The claimable amount in your GridFire account</StatHelpText>
         </Stat>
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
           leftIcon={<Icon icon={faWallet} />}
-          isDisabled={!isConnected || balance.isZero() || account.toLowerCase() !== paymentAddress.toLowerCase()}
+          isDisabled={!isConnected || balance === 0n || account.toLowerCase() !== paymentAddress.toLowerCase()}
           isLoading={isClaiming}
           loadingText="Claiming…"
           onClick={handleClaimBalance}
@@ -131,7 +131,7 @@ const Balance = () => {
                 <Td>
                   <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                 </Td>
-                <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
+                <Td isNumeric>◈ {Number(formatEther(amount)).toFixed(2)}</Td>
               </Tr>
             ))}
           </Tbody>

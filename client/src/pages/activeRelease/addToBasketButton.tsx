@@ -7,9 +7,9 @@ import NameYourPriceModal from "./nameYourPriceModal";
 import { RootState } from "index";
 import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
+import { parseEther } from "ethers";
 import { toastError } from "state/toast";
 import { useState } from "react";
-import { utils } from "ethers";
 
 interface Props {
   artistName: string;
@@ -36,7 +36,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
         throw new Error(`Price must be at least ◈${releasePrice}.`);
       }
 
-      const priceInWei = utils.parseEther(price);
+      const priceInWei = parseEther(price);
       dispatch(addToBasket({ artistName, releaseId, imageUrl, paymentAddress, price: priceInWei, title }));
     } catch (error: any) {
       dispatch(toastError({ message: error.message, title: "Error" }));

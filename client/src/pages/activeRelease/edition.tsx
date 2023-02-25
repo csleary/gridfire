@@ -11,11 +11,11 @@ import {
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
-import { BigNumber, constants, utils } from "ethers";
+import { formatEther } from "ethers";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { GridFireEdition } from "types";
+import { GridFireEditionPurchase, MintedGridFireEdition } from "types";
 import Icon from "components/icon";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
@@ -32,7 +32,7 @@ const colors = [
 ];
 
 interface Props {
-  edition: GridFireEdition;
+  edition: MintedGridFireEdition;
   fetchEditions: () => void;
   index: number;
 }
@@ -47,20 +47,20 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const { tracks } = properties;
   const { account, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const allowanceTooLow = BigNumber.from(price).gt(daiAllowance) || daiAllowance.eq(constants.Zero);
+  const allowanceTooLow = BigInt(price) > daiAllowance || daiAllowance === 0n;
   const bgColor = useColorModeValue("var(--chakra-colors-whiteAlpha-800)", "rgba(26,32,44,0.85)");
   const descriptionColor = useColorModeValue("var(--chakra-colors-chakra-body-text)", "gray.300");
   const infoColor = useColorModeValue("var(--chakra-colors-chakra-body-text)", "gray.300");
   const color1 = colors[index % colors.length];
   const color2 = colors[(index + 1) % colors.length];
-  const formattedAmount = BigNumber.from(amount).toString();
-  const formattedBalance = BigNumber.from(balance).toString();
-  const formattedPrice = utils.formatEther(price);
-  const isSoldOut = BigNumber.from(balance).eq(constants.Zero);
+  const formattedAmount = BigInt(amount).toString();
+  const formattedBalance = BigInt(balance).toString();
+  const formattedPrice = formatEther(price);
+  const isSoldOut = BigInt(balance) === 0n;
   const isDisabled = !isConnected || isFetchingAllowance || isPurchasing || isSoldOut;
   const transition = "200ms ease-in-out";
 
-  const handlePurchase = async ({ editionId, price }: GridFireEdition) => {
+  const handlePurchase = async ({ editionId, price }: GridFireEditionPurchase) => {
     try {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
@@ -80,7 +80,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
     }
   };
 
-  const handleClick = ({ allowanceTooLow, editionId, price }: GridFireEdition) => {
+  const handleClick = ({ allowanceTooLow, editionId, price }: GridFireEditionPurchase) => {
     if (allowanceTooLow) {
       dispatch(
         toastWarning({
@@ -93,7 +93,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
       return void navigate("/dashboard/payment/approvals", { state: { pathname } });
     }
 
-    handlePurchase({ editionId, metadata, price });
+    handlePurchase({ editionId, price });
   };
 
   return (

@@ -18,7 +18,7 @@ import {
   VStack,
   useColorModeValue
 } from "@chakra-ui/react";
-import { BigNumber, utils } from "ethers";
+import { formatEther } from "ethers";
 import { checkoutBasket, connectToWeb3, emptyBasket, removeFromBasket } from "state/web3";
 import { useDispatch, useSelector } from "hooks";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -34,7 +34,7 @@ export interface BasketItem {
   artistName: string;
   imageUrl: string;
   paymentAddress: string;
-  price: BigNumber;
+  price: bigint;
   title: string;
   releaseId: string;
 }
@@ -54,8 +54,8 @@ const BasketButton = () => {
   } = useSelector(state => state.web3, shallowEqual);
 
   const [showModal, setShowModal] = useState(false);
-  const total = basket.reduce((prev, curr: BasketItem) => prev.add(curr.price), BigNumber.from("0"));
-  const allowanceTooLow = total.gt(daiAllowance);
+  const total = basket.reduce((prev, { price }: BasketItem) => prev + price, BigInt("0"));
+  const allowanceTooLow = total > daiAllowance;
 
   const handleCheckout = async () => {
     try {
@@ -110,7 +110,7 @@ const BasketButton = () => {
                         {artistName} &bull; <Text as="em">{title}</Text>
                       </Text>
                       <Spacer />
-                      <Box mr={4}>◈ {Number(utils.formatEther(price)).toFixed(2)}</Box>
+                      <Box mr={4}>◈ {Number(formatEther(price)).toFixed(2)}</Box>
                       <IconButton
                         aria-label="Remove item from the basket."
                         icon={<Icon icon={faTimes} />}
@@ -121,7 +121,7 @@ const BasketButton = () => {
                   <Flex>
                     <Box mr={4}>Total</Box>
                     <Spacer />
-                    <Box>◈ {Number(utils.formatEther(total)).toFixed(2)}</Box>
+                    <Box>◈ {Number(formatEther(total)).toFixed(2)}</Box>
                   </Flex>
                 </>
               ) : (
@@ -147,7 +147,7 @@ const BasketButton = () => {
                 ? "Connect wallet"
                 : allowanceTooLow
                 ? "Approval required"
-                : `Checkout ~ ${Number(utils.formatEther(total)).toFixed(2)} USD`}
+                : `Checkout ~ ${Number(formatEther(total)).toFixed(2)} USD`}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -34,7 +34,6 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { ethers, utils } from "ethers";
 import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -43,6 +42,7 @@ import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiAllowance } from "state/web3";
+import { FixedNumber, formatEther } from "ethers";
 import { toastSuccess } from "state/toast";
 
 const Allowance = () => {
@@ -55,7 +55,7 @@ const Allowance = () => {
   const [approvals, setApprovals] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [allowance, setAllowance] = useState();
+  const [allowance, setAllowance] = useState("0");
 
   useEffect(() => {
     if (account) {
@@ -64,8 +64,8 @@ const Allowance = () => {
   }, [account, dispatch]);
 
   useEffect(() => {
-    if (daiAllowance) {
-      setAllowance(Number(utils.formatEther(daiAllowance)).toFixed(2));
+    if (daiAllowance != null) {
+      setAllowance(Number(formatEther(daiAllowance)).toFixed(2));
     }
   }, [daiAllowance]);
 
@@ -83,7 +83,7 @@ const Allowance = () => {
 
   const validate = value => {
     try {
-      ethers.FixedNumber.fromString(value, "fixed128x18");
+      FixedNumber.fromString(value.toString(), "fixed128x18");
     } catch (e) {
       return "Invalid amount.";
     }
@@ -99,14 +99,13 @@ const Allowance = () => {
 
       dispatch(
         toastSuccess({
-          message: `New DAI spending limit set to ◈ ${allowance}. Happy shopping!`,
+          message: `New DAI spending limit set to ◈ ${allowance.toString()}. Happy shopping!`,
           title: "Success"
         })
       );
 
       getDaiApprovalEvents(account).then(setApprovals);
       setShowModal(false);
-      console.log(location.state);
       const { pathname } = location.state || {};
       if (pathname) return navigate(pathname);
     } catch (error) {
@@ -118,11 +117,11 @@ const Allowance = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setAllowance(utils.formatEther(daiAllowance));
+    setAllowance(formatEther(daiAllowance));
   };
 
   const handleAddAmount = amount => () => {
-    setAllowance(prev => (Number(prev) + amount).toFixed(2));
+    setAllowance(prev => (Number(prev) + amount).toString());
   };
 
   return (
@@ -145,13 +144,13 @@ const Allowance = () => {
             {isConnected ? `DAI allowance for account ${accountShort}` : "No account connected"}
           </StatLabel>
           <StatNumber fontSize="4xl" textAlign="center">
-            ◈ {Number(utils.formatEther(daiAllowance)).toFixed(2)}
+            ◈ {Number(formatEther(daiAllowance)).toFixed(2)}
           </StatNumber>
           <StatHelpText textAlign="center">Will decrease with each GridFire purchase</StatHelpText>
         </Stat>
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
-          disabled={!isConnected || isFetchingAllowance}
+          isDisabled={!isConnected || isFetchingAllowance}
           leftIcon={<Icon icon={faWallet} />}
           onClick={() => setShowModal(true)}
         >
@@ -183,7 +182,7 @@ const Allowance = () => {
                 <Td>
                   <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                 </Td>
-                <Td isNumeric>◈ {Number(utils.formatEther(amount)).toFixed(2)}</Td>
+                <Td isNumeric>◈ {Number(formatEther(amount)).toFixed(2)}</Td>
               </Tr>
             ))}
           </Tbody>

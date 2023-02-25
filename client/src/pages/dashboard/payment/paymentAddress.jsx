@@ -21,8 +21,8 @@ import {
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getGridFirePurchaseEvents } from "web3/contract";
-import { utils } from "ethers";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { formatEther } from "ethers";
 import Icon from "components/icon";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
@@ -126,8 +126,8 @@ const PaymentAddress = () => {
                   <Td>
                     {buyer.slice(0, 6)}…{buyer.slice(-4)}
                   </Td>
-                  <Td isNumeric>◈ {Number(utils.formatEther(platformFee)).toFixed(2)}</Td>
-                  <Td isNumeric>◈ {Number(utils.formatEther(artistShare)).toFixed(2)}</Td>
+                  <Td isNumeric>◈ {Number(formatEther(platformFee)).toFixed(2)}</Td>
+                  <Td isNumeric>◈ {Number(formatEther(artistShare)).toFixed(2)}</Td>
                 </Tr>
               )
             )}

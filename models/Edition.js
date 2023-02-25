@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 
 const { Schema } = mongoose;
-const { Types } = Schema;
+const { ObjectId } = Schema.Types;
 
 const editionSchema = new Schema(
   {
-    release: { type: Types.ObjectId, ref: "Release", required: true },
-    editionId: { type: Object },
-    amount: { type: Object, required: true },
-    price: { type: Object, required: true },
+    release: { type: ObjectId, ref: "Release", required: true },
+    editionId: { type: String },
+    amount: { type: String, required: true },
+    price: { type: String, required: true },
     status: { type: String, enum: ["pending", "minted"], default: "pending" },
     metadata: { type: Object, required: true },
     cid: { type: String, required: true }

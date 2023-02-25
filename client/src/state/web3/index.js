@@ -1,4 +1,4 @@
-import { BigNumber, constants, ethers, utils } from "ethers";
+import { BrowserProvider, getAddress, toQuantity } from "ethers";
 import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3/contract";
 import { toastError, toastWarning } from "state/toast";
 import { createSlice } from "@reduxjs/toolkit";
@@ -13,10 +13,10 @@ const web3Slice = createSlice({
     account: "",
     accountShort: "",
     basket: [],
-    chainId: 0,
+    chainId: 0n,
     error: "",
-    daiAllowance: utils.parseEther("0"),
-    daiBalance: utils.parseEther("0"),
+    daiAllowance: 0n,
+    daiBalance: 0n,
     isAddingToBasket: false,
     isCheckingOut: false,
     isConnected: false,
@@ -38,7 +38,7 @@ const web3Slice = createSlice({
       state.basket = state.basket.filter(({ releaseId }) => releaseId !== action.payload);
     },
     setAccount(state, action) {
-      const account = utils.getAddress(action.payload);
+      const account = getAddress(action.payload);
       state.account = account;
       state.accountShort = `${account.slice(0, 6)}…${account.slice(-4)}`;
     },
@@ -83,10 +83,10 @@ const checkoutBasket =
         dispatch(setIsCheckingOut(true));
       });
 
-      const total = basket.reduce((prev, curr) => prev.add(curr.price), BigNumber.from("0"));
+      const total = basket.reduce((prev, { price }) => prev + price, 0n);
 
       // Only do contract checkout if there's a non-zero price.
-      if (total.gt(constants.Zero)) {
+      if (total > 0n) {
         const { userId } = getState().user;
         await gridFireCheckout(basket, userId);
       }
@@ -121,7 +121,7 @@ const fetchDaiBalance = account => async dispatch => {
 
 const connectToWeb3 = () => async dispatch => {
   const ethereum = await detectEthereumProvider();
-  const requiredChainId = Number.parseInt(REACT_APP_CHAIN_ID);
+  const requiredChainId = BigInt(REACT_APP_CHAIN_ID);
 
   if (!ethereum) {
     return void dispatch(
@@ -130,13 +130,13 @@ const connectToWeb3 = () => async dispatch => {
   }
 
   try {
-    const provider = new ethers.providers.Web3Provider(ethereum);
+    const provider = new BrowserProvider(ethereum);
     let network = await provider.getNetwork();
 
     if (network.chainId !== requiredChainId) {
       await ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: utils.hexValue(requiredChainId) }]
+        params: [{ chainId: toQuantity(requiredChainId) }]
       });
 
       network = await provider.getNetwork();
@@ -163,7 +163,7 @@ const connectToWeb3 = () => async dispatch => {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: utils.hexValue(requiredChainId),
+              chainId: toQuantity(requiredChainId),
               rpcUrls: ["https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"],
               chainName: "Arbitrum One",
               nativeCurrency: {

@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import { keccak256, toUtf8Bytes } from "ethers";
 import express from "express";
 import { getUser } from "gridfire/controllers/userController.js";
 import passport from "passport";
@@ -8,7 +8,6 @@ const { NODE_ENV } = process.env;
 const router = express.Router();
 
 router.get("/web3", (req, res) => {
-  const { keccak256, toUtf8Bytes } = utils;
   const nonce = randomUUID();
   const { address } = req.query;
 

@@ -28,6 +28,7 @@ import {
   faSignOutAlt,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
+import { formatEther, getAddress } from "ethers";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "hooks";
 import BasketButton from "./basketButton";
@@ -38,7 +39,6 @@ import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
 import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { utils } from "ethers";
 import debounce from "lodash.debounce";
 
 const Header = () => {
@@ -65,7 +65,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { account: userAccount, accountShort: userAccountShort } = useSelector(state => state.user, shallowEqual);
   const { account = "", accountShort, daiBalance, isConnected } = useSelector(state => state.web3, shallowEqual);
-  const daiDisplayBalance = Number.parseFloat(utils.formatEther(daiBalance)).toFixed(2);
+  const daiDisplayBalance = Number.parseFloat(formatEther(daiBalance)).toFixed(2);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleScroll = useCallback(
@@ -154,9 +154,7 @@ const Header = () => {
               <WrapItem alignItems="center">
                 <Tooltip label="Your active account's DAI balance.">
                   <Badge
-                    colorScheme={
-                      utils.getAddress(account) !== utils.getAddress(userAccount) ? "yellow" : primaryButtonColor
-                    }
+                    colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : primaryButtonColor}
                     fontSize="md"
                   >
                     ◈ {daiDisplayBalance}
@@ -167,7 +165,7 @@ const Header = () => {
                 <Tooltip label={`Your active web3 account. Click to view account details on the explorer.`}>
                   <Button
                     as={Link}
-                    colorScheme={utils.getAddress(account) !== utils.getAddress(userAccount) ? "yellow" : undefined}
+                    colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
                     href={`https://arbiscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon icon={faEthereum} />}

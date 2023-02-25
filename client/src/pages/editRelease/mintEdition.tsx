@@ -20,7 +20,6 @@ import {
   FormControl,
   Badge
 } from "@chakra-ui/react";
-import { BigNumber, utils } from "ethers";
 import { MintedGridFireEdition } from "types";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -29,6 +28,7 @@ import Icon from "components/icon";
 import ScaleFade from "components/transitions/scaleFade";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { formatEther } from "ethers";
 import { formatPrice } from "utils";
 import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
@@ -163,7 +163,7 @@ const MintEdition = () => {
           const shortUri = `${uri.slice(0, 13)}…${uri.slice(-6)}`;
 
           return (
-            <ScaleFade key={BigNumber.from(editionId).toString()}>
+            <ScaleFade key={BigInt(editionId).toString()}>
               <Flex
                 color="var(--chakra-colors-blackAlpha-700)"
                 flexDirection="column"
@@ -187,14 +187,14 @@ const MintEdition = () => {
                 <Box fontWeight="500" zIndex={1}>
                   <Box>
                     <Label>Current balance/total run:</Label>
-                    {BigNumber.from(balance).toString()}/{BigNumber.from(amount).toString()}
+                    {BigInt(balance).toString()}/{BigInt(amount).toString()}
                   </Box>
                   <Box>
                     <Label>Price in DAI:</Label>
                     <Box as="span" mr="0.2rem">
                       ◈
                     </Box>
-                    {Number(utils.formatEther(price)).toFixed(2)}
+                    {Number(formatEther(price)).toFixed(2)}
                   </Box>
                   <Box>
                     <Label>Metadata URI:</Label>

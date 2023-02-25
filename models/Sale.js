@@ -1,15 +1,17 @@
 import mongoose from "mongoose";
+
 const { Schema } = mongoose;
+const { ObjectId } = Schema.Types;
 
 const saleSchema = new Schema({
   purchaseDate: Date,
-  release: { type: Schema.Types.ObjectId, ref: "Release" },
-  paid: { type: Object },
-  fee: { type: Object },
-  netAmount: { type: Object },
+  release: { type: ObjectId, ref: "Release" },
+  paid: { type: String },
+  fee: { type: String },
+  netAmount: { type: String },
   transaction: { type: Object },
   type: { type: String, enum: ["single", "album"], default: "album" },
-  user: { type: Schema.Types.ObjectId, ref: "User" },
+  user: { type: ObjectId, ref: "User" },
   userAddress: { type: String }
 });
 

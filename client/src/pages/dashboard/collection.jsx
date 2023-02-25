@@ -6,8 +6,8 @@ import Grid from "components/grid";
 import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
 import { faReceipt } from "@fortawesome/free-solid-svg-icons";
+import { formatEther } from "ethers";
 import moment from "moment";
-import { utils } from "ethers";
 
 const Collection = () => {
   const dispatch = useDispatch();
@@ -57,7 +57,7 @@ const Collection = () => {
                         <Box as="span" mr="0.2rem">
                           ◈
                         </Box>
-                        {Number(utils.formatEther(paid)).toFixed(2)}
+                        {Number(formatEther(paid)).toFixed(2)}
                       </>
                     ) : null}
                     .
@@ -86,7 +86,7 @@ const Collection = () => {
                     <Box as="span" mr="0.2rem">
                       ◈
                     </Box>
-                    {Number(utils.formatEther(paid)).toFixed(2)}.
+                    {Number(formatEther(paid)).toFixed(2)}.
                   </Text>
                 </Flex>
               </Box>
@@ -125,7 +125,7 @@ const Collection = () => {
                       <Box as="span" mr="0.2rem">
                         ◈
                       </Box>
-                      {Number(utils.formatEther(paid)).toFixed(2)}.
+                      {Number(formatEther(paid)).toFixed(2)}.
                     </Text>
                   </Flex>
                 </Box>

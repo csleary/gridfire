@@ -1,9 +1,9 @@
 import {
   getDaiContract,
-  getGridFirePaymentContract,
-  getGridFireEditionsContract,
-  getGridFireEditionsByReleaseId,
   getGridFireEditionUris,
+  getGridFireEditionsByReleaseId,
+  getGridFireEditionsContract,
+  getGridFirePaymentContract,
   getUserGridFireEditions
 } from "gridfire/controllers/web3/index.js";
 import Edition from "gridfire/models/Edition.js";
@@ -11,8 +11,8 @@ import Release from "gridfire/models/Release.js";
 import User from "gridfire/models/User.js";
 import express from "express";
 import { getArtworkStream } from "gridfire/controllers/artworkController.js";
+import { parseEther } from "ethers";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
-import { utils } from "ethers";
 
 const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 const router = express.Router();
@@ -74,11 +74,19 @@ router.get("/purchases", requireLogin, async (req, res) => {
     const leanPurchases = [...purchases, ...editionPurchases]
       .map(({ args, blockNumber, transactionHash }) => {
         const { buyer, editionId, releaseId, artistShare, platformFee } = args;
-        return { blockNumber, buyer, editionId, releaseId, artistShare, platformFee, transactionHash };
+        return {
+          blockNumber,
+          buyer,
+          editionId: editionId.toString(),
+          releaseId,
+          artistShare: artistShare.toString(),
+          platformFee: platformFee.toString(),
+          transactionHash
+        };
       })
       .sort((a, b) => a.blockNumber - b.blockNumber);
 
-    res.send(leanPurchases);
+    res.json(leanPurchases);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
@@ -104,7 +112,7 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
     const release = await Release.findById(releaseId);
     const { artistName: artist, catNumber, credits, info, releaseDate, releaseTitle: title, trackList } = release;
     const priceInDai = Number(price).toFixed(2);
-    const weiPrice = utils.parseEther(`${price}`);
+    const weiPrice = parseEther(price);
 
     const tracks = trackList
       .filter(track => trackIds.some(id => track._id.equals(id)))
@@ -129,7 +137,7 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
         title,
         totalSupply: amount,
         tracks,
-        price: weiPrice,
+        price: weiPrice.toString(),
         priceInDai,
         releaseDate: new Date(releaseDate).toUTCString(),
         catalogueNumber: catNumber,
@@ -144,7 +152,7 @@ router.post("/editions/mint", requireLogin, async (req, res) => {
     const { _id: objectId } = await Edition.create({
       release: releaseId,
       amount,
-      price: weiPrice,
+      price: weiPrice.toString(),
       metadata: tokenMetadata,
       cid
     });
@@ -161,6 +169,7 @@ router.get("/editions/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
     const editions = await getGridFireEditionsByReleaseId(releaseId);
+    console.log(editions);
     res.json(editions);
   } catch (error) {
     console.error(error);
