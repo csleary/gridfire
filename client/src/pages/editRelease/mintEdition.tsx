@@ -20,19 +20,19 @@ import {
   FormControl,
   Badge
 } from "@chakra-ui/react";
-import { MintedGridFireEdition } from "types";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Field from "components/field";
 import Icon from "components/icon";
+import { MintedEdition } from "types";
 import ScaleFade from "components/transitions/scaleFade";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { formatPrice } from "utils";
 import { shallowEqual } from "react-redux";
-import { useSelector } from "hooks";
 import { useParams } from "react-router-dom";
+import { useSelector } from "hooks";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 
@@ -65,9 +65,8 @@ const defaultValues: ValuesInterface = { amount: 100, description: "", price: "5
 const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
   const isEditing = typeof releaseIdParam !== "undefined";
-  const bgColour = useColorModeValue("white", "gray.800");
   const checkboxColour = useColorModeValue("yellow", "purple");
-  const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
+  const { releaseEditing: release } = useSelector(state => state.releases, shallowEqual);
   const { mintedEditionIds } = useSelector(state => state.web3, shallowEqual);
   const { _id: releaseId, trackList } = release;
   const [editions, setEditions] = useState([]);
@@ -81,10 +80,7 @@ const MintEdition = () => {
   const trackIdsInEditions = useMemo(
     () =>
       new Set(
-        editions.flatMap(
-          ({ metadata }: MintedGridFireEdition) => metadata.properties.tracks.map(({ id }) => id),
-          [editions]
-        )
+        editions.flatMap(({ metadata }: MintedEdition) => metadata.properties.tracks.map(({ id }) => id), [editions])
       ),
     [editions]
   );
@@ -101,7 +97,7 @@ const MintEdition = () => {
         getGridFireEditionUris(releaseIdParam)
       ]);
 
-      editions.forEach((edition: MintedGridFireEdition, index: number) => (edition.uri = uris[index]));
+      editions.forEach((edition: MintedEdition, index: number) => (edition.uri = uris[index]));
       setEditions(editions);
     }
   }, [releaseIdParam]);
@@ -111,7 +107,7 @@ const MintEdition = () => {
   }, [fetchEditions, mintedEditionIds]);
 
   const handleChange = useCallback(({ currentTarget: { name, value } }: HandleChangeInterface) => {
-    const nextValue = ["price"].includes(name) ? value.replace(/[^0-9.]/g, "") : value;
+    const nextValue = ["amount", "price"].includes(name) ? value.replace(/[^0-9.]/g, "") : value;
     setErrors(prev => ({ ...prev, [name]: "" }));
     setValues(prev => ({ ...prev, [name]: nextValue }));
   }, []);
@@ -155,7 +151,7 @@ const MintEdition = () => {
         Minted Editions
       </Heading>
       {editions.length ? (
-        editions.map(({ amount, balance, editionId, metadata, price, uri = "" }: MintedGridFireEdition, index) => {
+        editions.map(({ amount, balance, editionId, metadata, price, uri = "" }: MintedEdition, index) => {
           const { description, properties } = metadata;
           const { tracks } = properties;
           const color1 = colors[index % colors.length];
@@ -232,7 +228,6 @@ const MintEdition = () => {
           <ModalHeader>Mint a GridFire Edition</ModalHeader>
           <ModalBody>
             <Field
-              backgroundColor={bgColour}
               errors={errors}
               info="This will be used for the Edition NFT metadata. It might be useful to name these according to theme, depending on the exclusive tracks selected, e.g. 'Outtakes', 'Remixes', 'Live Sets', 'Superfan Pack' etc."
               label="Description"
@@ -240,9 +235,9 @@ const MintEdition = () => {
               onChange={handleChange}
               size="lg"
               values={values}
+              variant="modal"
             />
             <Field
-              backgroundColor={bgColour}
               errors={errors}
               info="The total supply or amount to mint for this edition. Think how rare or unique you wish this edition to be."
               inputMode="numeric"
@@ -252,17 +247,20 @@ const MintEdition = () => {
               size="lg"
               type="number"
               values={values}
+              variant="modal"
             />
             <Field
-              backgroundColor={bgColour}
               errors={errors}
               info="The price you wish to sell each edition for. As a guide, the lower the amount, the higher the price."
+              inputMode="numeric"
               label="Price (DAI/USD)"
               name="price"
               onBlur={handleBlur}
               onChange={handleChange}
               size="lg"
+              type="number"
               values={values}
+              variant="modal"
             />
             <FormLabel color="gray.500" fontWeight={500} mb={1}>
               Select Edition-only tracks

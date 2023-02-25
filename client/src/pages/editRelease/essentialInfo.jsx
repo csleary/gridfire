@@ -6,7 +6,7 @@ import { formatPrice } from "utils";
 import { useCallback } from "react";
 
 const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
-  const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
+  const { releaseEditing: release } = useSelector(state => state.releases, shallowEqual);
   const { artist, artistName } = release;
 
   const handleChangePrice = useCallback(
@@ -19,10 +19,7 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
   );
 
   const handleBlur = () => {
-    setValues(current => ({
-      ...current,
-      price: formatPrice(current.price)
-    }));
+    setValues(current => ({ ...current, price: formatPrice(current.price) }));
   };
 
   return (

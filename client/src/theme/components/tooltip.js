@@ -1,8 +1,12 @@
 const Tooltip = {
-  baseStyle: ({ colorMode }) => ({
-    bgColor: colorMode === "dark" ? "gray.800" : "gray.200",
-    color: colorMode === "dark" ? "gray.100" : "gray.800"
-  }),
+  baseStyle: {
+    bgColor: "gray.200",
+    color: "gray.800",
+    _dark: {
+      bgColor: "gray.800",
+      color: "gray.100"
+    }
+  },
   defaultProps: {
     hasArrow: true,
     openDelay: 500

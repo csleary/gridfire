@@ -17,7 +17,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     const userId = req.user._id;
 
     busboy.on("error", async error => {
-      console.log(error);
+      console.error(error);
       req.unpipe(busboy);
       if (res.headersSent) return;
       res.status(400).json({ error: "Error. We were unable to store this file." });

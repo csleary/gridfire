@@ -91,6 +91,7 @@ const Actions = () => {
                 }
               }}
               value={note}
+              variant="modal"
               mb={2}
             />
           </PopoverBody>

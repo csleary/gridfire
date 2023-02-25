@@ -199,7 +199,6 @@ const Allowance = () => {
               <InputLeftAddon children="◈" />
               <Input
                 autoFocus
-                bgColor={useColorModeValue("white", "gray.800")}
                 isDisabled={isSubmitting}
                 isInvalid={error}
                 label={"Set payment allowance"}
@@ -210,6 +209,7 @@ const Allowance = () => {
                 title=""
                 type="number"
                 value={allowance}
+                variant="modal"
               />
               <InputRightAddon children="DAI" />
             </InputGroup>

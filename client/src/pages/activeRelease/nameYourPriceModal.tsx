@@ -94,7 +94,6 @@ const NameYourPriceModal = ({
             <InputLeftAddon children="◈" />
             <Input
               autoFocus
-              bgColor={useColorModeValue("white", "gray.800")}
               inputMode="numeric"
               isDisabled={isSubmitting}
               isInvalid={Boolean(error)}
@@ -105,6 +104,7 @@ const NameYourPriceModal = ({
               textAlign="center"
               title=""
               value={price}
+              variant="modal"
             />
             <InputRightAddon children="DAI" />
           </InputGroup>

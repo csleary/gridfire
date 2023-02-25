@@ -110,7 +110,7 @@ const getUserGridFireEditions = async userId => {
   const transferEditionIds = transfers.map(({ args }) => args.id);
   const accounts = Array(transferEditionIds.length).fill(userAccount);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
-  const inPossession = transfers.filter((_, index) => balances[index].isZero() === false);
+  const inPossession = transfers.filter((_, index) => balances[index] !== 0n);
   const hexIds = inPossession.map(({ args }) => args.id._hex);
 
   // From these IDs, fetch minted Editions that we have recorded off-chain, for release info.
@@ -131,20 +131,21 @@ const getUserGridFireEditions = async userId => {
     mintedEditions.map(async edition => {
       const { account } = edition.release.user;
       const id = edition.editionId;
-      const artistAccount = utils.getAddress(account);
+      const artistAccount = getAddress(account);
 
       // Get purchase information for Editions that were purchased
       const editionsPurchaseFilter = gridFireEditionsContract.filters.PurchaseEdition(userAccount, artistAccount);
-      const transfersIndex = transferEditionIds.findIndex(_id => BigNumber.from(_id).eq(BigNumber.from(id)));
+      const transfersIndex = transferEditionIds.findIndex(_id => _id.toString() === id);
       const purchases = await gridFireEditionsContract.queryFilter(editionsPurchaseFilter);
-      const purchase = purchases.find(({ args }) => BigNumber.from(args.editionId).eq(BigNumber.from(id))) || {};
-      const { transactionHash } = purchase;
+      const purchase = purchases.find(({ args }) => args.editionId.toString() === id) || {};
+      const { args, transactionHash } = purchase;
+      const { amountPaid } = args;
 
       return {
         ...edition,
         _id: transactionHash,
-        balance: balances[transfersIndex],
-        ...(transactionHash ? { paid: purchase.args.amountPaid } : {}),
+        balance: balances[transfersIndex].toString(),
+        ...(transactionHash ? { paid: amountPaid.toString() } : {}),
         ...(transactionHash
           ? { transaction: { transactionHash } }
           : { transaction: { transactionHash: transfers[transfersIndex].transactionHash } })

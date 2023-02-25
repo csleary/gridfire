@@ -57,7 +57,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
   return (
     <>
       <Button
-        disabled={inCollection || isAddingToBasket || isInBasket}
+        isDisabled={inCollection || isAddingToBasket || isInBasket}
         leftIcon={<Icon icon={faShoppingBasket} />}
         isLoading={isAddingToBasket}
         minW="8rem"

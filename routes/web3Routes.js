@@ -24,11 +24,15 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
     const approvalsFilter = daiContract.filters.Approval(account, GRIDFIRE_PAYMENT_ADDRESS);
     const approvals = await daiContract.queryFilter(approvalsFilter);
 
-    const leanApprovals = approvals.map(({ args, blockNumber, transactionHash }) => ({
-      amount: args.wad,
-      blockNumber,
-      transactionHash
-    }));
+    const leanApprovals = approvals.map(({ args, blockNumber, transactionHash }) => {
+      const { wad } = args;
+
+      return {
+        amount: wad.toString(),
+        blockNumber,
+        transactionHash
+      };
+    });
 
     res.send(leanApprovals);
   } catch (error) {
@@ -47,7 +51,12 @@ router.get("/claims", requireLogin, async (req, res) => {
 
     const leanClaims = claims.map(({ args, blockNumber, transactionHash }) => {
       const { amount } = args;
-      return { amount, blockNumber, transactionHash };
+
+      return {
+        amount: amount.toString(),
+        blockNumber,
+        transactionHash
+      };
     });
 
     res.send(leanClaims);
@@ -74,10 +83,11 @@ router.get("/purchases", requireLogin, async (req, res) => {
     const leanPurchases = [...purchases, ...editionPurchases]
       .map(({ args, blockNumber, transactionHash }) => {
         const { buyer, editionId, releaseId, artistShare, platformFee } = args;
+
         return {
           blockNumber,
           buyer,
-          editionId: editionId.toString(),
+          ...(editionId ? { editionId: editionId.toString() } : {}),
           releaseId,
           artistShare: artistShare.toString(),
           platformFee: platformFee.toString(),
@@ -169,7 +179,6 @@ router.get("/editions/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
     const editions = await getGridFireEditionsByReleaseId(releaseId);
-    console.log(editions);
     res.json(editions);
   } catch (error) {
     console.error(error);

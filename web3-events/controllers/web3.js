@@ -54,7 +54,6 @@ const onPurchase = async (
   event
 ) => {
   try {
-    console.log({ buyerAddress, artistAddress, releaseIdBytes, userIdBytes, amountPaid, artistShare, platformFee });
     const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
     const daiPaid = formatEther(amountPaid);
     const releaseId = decodeBytes32String(releaseIdBytes);

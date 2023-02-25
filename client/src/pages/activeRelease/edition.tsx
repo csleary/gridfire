@@ -15,7 +15,7 @@ import { formatEther } from "ethers";
 import { toastError, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { GridFireEditionPurchase, MintedGridFireEdition } from "types";
+import { EditionPurchase, MintedEdition } from "types";
 import Icon from "components/icon";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
@@ -32,7 +32,7 @@ const colors = [
 ];
 
 interface Props {
-  edition: MintedGridFireEdition;
+  edition: MintedEdition;
   fetchEditions: () => void;
   index: number;
 }
@@ -60,7 +60,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const isDisabled = !isConnected || isFetchingAllowance || isPurchasing || isSoldOut;
   const transition = "200ms ease-in-out";
 
-  const handlePurchase = async ({ editionId, price }: GridFireEditionPurchase) => {
+  const handlePurchase = async ({ editionId, price }: EditionPurchase) => {
     try {
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
@@ -80,7 +80,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
     }
   };
 
-  const handleClick = ({ allowanceTooLow, editionId, price }: GridFireEditionPurchase) => {
+  const handleClick = ({ allowanceTooLow, editionId, price }: EditionPurchase) => {
     if (allowanceTooLow) {
       dispatch(
         toastWarning({
@@ -176,7 +176,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
                   isDisabled={isDisabled}
                   leftIcon={<Icon icon={faEthereum} />}
                   minWidth="16rem"
-                  onClick={handleClick.bind(null, { allowanceTooLow, editionId, metadata, price })}
+                  onClick={handleClick.bind(null, { allowanceTooLow, editionId, price })}
                 >
                   Buy {description}
                 </Button>

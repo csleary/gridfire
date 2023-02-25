@@ -72,7 +72,7 @@ const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Pro
   return (
     <>
       <Button
-        disabled={!isConnected || isFetchingAllowance}
+        isDisabled={!isConnected || isFetchingAllowance}
         isLoading={isLoading || isPurchasing}
         loadingText={isLoading ? "Loading" : "Purchasing"}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}

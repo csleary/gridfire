@@ -61,12 +61,8 @@ const Login = () => {
         navigate("/");
       } catch (error) {
         if (error.code === 4001) {
-          return void dispatch(
-            toastWarning({
-              message: "Please approve our signature request in order to log in.",
-              title: "Login cancelled"
-            })
-          );
+          const message = "Please approve our signature request in order to log in.";
+          return void dispatch(toastWarning({ message, title: "Login cancelled" }));
         }
 
         setLoginError(

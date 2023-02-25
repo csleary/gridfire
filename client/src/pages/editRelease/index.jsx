@@ -86,12 +86,7 @@ const EditRelease = () => {
       return void setValues(current => ({
         ...current,
         trackList: current.trackList.map(track =>
-          track._id === trackId
-            ? {
-                ...track,
-                [name]: type === "checkbox" ? checked : value
-              }
-            : track
+          track._id === trackId ? { ...track, [name]: type === "checkbox" ? checked : value } : track
         )
       }));
     }
@@ -110,16 +105,10 @@ const EditRelease = () => {
       }
 
       setIsSubmitting(true);
-
       await dispatch(updateRelease({ releaseId, ...values }));
       navigate("/dashboard");
-
-      dispatch(
-        toastSuccess({
-          message: `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} has been updated.`,
-          title: "Saved"
-        })
-      );
+      const message = `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} has been updated.`;
+      dispatch(toastSuccess({ message, title: "Saved" }));
     } finally {
       setIsSubmitting(false);
     }

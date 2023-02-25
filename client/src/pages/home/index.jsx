@@ -88,7 +88,7 @@ const Home = () => {
         {!catalogue.length || reachedEndOfCat ? null : (
           <Center>
             <Button
-              disabled={isFetching || reachedEndOfCat}
+              isDisabled={isFetching || reachedEndOfCat}
               leftIcon={reachedEndOfCat ? null : <FontAwesomeIcon icon={faSync} />}
               onClick={() =>
                 handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true })

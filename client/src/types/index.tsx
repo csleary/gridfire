@@ -1,23 +1,16 @@
-export interface GridFireEdition {
-  allowanceTooLow?: boolean;
-  amount?: bigint;
-  balance?: bigint;
-  editionId: bigint;
-  metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
-  price: bigint;
-  uri?: string;
-}
-
-export interface GridFireEditionPurchase {
+export interface EditionPurchase {
   allowanceTooLow?: boolean;
   editionId: bigint;
   price: bigint;
 }
 
-export interface MintedGridFireEdition extends GridFireEdition {
+export interface MintedEdition {
   allowanceTooLow: boolean;
   amount: bigint;
   balance: bigint;
+  editionId: bigint;
+  metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
+  price: bigint;
   uri: string;
 }
 

@@ -7,7 +7,7 @@ const initialState = {
   account: "",
   accountShort: "",
   email: "",
-  isLoading: false,
+  isLoading: true,
   lastLogin: null,
   paymentAddress: "",
   purchases: [],

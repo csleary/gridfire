@@ -1,8 +1,9 @@
 const Textarea = {
   variants: {
-    outline: ({ colorMode }) => ({
-      backgroundColor: colorMode === "dark" ? "gray.700" : "white"
-    })
+    outline: {
+      backgroundColor: "white",
+      _dark: { backgroundColor: "gray.700" }
+    }
   }
 };
 

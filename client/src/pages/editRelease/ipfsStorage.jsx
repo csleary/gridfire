@@ -39,7 +39,7 @@ const CID = ({ cid }) => {
 };
 
 const IpfsStorage = () => {
-  const { _id: releaseId } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { _id: releaseId } = useSelector(state => state.releases.releaseEditing, shallowEqual);
   const [{ artwork = {}, trackList = [] }, setCids] = useState({});
   const headingColor = useColorModeValue("gray.700", "gray.300");
   const fileColor = useColorModeValue("gray.600", "gray.400");
