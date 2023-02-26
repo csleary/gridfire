@@ -102,6 +102,7 @@ const Player = () => {
       }
 
       handleStop();
+      setIsReady(true);
     },
     [artistName, dispatch, handleStop, releaseId, releaseTitle, trackIndex, trackList]
   );

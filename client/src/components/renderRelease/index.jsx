@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
 import PropTypes from "prop-types";
+import { ReleaseTrack } from "types";
 import { fetchRelease } from "state/releases";
 import placeholder from "placeholder.svg";
 import { toastInfo } from "state/toast";
@@ -42,8 +43,9 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
   }
 
   const { _id: releaseId, artist, artistName, artwork = {}, purchaseId = "", releaseTitle, trackList } = release;
+  const hasNoPlayableTracks = trackList.every(({ isBonus }: ReleaseTrack) => isBonus === true);
 
-  const handlePlayTrack = () => {
+  const handleClick = () => {
     const audioPlayer = document.getElementById("player");
 
     if (isPlaying && playerReleaseId === releaseId) {
@@ -116,35 +118,37 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
           </Flex>
         ) : null}
         <Flex flex="1 0 auto" flexWrap="wrap">
-          <IconButton
-            alignItems="center"
-            color="hsla(233, 10%, 75%, 1)"
-            display="flex"
-            flex="0 1 50%"
-            fontSize="5rem"
-            height="unset"
-            justifyContent="center"
-            role="group"
-            icon={
-              <Box
-                as={FontAwesomeIcon}
-                icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
-                transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-                _groupHover={{ transform: "scale(1.2)" }}
-              />
-            }
-            onClick={handlePlayTrack}
-            title={`Play '${releaseTitle}', by ${artistName}`}
-            variant="unstyled"
-            _hover={{ color: "#fff" }}
-          />
+          {hasNoPlayableTracks ? null : (
+            <IconButton
+              alignItems="center"
+              color="hsla(233, 10%, 75%, 1)"
+              display="flex"
+              flex="1 1 auto"
+              fontSize="5rem"
+              height="unset"
+              justifyContent="center"
+              role="group"
+              icon={
+                <Box
+                  as={FontAwesomeIcon}
+                  icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
+                  transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
+                  _groupHover={{ transform: "scale(1.2)" }}
+                />
+              }
+              onClick={handleClick}
+              title={`Play '${releaseTitle}', by ${artistName}`}
+              variant="unstyled"
+              _hover={{ color: "#fff" }}
+            />
+          )}
           <IconButton
             as={RouterLink}
             to={`/release/${releaseId}`}
             alignItems="center"
             color="hsla(233, 10%, 75%, 1)"
             display="flex"
-            flex="0 1 50%"
+            flex="1 1 auto"
             fontSize="5rem"
             height="unset"
             justifyContent="center"

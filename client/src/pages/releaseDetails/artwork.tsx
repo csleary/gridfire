@@ -3,6 +3,7 @@ import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { playTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ReleaseTrack } from "types";
 import placeholder from "placeholder.svg";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
@@ -15,6 +16,7 @@ const Artwork = () => {
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
+  const hasNoPlayableTracks = trackList.every(({ isBonus }: ReleaseTrack) => isBonus === true);
 
   const handlePlayRelease = () => {
     const audioPlayer = document.getElementById("player") as HTMLAudioElement;
@@ -36,14 +38,18 @@ const Artwork = () => {
     <Box
       key={releaseId}
       position={"relative"}
-      _hover={{
-        "> *": {
-          boxShadow: "lg",
-          opacity: 1,
-          transition: "0.5s cubic-bezier(0.2, 0.8, 0.4, 1)",
-          visibility: "visible"
-        }
-      }}
+      _hover={
+        hasNoPlayableTracks
+          ? undefined
+          : {
+              "> *": {
+                boxShadow: "lg",
+                opacity: 1,
+                transition: "0.5s cubic-bezier(0.2, 0.8, 0.4, 1)",
+                visibility: "visible"
+              }
+            }
+      }
     >
       <Fade in={isOpen}>
         <Box display="block" pt="100%" position="relative">
@@ -76,29 +82,31 @@ const Artwork = () => {
         transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
         visibility="hidden"
       >
-        <IconButton
-          aria-label="Start audio playback."
-          alignItems="center"
-          color="hsla(233, 10%, 75%, 1)"
-          display="flex"
-          flex="1"
-          fontSize="5rem"
-          height="unset"
-          justifyContent="center"
-          role="group"
-          icon={
-            <Box
-              as={FontAwesomeIcon}
-              icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
-              transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-              _groupHover={{ transform: "scale(1.2)" }}
-            />
-          }
-          onClick={handlePlayRelease}
-          title={`${artistName} - ${releaseTitle}`}
-          variant="unstyled"
-          _hover={{ color: "#fff" }}
-        />
+        {hasNoPlayableTracks ? null : (
+          <IconButton
+            aria-label="Start audio playback."
+            alignItems="center"
+            color="hsla(233, 10%, 75%, 1)"
+            display="flex"
+            flex="1"
+            fontSize="5rem"
+            height="unset"
+            justifyContent="center"
+            role="group"
+            icon={
+              <Box
+                as={FontAwesomeIcon}
+                icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
+                transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
+                _groupHover={{ transform: "scale(1.2)" }}
+              />
+            }
+            onClick={handlePlayRelease}
+            title={`${artistName} - ${releaseTitle}`}
+            variant="unstyled"
+            _hover={{ color: "#fff" }}
+          />
+        )}
       </Flex>
     </Box>
   );

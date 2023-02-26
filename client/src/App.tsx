@@ -16,13 +16,13 @@ import useSSE from "hooks/useSSE";
 
 const { REACT_APP_CHAIN_ID = "" } = process.env;
 const About = lazy(() => import("pages/about"));
-const ActiveRelease = lazy(() => import("pages/activeRelease"));
 const ArtistPage = lazy(() => import("pages/artistPage"));
 const Dashboard = lazy(() => import("pages/dashboard"));
 const EditRelease = lazy(() => import("pages/editRelease"));
 const Header = lazy(() => import("components/header"));
 const Home = lazy(() => import("pages/home"));
 const Login = lazy(() => import("pages/login"));
+const ReleaseDetails = lazy(() => import("pages/releaseDetails"));
 const SearchResults = lazy(() => import("pages/searchResults"));
 // declare const window: any; // eslint-disable-line
 
@@ -137,7 +137,7 @@ const App: React.FC = () => {
                   </PrivateRoute>
                 }
               />
-              <Route path="/release/:releaseId/*" element={<ActiveRelease />} />
+              <Route path="/release/:releaseId/*" element={<ReleaseDetails />} />
               <Route path="/artist/:artistId" element={<ArtistPage />} />
               <Route
                 path="/dashboard/*"
