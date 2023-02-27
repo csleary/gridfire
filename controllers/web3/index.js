@@ -111,10 +111,10 @@ const getUserGridFireEditions = async userId => {
   const accounts = Array(transferEditionIds.length).fill(userAccount);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
   const inPossession = transfers.filter((_, index) => balances[index] !== 0n);
-  const hexIds = inPossession.map(({ args }) => args.id._hex);
+  const inPossessionIds = inPossession.map(({ args }) => args.id.toString());
 
   // From these IDs, fetch minted Editions that we have recorded off-chain, for release info.
-  const mintedEditions = await Edition.find({ "editionId._hex": { $in: hexIds }, status: "minted" }, "-cid", {
+  const mintedEditions = await Edition.find({ editionId: { $in: inPossessionIds }, status: "minted" }, "-cid", {
     lean: true
   })
     .populate({
@@ -129,23 +129,25 @@ const getUserGridFireEditions = async userId => {
   // All editions purchased by user (to get amount paid).
   const editions = await Promise.all(
     mintedEditions.map(async edition => {
-      const { account } = edition.release.user;
-      const id = edition.editionId;
+      const { editionId, release } = edition;
+      const { account } = release.user;
       const artistAccount = getAddress(account);
+      const idString = editionId.toString();
 
       // Get purchase information for Editions that were purchased
       const editionsPurchaseFilter = gridFireEditionsContract.filters.PurchaseEdition(userAccount, artistAccount);
-      const transfersIndex = transferEditionIds.findIndex(_id => _id.toString() === id);
+      const transfersIndex = transferEditionIds.findIndex(_id => _id.toString() === idString);
+      const balance = balances[transfersIndex].toString();
       const purchases = await gridFireEditionsContract.queryFilter(editionsPurchaseFilter);
-      const purchase = purchases.find(({ args }) => args.editionId.toString() === id) || {};
-      const { args, transactionHash } = purchase;
+      const { args, transactionHash } = purchases.find(({ args }) => args.editionId.toString() === idString) || {};
       const { amountPaid } = args;
+      const paid = amountPaid.toString();
 
       return {
         ...edition,
         _id: transactionHash,
-        balance: balances[transfersIndex].toString(),
-        ...(transactionHash ? { paid: amountPaid.toString() } : {}),
+        balance,
+        ...(transactionHash ? { paid } : {}),
         ...(transactionHash
           ? { transaction: { transactionHash } }
           : { transaction: { transactionHash: transfers[transfersIndex].transactionHash } })
