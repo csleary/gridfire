@@ -1,7 +1,7 @@
 FROM node:16 as build
 WORKDIR /home/node/app
 COPY . .
-RUN yarn install --production=true
+RUN yarn install --production --frozen-lockfile
 RUN yarn run build
 
 FROM nginx
