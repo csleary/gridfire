@@ -46,10 +46,6 @@ const logStream = async ({ trackId, userId, type }) => {
   const releaseId = release._id;
   const user = userId || ObjectId();
 
-  if (release.user.equals(user)) {
-    return user;
-  }
-
   switch (Number.parseInt(type)) {
     case 0:
       // console.log(`[${trackId}] Logging start of playback.`);

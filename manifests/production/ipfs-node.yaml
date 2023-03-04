@@ -26,21 +26,11 @@ spec:
           volumeMounts:
             - name: ipfs-data
               mountPath: /data/ipfs
-            - name: ipfs-staging
-              mountPath: /export
       imagePullSecrets:
         - name: regcred
   volumeClaimTemplates:
     - metadata:
         name: ipfs-data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: do-block-storage
-        resources:
-          requests:
-            storage: 100Gi
-    - metadata:
-        name: ipfs-staging
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: do-block-storage

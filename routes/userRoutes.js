@@ -145,7 +145,16 @@ router.get("/releases", requireLogin, async (req, res) => {
     const releases = await Release.aggregate([
       { $match: { user: userId } },
       { $lookup: { from: "favourites", localField: "_id", foreignField: "release", as: "favourites" } },
-      { $lookup: { from: "plays", localField: "_id", foreignField: "release", as: "plays" } },
+      {
+        $lookup: {
+          from: "plays",
+          let: { releaseId: "$_id", userId: "$user" },
+          pipeline: [
+            { $match: { $expr: { $and: [{ $eq: ["$release", "$$releaseId"] }, { $ne: ["$user", "$$userId"] }] } } }
+          ],
+          as: "plays"
+        }
+      },
       { $lookup: { from: "sales", localField: "_id", foreignField: "release", as: "sales" } },
       {
         $project: {
