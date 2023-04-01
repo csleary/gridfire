@@ -68,7 +68,6 @@ const Collection = () => {
           </Grid>
         </>
       ) : null}
-
       {albums.length ? (
         <>
           <Heading as="h3">Albums</Heading>
@@ -94,7 +93,6 @@ const Collection = () => {
           </Grid>
         </>
       ) : null}
-
       {singles.length ? (
         <>
           <Heading as="h3" mt={8}>

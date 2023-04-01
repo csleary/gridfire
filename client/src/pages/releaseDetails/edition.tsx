@@ -8,6 +8,7 @@ import {
   Flex,
   ListItem,
   OrderedList,
+  Spinner,
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
@@ -136,7 +137,16 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
                 {formattedPrice}
               </Box>
               <Box mr={4} zIndex={1}>
-                {isPurchasing ? "Purchasing…" : isSoldOut ? "Sold Out" : `${formattedBalance}/${formattedAmount}`}
+                {isPurchasing ? (
+                  <Flex alignItems="center">
+                    <Spinner mr={4} />
+                    Purchasing…
+                  </Flex>
+                ) : isSoldOut ? (
+                  "Sold Out"
+                ) : (
+                  `${formattedBalance}/${formattedAmount}`
+                )}
               </Box>
             </AccordionButton>
           </Flex>
