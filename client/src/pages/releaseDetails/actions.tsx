@@ -11,6 +11,7 @@ import {
   PopoverCloseButton,
   PopoverHeader,
   PopoverBody,
+  Skeleton,
   useColorModeValue
 } from "@chakra-ui/react";
 import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "state/user";
@@ -24,11 +25,12 @@ import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const Actions = () => {
+  const buttonGroupBg = useColorModeValue("white", undefined);
   const dispatch = useDispatch();
   const [note, setNote] = useState("");
   const [isSavingToFaves, setIsSavingToFaves] = useState(false);
   const [isSavingToList, setIsSavingToList] = useState(false);
-  const { userFavourites, userWishList } = useSelector(state => state.releases, shallowEqual);
+  const { isLoading, userFavourites, userWishList } = useSelector(state => state.releases, shallowEqual);
   const { account } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { _id: releaseId } = release;
@@ -42,8 +44,18 @@ const Actions = () => {
     }
   }, [releaseId, userWishList]);
 
+  if (isLoading) {
+    return (
+      <Skeleton>
+        <ButtonGroup size="sm" isAttached variant="outline" bg={buttonGroupBg} mb={0}>
+          <Button />
+        </ButtonGroup>
+      </Skeleton>
+    );
+  }
+
   return (
-    <ButtonGroup size="sm" isAttached variant="outline" bg={useColorModeValue("white", undefined)} mb={4}>
+    <ButtonGroup size="sm" isAttached variant="outline" bg={buttonGroupBg} mb={4}>
       <Button
         isLoading={isSavingToFaves}
         loadingText="Saving…"
@@ -61,7 +73,6 @@ const Actions = () => {
           dispatch(addToFavourites(releaseId)).then(() => setIsSavingToFaves(false));
         }}
         title="Save to favourites."
-        mr="-px"
         flex={1}
       >
         Favourite

@@ -1,4 +1,4 @@
-import { Box, Button, Center, Container, Heading, Highlight, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, Center, Container, Heading, Highlight, Skeleton, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -82,7 +82,9 @@ const Home = () => {
         />
         <Grid>
           {catalogue.map(release => (
-            <RenderRelease key={release._id} release={release} />
+            <Skeleton isLoaded={!isLoading} key={release._id}>
+              <RenderRelease release={release} />
+            </Skeleton>
           ))}
         </Grid>
         {!catalogue.length || reachedEndOfCat ? null : (

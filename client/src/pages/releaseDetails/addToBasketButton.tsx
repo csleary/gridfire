@@ -1,13 +1,13 @@
 import { addToBasket, setIsAddingToBasket } from "state/web3";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { BasketItem } from "components/header/basketButton";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
 import NameYourPriceModal from "./nameYourPriceModal";
-import { RootState } from "index";
 import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { parseEther } from "ethers";
+import { shallowEqual } from "react-redux";
 import { toastError } from "state/toast";
 import { useState } from "react";
 
@@ -22,7 +22,8 @@ interface Props {
 
 const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title }: Props) => {
   const dispatch = useDispatch();
-  const { basket, isAddingToBasket } = useSelector((state: RootState) => state.web3, shallowEqual);
+  const { basket, isAddingToBasket } = useSelector(state => state.web3, shallowEqual);
+  const { isLoading } = useSelector(state => state.releases, shallowEqual);
   const [showModal, setShowModal] = useState(false);
   const isInBasket = basket.some((item: BasketItem) => item.releaseId === releaseId);
 
@@ -57,7 +58,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
   return (
     <>
       <Button
-        isDisabled={inCollection || isAddingToBasket || isInBasket}
+        isDisabled={isLoading || inCollection || isAddingToBasket || isInBasket}
         leftIcon={<Icon icon={faShoppingBasket} />}
         isLoading={isAddingToBasket}
         minW="8rem"

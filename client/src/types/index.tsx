@@ -14,6 +14,20 @@ export interface MintedEdition {
   uri: string;
 }
 
+export interface Release {
+  _id: string;
+  artist: string;
+  artistName: string;
+  artwork: { status: string };
+  catNumber: string;
+  info: string;
+  price: string;
+  purchaseId?: string;
+  recordLabel: string;
+  releaseTitle: string;
+  trackList: Array<ReleaseTrack>;
+}
+
 export interface ReleaseTrack {
   _id: string;
   duration: number;

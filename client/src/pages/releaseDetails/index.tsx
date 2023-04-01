@@ -7,6 +7,8 @@ import {
   Flex,
   Heading,
   Link,
+  Skeleton,
+  SkeletonText,
   Text,
   VStack,
   Wrap,
@@ -77,7 +79,8 @@ const ActiveRelease = () => {
         if (error.response.status === 404) {
           navigate("/");
         }
-      });
+      })
+      .finally(() => dispatch(setIsLoading(false)));
   }, [releaseId]); // eslint-disable-line
 
   useEffect(() => {
@@ -106,37 +109,46 @@ const ActiveRelease = () => {
           </WrapItem>
           <WrapItem as="section" flex="1 1 36ch" alignItems="stretch">
             <Card flex="1 1 32rem" mb={0}>
-              <Heading as="h2" size="2xl" mb={2}>
-                {releaseTitle}
-              </Heading>
-              <Link
-                as={RouterLink}
-                to={`/artist/${artist}`}
-                color="gray.500"
-                _hover={{ color: "initial", textDecoration: "none" }}
-              >
-                <Heading
-                  as="h3"
-                  color={useColorModeValue("gray.400", "gray.500")}
-                  _hover={{ color: useColorModeValue("gray.600", "gray.400") }}
-                  size="xl"
-                  transition="color var(--chakra-transition-duration-normal)"
-                  mb={8}
-                >
-                  {artistName}
+              <Skeleton isLoaded={!isLoading}>
+                <Heading as="h2" size="2xl" mb={2}>
+                  {releaseTitle || <>&nbsp;</>}
                 </Heading>
-              </Link>
-              <TrackList />
+              </Skeleton>
+              <Skeleton isLoaded={!isLoading}>
+                <Link
+                  as={RouterLink}
+                  to={`/artist/${artist}`}
+                  color="gray.500"
+                  _hover={{ color: "initial", textDecoration: "none" }}
+                >
+                  <Heading
+                    as="h3"
+                    color={useColorModeValue("gray.400", "gray.500")}
+                    _hover={{ color: useColorModeValue("gray.600", "gray.400") }}
+                    size="xl"
+                    transition="color var(--chakra-transition-duration-normal)"
+                    mb={8}
+                  >
+                    {artistName || <>&nbsp;</>}
+                  </Heading>
+                </Link>
+              </Skeleton>
+              {isLoading ? (
+                <Box mb={10}>
+                  {Array(8)
+                    .fill(null)
+                    .map((_, index) => (
+                      <Skeleton height={4} key={index} mb={2} />
+                    ))}
+                </Box>
+              ) : (
+                <TrackList />
+              )}
               <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
               <Price price={price} />
               <Wrap justify="center" spacing={4} mb={6}>
                 <WrapItem>
-                  <PurchaseButton
-                    inCollection={isInCollection}
-                    isLoading={isLoading}
-                    price={price}
-                    releaseId={releaseId}
-                  />
+                  <PurchaseButton inCollection={isInCollection} price={price} releaseId={releaseId} />
                 </WrapItem>
                 <WrapItem>
                   <AddToBasketButton
@@ -152,7 +164,9 @@ const ActiveRelease = () => {
               <Editions />
               <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
               <Box mb={6}>
-                {recordLabel && (
+                {isLoading ? (
+                  <Skeleton height={6} mb={2} />
+                ) : recordLabel ? (
                   <Flex mb={2}>
                     <Flex
                       as={Button}
@@ -171,26 +185,32 @@ const ActiveRelease = () => {
                     </Flex>
                     <Box color={releaseInfoText}>{recordLabel}</Box>
                   </Flex>
-                )}
-                <Flex mb={2}>
-                  <Flex
-                    as={Button}
-                    align="center"
-                    bg="blue.100"
-                    height="unset"
-                    justify="center"
-                    minW={10}
-                    mr={3}
-                    onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
-                    rounded="sm"
-                    variant="unstyled"
-                    _hover={{ backgroundColor: "blue.200" }}
-                  >
-                    <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
+                ) : null}
+                {isLoading ? (
+                  <Skeleton height={6} mb={2} />
+                ) : (
+                  <Flex mb={2}>
+                    <Flex
+                      as={Button}
+                      align="center"
+                      bg="blue.100"
+                      height="unset"
+                      justify="center"
+                      minW={10}
+                      mr={3}
+                      onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
+                      rounded="sm"
+                      variant="unstyled"
+                      _hover={{ backgroundColor: "blue.200" }}
+                    >
+                      <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
+                    </Flex>
+                    <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
                   </Flex>
-                  <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
-                </Flex>
-                {catNumber && (
+                )}
+                {isLoading ? (
+                  <Skeleton height={6} mb={2} />
+                ) : catNumber ? (
                   <Flex>
                     <Flex align="center" bg="green.100" justify="center" minW={10} mr={3} rounded="sm">
                       <Badge bg="none" color={releaseInfoColor}>
@@ -199,18 +219,22 @@ const ActiveRelease = () => {
                     </Flex>
                     <Box color={releaseInfoText}>{catNumber}</Box>
                   </Flex>
-                )}
+                ) : null}
               </Box>
-              {info && (
+              {isLoading ? (
+                <SkeletonText mb={4} noOfLines={3} spacing={2} skeletonHeight={3} />
+              ) : info ? (
                 <Text mb={4} whiteSpace="pre-line">
                   {info}
                 </Text>
-              )}
-              {credits && (
+              ) : null}
+              {isLoading ? (
+                <SkeletonText mb={4} noOfLines={2} spacing={2} skeletonHeight={3} />
+              ) : credits ? (
                 <Text mb={4} whiteSpace="pre-line">
                   {credits}
                 </Text>
-              )}
+              ) : null}
               <Box mb={6}>
                 {pubYear && (
                   <Text color="gray.400" fontSize="sm" fontWeight={500}>

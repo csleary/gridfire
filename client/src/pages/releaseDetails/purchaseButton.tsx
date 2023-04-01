@@ -14,17 +14,17 @@ import { useState } from "react";
 
 interface Props {
   inCollection: boolean;
-  isLoading: boolean;
   price: string;
   releaseId: string;
 }
 
-const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Props) => {
+const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const { isLoading } = useSelector(state => state.releases, shallowEqual);
   const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const { userId } = useSelector(state => state.user, shallowEqual);
   const allowanceTooLow = parseEther(price.toString()) > daiAllowance || daiAllowance === 0n;
@@ -72,9 +72,9 @@ const PurchaseButton = ({ inCollection, isLoading, price = "0", releaseId }: Pro
   return (
     <>
       <Button
-        isDisabled={!isConnected || isFetchingAllowance}
-        isLoading={isLoading || isPurchasing}
-        loadingText={isLoading ? "Loading" : "Purchasing"}
+        isDisabled={isLoading || !isConnected || isFetchingAllowance}
+        isLoading={isPurchasing}
+        loadingText={"Purchasing"}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
         minWidth="16rem"
         onClick={handleClick}

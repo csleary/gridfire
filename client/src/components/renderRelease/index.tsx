@@ -1,19 +1,26 @@
 import { Box, Fade, Flex, IconButton, Image, useDisclosure } from "@chakra-ui/react";
-import { batch, shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Release, ReleaseTrack } from "types";
+import { batch, shallowEqual } from "react-redux";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { fetchRelease, setIsLoading } from "state/releases";
 import { playTrack, playerPause, playerPlay } from "state/player";
+import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
-import PropTypes from "prop-types";
-import { ReleaseTrack } from "types";
-import { fetchRelease } from "state/releases";
 import placeholder from "placeholder.svg";
 import { toastInfo } from "state/toast";
 
 const { REACT_APP_CDN_IMG } = process.env;
 
-const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }) => {
+interface Props {
+  release: Release;
+  showArtist?: boolean;
+  showTitle?: boolean;
+  type?: string;
+}
+
+const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }: Props) => {
   const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
   const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
@@ -23,7 +30,14 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
       <Box position="relative" {...rest}>
         <Fade in={isOpen}>
           <Box display="block" pt="100%" position="relative">
-            <Image alt="Release not found." inset={0} loading="lazy" position="absolute" src={placeholder} />
+            <Image
+              alt="Release not found."
+              inset={0}
+              loading="lazy"
+              onLoad={onOpen}
+              position="absolute"
+              src={placeholder}
+            />
           </Box>
         </Fade>
         <Box
@@ -42,11 +56,11 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
     );
   }
 
-  const { _id: releaseId, artist, artistName, artwork = {}, purchaseId = "", releaseTitle, trackList } = release;
+  const { _id: releaseId, artist, artistName, artwork, purchaseId = "", releaseTitle, trackList } = release;
   const hasNoPlayableTracks = trackList.every(({ isBonus }: ReleaseTrack) => isBonus === true);
 
   const handleClick = () => {
-    const audioPlayer = document.getElementById("player");
+    const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
     if (isPlaying && playerReleaseId === releaseId) {
       audioPlayer.pause();
@@ -65,6 +79,8 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
       });
     }
   };
+
+  const handleClickNavigate = () => dispatch(setIsLoading(true));
 
   return (
     <Box
@@ -121,6 +137,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
           {hasNoPlayableTracks ? null : (
             <IconButton
               alignItems="center"
+              aria-label={`Play '${releaseTitle}', by ${artistName}`}
               color="hsla(233, 10%, 75%, 1)"
               display="flex"
               flex="1 1 auto"
@@ -146,6 +163,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             as={RouterLink}
             to={`/release/${releaseId}`}
             alignItems="center"
+            aria-label={`More information on '${releaseTitle}', by ${artistName}`}
             color="hsla(233, 10%, 75%, 1)"
             display="flex"
             flex="1 1 auto"
@@ -160,6 +178,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
                 _groupHover={{ transform: "scale(1.2)" }}
               />
             }
+            onClick={handleClickNavigate}
             role="group"
             title={`More information on '${releaseTitle}', by ${artistName}`}
             transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
@@ -184,6 +203,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             color="hsla(233, 10%, 75%, 1)"
             fontSize="1.2rem"
             fontWeight={500}
+            onClick={handleClickNavigate}
             py={3}
             px={5}
             transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
@@ -195,14 +215,6 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
       </Flex>
     </Box>
   );
-};
-
-RenderRelease.propTypes = {
-  className: PropTypes.string,
-  release: PropTypes.object,
-  showArtist: PropTypes.bool,
-  showTitle: PropTypes.bool,
-  type: PropTypes.string
 };
 
 export default RenderRelease;

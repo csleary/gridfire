@@ -49,7 +49,7 @@ const TrackList = () => {
   const dispatch = useDispatch();
   const { basket, daiAllowance } = useSelector(state => state.web3, shallowEqual);
   const { purchases, userId } = useSelector(state => state.user, shallowEqual);
-  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const { _id: releaseId, artistName, releaseTitle, trackList } = release;

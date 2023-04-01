@@ -12,7 +12,7 @@ const defaultReleaseState = {
   catNumber: "",
   credits: "",
   info: "",
-  price: "0",
+  price: "10",
   pubName: "",
   pubYear: null,
   recName: "",
