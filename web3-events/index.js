@@ -25,6 +25,7 @@ process
   .on("uncaughtException", error => logger.error("Uncaught exception:", error))
   .on("unhandledRejection", error => logger.error("Unhandled promise rejection:", error));
 
+mongoose.set("strictQuery", true);
 const db = mongoose.connection;
 db.once("open", async () => logger.info("Mongoose connected."));
 db.on("close", () => logger.info("Mongoose connection closed."));

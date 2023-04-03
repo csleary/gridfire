@@ -1,8 +1,8 @@
 import amqp from "amqplib";
-import closeOnError from "./closeOnError.js";
-import { logger } from "gridfire-web3-events/controllers/logger.js";
-import { isFatalError } from "amqplib/lib/connection.js";
 import { strict as assert } from "assert/strict";
+import closeOnError from "./closeOnError.js";
+import { isFatalError } from "amqplib/lib/connection.js";
+import { logger } from "gridfire-web3-events/controllers/logger.js";
 
 const { RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
 assert(RABBITMQ_DEFAULT_PASS, "Rabbitmq password env var missing.");

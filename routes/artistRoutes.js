@@ -1,8 +1,10 @@
-import requireLogin from "gridfire/middlewares/requireLogin.js";
 import express from "express";
+import mongoose from "mongoose";
+import requireLogin from "gridfire/middlewares/requireLogin.js";
 import slugify from "slugify";
-import Artist from "gridfire/models/Artist.js";
-import Release from "gridfire/models/Release.js";
+
+const Artist = mongoose.model("Artist");
+const Release = mongoose.model("Release");
 const router = express.Router();
 
 router.get("/", requireLogin, async (req, res) => {

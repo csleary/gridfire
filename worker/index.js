@@ -1,10 +1,10 @@
+import "gridfire-worker/models/Release.js";
+import "gridfire-worker/models/User.js";
 import amqp from "amqplib";
 import mongoose from "mongoose";
 import net from "net";
 import startConsumer from "gridfire-worker/consumer/index.js";
 import startPublisher from "gridfire-worker/publisher/index.js";
-import "gridfire-worker/models/Release.js";
-import "gridfire-worker/models/User.js";
 
 const { MONGODB_URI, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
 let amqpConnection;
@@ -15,6 +15,7 @@ process
   .on("uncaughtException", error => console.error("[Worker] Uncaught exception:", error))
   .on("unhandledRejection", error => console.error("[Worker] Unhandled promise rejection:", error));
 
+mongoose.set("strictQuery", true);
 const db = mongoose.connection;
 db.once("open", async () => console.log("[Worker] Mongoose connected."));
 db.on("close", () => console.log("[Worker] Mongoose connection closed."));

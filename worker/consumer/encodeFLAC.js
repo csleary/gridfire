@@ -1,16 +1,17 @@
 /* eslint-disable indent */
 import { deleteObject, streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
-import Release from "gridfire-worker/models/Release.js";
 import { ffmpegEncodeFLAC } from "gridfire-worker/consumer/ffmpeg.js";
 import fs from "fs";
+import mongoose from "mongoose";
 import path from "path";
 import { pipeline } from "node:stream/promises";
 import postMessage from "gridfire-worker/consumer/postMessage.js";
 import { publishToQueue } from "gridfire-worker/publisher/index.js";
 import { randomUUID } from "crypto";
-const fsPromises = fs.promises;
 
 const { BUCKET_FLAC, BUCKET_SRC, TEMP_PATH, QUEUE_TRANSCODE } = process.env;
+const Release = mongoose.model("Release");
+const fsPromises = fs.promises;
 
 const onEncodingProgress =
   ({ trackId, userId }) =>

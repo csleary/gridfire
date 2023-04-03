@@ -1,9 +1,6 @@
 /* eslint-disable indent */
 import { deleteObject, deleteObjects, streamToBucket } from "gridfire/controllers/storage.js";
 import Busboy from "busboy";
-import Play from "gridfire/models/Play.js";
-import Release from "gridfire/models/Release.js";
-import StreamSession from "gridfire/models/StreamSession.js";
 import mime from "mime-types";
 import mongoose from "mongoose";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
@@ -11,6 +8,9 @@ import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
 const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
 const MIN_DURATION = 1000 * 25;
 const { ObjectId } = mongoose.Types;
+const Play = mongoose.model("Play");
+const Release = mongoose.model("Release");
+const StreamSession = mongoose.model("StreamSession");
 
 const deleteTrack = async (trackId, user) => {
   const release = await Release.findOneAndUpdate(

@@ -1,5 +1,7 @@
-import User from "gridfire/models/User.js";
 import { getAddress } from "ethers";
+import mongoose from "mongoose";
+
+const User = mongoose.model("User");
 
 const getUser = async userId => {
   const [user] = await User.aggregate([

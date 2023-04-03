@@ -1,10 +1,11 @@
 import { getAddress, keccak256, toUtf8Bytes, verifyMessage } from "ethers";
-import User from "gridfire/models/User.js";
 import crypto from "crypto";
+import mongoose from "mongoose";
 import passport from "passport";
 import passportCustom from "passport-custom";
 
 const CustomStrategy = passportCustom.Strategy;
+const User = mongoose.model("User");
 
 passport.serializeUser((user, done) => {
   done(null, user._id);

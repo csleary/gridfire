@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { decryptStream, encryptStream } from "gridfire-worker/controllers/encryption.js";
 import { Readable } from "stream";
 import fs from "fs";

@@ -1,12 +1,13 @@
 import { deleteArtwork, uploadArtwork } from "gridfire/controllers/artworkController.js";
 import Busboy from "busboy";
-import Release from "gridfire/models/Release.js";
 import express from "express";
 import fs from "fs";
+import mongoose from "mongoose";
 import path from "path";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { TEMP_PATH } = process.env;
+const Release = mongoose.model("Release");
 const router = express.Router();
 
 router.post("/:releaseId", requireLogin, async (req, res) => {

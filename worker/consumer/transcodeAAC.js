@@ -1,8 +1,8 @@
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "gridfire-worker/consumer/ffmpeg.js";
 import { streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
-import Release from "gridfire-worker/models/Release.js";
 import { strict as assert } from "assert/strict";
 import fs from "fs";
+import mongoose from "mongoose";
 import packageMP4 from "gridfire-worker/consumer/packageMP4.js";
 import path from "path";
 import { pipeline } from "node:stream/promises";
@@ -11,6 +11,7 @@ import { randomUUID } from "crypto";
 
 const { BUCKET_FLAC, BUCKET_MP4, TEMP_PATH } = process.env;
 assert(TEMP_PATH, "TEMP_PATH is not set.");
+const Release = mongoose.model("Release");
 const fsPromises = fs.promises;
 
 const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {

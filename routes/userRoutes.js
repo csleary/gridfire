@@ -1,11 +1,12 @@
 import { getUser, setPaymentAddress } from "gridfire/controllers/userController.js";
-import Favourite from "gridfire/models/Favourite.js";
-import Release from "gridfire/models/Release.js";
-import Sale from "gridfire/models/Sale.js";
-import WishList from "gridfire/models/WishList.js";
 import express from "express";
+import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
+const Favourite = mongoose.model("Favourite");
+const Release = mongoose.model("Release");
+const Sale = mongoose.model("Sale");
+const WishList = mongoose.model("WishList");
 const router = express.Router();
 
 router.get("/", async (req, res) => {

@@ -1,9 +1,11 @@
+import "gridfire/models/Release.js";
 import { deleteObject, streamFromBucket, streamToBucket } from "gridfire/controllers/storage.js";
-import Release from "gridfire/models/Release.js";
 import fs from "fs";
+import mongoose from "mongoose";
 import sharp from "sharp";
 
 const { BUCKET_IMG } = process.env;
+const Release = mongoose.model("Release");
 
 const fsPromises = fs.promises;
 
@@ -24,7 +26,7 @@ const deleteArtwork = async releaseId => {
   return updatedRelease.toJSON();
 };
 
-const getArtworkStream = (releaseId) => streamFromBucket(BUCKET_IMG, releaseId);
+const getArtworkStream = releaseId => streamFromBucket(BUCKET_IMG, releaseId);
 
 const uploadArtwork = async ({ filePath, releaseId, userId, sse }) => {
   try {

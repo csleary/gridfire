@@ -1,9 +1,9 @@
+import { strict as assert } from "assert/strict";
 import closeOnError from "gridfire-worker/closeOnError.js";
 import { create } from "ipfs-http-client";
 import encodeFLAC from "gridfire-worker/consumer/encodeFLAC.js";
 import transcodeAAC from "gridfire-worker/consumer/transcodeAAC.js";
 import transcodeMP3 from "gridfire-worker/consumer/transcodeMP3.js";
-import { strict as assert } from "assert/strict";
 
 const { IPFS_NODE_HOST, QUEUE_TRANSCODE } = process.env;
 const ipfs = create(IPFS_NODE_HOST);

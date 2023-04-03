@@ -1,12 +1,13 @@
-import Edition from "gridfire/models/Edition.js";
-import Release from "gridfire/models/Release.js";
-import Sale from "gridfire/models/Sale.js";
 import express from "express";
 import { getTransaction } from "gridfire/controllers/web3/index.js";
 import { isHexString } from "ethers";
+import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 import { zipDownload } from "gridfire/controllers/archiveController.js";
 
+const Edition = mongoose.model("Edition");
+const Release = mongoose.model("Release");
+const Sale = mongoose.model("Sale");
 const router = express.Router();
 
 router.get("/:purchaseId/:format", requireLogin, async (req, res) => {

@@ -6,15 +6,16 @@ import {
   getGridFirePaymentContract,
   getUserGridFireEditions
 } from "gridfire/controllers/web3/index.js";
-import Edition from "gridfire/models/Edition.js";
-import Release from "gridfire/models/Release.js";
-import User from "gridfire/models/User.js";
 import express from "express";
 import { getArtworkStream } from "gridfire/controllers/artworkController.js";
+import mongoose from "mongoose";
 import { parseEther } from "ethers";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
 const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
+const Edition = mongoose.model("Edition");
+const Release = mongoose.model("Release");
+const User = mongoose.model("User");
 const router = express.Router();
 
 router.get("/approvals/:account", requireLogin, async (req, res) => {

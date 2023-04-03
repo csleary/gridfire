@@ -1,12 +1,13 @@
 import { streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
-import Release from "gridfire-worker/models/Release.js";
 import { ffmpegEncodeMP3FromStream } from "gridfire-worker/consumer/ffmpeg.js";
 import fs from "fs";
+import mongoose from "mongoose";
 import path from "path";
 import postMessage from "gridfire-worker/consumer/postMessage.js";
 import { randomUUID } from "crypto";
 
 const { BUCKET_FLAC, BUCKET_MP3, TEMP_PATH } = process.env;
+const Release = mongoose.model("Release");
 const fsPromises = fs.promises;
 
 const transcodeMP3 = async ({ releaseId, trackId, userId }) => {

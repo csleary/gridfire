@@ -1,10 +1,12 @@
 import { Contract, Interface, ethers, encodeBytes32String, getAddress } from "ethers";
 import GridFireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditions.sol/GridFireEditions.json" assert { type: "json" };
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
-import Edition from "gridfire/models/Edition.js";
-import Release from "gridfire/models/Release.js";
-import User from "gridfire/models/User.js";
 import daiAbi from "gridfire/controllers/web3/dai.js";
+import mongoose from "mongoose";
+
+const Edition = mongoose.model("Edition");
+const Release = mongoose.model("Release");
+const User = mongoose.model("User");
 
 const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, DAI_CONTRACT_ADDRESS, NETWORK_URL, NETWORK_KEY } =
   process.env;

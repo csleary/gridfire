@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import slugify from "slugify";
-import Artist from "../models/Artist.js";
+
+const Artist = mongoose.model("Artist");
 
 const createArtist = async (artistName, userId, suffix = "") =>
   Artist.create(

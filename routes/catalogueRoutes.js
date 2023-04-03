@@ -1,8 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
-import Artist from "gridfire/models/Artist.js";
-import Release from "gridfire/models/Release.js";
 
+const Artist = mongoose.model("Artist");
+const Release = mongoose.model("Release");
 const router = express.Router();
 
 const mapKeyToModel = {

@@ -1,13 +1,18 @@
+import "gridfire-web3-events/models/Edition.js";
+import "gridfire-web3-events/models/Release.js";
+import "gridfire-web3-events/models/Sale.js";
+import "gridfire-web3-events/models/User.js";
 import { Contract, decodeBytes32String, formatEther, getAddress, getDefaultProvider, parseEther } from "ethers";
-import Edition from "gridfire-web3-events/models/Edition.js";
-import Release from "gridfire-web3-events/models/Release.js";
-import Sale from "gridfire-web3-events/models/Sale.js";
-import User from "gridfire-web3-events/models/User.js";
 import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditionsABI.js";
 import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
+import mongoose from "mongoose";
 import { publishToQueue } from "./amqp.js";
 
 const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
+const Edition = mongoose.model("Edition");
+const Release = mongoose.model("Release");
+const Sale = mongoose.model("Sale");
+const User = mongoose.model("User");
 
 const getProvider = () => {
   return getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);

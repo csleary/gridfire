@@ -1,14 +1,15 @@
-import Artist from "gridfire/models/Artist.js";
-import Favourite from "gridfire/models/Favourite.js";
-import Release from "gridfire/models/Release.js";
-import User from "gridfire/models/User.js";
-import WishList from "gridfire/models/WishList.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
 import { deleteArtwork } from "gridfire/controllers/artworkController.js";
 import { deleteTrack } from "gridfire/controllers/trackController.js";
 import express from "express";
+import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
+const Artist = mongoose.model("Artist");
+const Favourite = mongoose.model("Favourite");
+const Release = mongoose.model("Release");
+const User = mongoose.model("User");
+const WishList = mongoose.model("WishList");
 const router = express.Router();
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
