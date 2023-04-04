@@ -19,7 +19,8 @@ mongoose.set("strictQuery", true);
 const db = mongoose.connection;
 db.once("open", async () => console.log("[Worker] Mongoose connected."));
 db.on("close", () => console.log("[Worker] Mongoose connection closed."));
-db.on("disconnected", () => console.log("[Worker] Mongoose disconnected."));
+db.on("disconnected", () => console.warn("[Worker] Mongoose disconnected."));
+db.on("reconnected", () => console.info("[Worker] Mongoose reconnected."));
 db.on("error", console.error);
 
 const amqpConnect = async () => {

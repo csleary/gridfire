@@ -52,7 +52,8 @@ mongoose.set("strictQuery", true);
 const db = mongoose.connection;
 db.once("open", async () => console.log("[API] Mongoose connected."));
 db.on("close", () => console.log("[API] Mongoose connection closed."));
-db.on("disconnected", () => console.log("[API] Mongoose disconnected."));
+db.on("disconnected", () => console.warn("[API] Mongoose disconnected."));
+db.on("reconnected", () => console.log("[API] Mongoose reconnected."));
 db.on("error", error => console.log(`[API] Mongoose error: ${error.message}`));
 await mongoose.connect(MONGODB_URI).catch(console.error);
 

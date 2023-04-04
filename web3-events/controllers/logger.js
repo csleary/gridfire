@@ -1,4 +1,7 @@
+const deploymentName = "[Web3 Events]";
+
 export const logger = {
-  error: console.error.bind(null, "[Web3 Events]"),
-  info: console.log.bind(null, "[Web3 Events]")
+  error: console.error.bind(null, deploymentName),
+  info: console.log.bind(null, deploymentName),
+  warn: console.warn.bind(null, deploymentName)
 };

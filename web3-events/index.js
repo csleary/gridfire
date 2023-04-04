@@ -29,7 +29,8 @@ mongoose.set("strictQuery", true);
 const db = mongoose.connection;
 db.once("open", async () => logger.info("Mongoose connected."));
 db.on("close", () => logger.info("Mongoose connection closed."));
-db.on("disconnected", () => logger.info("Mongoose disconnected."));
+db.on("disconnected", () => logger.warn("Mongoose disconnected."));
+db.on("reconnected", () => logger.info("Mongoose reconnected."));
 db.on("error", logger.error);
 
 const setupHealthProbe = () =>
