@@ -131,8 +131,8 @@ const MintEdition = () => {
       const { amount, description, price, tracks } = values;
       await mintEdition({ amount, description, price, releaseId, tracks });
       handleCloseModal();
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error(error);
     } finally {
       setIsPurchasing(false);
     }

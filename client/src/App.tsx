@@ -16,7 +16,7 @@ import useSSE from "hooks/useSSE";
 
 const { REACT_APP_CHAIN_ID = "" } = process.env;
 const About = lazy(() => import("pages/about"));
-const ArtistPage = lazy(() => import("pages/artistPage"));
+const Artist = lazy(() => import("pages/artist"));
 const Dashboard = lazy(() => import("pages/dashboard"));
 const EditRelease = lazy(() => import("pages/editRelease"));
 const Header = lazy(() => import("components/header"));
@@ -138,7 +138,7 @@ const App: React.FC = () => {
                 }
               />
               <Route path="/release/:releaseId/*" element={<ReleaseDetails />} />
-              <Route path="/artist/:artistId" element={<ArtistPage />} />
+              <Route path="/artist/:artistId" element={<Artist />} />
               <Route
                 path="/dashboard/*"
                 element={
@@ -147,7 +147,7 @@ const App: React.FC = () => {
                   </PrivateRoute>
                 }
               />
-              <Route path="/:artistSlug" element={<ArtistPage />} />
+              <Route path="/:artistSlug" element={<Artist />} />
             </Routes>
             <Spacer mb={8} />
           </Suspense>

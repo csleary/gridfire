@@ -1,4 +1,4 @@
-import { Box, Divider, Heading, Link, VStack, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
+import { Box, Divider, Heading, Link, Text, VStack, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Card from "components/card";
@@ -8,7 +8,7 @@ import RenderRelease from "components/renderRelease";
 import { fetchArtistCatalogue } from "state/releases";
 import { useParams } from "react-router-dom";
 
-const ArtistPage = () => {
+const Artist = () => {
   const { artistId, artistSlug } = useParams();
   const dispatch = useDispatch();
   const { biography, links, name, releases } = useSelector(state => state.releases.artist, shallowEqual);
@@ -53,7 +53,9 @@ const ArtistPage = () => {
                       .split("\n")
                       .filter(text => text.trim().length)
                       .map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
+                        <Text mb={6} key={index}>
+                          {paragraph}
+                        </Text>
                       ))}
                   </Box>
                 </>
@@ -83,4 +85,4 @@ const ArtistPage = () => {
   );
 };
 
-export default ArtistPage;
+export default Artist;

@@ -105,10 +105,8 @@ const onPurchase = async (
     const { gasUsed, cumulativeGasUsed, gasPrice, ...restTxReceipt } = transactionReceipt;
     const { from: buyer, status } = restTxReceipt;
     const bigIntValues = { gasUsed, cumulativeGasUsed, gasPrice };
-    const bigIntValuesAsString = Object.entries(bigIntValues).reduce(
-      (prev, [key, value]) => ({ ...prev, [key]: value.toString() }),
-      {}
-    );
+    const bigIntToString = (prev, [key, value]) => ({ ...prev, [key]: value.toString() });
+    const bigIntValuesAsString = Object.entries(bigIntValues).reduce(bigIntToString, {});
 
     if (status === 1) {
       await Sale.create({
