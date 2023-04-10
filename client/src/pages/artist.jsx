@@ -2,6 +2,7 @@ import { Box, Divider, Heading, Link, Text, VStack, Wrap, WrapItem, useColorMode
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Card from "components/card";
+import Follow from "./follow";
 import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
@@ -31,6 +32,7 @@ const Artist = () => {
         <meta name="description" content={`Listen to ${releaseCount} releases by ${name}.`} />
       </Helmet>
       <Heading as="h2">{name}</Heading>
+      <Follow />
       <Wrap spacing={8}>
         <WrapItem as="section" alignItems="stretch" flex="1 1 64rem" flexDirection="column" order={[2, 2, 1]}>
           <Heading as="h3">

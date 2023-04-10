@@ -1,6 +1,7 @@
 import "gridfire/models/Artist.js";
 import "gridfire/models/Edition.js";
 import "gridfire/models/Favourite.js";
+import "gridfire/models/Follower.js";
 import "gridfire/models/Release.js";
 import "gridfire/models/Sale.js";
 import "gridfire/models/Play.js";
@@ -67,7 +68,7 @@ app.use(errorHandler);
 app.use(logErrors);
 app.use(passport.initialize());
 app.use(passport.session());
-app.use("/api/artists", artists);
+app.use("/api/artist", artists);
 app.use("/api/artwork", artwork);
 app.use("/api/auth", auth);
 app.use("/api/catalogue", catalogue);

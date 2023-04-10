@@ -4,6 +4,7 @@ import requireLogin from "gridfire/middlewares/requireLogin.js";
 import slugify from "slugify";
 
 const Artist = mongoose.model("Artist");
+const Follower = mongoose.model("Follower");
 const Release = mongoose.model("Release");
 const router = express.Router();
 
@@ -57,6 +58,59 @@ router.patch("/:artistId/link", requireLogin, async (req, res) => {
     const artist = await Artist.findOne({ _id: req.params.artistId, user: userId }, "links").exec();
     const newLink = artist.links.create();
     res.send(newLink);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/:slug/id", requireLogin, async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const artist = await Artist.exists({ slug }).exec();
+    res.json(artist);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/:artistId/following", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { artistId } = req.params;
+    const isFollowing = await Follower.exists({ follower: userId, following: artistId }).exec();
+    res.json({ isFollowing: Boolean(isFollowing) });
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.post("/:artistId/follow", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { artistId } = req.params;
+
+    await Follower.findOneAndUpdate(
+      { follower: userId, following: artistId },
+      { $setOnInsert: { follower: userId, following: artistId } },
+      { upsert: true }
+    ).exec();
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.delete("/:artistId/follow", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { artistId } = req.params;
+    await Follower.findOneAndDelete({ follower: userId, following: artistId }).exec();
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
