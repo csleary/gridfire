@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 import slugify from "slugify";
 
+const Activity = mongoose.model("Activity");
 const Artist = mongoose.model("Artist");
 const Follower = mongoose.model("Follower");
 const Release = mongoose.model("Release");
@@ -95,6 +96,12 @@ router.post("/:artistId/follow", requireLogin, async (req, res) => {
     await Follower.findOneAndUpdate(
       { follower: userId, following: artistId },
       { $setOnInsert: { follower: userId, following: artistId } },
+      { upsert: true }
+    ).exec();
+
+    Activity.findOneAndUpdate(
+      { user: userId, type: "follow", artist: artistId },
+      { user: userId, type: "follow", artist: artistId },
       { upsert: true }
     ).exec();
 

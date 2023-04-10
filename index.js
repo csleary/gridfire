@@ -1,3 +1,4 @@
+import "gridfire/models/Activity.js";
 import "gridfire/models/Artist.js";
 import "gridfire/models/Edition.js";
 import "gridfire/models/Favourite.js";
