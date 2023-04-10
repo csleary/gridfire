@@ -12,6 +12,7 @@ const followerSchema = new Schema(
 );
 
 followerSchema.index({ follower: 1, following: 1 }, { unique: true });
+followerSchema.index({ following: 1, follower: 1 }, { unique: true });
 
 const Followers = mongoose.model("Follower", followerSchema, "followers");
 

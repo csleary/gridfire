@@ -80,8 +80,13 @@ router.get("/:artistId/following", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
     const { artistId } = req.params;
-    const isFollowing = await Follower.exists({ follower: userId, following: artistId }).exec();
-    res.json({ isFollowing: Boolean(isFollowing) });
+
+    const [numFollowers, isFollowing] = await Promise.all([
+      Follower.countDocuments({ following: artistId }).exec(),
+      Follower.exists({ follower: userId, following: artistId }).exec()
+    ]);
+
+    res.json({ numFollowers, isFollowing: Boolean(isFollowing) });
   } catch (error) {
     console.error(error);
     res.sendStatus(400);

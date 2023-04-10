@@ -1,4 +1,4 @@
-import { Button, Flex, useColorModeValue } from "@chakra-ui/react";
+import { Button, Center, Flex, useColorModeValue } from "@chakra-ui/react";
 import Icon from "components/icon";
 import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useEffect, useState } from "react";
@@ -7,7 +7,9 @@ import { useParams } from "react-router-dom";
 
 const Follow = () => {
   const accentColor = useColorModeValue("yellow.500", "purple.300");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
   const { artistId: artistIdParam, artistSlug } = useParams();
+  const [followerCount, setFollowerCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,8 +26,9 @@ const Follow = () => {
       let artistId = artistIdParam;
       if (!artistId) artistId = await fetchArtistId();
       const res = await axios.get(`/api/artist/${artistId}/following`);
-      const { isFollowing } = res.data;
+      const { isFollowing, numFollowers } = res.data;
       setIsFollowing(isFollowing);
+      setFollowerCount(numFollowers);
     } catch (error: any) {
       console.error(error.response?.data.error || error.message);
     } finally {
@@ -54,23 +57,28 @@ const Follow = () => {
     } catch (error: any) {
       console.error(error.response?.data.error || error.message);
     } finally {
+      fetchIsFollowing();
       setIsLoading(false);
     }
   };
 
   return (
-    <Flex>
+    <Flex alignItems="center">
       <Button
         justifyContent="space-between"
         leftIcon={<Icon color={isFollowing ? accentColor : undefined} icon={isFollowing ? faCheck : faPlus} />}
         isLoading={isLoading}
         minWidth="8rem"
+        mr={2}
         onClick={handleClick}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
+        onMouseOver={() => setIsHovering(true)}
+        onMouseOut={() => setIsHovering(false)}
       >
         {isFollowing && isHovering ? "Unfollow" : isFollowing ? "Following" : "Follow"}
       </Button>
+      <Center borderColor={borderColor} borderRadius="md" borderWidth="2px" fontWeight="500" height={10} px={4}>
+        {followerCount}
+      </Center>
     </Flex>
   );
 };
