@@ -1,4 +1,4 @@
-import { Box, Heading, Text, VStack, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Grid from "components/grid";
@@ -30,16 +30,18 @@ const WishList = () => {
       <Heading as="h3">Wish List</Heading>
       <Grid>
         {userWishList.map(withlisted => (
-          <VStack key={withlisted._id}>
+          <Box key={withlisted._id}>
             <RenderRelease release={withlisted.release} />
-            <Box>
-              <Icon color={noteColour} icon={noteIcon} mr={2} />
-              {withlisted.note}
+            <Box mt={2}>
+              <Text>
+                <Icon verticalAlign="middle" color={noteColour} icon={noteIcon} mr={2} />
+                {withlisted.note}
+              </Text>
               <Text color={noteTextColour}>
                 &ndash; {moment(new Date(withlisted.dateAdded)).format("Do of MMM, YYYY")}.
               </Text>
             </Box>
-          </VStack>
+          </Box>
         ))}
       </Grid>
     </Box>

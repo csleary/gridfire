@@ -75,7 +75,7 @@ const ActiveRelease = () => {
   useEffect(() => {
     dispatch(fetchRelease(releaseId))
       .then(() => dispatch(setIsLoading(false)))
-      .catch(error => {
+      .catch((error: { response: { status: number } }) => {
         if (error.response.status === 404) {
           navigate("/");
         }

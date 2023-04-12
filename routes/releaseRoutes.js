@@ -5,6 +5,7 @@ import express from "express";
 import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
+const Activity = mongoose.model("Activity");
 const Artist = mongoose.model("Artist");
 const Favourite = mongoose.model("Favourite");
 const Release = mongoose.model("Release");
@@ -65,33 +66,6 @@ router.get("/:releaseId", async (req, res) => {
   }
 });
 
-router.get("/:releaseId/ipfs", requireLogin, async (req, res) => {
-  try {
-    const { releaseId } = req.params;
-    const user = req.user._id;
-
-    const release = await Release.findOne(
-      { _id: releaseId, user },
-      {
-        artwork: 1,
-        releaseTitle: 1,
-        "trackList._id": 1,
-        "trackList.flac": 1,
-        "trackList.mp3": 1,
-        "trackList.mp4": 1,
-        "trackList.trackTitle": 1
-      },
-      { lean: true }
-    ).exec();
-
-    if (!release) return res.sendStatus(200);
-    res.json(release);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
-  }
-});
-
 router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
@@ -139,6 +113,7 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
 
     release.published = !release.published;
     const updatedRelease = await release.save();
+    Activity.publish(release.artist.toString(), releaseId);
     res.json(updatedRelease.toJSON());
   } catch (error) {
     res.status(200).json({ error: error.message });

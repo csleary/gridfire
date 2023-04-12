@@ -85,7 +85,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
   return (
     <Box
       key={releaseId}
-      position={"relative"}
+      position="relative"
       _hover={{
         "> *": { boxShadow: "lg", opacity: 1, transition: "0.5s cubic-bezier(0.2, 0.8, 0.4, 1)", visibility: "visible" }
       }}

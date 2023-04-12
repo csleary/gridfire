@@ -33,7 +33,6 @@ export interface ReleaseTrack {
   duration: number;
   isBonus?: boolean;
   isEditionOnly?: boolean;
-  mp4: string | boolean;
   price: string;
   trackTitle: string;
 }
@@ -41,6 +40,13 @@ export interface ReleaseTrack {
 export interface ListItem {
   _id: string;
   dateAdded: Date;
-  release: ReleaseTrack;
+  release: Release;
+  note?: string;
+}
+
+export interface UserListItem {
+  _id: string;
+  dateAdded: Date;
+  release: string;
   note?: string;
 }

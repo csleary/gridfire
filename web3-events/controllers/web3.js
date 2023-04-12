@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import { publishToQueue } from "./amqp.js";
 
 const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
+const Activity = mongoose.model("Activity");
 const Edition = mongoose.model("Edition");
 const Release = mongoose.model("Release");
 const Sale = mongoose.model("Sale");
@@ -43,6 +44,8 @@ const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId)
 
     const userId = release.user.toString();
     publishToQueue("user", userId, { editionId: _id.toString(), type: "mintedEvent", userId });
+    const artistId = release.artist.toString();
+    Activity.mint(artistId, editionId.toString());
   } catch (error) {
     console.error("EditionMinted error:", error);
   }
@@ -70,7 +73,7 @@ const onPurchase = async (
     let type = "album";
 
     // Check if the purchase is for a single or an album.
-    let release = await Release.findOne({ "trackList._id": releaseId }, "artistName trackList.$", { lean: true })
+    let release = await Release.findOne({ "trackList._id": releaseId }, "artist artistName trackList.$", { lean: true })
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
 
@@ -109,6 +112,8 @@ const onPurchase = async (
     const bigIntValuesAsString = Object.entries(bigIntValues).reduce(bigIntToString, {});
 
     if (status === 1) {
+      Activity.sale(release.artist.toString(), releaseId, userId);
+
       await Sale.create({
         purchaseDate: Date.now(),
         release: releaseId,
@@ -177,6 +182,8 @@ const onPurchaseEdition = async (
     const { status } = transactionReceipt;
 
     if (status === 1) {
+      Activity.sale(release.artist.toString(), releaseId, userId);
+
       // Notify user of successful purchase.
       publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEditionEvent", userId });
       const artistUserId = artistUser._id.toString();

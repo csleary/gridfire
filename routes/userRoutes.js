@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
+const Activity = mongoose.model("Activity");
 const Favourite = mongoose.model("Favourite");
 const Release = mongoose.model("Release");
 const Sale = mongoose.model("Sale");
@@ -116,10 +117,11 @@ router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
         match: { published: true },
         model: Release,
         options: { lean: true },
-        select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
+        select: "artist artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
       .exec();
 
+    Activity.favourite(favourite.release.artist.toString(), release, user);
     res.json(favourite);
   } catch (error) {
     console.error(error);

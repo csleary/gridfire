@@ -12,37 +12,40 @@ import {
   PopoverHeader,
   PopoverBody,
   Skeleton,
-  useColorModeValue
+  useColorModeValue,
+  useDisclosure
 } from "@chakra-ui/react";
 import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "state/user";
 import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import Icon from "components/icon";
-import { ListItem } from "types";
+import { UserListItem } from "types";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const Actions = () => {
   const buttonGroupBg = useColorModeValue("white", undefined);
+  const { isOpen, onToggle, onClose } = useDisclosure();
   const dispatch = useDispatch();
   const [note, setNote] = useState("");
   const [isSavingToFaves, setIsSavingToFaves] = useState(false);
   const [isSavingToList, setIsSavingToList] = useState(false);
-  const { isLoading, userFavourites, userWishList } = useSelector(state => state.releases, shallowEqual);
+  const { isLoading } = useSelector(state => state.releases, shallowEqual);
+  const { favourites, wishList } = useSelector(state => state.user, shallowEqual);
   const { account } = useSelector(state => state.user, shallowEqual);
   const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const { _id: releaseId } = release;
-  const isInFaves = userFavourites.some(({ release }: ListItem) => release._id === releaseId);
-  const isInWishList = userWishList.some(({ release }: ListItem) => release._id === releaseId);
+  const isInFaves = favourites.some(({ release }: UserListItem) => release === releaseId);
+  const isInWishList = wishList.some(({ release }: UserListItem) => release === releaseId);
 
   useEffect(() => {
-    if (userWishList.length && releaseId) {
-      const { note = "" } = userWishList.find(({ release }: ListItem) => release._id === releaseId) || { note: "" };
+    if (wishList.length && releaseId) {
+      const { note = "" } = wishList.find(({ release }: UserListItem) => release === releaseId) || { note: "" };
       if (note) setNote(note);
     }
-  }, [releaseId, userWishList]);
+  }, [releaseId, wishList]);
 
   if (isLoading) {
     return (
@@ -60,7 +63,7 @@ const Actions = () => {
         isLoading={isSavingToFaves}
         loadingText="Saving…"
         leftIcon={<Icon color={isInFaves ? "red.400" : undefined} icon={isInFaves ? faHeart : heartOutline} />}
-        onClick={() => {
+        onClick={async () => {
           if (!account)
             return dispatch(
               toastInfo({
@@ -68,18 +71,26 @@ const Actions = () => {
                 title: "Please log in"
               })
             );
-          if (isInFaves) return void dispatch(removeFromFavourites(releaseId));
+          if (isInFaves) {
+            dispatch(removeFromFavourites(releaseId));
+            return;
+          }
           setIsSavingToFaves(true);
-          dispatch(addToFavourites(releaseId)).then(() => setIsSavingToFaves(false));
+          await dispatch(addToFavourites(releaseId));
+          setIsSavingToFaves(false);
         }}
         title="Save to favourites."
         flex={1}
       >
         Favourite
       </Button>
-      <Popover>
+      <Popover isOpen={isOpen} onClose={onClose}>
         <PopoverTrigger>
-          <Button leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />} flex={1}>
+          <Button
+            leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />}
+            flex={1}
+            onClick={onToggle}
+          >
             Wish List
           </Button>
         </PopoverTrigger>
@@ -95,10 +106,12 @@ const Actions = () => {
               id="note"
               name="note"
               onChange={e => setNote(e.target.value)}
-              onKeyDown={({ key }) => {
+              onKeyDown={async ({ key }) => {
                 if (key === "Enter") {
                   setIsSavingToList(true);
-                  dispatch(addToWishList({ releaseId, note })).then(() => setIsSavingToList(false));
+                  await dispatch(addToWishList({ releaseId, note }));
+                  setIsSavingToList(false);
+                  onClose();
                 }
               }}
               value={note}
@@ -111,7 +124,11 @@ const Actions = () => {
               colorScheme="red"
               isDisabled={!isInWishList}
               leftIcon={<Icon icon={faMinusCircle} />}
-              onClick={() => dispatch(removeFromWishList(releaseId))}
+              onClick={() => {
+                dispatch(removeFromWishList(releaseId));
+                onClose();
+                setNote("");
+              }}
               title="Remove from wish list."
               variant="ghost"
             >
@@ -121,9 +138,9 @@ const Actions = () => {
               isLoading={isSavingToList}
               loadingText="Saving…"
               leftIcon={<Icon icon={faMagic} />}
-              onClick={() => {
+              onClick={async () => {
                 if (!account) {
-                  return dispatch(
+                  return void dispatch(
                     toastInfo({
                       message: "You need to be logged in to save this track to your wish list.",
                       title: "Please log in"
@@ -132,7 +149,9 @@ const Actions = () => {
                 }
 
                 setIsSavingToList(true);
-                dispatch(addToWishList({ releaseId, note })).then(() => setIsSavingToList(false));
+                dispatch(addToWishList({ releaseId, note }));
+                setIsSavingToList(false);
+                onClose();
               }}
               title="Save to wish list."
               variant="solid"

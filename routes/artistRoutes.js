@@ -104,12 +104,7 @@ router.post("/:artistId/follow", requireLogin, async (req, res) => {
       { upsert: true }
     ).exec();
 
-    Activity.findOneAndUpdate(
-      { user: userId, type: "follow", artist: artistId },
-      { user: userId, type: "follow", artist: artistId },
-      { upsert: true }
-    ).exec();
-
+    Activity.follow(artistId, userId);
     res.sendStatus(200);
   } catch (error) {
     console.error(error);

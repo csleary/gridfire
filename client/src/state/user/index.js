@@ -7,17 +7,31 @@ const initialState = {
   account: "",
   accountShort: "",
   email: "",
+  favourites: [],
   isLoading: true,
   lastLogin: null,
   paymentAddress: "",
   purchases: [],
-  userId: ""
+  userId: "",
+  wishList: []
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    addUserFavouritesItem(state, action) {
+      state.favourites = [...state.favourites, action.payload];
+    },
+    addUserWishListItem(state, action) {
+      state.wishList = [...state.wishList, action.payload];
+    },
+    removeUserFavouritesItem(state, action) {
+      state.favourites = state.favourites.filter(({ release }) => release !== action.payload);
+    },
+    removeUserWishListItem(state, action) {
+      state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
+    },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
@@ -44,12 +58,16 @@ const userSlice = createSlice({
 
 const addToFavourites = releaseId => async dispatch => {
   const res = await axios.post(`/api/user/favourites/${releaseId}`);
+  const { _id, dateAdded } = res.data;
+  const release = res.data.release._id;
+  dispatch(addUserFavouritesItem({ _id, dateAdded, release }));
   dispatch(addFavouritesItem(res.data));
   dispatch(toastSuccess({ message: "Added to favourites.", title: "Added!" }));
 };
 
 const removeFromFavourites = releaseId => async dispatch => {
   dispatch(removeFavouritesItem(releaseId));
+  dispatch(removeUserFavouritesItem(releaseId));
   await axios.delete(`/api/user/favourites/${releaseId}`);
   dispatch(toastSuccess({ message: "Removed from favourites.", title: "Removed" }));
 };
@@ -58,12 +76,16 @@ const addToWishList =
   ({ releaseId, note }) =>
   async dispatch => {
     const res = await axios.post(`/api/user/wishlist/${releaseId}`, { note });
+    const { _id, dateAdded } = res.data;
+    const release = res.data.release._id;
+    dispatch(addUserWishListItem({ _id, dateAdded, note, release }));
     dispatch(addWishListItem(res.data));
     dispatch(toastSuccess({ message: "Added to wish list.", title: "Added!" }));
   };
 
 const removeFromWishList = releaseId => async dispatch => {
   dispatch(removeWishListItem(releaseId));
+  dispatch(removeUserWishListItem(releaseId));
   await axios.delete(`/api/user/wishlist/${releaseId}`);
   dispatch(toastSuccess({ message: "Removed from wish list.", title: "Removed" }));
 };
@@ -104,7 +126,17 @@ const logOut = () => async dispatch => {
 
 export default userSlice.reducer;
 
-export const { setIsLoading, setLoading, setPaymentAddress, updateFavourites, updateUser } = userSlice.actions;
+export const {
+  addUserFavouritesItem,
+  addUserWishListItem,
+  removeUserFavouritesItem,
+  removeUserWishListItem,
+  setIsLoading,
+  setLoading,
+  setPaymentAddress,
+  updateFavourites,
+  updateUser
+} = userSlice.actions;
 
 export {
   addPaymentAddress,
