@@ -6,7 +6,7 @@ const { ObjectId } = Schema.Types;
 const activitySchema = new Schema(
   {
     user: { type: ObjectId, ref: "User", required: true },
-    type: { type: String, enum: ["follow", "mint", "publish", "sale"], required: true },
+    type: { type: String, enum: ["favourite", "follow", "mint", "publish", "sale"], required: true },
     artist: { type: ObjectId, ref: "Artist" },
     release: { type: ObjectId, ref: "Release" },
     edition: { type: ObjectId, ref: "Edition" }
