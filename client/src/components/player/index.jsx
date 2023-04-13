@@ -24,8 +24,8 @@ const Player = () => {
   const seekBarRef = useRef();
   const shakaRef = useRef();
   const player = useSelector(state => state.player, shallowEqual);
-  const { activeRelease, userFavourites } = useSelector(state => state.releases, shallowEqual);
-  const { releaseTitle, trackList } = activeRelease;
+  const { activeRelease } = useSelector(state => state.releases, shallowEqual);
+  const { favourites } = useSelector(state => state.user, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isReady, setIsReady] = useState(false);
@@ -33,9 +33,10 @@ const Player = () => {
   const [remainingTime, setRemainingTime] = useState("");
   const { artistName, isPlaying, releaseId, showPlayer, trackId, trackTitle } = player;
   const prevTrackId = usePrevious(trackId);
+  const { releaseTitle, trackList } = activeRelease;
   const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
   const { isBonus = false } = trackList.find(({ _id }) => _id === trackId) || {};
-  const isInFaves = userFavourites.some(({ release }) => release._id === releaseId);
+  const isInFaves = favourites.some(({ release }) => release === releaseId);
 
   const onBuffering = () => {
     const { audio } = shakaRef.current.getBufferedInfo();

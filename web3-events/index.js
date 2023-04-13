@@ -1,3 +1,4 @@
+import "gridfire-web3-events/models/Activity.js";
 import "gridfire-web3-events/models/Release.js";
 import "gridfire-web3-events/models/Sale.js";
 import "gridfire-web3-events/models/User.js";
