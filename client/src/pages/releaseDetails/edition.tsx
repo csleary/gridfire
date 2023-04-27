@@ -56,7 +56,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const color2 = colors[(index + 1) % colors.length];
   const formattedAmount = BigInt(amount).toString();
   const formattedBalance = BigInt(balance).toString();
-  const formattedPrice = formatEther(price);
+  const formattedPrice = Number(formatEther(price)).toFixed(2);
   const isSoldOut = BigInt(balance) === 0n;
   const isDisabled = !isConnected || isFetchingAllowance || isPurchasing || isSoldOut;
   const transition = "200ms ease-in-out";
