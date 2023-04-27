@@ -121,6 +121,8 @@ const logOut = () => async dispatch => {
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
   } catch (error) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
+  } finally {
+    dispatch(setIsLoading(false));
   }
 };
 
@@ -132,7 +134,6 @@ export const {
   removeUserFavouritesItem,
   removeUserWishListItem,
   setIsLoading,
-  setLoading,
   setPaymentAddress,
   updateFavourites,
   updateUser
@@ -143,6 +144,7 @@ export {
   addToFavourites,
   addToWishList,
   fetchUser,
+  initialState as userInitialState,
   logOut,
   removeFromFavourites,
   removeFromWishList
