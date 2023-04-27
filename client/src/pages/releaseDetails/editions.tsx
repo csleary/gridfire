@@ -24,7 +24,7 @@ const Editions = () => {
   return (
     <>
       <Collapse
-        transition={{ enter: { delay: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
+        transition={{ enter: { delay: 0.3, ease: [0.25, 0.1, 0.25, 1] } }}
         in={editions.length > 0}
         animateOpacity
         unmountOnExit

@@ -8,8 +8,6 @@ import { createStandaloneToast } from "@chakra-ui/toast";
 import rootReducer from "state";
 import theme from "./theme";
 
-declare const window: any; // eslint-disable-line
-
 const store = configureStore({
   reducer: rootReducer,
   middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false })

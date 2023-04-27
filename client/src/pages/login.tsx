@@ -11,14 +11,17 @@ import {
 } from "@chakra-ui/react";
 import { fetchUserFavourites, fetchUserWishList } from "state/releases";
 import { setIsLoading, updateUser } from "state/user";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { toastSuccess, toastWarning } from "state/toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import axios from "axios";
 import { connectToWeb3 } from "state/web3";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { shallowEqual } from "react-redux";
 import { useState } from "react";
+
+declare const window: any; // eslint-disable-line
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -27,13 +30,13 @@ const Login = () => {
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 
-  const getNonce = async address => {
+  const getNonce = async (address: string) => {
     const res = await axios.get("api/auth/web3", { params: { address } });
     const { message } = res.data;
     return message;
   };
 
-  const checkMessage = async ({ message, signature }) => {
+  const checkMessage = async ({ message, signature }: { message: string; signature: string }) => {
     const res = await axios.post("api/auth/web3", { message, signature });
     const { user } = res.data;
     return user;
@@ -42,39 +45,39 @@ const Login = () => {
   const handleWeb3Login = async () => {
     const { ethereum } = window;
 
-    if (ethereum != null) {
-      try {
-        setLoginError("");
-        dispatch(setIsLoading(true));
-        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-        const [address] = accounts;
-        const message = await getNonce(address);
-        const signature = await ethereum.request({ method: "personal_sign", params: [message, address] });
-        const user = await checkMessage({ message, signature });
-        dispatch(toastSuccess({ message: "You are now logged in with your Ether wallet.", title: "Logged in" }));
-        dispatch(updateUser(user));
-        dispatch(fetchUserFavourites());
-        dispatch(fetchUserWishList());
-        dispatch(connectToWeb3());
-        const { pathname } = location.state || {};
-        if (pathname) return navigate(pathname);
-        navigate("/");
-      } catch (error) {
-        if (error.code === 4001) {
-          const message = "Please approve our signature request in order to log in.";
-          return void dispatch(toastWarning({ message, title: "Login cancelled" }));
-        }
-
-        setLoginError(
-          "We were unable to start the sign-in process. Do you have a web3 wallet installed (e.g. Metamask)?"
-        );
-      } finally {
-        dispatch(setIsLoading(false));
-      }
-    } else {
-      setLoginError(
+    if (ethereum == null) {
+      return setLoginError(
         "No suitable web3 login method detected. Please install a web3 wallet (e.g. Metamask) in order to login."
       );
+    }
+
+    try {
+      setLoginError("");
+      dispatch(setIsLoading(true));
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+      const [address] = accounts;
+      const message = await getNonce(address);
+      const signature = await ethereum.request({ method: "personal_sign", params: [message, address] });
+      const user = await checkMessage({ message, signature });
+      dispatch(toastSuccess({ message: "You are now logged in with your Ether wallet.", title: "Logged in" }));
+      dispatch(updateUser(user));
+      dispatch(fetchUserFavourites());
+      dispatch(fetchUserWishList());
+      dispatch(connectToWeb3());
+      const { pathname } = location.state || {};
+      if (pathname) return navigate(pathname);
+      navigate("/");
+    } catch (error: any) {
+      if (error.code === 4001) {
+        const message = "Please approve our signature request in order to log in.";
+        return void dispatch(toastWarning({ message, title: "Login cancelled" }));
+      }
+
+      setLoginError(
+        "We were unable to start the sign-in process. Do you have a web3 wallet installed (e.g. Metamask)?"
+      );
+    } finally {
+      dispatch(setIsLoading(false));
     }
   };
 

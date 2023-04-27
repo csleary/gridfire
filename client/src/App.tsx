@@ -24,7 +24,6 @@ const Home = lazy(() => import("pages/home"));
 const Login = lazy(() => import("pages/login"));
 const ReleaseDetails = lazy(() => import("pages/releaseDetails"));
 const SearchResults = lazy(() => import("pages/searchResults"));
-// declare const window: any; // eslint-disable-line
 
 const App: React.FC = () => {
   useSSE();

@@ -20,11 +20,13 @@ const Home = () => {
     state => state.releases,
     shallowEqual
   );
+  const { account: userAccount } = useSelector(state => state.user, shallowEqual);
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
   const [currentSortOrder, setCurrentSortOrder] = useState(-1);
   const { service } = useParams();
+  const bgHighlight = useColorModeValue("yellow.400", "purple.200");
 
   const handleFetchCatalogue = useCallback(
     async ({ sortBy = currentSortPath, sortOrder = currentSortOrder, isPaging = false } = {}) => {
@@ -59,20 +61,24 @@ const Home = () => {
         <title>GridFire</title>
         <meta name="description" content="Listen to the latest releases on GridFire." />
       </Helmet>
-      <Container maxWidth="container.xl" mt={12} mb={24}>
-        <Heading lineHeight="tall" m={0}>
-          <Highlight
-            query={["gridfire", "equitable", "sustainable", "supportive"]}
-            styles={{ px: "2", py: "1", rounded: "full", bg: useColorModeValue("yellow.400", "purple.200") }}
-          >
-            GridFire is a new music streaming and download service, powered by decentralised protocols, to create a more
-            equitable, sustainable and supportive creative economy.
-          </Highlight>
-        </Heading>
-      </Container>
-      <Features />
+      {userAccount ? null : (
+        <>
+          <Container maxWidth="container.xl" mt={12} mb={24}>
+            <Heading lineHeight="tall" m={0}>
+              <Highlight
+                query={["gridfire", "equitable", "sustainable", "supportive"]}
+                styles={{ px: "2", py: "1", rounded: "full", bg: bgHighlight }}
+              >
+                GridFire is a new music streaming and download service, powered by decentralised protocols, to create a
+                more equitable, sustainable and supportive creative economy.
+              </Highlight>
+            </Heading>
+          </Container>
+          <Features />
+        </>
+      )}
       <Box as="section">
-        <Heading textAlign="left">Releases</Heading>
+        <Heading textAlign="left">Recent Releases</Heading>
         <SortReleases
           handleFetchCatalogue={handleFetchCatalogue}
           currentSortPath={currentSortPath}
