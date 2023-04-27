@@ -12,7 +12,7 @@
     "start": "node index.js",
     "server": "nodemon --ignore client --ignore hardhat  --ignore web3-events -r dotenv/config index.js dotenv_config_path=.env",
     "client": "yarn --cwd ./client/ start",
-    "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"yarn --cwd ./web3-events/ run dev\" \"npm run hardhat:node\"",
+    "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"yarn --cwd ./web3-events/ run dev\" \"yarn run hardhat:node\"",
     "dev-testnet": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
     "docker:build:api": "docker build -t csleary/gridfire-api .",
     "docker:build:client": "docker build -f ./client/Dockerfile -t csleary/gridfire-client client/",

@@ -1,4 +1,4 @@
-import { Accordion, Box, Divider, Flex, VStack, useColorModeValue, ScaleFade } from "@chakra-ui/react";
+import { Accordion, Box, Collapse, Divider, Flex, ScaleFade, VStack, useColorModeValue } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import Edition from "./edition";
 import { getGridFireEditionsByReleaseId } from "web3/contract";
@@ -21,27 +21,32 @@ const Editions = () => {
     fetchEditions();
   }, [fetchEditions]);
 
-  if (!editions.length) return null;
-
   return (
     <>
-      <Flex alignItems="center" mb={6}>
-        <Box color={textColor} fontWeight="semibold" fontSize="sm" textTransform="uppercase" mr={2}>
-          Editions
-        </Box>
-        <Divider borderColor={color} />
-      </Flex>
-      <ScaleFade in>
-        <Accordion defaultIndex={[]} allowMultiple>
-          <VStack spacing={6} mb={8}>
-            {editions.map((edition, index) => {
-              const { editionId } = edition;
-              const formattedTokenId = BigInt(editionId).toString();
-              return <Edition edition={edition} fetchEditions={fetchEditions} index={index} key={formattedTokenId} />;
-            })}
-          </VStack>
-        </Accordion>
-      </ScaleFade>
+      <Collapse
+        transition={{ enter: { delay: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
+        in={editions.length > 0}
+        animateOpacity
+        unmountOnExit
+      >
+        <Flex alignItems="center" mb={6}>
+          <Box color={textColor} fontWeight="semibold" fontSize="sm" textTransform="uppercase" mr={2}>
+            Editions
+          </Box>
+          <Divider borderColor={color} />
+        </Flex>
+        <ScaleFade in>
+          <Accordion defaultIndex={[]} allowMultiple>
+            <VStack spacing={6} mb={8}>
+              {editions.map((edition, index) => {
+                const { editionId } = edition;
+                const formattedTokenId = BigInt(editionId).toString();
+                return <Edition edition={edition} fetchEditions={fetchEditions} index={index} key={formattedTokenId} />;
+              })}
+            </VStack>
+          </Accordion>
+        </ScaleFade>
+      </Collapse>
     </>
   );
 };
