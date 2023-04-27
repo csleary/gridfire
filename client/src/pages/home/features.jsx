@@ -18,9 +18,9 @@ const Features = () => {
           </Box>
         </Feature>
         <Feature title="NFT Editions">
-          Create NFT-backed GridFire Editions.{" "}
+          Create NFT GridFire Editions.{" "}
           <Box as="span" color="gray.400">
-            Mint limited digital runs and one-offs for your releases.
+            Mint limited digital runs and one-offs for your releases, with exclusive downloads.
           </Box>
         </Feature>
         <Feature title="Smarter payments">

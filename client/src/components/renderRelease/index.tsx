@@ -1,4 +1,4 @@
-import { Box, Fade, Flex, IconButton, Image, useDisclosure } from "@chakra-ui/react";
+import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
 import { Release, ReleaseTrack } from "types";
 import { batch, shallowEqual } from "react-redux";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
@@ -91,8 +91,9 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
       }}
       {...rest}
     >
-      <Fade in={isOpen}>
-        <Box display="block" pt="100%" position="relative">
+      <Box display="flex" pt="100%" position="relative">
+        <Skeleton inset={0} isLoaded={isOpen} position="absolute" />
+        <Fade in={isOpen}>
           <Image
             alt={`${artistName} - ${releaseTitle}`}
             fallbackSrc={placeholder}
@@ -103,8 +104,8 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             position="absolute"
             src={artwork.status === "stored" ? `${REACT_APP_CDN_IMG}/${releaseId}` : placeholder}
           />
-        </Box>
-      </Fade>
+        </Fade>
+      </Box>
       <Flex
         background="rgba(0, 0, 0, 0.5)"
         direction="column"
