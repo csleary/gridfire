@@ -1,4 +1,4 @@
-import { getUser, setPaymentAddress } from "gridfire/controllers/userController.js";
+import { getActivity, getUser, setPaymentAddress } from "gridfire/controllers/userController.js";
 import express from "express";
 import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
@@ -14,6 +14,11 @@ router.get("/", async (req, res) => {
   if (!req.user) return res.end();
   const user = await getUser(req.user._id);
   res.send(user);
+});
+
+router.get("/activity", async (req, res) => {
+  const activity = await getActivity(req.user._id);
+  res.json(activity);
 });
 
 router.post("/address", requireLogin, async (req, res) => {

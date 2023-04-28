@@ -6,9 +6,9 @@ const userSchema = new Schema(
   {
     account: { type: String, trim: true },
     email: { type: String, trim: true },
-    key: { type: String, select: false },
     lastLogin: { type: Date },
-    paymentAddress: { type: String, trim: true }
+    paymentAddress: { type: String, trim: true },
+    username: { type: String, trim: true }
   },
   { timestamps: true }
 );

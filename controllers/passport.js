@@ -1,5 +1,4 @@
 import { getAddress, keccak256, toUtf8Bytes, verifyMessage } from "ethers";
-import crypto from "crypto";
 import mongoose from "mongoose";
 import passport from "passport";
 import passportCustom from "passport-custom";
@@ -15,15 +14,6 @@ passport.deserializeUser(async (userId, done) => {
   const user = await User.findById(userId, "-__v").exec();
   done(null, user);
 });
-
-const createKey = userToken =>
-  new Promise((resolve, reject) => {
-    const salt = crypto.randomBytes(32).toString("hex");
-    crypto.scrypt(userToken, salt, 16, { maxmem: 64 * 1024 * 1024 }, (error, derivedKey) => {
-      if (error) return reject(error);
-      resolve(derivedKey.toString("hex"));
-    });
-  });
 
 const loginWeb3 = async (req, done) => {
   try {
@@ -49,9 +39,10 @@ const loginWeb3 = async (req, done) => {
 
     const newUser = await User.create({
       account: getAddress(address),
-      key: await createKey(address),
+      emailAddress: "",
       lastLogin: Date.now(),
-      paymentAddress: getAddress(address)
+      paymentAddress: getAddress(address),
+      username: ""
     });
 
     done(null, newUser);

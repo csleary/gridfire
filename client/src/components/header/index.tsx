@@ -199,6 +199,14 @@ const Header = () => {
               <MenuList>
                 <MenuItem
                   as={NavLink}
+                  to={"/dashboard/activity"}
+                  icon={<Icon icon={faArchive} fixedWidth />}
+                  sx={activeStyle}
+                >
+                  Activity Feed
+                </MenuItem>
+                <MenuItem
+                  as={NavLink}
                   to={"/dashboard/artists"}
                   icon={<Icon icon={faArchive} fixedWidth />}
                   sx={activeStyle}

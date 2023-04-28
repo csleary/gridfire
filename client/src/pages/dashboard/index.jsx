@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Payment from "./payment";
+import Activity from "./activity";
 import Artists from "./artists";
 import Collection from "./collection";
 import Favourites from "./favourites";
@@ -17,6 +18,7 @@ const Dashboard = () => (
       />
     </Helmet>
     <Routes>
+      <Route path="/activity" element={<Activity />} />
       <Route path="/artists" element={<Artists />} />
       <Route path="/collection" element={<Collection />} />
       <Route path="/favourites" element={<Favourites />} />

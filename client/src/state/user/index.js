@@ -6,7 +6,8 @@ import axios from "axios";
 const initialState = {
   account: "",
   accountShort: "",
-  email: "",
+  activity: [],
+  emailAddress: "",
   favourites: [],
   isLoading: true,
   lastLogin: null,
@@ -32,6 +33,9 @@ const userSlice = createSlice({
     removeUserWishListItem(state, action) {
       state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
     },
+    setActivity(state, action) {
+      state.activity = action.payload;
+    },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
@@ -42,10 +46,10 @@ const userSlice = createSlice({
       state.favourites = action.payload;
     },
     updateUser(state, action) {
-      const { _id, account, email, favourites, lastLogin, paymentAddress, purchases, wishList } = action.payload;
+      const { _id, account, emailAddress, favourites, lastLogin, paymentAddress, purchases, wishList } = action.payload;
       state.account = account;
       state.accountShort = `${account.slice(0, 6)}…${account.slice(-4)}`;
-      state.email = email;
+      state.emailAddress = emailAddress;
       state.lastLogin = lastLogin;
       state.favourites = favourites;
       state.paymentAddress = paymentAddress;
@@ -101,6 +105,15 @@ const addPaymentAddress = values => async dispatch => {
   }
 };
 
+const fetchActivity = () => async dispatch => {
+  try {
+    const res = await axios.get(`/api/user/activity`);
+    dispatch(setActivity(res.data));
+  } catch (error) {
+    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
+  }
+};
+
 const fetchUser = () => async dispatch => {
   try {
     dispatch(setIsLoading(true));
@@ -133,6 +146,7 @@ export const {
   addUserWishListItem,
   removeUserFavouritesItem,
   removeUserWishListItem,
+  setActivity,
   setIsLoading,
   setPaymentAddress,
   updateFavourites,
@@ -143,6 +157,7 @@ export {
   addPaymentAddress,
   addToFavourites,
   addToWishList,
+  fetchActivity,
   fetchUser,
   initialState as userInitialState,
   logOut,

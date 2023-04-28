@@ -83,7 +83,7 @@ const onPurchase = async (
       ({ price } = track);
       type = "single";
     } else {
-      release = await Release.findById(releaseId, "artistName price releaseTitle", { lean: true })
+      release = await Release.findById(releaseId, "artist artistName price releaseTitle", { lean: true })
         .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
         .exec();
 
@@ -112,9 +112,7 @@ const onPurchase = async (
     const bigIntValuesAsString = Object.entries(bigIntValues).reduce(bigIntToString, {});
 
     if (status === 1) {
-      Activity.sale(release.artist.toString(), releaseId, userId);
-
-      await Sale.create({
+      const sale = await Sale.create({
         purchaseDate: Date.now(),
         release: releaseId,
         paid: amountPaid.toString(),
@@ -125,8 +123,15 @@ const onPurchase = async (
         user: userId,
         userAddress: buyer
       }).catch(error => {
-        if (error.code === 11000) return;
+        if (error.code === 11000) throw new Error("This sale has already been recorded.");
         console.error(error);
+      });
+
+      Activity.sale({
+        artist: release.artist.toString(),
+        release: releaseId,
+        sale: sale._id.toString(),
+        user: userId
       });
 
       // Notify user of successful purchase.
@@ -173,16 +178,41 @@ const onPurchaseEdition = async (
       `[${date}] User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), release ${releaseId}, artist address: ${artistAddress}.`
     );
 
-    const release = await Release.findById(releaseId, "artistName releaseTitle", { lean: true })
+    const release = await Release.findById(releaseId, "artist artistName releaseTitle", { lean: true })
       .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
 
     const { artistName, releaseTitle, user: artistUser } = release;
     const transactionReceipt = await event.getTransactionReceipt();
-    const { status } = transactionReceipt;
+    const { gasUsed, cumulativeGasUsed, gasPrice, ...restTxReceipt } = transactionReceipt;
+    const { from: buyer, status } = restTxReceipt;
+    const bigIntValues = { gasUsed, cumulativeGasUsed, gasPrice };
+    const bigIntToString = (prev, [key, value]) => ({ ...prev, [key]: value.toString() });
+    const bigIntValuesAsString = Object.entries(bigIntValues).reduce(bigIntToString, {});
 
     if (status === 1) {
-      Activity.sale(release.artist.toString(), releaseId, userId);
+      const sale = await Sale.create({
+        purchaseDate: Date.now(),
+        release: releaseId,
+        paid: amountPaid.toString(),
+        fee: platformFee.toString(),
+        netAmount: artistShare.toString(),
+        transaction: { ...restTxReceipt, ...bigIntValuesAsString },
+        type: "album",
+        user: userId,
+        userAddress: buyer
+      }).catch(error => {
+        if (error.code === 11000) throw new Error("This sale has already been recorded.");
+        console.error(error);
+      });
+
+      Activity.sale({
+        artist: release.artist.toString(),
+        editionId: id,
+        release: releaseId,
+        sale: sale._id.toString(),
+        user: userId
+      });
 
       // Notify user of successful purchase.
       publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEditionEvent", userId });

@@ -56,7 +56,6 @@ services:
       - 5001:5001
     volumes:
       - ipfs-data:/data/ipfs
-      - ipfs-staging:/export
     networks:
       internal:
         aliases:
@@ -67,4 +66,3 @@ networks:
 volumes:
   db-data:
   ipfs-data:
-  ipfs-staging:

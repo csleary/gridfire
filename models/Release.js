@@ -64,25 +64,5 @@ releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-releaseSchema.set("toJSON", {
-  transform: function (doc, ret) {
-    delete ret.createdAt;
-    delete ret.updatedAt;
-    delete ret.artwork?.dateCreated;
-    delete ret.artwork?.dateUpdated;
-
-    ret.trackList.forEach(track => {
-      delete track.createdAt;
-      delete track.flac;
-      delete track.mp3;
-      delete track.src;
-      delete track.updatedAt;
-    });
-
-    return ret;
-  },
-  versionKey: false
-});
-
 const Release = mongoose.model("Release", releaseSchema, "releases");
 export default Release;
