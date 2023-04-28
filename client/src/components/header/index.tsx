@@ -24,6 +24,7 @@ import {
   faHeadphonesAlt,
   faHeart,
   faMagic,
+  faRectangleList,
   faSignInAlt,
   faSignOutAlt,
   faUserCircle
@@ -199,19 +200,11 @@ const Header = () => {
               <MenuList>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/activity"}
-                  icon={<Icon icon={faArchive} fixedWidth />}
+                  to={"/dashboard/payment"}
+                  icon={<Icon icon={faEthereum} fixedWidth />}
                   sx={activeStyle}
                 >
-                  Activity Feed
-                </MenuItem>
-                <MenuItem
-                  as={NavLink}
-                  to={"/dashboard/artists"}
-                  icon={<Icon icon={faArchive} fixedWidth />}
-                  sx={activeStyle}
-                >
-                  Artists
+                  Payment
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
@@ -224,11 +217,19 @@ const Header = () => {
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/payment"}
-                  icon={<Icon icon={faEthereum} fixedWidth />}
+                  to={"/dashboard/artists"}
+                  icon={<Icon icon={faArchive} fixedWidth />}
                   sx={activeStyle}
                 >
-                  Payment
+                  Artists
+                </MenuItem>
+                <MenuItem
+                  as={NavLink}
+                  to={"/dashboard/activity"}
+                  icon={<Icon icon={faRectangleList} fixedWidth />}
+                  sx={activeStyle}
+                >
+                  Activity Log
                 </MenuItem>
                 <MenuItem
                   as={NavLink}

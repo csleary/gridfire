@@ -1,7 +1,7 @@
 import { Container, Heading, Text } from "@chakra-ui/react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "hooks";
-import { fetchActivity } from "state/user";
+import { fetchActivity } from "state/artists";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 import Icon from "components/icon";
@@ -22,7 +22,7 @@ interface ActivityProperties {
 
 const Activity = () => {
   const dispatch = useDispatch();
-  const { activity } = useSelector(state => state.user, shallowEqual);
+  const { activity } = useSelector(state => state.artists, shallowEqual);
 
   useEffect(() => {
     dispatch(fetchActivity());
@@ -31,10 +31,10 @@ const Activity = () => {
   return (
     <>
       <Helmet>
-        <title>Activity</title>
+        <title>Activity Log</title>
       </Helmet>
       <Container as="main" p={0} maxWidth="container.xl">
-        <Heading as="h2">Activity</Heading>
+        <Heading as="h2">Activity Log</Heading>
         {activity.map(
           ({
             _id: itemId,

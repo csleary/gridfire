@@ -7,6 +7,7 @@ const artistSlice = createSlice({
   name: "artists",
   initialState: {
     activeArtistId: "",
+    activity: [],
     artists: [],
     errors: {},
     isLoading: false,
@@ -25,6 +26,9 @@ const artistSlice = createSlice({
     },
     setActiveArtistId(state, action) {
       state.activeArtistId = action.payload;
+    },
+    setActivity(state, action) {
+      state.activity = action.payload;
     },
     setArtist(state, action) {
       state.artists = state.artists.map(artist => {
@@ -93,6 +97,15 @@ const addLink = activeArtistId => async dispatch => {
   }
 };
 
+const fetchActivity = () => async dispatch => {
+  try {
+    const res = await axios.get(`/api/artist/activity`);
+    dispatch(setActivity(res.data));
+  } catch (error) {
+    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
+  }
+};
+
 const fetchArtists = () => async dispatch => {
   try {
     dispatch(setIsLoading(true));
@@ -132,6 +145,7 @@ const updateArtist = values => async dispatch => {
 export const {
   removeLink,
   setActiveArtistId,
+  setActivity,
   setArtist,
   setArtists,
   setErrors,
@@ -142,6 +156,6 @@ export const {
   setIsLoading
 } = artistSlice.actions;
 
-export { addLink, fetchArtists, updateArtist };
+export { addLink, fetchActivity, fetchArtists, updateArtist };
 
 export default artistSlice.reducer;

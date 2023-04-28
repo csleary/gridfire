@@ -1,4 +1,5 @@
 import express from "express";
+import { getActivity } from "gridfire/controllers/artistController.js";
 import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 import slugify from "slugify";
@@ -74,6 +75,11 @@ router.get("/:slug/id", requireLogin, async (req, res) => {
     console.error(error);
     res.sendStatus(400);
   }
+});
+
+router.get("/activity", async (req, res) => {
+  const activity = await getActivity(req.user._id);
+  res.json(activity);
 });
 
 router.get("/:artistId/following", requireLogin, async (req, res) => {

@@ -6,7 +6,6 @@ import axios from "axios";
 const initialState = {
   account: "",
   accountShort: "",
-  activity: [],
   emailAddress: "",
   favourites: [],
   isLoading: true,
@@ -32,9 +31,6 @@ const userSlice = createSlice({
     },
     removeUserWishListItem(state, action) {
       state.wishList = state.wishList.filter(({ release }) => release !== action.payload);
-    },
-    setActivity(state, action) {
-      state.activity = action.payload;
     },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
@@ -105,15 +101,6 @@ const addPaymentAddress = values => async dispatch => {
   }
 };
 
-const fetchActivity = () => async dispatch => {
-  try {
-    const res = await axios.get(`/api/user/activity`);
-    dispatch(setActivity(res.data));
-  } catch (error) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
-  }
-};
-
 const fetchUser = () => async dispatch => {
   try {
     dispatch(setIsLoading(true));
@@ -146,7 +133,6 @@ export const {
   addUserWishListItem,
   removeUserFavouritesItem,
   removeUserWishListItem,
-  setActivity,
   setIsLoading,
   setPaymentAddress,
   updateFavourites,
@@ -157,7 +143,6 @@ export {
   addPaymentAddress,
   addToFavourites,
   addToWishList,
-  fetchActivity,
   fetchUser,
   initialState as userInitialState,
   logOut,

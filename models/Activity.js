@@ -7,7 +7,7 @@ const activitySchema = new Schema(
   {
     user: { type: ObjectId, ref: "User", required: true },
     type: { type: String, enum: ["favourite", "follow", "mint", "publish", "sale"], required: true },
-    artist: { type: ObjectId, ref: "Artist" },
+    artist: { type: ObjectId, ref: "Artist", required: true },
     release: { type: ObjectId, ref: "Release" },
     editionId: { type: String },
     sale: { type: ObjectId, ref: "Sale" }
@@ -35,6 +35,22 @@ activitySchema.static("publish", function (artist, release) {
   return this.findOneAndUpdate(
     { artist, release },
     { $setOnInsert: { artist, release, type: "publish" } },
+    { upsert: true }
+  ).exec();
+});
+
+activitySchema.static("mint", function (artist, edition) {
+  return this.findOneAndUpdate(
+    { artist, edition },
+    { $setOnInsert: { artist, edition, type: "mint" } },
+    { upsert: true }
+  ).exec();
+});
+
+activitySchema.static("sale", function ({ artist, editionId, release, sale, user }) {
+  return this.findOneAndUpdate(
+    { ...(editionId ? { editionId } : {}), artist, release, sale, user },
+    { $setOnInsert: { ...(editionId ? { editionId } : {}), artist, release, type: "sale", sale, user } },
     { upsert: true }
   ).exec();
 });
