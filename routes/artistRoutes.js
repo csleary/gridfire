@@ -82,9 +82,9 @@ router.get("/activity", async (req, res) => {
   res.json(activity);
 });
 
-router.get("/:artistId/following", requireLogin, async (req, res) => {
+router.get("/:artistId/followers", async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id;
     const { artistId } = req.params;
 
     const [numFollowers, isFollowing] = await Promise.all([

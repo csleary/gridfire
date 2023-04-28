@@ -2,7 +2,7 @@ import { Box, Divider, Heading, Link, Text, VStack, Wrap, WrapItem, useColorMode
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Card from "components/card";
-import Follow from "./follow";
+import Follow from "components/follow";
 import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";

@@ -2,13 +2,18 @@ import { Button, Center, Flex, useColorModeValue } from "@chakra-ui/react";
 import Icon from "components/icon";
 import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useEffect, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { shallowEqual } from "react-redux";
+import { useSelector } from "hooks";
 
 const Follow = () => {
   const accentColor = useColorModeValue("yellow.500", "purple.300");
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const location = useLocation();
+  const navigate = useNavigate();
   const { artistId: artistIdParam, artistSlug } = useParams();
+  const { account } = useSelector(state => state.user, shallowEqual);
   const [followerCount, setFollowerCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -25,7 +30,7 @@ const Follow = () => {
       setIsLoading(true);
       let artistId = artistIdParam;
       if (!artistId) artistId = await fetchArtistId();
-      const res = await axios.get(`/api/artist/${artistId}/following`);
+      const res = await axios.get(`/api/artist/${artistId}/followers`);
       const { isFollowing, numFollowers } = res.data;
       setIsFollowing(isFollowing);
       setFollowerCount(numFollowers);
@@ -42,6 +47,7 @@ const Follow = () => {
 
   const handleClick = async () => {
     try {
+      if (!account) return navigate("/login", { state: { pathname: location.pathname } });
       setIsLoading(true);
       let artistId = artistIdParam;
       if (!artistId) artistId = await fetchArtistId();
