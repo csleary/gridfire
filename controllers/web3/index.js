@@ -108,51 +108,40 @@ const getUserGridFireEditions = async userId => {
   // Get all editions sent to user (may not still be in possession, so check balances).
   const editionsTransferFilter = gridFireEditionsContract.filters.TransferSingle(null, null, userAccount);
   const transfers = await gridFireEditionsContract.queryFilter(editionsTransferFilter);
-  if (!transfers.length) return []; // User account has never received anything.
+  if (!transfers.length) return []; // User account has never received anything, so we can return early.
   const transferEditionIds = transfers.map(({ args }) => args.id);
   const accounts = Array(transferEditionIds.length).fill(userAccount);
   const balances = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
-  const inPossession = transfers.filter((_, index) => balances[index] !== 0n);
+  const transferEditions = transfers.map((transfer, index) => ({ ...transfer, balance: balances[index] }));
+  const inPossession = transferEditions.filter(({ balance }) => balance !== 0n);
   const inPossessionIds = inPossession.map(({ args }) => args.id.toString());
 
   // From these IDs, fetch minted Editions that we have recorded off-chain, for release info.
-  const mintedEditions = await Edition.find({ editionId: { $in: inPossessionIds }, status: "minted" }, "-cid", {
-    lean: true
-  })
-    .populate({
-      path: "release",
-      model: Release,
-      options: { lean: true },
-      populate: { path: "user", model: User, options: { lean: true }, select: "account" },
-      select: "artistName artwork releaseTitle trackList._id trackList.trackTitle user"
-    })
-    .exec();
+  const filter = { editionId: { $in: inPossessionIds }, status: "minted" };
+  const populate = { path: "user", model: User, options: { lean: true }, select: "account" };
+  const select = "artistName artwork releaseTitle trackList._id trackList.trackTitle user";
+  const popQuery = { path: "release", model: Release, options: { lean: true }, populate, select };
+  const mintedEditions = await Edition.find(filter, "-cid", { lean: true }).populate(popQuery).exec();
 
   // All editions purchased by user (to get amount paid).
   const editions = await Promise.all(
-    mintedEditions.map(async edition => {
-      const { editionId, release } = edition;
-      const { account } = release.user;
-      const artistAccount = getAddress(account);
-      const idString = editionId.toString();
+    inPossession.map(async ({ args, balance, transactionHash }) => {
+      const edition = mintedEditions.find(({ editionId }) => editionId.toString() === args.id.toString());
+      const artistAccount = getAddress(edition.release.user.account);
 
-      // Get purchase information for Editions that were purchased
+      // Get purchase information for Editions that were purchased directly rather than transferred from a third party.
       const editionsPurchaseFilter = gridFireEditionsContract.filters.PurchaseEdition(userAccount, artistAccount);
-      const transfersIndex = transferEditionIds.findIndex(_id => _id.toString() === idString);
-      const balance = balances[transfersIndex].toString();
       const purchases = await gridFireEditionsContract.queryFilter(editionsPurchaseFilter);
-      const { args, transactionHash } = purchases.find(({ args }) => args.editionId.toString() === idString) || {};
-      const { amountPaid } = args;
-      const paid = amountPaid.toString();
+      const purchase = purchases.find(p => p.transactionHash === transactionHash) || {};
+      const { amountPaid } = purchase.args || {};
+      const paid = amountPaid?.toString();
 
       return {
         ...edition,
         _id: transactionHash,
-        balance,
-        ...(transactionHash ? { paid } : {}),
-        ...(transactionHash
-          ? { transaction: { transactionHash } }
-          : { transaction: { transactionHash: transfers[transfersIndex].transactionHash } })
+        balance: balance.toString(),
+        ...(paid != null ? { paid } : {}),
+        transaction: { transactionHash }
       };
     })
   );

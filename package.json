@@ -14,6 +14,8 @@
     "client": "yarn --cwd ./client/ start",
     "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"yarn --cwd ./web3-events/ run dev\" \"yarn run hardhat:node\"",
     "dev-testnet": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
+    "docker:push": "docker push csleary/gridfire-api && docker push csleary/gridfire-client && docker push csleary/gridfire-worker && docker push csleary/gridfire-web3-events",
+    "docker:build": "yarn run docker:build:api && yarn run docker:build:client && yarn run docker:build:worker && yarn run docker:build:web3-events",
     "docker:build:api": "docker build -t csleary/gridfire-api .",
     "docker:build:client": "docker build -f ./client/Dockerfile -t csleary/gridfire-client client/",
     "docker:build:worker": "docker build -f ./worker/Dockerfile -t csleary/gridfire-worker worker/",

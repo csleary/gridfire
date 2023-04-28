@@ -198,7 +198,7 @@ const onPurchaseEdition = async (
         fee: platformFee.toString(),
         netAmount: artistShare.toString(),
         transaction: { ...restTxReceipt, ...bigIntValuesAsString },
-        type: "album",
+        type: "edition",
         user: userId,
         userAddress: buyer
       }).catch(error => {

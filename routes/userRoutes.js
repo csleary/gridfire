@@ -36,7 +36,7 @@ router.post("/address", requireLogin, async (req, res) => {
 router.get("/collection", requireLogin, async (req, res) => {
   const [albums, singles] = await Promise.all([
     // Get full-releases.
-    Sale.find({ type: { $ne: "single" }, user: req.user._id }, "paid purchaseDate transaction.transactionHash type", {
+    Sale.find({ type: "album", user: req.user._id }, "paid purchaseDate transaction.transactionHash type", {
       lean: true,
       sort: "-purchaseDate"
     })
