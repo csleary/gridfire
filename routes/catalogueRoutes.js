@@ -75,7 +75,7 @@ router.get("/:artistIdOrSlug", async (req, res) => {
     const { isValidObjectId, Types } = mongoose;
     const { ObjectId } = Types;
 
-    const [catalogue] = await Artist.aggregate([
+    const [artistWorks] = await Artist.aggregate([
       { $match: isValidObjectId(artistIdOrSlug) ? { _id: ObjectId(artistIdOrSlug) } : { slug: artistIdOrSlug } },
       {
         $lookup: {
@@ -103,7 +103,7 @@ router.get("/:artistIdOrSlug", async (req, res) => {
       }
     ]).exec();
 
-    res.send(catalogue);
+    res.send(artistWorks);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);

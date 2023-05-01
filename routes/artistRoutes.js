@@ -1,19 +1,47 @@
+import {
+  addLink,
+  findIdBySlug,
+  followArtist,
+  getActivity,
+  getFollowers,
+  getUserArtists,
+  unfollowArtist,
+  updateArtist
+} from "gridfire/controllers/artistController.js";
 import express from "express";
-import { getActivity } from "gridfire/controllers/artistController.js";
-import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
-import slugify from "slugify";
 
-const Activity = mongoose.model("Activity");
-const Artist = mongoose.model("Artist");
-const Follower = mongoose.model("Follower");
-const Release = mongoose.model("Release");
 const router = express.Router();
 
-router.get("/", requireLogin, async (req, res) => {
+router.get("/:artistId/followers", async (req, res) => {
   try {
-    const userId = req.user._id;
-    const artists = await Artist.find({ user: userId }, "-__v", { lean: true }).exec();
+    const { artistId } = req.params;
+    const { _id: userId } = req.user || {};
+    const { numFollowers, isFollowing } = await getFollowers(artistId, userId);
+    res.json({ numFollowers, isFollowing });
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/:slug/id", async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const artist = await findIdBySlug(slug);
+    res.json(artist);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.use(requireLogin);
+
+router.get("/", async (req, res) => {
+  try {
+    const { _id: userId } = req.user;
+    const artists = await getUserArtists(userId);
     res.send(artists);
   } catch (error) {
     console.error(error);
@@ -21,24 +49,12 @@ router.get("/", requireLogin, async (req, res) => {
   }
 });
 
-router.post("/:artistId", requireLogin, async (req, res) => {
+router.post("/:artistId", async (req, res) => {
   try {
-    const userId = req.user._id;
     const { name, slug, biography, links } = req.body;
-
-    // If slug string length is zero, set it to null to satisfy the unique index.
-    const artist = await Artist.findOneAndUpdate(
-      { _id: req.params.artistId, user: userId },
-      {
-        name,
-        slug: slug && slug.length === 0 ? null : slugify(slug, { lower: true, strict: true }),
-        biography,
-        links: links.slice(0, 10)
-      },
-      { fields: { __v: 0 }, lean: true, new: true }
-    ).exec();
-
-    await Release.updateMany({ artist: req.params.artistId, user: userId }, { artistName: name }).exec();
+    const { artistId } = req.params;
+    const { _id: userId } = req.user;
+    const artist = await updateArtist({ artistId, name, slug, biography, links, userId });
     res.send(artist);
   } catch (error) {
     if (error.codeName === "DuplicateKey") {
@@ -54,11 +70,35 @@ router.post("/:artistId", requireLogin, async (req, res) => {
   }
 });
 
-router.patch("/:artistId/link", requireLogin, async (req, res) => {
+router.post("/:artistId/follow", async (req, res) => {
   try {
-    const userId = req.user._id;
-    const artist = await Artist.findOne({ _id: req.params.artistId, user: userId }, "links").exec();
-    const newLink = artist.links.create();
+    const { _id: userId } = req.user;
+    const { artistId } = req.params;
+    await followArtist(artistId, userId);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.delete("/:artistId/follow", async (req, res) => {
+  try {
+    const { _id: userId } = req.user;
+    const { artistId } = req.params;
+    await unfollowArtist(artistId, userId);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.patch("/:artistId/link", async (req, res) => {
+  try {
+    const { _id: userId } = req.user;
+    const { artistId } = req.params;
+    const newLink = await addLink(artistId, userId);
     res.send(newLink);
   } catch (error) {
     console.error(error);
@@ -66,68 +106,10 @@ router.patch("/:artistId/link", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/:slug/id", requireLogin, async (req, res) => {
-  try {
-    const { slug } = req.params;
-    const artist = await Artist.exists({ slug }).exec();
-    res.json(artist);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
-  }
-});
-
 router.get("/activity", async (req, res) => {
-  const activity = await getActivity(req.user._id);
+  const { _id: userId } = req.user;
+  const activity = await getActivity(userId);
   res.json(activity);
-});
-
-router.get("/:artistId/followers", async (req, res) => {
-  try {
-    const userId = req.user?._id;
-    const { artistId } = req.params;
-
-    const [numFollowers, isFollowing] = await Promise.all([
-      Follower.countDocuments({ following: artistId }).exec(),
-      Follower.exists({ follower: userId, following: artistId }).exec()
-    ]);
-
-    res.json({ numFollowers, isFollowing: Boolean(isFollowing) });
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
-  }
-});
-
-router.post("/:artistId/follow", requireLogin, async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { artistId } = req.params;
-
-    await Follower.findOneAndUpdate(
-      { follower: userId, following: artistId },
-      { $setOnInsert: { follower: userId, following: artistId } },
-      { upsert: true }
-    ).exec();
-
-    Activity.follow(artistId, userId);
-    res.sendStatus(200);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
-  }
-});
-
-router.delete("/:artistId/follow", requireLogin, async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { artistId } = req.params;
-    await Follower.findOneAndDelete({ follower: userId, following: artistId }).exec();
-    res.sendStatus(200);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
-  }
 });
 
 export default router;

@@ -3,7 +3,15 @@ import slugify from "slugify";
 
 const Activity = mongoose.model("Activity");
 const Artist = mongoose.model("Artist");
+const Follower = mongoose.model("Follower");
+const Release = mongoose.model("Release");
 const { ObjectId } = mongoose.Types;
+
+const addLink = async (_id, user) => {
+  const artist = await Artist.findOne({ _id, user }, "links").exec();
+  const newLink = artist.links.create();
+  return newLink;
+};
 
 const createArtist = async (artistName, userId, suffix = "") =>
   Artist.create(
@@ -30,6 +38,21 @@ const createArtist = async (artistName, userId, suffix = "") =>
 
     throw error;
   });
+
+const findIdBySlug = async slug => {
+  const artist = await Artist.exists({ slug }).exec();
+  return artist;
+};
+
+const followArtist = async (artistId, userId) => {
+  await Follower.findOneAndUpdate(
+    { follower: userId, following: artistId },
+    { $setOnInsert: { follower: userId, following: artistId } },
+    { upsert: true }
+  ).exec();
+
+  Activity.follow(artistId, userId);
+};
 
 const getActivity = async userId => {
   const artists = await Artist.find({ user: userId }, "_id", { lean: true }).exec();
@@ -81,4 +104,50 @@ const getActivity = async userId => {
   return activity;
 };
 
-export { createArtist, getActivity };
+const getFollowers = async (following, follower) => {
+  const [numFollowers, isFollowing] = await Promise.all([
+    Follower.countDocuments({ following }).exec(),
+    ...(follower ? [Follower.exists({ follower, following }).exec()] : [])
+  ]);
+
+  return { numFollowers, isFollowing: Boolean(isFollowing) };
+};
+
+const getUserArtists = async userId => {
+  const artists = await Artist.find({ user: userId }, "-__v", { lean: true }).exec();
+  return artists;
+};
+
+const unfollowArtist = async (following, follower) => {
+  await Follower.findOneAndDelete({ follower, following }).exec();
+};
+
+const updateArtist = async ({ artistId, name, slug, biography, links, userId }) => {
+  // If slug string length is zero, set it to null to satisfy the unique index.
+  const artist = await Artist.findOneAndUpdate(
+    { _id: artistId, user: userId },
+    {
+      name,
+      slug: slug && slug.length === 0 ? null : slugify(slug, { lower: true, strict: true }),
+      biography,
+      links: links.slice(0, 10)
+    },
+    { fields: { __v: 0 }, lean: true, new: true }
+  ).exec();
+
+  // Update existing releases with the new artist name.
+  await Release.updateMany({ artist: artistId, user: userId }, { artistName: name }).exec();
+  return artist;
+};
+
+export {
+  addLink,
+  createArtist,
+  findIdBySlug,
+  followArtist,
+  getActivity,
+  getFollowers,
+  getUserArtists,
+  unfollowArtist,
+  updateArtist
+};

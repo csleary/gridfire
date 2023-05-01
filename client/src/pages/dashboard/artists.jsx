@@ -159,7 +159,12 @@ const Artists = () => {
             <Box as="label" htmlFor="biography" color="gray.500" display="block" fontSize="xl" fontWeight={500} mb={4}>
               Biography
             </Box>
-            <TextAreaWithCharLimit limit={2000} onChange={handleChange} value={activeArtist.biography || ""} />
+            <TextAreaWithCharLimit
+              limit={2000}
+              onChange={handleChange}
+              minHeight={64}
+              value={activeArtist.biography || ""}
+            />
             {errors.biography ? (
               <Alert status="warning" mt={2}>
                 <AlertIcon />

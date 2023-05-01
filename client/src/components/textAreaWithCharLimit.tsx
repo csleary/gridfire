@@ -4,15 +4,16 @@ import { ChangeEventHandler } from "react";
 interface Props {
   limit?: number;
   onChange: ChangeEventHandler;
+  size: string;
   value: string;
 }
 
-const TextAreaWithCharLimit = ({ limit = 2000, onChange, value = "" }: Props) => {
+const TextAreaWithCharLimit = ({ limit = 2000, onChange, size, value = "", ...rest }: Props) => {
   const charsRemaining = limit - value.length;
 
   return (
     <FormControl>
-      <Textarea id="biography" name="biography" onChange={onChange} value={value} />
+      <Textarea id="biography" name="biography" onChange={onChange} resize="vertical" value={value} {...rest} />
       <FormHelperText
         color={charsRemaining === 0 ? "red.500" : charsRemaining < 100 ? "orange.500" : undefined}
         fontWeight={charsRemaining === 0 ? 500 : undefined}

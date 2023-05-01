@@ -20,6 +20,7 @@ const Follow = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchArtistId = useCallback(async () => {
+    if (!artistSlug) return;
     const res = await axios.get(`/api/artist/${artistSlug}/id`);
     const { _id } = res.data;
     return _id;
@@ -28,8 +29,8 @@ const Follow = () => {
   const fetchIsFollowing = useCallback(async () => {
     try {
       setIsLoading(true);
-      let artistId = artistIdParam;
-      if (!artistId) artistId = await fetchArtistId();
+      const artistId = artistIdParam || (await fetchArtistId());
+      if (!artistId) return;
       const res = await axios.get(`/api/artist/${artistId}/followers`);
       const { isFollowing, numFollowers } = res.data;
       setIsFollowing(isFollowing);
