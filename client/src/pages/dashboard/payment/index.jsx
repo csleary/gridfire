@@ -28,18 +28,18 @@ const Payment = () => {
         isFitted
         variant="solid-rounded"
       >
-        <TabList mb={16}>
+        <TabList mb={16} flexDirection={["column", "row"]}>
           <Tab as={Link} to={`${stem}/balance`} alignItems="center">
             <Icon icon={faCoins} mr={2} />
-            Account Balance
+            Balance
           </Tab>
           <Tab as={Link} to={`${stem}/address`} alignItems="center">
             <Icon icon={faEthereum} mr={2} />
-            Payment Address
+            Address
           </Tab>
           <Tab as={Link} to={`${stem}/approvals`} alignItems="center">
             <Icon icon={faCheckCircle} mr={2} />
-            DAI Approvals
+            DAI
           </Tab>
         </TabList>
         <TabPanels>

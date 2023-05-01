@@ -47,7 +47,7 @@ interface Release {
   trackList: Array<{}>;
 }
 
-const SearchBar = () => {
+const SearchBar = ({ ...rest }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const metaColour = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
@@ -100,8 +100,8 @@ const SearchBar = () => {
 
   return (
     <>
-      <Button leftIcon={<Icon icon={faSearch} maxW="32rem" />} onClick={onOpen}>
-        <Text>Search</Text>
+      <Button leftIcon={<Icon icon={faSearch} maxW="32rem" />} onClick={onOpen} {...rest}>
+        Search
       </Button>
       <Modal isOpen={isOpen} onClose={handleClose} size="xl">
         <ModalOverlay />

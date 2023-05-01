@@ -84,8 +84,14 @@ const BasketButton = () => {
 
   return (
     <>
-      <Button leftIcon={<Icon icon={faShoppingBasket} />} onClick={() => setShowModal(true)}>
-        Basket
+      <Button
+        aria-label="Show the contents of your basket."
+        leftIcon={<Icon icon={faShoppingBasket} />}
+        iconSpacing={0}
+        onClick={() => setShowModal(true)}
+        padding-inline-start={2}
+        padding-inline-end={2}
+      >
         {basket.length ? (
           <AvatarGroup size="xs" max={5} ml={2}>
             {basket.map(({ imageUrl, releaseId, title }) => (

@@ -50,7 +50,12 @@ function UserReleases() {
         You have {userReleases.length} release
         {userReleases.length > 1 ? "s" : ""} {offlineCount ? ` (${offlineCount} offline)` : null}
       </Heading>
-      <Grid as="ul" templateColumns={"repeat(auto-fill, minmax(28rem, 1fr))"} gap={8} mb={8}>
+      <Grid
+        as="ul"
+        templateColumns={["repeat(auto-fill, minmax(16rem, 1fr))", "repeat(auto-fill, minmax(28rem, 1fr))"]}
+        gap={8}
+        mb={8}
+      >
         {userReleases.map(release => (
           <UserRelease key={release._id} release={release} />
         ))}
