@@ -1,6 +1,6 @@
 import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { addToFavourites, removeFromFavourites } from "state/user";
-import { faChevronDown, faCog, faHeart, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faCompactDisc, faHeart, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
 import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "hooks";
@@ -29,6 +29,7 @@ const Player = () => {
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isReady, setIsReady] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
   const { artistName, isPlaying, releaseId, showPlayer, trackId, trackTitle } = player;
@@ -38,7 +39,8 @@ const Player = () => {
   const { isBonus = false } = trackList.find(({ _id }) => _id === trackId) || {};
   const isInFaves = favourites.some(({ release }) => release === releaseId);
 
-  const onBuffering = () => {
+  const onBuffering = ({ buffering }) => {
+    setIsBuffering(buffering);
     const { audio } = shakaRef.current.getBufferedInfo();
     setBufferRanges(audio);
   };
@@ -81,6 +83,7 @@ const Player = () => {
   const handleStop = useCallback(() => {
     audioPlayerRef.current.pause();
     audioPlayerRef.current.currentTime = 0;
+    navigator.mediaSession.playbackState = "paused";
     dispatch(playerStop());
   }, [dispatch]);
 
@@ -88,6 +91,7 @@ const Player = () => {
     error => {
       console.error(error);
       setIsReady(false);
+      navigator.mediaSession.playbackState = "none";
       dispatch(playerStop());
     },
     [dispatch]
@@ -103,7 +107,6 @@ const Player = () => {
       }
 
       handleStop();
-      setIsReady(true);
     },
     [artistName, dispatch, handleStop, releaseId, releaseTitle, trackIndex, trackList]
   );
@@ -115,8 +118,11 @@ const Player = () => {
 
   const onPlaying = () => {
     playLoggerRef.current.setStartTime();
-    setIsReady(true);
   };
+
+  const onCanPlay = useCallback(e => {
+    setIsReady(true);
+  }, []);
 
   const onPlay = useCallback(() => {
     dispatch(playerPlay());
@@ -124,33 +130,43 @@ const Player = () => {
   }, [dispatch]);
 
   const onPause = useCallback(() => {
-    dispatch(playerPause());
-    navigator.mediaSession.playbackState = "paused";
     playLoggerRef.current.updatePlayTime();
+    navigator.mediaSession.playbackState = "paused";
+    dispatch(playerPause());
   }, [dispatch]);
 
   const onWaiting = () => setIsReady(false);
 
+  const onStalled = useCallback(() => {
+    setIsReady(false);
+    navigator.mediaSession.playbackState = "paused";
+    dispatch(playerStop());
+  }, [dispatch]);
+
   useEffect(() => {
+    audioPlayerRef.current.addEventListener("canplay", onCanPlay);
     audioPlayerRef.current.addEventListener("playing", onPlaying);
     audioPlayerRef.current.addEventListener("play", onPlay);
     audioPlayerRef.current.addEventListener("pause", onPause);
     audioPlayerRef.current.addEventListener("waiting", onWaiting);
+    audioPlayerRef.current.addEventListener("stalled", onStalled);
     audioPlayerRef.current.addEventListener("timeupdate", onTimeUpdate);
     audioPlayerRef.current.addEventListener("ended", onEnded);
     audioPlayerRef.current.addEventListener("onerror", onError);
 
     return () => {
       if (!audioPlayerRef.current) return;
+      audioPlayerRef.current.removeEventListener("canplay", onCanPlay);
       audioPlayerRef.current.removeEventListener("playing", onPlaying);
       audioPlayerRef.current.removeEventListener("play", onPlay);
       audioPlayerRef.current.removeEventListener("pause", onPause);
       audioPlayerRef.current.removeEventListener("waiting", onWaiting);
+      audioPlayerRef.current.removeEventListener("stalled", onStalled);
       audioPlayerRef.current.removeEventListener("timeupdate", onTimeUpdate);
       audioPlayerRef.current.removeEventListener("ended", onEnded);
       audioPlayerRef.current.removeEventListener("onerror", onError);
     };
-  }, [onEnded, onError, onPause, onPlay, onTimeUpdate]);
+  }, [onCanPlay, onEnded, onError, onPause, onPlay, onStalled, onTimeUpdate]);
 
   const handlePlay = useCallback(() => {
     const playPromise = audioPlayerRef.current.play();
@@ -204,7 +220,7 @@ const Player = () => {
       }
     });
 
-    navigator.mediaSession.setActionHandler("nexttrack", cueNextTrack);
+    navigator.mediaSession.setActionHandler("nexttrack", () => cueNextTrack());
   }, [artistName, cueNextTrack, dispatch, handlePlay, releaseId, releaseTitle, trackIndex, trackList, trackTitle]);
 
   useEffect(() => {
@@ -279,18 +295,27 @@ const Player = () => {
         <Flex flex="1 1 50%" justifyContent="flex-end">
           <PlayerButton
             ariaLabel="Start/resume playback."
-            icon={!isReady ? faCog : isPlaying ? faPause : faPlay}
+            icon={isBuffering ? faCompactDisc : isPlaying ? faPause : faPlay}
+            isDisabled={!isReady}
             onClick={handlePlay}
-            spin={!isReady}
+            pulse={isBuffering}
             mr={2}
           />
-          <PlayerButton ariaLabel="Stop audio playback." icon={faStop} onClick={handleStop} mr={2} />
+          <PlayerButton
+            ariaLabel="Stop audio playback."
+            icon={faStop}
+            isDisabled={!isReady}
+            onClick={handleStop}
+            mr={2}
+          />
           <PlayerButton
             ariaLabel="Save this track to your favourites."
-            color={isInFaves ? "red" : null}
+            color={isInFaves ? "red.400" : null}
             icon={isInFaves ? faHeart : heartOutline}
             onClick={handleClickFavourites}
             mr={2}
+            _hover={{ color: undefined }}
+            transition="color 0.3s ease-in-out"
           />
         </Flex>
         <PlaybackTime elapsedTime={elapsedTime} remainingTime={remainingTime} />
