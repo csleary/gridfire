@@ -73,6 +73,11 @@ const Login = () => {
         return void dispatch(toastWarning({ message, title: "Login cancelled" }));
       }
 
+      if (error.code === -32002) {
+        const message = "Please complete the unlock/login process in your web3 wallet before retrying.";
+        return void setLoginError(message);
+      }
+
       setLoginError(
         "We were unable to start the sign-in process. Do you have a web3 wallet installed (e.g. Metamask)?"
       );

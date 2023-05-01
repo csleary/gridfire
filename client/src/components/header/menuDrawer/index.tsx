@@ -144,6 +144,7 @@ const MenuDrawer = () => {
                 <>
                   <Button
                     as={NavLink}
+                    colorScheme={primaryButtonColor}
                     to={"/login"}
                     leftIcon={<Icon icon={faSignInAlt} fixedWidth mr={2} />}
                     title="Click to log in."
@@ -187,6 +188,7 @@ const MenuDrawer = () => {
                     </Flex>
                   ) : (
                     <Button
+                      colorScheme={primaryButtonColor}
                       justifyContent="flex-start"
                       leftIcon={<Icon icon={faEthereum} fixedWidth />}
                       onClick={handleConnect}
@@ -285,7 +287,7 @@ const MenuDrawer = () => {
             </VStack>
           </DrawerBody>
           <DrawerFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
+            <Button variant="outline" onClick={onClose}>
               Close
             </Button>
           </DrawerFooter>

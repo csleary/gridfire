@@ -20,7 +20,7 @@ const Home = () => {
     state => state.releases,
     shallowEqual
   );
-  const { account: userAccount } = useSelector(state => state.user, shallowEqual);
+  const { account: userAccount, isLoading: isLoadingUser } = useSelector(state => state.user, shallowEqual);
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
@@ -61,7 +61,7 @@ const Home = () => {
         <title>GridFire</title>
         <meta name="description" content="Listen to the latest releases on GridFire." />
       </Helmet>
-      {userAccount ? null : (
+      {isLoadingUser || userAccount ? null : (
         <>
           <Container maxWidth="container.xl" mt={12} mb={24}>
             <Heading lineHeight="tall" m={0}>
