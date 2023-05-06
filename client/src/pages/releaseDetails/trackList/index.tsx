@@ -114,7 +114,12 @@ const TrackList = () => {
     (trackId: string, trackTitle: string) => () => {
       if (trackId !== playerTrackId) {
         const audioPlayer = document.getElementById("player") as HTMLAudioElement;
-        if (audioPlayer.paused) audioPlayer.play().catch(console.log);
+
+        if (audioPlayer.paused) {
+          audioPlayer.muted = true; // Prevents buffered audio from playing when loading a new track.
+          audioPlayer.play().catch(console.log); // Use click event to start playback on iOS.
+        }
+
         dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
         dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
       }

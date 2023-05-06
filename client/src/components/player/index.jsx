@@ -152,6 +152,7 @@ const Player = () => {
 
   const handlePlay = useCallback(() => {
     const playPromise = audioPlayerRef.current.play();
+    if (audioPlayerRef.current.muted) audioPlayerRef.current.muted = false;
 
     if (playPromise !== undefined) {
       playPromise
