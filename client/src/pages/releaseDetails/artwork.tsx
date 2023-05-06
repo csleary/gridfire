@@ -1,12 +1,13 @@
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { playTrack, playerPause, playerPlay } from "state/player";
+import { loadTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReleaseTrack } from "types";
 import placeholder from "placeholder.svg";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
+import { useCallback } from "react";
 
 const { REACT_APP_CDN_IMG } = process.env;
 
@@ -18,7 +19,7 @@ const Artwork = () => {
   const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
   const hasNoPlayableTracks = trackList.every(({ isBonus }: ReleaseTrack) => isBonus === true);
 
-  const handlePlayRelease = () => {
+  const handlePlayRelease = useCallback(() => {
     const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
     if (isPlaying && playerReleaseId === releaseId) {
@@ -28,11 +29,12 @@ const Artwork = () => {
       audioPlayer.play();
       dispatch(playerPlay());
     } else {
+      if (audioPlayer.paused) audioPlayer.play().catch(console.log);
       const [{ _id: trackId, trackTitle }] = trackList;
-      dispatch(playTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
+      dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
       dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
     }
-  };
+  }, [artistName, dispatch, isPlaying, playerReleaseId, releaseId, releaseTitle, trackList]);
 
   return (
     <Skeleton isLoaded={!isLoading && isOpen}>

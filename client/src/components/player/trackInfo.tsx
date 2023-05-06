@@ -1,4 +1,4 @@
-import { Flex, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Flex, Text, useMediaQuery } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import PlayerButton from "./playerButton";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
@@ -10,7 +10,12 @@ interface Props {
 }
 
 const TrackInfo = ({ artistName, releaseId, trackTitle }: Props) => {
-  const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false });
+  const [isSmallScreen] = useMediaQuery([
+    "(max-device-width: 736px)",
+    "(-webkit-min-device-pixel-ratio: 2)",
+    "(screen)"
+  ]);
+
   const { pathname } = useLocation();
   const navigate = useNavigate();
 

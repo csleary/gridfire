@@ -1,7 +1,7 @@
 import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { addToFavourites, removeFromFavourites } from "state/user";
-import { faChevronDown, faCompactDisc, faHeart, faPause, faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
-import { playerHide, playerPlay, playerPause, playerStop, playTrack } from "state/player";
+import { faChevronDown, faHeart, faPause, faPlay, faSpinner, faStop } from "@fortawesome/free-solid-svg-icons";
+import { loadTrack, playerHide, playerPlay, playerPause } from "state/player";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "hooks";
 import PlaybackTime from "./playbackTime";
@@ -28,10 +28,11 @@ const Player = () => {
   const { favourites } = useSelector(state => state.user, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
-  const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
+  const [requiresGesture, setRequiresGesture] = useState(false);
   const { artistName, isPlaying, releaseId, showPlayer, trackId, trackTitle } = player;
   const prevTrackId = usePrevious(trackId);
   const { releaseTitle, trackList } = activeRelease;
@@ -63,6 +64,8 @@ const Player = () => {
     shakaRef.current = new shaka.Player(audioPlayerRef.current);
     const eventManager = new shaka.util.EventManager();
     eventManager.listen(shakaRef.current, `buffering`, onBuffering);
+    eventManager.listen(shakaRef.current, `loaded`, () => setIsLoading(false));
+    eventManager.listen(shakaRef.current, `loading`, () => setIsLoading(true));
   }, [dispatch]);
 
   const onTimeUpdate = useCallback(() => {
@@ -83,19 +86,12 @@ const Player = () => {
   const handleStop = useCallback(() => {
     audioPlayerRef.current.pause();
     audioPlayerRef.current.currentTime = 0;
-    navigator.mediaSession.playbackState = "paused";
-    dispatch(playerStop());
-  }, [dispatch]);
+  }, []);
 
-  const onError = useCallback(
-    error => {
-      console.error(error);
-      setIsReady(false);
-      navigator.mediaSession.playbackState = "none";
-      dispatch(playerStop());
-    },
-    [dispatch]
-  );
+  const onError = useCallback(error => {
+    console.error(error);
+    navigator.mediaSession.playbackState = "none";
+  }, []);
 
   const cueNextTrack = useCallback(
     (skip = 1) => {
@@ -103,7 +99,7 @@ const Player = () => {
         const { _id: nextTrackId, isBonus, trackTitle } = trackList[trackIndex + skip];
         if (isBonus) return void cueNextTrack(++skip);
         const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-        return void dispatch(playTrack(cuedTrack));
+        return void dispatch(loadTrack(cuedTrack));
       }
 
       handleStop();
@@ -120,10 +116,6 @@ const Player = () => {
     playLoggerRef.current.setStartTime();
   };
 
-  const onCanPlay = useCallback(e => {
-    setIsReady(true);
-  }, []);
-
   const onPlay = useCallback(() => {
     dispatch(playerPlay());
     navigator.mediaSession.playbackState = "playing";
@@ -135,38 +127,28 @@ const Player = () => {
     dispatch(playerPause());
   }, [dispatch]);
 
-  const onWaiting = () => setIsReady(false);
-
-  const onStalled = useCallback(() => {
-    setIsReady(false);
-    navigator.mediaSession.playbackState = "paused";
-    dispatch(playerStop());
-  }, [dispatch]);
+  const onWaiting = () => {};
 
   useEffect(() => {
-    audioPlayerRef.current.addEventListener("canplay", onCanPlay);
     audioPlayerRef.current.addEventListener("playing", onPlaying);
     audioPlayerRef.current.addEventListener("play", onPlay);
     audioPlayerRef.current.addEventListener("pause", onPause);
     audioPlayerRef.current.addEventListener("waiting", onWaiting);
-    audioPlayerRef.current.addEventListener("stalled", onStalled);
     audioPlayerRef.current.addEventListener("timeupdate", onTimeUpdate);
     audioPlayerRef.current.addEventListener("ended", onEnded);
     audioPlayerRef.current.addEventListener("onerror", onError);
 
     return () => {
       if (!audioPlayerRef.current) return;
-      audioPlayerRef.current.removeEventListener("canplay", onCanPlay);
       audioPlayerRef.current.removeEventListener("playing", onPlaying);
       audioPlayerRef.current.removeEventListener("play", onPlay);
       audioPlayerRef.current.removeEventListener("pause", onPause);
       audioPlayerRef.current.removeEventListener("waiting", onWaiting);
-      audioPlayerRef.current.removeEventListener("stalled", onStalled);
       audioPlayerRef.current.removeEventListener("timeupdate", onTimeUpdate);
       audioPlayerRef.current.removeEventListener("ended", onEnded);
       audioPlayerRef.current.removeEventListener("onerror", onError);
     };
-  }, [onCanPlay, onEnded, onError, onPause, onPlay, onStalled, onTimeUpdate]);
+  }, [onEnded, onError, onPause, onPlay, onTimeUpdate]);
 
   const handlePlay = useCallback(() => {
     const playPromise = audioPlayerRef.current.play();
@@ -174,14 +156,16 @@ const Player = () => {
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
+          setRequiresGesture(false);
+
           if (isPlaying) {
             audioPlayerRef.current.pause();
             return void dispatch(playerPause());
           }
         })
-        .catch(onError);
+        .catch(() => setRequiresGesture(true));
     }
-  }, [dispatch, isPlaying, onError]);
+  }, [dispatch, isPlaying]);
 
   const setMediaSession = useCallback(() => {
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -214,7 +198,7 @@ const Player = () => {
       if (trackList[trackIndex - 1]) {
         const { _id: nextTrackId, trackTitle } = trackList[trackIndex - 1];
         const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
-        dispatch(playTrack(cuedTrack));
+        dispatch(loadTrack(cuedTrack));
       } else {
         audioPlayerRef.current.currentTime = 0;
       }
@@ -268,6 +252,10 @@ const Player = () => {
     dispatch(playerHide());
   };
 
+  const playerRefCallback = el => {
+    audioPlayerRef.current = el;
+  };
+
   return (
     <Box
       role="group"
@@ -283,7 +271,7 @@ const Player = () => {
       visibility={showPlayer ? "visible" : "hidden"}
       zIndex="1030"
     >
-      <audio id="player" ref={el => (audioPlayerRef.current = el)} />
+      <audio id="player" ref={playerRefCallback} />
       <SeekBar
         audioPlayerRef={audioPlayerRef}
         bufferRanges={bufferRanges}
@@ -295,19 +283,13 @@ const Player = () => {
         <Flex flex="1 1 50%" justifyContent="flex-end">
           <PlayerButton
             ariaLabel="Start/resume playback."
-            icon={isBuffering ? faCompactDisc : isPlaying ? faPause : faPlay}
-            isDisabled={!isReady}
+            isDisabled={isLoading}
+            icon={!requiresGesture && isBuffering ? faSpinner : isPlaying ? faPause : faPlay}
             onClick={handlePlay}
-            pulse={isBuffering}
+            spin={!requiresGesture && isBuffering}
             mr={2}
           />
-          <PlayerButton
-            ariaLabel="Stop audio playback."
-            icon={faStop}
-            isDisabled={!isReady}
-            onClick={handleStop}
-            mr={2}
-          />
+          <PlayerButton ariaLabel="Stop audio playback." icon={faStop} onClick={handleStop} mr={2} />
           <PlayerButton
             ariaLabel="Save this track to your favourites."
             color={isInFaves ? "red.400" : null}

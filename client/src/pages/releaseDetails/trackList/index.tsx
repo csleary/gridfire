@@ -10,7 +10,7 @@ import {
   Tooltip
 } from "@chakra-ui/react";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { playTrack, playerPlay } from "state/player";
+import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "hooks";
 import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,10 +19,10 @@ import PurchaseTrackButton from "./purchaseTrackButton";
 import { ReleaseTrack } from "types";
 import { addToBasket } from "state/web3";
 import axios from "axios";
+import { loadTrack } from "state/player";
 import { parseEther } from "ethers";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
-import { useState } from "react";
 import Icon from "components/icon";
 
 export interface BasketItem {
@@ -56,53 +56,71 @@ const TrackList = () => {
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
 
-  const handleAddToBasket = async ({ price, trackId, trackTitle }: BasketItem) => {
-    try {
-      const res = await axios.get(`/api/release/${releaseId}/purchase`);
-      const { paymentAddress } = res.data;
-      const priceInWei = parseEther(price.toString());
+  const handleAddToBasket = useCallback(
+    async ({ price, trackId, trackTitle }: BasketItem) => {
+      try {
+        const res = await axios.get(`/api/release/${releaseId}/purchase`);
+        const { paymentAddress } = res.data;
+        const priceInWei = parseEther(price.toString());
 
-      dispatch(
-        addToBasket({
-          artistName,
-          releaseId: trackId,
-          imageUrl: `${REACT_APP_CDN_IMG}/${releaseId}`,
-          paymentAddress,
-          price: priceInWei,
-          title: trackTitle
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handlePurchaseTrack = async ({ price, trackId }: TrackForPurchase) => {
-    try {
-      setIsPurchasing(true);
-      const res = await axios.get(`/api/release/${releaseId}/purchase`);
-      const { paymentAddress } = res.data;
-      await purchaseRelease({ paymentAddress, price, releaseId: trackId, userId });
-    } catch (error: any) {
-      if (error.code === "ACTION_REJECTED") {
-        return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
-      }
-
-      if (error.code === -32603) {
-        return void dispatch(
-          toastError({
-            message: "DAI balance too low. Please add more DAI or use a different account.",
-            title: "Payment Error"
+        dispatch(
+          addToBasket({
+            artistName,
+            releaseId: trackId,
+            imageUrl: `${REACT_APP_CDN_IMG}/${releaseId}`,
+            paymentAddress,
+            price: priceInWei,
+            title: trackTitle
           })
         );
+      } catch (error) {
+        console.error(error);
       }
+    },
+    [artistName, dispatch, releaseId]
+  );
 
-      dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
-      console.error(error);
-    } finally {
-      setIsPurchasing(false);
-    }
-  };
+  const handlePurchaseTrack = useCallback(
+    async ({ price, trackId }: TrackForPurchase) => {
+      try {
+        setIsPurchasing(true);
+        const res = await axios.get(`/api/release/${releaseId}/purchase`);
+        const { paymentAddress } = res.data;
+        await purchaseRelease({ paymentAddress, price, releaseId: trackId, userId });
+      } catch (error: any) {
+        if (error.code === "ACTION_REJECTED") {
+          return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
+        }
+
+        if (error.code === -32603) {
+          return void dispatch(
+            toastError({
+              message: "DAI balance too low. Please add more DAI or use a different account.",
+              title: "Payment Error"
+            })
+          );
+        }
+
+        dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
+        console.error(error);
+      } finally {
+        setIsPurchasing(false);
+      }
+    },
+    [dispatch, releaseId, userId]
+  );
+
+  const handleClick = useCallback(
+    (trackId: string, trackTitle: string) => () => {
+      if (trackId !== playerTrackId) {
+        const audioPlayer = document.getElementById("player") as HTMLAudioElement;
+        if (audioPlayer.paused) audioPlayer.play().catch(console.log);
+        dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
+        dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
+      }
+    },
+    [artistName, dispatch, playerTrackId, releaseId, releaseTitle]
+  );
 
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
@@ -128,16 +146,7 @@ const TrackList = () => {
                 textAlign="left"
                 variant="link"
                 whiteSpace="break-spaces"
-                onClick={async () => {
-                  if (trackId !== playerTrackId) {
-                    dispatch(playTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
-                    dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
-                  } else if (!isPlaying) {
-                    const audioPlayer = document.getElementById("player") as HTMLAudioElement;
-                    await audioPlayer.play().catch(console.log);
-                    dispatch(playerPlay());
-                  }
-                }}
+                onClick={handleClick(trackId, trackTitle)}
               >
                 {trackTitle}
               </Button>

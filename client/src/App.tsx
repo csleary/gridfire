@@ -94,6 +94,7 @@ const App: React.FC = () => {
         direction="bottom"
         in={isConnected && chainId !== 0n && chainId !== BigInt(REACT_APP_CHAIN_ID)}
         style={{ zIndex: 10 }}
+        unmountOnExit
       >
         <Box bg="yellow.400" color="gray.800" fontWeight="semibold" p={4} shadow="md">
           <Container>

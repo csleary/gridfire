@@ -16,6 +16,16 @@ const playerSlice = createSlice({
     addToPlayList(state, action) {
       state.playList = [...state.playList, action.payload];
     },
+    loadTrack(state, action) {
+      const { artistName, releaseId, releaseTitle, trackId, trackTitle } = action.payload;
+      state.isPlaying = false;
+      state.showPlayer = true;
+      state.artistName = artistName;
+      state.releaseId = releaseId;
+      state.releaseTitle = releaseTitle;
+      state.trackId = trackId;
+      state.trackTitle = trackTitle;
+    },
     removeFromPlayList(state, action) {
       state.playList = state.playList.filter(({ releaseId }) => releaseId !== action.payload);
     },
@@ -32,23 +42,9 @@ const playerSlice = createSlice({
       state.isPlaying = true;
       state.isPaused = false;
       state.showPlayer = true;
-    },
-    playerStop(state) {
-      state.isPlaying = false;
-      state.isPaused = false;
-    },
-    playTrack(state, action) {
-      const { artistName, releaseId, releaseTitle, trackId, trackTitle } = action.payload;
-      state.isPlaying = false;
-      state.showPlayer = true;
-      state.artistName = artistName;
-      state.releaseId = releaseId;
-      state.releaseTitle = releaseTitle;
-      state.trackId = trackId;
-      state.trackTitle = trackTitle;
     }
   }
 });
 
-export const { playerHide, playerPause, playerPlay, playerStop, playTrack } = playerSlice.actions;
+export const { loadTrack, playerHide, playerPause, playerPlay } = playerSlice.actions;
 export default playerSlice.reducer;

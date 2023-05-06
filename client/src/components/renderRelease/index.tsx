@@ -1,14 +1,14 @@
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
 import { Release, ReleaseTrack } from "types";
-import { batch, shallowEqual } from "react-redux";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { fetchRelease, setIsLoading } from "state/releases";
-import { playTrack, playerPause, playerPlay } from "state/player";
+import { loadTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
 import placeholder from "placeholder.svg";
+import { setIsLoading } from "state/releases";
+import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const { REACT_APP_CDN_IMG } = process.env;
@@ -69,14 +69,10 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
       audioPlayer.play();
       dispatch(playerPlay());
     } else {
+      if (audioPlayer.paused) audioPlayer.play().catch(console.log);
       const [{ _id: trackId, trackTitle }] = trackList;
-
-      batch(() => {
-        dispatch(fetchRelease(releaseId)).then(() => {
-          dispatch(playTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
-        });
-        dispatch(toastInfo({ message: `${artistName} - '${trackTitle}'`, title: "Loading" }));
-      });
+      dispatch(toastInfo({ message: `${artistName} - '${trackTitle}'`, title: "Loading" }));
+      dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
     }
   };
 
