@@ -5,7 +5,7 @@ import player from "state/player";
 import releases from "state/releases";
 import search from "state/search";
 import tracks from "state/tracks";
-import user, { userInitialState } from "state/user";
+import user from "state/user";
 import web3 from "state/web3";
 
 const appReducer = combineReducers({
@@ -20,10 +20,6 @@ const appReducer = combineReducers({
 });
 
 const rootReducer = (state, action) => {
-  if (action.type === "user/logOut") {
-    state.user = userInitialState;
-  }
-
   return appReducer(state, action);
 };
 

@@ -9,6 +9,8 @@ import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import moment from "moment";
 
+// Note: the shape of the transactions object is different for userEditions and albums/singles.
+
 const Collection = () => {
   const dispatch = useDispatch();
   const { collection = {}, userEditions = [] } = useSelector(state => state.releases, shallowEqual);
@@ -78,7 +80,7 @@ const Collection = () => {
                 <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                    <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
+                    <Link href={`https://arbiscan.io/tx/${transaction.hash}`} variant="unstyled">
                       {moment(new Date(purchaseDate)).format("Do of MMM, YYYY")}
                     </Link>
                     ,{" "}
@@ -116,7 +118,7 @@ const Collection = () => {
                   <Flex justifyContent="flex-end">
                     <Text color={receiptTextColour}>
                       <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                      <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
+                      <Link href={`https://arbiscan.io/tx/${transaction.hash}`} variant="unstyled">
                         {moment(new Date(purchaseDate)).format("Do of MMM, YYYY")}
                       </Link>
                       ,{" "}

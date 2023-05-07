@@ -34,7 +34,7 @@ export interface BasketItem {
   artistName: string;
   imageUrl: string;
   paymentAddress: string;
-  price: bigint;
+  price: string;
   title: string;
   releaseId: string;
 }
@@ -50,8 +50,8 @@ const BasketButton = () => {
   );
 
   const [showModal, setShowModal] = useState(false);
-  const total = basket.reduce((prev, { price }: BasketItem) => prev + price, BigInt("0"));
-  const allowanceTooLow = total > daiAllowance;
+  const total = basket.reduce((prev, { price }: BasketItem) => prev + BigInt(price), BigInt("0"));
+  const allowanceTooLow = total > BigInt(daiAllowance);
 
   const handleCheckout = async () => {
     try {

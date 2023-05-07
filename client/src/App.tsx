@@ -41,7 +41,7 @@ const App: React.FC = () => {
 
   const getNetwork = useCallback(() => {
     const provider = new BrowserProvider(ethereumRef.current);
-    provider.getNetwork().then(network => dispatch(setNetworkName(network)));
+    provider.getNetwork().then(({ chainId, name }) => dispatch(setNetworkName({ chainId: chainId.toString(), name })));
   }, [dispatch]);
 
   const handleAccountsChanged = useCallback(
@@ -92,7 +92,7 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Slide
         direction="bottom"
-        in={isConnected && chainId !== 0n && chainId !== BigInt(REACT_APP_CHAIN_ID)}
+        in={isConnected && BigInt(chainId) !== 0n && BigInt(chainId) !== BigInt(REACT_APP_CHAIN_ID)}
         style={{ zIndex: 10 }}
         unmountOnExit
       >

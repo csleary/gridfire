@@ -48,7 +48,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const { tracks } = properties;
   const { account, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const allowanceTooLow = BigInt(price) > daiAllowance || daiAllowance === 0n;
+  const allowanceTooLow = BigInt(price) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
   const bgColor = useColorModeValue("var(--chakra-colors-whiteAlpha-800)", "rgba(26,32,44,0.85)");
   const descriptionColor = useColorModeValue("var(--chakra-colors-chakra-body-text)", "gray.300");
   const infoColor = useColorModeValue("var(--chakra-colors-chakra-body-text)", "gray.300");

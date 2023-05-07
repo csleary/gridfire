@@ -38,7 +38,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
       }
 
       const priceInWei = parseEther(price);
-      dispatch(addToBasket({ artistName, releaseId, imageUrl, paymentAddress, price: priceInWei, title }));
+      dispatch(addToBasket({ artistName, releaseId, imageUrl, paymentAddress, price: priceInWei.toString(), title }));
     } catch (error: any) {
       dispatch(toastError({ message: error.message, title: "Error" }));
       console.error(error);

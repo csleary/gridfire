@@ -19,7 +19,7 @@ import AddToBasketButton from "./addToBasketButton";
 import PurchaseTrackButton from "./purchaseTrackButton";
 import { addToBasket } from "state/web3";
 import axios from "axios";
-import { loadTrack, playerPlay } from "state/player";
+import { loadTrack } from "state/player";
 import { parseEther } from "ethers";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
@@ -54,7 +54,7 @@ const TrackList = () => {
             releaseId: trackId,
             imageUrl: `${REACT_APP_CDN_IMG}/${releaseId}`,
             paymentAddress,
-            price: priceInWei,
+            price: priceInWei.toString(),
             title: trackTitle
           })
         );
@@ -117,7 +117,7 @@ const TrackList = () => {
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
       {trackList.map(({ _id: trackId, duration, isBonus, isEditionOnly, price, trackTitle }: ReleaseTrack, index) => {
-        const allowanceTooLow = parseEther(price.toString()) > daiAllowance || daiAllowance === 0n;
+        const allowanceTooLow = parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
         const inBasket = basket.some((item: BasketItem) => item.releaseId === trackId);
         const inCollection = purchases.some((sale: Sale) => sale.release === releaseId);
         const trackInCollection = purchases.some((sale: Sale) => sale.release === trackId);

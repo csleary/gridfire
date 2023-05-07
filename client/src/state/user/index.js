@@ -1,7 +1,7 @@
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "state/releases";
-import { createAction, createSlice } from "@reduxjs/toolkit";
 import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   account: "",
@@ -25,6 +25,11 @@ const userSlice = createSlice({
     },
     addUserWishListItem(state, action) {
       state.wishList = [...state.wishList, action.payload];
+    },
+    clearUser(state) {
+      for (const key in initialState) {
+        state[key] = initialState[key];
+      }
     },
     removeUserFavouritesItem(state, action) {
       state.favourites = state.favourites.filter(({ release }) => release !== action.payload);
@@ -116,9 +121,8 @@ const fetchUser = () => async dispatch => {
 const logOut = () => async dispatch => {
   try {
     await axios.get("/api/auth/logout");
-    const actionLogOut = createAction("user/logOut");
-    dispatch(actionLogOut());
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
+    dispatch(clearUser());
   } catch (error) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   } finally {
@@ -131,6 +135,7 @@ export default userSlice.reducer;
 export const {
   addUserFavouritesItem,
   addUserWishListItem,
+  clearUser,
   removeUserFavouritesItem,
   removeUserWishListItem,
   setIsLoading,

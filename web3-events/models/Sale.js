@@ -16,6 +16,5 @@ const saleSchema = new Schema({
 });
 
 saleSchema.index({ user: 1, release: 1 });
-saleSchema.index({ "transaction.hash": 1 }, { unique: true });
 const Sale = mongoose.model("Sale", saleSchema, "sales");
 export default Sale;

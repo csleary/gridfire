@@ -13,10 +13,10 @@ const web3Slice = createSlice({
     account: "",
     accountShort: "",
     basket: [],
-    chainId: 0n,
+    chainId: 0n.toString(),
     error: "",
-    daiAllowance: 0n,
-    daiBalance: 0n,
+    daiAllowance: 0n.toString(),
+    daiBalance: 0n.toString(),
     isAddingToBasket: false,
     isCheckingOut: false,
     isConnected: false,
@@ -102,7 +102,7 @@ const fetchDaiAllowance = account => async dispatch => {
   try {
     dispatch(setIsFetchingAllowance(true));
     const currentAllowance = await getDaiAllowance(account);
-    dispatch(setDaiAllowance(currentAllowance));
+    dispatch(setDaiAllowance(currentAllowance.toString()));
   } catch (error) {
     console.error(error);
   } finally {
@@ -113,7 +113,7 @@ const fetchDaiAllowance = account => async dispatch => {
 const fetchDaiBalance = account => async dispatch => {
   try {
     const currentBalance = await getDaiBalance(account);
-    dispatch(setDaiBalance(currentBalance));
+    dispatch(setDaiBalance(currentBalance.toString()));
   } catch (error) {
     console.error(error);
   }
@@ -149,12 +149,14 @@ const connectToWeb3 = () => async dispatch => {
       return void dispatch(toastWarning({ message: "Could not connect. Is the wallet unlocked?", title: "Warning" }));
     }
 
+    const { chainId, name } = network;
+
     batch(() => {
       dispatch(fetchDaiAllowance(firstAccount));
       dispatch(fetchDaiBalance(firstAccount));
       dispatch(setAccount(firstAccount));
       dispatch(setIsConnected(true));
-      dispatch(setNetworkName(network));
+      dispatch(setNetworkName({ chainId: chainId.toString(), name }));
     });
   } catch (error) {
     if (error.code === 4902) {
