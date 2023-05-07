@@ -30,6 +30,31 @@ const exportKeyToJWK = async publicKey => {
   return jwk;
 };
 
+const fadeAudio = (audioElement, fadeDirection, duration = fadeDirection === "out" ? 50 : 20) =>
+  new Promise(resolve => {
+    if (!audioElement) return void resolve();
+    const initialVolume = audioElement.volume;
+    const start = performance.now();
+
+    const fade =
+      fadeDirection === "out"
+        ? t => initialVolume * Math.cos(((t - start) * (Math.PI / 2)) / duration)
+        : t => (1 - initialVolume) * Math.sin(((t - start) * (Math.PI / 2)) / duration) + initialVolume;
+
+    const tick = timestamp => {
+      const elapsed = timestamp - start;
+      if (elapsed >= duration) {
+        audioElement.volume = fadeDirection === "out" ? 0 : 1;
+        resolve();
+      } else {
+        audioElement.volume = Math.min(1, Math.max(0, fade(timestamp)));
+        requestAnimationFrame(tick);
+      }
+    };
+
+    requestAnimationFrame(tick);
+  });
+
 const fetchDownloadToken = async releaseId => {
   const res = await axios.post("/api/download", { releaseId });
   return res.headers.authorization.split(" ")[1];
@@ -57,6 +82,7 @@ export {
   decryptArrayBuffer,
   encryptArrayBuffer,
   exportKeyToJWK,
+  fadeAudio,
   fetchDownloadToken,
   formatPrice,
   generateKey

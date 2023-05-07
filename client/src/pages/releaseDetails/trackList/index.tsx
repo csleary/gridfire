@@ -1,3 +1,4 @@
+import { BasketItem, ReleaseTrack, Sale, TrackForPurchase } from "types";
 import {
   Box,
   Button,
@@ -16,30 +17,14 @@ import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AddToBasketButton from "./addToBasketButton";
 import PurchaseTrackButton from "./purchaseTrackButton";
-import { ReleaseTrack } from "types";
 import { addToBasket } from "state/web3";
 import axios from "axios";
-import { loadTrack } from "state/player";
+import { loadTrack, playerPlay } from "state/player";
 import { parseEther } from "ethers";
 import { purchaseRelease } from "web3/contract";
 import { shallowEqual } from "react-redux";
 import Icon from "components/icon";
-
-export interface BasketItem {
-  price: string;
-  releaseId?: string;
-  trackId?: string;
-  trackTitle: string;
-}
-
-interface TrackForPurchase {
-  price: string;
-  trackId: string;
-}
-
-interface Sale {
-  release: string;
-}
+import { fadeAudio } from "utils";
 
 const { REACT_APP_CDN_IMG } = process.env;
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
@@ -117,11 +102,13 @@ const TrackList = () => {
 
         if (audioPlayer.paused) {
           audioPlayer.muted = true; // Prevents buffered audio from playing when loading a new track.
-          audioPlayer.play().catch(console.log); // Use click event to start playback on iOS.
+          audioPlayer.play().catch(console.warn); // Use click event to start playback on iOS.
         }
 
-        dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
-        dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
+        fadeAudio(audioPlayer, "out").then(() => {
+          dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
+          dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
+        });
       }
     },
     [artistName, dispatch, playerTrackId, releaseId, releaseTitle]

@@ -10,7 +10,7 @@ import theme from "./theme";
 
 const store = configureStore({
   reducer: rootReducer,
-  middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false })
+  middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: true, serializableCheck: true })
 });
 
 const container = document.getElementById("root")!;

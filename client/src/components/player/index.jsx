@@ -9,6 +9,7 @@ import PlayerButton from "./playerButton";
 import PlayLogger from "./playLogger";
 import SeekBar from "./seekbar";
 import TrackInfo from "./trackInfo";
+import { fadeAudio } from "utils";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import shaka from "shaka-player";
 import { shallowEqual } from "react-redux";
@@ -112,13 +113,13 @@ const Player = () => {
     cueNextTrack();
   }, [cueNextTrack]);
 
-  const onPlaying = () => {
+  const onPlaying = useCallback(() => {
+    navigator.mediaSession.playbackState = "playing";
     playLoggerRef.current.setStartTime();
-  };
+  }, []);
 
   const onPlay = useCallback(() => {
     dispatch(playerPlay());
-    navigator.mediaSession.playbackState = "playing";
   }, [dispatch]);
 
   const onPause = useCallback(() => {
@@ -127,13 +128,10 @@ const Player = () => {
     dispatch(playerPause());
   }, [dispatch]);
 
-  const onWaiting = () => {};
-
   useEffect(() => {
     audioPlayerRef.current.addEventListener("playing", onPlaying);
     audioPlayerRef.current.addEventListener("play", onPlay);
     audioPlayerRef.current.addEventListener("pause", onPause);
-    audioPlayerRef.current.addEventListener("waiting", onWaiting);
     audioPlayerRef.current.addEventListener("timeupdate", onTimeUpdate);
     audioPlayerRef.current.addEventListener("ended", onEnded);
     audioPlayerRef.current.addEventListener("onerror", onError);
@@ -143,30 +141,41 @@ const Player = () => {
       audioPlayerRef.current.removeEventListener("playing", onPlaying);
       audioPlayerRef.current.removeEventListener("play", onPlay);
       audioPlayerRef.current.removeEventListener("pause", onPause);
-      audioPlayerRef.current.removeEventListener("waiting", onWaiting);
       audioPlayerRef.current.removeEventListener("timeupdate", onTimeUpdate);
       audioPlayerRef.current.removeEventListener("ended", onEnded);
       audioPlayerRef.current.removeEventListener("onerror", onError);
     };
-  }, [onEnded, onError, onPause, onPlay, onTimeUpdate]);
+  }, [onEnded, onError, onPause, onPlay, onPlaying, onTimeUpdate]);
+
+  const handlePause = useCallback(() => {
+    if (!audioPlayerRef.current.paused) {
+      dispatch(playerPause());
+
+      fadeAudio(audioPlayerRef.current, "out").then(() => {
+        audioPlayerRef.current.pause();
+      });
+    }
+  }, [dispatch]);
 
   const handlePlay = useCallback(() => {
+    if (audioPlayerRef.current.muted) {
+      audioPlayerRef.current.muted = false; // Will be muted from a track change.
+    }
+
     const playPromise = audioPlayerRef.current.play();
-    if (audioPlayerRef.current.muted) audioPlayerRef.current.muted = false;
 
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
           setRequiresGesture(false);
 
-          if (isPlaying) {
-            audioPlayerRef.current.pause();
-            return void dispatch(playerPause());
+          if (audioPlayerRef.current.volume === 0) {
+            fadeAudio(audioPlayerRef.current, "in");
           }
         })
         .catch(() => setRequiresGesture(true));
     }
-  }, [dispatch, isPlaying]);
+  }, []);
 
   const setMediaSession = useCallback(() => {
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -217,6 +226,7 @@ const Player = () => {
 
       shaka.Player.probeSupport().then(supportInfo => {
         const urlStem = `${REACT_APP_CDN_MP4}/${releaseId}/${trackId}`;
+        audioPlayerRef.current.volume = 1;
 
         if (supportInfo.manifest.mpd) {
           const mimeType = "application/dash+xml";
@@ -286,7 +296,7 @@ const Player = () => {
             ariaLabel="Start/resume playback."
             isDisabled={isLoading}
             icon={!requiresGesture && isBuffering ? faSpinner : isPlaying ? faPause : faPlay}
-            onClick={handlePlay}
+            onClick={isPlaying ? handlePause : handlePlay}
             spin={!requiresGesture && isBuffering}
             mr={2}
           />

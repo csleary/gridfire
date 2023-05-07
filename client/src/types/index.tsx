@@ -1,7 +1,21 @@
+export interface BasketItem {
+  price: string;
+  releaseId?: string;
+  trackId?: string;
+  trackTitle: string;
+}
+
 export interface EditionPurchase {
   allowanceTooLow?: boolean;
   editionId: bigint;
   price: bigint;
+}
+
+export interface ListItem {
+  _id: string;
+  dateAdded: Date;
+  release: Release;
+  note?: string;
 }
 
 export interface MintedEdition {
@@ -37,11 +51,13 @@ export interface ReleaseTrack {
   trackTitle: string;
 }
 
-export interface ListItem {
-  _id: string;
-  dateAdded: Date;
-  release: Release;
-  note?: string;
+export interface Sale {
+  release: string;
+}
+
+export interface TrackForPurchase {
+  price: string;
+  trackId: string;
 }
 
 export interface UserListItem {

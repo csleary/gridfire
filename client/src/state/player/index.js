@@ -18,7 +18,6 @@ const playerSlice = createSlice({
     },
     loadTrack(state, action) {
       const { artistName, releaseId, releaseTitle, trackId, trackTitle } = action.payload;
-      state.isPlaying = false;
       state.showPlayer = true;
       state.artistName = artistName;
       state.releaseId = releaseId;
@@ -30,8 +29,8 @@ const playerSlice = createSlice({
       state.playList = state.playList.filter(({ releaseId }) => releaseId !== action.payload);
     },
     playerHide(state) {
-      state.isPlaying = false;
-      state.isPaused = false;
+      state.isPlaying = false; // Required to avoid showing pause icon when player is hidden.
+      state.isPaused = false; // As above.
       state.showPlayer = false;
     },
     playerPause(state) {

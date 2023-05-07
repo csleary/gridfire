@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
+import { fadeAudio } from "utils";
 import placeholder from "placeholder.svg";
 import { setIsLoading } from "state/releases";
 import { shallowEqual } from "react-redux";
@@ -62,14 +63,22 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
   const handleClick = () => {
     const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
-    if (isPlaying && playerReleaseId === releaseId) {
-      audioPlayer.pause();
+    if (!audioPlayer.paused && playerReleaseId === releaseId) {
       dispatch(playerPause());
-    } else if (playerReleaseId === releaseId) {
+
+      fadeAudio(audioPlayer, "out").then(() => {
+        audioPlayer.pause();
+      });
+    } else if (audioPlayer.paused && playerReleaseId === releaseId) {
       audioPlayer.play();
+      fadeAudio(audioPlayer, "in");
       dispatch(playerPlay());
     } else {
-      if (audioPlayer.paused) audioPlayer.play().catch(console.log);
+      if (audioPlayer.paused) {
+        audioPlayer.muted = true; // Prevents buffered audio from playing when loading a new track.
+        audioPlayer.play().catch(console.warn); // Use click event to start playback on iOS.
+      }
+
       const [{ _id: trackId, trackTitle }] = trackList;
       dispatch(toastInfo({ message: `${artistName} - '${trackTitle}'`, title: "Loading" }));
       dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));

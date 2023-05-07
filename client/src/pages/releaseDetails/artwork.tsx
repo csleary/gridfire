@@ -4,6 +4,7 @@ import { loadTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReleaseTrack } from "types";
+import { fadeAudio } from "utils";
 import placeholder from "placeholder.svg";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
@@ -22,19 +23,27 @@ const Artwork = () => {
   const handlePlayRelease = useCallback(() => {
     const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
-    if (isPlaying && playerReleaseId === releaseId) {
-      audioPlayer.pause();
+    if (!audioPlayer.paused && playerReleaseId === releaseId) {
       dispatch(playerPause());
-    } else if (playerReleaseId === releaseId) {
+
+      fadeAudio(audioPlayer, "out").then(() => {
+        audioPlayer.pause();
+      });
+    } else if (audioPlayer.paused && playerReleaseId === releaseId) {
       audioPlayer.play();
+      fadeAudio(audioPlayer, "in");
       dispatch(playerPlay());
     } else {
-      if (audioPlayer.paused) audioPlayer.play().catch(console.log);
+      if (audioPlayer.paused) {
+        audioPlayer.muted = true; // Prevents buffered audio from playing when loading a new track.
+        audioPlayer.play().catch(console.warn); // Use click event to start playback on iOS.
+      }
+
       const [{ _id: trackId, trackTitle }] = trackList;
       dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
       dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
     }
-  }, [artistName, dispatch, isPlaying, playerReleaseId, releaseId, releaseTitle, trackList]);
+  }, [artistName, dispatch, playerReleaseId, releaseId, releaseTitle, trackList]);
 
   return (
     <Skeleton isLoaded={!isLoading && isOpen}>

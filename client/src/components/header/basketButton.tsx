@@ -44,14 +44,10 @@ const BasketButton = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const {
-    account,
-    basket,
-    daiAllowance = 0,
-    isCheckingOut,
-    isConnected,
-    isFetchingAllowance
-  } = useSelector(state => state.web3, shallowEqual);
+  const { account, basket, daiAllowance, isCheckingOut, isConnected, isFetchingAllowance } = useSelector(
+    state => state.web3,
+    shallowEqual
+  );
 
   const [showModal, setShowModal] = useState(false);
   const total = basket.reduce((prev, { price }: BasketItem) => prev + price, BigInt("0"));
