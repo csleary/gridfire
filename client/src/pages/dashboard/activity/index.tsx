@@ -15,7 +15,7 @@ interface ActivityProperties {
   editionDescription: string;
   type: string;
   releaseTitle?: string;
-  amountPaid: number;
+  amountPaid: string;
   account: string;
   username: string;
 }
@@ -39,7 +39,7 @@ const Activity = () => {
           ({
             _id: itemId,
             account,
-            amountPaid,
+            amountPaid = "0",
             artistName,
             createdAt,
             editionDescription,
@@ -50,7 +50,7 @@ const Activity = () => {
             const date = `${new Date(createdAt).toLocaleDateString()}, ${new Date(createdAt).toLocaleTimeString()}`;
 
             switch (type) {
-              case "favourite":
+              case "favourite": {
                 return (
                   <Text key={itemId} mb={2}>
                     <Text as="span" color="gray.400" mr={4}>
@@ -68,7 +68,8 @@ const Activity = () => {
                     .
                   </Text>
                 );
-              case "follow":
+              }
+              case "follow": {
                 return (
                   <Text key={itemId} mb={2}>
                     <Text as="span" color="gray.400" mr={4}>
@@ -86,7 +87,8 @@ const Activity = () => {
                     .
                   </Text>
                 );
-              case "sale":
+              }
+              case "sale": {
                 return (
                   <Text key={itemId} mb={2}>
                     <Text as="span" color="gray.400" mr={4}>
@@ -104,6 +106,7 @@ const Activity = () => {
                     for {Number(formatEther(amountPaid)).toFixed(2)} Dai!
                   </Text>
                 );
+              }
               default:
                 return null;
             }
