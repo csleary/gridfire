@@ -102,7 +102,7 @@ const fetchDaiAllowance = account => async dispatch => {
   try {
     dispatch(setIsFetchingAllowance(true));
     const currentAllowance = await getDaiAllowance(account);
-    dispatch(setDaiAllowance(currentAllowance.toString()));
+    dispatch(setDaiAllowance(currentAllowance));
   } catch (error) {
     console.error(error);
   } finally {
@@ -113,7 +113,7 @@ const fetchDaiAllowance = account => async dispatch => {
 const fetchDaiBalance = account => async dispatch => {
   try {
     const currentBalance = await getDaiBalance(account);
-    dispatch(setDaiBalance(currentBalance.toString()));
+    dispatch(setDaiBalance(currentBalance));
   } catch (error) {
     console.error(error);
   }

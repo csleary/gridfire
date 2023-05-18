@@ -28,19 +28,22 @@ const claimBalance = async () => {
 const getBalance = async paymentAddress => {
   const provider = await getProvider();
   const gridFireContract = getGridFireContract(provider);
-  return gridFireContract.getBalance(paymentAddress);
+  const balanceBigInt = await gridFireContract.getBalance(paymentAddress);
+  return balanceBigInt.toString();
 };
 
 const getDaiAllowance = async account => {
   const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  return daiContract.allowance(account, REACT_APP_GRIDFIRE_PAYMENT_ADDRESS);
+  const allowanceBigInt = await daiContract.allowance(account, REACT_APP_GRIDFIRE_PAYMENT_ADDRESS);
+  return allowanceBigInt.toString();
 };
 
 const getDaiBalance = async account => {
   const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  return daiContract.balanceOf(account);
+  const balanceBigInt = await daiContract.balanceOf(account);
+  return balanceBigInt.toString();
 };
 
 const getDaiApprovalEvents = async account => {
