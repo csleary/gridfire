@@ -1,4 +1,4 @@
-import { BrowserProvider, getAddress, toQuantity } from "ethers";
+import { BrowserProvider, getAddress, isError, toQuantity } from "ethers";
 import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3/contract";
 import { toastError, toastWarning } from "state/toast";
 import { createSlice } from "@reduxjs/toolkit";
@@ -159,7 +159,7 @@ const connectToWeb3 = () => async dispatch => {
       dispatch(setNetworkName({ chainId: chainId.toString(), name }));
     });
   } catch (error) {
-    if (error.code === 4902) {
+    if (isError(error, "NETWORK_ERROR")) {
       try {
         await ethereum.request({
           method: "wallet_addEthereumChain",

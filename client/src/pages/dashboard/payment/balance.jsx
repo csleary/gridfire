@@ -45,8 +45,9 @@ const Balance = () => {
   }, [balance, paymentAddress]);
 
   useEffect(() => {
+    if (!isConnected) return;
     getBalance(paymentAddress).then(setBalance).catch(console.error);
-  }, [paymentAddress]);
+  }, [isConnected, paymentAddress]);
 
   const handleClaimBalance = async () => {
     try {

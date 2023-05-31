@@ -70,7 +70,7 @@ const Follow = () => {
   };
 
   return (
-    <Flex alignItems="center">
+    <Flex alignItems="center" mb={4}>
       <Button
         justifyContent="space-between"
         leftIcon={<Icon color={isFollowing ? accentColor : undefined} icon={isFollowing ? faCheck : faPlus} />}
