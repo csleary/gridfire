@@ -1,6 +1,7 @@
 import "gridfire-worker/models/Release.js";
 import "gridfire-worker/models/User.js";
 import amqp from "amqplib";
+import { isFatalError } from "amqplib/lib/connection.js";
 import mongoose from "mongoose";
 import net from "net";
 import startConsumer from "gridfire-worker/consumer/index.js";
@@ -31,7 +32,7 @@ const amqpConnect = async () => {
     connection.on("error", error => console.error(`[Worker] AMQP error: ${error.message}`));
 
     connection.on("close", error => {
-      if (amqpConnection.isFatalError(error)) {
+      if (isFatalError(error)) {
         return console.log("[Worker] AMQP connection closed.");
       }
 
