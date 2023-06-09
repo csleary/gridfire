@@ -82,7 +82,8 @@ process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
 
 try {
   await mongoose.connect(MONGODB_URI);
-  [amqpConnection] = await amqpConnect();
+  const rabbitmq = await amqpConnect();
+  [amqpConnection] = rabbitmq || [];
   await setupHealthProbe();
 
   const gridFirePayment = getGridFirePaymentContract();

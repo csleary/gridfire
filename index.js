@@ -47,7 +47,8 @@ const ipfs = create(IPFS_NODE_HOST);
 app.locals.ipfs = ipfs;
 
 // RabbitMQ
-const [amqpConnection, consumerChannel, consumerTag] = await amqp(sseController).catch(console.error);
+const rabbitmq = await amqp(sseController).catch(console.error);
+const [amqpConnection, consumerChannel, consumerTag] = rabbitmq || [];
 
 // Mongoose
 mongoose.set("strictQuery", true);

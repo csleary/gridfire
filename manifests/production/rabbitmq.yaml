@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: rabbitmq
-          image: rabbitmq:3-management
+          image: rabbitmq:3.10.0-management
           ports:
             - containerPort: 5672
             - containerPort: 15672
@@ -32,6 +32,8 @@ spec:
               memory: 1Gi
               cpu: 250m
           envFrom:
+            - configMapRef:
+                name: rabbitmq-config
             - secretRef:
                 name: rabbitmq-user
   volumeClaimTemplates:
