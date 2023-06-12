@@ -10,9 +10,9 @@ import "gridfire/models/StreamSession.js";
 import "gridfire/models/User.js";
 import "gridfire/models/WishList.js";
 import "gridfire/controllers/passport.js";
+import { amqpClose, amqpConnect } from "./controllers/amqp/index.js";
 import { clientErrorHandler, errorHandler, logErrors } from "./middlewares/errorHandlers.js";
 import SSEController from "./controllers/sseController.js";
-import amqp from "./controllers/amqp/index.js";
 import artists from "./routes/artistRoutes.js";
 import artwork from "./routes/artworkRoutes.js";
 import auth from "./routes/authRoutes.js";
@@ -23,6 +23,7 @@ import { create } from "ipfs-http-client";
 import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
 import express from "express";
+import logger from "./controllers/logger.js";
 import mongoose from "mongoose";
 import passport from "passport";
 import release from "./routes/releaseRoutes.js";
@@ -47,18 +48,17 @@ const ipfs = create(IPFS_NODE_HOST);
 app.locals.ipfs = ipfs;
 
 // RabbitMQ
-const rabbitmq = await amqp(sseController).catch(console.error);
-const [amqpConnection, consumerChannel, consumerTag] = rabbitmq || [];
+await amqpConnect(sseController).catch(logger.error);
 
 // Mongoose
 mongoose.set("strictQuery", true);
 const db = mongoose.connection;
-db.once("open", async () => console.log("[API] Mongoose connected."));
-db.on("close", () => console.log("[API] Mongoose connection closed."));
-db.on("disconnected", () => console.warn("[API] Mongoose disconnected."));
-db.on("reconnected", () => console.log("[API] Mongoose reconnected."));
-db.on("error", error => console.log(`[API] Mongoose error: ${error.message}`));
-await mongoose.connect(MONGODB_URI).catch(console.error);
+db.once("open", async () => logger.info("Mongoose connected."));
+db.on("close", () => logger.info("Mongoose connection closed."));
+db.on("disconnected", () => logger.warn("Mongoose disconnected."));
+db.on("reconnected", () => logger.info("Mongoose reconnected."));
+db.on("error", error => logger.info(`Mongoose error: ${error.message}`));
+await mongoose.connect(MONGODB_URI).catch(logger.error);
 
 // Express
 app.locals.sse = sseController;
@@ -85,23 +85,21 @@ app.use("/readyz", (req, res) => (isReady ? res.sendStatus(200) : res.sendStatus
 
 const handleShutdown = async () => {
   isReady = false;
-  console.log("[API] Gracefully shutting down…");
+  logger.info("Gracefully shutting down…");
 
   try {
-    if (amqpConnection) {
-      await consumerChannel.cancel(consumerTag);
-      await amqpConnection.close.bind(amqpConnection);
-      console.log("[API] AMQP closed.");
-    }
+    await amqpClose();
 
     mongoose.connection.close(false, () => {
+      logger.info("Mongoose closed.");
+
       server.close(() => {
-        console.log("[API] Express server closed.");
+        logger.info("Express server closed.");
         process.exit(0);
       });
     });
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     process.exitCode = 1;
   }
 };
@@ -109,6 +107,6 @@ const handleShutdown = async () => {
 process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
 
 server.listen(PORT, () => {
-  console.log(`[API] Express server running on port ${PORT}.`);
+  logger.info(`Express server running on port ${PORT}.`);
   isReady = true;
 });

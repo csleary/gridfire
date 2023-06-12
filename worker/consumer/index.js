@@ -33,10 +33,9 @@ const startConsumer = async (connection, consumerTags) => {
 
     channel.prefetch(1);
     await channel.assertQueue(QUEUE_TRANSCODE, { durable: true });
-    channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false }).then(({ consumerTag }) => {
-      consumerTags.push(consumerTag);
-    });
-
+    const config = await channel.consume(QUEUE_TRANSCODE, processMessage, { noAck: false });
+    const { consumerTag } = config || {};
+    consumerTags.push(consumerTag);
     return channel;
   } catch (error) {
     if (closeOnError(connection, error)) return;

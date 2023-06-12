@@ -2,6 +2,7 @@ import "gridfire-web3-events/models/Activity.js";
 import "gridfire-web3-events/models/Release.js";
 import "gridfire-web3-events/models/Sale.js";
 import "gridfire-web3-events/models/User.js";
+import { amqpClose, amqpConnect } from "gridfire-web3-events/controllers/amqp/index.js";
 import {
   getGridFireEditionsContract,
   getGridFirePaymentContract,
@@ -9,9 +10,8 @@ import {
   onPurchase,
   onPurchaseEdition
 } from "gridfire-web3-events/controllers/web3.js";
-import { amqpConnect } from "gridfire-web3-events/controllers/amqp.js";
 import { strict as assert } from "assert/strict";
-import { logger } from "gridfire-web3-events/controllers/logger.js";
+import logger from "gridfire-web3-events/controllers/logger.js";
 import mongoose from "mongoose";
 import net from "net";
 
@@ -19,7 +19,6 @@ const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
 assert(HEALTH_PROBE_PORT, "Health probe port env var missing.");
 assert(MONGODB_URI, "MongoDB connection URI env var missing.");
 
-let amqpConnection;
 let healthProbeServer;
 
 process
@@ -60,12 +59,7 @@ const handleShutdown = async () => {
       );
     }
 
-    if (amqpConnection) {
-      logger.info("Closing AMQP connection…");
-      await amqpConnection.close.bind(amqpConnection);
-      logger.info("AMQP connection Closed.");
-    }
-
+    await amqpClose();
     logger.info("Closing Mongoose…");
 
     mongoose.connection.close(false, () => {
@@ -82,10 +76,8 @@ process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
 
 try {
   await mongoose.connect(MONGODB_URI);
-  const rabbitmq = await amqpConnect();
-  [amqpConnection] = rabbitmq || [];
+  await amqpConnect();
   await setupHealthProbe();
-
   const gridFirePayment = getGridFirePaymentContract();
   const gridFireEditions = getGridFireEditionsContract();
   gridFireEditions.on("EditionMinted", onEditionMinted);

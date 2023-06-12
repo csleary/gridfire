@@ -1,6 +1,8 @@
+import logger from "gridfire/controllers/logger.js";
+
 const closeOnError = (connection, error) => {
   if (!error) return false;
-  console.error("[AMQP] Error!\n", error);
+  logger.error(`AMQP Error! ${error.message}`);
   connection.close();
   return true;
 };

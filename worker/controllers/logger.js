@@ -1,4 +1,4 @@
-const deploymentName = "[Web3 Events]";
+const deploymentName = "[Worker]";
 
 const logger = {
   error: console.error.bind(null, deploymentName),

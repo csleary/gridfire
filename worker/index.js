@@ -1,91 +1,67 @@
 import "gridfire-worker/models/Release.js";
 import "gridfire-worker/models/User.js";
-import amqp from "amqplib";
-import { isFatalError } from "amqplib/lib/connection.js";
+import { amqpClose, amqpConnect } from "gridfire-worker/controllers/amqp/index.js";
+import logger from "gridfire-worker/controllers/logger.js";
 import mongoose from "mongoose";
 import net from "net";
-import startConsumer from "gridfire-worker/consumer/index.js";
-import startPublisher from "gridfire-worker/publisher/index.js";
 
-const { MONGODB_URI, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
-let amqpConnection;
-let consumerChannel;
-let consumerTags = [];
+const { MONGODB_URI } = process.env;
+let healthProbeServer;
 
 process
-  .on("uncaughtException", error => console.error("[Worker] Uncaught exception:", error))
-  .on("unhandledRejection", error => console.error("[Worker] Unhandled promise rejection:", error));
+  .on("uncaughtException", error => logger.error("Uncaught exception:", error))
+  .on("unhandledRejection", error => logger.error("Unhandled promise rejection:", error));
 
 mongoose.set("strictQuery", true);
 const db = mongoose.connection;
-db.once("open", async () => console.log("[Worker] Mongoose connected."));
-db.on("close", () => console.log("[Worker] Mongoose connection closed."));
-db.on("disconnected", () => console.warn("[Worker] Mongoose disconnected."));
-db.on("reconnected", () => console.info("[Worker] Mongoose reconnected."));
-db.on("error", console.error);
-
-const amqpConnect = async () => {
-  try {
-    const url = `amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@${RABBITMQ_HOST}:5672`;
-    const connection = await amqp.connect(url);
-    console.log("[Worker] AMQP connected.");
-    connection.on("error", error => console.error(`[Worker] AMQP error: ${error.message}`));
-
-    connection.on("close", error => {
-      if (isFatalError(error)) {
-        return console.log("[Worker] AMQP connection closed.");
-      }
-
-      console.error("[Worker] AMQP connection closed. Reconnecting…");
-      return setTimeout(amqpConnect, 3000);
-    });
-
-    startPublisher(connection);
-    const channel = await startConsumer(connection, consumerTags);
-    return [connection, channel];
-  } catch (error) {
-    setTimeout(amqpConnect, 3000);
-  }
-};
+db.once("open", async () => logger.info("Mongoose connected."));
+db.on("close", () => logger.info("Mongoose connection closed."));
+db.on("disconnected", () => logger.warn("Mongoose disconnected."));
+db.on("reconnected", () => logger.info("Mongoose reconnected."));
+db.on("error", logger.error);
 
 const setupHealthProbe = () =>
   new Promise(resolve => {
-    const healthProbeServer = net.createServer();
-    healthProbeServer.on("error", console.error.bind(null, "[Worker] Health probe server error:"));
+    healthProbeServer = net.createServer();
+    healthProbeServer.on("error", logger.error.bind(null, "Health probe server error:"));
 
     healthProbeServer.listen(9090, () => {
-      console.log("[Worker] Health probe server listening on port 9090.");
+      logger.info("Health probe server listening on port 9090.");
       resolve();
     });
   });
 
 try {
   await mongoose.connect(MONGODB_URI);
-  [amqpConnection, consumerChannel] = await amqpConnect();
+  await amqpConnect();
   await setupHealthProbe();
 } catch (error) {
-  console.error(`[Worker] Startup error: ${error.message}`);
+  logger.error(`Startup error: ${error.message}`);
 }
 
 const handleShutdown = async () => {
-  console.log("[Worker] Gracefully shutting down…");
+  logger.info("Gracefully shutting down…");
 
   try {
-    if (amqpConnection) {
-      for (const tag of consumerTags) {
-        await consumerChannel.cancel(tag);
-      }
+    if (healthProbeServer) {
+      logger.info("Closing health probe server…");
 
-      await amqpConnection.close.bind(amqpConnection);
-      console.log("[Worker] AMQP closed.");
+      await new Promise(resolve =>
+        healthProbeServer.close(() => {
+          logger.info("Health probe server closed.");
+          resolve();
+        })
+      );
     }
 
+    await amqpClose();
+
     mongoose.connection.close(false, () => {
-      console.log("[Worker] Mongoose closed.");
+      logger.info("Mongoose closed.");
       process.exit(0);
     });
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     process.exitCode = 1;
   }
 };

@@ -6,7 +6,7 @@ import { Contract, decodeBytes32String, formatEther, getAddress, getDefaultProvi
 import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditionsABI.js";
 import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
 import mongoose from "mongoose";
-import { publishToQueue } from "./amqp.js";
+import { publishToQueue } from "gridfire-web3-events/controllers/amqp/index.js";
 
 const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
 const Activity = mongoose.model("Activity");

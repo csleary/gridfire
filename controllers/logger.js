@@ -1,4 +1,4 @@
-const deploymentName = "[Web3 Events]";
+const deploymentName = "[API]";
 
 const logger = {
   error: console.error.bind(null, deploymentName),
