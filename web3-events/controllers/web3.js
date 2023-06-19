@@ -30,10 +30,10 @@ const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId)
     const date = new Date().toLocaleString("en-UK", { timeZone });
     const releaseId = decodeBytes32String(releaseIdBytes);
     logger.info(`(${date}) Edition minted by address: ${artist} for releaseId ${releaseId}.`);
-    const decodedId = decodeBytes32String(objectIdBytes);
-    const edition = await updateEditionStatus(releaseId, decodedId);
+    const decodedObjectId = decodeBytes32String(objectIdBytes);
+    const edition = await updateEditionStatus(releaseId, decodedObjectId, editionId.toString());
     const { user: userId, artist: artistId } = edition?.release || {};
-    notifyUser(userId, { editionId: decodedId.toString(), type: "mintedEvent", userId });
+    notifyUser(userId, { editionId: decodedObjectId.toString(), type: "mintedEvent", userId });
     Activity.mint(artistId, editionId.toString());
   } catch (error) {
     logger.error(error);

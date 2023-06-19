@@ -12,14 +12,12 @@ import "gridfire/models/WishList.js";
 import "gridfire/controllers/passport.js";
 import { amqpClose, amqpConnect } from "./controllers/amqp/index.js";
 import { clientErrorHandler, errorHandler, logErrors } from "./middlewares/errorHandlers.js";
-import SSEController from "./controllers/sseController.js";
 import artists from "./routes/artistRoutes.js";
 import artwork from "./routes/artworkRoutes.js";
 import auth from "./routes/authRoutes.js";
 import catalogue from "./routes/catalogueRoutes.js";
 import cookieParser from "cookie-parser";
 import cookieSession from "cookie-session";
-import { create } from "ipfs-http-client";
 import { createServer } from "http";
 import download from "./routes/downloadRoutes.js";
 import express from "express";
@@ -32,7 +30,7 @@ import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 import web3 from "./routes/web3Routes.js";
 
-const { COOKIE_KEY, IPFS_NODE_HOST, MONGODB_URI, PORT = 5000 } = process.env;
+const { COOKIE_KEY, MONGODB_URI, PORT = 5000 } = process.env;
 let isReady = false;
 
 process
@@ -41,14 +39,9 @@ process
 
 const app = express();
 const server = createServer(app);
-const sseController = new SSEController();
-
-// IPFS
-const ipfs = create(IPFS_NODE_HOST);
-app.locals.ipfs = ipfs;
 
 // RabbitMQ
-await amqpConnect(sseController).catch(logger.error);
+await amqpConnect().catch(logger.error);
 
 // Mongoose
 mongoose.set("strictQuery", true);
@@ -61,7 +54,6 @@ db.on("error", error => logger.info(`Mongoose error: ${error.message}`));
 await mongoose.connect(MONGODB_URI).catch(logger.error);
 
 // Express
-app.locals.sse = sseController;
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
 app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));

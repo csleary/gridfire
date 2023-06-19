@@ -6,10 +6,9 @@ const router = express.Router();
 
 router.put("/", requireLogin, async (req, res) => {
   try {
-    const { app, headers, user } = req;
-    const { sse } = app.locals;
+    const { headers, user } = req;
     const userId = user._id.toString();
-    await uploadTrack({ headers, req, sse, userId });
+    await uploadTrack({ headers, req, userId });
     res.sendStatus(200);
   } catch (error) {
     console.log(error);

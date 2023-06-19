@@ -8,14 +8,13 @@ import {
 } from "gridfire/controllers/web3/index.js";
 import express from "express";
 import { getArtworkStream } from "gridfire/controllers/artworkController.js";
+import ipfs from "gridfire/controllers/ipfsController.js";
 import mongoose from "mongoose";
 import { parseEther } from "ethers";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
+const { Edition, Release, User } = mongoose.models;
 const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
-const Edition = mongoose.model("Edition");
-const Release = mongoose.model("Release");
-const User = mongoose.model("User");
 const router = express.Router();
 
 router.get("/approvals/:account", requireLogin, async (req, res) => {
@@ -45,7 +44,7 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
 router.get("/claims", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user;
-    const { account } = await User.findById(userId);
+    const { account } = await User.findById(userId).exec();
     const gridFirePaymentContract = getGridFirePaymentContract();
     const claimFilter = gridFirePaymentContract.filters.Claim(account);
     const claims = await gridFirePaymentContract.queryFilter(claimFilter);
@@ -70,7 +69,7 @@ router.get("/claims", requireLogin, async (req, res) => {
 router.get("/purchases", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user;
-    const { paymentAddress } = await User.findById(userId);
+    const { paymentAddress } = await User.findById(userId).exec();
     const gridFirePaymentContract = getGridFirePaymentContract();
     const purchaseFilter = gridFirePaymentContract.filters.Purchase(null, paymentAddress);
     const gridFireEditionsContract = getGridFireEditionsContract();
@@ -117,10 +116,9 @@ router.get("/editions/user", requireLogin, async (req, res) => {
 
 router.post("/editions/mint", requireLogin, async (req, res) => {
   try {
-    const { app, body, hostname, protocol } = req;
-    const { ipfs } = app.locals;
+    const { body, hostname, protocol } = req;
     const { amount, description, price, releaseId, tracks: trackIds } = body;
-    const release = await Release.findById(releaseId);
+    const release = await Release.findById(releaseId).exec();
     const { artistName: artist, catNumber, credits, info, releaseDate, releaseTitle: title, trackList } = release;
     const priceInDai = Number(price).toFixed(2);
     const weiPrice = parseEther(price);

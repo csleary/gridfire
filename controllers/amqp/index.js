@@ -23,7 +23,7 @@ const amqpClose = async () => {
   logger.info("AMQP closed.");
 };
 
-const amqpConnect = async sse => {
+const amqpConnect = async () => {
   try {
     const url = `amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@${RABBITMQ_HOST}:5672`;
     connection = await amqp.connect(url);
@@ -33,11 +33,11 @@ const amqpConnect = async sse => {
     connection.on("close", error => {
       if (isFatalError(error)) return logger.error("AMQP connection has closed due to a permanent error.");
       logger.error("AMQP connection closed. Reconnecting…");
-      return reconnect(amqpConnect, sse);
+      return reconnect(amqpConnect);
     });
 
     startPublisher(connection);
-    consumerChannel = await startConsumer(connection, consumerTags, sse);
+    consumerChannel = await startConsumer(connection, consumerTags);
   } catch (error) {
     if (error.code === "ECONNREFUSED") {
       logger.error(`AMQP connection error! ${error.code}: ${error.message}`);
@@ -45,7 +45,7 @@ const amqpConnect = async sse => {
       logger.error(error);
     }
 
-    return reconnect(amqpConnect, sse);
+    return reconnect(amqpConnect);
   }
 };
 

@@ -3,6 +3,7 @@ import { deleteObject, streamFromBucket, streamToBucket } from "gridfire/control
 import fs from "fs";
 import mongoose from "mongoose";
 import sharp from "sharp";
+import sseClient from "gridfire/controllers/sseController.js";
 
 const { BUCKET_IMG } = process.env;
 const Release = mongoose.model("Release");
@@ -28,14 +29,14 @@ const deleteArtwork = async releaseId => {
 
 const getArtworkStream = releaseId => streamFromBucket(BUCKET_IMG, releaseId);
 
-const uploadArtwork = async ({ filePath, releaseId, userId, sse }) => {
+const uploadArtwork = async ({ filePath, releaseId, userId }) => {
   try {
     await Release.findByIdAndUpdate(releaseId, {
       "artwork.status": "storing",
       "artwork.dateCreated": Date.now()
     }).exec();
 
-    sse.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
+    sseClient.send(userId, { message: "Optimising and storing artwork…", title: "Processing" });
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
     await streamToBucket(BUCKET_IMG, releaseId, file.pipe(optimisedImg));
@@ -45,7 +46,7 @@ const uploadArtwork = async ({ filePath, releaseId, userId, sse }) => {
       "artwork.status": "stored"
     }).exec();
 
-    sse.send(userId, { type: "artworkUploaded" });
+    sseClient.send(userId, { type: "artworkUploaded" });
   } finally {
     fsPromises.unlink(filePath).catch(console.log);
   }

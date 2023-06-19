@@ -1,8 +1,9 @@
 import closeOnError from "./closeOnError.js";
+import sseClient from "gridfire/controllers/sseController.js";
 
 const { QUEUE_MESSAGE } = process.env;
 
-const startConsumer = async (connection, consumerTags, sse) => {
+const startConsumer = async (connection, consumerTags) => {
   try {
     const channel = await connection.createChannel();
 
@@ -14,11 +15,11 @@ const startConsumer = async (connection, consumerTags, sse) => {
         const { userId, ping, uuid, ...rest } = message;
 
         if (ping) {
-          sse.ping(userId, uuid);
+          sseClient.ping(userId, uuid);
           return void channel.ack(data);
         }
 
-        sse.send(userId, rest);
+        sseClient.send(userId, rest);
         channel.ack(data);
       } catch (error) {
         channel.nack(data, false, false);
@@ -36,7 +37,7 @@ const startConsumer = async (connection, consumerTags, sse) => {
     const config = await channel.consume(QUEUE_MESSAGE, processMessage, { noAck: false });
     const { consumerTag } = config || {};
     consumerTags.push(consumerTag);
-    sse.setConsumerChannel(channel, processMessage);
+    sseClient.setConsumerChannel(channel, processMessage);
     return channel;
   } catch (error) {
     if (closeOnError(connection, error)) return;

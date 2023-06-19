@@ -104,7 +104,7 @@ const MintEdition = () => {
 
   useEffect(() => {
     fetchEditions();
-  }, [fetchEditions, mintedEditionIds]);
+  }, [fetchEditions, mintedEditionIds.length]);
 
   const handleChange = useCallback(({ currentTarget: { name, value } }: HandleChangeInterface) => {
     const nextValue = ["amount", "price"].includes(name) ? value.replace(/[^0-9.]/g, "") : value;

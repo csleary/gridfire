@@ -14,7 +14,6 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
-    const { sse } = req.app.locals;
     const userId = req.user._id;
 
     busboy.on("error", async error => {
@@ -40,7 +39,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
 
       write.on("finish", async () => {
         try {
-          await uploadArtwork({ userId, filePath, releaseId, sse });
+          await uploadArtwork({ userId, filePath, releaseId });
           console.log(`[${releaseId}] Artwork uploaded.`);
           res.sendStatus(200);
         } catch (error) {

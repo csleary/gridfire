@@ -1,5 +1,6 @@
 import express from "express";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
+import sseClient from "gridfire/controllers/sseController.js";
 
 const router = express.Router();
 
@@ -14,8 +15,7 @@ router.get("/:userId/:uuid", async (req, res) => {
   };
 
   res.writeHead(200, headers);
-  const { sse } = req.app.locals;
-  await sse.add(res, userId, uuid);
+  await sseClient.add(res, userId, uuid);
   res.write("data: [SSE] Subscribed to events.\n\n");
 });
 
@@ -27,12 +27,11 @@ router.get("/:userId/:uuid/ping", (req, res) => {
 
 router.delete("/:userId/:uuid", (req, res) => {
   const { userId, uuid } = req.params;
-  const { sse } = req.app.locals;
-  const connections = sse.get(userId);
+  const connections = sseClient.get(userId);
 
   if (connections) {
     connections.delete(uuid);
-    if (connections.size === 0) sse.remove(userId);
+    if (connections.size === 0) sseClient.remove(userId);
   }
 
   res.sendStatus(200);

@@ -1,7 +1,7 @@
 const CHECK_INTERVAL = 1000 * 60 * 2;
 const { POD_NAME = "dev" } = process.env;
 
-class SSEController {
+class SSEClient {
   #consumerChannel;
   #consumerTags;
   #messageHandler;
@@ -126,4 +126,6 @@ class SSEController {
   }
 }
 
-export default SSEController;
+const sseClient = new SSEClient();
+
+export default sseClient;

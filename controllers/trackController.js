@@ -4,6 +4,7 @@ import Busboy from "busboy";
 import mime from "mime-types";
 import mongoose from "mongoose";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
+import sseClient from "gridfire/controllers/sseController.js";
 
 const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
 const MIN_DURATION = 1000 * 25;
@@ -91,7 +92,7 @@ const logStream = async ({ trackId, userId, type }) => {
   return user;
 };
 
-const uploadTrack = async ({ headers, req, sse, userId }) => {
+const uploadTrack = async ({ headers, req, userId }) => {
   const formData = {};
   const busboy = Busboy({ headers, limits: { fileSize: 1 << 30 } });
 
@@ -130,12 +131,12 @@ const uploadTrack = async ({ headers, req, sse, userId }) => {
         let track = release.trackList.id(trackId);
         release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
         track = release.trackList.id(trackId);
-        sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploading" });
+        sseClient.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploading" });
         await streamToBucket(BUCKET_SRC, `${releaseId}/${trackId}`, fileStream);
         console.log(`Uploaded src file ${filename} for track ${trackId}.`);
         track.set({ dateUpdated: Date.now(), status: "uploaded" });
         await release.save();
-        sse.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploaded" });
+        sseClient.send(userId, { type: "trackStatus", releaseId, trackId, status: "uploaded" });
 
         if ([releaseId, trackId, trackName, userId].includes(undefined)) {
           throw new Error("Job parameters missing.");
