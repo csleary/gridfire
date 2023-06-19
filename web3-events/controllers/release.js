@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const { Release, Sale, User } = mongoose.models;
 
-const validatePurchase = async ({ amountPaid, artistAddress, releaseId, userId }) => {
+const validatePurchase = async ({ amountPaid, artistAddress, transactionHash, releaseId, userId }) => {
   let price;
   let releaseTitle;
   let type = "album";
@@ -36,7 +36,15 @@ const validatePurchase = async ({ amountPaid, artistAddress, releaseId, userId }
     throw new Error("The amount paid is lower than the release price.");
   }
 
-  if (await Sale.exists({ release: releaseId, user: userId })) {
+  if (
+    await Sale.exists({
+      paid: amountPaid,
+      release: releaseId,
+      "transaction.hash": transactionHash,
+      type,
+      user: userId
+    })
+  ) {
     throw new Error("The buyer already owns this release.");
   }
 

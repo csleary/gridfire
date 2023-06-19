@@ -1,7 +1,3 @@
-import "gridfire-web3-events/models/Edition.js";
-import "gridfire-web3-events/models/Release.js";
-import "gridfire-web3-events/models/Sale.js";
-import "gridfire-web3-events/models/User.js";
 import mongoose from "mongoose";
 
 const { Edition, Release } = mongoose.models;
