@@ -3,7 +3,7 @@ import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditio
 import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
 import logger from "gridfire-web3-events/controllers/logger.js";
 import mongoose from "mongoose";
-import { publishToQueue } from "gridfire-web3-events/controllers/amqp/index.js";
+import { notifyUser } from "gridfire-web3-events/controllers/notifyUser.js";
 import { recordSale } from "gridfire-web3-events/controllers/sale.js";
 import { updateEditionStatus } from "gridfire-web3-events/controllers/edition.js";
 import { validatePurchase } from "gridfire-web3-events/controllers/release.js";
@@ -33,7 +33,7 @@ const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId)
     const decodedId = decodeBytes32String(objectIdBytes);
     const edition = await updateEditionStatus(releaseId, decodedId);
     const { user: userId, artist: artistId } = edition?.release || {};
-    publishToQueue("user", userId.toString(), { editionId: decodedId.toString(), type: "mintedEvent", userId });
+    notifyUser(userId, { editionId: decodedId.toString(), type: "mintedEvent", userId });
     Activity.mint(artistId, editionId.toString());
   } catch (error) {
     logger.error(error);
@@ -78,6 +78,7 @@ const onPurchase = async (
     });
 
     const { artist: artistId, artistName, user: artistUser } = release;
+    const artistUserId = artistUser._id.toString();
 
     Activity.sale({
       artist: artistId.toString(),
@@ -87,11 +88,10 @@ const onPurchase = async (
     });
 
     // Notify user of successful purchase.
-    publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
-    const artistUserId = artistUser._id.toString();
+    notifyUser(userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
 
     // Notify artist of sale.
-    publishToQueue("user", artistUserId, {
+    notifyUser(artistUserId, {
       artistName,
       artistShare: formatEther(artistShare),
       buyerAddress,
@@ -154,10 +154,10 @@ const onPurchaseEdition = async (
     });
 
     // Notify user of successful purchase.
-    publishToQueue("user", userId, { artistName, releaseTitle, type: "purchaseEditionEvent", userId });
+    notifyUser(userId, { artistName, releaseTitle, type: "purchaseEditionEvent", userId });
 
     // Notify artist of sale.
-    publishToQueue("user", artistUserId, {
+    notifyUser(artistUserId, {
       artistName,
       artistShare: formatEther(artistShare),
       buyerAddress,
