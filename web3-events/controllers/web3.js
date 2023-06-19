@@ -5,15 +5,14 @@ import "gridfire-web3-events/models/User.js";
 import { Contract, decodeBytes32String, formatEther, getAddress, getDefaultProvider, parseEther } from "ethers";
 import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditionsABI.js";
 import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
+import logger from "gridfire-web3-events/controllers/logger.js";
 import mongoose from "mongoose";
 import { publishToQueue } from "gridfire-web3-events/controllers/amqp/index.js";
+import { updateEditionStatus } from "gridfire-web3-events/controllers/edition.js";
 
 const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
-const Activity = mongoose.model("Activity");
-const Edition = mongoose.model("Edition");
-const Release = mongoose.model("Release");
-const Sale = mongoose.model("Sale");
-const User = mongoose.model("User");
+const { Activity, Release, Sale, User } = mongoose.models;
+const timeZone = "Europe/Amsterdam";
 
 const getProvider = () => {
   return getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
@@ -30,24 +29,16 @@ const getGridFirePaymentContract = () => {
 
 const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId) => {
   try {
-    const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
+    const date = new Date().toLocaleString("en-UK", { timeZone });
     const releaseId = decodeBytes32String(releaseIdBytes);
-    const _id = decodeBytes32String(objectIdBytes);
-    console.log(`[${date}] Edition minted by address: ${artist} for releaseId ${releaseId}.`);
-
-    const { release } = await Edition.findOneAndUpdate(
-      { _id, release: releaseId },
-      { editionId: editionId.toString(), status: "minted" }
-    )
-      .populate({ path: "release", model: Release, options: { lean: true }, select: "user" })
-      .exec();
-
-    const userId = release.user.toString();
-    publishToQueue("user", userId, { editionId: _id.toString(), type: "mintedEvent", userId });
-    const artistId = release.artist.toString();
+    logger.info(`(${date}) Edition minted by address: ${artist} for releaseId ${releaseId}.`);
+    const decodedId = decodeBytes32String(objectIdBytes);
+    const edition = await updateEditionStatus(releaseId, decodedId);
+    const { user: userId, artist: artistId } = edition?.release || {};
+    publishToQueue("user", userId.toString(), { editionId: decodedId.toString(), type: "mintedEvent", userId });
     Activity.mint(artistId, editionId.toString());
   } catch (error) {
-    console.error("EditionMinted error:", error);
+    logger.error(error);
   }
 };
 
@@ -62,11 +53,11 @@ const onPurchase = async (
   event
 ) => {
   try {
-    const date = new Date().toLocaleString("en-UK", { timeZone: "Europe/Amsterdam" });
+    const date = new Date().toLocaleString("en-UK", { timeZone });
     const daiPaid = formatEther(amountPaid);
     const releaseId = decodeBytes32String(releaseIdBytes);
     const userId = decodeBytes32String(userIdBytes);
-    console.log(`[${date}] User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
+    logger.info(`(${date}) User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
 
     let price;
     let releaseTitle;
@@ -124,7 +115,7 @@ const onPurchase = async (
         userAddress: buyer
       }).catch(error => {
         if (error.code === 11000) throw new Error("This sale has already been recorded.");
-        console.error(error);
+        logger.error(error);
       });
 
       Activity.sale({
@@ -150,7 +141,7 @@ const onPurchase = async (
       });
     }
   } catch (error) {
-    console.error("[Web3 Events] 🔴 Purchase error:", error);
+    logger.error("🔴 Purchase error:", error);
   }
 };
 
@@ -174,8 +165,8 @@ const onPurchaseEdition = async (
     const daiPaid = formatEther(amountPaid);
     const id = editionId.toString();
 
-    console.log(
-      `[${date}] User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), release ${releaseId}, artist address: ${artistAddress}.`
+    logger.info(
+      `(${date}) User ${userId} paid ${daiPaid} DAI for GridFire Edition (${id}), release ${releaseId}, artist address: ${artistAddress}.`
     );
 
     const release = await Release.findById(releaseId, "artist artistName releaseTitle", { lean: true })
@@ -203,7 +194,7 @@ const onPurchaseEdition = async (
         userAddress: buyer
       }).catch(error => {
         if (error.code === 11000) throw new Error("This sale has already been recorded.");
-        console.error(error);
+        logger.error(error);
       });
 
       Activity.sale({
@@ -230,7 +221,7 @@ const onPurchaseEdition = async (
       });
     }
   } catch (error) {
-    console.error("[Web3 Events] 🔴 Edition Purchase error:", error);
+    logger.error("[Web3 Events] 🔴 Edition Purchase error:", error);
   }
 };
 
