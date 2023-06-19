@@ -39,10 +39,10 @@ activitySchema.static("publish", function (artist, release) {
   ).exec();
 });
 
-activitySchema.static("mint", function (artist, edition) {
+activitySchema.static("mint", function (artist, editionId) {
   return this.findOneAndUpdate(
-    { artist, edition },
-    { $setOnInsert: { artist, edition, type: "mint" } },
+    { artist, editionId },
+    { $setOnInsert: { artist, editionId, type: "mint" } },
     { upsert: true }
   ).exec();
 });
