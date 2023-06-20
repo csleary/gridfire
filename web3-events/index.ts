@@ -20,7 +20,7 @@ const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
 assert(HEALTH_PROBE_PORT, "Health probe port env var missing.");
 assert(MONGODB_URI, "MongoDB connection URI env var missing.");
 
-let healthProbeServer;
+let healthProbeServer: net.Server | null = null;
 
 process
   .on("uncaughtException", error => logger.error("Uncaught exception:", error))
@@ -35,7 +35,7 @@ db.on("reconnected", () => logger.info("Mongoose reconnected."));
 db.on("error", logger.error);
 
 const setupHealthProbe = () =>
-  new Promise(resolve => {
+  new Promise<void>(resolve => {
     healthProbeServer = net.createServer();
     healthProbeServer.on("error", logger.error.bind(null, "Health probe server error:"));
 
@@ -49,11 +49,11 @@ const handleShutdown = async () => {
   logger.info("Gracefully shutting down…");
 
   try {
-    if (healthProbeServer) {
+    if (healthProbeServer != null) {
       logger.info("Closing health probe server…");
 
-      await new Promise(resolve =>
-        healthProbeServer.close(() => {
+      await new Promise<void>(resolve =>
+        healthProbeServer?.close(() => {
           logger.info("Health probe server closed.");
           resolve();
         })
@@ -84,6 +84,6 @@ try {
   gridFireEditions.on("EditionMinted", onEditionMinted);
   gridFireEditions.on("PurchaseEdition", onPurchaseEdition);
   gridFirePayment.on("Purchase", onPurchase);
-} catch (error) {
+} catch (error: any) {
   logger.error(`Startup error: ${error.message}`);
 }

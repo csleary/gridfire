@@ -1,4 +1,14 @@
-import { Contract, decodeBytes32String, formatEther, getAddress, getDefaultProvider } from "ethers";
+import {
+  BytesLike,
+  Contract,
+  ContractEventPayload,
+  decodeBytes32String,
+  formatEther,
+  getAddress,
+  getDefaultProvider
+} from "ethers";
+import { ActivityModel } from "gridfire-web3-events/types/index.js";
+import { NotificationType } from "gridfire-web3-events/types/index.js";
 import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditionsABI.js";
 import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
 import logger from "gridfire-web3-events/controllers/logger.js";
@@ -8,8 +18,8 @@ import { recordSale } from "gridfire-web3-events/controllers/sale.js";
 import { updateEditionStatus } from "gridfire-web3-events/controllers/edition.js";
 import { validatePurchase } from "gridfire-web3-events/controllers/release.js";
 
-const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY } = process.env;
-const { Activity, Release, User } = mongoose.models;
+const { GRIDFIRE_EDITIONS_ADDRESS = "", GRIDFIRE_PAYMENT_ADDRESS = "", NETWORK_URL, NETWORK_KEY } = process.env;
+const { Activity, Release, User } = mongoose.models as { Activity: ActivityModel; Release: any; User: any };
 const timeZone = "Europe/Amsterdam";
 
 const getProvider = () => {
@@ -25,7 +35,12 @@ const getGridFirePaymentContract = () => {
   return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
 };
 
-const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId) => {
+const onEditionMinted = async (
+  releaseIdBytes: BytesLike,
+  artist: string,
+  objectIdBytes: BytesLike,
+  editionId: bigint
+) => {
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone });
     const releaseId = decodeBytes32String(releaseIdBytes);
@@ -33,7 +48,7 @@ const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId)
     const decodedObjectId = decodeBytes32String(objectIdBytes);
     const edition = await updateEditionStatus(releaseId, decodedObjectId, editionId.toString());
     const { user: userId, artist: artistId } = edition?.release || {};
-    notifyUser(userId, { editionId: decodedObjectId.toString(), type: "mintedEvent", userId });
+    notifyUser(userId, { editionId: decodedObjectId.toString(), type: NotificationType.Mint, userId });
     Activity.mint(artistId, editionId.toString());
   } catch (error) {
     logger.error(error);
@@ -41,14 +56,14 @@ const onEditionMinted = async (releaseIdBytes, artist, objectIdBytes, editionId)
 };
 
 const onPurchase = async (
-  buyerAddress,
-  artistAddress,
-  releaseIdBytes,
-  userIdBytes,
-  amountPaid,
-  artistShare,
-  platformFee,
-  event
+  buyerAddress: string,
+  artistAddress: string,
+  releaseIdBytes: BytesLike,
+  userIdBytes: BytesLike,
+  amountPaid: bigint,
+  artistShare: bigint,
+  platformFee: bigint,
+  event: ContractEventPayload
 ) => {
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone });
@@ -88,7 +103,7 @@ const onPurchase = async (
     });
 
     // Notify user of successful purchase.
-    notifyUser(userId, { artistName, releaseTitle, type: "purchaseEvent", userId });
+    notifyUser(userId, { artistName, releaseTitle, type: NotificationType.Purchase, userId });
 
     // Notify artist of sale.
     notifyUser(artistUserId, {
@@ -97,7 +112,7 @@ const onPurchase = async (
       buyerAddress,
       platformFee: formatEther(platformFee),
       releaseTitle,
-      type: "saleEvent",
+      type: NotificationType.Sale,
       userId: artistUserId
     });
   } catch (error) {
@@ -106,14 +121,14 @@ const onPurchase = async (
 };
 
 const onPurchaseEdition = async (
-  buyerAddress,
-  artistAddress,
-  editionId,
-  amountPaid,
-  artistShare,
-  platformFee,
-  releaseIdBytes,
-  event
+  buyerAddress: string,
+  artistAddress: string,
+  editionId: bigint,
+  amountPaid: bigint,
+  artistShare: bigint,
+  platformFee: bigint,
+  releaseIdBytes: BytesLike,
+  event: ContractEventPayload
 ) => {
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone });
@@ -154,7 +169,7 @@ const onPurchaseEdition = async (
     });
 
     // Notify user of successful purchase.
-    notifyUser(userId, { artistName, releaseTitle, type: "purchaseEditionEvent", userId });
+    notifyUser(userId, { artistName, releaseTitle, type: NotificationType.PurchaseEdition, userId });
 
     // Notify artist of sale.
     notifyUser(artistUserId, {
@@ -163,7 +178,7 @@ const onPurchaseEdition = async (
       buyerAddress,
       platformFee: formatEther(platformFee),
       releaseTitle,
-      type: "saleEvent",
+      type: NotificationType.Sale,
       userId: artistUserId
     });
   } catch (error) {

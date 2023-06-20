@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const { Edition, Release } = mongoose.models;
 
-const updateEditionStatus = async (releaseId, editionObjectId, editionId) => {
+const updateEditionStatus = async (releaseId: string, editionObjectId: string, editionId: string) => {
   const filter = { _id: editionObjectId, release: releaseId };
   const update = { editionId, status: "minted" };
   const options = { new: true, lean: true };

@@ -1,9 +1,30 @@
-import mongoose from "mongoose";
+import { Model, ObjectId, Schema, model } from "mongoose";
 
-const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
-const activitySchema = new Schema(
+interface SaleParams {
+  artist: string;
+  editionId?: string;
+  release: string;
+  sale: string;
+  user: string;
+}
+
+interface IActivity {
+  user: ObjectId;
+  type: string;
+  artist: ObjectId;
+  release: ObjectId;
+  editionId: string;
+  sale: ObjectId;
+}
+
+interface ActivityModel extends Model<IActivity> {
+  mint(artist: string, editionId: string): void;
+  sale(params: SaleParams): void;
+}
+
+const activitySchema = new Schema<IActivity, ActivityModel>(
   {
     user: { type: ObjectId, ref: "User", required: true },
     type: { type: String, enum: ["favourite", "follow", "mint", "publish", "sale"], required: true },
@@ -33,6 +54,6 @@ activitySchema.static("sale", function ({ artist, editionId, release, sale, user
 
 activitySchema.index({ artist: 1, user: 1 });
 
-const Activity = mongoose.model("Activity", activitySchema, "activities");
+const Activity = model<IActivity, ActivityModel>("Activity", activitySchema, "activities");
 
 export default Activity;

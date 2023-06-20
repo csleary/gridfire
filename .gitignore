@@ -5,4 +5,5 @@ hardhat/artifacts
 hardhat/cache
 manifests/secrets
 node_modules
+web3-events/dist
 worker/bin

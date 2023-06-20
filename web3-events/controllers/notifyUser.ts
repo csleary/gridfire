@@ -1,6 +1,7 @@
+import { Notification } from "gridfire-web3-events/types/index.js";
 import { publishToQueue } from "gridfire-web3-events/controllers/amqp/index.js";
 
-const notifyUser = async (userId, payload) => {
+const notifyUser = async (userId: string, payload: Notification) => {
   if (!userId) {
     throw new Error("No userId provided.");
   }

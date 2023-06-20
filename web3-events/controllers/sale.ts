@@ -1,10 +1,22 @@
+import { BigIntToString, BigIntValues, RecordSaleParams } from "gridfire-web3-events/types/index.js";
 import mongoose from "mongoose";
 
 const { Sale } = mongoose.models;
 
-const bigIntToString = (prev, [key, value]) => ({ ...prev, [key]: value.toString() });
+const bigIntToString: BigIntToString = (prev, [key, value]) => ({
+  ...prev,
+  [key]: value.toString()
+});
 
-const recordSale = async ({ amountPaid, artistShare, platformFee, releaseId, transactionReceipt, type, userId }) => {
+const recordSale = async ({
+  amountPaid,
+  artistShare,
+  platformFee,
+  releaseId,
+  transactionReceipt,
+  type,
+  userId
+}: RecordSaleParams) => {
   const paid = amountPaid.toString();
   const { gasUsed, cumulativeGasUsed, gasPrice, ...restTxReceipt } = transactionReceipt;
   const { from: buyer, hash, status } = restTxReceipt;
@@ -25,7 +37,7 @@ const recordSale = async ({ amountPaid, artistShare, platformFee, releaseId, tra
     throw new Error("This sale has already been recorded.");
   }
 
-  const bigIntValues = { gasUsed, cumulativeGasUsed, gasPrice };
+  const bigIntValues: BigIntValues = { cumulativeGasUsed, gasPrice, gasUsed };
   const bigIntValuesAsString = Object.entries(bigIntValues).reduce(bigIntToString, {});
 
   const sale = await Sale.create({

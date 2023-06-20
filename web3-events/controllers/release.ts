@@ -1,9 +1,16 @@
 import { getAddress, parseEther } from "ethers";
+import { ValidatePurchaseParams } from "gridfire-web3-events/types/index.js";
 import mongoose from "mongoose";
 
 const { Release, Sale, User } = mongoose.models;
 
-const validatePurchase = async ({ amountPaid, artistAddress, transactionHash, releaseId, userId }) => {
+const validatePurchase = async ({
+  amountPaid,
+  artistAddress,
+  transactionHash,
+  releaseId,
+  userId
+}: ValidatePurchaseParams) => {
   let price;
   let releaseTitle;
   let type = "album";
@@ -38,7 +45,7 @@ const validatePurchase = async ({ amountPaid, artistAddress, transactionHash, re
 
   if (
     await Sale.exists({
-      paid: amountPaid,
+      paid: amountPaid.toString(),
       release: releaseId,
       "transaction.hash": transactionHash,
       type,
