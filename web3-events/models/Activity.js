@@ -17,7 +17,7 @@ const activitySchema = new Schema(
 
 activitySchema.static("mint", function (artist, editionId) {
   return this.findOneAndUpdate(
-    { artist, editionId },
+    { artist, editionId, type: "mint" },
     { $setOnInsert: { artist, editionId, type: "mint" } },
     { upsert: true }
   ).exec();
@@ -25,7 +25,7 @@ activitySchema.static("mint", function (artist, editionId) {
 
 activitySchema.static("sale", function ({ artist, editionId, release, sale, user }) {
   return this.findOneAndUpdate(
-    { ...(editionId ? { editionId } : {}), artist, release, sale, user },
+    { ...(editionId ? { editionId } : {}), artist, release, sale, type: "sale", user },
     { $setOnInsert: { ...(editionId ? { editionId } : {}), artist, release, type: "sale", sale, user } },
     { upsert: true }
   ).exec();

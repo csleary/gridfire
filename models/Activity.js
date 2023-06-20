@@ -17,7 +17,7 @@ const activitySchema = new Schema(
 
 activitySchema.static("favourite", function (artist, release, user) {
   return this.findOneAndUpdate(
-    { artist, release, user },
+    { artist, release, type: "favourite", user },
     { $setOnInsert: { artist, release, type: "favourite", user } },
     { upsert: true }
   ).exec();
@@ -25,7 +25,7 @@ activitySchema.static("favourite", function (artist, release, user) {
 
 activitySchema.static("follow", function (artist, user) {
   return this.findOneAndUpdate(
-    { artist, user },
+    { artist, type: "follow", user },
     { $setOnInsert: { artist, type: "follow", user } },
     { upsert: true }
   ).exec();
@@ -33,7 +33,7 @@ activitySchema.static("follow", function (artist, user) {
 
 activitySchema.static("publish", function (artist, release) {
   return this.findOneAndUpdate(
-    { artist, release },
+    { artist, release, type: "publish" },
     { $setOnInsert: { artist, release, type: "publish" } },
     { upsert: true }
   ).exec();
@@ -41,7 +41,7 @@ activitySchema.static("publish", function (artist, release) {
 
 activitySchema.static("mint", function (artist, editionId) {
   return this.findOneAndUpdate(
-    { artist, editionId },
+    { artist, editionId, type: "mint" },
     { $setOnInsert: { artist, editionId, type: "mint" } },
     { upsert: true }
   ).exec();
