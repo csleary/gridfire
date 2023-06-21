@@ -24,6 +24,7 @@ import Card from "components/card";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import AddToBasketButton from "./addToBasketButton";
+import { DateTime } from "luxon";
 import Editions from "./editions";
 import Price from "./price";
 import PurchaseButton from "./purchaseButton";
@@ -31,7 +32,6 @@ import Tags from "./tags";
 import TrackList from "./trackList/index";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
-import moment from "moment";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -205,7 +205,9 @@ const ActiveRelease = () => {
                     >
                       <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
                     </Flex>
-                    <Box color={releaseInfoText}>{moment(new Date(releaseDate)).format("Do of MMM, YYYY")}</Box>
+                    <Box color={releaseInfoText}>
+                      {DateTime.fromISO(releaseDate).toLocaleString(DateTime.DATE_FULL)}
+                    </Box>
                   </Flex>
                 )}
                 {isLoading ? (

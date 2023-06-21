@@ -4,11 +4,11 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema(
   {
-    account: { type: String, trim: true },
-    emailAddress: { type: String, trim: true },
+    account: { type: String, trim: true, required: true },
+    emailAddress: { type: String, trim: true, lowercase: true, default: "" },
     lastLogin: { type: Date },
     paymentAddress: { type: String, trim: true },
-    username: { type: String, trim: true }
+    username: { type: String, trim: true, lowercase: true, default: "" }
   },
   { timestamps: true }
 );

@@ -13,17 +13,15 @@ import {
 import Card from "components/card";
 import Field from "components/field";
 import Icon from "components/icon";
-import PropTypes from "prop-types";
-import { nanoid } from "@reduxjs/toolkit";
 import { useState } from "react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
-const Tags = ({ handleChange, tags }) => {
+const Tags = ({ handleChange, handleRemoveTag, tags }) => {
   const [tagsInput, setTagsInput] = useState("");
   const [tagsError, setTagsError] = useState("");
-  const keys = tags.map(() => nanoid(8));
 
   const handleTagsInput = event => {
     const { value } = event.target;
@@ -33,30 +31,18 @@ const Tags = ({ handleChange, tags }) => {
     setTagsError("");
   };
 
-  const handleKeyPress = ({ key }) => {
-    if (key === "Enter") {
-      const tag = tagsInput
-        .replace(/[^0-9a-z\s]/gi, "")
-        .trim()
-        .toLowerCase();
+  const handleKeyPress = e => {
+    const { key } = e;
 
-      if (!tag.length) return;
-      const update = [...tags, tag];
-      handleChange({ target: { name: "tags", value: update } });
+    if (key === "Enter") {
+      handleChange(e);
       setTagsError("");
       setTagsInput("");
     }
   };
 
-  const handleRemoveTag = indexToDelete => {
-    const update = tags.filter((_, index) => index !== indexToDelete);
-    handleChange({ target: { name: "tags", value: update } });
-    setTagsError("");
-    if (tags.length <= 20) setTagsInput("");
-  };
-
-  const handleClearTags = () => {
-    handleChange({ target: { name: "tags", value: [] } });
+  const handleRemoveTags = e => {
+    handleChange(e);
     setTagsInput("");
     setTagsError("");
   };
@@ -95,7 +81,8 @@ const Tags = ({ handleChange, tags }) => {
               leftIcon={<Icon icon={faTimes} />}
               size="xs"
               isDisabled={!tags.length}
-              onClick={handleClearTags}
+              name="removeTagsButton"
+              onClick={handleRemoveTags}
               title={"Remove all currently set tags."}
               variant="ghost"
               ml={2}
@@ -109,11 +96,11 @@ const Tags = ({ handleChange, tags }) => {
           </Text>
         )}
         <Wrap role="button" tabIndex="-1">
-          {tags.map((tag, index) => (
-            <WrapItem key={keys[index]}>
+          {tags.map(tag => (
+            <WrapItem key={tag}>
               <Tag whiteSpace="nowrap">
                 {tag}
-                <TagCloseButton onClick={() => handleRemoveTag(index)} title={`Click to delete \u2018${tag}\u2019.`} />
+                <TagCloseButton onClick={() => handleRemoveTag(tag)} title={`Click to delete \u2018${tag}\u2019.`} />
               </Tag>
             </WrapItem>
           ))}
@@ -121,13 +108,6 @@ const Tags = ({ handleChange, tags }) => {
       </FormControl>
     </Card>
   );
-};
-
-Tags.propTypes = {
-  input: PropTypes.object,
-  handleChange: PropTypes.func,
-  label: PropTypes.string,
-  tags: PropTypes.array
 };
 
 export default Tags;

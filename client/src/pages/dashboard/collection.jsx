@@ -2,12 +2,12 @@ import { Box, Flex, Heading, Link, Text, useColorModeValue } from "@chakra-ui/re
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { fetchCollection, fetchUserEditions } from "state/releases";
 import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
 import Grid from "components/grid";
 import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
 import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
-import moment from "moment";
 
 // Note: the shape of the transactions object is different for userEditions and albums/singles.
 
@@ -81,7 +81,7 @@ const Collection = () => {
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
                     <Link href={`https://arbiscan.io/tx/${transaction.hash}`} variant="unstyled">
-                      {moment(new Date(purchaseDate)).format("Do of MMM, YYYY")}
+                      {DateTime.fromISO(purchaseDate).toFormat("ff")}
                     </Link>
                     ,{" "}
                     <Box as="span" mr="0.2rem">
@@ -119,7 +119,7 @@ const Collection = () => {
                     <Text color={receiptTextColour}>
                       <Icon color={receiptColour} icon={faReceipt} mr={2} />
                       <Link href={`https://arbiscan.io/tx/${transaction.hash}`} variant="unstyled">
-                        {moment(new Date(purchaseDate)).format("Do of MMM, YYYY")}
+                        {DateTime.fromISO(purchaseDate).toFormat("ff")}
                       </Link>
                       ,{" "}
                       <Box as="span" mr="0.2rem">

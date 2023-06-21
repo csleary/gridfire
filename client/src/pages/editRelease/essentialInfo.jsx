@@ -1,13 +1,15 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
 import ArtistMenu from "./artistMenu";
+import { DateTime } from "luxon";
 import Field from "components/field";
 import { formatPrice } from "utils";
 import { useCallback } from "react";
 
 const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
-  const { releaseEditing: release } = useSelector(state => state.releases, shallowEqual);
+  const { editing: release } = useSelector(state => state.releases, shallowEqual);
   const { artist, artistName } = release;
+  const releaseDate = DateTime.fromISO(values.releaseDate).toISODate();
 
   const handleChangePrice = useCallback(
     ({ target: { name, value } }) => {
@@ -57,7 +59,7 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             name="releaseDate"
             onChange={handleChange}
             type="date"
-            value={(values.releaseDate || new Date(Date.now()).toISOString()).split("T")[0]}
+            value={releaseDate}
             size="lg"
           />
           <Field

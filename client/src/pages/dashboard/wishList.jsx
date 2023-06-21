@@ -1,13 +1,13 @@
-import { Box, Flex, Heading, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
 import Grid from "components/grid";
 import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
 import { fetchUserWishList } from "state/releases";
 import { faStickyNote as faStickyNoteOutline } from "@fortawesome/free-regular-svg-icons";
 import { faStickyNote } from "@fortawesome/free-solid-svg-icons";
-import moment from "moment";
 
 const WishList = () => {
   const dispatch = useDispatch();
@@ -37,9 +37,7 @@ const WishList = () => {
                 <Icon verticalAlign="middle" color={noteColour} icon={noteIcon} mr={2} />
                 {withlisted.note}
               </Text>
-              <Text color={noteTextColour}>
-                &ndash; {moment(new Date(withlisted.dateAdded)).format("Do of MMM, YYYY")}.
-              </Text>
+              <Text color={noteTextColour}>&ndash; {DateTime.fromISO(withlisted.dateAdded).toFormat("ff")}.</Text>
             </Box>
           </Box>
         ))}

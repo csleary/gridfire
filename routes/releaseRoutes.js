@@ -59,7 +59,7 @@ router.get("/:releaseId", async (req, res) => {
       return void res.sendStatus(404);
     }
 
-    res.json({ release });
+    res.json(release);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);

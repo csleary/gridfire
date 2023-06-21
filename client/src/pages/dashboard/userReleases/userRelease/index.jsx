@@ -5,11 +5,11 @@ import { faEye, faEyeSlash, faTrashAlt } from "@fortawesome/free-regular-svg-ico
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastSuccess, toastWarning } from "state/toast";
 import Artwork from "./artwork";
+import { DateTime } from "luxon";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
 import StatusIcon from "./statusIcon";
 import Title from "./title";
-import moment from "moment";
 import { setReleaseIdsForDeletion } from "state/releases";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -94,7 +94,7 @@ function UserRelease({ release }) {
                 icon={faCircle}
                 mr={2}
               />
-              {moment(new Date(releaseDate)).format("Do of MMM, YYYY")}
+              {DateTime.fromISO(releaseDate).toFormat("ff")}
             </Text>
             <Text>
               <Icon color={hasAudio ? "green.200" : "red.400"} fixedWidth icon={faCircle} mr={2} />

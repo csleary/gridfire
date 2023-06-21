@@ -32,7 +32,6 @@ import { WarningIcon } from "@chakra-ui/icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchReleaseForEditing } from "state/releases";
 import { toastSuccess } from "state/toast";
-import { usePrevious } from "hooks/usePrevious";
 import validate from "./validate";
 
 const EditRelease = () => {
@@ -40,14 +39,14 @@ const EditRelease = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
-  const { releaseEditing: release } = useSelector(state => state.releases, shallowEqual);
+  const { editing: release } = useSelector(state => state.releases, shallowEqual);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackErrors, setTrackErrors] = useState({});
   const [values, setValues] = useState({ tags: [], trackList: [] });
+
   const { _id: releaseId, releaseTitle } = release;
-  const prevReleaseId = usePrevious(releaseId);
   const hasError = Object.values(errors).some(Boolean);
   const hasTrackError = Object.values(trackErrors).some(Boolean);
   const isEditing = typeof releaseIdParam !== "undefined";
@@ -57,29 +56,22 @@ const EditRelease = () => {
 
   useEffect(() => {
     if (releaseIdParam) {
-      setIsLoading(true);
-      return void dispatch(fetchReleaseForEditing(releaseIdParam));
+      dispatch(fetchReleaseForEditing(releaseIdParam));
+    } else {
+      dispatch(createRelease());
     }
-
-    dispatch(createRelease());
   }, [releaseIdParam]); // eslint-disable-line
 
   useEffect(() => {
-    // Initialise with saved release for editing.
-    if (releaseId === releaseIdParam && !values._id) {
+    if (releaseId) {
       setValues(release);
       setIsLoading(false);
     }
-  }, [isLoading, release, releaseId, releaseIdParam, values._id]);
+  }, [release, releaseId, releaseIdParam]);
 
-  useEffect(() => {
-    // Apply default values for new release.
-    if (!releaseIdParam && prevReleaseId !== releaseId) {
-      setValues(release);
-    }
-  }, [isLoading, prevReleaseId, release, releaseId, releaseIdParam, values._id]);
+  const handleChange = useCallback((e, trackId) => {
+    const { checked, name, type, value } = e.currentTarget;
 
-  const handleChange = useCallback(({ target: { checked, name, type, value } }, trackId) => {
     if (trackId) {
       setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
 
@@ -92,11 +84,31 @@ const EditRelease = () => {
     }
 
     setErrors(({ [name]: key, ...rest }) => rest);
-    setValues(current => ({ ...current, [name]: type === "checkbox" ? checked : value }));
+    if (type === "date" && value) {
+      const [dateValue] = new Date(value).toISOString().split("T");
+      setValues(prev => ({ ...prev, [name]: dateValue }));
+    } else if (name === "tags") {
+      const tag = value
+        .replace(/[^0-9a-z\s]/gi, "")
+        .trim()
+        .toLowerCase();
+
+      if (!tag) return;
+      setValues(prev => ({ ...prev, tags: [...new Set([...prev.tags, tag])] }));
+    } else if (name === "removeTagsButton") {
+      setValues(prev => ({ ...prev, tags: [] }));
+    } else {
+      setValues(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    }
   }, []);
 
-  const handleSubmit = async () => {
+  const handleRemoveTag = useCallback(tag => {
+    setValues(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
     try {
+      const { releaseTitle } = values;
       const [validationErrors = {}, validationTrackErrors = {}] = validate(values);
 
       if (Object.values(validationErrors).length || Object.values(validationTrackErrors).length) {
@@ -112,10 +124,21 @@ const EditRelease = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [dispatch, navigate, releaseId, values]);
 
   const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = values;
-  const advancedFieldValues = { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags };
+
+  const advancedFieldValues = {
+    info,
+    credits,
+    catNumber,
+    pubYear,
+    pubName,
+    recordLabel,
+    recYear,
+    recName,
+    tags
+  };
 
   return (
     <>
@@ -207,7 +230,12 @@ const EditRelease = () => {
               />
             </TabPanel>
             <TabPanel p={0}>
-              <DetailedInfo errors={errors} handleChange={handleChange} values={advancedFieldValues} />
+              <DetailedInfo
+                errors={errors}
+                handleChange={handleChange}
+                handleRemoveTag={handleRemoveTag}
+                values={advancedFieldValues}
+              />
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -36,7 +36,7 @@ const releaseSlice = createSlice({
     catalogueLimit: 12,
     catalogueSkip: 0,
     collection: {},
-    releaseEditing: defaultReleaseState,
+    editing: defaultReleaseState,
     reachedEndOfCat: false,
     releaseIdsForDeletion: {},
     userFavourites: [],
@@ -56,7 +56,7 @@ const releaseSlice = createSlice({
       state.userWishList = [action.payload, ...state.userWishList];
     },
     createRelease(state) {
-      state.releaseEditing = {
+      state.editing = {
         ...defaultReleaseState,
         _id: createObjectId(),
         releaseDate: new Date(Date.now()).toISOString()
@@ -97,8 +97,8 @@ const releaseSlice = createSlice({
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
-    setReleaseEditing(state, action) {
-      state.releaseEditing = action.payload;
+    setReleaseForEditing(state, action) {
+      state.editing = action.payload;
     },
     setReleaseIdsForDeletion(state, action) {
       const { releaseId, isDeleting } = action.payload;
@@ -192,7 +192,7 @@ const fetchCollection = () => async dispatch => {
 const fetchRelease = releaseId => async dispatch => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
-    dispatch(setActiveRelease(res.data.release));
+    dispatch(setActiveRelease(res.data));
   } catch (error) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
     throw error;
@@ -202,7 +202,7 @@ const fetchRelease = releaseId => async dispatch => {
 const fetchReleaseForEditing = releaseId => async dispatch => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
-    dispatch(setReleaseEditing(res.data.release));
+    dispatch(setReleaseForEditing(res.data));
   } catch (error) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
     throw error;
@@ -255,6 +255,7 @@ const publishStatus = releaseId => async dispatch => {
 const updateRelease = values => async dispatch => {
   try {
     await axios.post("/api/release", values);
+    dispatch(setReleaseForEditing(values));
   } catch (error) {
     dispatch(toastError({ message: error.response?.data?.error || error.message, title: "Error" }));
   }
@@ -275,7 +276,7 @@ export const {
   setCatalogue,
   setCollection,
   setIsLoading,
-  setReleaseEditing,
+  setReleaseForEditing,
   setReleaseIdsForDeletion,
   setReleasePurchaseInfo,
   setUserEditions,

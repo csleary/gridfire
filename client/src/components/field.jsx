@@ -31,12 +31,12 @@ const Field = ({
       {component === "textarea" ? (
         <Textarea id={name} name={name} onChange={onChange} value={value ?? values[name] ?? ""} />
       ) : (
-        <Input id={name} name={name} onChange={onChange} value={value ?? values[name] ?? ""} {...rest} />
+        <Input id={name} name={name} onChange={onChange} type={type} value={value ?? values[name] ?? ""} {...rest} />
       )}
       {error || errors[name] ? (
         <Alert status="error">
           <AlertIcon />
-          <AlertDescription>{error ?? errors[name]}</AlertDescription>
+          <AlertDescription>{error || errors[name]}</AlertDescription>
         </Alert>
       ) : typeof info !== "undefined" ? (
         <FormHelperText>{info}</FormHelperText>

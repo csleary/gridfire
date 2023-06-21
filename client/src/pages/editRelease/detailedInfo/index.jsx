@@ -1,10 +1,9 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import Field from "components/field";
-import PropTypes from "prop-types";
 import Tags from "./tags";
 import { memo } from "react";
 
-const DetailedInfo = ({ errors, handleChange, values }) => (
+const DetailedInfo = ({ errors, handleChange, handleRemoveTag, values }) => (
   <>
     <Heading as="h3">Optional Info</Heading>
     <SimpleGrid as="section" columns={[1, null, 2]} spacing={12}>
@@ -73,17 +72,11 @@ const DetailedInfo = ({ errors, handleChange, values }) => (
           onChange={handleChange}
           values={values}
         />
-        <Tags handleChange={handleChange} tags={values.tags || []} />
+        <Tags handleChange={handleChange} handleRemoveTag={handleRemoveTag} tags={values.tags || []} />
       </Box>
     </SimpleGrid>
   </>
 );
-
-DetailedInfo.propTypes = {
-  errors: PropTypes.object,
-  handleChange: PropTypes.func,
-  values: PropTypes.object
-};
 
 const stringify = obj => Object.entries(obj).flat().join(", ");
 

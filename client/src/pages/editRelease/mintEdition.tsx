@@ -66,7 +66,7 @@ const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
   const isEditing = typeof releaseIdParam !== "undefined";
   const checkboxColour = useColorModeValue("yellow", "purple");
-  const { releaseEditing: release } = useSelector(state => state.releases, shallowEqual);
+  const { editing: release } = useSelector(state => state.releases, shallowEqual);
   const { mintedEditionIds } = useSelector(state => state.web3, shallowEqual);
   const { _id: releaseId, trackList } = release;
   const [editions, setEditions] = useState([]);

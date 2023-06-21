@@ -1,14 +1,14 @@
 import {
   Alert,
   AlertIcon,
-  Box,
   Button,
   Flex,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  MenuDivider
+  MenuDivider,
+  FormLabel
 } from "@chakra-ui/react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { ChevronDownIcon } from "@chakra-ui/icons";
@@ -31,22 +31,35 @@ const ArtistMenu = ({ error, onChange, value }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isLoading) return;
-
-    if (artists.length > 0) {
+    if (!isLoading && artists.length > 0) {
       setShowNewArtistName(false);
     } else {
       setShowNewArtistName(true);
     }
   }, [artists.length, isLoading]);
 
+  const handleClick = e => {
+    const { value } = e.currentTarget;
+    onChange(e);
+    setShowNewArtistName(value === null);
+  };
+
+  const handleBlur = e => {
+    const { value } = e.currentTarget;
+    if (!value.trim() && artists.length > 0) {
+      setShowNewArtistName(false);
+    }
+  };
+
   if (showNewArtistName) {
     return (
       <Field
+        isDisabled={isLoading}
         error={error}
         isRequired
         label={artists.length ? "New artist name" : "Artist name"}
         name="artistName"
+        onBlur={handleBlur}
         onChange={onChange}
         value={value}
         size="lg"
@@ -56,30 +69,26 @@ const ArtistMenu = ({ error, onChange, value }) => {
 
   return (
     <Flex flexDirection="column" mb={4}>
-      <Box as="label" color="gray.500" fontWeight={500}>
+      <FormLabel color="gray.500" fontWeight={500} mb={1}>
         Artist name
-      </Box>
+      </FormLabel>
       <Menu matchWidth>
         <MenuButton as={Button} rightIcon={<ChevronDownIcon />} height={12} mb={2}>
           {showNewArtistName ? defaultLabel : selectedArtist?.name || defaultLabel}
         </MenuButton>
         <MenuList>
-          {artists.map(artist => (
-            <MenuItem
-              key={artist._id}
-              onClick={() => {
-                onChange({ target: { name: "artist", value: artist._id } });
-                if (showNewArtistName) setShowNewArtistName(false);
-              }}
-            >
-              {artist.name}
+          {artists.map(({ _id: artistId, name }) => (
+            <MenuItem key={artistId} isDisabled={isLoading} name="artist" value={artistId} onClick={handleClick}>
+              {name}
             </MenuItem>
           ))}
           {artists.length ? <MenuDivider /> : null}
           <MenuItem
             icon={<Icon icon={faPlusCircle} />}
-            onClick={() => {
-              onChange({ target: { name: "artist", value: null } });
+            name="artist"
+            value={null}
+            onClick={e => {
+              onChange(e);
               setShowNewArtistName(true);
             }}
           >
