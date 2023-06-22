@@ -1,27 +1,42 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import ArtistMenu from "./artistMenu";
-import { DateTime } from "luxon";
 import Field from "components/field";
-import { formatPrice } from "utils";
-import { useCallback } from "react";
 
-const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, values }) => {
+const initialValues = {
+  artist: "",
+  artistName: "",
+  releaseTitle: "",
+  releaseDate: "",
+  price: ""
+};
+
+const EssentialInfo = ({ errors, isEditing, savedValues, setErrors, updateRelease }) => {
   const { editing: release } = useSelector(state => state.releases, shallowEqual);
-  const { artist, artistName } = release;
-  const releaseDate = DateTime.fromISO(values.releaseDate).toISODate();
+  const [values, setValues] = useState(initialValues);
+  const { artist } = release;
 
-  const handleChangePrice = useCallback(
-    ({ target: { name, value } }) => {
-      setErrors(({ [name]: key, ...rest }) => rest);
+  useEffect(() => {
+    if (savedValues) {
+      setValues(savedValues);
+    }
+  }, [savedValues]);
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+
+    if (name === "price") {
       const numbersOnly = value.replace(/[^0-9.]/g, "");
+      setErrors(({ [name]: key, ...rest }) => rest);
       setValues(current => ({ ...current, [name]: numbersOnly }));
-    },
-    [setErrors, setValues]
-  );
-
-  const handleBlur = () => {
-    setValues(current => ({ ...current, price: formatPrice(current.price) }));
+    } else if (name === "artistName") {
+      setErrors(({ artist, artistName, ...rest }) => rest);
+      setValues(prev => ({ ...prev, [name]: value }));
+    } else {
+      setErrors(({ [name]: key, ...rest }) => rest);
+      setValues(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
@@ -30,15 +45,13 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
       <SimpleGrid as="section" columns={[1, null, 2]} spacing={12}>
         <Box>
           {isEditing && artist ? (
-            <Field isDisabled isReadOnly label="Artist name" value={artistName} size="lg" />
+            <Field isDisabled isReadOnly label="Artist name" name="artistName" values={values} size="lg" />
           ) : (
             <ArtistMenu
               error={errors.artistName}
-              onChange={e => {
-                setErrors(({ artist, artistName, ...rest }) => rest);
-                handleChange(e);
-              }}
-              value={values.artist || values.artistName}
+              onChange={handleChange}
+              updateRelease={updateRelease}
+              values={values}
             />
           )}
           <Field
@@ -46,6 +59,7 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             isRequired
             label="Release Title"
             name="releaseTitle"
+            onBlur={updateRelease}
             onChange={handleChange}
             values={values}
             size="lg"
@@ -57,9 +71,10 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             isRequired
             label="Release Date"
             name="releaseDate"
+            onBlur={updateRelease}
             onChange={handleChange}
             type="date"
-            value={releaseDate}
+            values={values}
             size="lg"
           />
           <Field
@@ -69,9 +84,8 @@ const EssentialInfo = ({ errors, handleChange, isEditing, setErrors, setValues, 
             isRequired
             label="Price (DAI/USD)"
             name="price"
-            onBlur={handleBlur}
-            onChange={handleChangePrice}
-            type="text"
+            onBlur={updateRelease}
+            onChange={handleChange}
             values={values}
             size="lg"
           />

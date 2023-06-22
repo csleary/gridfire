@@ -3,6 +3,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Box,
   Button,
   Container,
   Flex,
@@ -19,9 +20,10 @@ import { createRelease, updateRelease } from "state/releases";
 import { faArrowLeftLong, faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Artwork from "./artwork";
+import { DateTime } from "luxon";
 import DetailedInfo from "./detailedInfo";
 import EssentialInfo from "./essentialInfo";
 import { Helmet } from "react-helmet";
@@ -31,11 +33,12 @@ import Editions from "./mintEdition";
 import { WarningIcon } from "@chakra-ui/icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchReleaseForEditing } from "state/releases";
+import { formatPrice } from "utils";
 import { toastSuccess } from "state/toast";
 import validate from "./validate";
 
 const EditRelease = () => {
-  const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false });
+  const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false }, { ssr: false });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
@@ -50,7 +53,6 @@ const EditRelease = () => {
   const hasError = Object.values(errors).some(Boolean);
   const hasTrackError = Object.values(trackErrors).some(Boolean);
   const isEditing = typeof releaseIdParam !== "undefined";
-  const isPristine = useMemo(() => JSON.stringify(release) === JSON.stringify(values), [release, values]);
   const errorAlertColor = useColorModeValue("red.800", "red.200");
   const buttonColor = useColorModeValue("yellow", "purple");
 
@@ -64,7 +66,7 @@ const EditRelease = () => {
 
   useEffect(() => {
     if (releaseId) {
-      setValues(release);
+      setValues({ ...release, releaseDate: DateTime.fromISO(release.releaseDate).toISODate() });
       setIsLoading(false);
     }
   }, [release, releaseId, releaseIdParam]);
@@ -83,10 +85,20 @@ const EditRelease = () => {
       }));
     }
 
-    setErrors(({ [name]: key, ...rest }) => rest);
+    setErrors(({ [name]: fieldName, ...rest }) => rest);
+
     if (type === "date" && value) {
       const [dateValue] = new Date(value).toISOString().split("T");
       setValues(prev => ({ ...prev, [name]: dateValue }));
+    } else if (name === "artist") {
+      setErrors(({ artistName, ...rest }) => rest);
+      setValues(({ artistName, ...prev }) => ({ ...prev, [name]: value }));
+    } else if (name === "artistName") {
+      setValues(({ artist, ...prev }) => ({ ...prev, [name]: value }));
+    } else if (name === "price") {
+      setValues(prev => ({ ...prev, [name]: formatPrice(value) }));
+    } else if (name === "removeTagsButton") {
+      setValues(prev => ({ ...prev, tags: [] }));
     } else if (name === "tags") {
       const tag = value
         .replace(/[^0-9a-z\s]/gi, "")
@@ -95,8 +107,6 @@ const EditRelease = () => {
 
       if (!tag) return;
       setValues(prev => ({ ...prev, tags: [...new Set([...prev.tags, tag])] }));
-    } else if (name === "removeTagsButton") {
-      setValues(prev => ({ ...prev, tags: [] }));
     } else {
       setValues(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     }
@@ -178,31 +188,59 @@ const EditRelease = () => {
         >
           Return to your releases
         </Button>
-        <Tabs colorScheme={buttonColor} isFitted mb={8}>
-          <TabList mb={8}>
-            <Tab alignItems="center">
-              <Icon icon={faInfo} mr={2} />
-              {isSmallScreen ? null : "Essential Info"}
-              {Object.values(errors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
-            </Tab>
-            <Tab alignItems="center">
-              <Icon icon={faImage} mr={2} />
-              {isSmallScreen ? null : "Artwork"}
-            </Tab>
-            <Tab alignItems="center">
-              <Icon icon={faEthereum} mr={2} />
-              {isSmallScreen ? null : "Editions"}
-            </Tab>
-            <Tab alignItems="center">
-              <Icon icon={faFileAudio} mr={2} />
-              {isSmallScreen ? null : "Tracks"}
-              {Object.values(trackErrors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
-            </Tab>
-            <Tab alignItems="center">
-              <Icon icon={faListAlt} mr={2} />
-              {isSmallScreen ? null : "Optional Info"}
-            </Tab>
-          </TabList>
+        <Tabs colorScheme={buttonColor} isFitted={!isSmallScreen} mb={8} overflow="auto" position="relative">
+          <Box position="relative" mb={8}>
+            <Box overflow="auto">
+              <TabList
+                width={["max-content", "initial"]}
+                _before={{
+                  background:
+                    "linear-gradient(90deg, var(--chakra-colors-gray-900) 0%, var(--chakra-colors-transparent) 100%)",
+                  content: `""`,
+                  display: ["block", "none"],
+                  position: "absolute",
+                  left: "0",
+                  top: "0",
+                  bottom: "0",
+                  width: 4
+                }}
+                _after={{
+                  background:
+                    "linear-gradient(270deg, var(--chakra-colors-gray-900) 0%, var(--chakra-colors-transparent) 100%)",
+                  content: `""`,
+                  display: ["block", "none"],
+                  position: "absolute",
+                  right: "0",
+                  top: "0",
+                  bottom: "0",
+                  width: 4
+                }}
+              >
+                <Tab alignItems="center" whiteSpace="nowrap">
+                  <Icon icon={faInfo} mr={2} />
+                  Essential Info
+                  {Object.values(errors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
+                </Tab>
+                <Tab alignItems="center" whiteSpace="nowrap">
+                  <Icon icon={faImage} mr={2} />
+                  Artwork
+                </Tab>
+                <Tab alignItems="center" whiteSpace="nowrap">
+                  <Icon icon={faEthereum} mr={2} />
+                  Editions
+                </Tab>
+                <Tab alignItems="center" whiteSpace="nowrap">
+                  <Icon icon={faFileAudio} mr={2} />
+                  Tracks
+                  {Object.values(trackErrors).length ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
+                </Tab>
+                <Tab alignItems="center" whiteSpace="nowrap">
+                  <Icon icon={faListAlt} mr={2} />
+                  Optional Info
+                </Tab>
+              </TabList>
+            </Box>
+          </Box>
           <TabPanels>
             <TabPanel p={0}>
               <EssentialInfo
@@ -211,8 +249,8 @@ const EditRelease = () => {
                 isLoading={isLoading}
                 setErrors={setErrors}
                 setValues={setValues}
-                handleChange={handleChange}
-                values={values}
+                updateRelease={handleChange}
+                savedValues={values}
               />
             </TabPanel>
             <TabPanel p={0}>
@@ -232,9 +270,9 @@ const EditRelease = () => {
             <TabPanel p={0}>
               <DetailedInfo
                 errors={errors}
-                handleChange={handleChange}
+                updateRelease={handleChange}
                 handleRemoveTag={handleRemoveTag}
-                values={advancedFieldValues}
+                savedValues={advancedFieldValues}
               />
             </TabPanel>
           </TabPanels>
@@ -251,8 +289,8 @@ const EditRelease = () => {
             colorScheme={buttonColor}
             isLoading={isSubmitting}
             loadingText="Saving…"
-            leftIcon={isPristine ? null : <Icon icon={hasError || hasTrackError ? faTimes : faCheck} />}
-            isDisabled={hasError || hasTrackError || isPristine || isSubmitting}
+            leftIcon={<Icon icon={hasError || hasTrackError ? faTimes : faCheck} />}
+            isDisabled={hasError || hasTrackError || isSubmitting}
             onClick={handleSubmit}
           >
             {isEditing ? "Update Release" : "Add Release"}

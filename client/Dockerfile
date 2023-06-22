@@ -1,4 +1,4 @@
-FROM node:16 as build
+FROM node:16-slim as build
 WORKDIR /home/node/app
 COPY . .
 RUN yarn install --production --frozen-lockfile

@@ -29,7 +29,7 @@ const Field = ({
         {label}
       </FormLabel>
       {component === "textarea" ? (
-        <Textarea id={name} name={name} onChange={onChange} value={value ?? values[name] ?? ""} />
+        <Textarea id={name} name={name} onChange={onChange} value={value ?? values[name] ?? ""} {...rest} />
       ) : (
         <Input id={name} name={name} onChange={onChange} type={type} value={value ?? values[name] ?? ""} {...rest} />
       )}

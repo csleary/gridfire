@@ -1,4 +1,4 @@
-FROM node:16 as build
+FROM node:16-slim as build
 COPY --from=csleary/ffmpeg /root/bin /usr/bin
 COPY ./bin/packager-linux-x64 /usr/bin
 WORKDIR /home/node/app

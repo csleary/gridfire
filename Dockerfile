@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16-slim
 WORKDIR /home/node/app
 COPY . .
 RUN mkdir /home/node/tmp

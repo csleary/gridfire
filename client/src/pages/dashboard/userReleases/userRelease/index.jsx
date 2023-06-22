@@ -94,7 +94,7 @@ function UserRelease({ release }) {
                 icon={faCircle}
                 mr={2}
               />
-              {DateTime.fromISO(releaseDate).toFormat("ff")}
+              {DateTime.fromISO(releaseDate).toLocaleString(DateTime.DATE_SHORT)}
             </Text>
             <Text>
               <Icon color={hasAudio ? "green.200" : "red.400"} fixedWidth icon={faCircle} mr={2} />

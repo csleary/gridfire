@@ -1,17 +1,18 @@
 import { Container, Heading, Text } from "@chakra-ui/react";
-import { Helmet } from "react-helmet";
+import { faCircleCheck, faHeart, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "hooks";
+import { DateTime } from "luxon";
+import { Helmet } from "react-helmet";
+import Icon from "components/icon";
 import { fetchActivity } from "state/artists";
+import { formatEther } from "ethers";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
-import Icon from "components/icon";
-import { faCircleCheck, faHeart, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
-import { formatEther } from "ethers";
 
 interface ActivityProperties {
   _id: string;
   artistName: string;
-  createdAt: Date;
+  createdAt: string;
   editionDescription: string;
   type: string;
   releaseTitle?: string;
@@ -47,7 +48,7 @@ const Activity = () => {
             type,
             username
           }: ActivityProperties) => {
-            const date = `${new Date(createdAt).toLocaleDateString()}, ${new Date(createdAt).toLocaleTimeString()}`;
+            const date = DateTime.fromISO(createdAt).toLocaleString(DateTime.DATETIME_SHORT);
 
             switch (type) {
               case "favourite": {

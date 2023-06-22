@@ -14,17 +14,16 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import Field from "components/field";
 import Icon from "components/icon";
-import PropTypes from "prop-types";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { fetchArtists } from "state/artists";
 import { useEffect, useState } from "react";
 
-const ArtistMenu = ({ error, onChange, value }) => {
+const ArtistMenu = ({ error, onChange, updateRelease, values }) => {
   const dispatch = useDispatch();
   const { artists = [], isLoading } = useSelector(state => state.artists, shallowEqual);
-  const [showNewArtistName, setShowNewArtistName] = useState(false);
-  const selectedArtist = artists?.find(({ _id: artistId }) => value === artistId);
-  const defaultLabel = showNewArtistName ? "New artist" : "Select an artist…";
+  const [showInput, setShowInput] = useState(false);
+  const selectedArtist = artists?.find(({ _id: artistId }) => values.artist === artistId);
+  const defaultLabel = showInput ? "New artist" : "Select an artist…";
 
   useEffect(() => {
     dispatch(fetchArtists());
@@ -32,26 +31,34 @@ const ArtistMenu = ({ error, onChange, value }) => {
 
   useEffect(() => {
     if (!isLoading && artists.length > 0) {
-      setShowNewArtistName(false);
+      setShowInput(false);
     } else {
-      setShowNewArtistName(true);
+      setShowInput(true);
     }
   }, [artists.length, isLoading]);
 
   const handleClick = e => {
     const { value } = e.currentTarget;
-    onChange(e);
-    setShowNewArtistName(value === null);
+
+    if (value === "") {
+      setShowInput(true);
+      onChange(e);
+      updateRelease(e);
+    } else {
+      updateRelease(e);
+    }
   };
 
   const handleBlur = e => {
     const { value } = e.currentTarget;
+    updateRelease(e);
+
     if (!value.trim() && artists.length > 0) {
-      setShowNewArtistName(false);
+      setShowInput(false);
     }
   };
 
-  if (showNewArtistName) {
+  if (showInput) {
     return (
       <Field
         isDisabled={isLoading}
@@ -61,37 +68,29 @@ const ArtistMenu = ({ error, onChange, value }) => {
         name="artistName"
         onBlur={handleBlur}
         onChange={onChange}
-        value={value}
+        values={values}
         size="lg"
       />
     );
   }
 
   return (
-    <Flex flexDirection="column" mb={4}>
+    <Flex flexDirection="column" mb={6}>
       <FormLabel color="gray.500" fontWeight={500} mb={1}>
         Artist name
       </FormLabel>
       <Menu matchWidth>
         <MenuButton as={Button} rightIcon={<ChevronDownIcon />} height={12} mb={2}>
-          {showNewArtistName ? defaultLabel : selectedArtist?.name || defaultLabel}
+          {showInput ? defaultLabel : selectedArtist?.name || defaultLabel}
         </MenuButton>
         <MenuList>
           {artists.map(({ _id: artistId, name }) => (
-            <MenuItem key={artistId} isDisabled={isLoading} name="artist" value={artistId} onClick={handleClick}>
+            <MenuItem key={artistId} name="artist" value={artistId} onClick={handleClick}>
               {name}
             </MenuItem>
           ))}
           {artists.length ? <MenuDivider /> : null}
-          <MenuItem
-            icon={<Icon icon={faPlusCircle} />}
-            name="artist"
-            value={null}
-            onClick={e => {
-              onChange(e);
-              setShowNewArtistName(true);
-            }}
-          >
+          <MenuItem icon={<Icon icon={faPlusCircle} />} name="artist" value="" onClick={handleClick}>
             Create new artist…
           </MenuItem>
         </MenuList>
@@ -104,16 +103,6 @@ const ArtistMenu = ({ error, onChange, value }) => {
       ) : null}
     </Flex>
   );
-};
-
-ArtistMenu.propTypes = {
-  error: PropTypes.string,
-  label: PropTypes.string,
-  name: PropTypes.string,
-  onChange: PropTypes.func,
-  setShowNewArtist: PropTypes.func,
-  showNewArtistName: PropTypes.bool,
-  value: PropTypes.string
 };
 
 export default ArtistMenu;
