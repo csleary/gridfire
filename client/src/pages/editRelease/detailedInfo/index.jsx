@@ -1,7 +1,7 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
+import { memo, useCallback, useEffect, useState } from "react";
 import Field from "components/field";
 import Tags from "./tags";
-import { useEffect, useState } from "react";
 
 const initialValues = {
   info: "",
@@ -15,19 +15,17 @@ const initialValues = {
   tags: []
 };
 
-const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) => {
+const DetailedInfo = ({ errors, handleRemoveTag, savedState, updateState }) => {
   const [values, setValues] = useState(initialValues);
 
   useEffect(() => {
-    if (savedValues) {
-      setValues(savedValues);
-    }
-  }, [savedValues]);
+    setValues(savedState);
+  }, [savedState]);
 
-  const handleChange = e => {
+  const handleChange = useCallback(e => {
     const { name, value } = e.target;
     setValues(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   return (
     <>
@@ -40,7 +38,7 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             info="Notable release information, e.g. press release copy, review quotes, equipment, concepts."
             label="Release Info"
             name="info"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
           />
@@ -50,7 +48,7 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             info="Writers, performers, producers, designers and engineers involved."
             label="Credits"
             name="credits"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
           />
@@ -60,7 +58,7 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             info="Your own release identifier, if you have one."
             label="Catalogue Number"
             name="catNumber"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
           />
@@ -71,7 +69,7 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             label="Copyright Year"
             inputMode="numeric"
             name="pubYear"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             type="number"
             values={values}
@@ -81,7 +79,7 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             info="i.e. Label, publisher or artist/individual."
             label="Copyright Owner"
             name="pubName"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
           />
@@ -91,7 +89,7 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             inputMode="numeric"
             label="Recording Copyright Year"
             name="recYear"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             type="number"
             values={values}
@@ -101,15 +99,15 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedValues, updateRelease }) =
             info="i.e. Label or artist/individual."
             label="Recording Copyright Owner"
             name="recName"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
           />
-          <Tags handleChange={updateRelease} handleRemoveTag={handleRemoveTag} tags={savedValues.tags} />
+          <Tags handleChange={updateState} handleRemoveTag={handleRemoveTag} tags={savedState.tags} />
         </Box>
       </SimpleGrid>
     </>
   );
 };
 
-export default DetailedInfo;
+export default memo(DetailedInfo);

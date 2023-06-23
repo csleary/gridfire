@@ -1,6 +1,9 @@
 FROM node:16-slim as build
 WORKDIR /home/node/app
-COPY . .
+COPY .env.production package.json yarn.lock tsconfig.json ./
+COPY public/ ./public/
+COPY src/ ./src/
+
 RUN yarn install --production --frozen-lockfile
 RUN yarn run build
 

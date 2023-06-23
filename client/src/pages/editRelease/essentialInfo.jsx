@@ -1,6 +1,6 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { shallowEqual, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import ArtistMenu from "./artistMenu";
 import Field from "components/field";
 
@@ -12,16 +12,14 @@ const initialValues = {
   price: ""
 };
 
-const EssentialInfo = ({ errors, isEditing, savedValues, setErrors, updateRelease }) => {
+const EssentialInfo = ({ errors, isEditing, savedState, setErrors, updateState }) => {
   const { editing: release } = useSelector(state => state.releases, shallowEqual);
   const [values, setValues] = useState(initialValues);
   const { artist } = release;
 
   useEffect(() => {
-    if (savedValues) {
-      setValues(savedValues);
-    }
-  }, [savedValues]);
+    setValues(savedState);
+  }, [savedState]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -47,19 +45,14 @@ const EssentialInfo = ({ errors, isEditing, savedValues, setErrors, updateReleas
           {isEditing && artist ? (
             <Field isDisabled isReadOnly label="Artist name" name="artistName" values={values} size="lg" />
           ) : (
-            <ArtistMenu
-              error={errors.artistName}
-              onChange={handleChange}
-              updateRelease={updateRelease}
-              values={values}
-            />
+            <ArtistMenu error={errors.artistName} onChange={handleChange} updateRelease={updateState} values={values} />
           )}
           <Field
             errors={errors}
             isRequired
             label="Release Title"
             name="releaseTitle"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
             size="lg"
@@ -71,7 +64,7 @@ const EssentialInfo = ({ errors, isEditing, savedValues, setErrors, updateReleas
             isRequired
             label="Release Date"
             name="releaseDate"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             type="date"
             values={values}
@@ -84,7 +77,7 @@ const EssentialInfo = ({ errors, isEditing, savedValues, setErrors, updateReleas
             isRequired
             label="Price (DAI/USD)"
             name="price"
-            onBlur={updateRelease}
+            onBlur={updateState}
             onChange={handleChange}
             values={values}
             size="lg"
@@ -95,4 +88,4 @@ const EssentialInfo = ({ errors, isEditing, savedValues, setErrors, updateReleas
   );
 };
 
-export default EssentialInfo;
+export default memo(EssentialInfo);

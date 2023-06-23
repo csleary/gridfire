@@ -3,7 +3,6 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Center,
   Checkbox,
   Flex,
   FormLabel,
@@ -19,21 +18,18 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import { DragHandleIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { memo, useCallback, useEffect, useState } from "react";
 import AudioDropzone from "./audioDropzone";
+import { HamburgerIcon } from "@chakra-ui/icons";
 import Icon from "components/icon";
-import PropTypes from "prop-types";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { memo, useRef } from "react";
+import { formatPrice } from "utils";
 
 const Track = ({
   cancelDeleteTrack,
   dragOriginIsInactive,
   errorTrackTitle,
-  handleBlur,
-  handleChange,
-  handleChangePrice,
   handleDeleteTrack,
   handleDragStart,
   handleDragEnter,
@@ -44,19 +40,62 @@ const Track = ({
   handleMoveTrack,
   index,
   isActiveDragOver,
-  isBonus,
   isDragging,
   isDragOrigin,
-  isEditionOnly,
-  price,
   trackId,
-  trackTitle,
   trackListLength,
   trackMarkedForDeletion,
-  status
+  savedState,
+  setTrackErrors,
+  updateState
 }) => {
   const checkboxColour = useColorModeValue("yellow", "purple");
-  const trackRef = useRef();
+  const [values, setValues] = useState({});
+  const { isBonus, isEditionOnly, price, status, trackTitle } = values;
+
+  useEffect(() => {
+    setValues(savedState);
+  }, [savedState]);
+
+  const updateTrack = useCallback(
+    track => {
+      updateState(prev => ({
+        ...prev,
+        trackList: prev.trackList.map(t => (t._id === trackId ? track : t))
+      }));
+    },
+    [trackId, updateState]
+  );
+
+  const handleChange = useCallback(
+    e => {
+      const { name, value, type, checked } = e.currentTarget;
+      setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
+
+      if (name === "price") {
+        setValues(prev => ({ ...prev, [name]: value.replace(/[^0-9.]/g, "") }));
+      } else {
+        setValues(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+      }
+    },
+    [setTrackErrors, trackId]
+  );
+
+  const handleBlur = useCallback(
+    e => {
+      const { checked, name, type, value } = e.currentTarget;
+
+      if (name === "price") {
+        const price = formatPrice(value);
+        setValues(prev => ({ ...prev, price }));
+        updateTrack({ ...values, price });
+        return;
+      }
+
+      updateTrack({ ...values, [name]: type === "checkbox" ? checked : value });
+    },
+    [updateTrack, values]
+  );
 
   const dragOverStyle = isActiveDragOver
     ? "var(--chakra-colors-purple-300) dashed 2px"
@@ -64,10 +103,16 @@ const Track = ({
     ? "var(--chakra-colors-gray-500) dashed 2px"
     : "transparent dashed 2px";
 
+  const preventDrag = event => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return (
     <Flex
       bg={useColorModeValue("white", "gray.800")}
       borderWidth="1px"
+      draggable={true}
       id={trackId}
       marginBottom={6}
       padding={4}
@@ -76,61 +121,57 @@ const Track = ({
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
+      onDragStart={handleDragStart}
       onDrop={handleDrop}
       onDragEnd={handleDragEnd}
       opacity={isDragOrigin ? 0.33 : 1}
       onTouchStart={() => {}}
       outline={dragOverStyle}
-      ref={el => (trackRef.current = el)}
+      overflow="visible"
       sx={{
         transition: "outline 150ms",
         "> *": { ...(isActiveDragOver || (dragOriginIsInactive && isDragOrigin) ? { pointerEvents: "none" } : {}) }
       }}
     >
-      <VStack spacing={2} alignItems="center" justifyContent="space-between" mr={4}>
-        <Center as="label" color="gray.500" fontWeight="500" htmlFor={`trackTitle.${index}`} fontSize="1.5rem">
-          {index + 1}
-        </Center>
-        <IconButton
-          icon={<DragHandleIcon />}
-          cursor="grab"
-          draggable="true"
-          onDragStart={handleDragStart(trackId, trackRef)}
-          size="md"
-          variant="ghost"
-          _active={{ cursor: "grabbing" }}
-          _grabbed={{ cursor: "grabbing" }}
-        />
-      </VStack>
       <VStack spacing={2} alignItems="flex-start" justifyContent="space-between" flex="1 1 auto" mr={4}>
         <Wrap spacing={8} width="100%">
+          <WrapItem as="label" alignItems="center" color="gray.500" fontWeight="500" fontSize="1.5rem">
+            {index + 1}
+          </WrapItem>
           <WrapItem alignItems="center" flex="1 1 auto">
-            <FormLabel color="gray.400" whiteSpace="nowrap" mb={0}>
+            <FormLabel color="gray.400" htmlFor={`${trackId}.trackTitle`} whiteSpace="nowrap" mb={0}>
               Title
             </FormLabel>
             <Input
-              size="lg"
+              draggable={true}
               isInvalid={errorTrackTitle}
               isRequired
+              id={`${trackId}.trackTitle`}
               name="trackTitle"
-              onChange={e => handleChange(e, trackId)}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              onDragStart={preventDrag}
               onDrop={() => false}
               placeholder={`Track ${index + 1} title`}
+              size="lg"
               value={trackTitle || ""}
               flex="1 1 auto"
             />
           </WrapItem>
           <WrapItem alignItems="center" flex="0 1 10rem">
-            <FormLabel color="gray.400" whiteSpace="nowrap" mb={0}>
+            <FormLabel color="gray.400" htmlFor={`${trackId}.price`} whiteSpace="nowrap" mb={0}>
               Price
             </FormLabel>
             <Input
-              size="lg"
+              draggable={true}
+              id={`${trackId}.price`}
               name="price"
               onBlur={handleBlur}
-              onChange={handleChangePrice}
+              onChange={handleChange}
+              onDragStart={preventDrag}
               onDrop={() => false}
               placeholder="e.g. 1.50"
+              size="lg"
               value={price ?? 1.5}
               flex="1 1 auto"
               inputMode="numeric"
@@ -152,7 +193,8 @@ const Track = ({
               colorScheme={checkboxColour}
               isChecked={isBonus}
               name="isBonus"
-              onChange={e => handleChange(e, trackId)}
+              onBlur={handleBlur}
+              onChange={handleChange}
             >
               Download bonus
             </Checkbox>
@@ -162,7 +204,8 @@ const Track = ({
               colorScheme={checkboxColour}
               isChecked={isEditionOnly}
               name="isEditionOnly"
-              onChange={e => handleChange(e, trackId)}
+              onBlur={handleBlur}
+              onChange={handleChange}
             >
               Edition exclusive
             </Checkbox>
@@ -171,11 +214,13 @@ const Track = ({
       </VStack>
       <AudioDropzone
         disablePreview
-        handleChange={handleChange}
         index={index}
+        setTrackErrors={setTrackErrors}
+        setValues={setValues}
+        status={status}
         trackId={trackId}
         trackTitle={trackTitle}
-        status={status}
+        updateTrackTitle={trackTitle => updateTrack({ ...values, trackTitle })}
       />
       <VStack spacing={2} alignItems="center" justifyContent="space-between">
         <Menu onClose={() => trackMarkedForDeletion && cancelDeleteTrack(trackId)}>
@@ -210,30 +255,6 @@ const Track = ({
       </VStack>
     </Flex>
   );
-};
-
-Track.propTypes = {
-  cancelDeleteTrack: PropTypes.func,
-  dragOverActive: PropTypes.bool,
-  errorAudio: PropTypes.string,
-  errorTrackTitle: PropTypes.string,
-  index: PropTypes.number,
-  isDragOrigin: PropTypes.bool,
-  handleChange: PropTypes.func,
-  handleDeleteTrack: PropTypes.func,
-  handleDragEnd: PropTypes.func,
-  handleDragEnter: PropTypes.func,
-  handleDragLeave: PropTypes.func,
-  handleDragOver: PropTypes.func,
-  handleDragStart: PropTypes.func,
-  handleDrop: PropTypes.func,
-  handleMoveTrack: PropTypes.func,
-  onDropAudio: PropTypes.func,
-  trackId: PropTypes.string,
-  trackTitle: PropTypes.string,
-  trackListLength: PropTypes.number,
-  trackMarkedForDeletion: PropTypes.bool,
-  status: PropTypes.string
 };
 
 export default memo(Track);

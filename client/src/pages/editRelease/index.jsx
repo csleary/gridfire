@@ -46,9 +46,8 @@ const EditRelease = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [releaseValues, setReleaseValues] = useState({ tags: [], trackList: [] });
   const [trackErrors, setTrackErrors] = useState({});
-  const [values, setValues] = useState({ tags: [], trackList: [] });
-
   const { _id: releaseId, releaseTitle } = release;
   const hasError = Object.values(errors).some(Boolean);
   const hasTrackError = Object.values(trackErrors).some(Boolean);
@@ -66,60 +65,54 @@ const EditRelease = () => {
 
   useEffect(() => {
     if (releaseId) {
-      setValues({ ...release, releaseDate: DateTime.fromISO(release.releaseDate).toISODate() });
+      setReleaseValues({ ...release, releaseDate: DateTime.fromISO(release.releaseDate).toISODate() });
       setIsLoading(false);
     }
   }, [release, releaseId, releaseIdParam]);
 
-  const handleChange = useCallback((e, trackId) => {
-    const { checked, name, type, value } = e.currentTarget;
+  const handleChange = useCallback(
+    e => {
+      const { checked, name, type, value } = e.currentTarget;
 
-    if (trackId) {
-      setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
+      if (errors[name]) {
+        setErrors(({ [name]: fieldName, ...rest }) => rest);
+      }
 
-      return void setValues(current => ({
-        ...current,
-        trackList: current.trackList.map(track =>
-          track._id === trackId ? { ...track, [name]: type === "checkbox" ? checked : value } : track
-        )
-      }));
-    }
+      if (type === "date" && value) {
+        const [dateValue] = new Date(value).toISOString().split("T");
+        setReleaseValues(prev => ({ ...prev, [name]: dateValue }));
+      } else if (name === "artist") {
+        setErrors(({ artistName, ...rest }) => rest);
+        setReleaseValues(({ artistName, ...prev }) => ({ ...prev, [name]: value }));
+      } else if (name === "artistName") {
+        setReleaseValues(({ artist, ...prev }) => ({ ...prev, [name]: value }));
+      } else if (name === "price") {
+        setReleaseValues(prev => ({ ...prev, [name]: formatPrice(value) }));
+      } else if (name === "removeTagsButton") {
+        setReleaseValues(prev => ({ ...prev, tags: [] }));
+      } else if (name === "tags") {
+        const tag = value
+          .replace(/[^0-9a-z\s]/gi, "")
+          .trim()
+          .toLowerCase();
 
-    setErrors(({ [name]: fieldName, ...rest }) => rest);
-
-    if (type === "date" && value) {
-      const [dateValue] = new Date(value).toISOString().split("T");
-      setValues(prev => ({ ...prev, [name]: dateValue }));
-    } else if (name === "artist") {
-      setErrors(({ artistName, ...rest }) => rest);
-      setValues(({ artistName, ...prev }) => ({ ...prev, [name]: value }));
-    } else if (name === "artistName") {
-      setValues(({ artist, ...prev }) => ({ ...prev, [name]: value }));
-    } else if (name === "price") {
-      setValues(prev => ({ ...prev, [name]: formatPrice(value) }));
-    } else if (name === "removeTagsButton") {
-      setValues(prev => ({ ...prev, tags: [] }));
-    } else if (name === "tags") {
-      const tag = value
-        .replace(/[^0-9a-z\s]/gi, "")
-        .trim()
-        .toLowerCase();
-
-      if (!tag) return;
-      setValues(prev => ({ ...prev, tags: [...new Set([...prev.tags, tag])] }));
-    } else {
-      setValues(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-    }
-  }, []);
+        if (!tag) return;
+        setReleaseValues(prev => ({ ...prev, tags: [...new Set([...prev.tags, tag])] }));
+      } else {
+        setReleaseValues(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+      }
+    },
+    [errors]
+  );
 
   const handleRemoveTag = useCallback(tag => {
-    setValues(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
+    setReleaseValues(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
   }, []);
 
   const handleSubmit = useCallback(async () => {
     try {
-      const { releaseTitle } = values;
-      const [validationErrors = {}, validationTrackErrors = {}] = validate(values);
+      const { releaseTitle } = releaseValues;
+      const [validationErrors = {}, validationTrackErrors = {}] = validate(releaseValues);
 
       if (Object.values(validationErrors).length || Object.values(validationTrackErrors).length) {
         setErrors(validationErrors);
@@ -127,16 +120,16 @@ const EditRelease = () => {
       }
 
       setIsSubmitting(true);
-      await dispatch(updateRelease({ releaseId, ...values }));
+      await dispatch(updateRelease({ releaseId, ...releaseValues }));
       navigate("/dashboard");
       const message = `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} has been updated.`;
       dispatch(toastSuccess({ message, title: "Saved" }));
     } finally {
       setIsSubmitting(false);
     }
-  }, [dispatch, navigate, releaseId, values]);
+  }, [dispatch, navigate, releaseId, releaseValues]);
 
-  const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = values;
+  const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = releaseValues;
 
   const advancedFieldValues = {
     info,
@@ -188,7 +181,7 @@ const EditRelease = () => {
         >
           Return to your releases
         </Button>
-        <Tabs colorScheme={buttonColor} isFitted={!isSmallScreen} mb={8} overflow="auto" position="relative">
+        <Tabs colorScheme={buttonColor} isFitted={!isSmallScreen} mb={8} position="relative">
           <Box position="relative" mb={8}>
             <Box overflow="auto">
               <TabList
@@ -248,9 +241,9 @@ const EditRelease = () => {
                 isEditing={isEditing}
                 isLoading={isLoading}
                 setErrors={setErrors}
-                setValues={setValues}
-                updateRelease={handleChange}
-                savedValues={values}
+                setValues={setReleaseValues}
+                updateState={handleChange}
+                savedState={releaseValues}
               />
             </TabPanel>
             <TabPanel p={0}>
@@ -262,17 +255,17 @@ const EditRelease = () => {
             <TabPanel p={0}>
               <TrackList
                 errors={trackErrors}
-                handleChange={handleChange}
-                setValues={setValues}
-                trackList={values.trackList}
+                savedState={releaseValues.trackList}
+                setTrackErrors={setTrackErrors}
+                updateState={setReleaseValues}
               />
             </TabPanel>
             <TabPanel p={0}>
               <DetailedInfo
                 errors={errors}
-                updateRelease={handleChange}
+                updateState={handleChange}
                 handleRemoveTag={handleRemoveTag}
-                savedValues={advancedFieldValues}
+                savedState={advancedFieldValues}
               />
             </TabPanel>
           </TabPanels>

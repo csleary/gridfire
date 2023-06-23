@@ -4,8 +4,8 @@ import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo } from "state/toast";
 import ProgressIndicator from "./progressIndicator";
-import PropTypes from "prop-types";
 import Icon from "components/icon";
+import { memo } from "react";
 import mime from "mime";
 import { updateTrackStatus } from "state/releases";
 import { useDropzone } from "react-dropzone";
@@ -15,7 +15,7 @@ const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce(
   {}
 );
 
-const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => {
+const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trackTitle, updateTrackTitle }) => {
   const dispatch = useDispatch();
   const { _id: releaseId } = useSelector(state => state.releases.editing, shallowEqual);
 
@@ -43,7 +43,7 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
     }
   };
 
-  const onDropAudio = (accepted, rejected) => {
+  const onDropAudio = (accepted, rejected, e) => {
     if (rejected?.length) {
       return dispatch(
         toastError({
@@ -53,20 +53,24 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
       );
     }
 
-    const audioFile = accepted[0];
-    if (!trackTitle) handleChange({ target: { name: "trackTitle", value: audioFile.name } }, trackId);
-    const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(index, 10) + 1}`;
+    const [audioFile] = accepted;
+    const { name } = audioFile || {};
 
-    dispatch(
-      toastInfo({ message: `Uploading file \u2018${audioFile.name}\u2019 for ${trackName}.`, title: "Uploading" })
-    );
+    if (!trackTitle && name) {
+      setTrackErrors(({ [`${trackId}.trackTitle`]: key, ...rest }) => rest);
+      updateTrackTitle(name);
+      setValues(prev => ({ ...prev, trackTitle: name }));
+    }
+
+    const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(index, 10) + 1}`;
+    dispatch(toastInfo({ message: `Uploading file \u2018${name}\u2019 for ${trackName}.`, title: "Uploading" }));
 
     dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile, mimeType: audioFile.type })).catch(error =>
       dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }))
     );
   };
 
-  const { getRootProps, getInputProps, isDragAccept, isDragActive, isDragReject } = useDropzone({
+  const { getRootProps, getInputProps, isDragReject } = useDropzone({
     accept: acceptedFileTypes,
     disabled: isEncoding || isTranscoding,
     multiple: false,
@@ -97,7 +101,7 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
       mr={4}
       {...getRootProps({ onClick: handleClick })}
     >
-      <input {...getInputProps()} />
+      <input name="trackTitle" {...getInputProps()} />
       <WrapItem>
         <ProgressIndicator
           color="purple.200"
@@ -169,8 +173,4 @@ const AudioDropzone = ({ handleChange, index, status, trackId, trackTitle }) => 
   );
 };
 
-AudioDropzone.propTypes = {
-  trackId: PropTypes.string
-};
-
-export default AudioDropzone;
+export default memo(AudioDropzone);
