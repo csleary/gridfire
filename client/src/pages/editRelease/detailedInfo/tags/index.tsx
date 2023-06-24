@@ -12,37 +12,43 @@ import {
 } from "@chakra-ui/react";
 import Card from "components/card";
 import Field from "components/field";
+import { ChangeEvent, ChangeEventHandler, KeyboardEvent, MouseEvent, useState } from "react";
 import Icon from "components/icon";
-import { useState } from "react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
-const Tags = ({ handleChange, handleRemoveTag, tags }) => {
+interface Props {
+  handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  handleRemoveTag: (tag: string) => void;
+  tags: Array<string>;
+}
+
+const Tags = ({ handleChange, handleRemoveTag, tags }: Props) => {
   const [tagsInput, setTagsInput] = useState("");
   const [tagsError, setTagsError] = useState("");
 
-  const handleTagsInput = event => {
-    const { value } = event.target;
+  const handleTagsInput = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { value } = e.currentTarget;
     if (value.length >= NUM_MAX_CHARS) return setTagsError(`Tag character limit (${NUM_MAX_CHARS}) reached!`);
     if (tags.length >= NUM_MAX_TAGS) return setTagsError(`Max limit of ${NUM_MAX_TAGS} tags reached.`);
     setTagsInput(value);
     setTagsError("");
   };
 
-  const handleKeyPress = e => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const { key } = e;
 
     if (key === "Enter") {
-      handleChange(e);
+      handleChange(e as unknown as ChangeEvent<HTMLInputElement>);
       setTagsError("");
       setTagsInput("");
     }
   };
 
-  const handleRemoveTags = e => {
-    handleChange(e);
+  const handleRemoveTags = (e: MouseEvent<HTMLButtonElement>) => {
+    handleChange(e as unknown as ChangeEvent<HTMLInputElement>);
     setTagsInput("");
     setTagsError("");
   };
@@ -70,7 +76,7 @@ const Tags = ({ handleChange, handleRemoveTag, tags }) => {
           mb={2}
           name="tags"
           onChange={handleTagsInput}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           value={tagsInput}
         />
         {tags.length ? (
@@ -95,7 +101,7 @@ const Tags = ({ handleChange, handleRemoveTag, tags }) => {
             No tags currently set for this release. We strongly recommend setting some tags as they help with searching.
           </Text>
         )}
-        <Wrap role="button" tabIndex="-1">
+        <Wrap role="button" tabIndex={-1}>
           {tags.map(tag => (
             <WrapItem key={tag}>
               <Tag whiteSpace="nowrap">

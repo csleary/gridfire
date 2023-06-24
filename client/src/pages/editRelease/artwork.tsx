@@ -14,24 +14,30 @@ import {
 } from "@chakra-ui/react";
 import { deleteArtwork, uploadArtwork } from "state/artwork";
 import { faTimesCircle, faThumbsUp, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { memo, useEffect, useRef, useState } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { MouseEvent, memo, useEffect, useRef, useState } from "react";
 import { toastError, toastSuccess, toastWarning } from "state/toast";
+import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import mime from "mime";
+import { shallowEqual } from "react-redux";
 import { useDropzone } from "react-dropzone";
 
 const { REACT_APP_CDN_IMG } = process.env;
 
-const acceptedFileTypes = [".gif", ".jpg", ".jpeg", ".png"].reduce(
-  (prev, ext) => ({ ...prev, [mime.getType(ext)]: [...(prev[mime.getType(ext)] || []), ext] }),
-  {}
-);
+interface AcceptedFileTypes {
+  [key: string]: string[];
+}
+
+const acceptedFileTypes = [".gif", ".jpg", ".jpeg", ".png"].reduce((prev, ext) => {
+  const type = mime.getType(ext);
+  if (!type) return prev;
+  return { ...prev, [type]: [...(prev[type] || []), ext] };
+}, {} as AcceptedFileTypes);
 
 const Artwork = () => {
   const dispatch = useDispatch();
-  const artworkFile = useRef();
+  const artworkFile = useRef("");
 
   const {
     _id: releaseId,
@@ -41,20 +47,20 @@ const Artwork = () => {
   } = useSelector(state => state.releases.editing, shallowEqual);
 
   const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
-  const [coverArtPreview, setCoverArtPreview] = useState();
+  const [coverArtPreview, setCoverArtPreview] = useState("");
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);
   const isStored = artwork?.status === "stored";
 
   useEffect(() => {
     if (isStored) return setCoverArtPreview(`${REACT_APP_CDN_IMG}/${releaseId}`);
-    setCoverArtPreview();
+    setCoverArtPreview("");
 
     return () => {
-      if (artworkFile.current) window.URL.revokeObjectURL(artworkFile.current.preview);
+      if (artworkFile.current) window.URL.revokeObjectURL(artworkFile.current);
     };
   }, [isStored, releaseId]);
 
-  const onDrop = (accepted, rejected) => {
+  const onDrop = (accepted: any, rejected: any) => {
     if (rejected.length) {
       return dispatch(
         toastError({
@@ -65,9 +71,10 @@ const Artwork = () => {
       );
     }
 
-    artworkFile.current = accepted[0];
+    const [file] = accepted;
+    artworkFile.current = window.URL.createObjectURL(file);
     const image = new Image();
-    image.src = window.URL.createObjectURL(artworkFile.current);
+    image.src = artworkFile.current;
 
     image.onload = () => {
       const height = image.height;
@@ -83,7 +90,7 @@ const Artwork = () => {
       }
 
       setCoverArtPreview(image.src);
-      dispatch(uploadArtwork(releaseId, artworkFile.current));
+      dispatch(uploadArtwork(releaseId, file));
     };
   };
 
@@ -97,13 +104,13 @@ const Artwork = () => {
     onDrop
   });
 
-  const handleDeleteArtwork = async event => {
-    event.stopPropagation();
+  const handleDeleteArtwork = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     let prevPublished = "";
     if (published) prevPublished = " As your release was previously published, it has also been taken offline.";
     dispatch(toastWarning({ message: "Deleting artwork…", title: "Delete" }));
     await dispatch(deleteArtwork(releaseId));
-    setCoverArtPreview();
+    setCoverArtPreview("");
     dispatch(toastSuccess({ message: `Artwork deleted.${prevPublished}`, title: "Done!" }));
   };
 
@@ -193,6 +200,7 @@ const Artwork = () => {
         </Box>
         {coverArtPreview ? (
           <IconButton
+            aria-label="Delete artwork"
             colorScheme="red"
             icon={<Icon icon={faTrashAlt} />}
             onClick={handleDeleteArtwork}

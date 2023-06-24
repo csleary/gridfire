@@ -11,17 +11,17 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import { shallowEqual, useSelector } from "react-redux";
-import { Link as RouterLink } from "react-router-dom";
+import { faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import Icon from "./icon";
 import React from "react";
-import { RootState } from "index";
-import { faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { Link as RouterLink } from "react-router-dom";
+import { shallowEqual } from "react-redux";
+import { useSelector } from "hooks";
 
 const { REACT_APP_GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 
 const Footer: React.FC = () => {
-  const { account } = useSelector((state: RootState) => state.user, shallowEqual);
+  const { account } = useSelector(state => state.user, shallowEqual);
   const today = new Date();
   const year = today.getFullYear();
 

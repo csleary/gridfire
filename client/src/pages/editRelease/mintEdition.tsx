@@ -21,7 +21,7 @@ import {
   Badge
 } from "@chakra-ui/react";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
 import Field from "components/field";
 import Icon from "components/icon";
 import { MintedEdition } from "types";
@@ -36,11 +36,7 @@ import { useSelector } from "hooks";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 
-interface HandleChangeInterface {
-  currentTarget: HTMLInputElement;
-}
-
-interface ValuesInterface {
+interface DefaultValues {
   amount: Number;
   description: String;
   price: String;
@@ -60,7 +56,7 @@ const Label = ({ children }: { children: any }) => (
   </Box>
 );
 
-const defaultValues: ValuesInterface = { amount: 100, description: "", price: "50.00", tracks: [] };
+const defaultValues: DefaultValues = { amount: 100, description: "", price: "50.00", tracks: [] };
 
 const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
@@ -106,13 +102,14 @@ const MintEdition = () => {
     fetchEditions();
   }, [fetchEditions, mintedEditionIds.length]);
 
-  const handleChange = useCallback(({ currentTarget: { name, value } }: HandleChangeInterface) => {
+  const handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback(e => {
+    const { name, value } = e.currentTarget;
     const nextValue = ["amount", "price"].includes(name) ? value.replace(/[^0-9.]/g, "") : value;
     setErrors(prev => ({ ...prev, [name]: "" }));
     setValues(prev => ({ ...prev, [name]: nextValue }));
   }, []);
 
-  const handleChangeTrack = (e: HandleChangeInterface) => {
+  const handleChangeTrack: ChangeEventHandler<HTMLInputElement> = e => {
     const { name: trackId, checked } = e.currentTarget;
 
     setValues(prev => ({

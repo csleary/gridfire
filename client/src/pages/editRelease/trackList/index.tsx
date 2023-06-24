@@ -1,42 +1,60 @@
 import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
+import { DragEventHandler, Dispatch, SetStateAction, memo, useCallback, useState } from "react";
+import { Release, ReleaseTrack, TrackErrors } from "types";
 import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { memo, useCallback, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
 import Track from "./track";
 import { addTrack } from "state/releases";
 import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { shallowEqual } from "react-redux";
 
-const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }) => {
+interface TracksForDeletion {
+  trackIdsForDeletion: { [key: string]: boolean };
+}
+
+interface Props {
+  errors?: TrackErrors;
+  savedState: ReleaseTrack[];
+  setTrackErrors: Dispatch<SetStateAction<TrackErrors>>;
+  updateState: Dispatch<SetStateAction<Release>>;
+}
+
+const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }: Props) => {
   const dispatch = useDispatch();
-  const { trackIdsForDeletion } = useSelector(state => state.tracks, shallowEqual);
-  const [dragOriginId, setDragOriginId] = useState(null);
-  const [dragOverId, setDragOverId] = useState(null);
+  const { trackIdsForDeletion }: TracksForDeletion = useSelector(state => state.tracks, shallowEqual);
+  const [dragOriginId, setDragOriginId] = useState("");
+  const [dragOverId, setDragOverId] = useState("");
   const [dragOriginIsInactive, setDragOriginIsInactive] = useState(false);
 
   const handleAddTrack = useCallback(async () => {
-    const newTrack = {
+    const newTrack: ReleaseTrack = {
       _id: createObjectId(),
+      duration: 0,
+      price: "1.50",
       status: "pending",
       trackTitle: ""
     };
 
-    updateState(prev => ({ ...prev, trackList: [...prev.trackList, newTrack] }));
+    updateState((prev: Release) => ({ ...prev, trackList: [...prev.trackList, newTrack] }));
     dispatch(addTrack(newTrack));
   }, [dispatch, updateState]);
 
   const cancelDeleteTrack = useCallback(
-    trackId => {
+    (trackId: string) => {
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
     },
     [dispatch]
   );
 
   const handleDeleteTrack = useCallback(
-    (trackId, trackTitle) => {
+    (trackId: string, trackTitle: string) => {
       if (trackIdsForDeletion[trackId]) {
-        updateState(prev => ({ ...prev, trackList: prev.trackList.filter(({ _id }) => _id !== trackId) }));
+        updateState((prev: Release) => ({
+          ...prev,
+          trackList: prev.trackList.filter(({ _id }: ReleaseTrack) => _id !== trackId)
+        }));
       }
 
       dispatch(deleteTrack(trackId, trackTitle));
@@ -44,55 +62,55 @@ const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }) => 
     [dispatch, trackIdsForDeletion, updateState]
   );
 
-  const handleDragStart = useCallback(e => {
+  const handleDragStart: DragEventHandler<HTMLElement> = useCallback(e => {
     const { id: trackId } = e.currentTarget;
-    e.dataTransfer.dropEffect = e.currentTarget;
+    e.dataTransfer.dropEffect = "move";
     e.dataTransfer.effectAllowed = "move";
     setDragOriginId(trackId);
   }, []);
 
-  const handleDragEnter = useCallback(
+  const handleDragEnter: DragEventHandler<HTMLElement> = useCallback(
     e => {
       if (dragOriginId == null) {
         return void (e.dataTransfer.dropEffect = "none");
       }
 
       e.dataTransfer.dropEffect = "move";
-      setDragOverId(e.target.id);
+      setDragOverId(e.currentTarget.id);
     },
     [dragOriginId]
   );
 
-  const handleDragOver = useCallback(() => false, []);
+  const handleDragOver: DragEventHandler<HTMLElement> = useCallback(() => false, []);
 
-  const handleDragLeave = useCallback(
+  const handleDragLeave: DragEventHandler<HTMLElement> = useCallback(
     e => {
-      if (e.target.id === dragOriginId) {
+      if (e.currentTarget.id === dragOriginId) {
         setDragOriginIsInactive(true);
       }
 
       e.dataTransfer.dropEffect = "none";
-      setDragOverId(null);
+      setDragOverId("");
     },
     [dragOriginId]
   );
 
   const handleDragEnd = useCallback(() => {
-    setDragOriginId(null);
+    setDragOriginId("");
     setDragOriginIsInactive(false);
-    setDragOverId(null);
+    setDragOverId("");
   }, []);
 
   const handleMoveTrack = useCallback(
-    (indexFrom, indexTo) => {
+    (indexFrom: number, indexTo: number) => {
       const nextTrackList = [...savedState];
       nextTrackList.splice(indexTo, 0, ...nextTrackList.splice(indexFrom, 1));
-      updateState(prev => ({ ...prev, trackList: nextTrackList }));
+      updateState((prev: Release) => ({ ...prev, trackList: nextTrackList }));
     },
     [savedState, updateState]
   );
 
-  const handleDrop = useCallback(
+  const handleDrop: DragEventHandler<HTMLElement> = useCallback(
     async e => {
       const { id: trackId } = e.currentTarget;
       const indexFrom = savedState.findIndex(({ _id }) => _id === dragOriginId);
@@ -153,7 +171,7 @@ const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }) => 
               handleMoveTrack={handleMoveTrack}
               index={index}
               isActiveDragOver={dragOverId === trackId && dragOverId !== dragOriginId}
-              isDragging={dragOriginId != null}
+              isDragging={dragOriginId !== ""}
               isDragOrigin={dragOriginId === trackId}
               savedState={track}
               setTrackErrors={setTrackErrors}

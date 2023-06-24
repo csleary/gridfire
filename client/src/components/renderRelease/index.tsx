@@ -1,5 +1,5 @@
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
-import { Release, ReleaseTrack } from "types";
+import { PurchasedRelease, ReleaseTrack } from "types";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { loadTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
@@ -15,7 +15,7 @@ import { toastInfo } from "state/toast";
 const { REACT_APP_CDN_IMG } = process.env;
 
 interface Props {
-  release: Release;
+  release: PurchasedRelease;
   showArtist?: boolean;
   showTitle?: boolean;
   type?: string;

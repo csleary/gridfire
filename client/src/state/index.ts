@@ -8,7 +8,7 @@ import tracks from "state/tracks";
 import user from "state/user";
 import web3 from "state/web3";
 
-const appReducer = combineReducers({
+const rootReducer = combineReducers({
   artists,
   artwork,
   player,
@@ -19,8 +19,5 @@ const appReducer = combineReducers({
   web3
 });
 
-const rootReducer = (state, action) => {
-  return appReducer(state, action);
-};
-
 export default rootReducer;
+export type RootState = ReturnType<typeof rootReducer>;

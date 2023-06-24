@@ -1,12 +1,18 @@
 import { Box, Button, Image, Link, Wrap, VStack, WrapItem, Text, useColorModeValue } from "@chakra-ui/react";
 import Icon from "components/icon";
-import PropTypes from "prop-types";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import placeholder from "placeholder.svg";
 
 const { REACT_APP_CDN_IMG } = process.env;
 
-const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }) => {
+interface Props {
+  artistName: string;
+  purchaseId: string;
+  releaseId: string;
+  releaseTitle: string;
+}
+
+const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }: Props) => {
   const primaryButtonColor = useColorModeValue("yellow", "purple");
 
   return (
@@ -55,12 +61,6 @@ const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }) => {
       </Wrap>
     </>
   );
-};
-
-DownloadModal.propTypes = {
-  artistName: PropTypes.string,
-  releaseId: PropTypes.string,
-  releaseTitle: PropTypes.string
 };
 
 export default DownloadModal;

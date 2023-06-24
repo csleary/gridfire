@@ -1,6 +1,7 @@
 import { Grid } from "@chakra-ui/react";
+import { ReactNode } from "react";
 
-const ReleaseGrid = ({ children, ...rest }) => {
+const ReleaseGrid = ({ children, ...rest }: { children: ReactNode }) => {
   return (
     <Grid
       templateColumns={[

@@ -10,19 +10,28 @@ import {
   MenuDivider,
   FormLabel
 } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { ChevronDownIcon } from "@chakra-ui/icons";
+import { EssentialReleaseValues } from "types";
 import Field from "components/field";
 import Icon from "components/icon";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { fetchArtists } from "state/artists";
-import { useEffect, useState } from "react";
+import { shallowEqual } from "react-redux";
+import { ChangeEvent, ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
 
-const ArtistMenu = ({ error, onChange, updateRelease, values }) => {
+interface Props {
+  error?: string;
+  onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  updateRelease: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  values: EssentialReleaseValues;
+}
+
+const ArtistMenu = ({ error, onChange, updateRelease, values }: Props) => {
   const dispatch = useDispatch();
   const { artists = [], isLoading } = useSelector(state => state.artists, shallowEqual);
   const [showInput, setShowInput] = useState(false);
-  const selectedArtist = artists?.find(({ _id: artistId }) => values.artist === artistId);
+  const selectedArtist = artists?.find(({ _id: artistId }) => values.artist === artistId) || { name: "" };
   const defaultLabel = showInput ? "New artist" : "Select an artist…";
 
   useEffect(() => {
@@ -37,19 +46,19 @@ const ArtistMenu = ({ error, onChange, updateRelease, values }) => {
     }
   }, [artists.length, isLoading]);
 
-  const handleClick = e => {
+  const handleClick: MouseEventHandler<HTMLButtonElement> = e => {
     const { value } = e.currentTarget;
 
     if (value === "") {
       setShowInput(true);
-      onChange(e);
-      updateRelease(e);
+      onChange(e as unknown as ChangeEvent<HTMLInputElement>); // Cast as ChangeEvent as we only need the name and value.
+      updateRelease(e as unknown as ChangeEvent<HTMLInputElement>);
     } else {
-      updateRelease(e);
+      updateRelease(e as unknown as ChangeEvent<HTMLInputElement>);
     }
   };
 
-  const handleBlur = e => {
+  const handleBlur: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = e => {
     const { value } = e.currentTarget;
     updateRelease(e);
 
@@ -81,7 +90,7 @@ const ArtistMenu = ({ error, onChange, updateRelease, values }) => {
       </FormLabel>
       <Menu matchWidth>
         <MenuButton as={Button} rightIcon={<ChevronDownIcon />} height={12} mb={2}>
-          {showInput ? defaultLabel : selectedArtist?.name || defaultLabel}
+          {showInput ? defaultLabel : selectedArtist?.name ?? defaultLabel}
         </MenuButton>
         <MenuList>
           {artists.map(({ _id: artistId, name }) => (

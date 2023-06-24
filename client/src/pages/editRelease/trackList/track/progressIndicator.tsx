@@ -1,8 +1,26 @@
-import { CircularProgress, CircularProgressLabel, Tooltip, keyframes, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useSelector } from "react-redux";
+import { Box, CircularProgress, CircularProgressLabel, Tooltip, keyframes, useColorModeValue } from "@chakra-ui/react";
+import { ReactElement } from "react";
+import { shallowEqual } from "react-redux";
+import { useSelector } from "hooks";
 
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;
+
+type PipeLineErrors = {
+  [key: string]: { [key: string]: string };
+};
+
+interface Props {
+  color: string;
+  isStored?: boolean;
+  labelColor?: string;
+  progress?: number;
+  stageHasStarted?: boolean;
+  stageName?: string;
+  children?: ReactElement;
+  tooltipText?: string;
+  trackId?: string;
+}
 
 const ProgressIndicator = ({
   color,
@@ -11,11 +29,11 @@ const ProgressIndicator = ({
   progress = 0,
   stageHasStarted = false,
   stageName = "",
-  children = stageName.toUpperCase(),
+  children = <Box as="span">{stageName.toUpperCase()}</Box>,
   tooltipText,
   trackId = ""
-}) => {
-  const { [trackId]: errors = {} } = useSelector(state => state.tracks.pipelineErrors, shallowEqual);
+}: Props) => {
+  const { [trackId]: errors = {} } = useSelector(state => state.tracks.pipelineErrors as PipeLineErrors, shallowEqual);
   const error = errors[stageName];
 
   return (
@@ -29,7 +47,7 @@ const ProgressIndicator = ({
     >
       <Tooltip label={tooltipText}>
         <CircularProgressLabel
-          animation={error != null ? animation : false}
+          animation={error != null ? animation : undefined}
           color={error != null ? "red.400" : isStored || stageHasStarted ? labelColor : "gray.600"}
           transition="color 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
         >

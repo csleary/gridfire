@@ -1,21 +1,51 @@
-import { Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
+import { Box, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
+import { MouseEventHandler, memo } from "react";
 import { cancelUpload, uploadAudio } from "state/tracks";
 import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastError, toastInfo } from "state/toast";
+import { useDispatch, useSelector } from "hooks";
 import ProgressIndicator from "./progressIndicator";
 import Icon from "components/icon";
-import { memo } from "react";
 import mime from "mime";
+import { shallowEqual } from "react-redux";
 import { updateTrackStatus } from "state/releases";
 import { useDropzone } from "react-dropzone";
 
-const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce(
-  (prev, ext) => ({ ...prev, [mime.getType(ext)]: [...(prev[mime.getType(ext)] || []), ext] }),
-  {}
-);
+type EncodingProgress = { [key: string]: number };
 
-const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trackTitle, updateTrackTitle }) => {
+type StageComplete = { [key: string]: boolean };
+
+interface ProcessingStates {
+  audioUploadProgress: EncodingProgress;
+  encodingProgressFLAC: EncodingProgress;
+  storingProgressFLAC: EncodingProgress;
+  transcodingStartedAAC: StageComplete;
+  transcodingCompleteAAC: StageComplete;
+  transcodingStartedMP3: StageComplete;
+  transcodingCompleteMP3: StageComplete;
+}
+
+interface AcceptedFileTypes {
+  [key: string]: string[];
+}
+
+const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce((prev, ext) => {
+  const type = mime.getType(ext);
+  if (!type) return prev;
+  return { ...prev, [type]: [...(prev[type] || []), ext] };
+}, {} as AcceptedFileTypes);
+
+interface Props {
+  index: number;
+  setTrackErrors: (fn: (prev: any) => any) => void;
+  setValues: (fn: (prev: any) => any) => void;
+  status: string;
+  trackId: string;
+  trackTitle: string;
+  updateTrackTitle: (title: string) => void;
+}
+
+const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trackTitle, updateTrackTitle }: Props) => {
   const dispatch = useDispatch();
   const { _id: releaseId } = useSelector(state => state.releases.editing, shallowEqual);
 
@@ -27,7 +57,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
     transcodingCompleteAAC,
     transcodingStartedMP3,
     transcodingCompleteMP3
-  } = useSelector(state => state.tracks, shallowEqual);
+  }: ProcessingStates = useSelector(state => state.tracks, shallowEqual);
 
   const isEncoding = status === "encoding" || (encodingProgressFLAC[trackId] > 0 && !storingProgressFLAC);
   const isStored = status === "stored";
@@ -35,7 +65,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
     status === "transcoding" || (transcodingStartedAAC[trackId] && !transcodingCompleteMP3[trackId]);
   const isUploading = audioUploadProgress[trackId] > 0 && audioUploadProgress[trackId] < 100;
 
-  const handleClick = e => {
+  const handleClick: MouseEventHandler = e => {
     if (isUploading) {
       dispatch(cancelUpload(trackId));
       dispatch(updateTrackStatus({ releaseId, trackId, status: "pending" }));
@@ -43,7 +73,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
     }
   };
 
-  const onDropAudio = (accepted, rejected, e) => {
+  const onDrop = (accepted: any, rejected: any) => {
     if (rejected?.length) {
       return dispatch(
         toastError({
@@ -62,10 +92,10 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
       setValues(prev => ({ ...prev, trackTitle: name }));
     }
 
-    const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${parseInt(index, 10) + 1}`;
+    const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${index + 1}`;
     dispatch(toastInfo({ message: `Uploading file \u2018${name}\u2019 for ${trackName}.`, title: "Uploading" }));
 
-    dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile, mimeType: audioFile.type })).catch(error =>
+    dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile })).catch((error: any) =>
       dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }))
     );
   };
@@ -76,7 +106,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
     multiple: false,
     noDragEventsBubbling: true,
     noKeyboard: false,
-    onDrop: onDropAudio
+    onDrop
   });
 
   return (
@@ -153,7 +183,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
           tooltipText="AAC streaming audio encoding progress."
           trackId={trackId}
         >
-          AAC
+          <Box as="span">AAC</Box>
         </ProgressIndicator>
       </WrapItem>
       <WrapItem>
@@ -166,7 +196,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
           tooltipText="MP3 download encoding progress."
           trackId={trackId}
         >
-          MP3
+          <Box as="span">MP3</Box>
         </ProgressIndicator>
       </WrapItem>
     </Wrap>

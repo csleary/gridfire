@@ -1,9 +1,17 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
-import { memo, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, memo, useCallback, useEffect, useState } from "react";
+import { DetailedReleaseValues, ReleaseErrors } from "types";
 import Field from "components/field";
 import Tags from "./tags";
 
-const initialValues = {
+interface Props {
+  errors: ReleaseErrors;
+  handleRemoveTag: (tag: string) => void;
+  savedState: DetailedReleaseValues;
+  updateState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+}
+
+const initialValues: DetailedReleaseValues = {
   info: "",
   credits: "",
   recordLabel: "",
@@ -15,15 +23,15 @@ const initialValues = {
   tags: []
 };
 
-const DetailedInfo = ({ errors, handleRemoveTag, savedState, updateState }) => {
+const DetailedInfo = ({ errors, handleRemoveTag, savedState, updateState }: Props) => {
   const [values, setValues] = useState(initialValues);
 
   useEffect(() => {
     setValues(savedState);
   }, [savedState]);
 
-  const handleChange = useCallback(e => {
-    const { name, value } = e.target;
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.currentTarget;
     setValues(prev => ({ ...prev, [name]: value }));
   }, []);
 

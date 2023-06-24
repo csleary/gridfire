@@ -19,38 +19,63 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
-import { memo, useCallback, useEffect, useState } from "react";
+import { ChangeEventHandler, DragEventHandler, memo, useCallback, useEffect, useState } from "react";
 import AudioDropzone from "./audioDropzone";
+import { ReleaseTrack } from "types";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import Icon from "components/icon";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { formatPrice } from "utils";
+
+interface Props {
+  cancelDeleteTrack: (trackId: string) => void;
+  dragOriginIsInactive: boolean;
+  errorTrackTitle: string;
+  handleDeleteTrack: (trackId: string, trackTitle: string) => void;
+  handleDragEnd: DragEventHandler;
+  handleDragEnter: DragEventHandler;
+  handleDragLeave: DragEventHandler;
+  handleDragOver: DragEventHandler;
+  handleDragStart: DragEventHandler;
+  handleDrop: DragEventHandler;
+  handleMoveTrack: (oldIndex: number, newIndex: number) => void;
+  index: number;
+  isActiveDragOver: boolean;
+  isDragging: boolean;
+  isDragOrigin: boolean;
+  savedState: any;
+  setTrackErrors: (fn: (prev: any) => any) => void;
+  trackId: string;
+  trackListLength: number;
+  trackMarkedForDeletion: boolean;
+  updateState: (fn: (prev: any) => any) => void;
+}
 
 const Track = ({
   cancelDeleteTrack,
   dragOriginIsInactive,
   errorTrackTitle,
   handleDeleteTrack,
-  handleDragStart,
-  handleDragEnter,
-  handleDragOver,
-  handleDragLeave,
-  handleDrop,
   handleDragEnd,
+  handleDragEnter,
+  handleDragLeave,
+  handleDragOver,
+  handleDragStart,
+  handleDrop,
   handleMoveTrack,
   index,
   isActiveDragOver,
   isDragging,
   isDragOrigin,
+  savedState,
+  setTrackErrors,
   trackId,
   trackListLength,
   trackMarkedForDeletion,
-  savedState,
-  setTrackErrors,
   updateState
-}) => {
+}: Props) => {
   const checkboxColour = useColorModeValue("yellow", "purple");
-  const [values, setValues] = useState({});
+  const [values, setValues] = useState<ReleaseTrack>({} as ReleaseTrack);
   const { isBonus, isEditionOnly, price, status, trackTitle } = values;
 
   useEffect(() => {
@@ -58,16 +83,16 @@ const Track = ({
   }, [savedState]);
 
   const updateTrack = useCallback(
-    track => {
+    (track: ReleaseTrack) => {
       updateState(prev => ({
         ...prev,
-        trackList: prev.trackList.map(t => (t._id === trackId ? track : t))
+        trackList: prev.trackList.map((t: ReleaseTrack) => (t._id === trackId ? track : t))
       }));
     },
     [trackId, updateState]
   );
 
-  const handleChange = useCallback(
+  const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     e => {
       const { name, value, type, checked } = e.currentTarget;
       setTrackErrors(({ [`${trackId}.${name}`]: key, ...rest }) => rest);
@@ -81,7 +106,7 @@ const Track = ({
     [setTrackErrors, trackId]
   );
 
-  const handleBlur = useCallback(
+  const handleBlur: ChangeEventHandler<HTMLInputElement> = useCallback(
     e => {
       const { checked, name, type, value } = e.currentTarget;
 
@@ -103,9 +128,9 @@ const Track = ({
     ? "var(--chakra-colors-gray-500) dashed 2px"
     : "transparent dashed 2px";
 
-  const preventDrag = event => {
-    event.preventDefault();
-    event.stopPropagation();
+  const preventDrag: DragEventHandler = e => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   return (
@@ -144,7 +169,7 @@ const Track = ({
             </FormLabel>
             <Input
               draggable={true}
-              isInvalid={errorTrackTitle}
+              isInvalid={Boolean(errorTrackTitle)}
               isRequired
               id={`${trackId}.trackTitle`}
               name="trackTitle"
@@ -213,7 +238,6 @@ const Track = ({
         </Wrap>
       </VStack>
       <AudioDropzone
-        disablePreview
         index={index}
         setTrackErrors={setTrackErrors}
         setValues={setValues}
@@ -246,7 +270,7 @@ const Track = ({
               closeOnSelect={trackMarkedForDeletion ? true : false}
               icon={<Icon icon={faTrashAlt} />}
               onClick={() => handleDeleteTrack(trackId, trackTitle)}
-              onKeyUp={({ key }) => (key === "Escape") & cancelDeleteTrack(trackId)}
+              onKeyUp={({ key }) => key === "Escape" && cancelDeleteTrack(trackId)}
             >
               {trackMarkedForDeletion ? "Are you sure?" : "Delete"}
             </MenuItem>

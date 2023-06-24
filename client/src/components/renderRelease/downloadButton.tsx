@@ -14,16 +14,23 @@ import {
 } from "@chakra-ui/react";
 import DownloadModal from "components/renderRelease/downloadModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import PropTypes from "prop-types";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
-const OverlayDownloadButton = ({ artistName, purchaseId, releaseId, releaseTitle }) => {
+interface Props {
+  artistName: string;
+  purchaseId: string;
+  releaseId: string;
+  releaseTitle: string;
+}
+
+const OverlayDownloadButton = ({ artistName, purchaseId, releaseId, releaseTitle }: Props) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
       <IconButton
+        aria-label="Download release"
         alignItems="center"
         color="hsla(233, 10%, 75%, 1)"
         display="flex"
@@ -73,13 +80,6 @@ const OverlayDownloadButton = ({ artistName, purchaseId, releaseId, releaseTitle
       </Modal>
     </>
   );
-};
-
-OverlayDownloadButton.propTypes = {
-  artistName: PropTypes.string,
-  artworkCID: PropTypes.string,
-  purchaseId: PropTypes.string,
-  releaseTitle: PropTypes.string
 };
 
 export default OverlayDownloadButton;

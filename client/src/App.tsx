@@ -2,16 +2,16 @@ import { Box, Center, Container, Flex, Slide, Spacer, Spinner, useColorModeValue
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { BrowserProvider } from "ethers";
 import Icon from "components/icon";
 import Footer from "components/footer";
 import Player from "components/player";
 import PrivateRoute from "components/privateRoute";
-import { RootState } from "index";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
+import { shallowEqual } from "react-redux";
 import useSSE from "hooks/useSSE";
 
 const { REACT_APP_CHAIN_ID = "" } = process.env;
@@ -29,8 +29,8 @@ const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
   const ethereumRef: any = useRef();
-  const { account } = useSelector((state: RootState) => state.user, shallowEqual);
-  const { chainId, isConnected } = useSelector((state: RootState) => state.web3, shallowEqual);
+  const { account } = useSelector(state => state.user, shallowEqual);
+  const { chainId, isConnected } = useSelector(state => state.web3, shallowEqual);
 
   const getAccountInfo = useCallback(() => {
     if (account) {

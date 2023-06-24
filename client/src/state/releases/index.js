@@ -1,4 +1,5 @@
 import { toastError, toastSuccess } from "state/toast";
+import { DateTime } from "luxon";
 import axios from "axios";
 import { createObjectId } from "utils";
 import { createSlice } from "@reduxjs/toolkit";
@@ -13,12 +14,13 @@ const defaultReleaseState = {
   credits: "",
   info: "",
   price: "10",
+  published: false,
   pubName: "",
-  pubYear: null,
+  pubYear: "",
   recName: "",
-  recYear: null,
+  recYear: "",
   recordLabel: "",
-  releaseDate: "",
+  releaseDate: DateTime.local().toISODate() || "",
   releaseTitle: "",
   tags: [],
   trackList: []
@@ -288,6 +290,7 @@ export const {
 } = releaseSlice.actions;
 
 export {
+  defaultReleaseState,
   deleteRelease,
   fetchArtistCatalogue,
   fetchCatalogue,

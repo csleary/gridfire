@@ -1,6 +1,6 @@
-import { Box, useColorModeValue } from "@chakra-ui/react";
+import { Box, BoxProps, forwardRef, useColorModeValue } from "@chakra-ui/react";
 
-const Card = props => (
+const Card = forwardRef<BoxProps, "div">((props, ref) => (
   <Box
     bg={useColorModeValue("white", "gray.800")}
     borderWidth="1px"
@@ -10,8 +10,9 @@ const Card = props => (
     py={8}
     rounded="md"
     marginBottom={6}
+    ref={ref}
     {...props}
-  ></Box>
-);
+  />
+));
 
 export default Card;

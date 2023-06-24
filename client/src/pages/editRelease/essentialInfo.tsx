@@ -1,18 +1,29 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
-import { shallowEqual, useSelector } from "react-redux";
-import { memo, useEffect, useState } from "react";
+import { ChangeEventHandler, Dispatch, SetStateAction, memo, useCallback, useEffect, useState } from "react";
+import { EssentialReleaseValues, ReleaseErrors } from "types";
 import ArtistMenu from "./artistMenu";
+import { DateTime } from "luxon";
 import Field from "components/field";
+import { shallowEqual } from "react-redux";
+import { useSelector } from "hooks";
 
-const initialValues = {
+interface Props {
+  errors: ReleaseErrors;
+  isEditing: boolean;
+  savedState: EssentialReleaseValues;
+  setErrors: Dispatch<SetStateAction<ReleaseErrors>>;
+  updateState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+}
+
+const initialValues: EssentialReleaseValues = {
   artist: "",
   artistName: "",
   releaseTitle: "",
-  releaseDate: "",
-  price: ""
+  releaseDate: DateTime.local().toISODate() || "",
+  price: "10"
 };
 
-const EssentialInfo = ({ errors, isEditing, savedState, setErrors, updateState }) => {
+const EssentialInfo = ({ errors, isEditing, savedState, updateState }: Props) => {
   const { editing: release } = useSelector(state => state.releases, shallowEqual);
   const [values, setValues] = useState(initialValues);
   const { artist } = release;
@@ -21,21 +32,18 @@ const EssentialInfo = ({ errors, isEditing, savedState, setErrors, updateState }
     setValues(savedState);
   }, [savedState]);
 
-  const handleChange = e => {
-    const { name, value } = e.target;
+  const handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback(e => {
+    const { name, value } = e.currentTarget;
 
     if (name === "price") {
       const numbersOnly = value.replace(/[^0-9.]/g, "");
-      setErrors(({ [name]: key, ...rest }) => rest);
       setValues(current => ({ ...current, [name]: numbersOnly }));
     } else if (name === "artistName") {
-      setErrors(({ artist, artistName, ...rest }) => rest);
       setValues(prev => ({ ...prev, [name]: value }));
     } else {
-      setErrors(({ [name]: key, ...rest }) => rest);
       setValues(prev => ({ ...prev, [name]: value }));
     }
-  };
+  }, []);
 
   return (
     <>
