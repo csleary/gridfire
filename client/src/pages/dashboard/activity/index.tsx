@@ -8,18 +8,7 @@ import { fetchActivity } from "state/artists";
 import { formatEther } from "ethers";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
-
-interface ActivityProperties {
-  _id: string;
-  artistName: string;
-  createdAt: string;
-  editionDescription: string;
-  type: string;
-  releaseTitle?: string;
-  amountPaid: string;
-  account: string;
-  username: string;
-}
+import { Activity as IActivity } from "types";
 
 const Activity = () => {
   const dispatch = useDispatch();
@@ -47,7 +36,7 @@ const Activity = () => {
             releaseTitle,
             type,
             username
-          }: ActivityProperties) => {
+          }: IActivity) => {
             const date = DateTime.fromISO(createdAt).toLocaleString(DateTime.DATETIME_SHORT);
 
             switch (type) {

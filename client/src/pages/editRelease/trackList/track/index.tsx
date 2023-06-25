@@ -19,9 +19,18 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
-import { ChangeEventHandler, DragEventHandler, memo, useCallback, useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  DragEventHandler,
+  Dispatch,
+  SetStateAction,
+  memo,
+  useCallback,
+  useEffect,
+  useState
+} from "react";
+import { Release, ReleaseTrack } from "types";
 import AudioDropzone from "./audioDropzone";
-import { ReleaseTrack } from "types";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import Icon from "components/icon";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
@@ -43,12 +52,12 @@ interface Props {
   isActiveDragOver: boolean;
   isDragging: boolean;
   isDragOrigin: boolean;
-  savedState: any;
-  setTrackErrors: (fn: (prev: any) => any) => void;
+  savedState: ReleaseTrack;
+  setTrackErrors: (fn: (prev: any) => { [key: string]: string }) => void;
   trackId: string;
   trackListLength: number;
   trackMarkedForDeletion: boolean;
-  updateState: (fn: (prev: any) => any) => void;
+  updateState: Dispatch<SetStateAction<Release>>;
 }
 
 const Track = ({

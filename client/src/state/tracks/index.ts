@@ -7,16 +7,16 @@ const calls = new Map();
 
 interface TracksState {
   uploadCancelled: boolean;
-  audioUploadProgress: any;
-  encodingProgressFLAC: any;
-  encodingCompleteFLAC: any;
-  pipelineErrors: any;
-  storingProgressFLAC: any;
-  transcodingStartedAAC: any;
-  transcodingCompleteAAC: any;
-  transcodingStartedMP3: any;
-  transcodingCompleteMP3: any;
-  trackIdsForDeletion: any;
+  audioUploadProgress: { [key: string]: number };
+  encodingProgressFLAC: { [key: string]: number };
+  encodingCompleteFLAC: { [key: string]: boolean };
+  pipelineErrors: { [key: string]: { [key: string]: string } };
+  storingProgressFLAC: { [key: string]: number };
+  transcodingStartedAAC: { [key: string]: boolean };
+  transcodingCompleteAAC: { [key: string]: boolean };
+  transcodingStartedMP3: { [key: string]: boolean };
+  transcodingCompleteMP3: { [key: string]: boolean };
+  trackIdsForDeletion: { [key: string]: boolean };
 }
 
 const initialState: TracksState = {

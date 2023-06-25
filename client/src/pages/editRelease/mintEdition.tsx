@@ -21,7 +21,7 @@ import {
   Badge
 } from "@chakra-ui/react";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
-import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEventHandler, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { MintedEdition, ReleaseTrack } from "types";
 import Field from "components/field";
 import Icon from "components/icon";
@@ -50,7 +50,7 @@ const colors = [
   "var(--chakra-colors-gray-400)"
 ];
 
-const Label = ({ children }: { children: any }) => (
+const Label = ({ children }: { children: ReactNode }) => (
   <Box as="span" fontWeight="400" mr={2}>
     {children}
   </Box>

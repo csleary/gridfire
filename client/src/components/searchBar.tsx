@@ -32,6 +32,7 @@ import { shallowEqual } from "react-redux";
 import { useDisclosure } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import { usePrevious } from "hooks/usePrevious";
+import { ReleaseTrack } from "types";
 
 const { REACT_APP_CDN_IMG } = process.env;
 
@@ -44,7 +45,7 @@ interface Release {
   price: string;
   recordLabel: string;
   releaseTitle: string;
-  trackList: Array<{}>;
+  trackList: ReleaseTrack[];
 }
 
 const SearchBar = ({ ...rest }) => {
@@ -53,7 +54,7 @@ const SearchBar = ({ ...rest }) => {
   const dispatch = useDispatch();
   const { search } = useLocation();
   const navigate = useNavigate();
-  const inputRef: any = useRef();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { isSearching, searchQuery, searchResults } = useSelector(state => state.search, shallowEqual);
   const [searchText, setSearchText] = useState("");
 
@@ -90,7 +91,7 @@ const SearchBar = ({ ...rest }) => {
   const handleClearSearch = () => {
     dispatch(clearResults());
     setSearchText("");
-    inputRef.current.focus();
+    inputRef.current?.focus();
   };
 
   const handleClose = () => {

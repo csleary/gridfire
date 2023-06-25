@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "hooks";
 import Artwork from "./artwork";
 import { DateTime } from "luxon";
 import Icon from "components/icon";
-import PropTypes from "prop-types";
 import { UserRelease as IUserRelease } from "types";
 import StatusIcon from "./statusIcon";
 import Title from "./title";
@@ -166,7 +165,5 @@ function UserRelease({ release }: Props) {
     </Flex>
   );
 }
-
-UserRelease.propTypes = { release: PropTypes.object };
 
 export default UserRelease;

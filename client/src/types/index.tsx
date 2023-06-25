@@ -1,3 +1,20 @@
+export interface Activity {
+  _id: string;
+  account: string;
+  amountPaid?: string;
+  artist: string;
+  artistName: string;
+  createdAt: string;
+  editionDescription?: string;
+  editionId?: string;
+  release?: string;
+  releaseTitle?: string;
+  sale?: string;
+  type: "favourite" | "follow" | "mint" | "publish" | "sale";
+  user: string;
+  username: string;
+}
+
 export interface Artist {
   _id: string;
   name: string;

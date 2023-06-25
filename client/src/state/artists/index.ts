@@ -1,15 +1,15 @@
+import { Activity, Artist } from "types";
 import { toastError, toastSuccess } from "state/toast";
 import { AppDispatch } from "index";
-import { Artist } from "types";
 import axios from "axios";
 import { batch } from "react-redux";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface ArtistState {
   activeArtistId: string;
-  activity: any[];
+  activity: Activity[];
   artists: Artist[];
-  errors: any;
+  errors: { [key: string]: string };
   isLoading: boolean;
   isSubmitting: boolean;
   isPristine: boolean;
