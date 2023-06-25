@@ -34,7 +34,7 @@ const Balance = () => {
   const { user, web3 } = useSelector(state => state, shallowEqual);
   const { paymentAddress } = user;
   const { account, isConnected } = web3;
-  const [balance, setBalance] = useState(0n);
+  const [balance, setBalance] = useState("0");
   const [isClaiming, setIsClaiming] = useState(false);
   const [claims, setClaims] = useState([]);
 
@@ -54,11 +54,11 @@ const Balance = () => {
     try {
       setIsClaiming(true);
       await claimBalance();
-      setBalance(0n);
+      setBalance("0");
       dispatch(fetchDaiBalance(account));
       dispatch(toastSuccess({ message: "DAI balance claimed successfully", title: "Success!" }));
     } catch (error: any) {
-      if (balance === 0n) {
+      if (balance === "0") {
         return void dispatch(
           toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim." })
         );
@@ -96,7 +96,7 @@ const Balance = () => {
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
           leftIcon={<Icon icon={faWallet} />}
-          isDisabled={!isConnected || balance === 0n || account.toLowerCase() !== paymentAddress.toLowerCase()}
+          isDisabled={!isConnected || balance === "0" || account.toLowerCase() !== paymentAddress.toLowerCase()}
           isLoading={isClaiming}
           loadingText="Claiming…"
           onClick={handleClaimBalance}

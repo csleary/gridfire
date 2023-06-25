@@ -1,9 +1,9 @@
-import { Box, Center, Container, Flex, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
+import { Box, Center, Flex, Link, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
-import { fetchDaiAllowance, fetchDaiBalance, setAccount, setIsConnected, setNetworkName } from "state/web3";
+import { setIsConnected, setNetworkName } from "state/web3";
 import { useDispatch, useSelector } from "hooks";
-import { BrowserProvider } from "ethers";
+import { BrowserProvider, Eip1193Provider, isError } from "ethers";
 import Icon from "components/icon";
 import Footer from "components/footer";
 import Player from "components/player";
@@ -28,80 +28,76 @@ const SearchResults = lazy(() => import("pages/searchResults"));
 const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
-  const ethereumRef: any = useRef();
-  const { account } = useSelector(state => state.user, shallowEqual);
-  const { chainId, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const ethereumRef = useRef<any>();
+  const providerRef = useRef<BrowserProvider>();
+  const { chainId } = useSelector(state => state.web3, shallowEqual);
+  const isCorrectChain = Boolean(chainId) && chainId === REACT_APP_CHAIN_ID;
 
-  const getAccountInfo = useCallback(() => {
-    if (account) {
-      dispatch(fetchDaiAllowance(account));
-      dispatch(fetchDaiBalance(account));
+  const getNetwork = useCallback(async () => {
+    const browserProvider = new BrowserProvider(ethereumRef.current as unknown as Eip1193Provider);
+    providerRef.current = browserProvider;
+
+    providerRef.current.on("error", (error: any) => {
+      // Stub this out to avoid errors on network change.
+    });
+
+    if (!providerRef.current) {
+      console.warn("No web3 provider available!");
+      return;
     }
-  }, [account, dispatch]);
 
-  const getNetwork = useCallback(() => {
-    const provider = new BrowserProvider(ethereumRef.current);
-    provider.getNetwork().then(({ chainId, name }) => dispatch(setNetworkName({ chainId: chainId.toString(), name })));
-  }, [dispatch]);
+    try {
+      const network = await providerRef.current.getNetwork();
+      const { chainId, name } = network;
+      const id = chainId.toString();
+      dispatch(setNetworkName({ chainId: id, name }));
+      console.info(`Connected to ${name} network (${id}).`);
 
-  const handleAccountsChanged = useCallback(
-    (accounts: string[]): void => {
-      const [account] = accounts;
-
-      if (account) {
-        dispatch(setAccount(account));
-        dispatch(fetchDaiAllowance(account));
-        dispatch(fetchDaiBalance(account));
-        dispatch(setIsConnected(true));
-      } else {
+      if (Boolean(id) && id !== REACT_APP_CHAIN_ID) {
         dispatch(setIsConnected(false));
       }
-    },
-    [dispatch]
-  );
+    } catch (error: any) {
+      if (!isError(error, "NETWORK_ERROR")) {
+        console.warn(error);
+      }
+    }
+  }, [dispatch]);
 
-  const handleChainChanged = useCallback(
-    (chainId: bigint): void => {
-      // window.location.reload();
-      getAccountInfo();
-      getNetwork();
-    },
-    [getAccountInfo, getNetwork]
-  );
+  const handleChainChanged = useCallback(getNetwork, [getNetwork]);
+
+  const initialiseWeb3 = useCallback(async () => {
+    const ethereum = await detectEthereumProvider();
+    if (ethereum == null) return;
+    ethereumRef.current = ethereum;
+    ethereumRef.current.on("chainChanged", handleChainChanged);
+    getNetwork();
+  }, [getNetwork, handleChainChanged]);
 
   useEffect(() => {
     dispatch(fetchUser());
-
-    detectEthereumProvider().then((ethereum: any) => {
-      if (ethereum == null) return;
-      ethereumRef.current = ethereum;
-      ethereumRef.current.on("accountsChanged", handleAccountsChanged);
-      ethereumRef.current.on("chainChanged", handleChainChanged);
-      getNetwork();
-    });
-
-    return () => {
-      if (ethereumRef.current != null) {
-        ethereumRef.current.removeListener("accountsChanged", handleAccountsChanged);
-        ethereumRef.current.removeListener("chainChanged", handleChainChanged);
-      }
-    };
-  }, [dispatch, getNetwork, handleAccountsChanged, handleChainChanged]);
+    initialiseWeb3();
+  }, [dispatch, initialiseWeb3]);
 
   return (
     <BrowserRouter>
-      <Slide
-        direction="bottom"
-        in={isConnected && BigInt(chainId) !== 0n && BigInt(chainId) !== BigInt(REACT_APP_CHAIN_ID)}
-        style={{ zIndex: 10 }}
-        unmountOnExit
-      >
-        <Box bg="yellow.400" color="gray.800" fontWeight="semibold" p={4} shadow="md">
-          <Container>
-            <Icon icon={faNetworkWired} mr={2} />
-            Please switch to the Arbitrum network to use GridFire.
-          </Container>
-        </Box>
+      <Slide direction="bottom" in={Boolean(chainId) && !isCorrectChain} style={{ zIndex: 10 }} unmountOnExit>
+        <Center bg="yellow.400" color="gray.800" fontWeight="semibold" p={4} shadow="md">
+          <Box>
+            <Box>
+              <Icon icon={faNetworkWired} mr={2} />
+              Please switch to the Arbitrum network to use GridFire
+            </Box>
+            <Link
+              isExternal
+              href="https://chainlist.org/chain/42161"
+              rel="nofollow noopener"
+              textDecoration="underline"
+              textAlign="center"
+            >
+              Add the Arbitrum network to your wallet on ChainList
+            </Link>
+          </Box>
+        </Center>
       </Slide>
       <Flex maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" flexDirection="column">
         <Suspense fallback={<></>}>

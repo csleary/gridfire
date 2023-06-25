@@ -29,7 +29,7 @@ const initialState: Web3State = {
   account: "",
   accountShort: "",
   basket: [],
-  chainId: 0n.toString(),
+  chainId: "",
   error: "",
   daiAllowance: 0n.toString(),
   daiBalance: 0n.toString(),
@@ -156,7 +156,6 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
 
     if (network.chainId !== requiredChainId) {
       await provider.send("wallet_switchEthereumChain", [{ chainId: toQuantity(requiredChainId) }]);
-
       network = await provider.getNetwork();
     }
 
@@ -177,31 +176,7 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
       dispatch(setNetworkName({ chainId: chainId.toString(), name }));
     });
   } catch (error: any) {
-    if (isError(error, "NETWORK_ERROR")) {
-      try {
-        await provider.send("wallet_addEthereumChain", [
-          {
-            chainId: toQuantity(requiredChainId),
-            rpcUrls: ["https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"],
-            chainName: "Arbitrum One",
-            nativeCurrency: {
-              name: "ETH",
-              symbol: "ETH",
-              decimals: 18
-            },
-            blockExplorerUrls: ["https://arbiscan.io/"]
-          }
-        ]);
-      } catch (error) {
-        dispatch(
-          toastWarning({
-            message:
-              "Please add the Arbitrum network to your wallet (e.g. via Chainlist.org) in order to switch to it.",
-            title: "Network not recognised"
-          })
-        );
-      }
-    } else if (error.code === -32002) {
+    if (error.code === -32002) {
       dispatch(
         toastWarning({
           message:
@@ -209,7 +184,7 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
           title: "Your wallet is processing a previous request"
         })
       );
-    } else {
+    } else if (!isError(error, "NETWORK_ERROR")) {
       dispatch(toastError({ message: error.message }));
     }
   }

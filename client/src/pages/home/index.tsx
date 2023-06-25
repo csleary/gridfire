@@ -13,7 +13,7 @@ import { fetchCatalogue } from "state/releases";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
-const Home = () => {
+const Home: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();

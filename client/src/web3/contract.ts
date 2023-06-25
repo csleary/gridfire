@@ -26,21 +26,21 @@ const claimBalance = async () => {
   if (status !== 1) throw new Error("Claim unsuccessful.");
 };
 
-const getBalance = async (paymentAddress: string) => {
+const getBalance = async (paymentAddress: string): Promise<string> => {
   const provider = await getProvider();
   const gridFireContract = getGridFireContract(provider);
   const balanceBigInt = await gridFireContract.getBalance(paymentAddress);
   return balanceBigInt.toString();
 };
 
-const getDaiAllowance = async (account: string) => {
+const getDaiAllowance = async (account: string): Promise<string> => {
   const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
   const allowanceBigInt = await daiContract.allowance(account, REACT_APP_GRIDFIRE_PAYMENT_ADDRESS);
   return allowanceBigInt.toString();
 };
 
-const getDaiBalance = async (account: string) => {
+const getDaiBalance = async (account: string): Promise<string> => {
   const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
   const balanceBigInt = await daiContract.balanceOf(account);

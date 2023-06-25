@@ -21,7 +21,6 @@
     "docker:build:worker": "docker build -f ./worker/Dockerfile -t csleary/gridfire-worker worker/",
     "docker:build:web3-events": "docker build -f ./web3-events/Dockerfile -t csleary/gridfire-web3-events web3-events/",
     "docker:build:ipfs": "docker build -f ./manifests/production/ipfs/Dockerfile -t csleary/ipfs-node manifests/production/ipfs/",
-    "ganache": "ganache-cli --db ~/.ganache-db -i 5555 -m \"wreck arena bar club flat identify eternal exhaust poet deputy danger canyon\"",
     "hardhat:compile": "yarn --cwd ./hardhat/ hardhat compile --force",
     "hardhat:dev": "npm run hardhat:compile && npm run hardhat:deploy && npm run hardhat:fund",
     "hardhat:deploy": "yarn --cwd ./hardhat/ hardhat --network localhost run scripts/deploy-dev.js",
@@ -67,7 +66,6 @@
     "@types/express": "^4.17.13",
     "@types/mime-types": "^2.1.1",
     "@types/passport": "^1.0.7",
-    "@types/tar-stream": "^2.2.2",
     "concurrently": "^7.1.0",
     "eslint": "^8.23.0",
     "nodemon": "^2.0.7"

@@ -20,15 +20,11 @@
     "dotenv": "^16.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "ipfs-http-client": "^60.0.0",
-    "mongoose": "^6.1.4",
-    "sax": "^1.2.4",
-    "tar-stream": "^3.0.0"
+    "mongoose": "^6.1.4"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
     "@types/fluent-ffmpeg": "^2.1.20",
-    "@types/sax": "^1.2.4",
-    "@types/tar-stream": "^2.2.2",
     "nodemon": "^2.0.15"
   }
 }
