@@ -1,23 +1,41 @@
 import { toastError, toastInfo, toastSuccess } from "state/toast";
-import axios from "axios";
+import { AppDispatch, GetState } from "index";
+import axios, { AxiosProgressEvent } from "axios";
 import { createSlice } from "@reduxjs/toolkit";
+
 const calls = new Map();
+
+interface TracksState {
+  uploadCancelled: boolean;
+  audioUploadProgress: any;
+  encodingProgressFLAC: any;
+  encodingCompleteFLAC: any;
+  pipelineErrors: any;
+  storingProgressFLAC: any;
+  transcodingStartedAAC: any;
+  transcodingCompleteAAC: any;
+  transcodingStartedMP3: any;
+  transcodingCompleteMP3: any;
+  trackIdsForDeletion: any;
+}
+
+const initialState: TracksState = {
+  uploadCancelled: false,
+  audioUploadProgress: {},
+  encodingProgressFLAC: {},
+  encodingCompleteFLAC: {},
+  pipelineErrors: {},
+  storingProgressFLAC: {},
+  transcodingStartedAAC: {},
+  transcodingCompleteAAC: {},
+  transcodingStartedMP3: {},
+  transcodingCompleteMP3: {},
+  trackIdsForDeletion: {}
+};
 
 const trackSlice = createSlice({
   name: "tracks",
-  initialState: {
-    uploadCancelled: false,
-    audioUploadProgress: {},
-    encodingProgressFLAC: {},
-    encodingCompleteFLAC: {},
-    pipelineErrors: {},
-    storingProgressFLAC: {},
-    transcodingStartedAAC: {},
-    transcodingCompleteAAC: {},
-    transcodingStartedMP3: {},
-    transcodingCompleteMP3: {},
-    trackIdsForDeletion: {}
-  },
+  initialState,
   reducers: {
     cancelUpload(state, action) {
       const trackId = action.payload;
@@ -73,7 +91,7 @@ const trackSlice = createSlice({
   }
 });
 
-const deleteTrack = (trackId, trackTitle) => async (dispatch, getState) => {
+const deleteTrack = (trackId: string, trackTitle: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     if (getState().tracks.trackIdsForDeletion[trackId]) {
       await axios.delete(`/api/track/${trackId}`);
@@ -83,21 +101,28 @@ const deleteTrack = (trackId, trackTitle) => async (dispatch, getState) => {
     } else {
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: true }));
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 404) return;
     dispatch(toastError({ message: error.response?.data?.error, title: "Error" }));
   }
 };
 
-const getCancelToken = uploadId => () => {
+const getCancelToken = (uploadId: string) => () => {
   const call = axios.CancelToken.source();
   calls.set(uploadId, call);
   return call.token;
 };
 
+interface UploadAudioParams {
+  releaseId: string;
+  trackId: string;
+  trackName: string;
+  audioFile: File;
+}
+
 const uploadAudio =
-  ({ releaseId, trackId, trackName, audioFile }) =>
-  async dispatch => {
+  ({ releaseId, trackId, trackName, audioFile }: UploadAudioParams) =>
+  async (dispatch: AppDispatch) => {
     try {
       dispatch(setUploadProgress({ trackId, progress: 0 }));
       const formData = new FormData();
@@ -108,8 +133,8 @@ const uploadAudio =
       const cancelToken = dispatch(getCancelToken(trackId));
 
       const config = {
-        onUploadProgress: event => {
-          const progress = Math.floor((event.loaded / event.total) * 100);
+        onUploadProgress: (event: AxiosProgressEvent) => {
+          const progress = Math.floor((event.loaded / (event.total || 0)) * 100);
           dispatch(setUploadProgress({ trackId, progress }));
         },
         cancelToken
@@ -128,8 +153,6 @@ const uploadAudio =
 
 export const {
   cancelUpload,
-  setDeletingComplete,
-  setDeletingStart,
   setEncodingProgressFLAC,
   setPipelineError,
   setStoringProgressFLAC,

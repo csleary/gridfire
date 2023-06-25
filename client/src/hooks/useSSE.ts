@@ -8,20 +8,23 @@ import {
   setTranscodingStartedMP3,
   setTranscodingCompleteMP3
 } from "state/tracks";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
 import { useEffect, useRef } from "react";
 import axios from "axios";
 import { fetchUser } from "state/user";
 import { setArtworkUploading } from "state/artwork";
+import { shallowEqual } from "react-redux";
 import { updateTrackStatus } from "state/releases";
+
+type SSEHandler = (event: MessageEvent) => void;
 
 const PING_INTERVAL = 1000 * 30;
 
 const useSSE = () => {
   const dispatch = useDispatch();
-  const pingInterval = useRef();
-  const sourceRef = useRef();
+  const pingInterval = useRef<ReturnType<typeof setInterval>>();
+  const sourceRef = useRef<EventSource>();
   const { account, userId } = useSelector(state => state.user, shallowEqual);
 
   useEffect(() => {
@@ -29,10 +32,13 @@ const useSSE = () => {
 
     const cleanup = () => {
       axios.delete(`/api/sse/${userId}/${uuid}`);
-      clearInterval(pingInterval.current);
+
+      if (pingInterval.current) {
+        clearInterval(pingInterval.current);
+      }
     };
 
-    const onNotify = event => {
+    const onNotify: SSEHandler = event => {
       const { type, message } = JSON.parse(event.data);
 
       switch (type) {
@@ -54,17 +60,17 @@ const useSSE = () => {
       dispatch(toastSuccess({ message: "Artwork uploaded!", title: "Done!" }));
     };
 
-    const onEncodingProgressFLAC = event => {
+    const onEncodingProgressFLAC: SSEHandler = event => {
       const { progress, trackId } = JSON.parse(event.data);
       dispatch(setEncodingProgressFLAC({ progress, trackId }));
     };
 
-    const onEditionMinted = event => {
+    const onEditionMinted: SSEHandler = event => {
       const { editionId } = JSON.parse(event.data);
       dispatch(setMintedEditionIds(editionId));
     };
 
-    const onPurchaseEvent = event => {
+    const onPurchaseEvent: SSEHandler = event => {
       const { artistName, releaseTitle } = JSON.parse(event.data);
       dispatch(fetchDaiBalance(account));
       dispatch(fetchUser());
@@ -77,7 +83,7 @@ const useSSE = () => {
       );
     };
 
-    const onPurchaseEditionEvent = event => {
+    const onPurchaseEditionEvent: SSEHandler = event => {
       const { artistName, releaseTitle } = JSON.parse(event.data);
       dispatch(fetchDaiBalance(account));
       dispatch(fetchUser());
@@ -90,7 +96,7 @@ const useSSE = () => {
       );
     };
 
-    const onSaleEvent = event => {
+    const onSaleEvent: SSEHandler = event => {
       const { artistName, artistShare, buyerAddress, releaseTitle } = JSON.parse(event.data);
       dispatch(fetchDaiBalance(account));
 
@@ -105,42 +111,42 @@ const useSSE = () => {
       );
     };
 
-    const onStoringProgressFLAC = event => {
+    const onStoringProgressFLAC: SSEHandler = event => {
       const { progress, trackId } = JSON.parse(event.data);
       dispatch(setStoringProgressFLAC({ progress, trackId }));
     };
 
-    const onTranscodingStartedAAC = event => {
+    const onTranscodingStartedAAC: SSEHandler = event => {
       const { trackId } = JSON.parse(event.data);
       dispatch(setTranscodingStartedAAC({ trackId }));
     };
 
-    const onTranscodingCompleteAAC = event => {
+    const onTranscodingCompleteAAC: SSEHandler = event => {
       const { trackId } = JSON.parse(event.data);
       dispatch(setTranscodingCompleteAAC({ trackId }));
     };
 
-    const onTranscodingStartedMP3 = event => {
+    const onTranscodingStartedMP3: SSEHandler = event => {
       const { trackId } = JSON.parse(event.data);
       dispatch(setTranscodingStartedMP3({ trackId }));
     };
 
-    const onTranscodingCompleteMP3 = event => {
+    const onTranscodingCompleteMP3: SSEHandler = event => {
       const { trackId } = JSON.parse(event.data);
       dispatch(setTranscodingCompleteMP3({ trackId }));
     };
 
-    const onPipelineError = event => {
+    const onPipelineError: SSEHandler = event => {
       const { message, stage, trackId } = JSON.parse(event.data);
       dispatch(setPipelineError({ message, stage, trackId }));
     };
 
-    const onTrackStatus = event => {
+    const onTrackStatus: SSEHandler = event => {
       const { releaseId, status, trackId } = JSON.parse(event.data);
       dispatch(updateTrackStatus({ releaseId, status, trackId }));
     };
 
-    const onWorkerMessage = event => {
+    const onWorkerMessage: SSEHandler = event => {
       const { message, title } = JSON.parse(event.data);
       dispatch(toastInfo({ message, title }));
     };
@@ -150,8 +156,8 @@ const useSSE = () => {
       pingInterval.current = setInterval(() => axios.get(`/api/sse/${userId}/${uuid}/ping`), PING_INTERVAL);
       const source = sourceRef.current;
       source.onopen = () => console.log("[SSE] Connection to server opened.");
-      source.onmessage = event => console.log(event.data);
-      source.onerror = error => console.log(`[SSE] Error: ${JSON.stringify(error, null, 2)}`);
+      source.onmessage = (event: MessageEvent) => console.log(event.data);
+      source.onerror = (error: any) => console.log(`[SSE] Error: ${JSON.stringify(error, null, 2)}`);
       source.addEventListener("artworkUploaded", onArtworkUploaded);
       source.addEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
       source.addEventListener("mintedEvent", onEditionMinted);
@@ -190,7 +196,7 @@ const useSSE = () => {
         source.removeEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
         source.removeEventListener("transcodingCompleteMP3", onTranscodingCompleteMP3);
         source.removeEventListener("workerMessage", onWorkerMessage);
-        sourceRef.current = null;
+        sourceRef.current = undefined;
         window.removeEventListener("beforeunload", cleanup);
       }
     };

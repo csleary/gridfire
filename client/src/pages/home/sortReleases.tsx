@@ -1,31 +1,25 @@
 import { Button, ButtonGroup, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import PropTypes from "prop-types";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
+type SortOrder = "-1" | "1";
+
 const sortOptions = [
   { title: "Date Added", sortPath: "createdAt", 1: "Old", "-1": "New" },
-  {
-    title: "Release Date",
-    sortPath: "releaseDate",
-    1: "Old",
-    "-1": "New"
-  },
-  {
-    title: "Artist Name",
-    sortPath: "artistName",
-    1: "A\u2013Z",
-    "-1": "Z\u2013A"
-  },
-  {
-    title: "Release Title",
-    sortPath: "releaseTitle",
-    1: "A\u2013Z",
-    "-1": "Z\u2013A"
-  },
+  { title: "Release Date", sortPath: "releaseDate", 1: "Old", "-1": "New" },
+  { title: "Artist Name", sortPath: "artistName", 1: "A\u2013Z", "-1": "Z\u2013A" },
+  { title: "Release Title", sortPath: "releaseTitle", 1: "A\u2013Z", "-1": "Z\u2013A" },
   { title: "Price", sortPath: "price", "-1": "Desc.", 1: "Asc." }
 ];
+
+interface Props {
+  handleFetchCatalogue: (options?: { sortBy?: string; sortOrder?: string; isPaging?: boolean }) => Promise<void>;
+  currentSortOrder: string;
+  currentSortPath: string;
+  setCurrentSortOrder: (sortOrder: string) => void;
+  setCurrentSortPath: (sortPath: string) => void;
+}
 
 const SortReleases = ({
   handleFetchCatalogue,
@@ -33,28 +27,31 @@ const SortReleases = ({
   currentSortPath,
   setCurrentSortOrder,
   setCurrentSortPath
-}) => {
+}: Props) => {
   const [isSorting, setIsSorting] = useState(false);
 
-  const handleSortPath = async sortBy => {
+  const handleSortPath = async (sortBy: string) => {
     setIsSorting(true);
     await handleFetchCatalogue({ sortBy, sortOrder: currentSortOrder });
     setCurrentSortPath(sortBy);
     setIsSorting(false);
   };
 
-  const handleSortOrder = async sortOrder => {
+  const handleSortOrder = async (sortOrder: string) => {
     setIsSorting(true);
     await handleFetchCatalogue({ sortBy: currentSortPath, sortOrder });
     setCurrentSortOrder(sortOrder);
     setIsSorting(false);
   };
 
+  const currentSortOption = sortOptions.find(option => option?.sortPath === currentSortPath);
+  const currentSortOrderText = currentSortOption?.[currentSortOrder as SortOrder];
+
   return (
     <ButtonGroup size="sm" isAttached mb={4}>
       <Menu>
         <MenuButton as={Button} leftIcon={<FontAwesomeIcon icon={faSort} />}>
-          {sortOptions.find(option => option.sortPath === currentSortPath).title}
+          {sortOptions.find(option => option.sortPath === currentSortPath)?.title}
         </MenuButton>
         <MenuList>
           {sortOptions.map(option => (
@@ -64,19 +61,15 @@ const SortReleases = ({
           ))}
         </MenuList>
       </Menu>
-      <Button isLoading={isSorting} onClick={() => handleSortOrder(currentSortOrder * -1)} spinnerPlacement="end">
-        {`(${sortOptions.find(option => option.sortPath === currentSortPath)[currentSortOrder.toString()]})`}
+      <Button
+        isLoading={isSorting}
+        onClick={() => handleSortOrder((Number(currentSortOrder) * -1).toString())}
+        spinnerPlacement="end"
+      >
+        {currentSortOrderText}
       </Button>
     </ButtonGroup>
   );
-};
-
-SortReleases.propTypes = {
-  handleFetchCatalogue: PropTypes.func,
-  currentSortPath: PropTypes.string,
-  setCurrentSortPath: PropTypes.func,
-  currentSortOrder: PropTypes.number,
-  setCurrentSortOrder: PropTypes.func
 };
 
 export default SortReleases;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useContractEvents = (contract, filter) => {
+const useContractEvents = (contract: any, filter: any) => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {

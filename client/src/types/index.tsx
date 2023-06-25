@@ -1,8 +1,39 @@
+export interface Artist {
+  _id: string;
+  name: string;
+  slug: string;
+  biography: string;
+  links: Link[];
+  releases?: Release[];
+}
+
 export interface BasketItem {
-  price: string;
-  releaseId?: string;
-  trackId?: string;
-  trackTitle: string;
+  artistName: string;
+  imageUrl: string;
+  paymentAddress: string;
+  price: bigint;
+  title: string;
+  trackId?: string; // For track purchases.
+  trackTitle?: string; // For track purchases.
+  releaseId: string;
+}
+
+export interface Collection {
+  albums: CollectionAlbum[];
+  singles: CollectionSingle[];
+}
+
+export interface CollectionAlbum {
+  _id: string;
+  purchaseId: string;
+  paid: string;
+  purchaseDate: string;
+  release: Release;
+  transaction: any;
+}
+
+export interface CollectionSingle extends CollectionAlbum {
+  trackId: string;
 }
 
 export interface DetailedReleaseValues {
@@ -31,9 +62,23 @@ export interface EssentialReleaseValues {
   price: string;
 }
 
+export interface Favourite {
+  _id: string;
+  dateAdded: string;
+  release: Release;
+  trackId?: string;
+  user: string;
+}
+
+export interface Link {
+  _id: string;
+  title: string;
+  uri: string;
+}
+
 export interface ListItem {
   _id: string;
-  dateAdded: Date;
+  dateAdded: string;
   release: Release;
   note?: string;
 }
@@ -47,6 +92,18 @@ export interface MintedEdition {
   price: bigint;
   uri: string;
 }
+
+export interface Purchase {
+  blockNumber: number;
+  buyer: string;
+  editionId: bigint;
+  releaseId: string;
+  artistShare: bigint;
+  platformFee: bigint;
+  transactionHash: string;
+}
+
+export type PurchaseHistory = Purchase[];
 
 export interface PurchasedRelease extends Release {
   purchaseId: string;
@@ -91,7 +148,12 @@ export interface ReleaseTrack {
 }
 
 export interface Sale {
-  release: string;
+  _id: string;
+  purchaseId: string;
+  paid: string;
+  purchaseDate: string;
+  release: string; // Album/track ID.
+  transaction: any;
 }
 
 export interface TrackErrors {
@@ -103,9 +165,22 @@ export interface TrackForPurchase {
   trackId: string;
 }
 
+export interface UserFavourite {
+  _id: string;
+  dateAdded: string;
+  release: string;
+  trackId?: string;
+}
+
 export interface UserListItem {
   _id: string;
-  dateAdded: Date;
+  dateAdded: string;
   release: string;
   note?: string;
+}
+
+export interface UserRelease extends Release {
+  faves: number;
+  plays: number;
+  sales: number;
 }

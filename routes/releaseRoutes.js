@@ -120,9 +120,11 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
   }
 });
 
-router.post("/", requireLogin, async (req, res) => {
+router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
     const user = req.user._id;
+    const { releaseId } = req.params;
+    if (!releaseId) return res.sendStatus(400);
 
     const {
       artist: existingArtistId,
@@ -137,7 +139,6 @@ router.post("/", requireLogin, async (req, res) => {
       recName,
       recordLabel,
       releaseDate,
-      releaseId,
       releaseTitle,
       tags,
       trackList

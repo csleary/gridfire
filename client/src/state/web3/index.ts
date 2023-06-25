@@ -1,29 +1,49 @@
-import { BrowserProvider, getAddress, isError, toQuantity } from "ethers";
+import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
 import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3/contract";
 import { toastError, toastWarning } from "state/toast";
+import { AppDispatch, GetState } from "index";
+import { BasketItem } from "types";
 import { createSlice } from "@reduxjs/toolkit";
 import { batch } from "react-redux";
 import detectEthereumProvider from "@metamask/detect-provider";
 
-const { REACT_APP_CHAIN_ID } = process.env;
+const { REACT_APP_CHAIN_ID = "" } = process.env;
+
+interface Web3State {
+  account: string;
+  accountShort: string;
+  basket: BasketItem[];
+  chainId: string;
+  error: string;
+  daiAllowance: string;
+  daiBalance: string;
+  isAddingToBasket: boolean;
+  isCheckingOut: boolean;
+  isConnected: boolean;
+  isFetchingAllowance: boolean;
+  mintedEditionIds: string[];
+  networkName: string;
+}
+
+const initialState: Web3State = {
+  account: "",
+  accountShort: "",
+  basket: [],
+  chainId: 0n.toString(),
+  error: "",
+  daiAllowance: 0n.toString(),
+  daiBalance: 0n.toString(),
+  isAddingToBasket: false,
+  isCheckingOut: false,
+  isConnected: false,
+  isFetchingAllowance: false,
+  mintedEditionIds: [],
+  networkName: ""
+};
 
 const web3Slice = createSlice({
   name: "web3",
-  initialState: {
-    account: "",
-    accountShort: "",
-    basket: [],
-    chainId: 0n.toString(),
-    error: "",
-    daiAllowance: 0n.toString(),
-    daiBalance: 0n.toString(),
-    isAddingToBasket: false,
-    isCheckingOut: false,
-    isConnected: false,
-    isFetchingAllowance: false,
-    mintedEditionIds: [],
-    networkName: ""
-  },
+  initialState,
   reducers: {
     addToBasket(state, action) {
       if (state.basket.some(({ releaseId }) => releaseId === action.payload.releaseId)) {
@@ -75,8 +95,8 @@ const web3Slice = createSlice({
 });
 
 const checkoutBasket =
-  (basket = []) =>
-  async (dispatch, getState) => {
+  (basket: BasketItem[] = []) =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     try {
       batch(() => {
         dispatch(setError(""));
@@ -98,7 +118,7 @@ const checkoutBasket =
     }
   };
 
-const fetchDaiAllowance = account => async dispatch => {
+const fetchDaiAllowance = (account: string) => async (dispatch: AppDispatch) => {
   try {
     dispatch(setIsFetchingAllowance(true));
     const currentAllowance = await getDaiAllowance(account);
@@ -110,7 +130,7 @@ const fetchDaiAllowance = account => async dispatch => {
   }
 };
 
-const fetchDaiBalance = account => async dispatch => {
+const fetchDaiBalance = (account: string) => async (dispatch: AppDispatch) => {
   try {
     const currentBalance = await getDaiBalance(account);
     dispatch(setDaiBalance(currentBalance));
@@ -119,7 +139,7 @@ const fetchDaiBalance = account => async dispatch => {
   }
 };
 
-const connectToWeb3 = () => async dispatch => {
+const connectToWeb3 = () => async (dispatch: AppDispatch) => {
   const ethereum = await detectEthereumProvider();
   const requiredChainId = BigInt(REACT_APP_CHAIN_ID);
 
@@ -129,20 +149,18 @@ const connectToWeb3 = () => async dispatch => {
     );
   }
 
+  const provider = new BrowserProvider(ethereum as unknown as Eip1193Provider);
+
   try {
-    const provider = new BrowserProvider(ethereum);
     let network = await provider.getNetwork();
 
     if (network.chainId !== requiredChainId) {
-      await ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: toQuantity(requiredChainId) }]
-      });
+      await provider.send("wallet_switchEthereumChain", [{ chainId: toQuantity(requiredChainId) }]);
 
       network = await provider.getNetwork();
     }
 
-    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    const accounts = await provider.send("eth_requestAccounts", []);
     const [firstAccount] = accounts;
 
     if (!firstAccount) {
@@ -158,25 +176,22 @@ const connectToWeb3 = () => async dispatch => {
       dispatch(setIsConnected(true));
       dispatch(setNetworkName({ chainId: chainId.toString(), name }));
     });
-  } catch (error) {
+  } catch (error: any) {
     if (isError(error, "NETWORK_ERROR")) {
       try {
-        await ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: toQuantity(requiredChainId),
-              rpcUrls: ["https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"],
-              chainName: "Arbitrum One",
-              nativeCurrency: {
-                name: "ETH",
-                symbol: "ETH",
-                decimals: 18
-              },
-              blockExplorerUrls: ["https://arbiscan.io/"]
-            }
-          ]
-        });
+        await provider.send("wallet_addEthereumChain", [
+          {
+            chainId: toQuantity(requiredChainId),
+            rpcUrls: ["https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"],
+            chainName: "Arbitrum One",
+            nativeCurrency: {
+              name: "ETH",
+              symbol: "ETH",
+              decimals: 18
+            },
+            blockExplorerUrls: ["https://arbiscan.io/"]
+          }
+        ]);
       } catch (error) {
         dispatch(
           toastWarning({

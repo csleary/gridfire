@@ -23,7 +23,7 @@ interface Props {
   mb?: number;
   name: string;
   onBlur?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onChange?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement & HTMLTextAreaElement>) => void;
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
   size?: string;
   type?: string;

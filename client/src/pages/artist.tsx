@@ -1,5 +1,5 @@
 import { Box, Divider, Heading, Link, Text, VStack, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import Card from "components/card";
 import Follow from "components/follow";
@@ -7,6 +7,7 @@ import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
 import { fetchArtistCatalogue } from "state/releases";
+import { shallowEqual } from "react-redux";
 import { useParams } from "react-router-dom";
 
 const Artist = () => {
@@ -14,7 +15,7 @@ const Artist = () => {
   const dispatch = useDispatch();
   const { biography, links, name, releases } = useSelector(state => state.releases.artist, shallowEqual);
   const [isLoading, setLoading] = useState(false);
-  const releaseCount = releases?.length;
+  const releaseCount = releases?.length ?? 0;
   const dividerColor = useColorModeValue("gray.200", "gray.500");
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const Artist = () => {
           </Heading>
           <Grid>
             {releases?.map(release => (
-              <RenderRelease key={release._id} showArtist={false} release={release} />
+              <RenderRelease key={release._id} showArtist={false} release={{ ...release, purchaseId: "" }} />
             ))}
           </Grid>
         </WrapItem>

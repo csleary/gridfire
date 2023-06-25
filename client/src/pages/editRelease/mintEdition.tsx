@@ -22,9 +22,9 @@ import {
 } from "@chakra-ui/react";
 import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
+import { MintedEdition, ReleaseTrack } from "types";
 import Field from "components/field";
 import Icon from "components/icon";
-import { MintedEdition } from "types";
 import ScaleFade from "components/transitions/scaleFade";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
@@ -37,10 +37,10 @@ import { useSelector } from "hooks";
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 
 interface DefaultValues {
-  amount: Number;
-  description: String;
-  price: String;
-  tracks: String[];
+  amount: number;
+  description: string;
+  price: string;
+  tracks: string[];
 }
 
 const colors = [
@@ -71,7 +71,7 @@ const MintEdition = () => {
   const [values, setValues] = useState(defaultValues);
   const [errors, setErrors] = useState({ amount: "", description: "", price: "" });
   const hasError = Object.values(errors).some(Boolean);
-  const editionTrackPool = trackList.filter(({ isEditionOnly }) => Boolean(isEditionOnly));
+  const editionTrackPool = trackList.filter(({ isEditionOnly }: ReleaseTrack) => Boolean(isEditionOnly));
 
   const trackIdsInEditions = useMemo(
     () =>
@@ -262,7 +262,7 @@ const MintEdition = () => {
             <FormLabel color="gray.500" fontWeight={500} mb={1}>
               Select Edition-only tracks
             </FormLabel>
-            {editionTrackPool.map(({ _id: trackId, trackTitle }, index) => {
+            {editionTrackPool.map(({ _id: trackId, trackTitle }: ReleaseTrack, index: number) => {
               return (
                 <Box key={trackId}>
                   <Checkbox colorScheme={checkboxColour} name={trackId} onChange={handleChangeTrack}>

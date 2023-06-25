@@ -1,11 +1,12 @@
 import { Box, Button, Center, Grid, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UserRelease from "./userRelease";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { fetchUserReleases } from "state/releases";
+import { shallowEqual } from "react-redux";
 
 function UserReleases() {
   const addReleaseButtonColor = useColorModeValue("yellow", "purple");

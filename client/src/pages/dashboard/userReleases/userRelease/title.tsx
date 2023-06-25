@@ -1,9 +1,16 @@
 import { Box, Flex, Link, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
-import PropTypes from "prop-types";
+import { shallowEqual } from "react-redux";
+import { useSelector } from "hooks";
 
-const Title = ({ artist, artistName, releaseId, releaseTitle }) => {
+interface Props {
+  artist: string;
+  artistName: string;
+  releaseId: string;
+  releaseTitle: string;
+}
+
+const Title = ({ artist, artistName, releaseId, releaseTitle }: Props) => {
   const { artists } = useSelector(state => state.artists, shallowEqual);
   const slug = artists.find(a => a._id === artist)?.slug;
 
@@ -33,13 +40,6 @@ const Title = ({ artist, artistName, releaseId, releaseTitle }) => {
       </Box>
     </Flex>
   );
-};
-
-Title.propTypes = {
-  artist: PropTypes.string,
-  artistName: PropTypes.string,
-  releaseId: PropTypes.string,
-  releaseTitle: PropTypes.string
 };
 
 export default Title;

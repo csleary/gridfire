@@ -1,5 +1,5 @@
 import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import Grid from "components/grid";
@@ -8,6 +8,7 @@ import RenderRelease from "components/renderRelease";
 import { fetchUserWishList } from "state/releases";
 import { faStickyNote as faStickyNoteOutline } from "@fortawesome/free-regular-svg-icons";
 import { faStickyNote } from "@fortawesome/free-solid-svg-icons";
+import { shallowEqual } from "react-redux";
 
 const WishList = () => {
   const dispatch = useDispatch();

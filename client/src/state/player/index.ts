@@ -1,17 +1,37 @@
+import { ReleaseTrack } from "types";
 import { createSlice } from "@reduxjs/toolkit";
+
+interface PlaylistTrack extends ReleaseTrack {
+  releaseId: string;
+}
+
+interface PlayerState {
+  artistName: string;
+  isPlaying: boolean;
+  isPaused: boolean;
+  playList: PlaylistTrack[];
+  releaseId: string;
+  releaseTitle: string;
+  showPlayer: boolean;
+  trackId: string;
+  trackTitle: string;
+}
+
+const initialState: PlayerState = {
+  artistName: "",
+  isPlaying: false,
+  isPaused: false,
+  playList: [],
+  releaseId: "",
+  releaseTitle: "",
+  showPlayer: false,
+  trackId: "",
+  trackTitle: ""
+};
 
 const playerSlice = createSlice({
   name: "player",
-  initialState: {
-    artistName: "",
-    isPlaying: false,
-    isPaused: false,
-    playList: [],
-    releaseId: "",
-    showPlayer: false,
-    trackId: "",
-    trackTitle: ""
-  },
+  initialState,
   reducers: {
     addToPlayList(state, action) {
       state.playList = [...state.playList, action.payload];

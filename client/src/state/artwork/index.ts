@@ -1,15 +1,23 @@
-import axios from "axios";
+import { AppDispatch } from "index";
+import axios, { AxiosProgressEvent } from "axios";
 import { batch } from "react-redux";
 import { createSlice } from "@reduxjs/toolkit";
 import { setActiveRelease } from "state/releases";
 import { toastError } from "state/toast";
 
+interface ArtworkState {
+  artworkUploading: boolean;
+  artworkUploadProgress: number;
+}
+
+const initialState: ArtworkState = {
+  artworkUploading: false,
+  artworkUploadProgress: 0
+};
+
 const artworkSlice = createSlice({
   name: "artwork",
-  initialState: {
-    artworkUploading: false,
-    artworkUploadProgress: 0
-  },
+  initialState,
   reducers: {
     setArtworkUploading(state, action) {
       state.artworkUploading = action.payload;
@@ -20,22 +28,22 @@ const artworkSlice = createSlice({
   }
 });
 
-const deleteArtwork = releaseId => async dispatch => {
+const deleteArtwork = (releaseId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.delete(`/api/artwork/${releaseId}`);
     dispatch(setActiveRelease(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
-const uploadArtwork = (releaseId, file) => async dispatch => {
+const uploadArtwork = (releaseId: string, file: File) => async (dispatch: AppDispatch) => {
   const data = new FormData();
   data.append("artworkImageFile", file);
 
   const config = {
-    onUploadProgress: event => {
-      const progress = (event.loaded / event.total) * 100;
+    onUploadProgress: (event: AxiosProgressEvent) => {
+      const progress = (event.loaded / (event.total || 0)) * 100;
       dispatch(setArtworkUploadProgress(Math.floor(progress)));
       if (event.loaded === event.total) dispatch(setArtworkUploading(false));
     }
@@ -44,7 +52,7 @@ const uploadArtwork = (releaseId, file) => async dispatch => {
   try {
     dispatch(setArtworkUploading(true));
     await axios.post(`/api/artwork/${releaseId}`, data, config);
-  } catch (error) {
+  } catch (error: any) {
     batch(() => {
       dispatch(toastError({ message: error.response.data.error, title: "Error" }));
       dispatch(setArtworkUploadProgress(0));

@@ -34,15 +34,16 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
+import { FixedNumber, formatEther } from "ethers";
 import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiAllowance } from "state/web3";
-import { FixedNumber, formatEther } from "ethers";
+import { shallowEqual } from "react-redux";
 import { toastSuccess } from "state/toast";
 
 const Allowance = () => {
@@ -75,13 +76,13 @@ const Allowance = () => {
     }
   }, [account]);
 
-  const handleChange = e => {
-    const { value } = e.target;
+  const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
+    const { value } = e.currentTarget;
     setError("");
     setAllowance(value);
   };
 
-  const validate = value => {
+  const validate = (value: string) => {
     try {
       FixedNumber.fromString(value.toString(), "fixed128x18");
     } catch (e) {
@@ -120,7 +121,7 @@ const Allowance = () => {
     setAllowance(formatEther(daiAllowance));
   };
 
-  const handleAddAmount = amount => () => {
+  const handleAddAmount = (amount: number) => () => {
     setAllowance(prev => (Number(prev) + amount).toString());
   };
 
@@ -200,8 +201,7 @@ const Allowance = () => {
               <Input
                 autoFocus
                 isDisabled={isSubmitting}
-                isInvalid={error}
-                label={"Set payment allowance"}
+                isInvalid={Boolean(error)}
                 min={0}
                 name="allowance"
                 onChange={handleChange}

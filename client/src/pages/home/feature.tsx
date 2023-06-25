@@ -1,6 +1,11 @@
 import { Box, Divider, Heading, useColorModeValue, WrapItem } from "@chakra-ui/react";
 
-const Feature = ({ children, title }) => {
+interface Props {
+  children: React.ReactNode;
+  title: string;
+}
+
+const Feature = ({ children, title }: Props) => {
   const color = useColorModeValue("black", "purple.200");
 
   return (

@@ -1,5 +1,5 @@
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
-import { PurchasedRelease, ReleaseTrack } from "types";
+import { PurchasedRelease, Release, ReleaseTrack } from "types";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { loadTrack, playerPause, playerPlay } from "state/player";
 import { useDispatch, useSelector } from "hooks";
@@ -15,11 +15,16 @@ import { toastInfo } from "state/toast";
 const { REACT_APP_CDN_IMG } = process.env;
 
 interface Props {
-  release: PurchasedRelease;
+  release: Release | PurchasedRelease;
   showArtist?: boolean;
   showTitle?: boolean;
   type?: string;
+  [key: string]: any;
 }
+
+const isPurchasedRelease = (release: Release | PurchasedRelease): release is PurchasedRelease => {
+  return (release as PurchasedRelease).purchaseId !== undefined;
+};
 
 const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }: Props) => {
   const { isOpen, onOpen } = useDisclosure();
@@ -57,7 +62,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
     );
   }
 
-  const { _id: releaseId, artist, artistName, artwork, purchaseId = "", releaseTitle, trackList } = release;
+  const { _id: releaseId, artist, artistName, artwork, releaseTitle, trackList } = release;
   const hasNoPlayableTracks = trackList.every(({ isBonus }: ReleaseTrack) => isBonus === true);
 
   const handleClick = () => {
@@ -191,10 +196,10 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             variant="unstyled"
             _hover={{ color: "#fff" }}
           />
-          {type === "collection" ? (
+          {type === "collection" && isPurchasedRelease(release) ? (
             <OverlayDownloadButton
               artistName={artistName}
-              purchaseId={purchaseId}
+              purchaseId={release.purchaseId}
               releaseId={releaseId}
               releaseTitle={releaseTitle}
             />

@@ -1,6 +1,6 @@
 import { Box, Flex, Heading, Link, Text, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { fetchCollection, fetchUserEditions } from "state/releases";
+import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import Grid from "components/grid";
@@ -8,18 +8,19 @@ import Icon from "components/icon";
 import RenderRelease from "components/renderRelease";
 import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
+import { shallowEqual } from "react-redux";
 
 // Note: the shape of the transactions object is different for userEditions and albums/singles.
 
 const Collection = () => {
-  const dispatch = useDispatch();
-  const { collection = {}, userEditions = [] } = useSelector(state => state.releases, shallowEqual);
-  const { userId } = useSelector(state => state.user, shallowEqual);
-  const { albums = [], singles = [] } = collection;
-  const [isLoading, setLoading] = useState(false);
-  const available = [...albums, ...singles, ...userEditions].filter(({ release }) => Boolean(release));
   const receiptTextColour = useColorModeValue("gray.600", "gray.300");
   const receiptColour = useColorModeValue("blue.200", "blue.100");
+  const dispatch = useDispatch();
+  const { collection, userEditions } = useSelector(state => state.releases, shallowEqual);
+  const { userId } = useSelector(state => state.user, shallowEqual);
+  const [isLoading, setLoading] = useState(false);
+  const { albums, singles } = collection;
+  const available = [...albums, ...singles, ...userEditions].filter(({ release }) => Boolean(release));
 
   useEffect(() => {
     if (!available.length) setLoading(true);
@@ -109,7 +110,7 @@ const Collection = () => {
                   <RenderRelease
                     release={{
                       ...release,
-                      releaseTitle: `${single.trackTitle} (taken from \u2018${release.releaseTitle}\u2019)`,
+                      releaseTitle: `${single?.trackTitle ?? ""} (taken from \u2018${release.releaseTitle}\u2019)`,
                       purchaseId
                     }}
                     type="collection"

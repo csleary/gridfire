@@ -1,11 +1,32 @@
 import { toastError, toastSuccess } from "state/toast";
+import { Artist, Collection, CollectionAlbum, Favourite, ListItem, Release, UserRelease } from "types";
 import { DateTime } from "luxon";
 import axios from "axios";
 import { createObjectId } from "utils";
 import { createSlice } from "@reduxjs/toolkit";
 import { getUserEditions } from "web3/contract";
+import { AppDispatch, GetState } from "index";
 
-const defaultReleaseState = {
+interface ReleasesState {
+  activeRelease: Release;
+  artist: Artist;
+  artworkUploading: boolean;
+  artworkUploadProgress: number;
+  catalogue: Release[];
+  catalogueLimit: number;
+  catalogueSkip: number;
+  collection: Collection;
+  editing: Release;
+  isLoading: boolean;
+  reachedEndOfCat: boolean;
+  releaseIdsForDeletion: { [key: string]: boolean };
+  userFavourites: Favourite[];
+  userReleases: UserRelease[];
+  userEditions: CollectionAlbum[];
+  userWishList: ListItem[];
+}
+
+const defaultReleaseState: Release = {
   _id: "",
   artist: "",
   artistName: "",
@@ -26,26 +47,36 @@ const defaultReleaseState = {
   trackList: []
 };
 
+const defaultArtistState: Artist = {
+  _id: "",
+  name: "",
+  slug: "",
+  biography: "",
+  links: []
+};
+
+const initialState: ReleasesState = {
+  activeRelease: defaultReleaseState,
+  artist: defaultArtistState,
+  artworkUploading: false,
+  artworkUploadProgress: 0,
+  isLoading: false,
+  catalogue: [],
+  catalogueLimit: 12,
+  catalogueSkip: 0,
+  collection: { albums: [], singles: [] },
+  editing: defaultReleaseState,
+  reachedEndOfCat: false,
+  releaseIdsForDeletion: {},
+  userFavourites: [],
+  userReleases: [],
+  userEditions: [],
+  userWishList: []
+};
+
 const releaseSlice = createSlice({
   name: "releases",
-  initialState: {
-    activeRelease: defaultReleaseState,
-    artist: {},
-    artworkUploading: false,
-    artworkUploadProgress: 0,
-    isLoading: false,
-    catalogue: [],
-    catalogueLimit: 12,
-    catalogueSkip: 0,
-    collection: {},
-    editing: defaultReleaseState,
-    reachedEndOfCat: false,
-    releaseIdsForDeletion: {},
-    userFavourites: [],
-    userReleases: [],
-    userEditions: [],
-    userWishList: []
-  },
+  initialState,
   reducers: {
     addFavouritesItem(state, action) {
       state.userFavourites = [action.payload, ...state.userFavourites];
@@ -139,8 +170,8 @@ const releaseSlice = createSlice({
 });
 
 const deleteRelease =
-  (releaseId, releaseTitle = "release") =>
-  async (dispatch, getState) => {
+  (releaseId: string, releaseTitle = "release") =>
+  async (dispatch: AppDispatch, getState: GetState) => {
     try {
       if (getState().releases.releaseIdsForDeletion[releaseId]) {
         dispatch(removeRelease(releaseId));
@@ -150,22 +181,34 @@ const deleteRelease =
       } else {
         dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: true }));
       }
-    } catch (error) {
+    } catch (error: any) {
       dispatch(toastError({ message: error.response.data.error, title: "Error" }));
     }
   };
 
 const fetchArtistCatalogue =
-  (artistId = null, artistSlug = null) =>
-  async dispatch => {
+  (artistId = "", artistSlug = "") =>
+  async (dispatch: AppDispatch) => {
     dispatch(setIsLoading(true));
     const res = await axios.get(`/api/catalogue/${artistSlug || artistId}`);
     dispatch(setArtistCatalogue(res.data));
   };
 
 const fetchCatalogue =
-  ({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging = false }) =>
-  async dispatch => {
+  ({
+    catalogueLimit,
+    catalogueSkip,
+    sortBy,
+    sortOrder,
+    isPaging = false
+  }: {
+    catalogueLimit: number;
+    catalogueSkip: number;
+    sortBy: string;
+    sortOrder: string;
+    isPaging?: boolean;
+  }) =>
+  async (dispatch: AppDispatch) => {
     try {
       const res = await axios.get("/api/catalogue", {
         params: {
@@ -176,89 +219,91 @@ const fetchCatalogue =
         }
       });
       dispatch(setCatalogue({ catalogue: res.data, isPaging }));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(setIsLoading(false));
       dispatch(toastError({ message: error.response?.data?.error, title: "Error" }));
     }
   };
 
-const fetchCollection = () => async dispatch => {
+const fetchCollection = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get("/api/user/collection");
     dispatch(setCollection(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
-const fetchRelease = releaseId => async dispatch => {
+const fetchRelease = (releaseId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
     dispatch(setActiveRelease(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
     throw error;
   }
 };
 
-const fetchReleaseForEditing = releaseId => async dispatch => {
+const fetchReleaseForEditing = (releaseId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
     dispatch(setReleaseForEditing(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
     throw error;
   }
 };
 
-const fetchUserEditions = () => async dispatch => {
+const fetchUserEditions = () => async (dispatch: AppDispatch) => {
   try {
     const editions = await getUserEditions();
     dispatch(setUserEditions(editions));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
-const fetchUserFavourites = () => async dispatch => {
+const fetchUserFavourites = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get("/api/user/favourites");
     if (res.data) dispatch(setUserFavourites(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
-const fetchUserReleases = () => async dispatch => {
+const fetchUserReleases = () => async (dispatch: AppDispatch) => {
   const res = await axios.get("/api/user/releases");
   dispatch(setUserReleases(res.data));
 };
 
-const fetchUserWishList = () => async dispatch => {
+const fetchUserWishList = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get("/api/user/wishlist");
     if (res.data) dispatch(setUserWishList(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
-const publishStatus = releaseId => async dispatch => {
+const publishStatus = (releaseId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.patch(`/api/release/${releaseId}`);
     if (res.data.error) return dispatch(toastError({ message: res.data.error, title: "Error" }));
     dispatch(updateUserReleases(res.data));
     return true;
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
-const updateRelease = values => async dispatch => {
+const updateRelease = (values: Release) => async (dispatch: AppDispatch) => {
+  const { _id: releaseId } = values;
+
   try {
-    await axios.post("/api/release", values);
+    await axios.post(`/api/release/${releaseId}`, values);
     dispatch(setReleaseForEditing(values));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data?.error || error.message, title: "Error" }));
   }
 };
@@ -280,7 +325,6 @@ export const {
   setIsLoading,
   setReleaseForEditing,
   setReleaseIdsForDeletion,
-  setReleasePurchaseInfo,
   setUserEditions,
   setUserFavourites,
   setUserReleases,

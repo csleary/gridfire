@@ -18,23 +18,28 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
+import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
+import { PurchaseHistory } from "types";
 import { getGridFirePurchaseEvents } from "web3/contract";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import Icon from "components/icon";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { shallowEqual } from "react-redux";
+
+const defaultErrorState = {
+  paymentAddress: ""
+};
 
 const PaymentAddress = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state, shallowEqual);
-  const { paymentAddress } = user;
-  const [errors, setError] = useState({});
+  const { paymentAddress } = useSelector(state => state.user, shallowEqual);
+  const [errors, setError] = useState(defaultErrorState);
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [purchases, setPurchases] = useState([]);
+  const [purchases, setPurchases] = useState<PurchaseHistory>([]);
   const [address, setAddress] = useState(paymentAddress);
   const hasErrors = Object.values(errors).some(error => Boolean(error));
   const hasChanged = address !== paymentAddress;
@@ -46,14 +51,14 @@ const PaymentAddress = () => {
     }
   }, [paymentAddress]);
 
-  const handleChange = e => {
-    const { value } = e.target;
+  const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
+    const { value } = e.currentTarget;
     setIsPristine(false);
-    setError("");
+    setError({ ...defaultErrorState, paymentAddress: "" });
     setAddress(value);
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit: MouseEventHandler<HTMLButtonElement> = async e => {
     e.preventDefault();
     setIsSubmitting(true);
     dispatch(addPaymentAddress({ paymentAddress: address })).then(() => setIsSubmitting(false));
@@ -76,9 +81,7 @@ const PaymentAddress = () => {
           bg={useColorModeValue("white", "gray.400")}
           isDisabled={isSubmitting}
           isInvalid={Boolean(errors.paymentAddress)}
-          error={errors.paymentAddress}
           fontSize="1.5rem"
-          label={"Your ETH payment address"}
           name="paymentAddress"
           onChange={handleChange}
           placeholder="0x…"

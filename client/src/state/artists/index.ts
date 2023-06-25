@@ -1,19 +1,33 @@
 import { toastError, toastSuccess } from "state/toast";
+import { AppDispatch } from "index";
+import { Artist } from "types";
 import axios from "axios";
 import { batch } from "react-redux";
 import { createSlice } from "@reduxjs/toolkit";
 
+interface ArtistState {
+  activeArtistId: string;
+  activity: any[];
+  artists: Artist[];
+  errors: any;
+  isLoading: boolean;
+  isSubmitting: boolean;
+  isPristine: boolean;
+}
+
+const initialState: ArtistState = {
+  activeArtistId: "",
+  activity: [],
+  artists: [],
+  errors: {},
+  isLoading: false,
+  isSubmitting: false,
+  isPristine: true
+};
+
 const artistSlice = createSlice({
   name: "artists",
-  initialState: {
-    activeArtistId: "",
-    activity: [],
-    artists: [],
-    errors: {},
-    isLoading: false,
-    isSubmitting: false,
-    isPristine: true
-  },
+  initialState,
   reducers: {
     removeLink(state, action) {
       const { artistId, linkId } = action.payload;
@@ -88,37 +102,37 @@ const artistSlice = createSlice({
   }
 });
 
-const addLink = activeArtistId => async dispatch => {
+const addLink = (activeArtistId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.patch(`/api/artist/${activeArtistId}/link`);
     dispatch(setLink({ artistId: activeArtistId, link: res.data }));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data.error ?? error.toString(), title: "Error" }));
   }
 };
 
-const fetchActivity = () => async dispatch => {
+const fetchActivity = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get(`/api/artist/activity`);
     dispatch(setActivity(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   }
 };
 
-const fetchArtists = () => async dispatch => {
+const fetchArtists = () => async (dispatch: AppDispatch) => {
   try {
     dispatch(setIsLoading(true));
     const res = await axios.get("/api/artist");
     dispatch(setArtists(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
   } finally {
     dispatch(setIsLoading(false));
   }
 };
 
-const updateArtist = values => async dispatch => {
+const updateArtist = (values: Artist) => async (dispatch: AppDispatch) => {
   try {
     dispatch(setIsSubmitting(true));
     const res = await axios.post(`/api/artist/${values._id}`, values);
@@ -131,12 +145,12 @@ const updateArtist = values => async dispatch => {
 
     batch(() => {
       dispatch(setArtist(res.data));
-      dispatch(setErrors());
+      dispatch(setErrors(null));
       dispatch(toastSuccess({ message: "Artist saved", title: "Success" }));
       dispatch(setIsSubmitting(false));
       dispatch(setIsPristine(true));
     });
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
     dispatch(setIsLoading(false));
   }

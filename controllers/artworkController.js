@@ -7,7 +7,6 @@ import sseClient from "gridfire/controllers/sseController.js";
 
 const { BUCKET_IMG } = process.env;
 const Release = mongoose.model("Release");
-
 const fsPromises = fs.promises;
 
 const deleteArtwork = async releaseId => {

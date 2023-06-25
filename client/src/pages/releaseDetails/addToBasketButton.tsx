@@ -1,6 +1,6 @@
 import { addToBasket, setIsAddingToBasket } from "state/web3";
 import { useDispatch, useSelector } from "hooks";
-import { BasketItem } from "components/header/basketButton";
+import { BasketItem } from "types";
 import { Button } from "@chakra-ui/react";
 import Icon from "components/icon";
 import NameYourPriceModal from "./nameYourPriceModal";

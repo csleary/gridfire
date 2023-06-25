@@ -138,14 +138,14 @@ const EditRelease = () => {
       }
 
       setIsSubmitting(true);
-      await dispatch(updateRelease({ releaseId, ...releaseValues }));
+      await dispatch(updateRelease(releaseValues));
       navigate("/dashboard");
       const message = `${releaseTitle ? `\u2018${releaseTitle}\u2019` : "Release"} has been updated.`;
       dispatch(toastSuccess({ message, title: "Saved" }));
     } finally {
       setIsSubmitting(false);
     }
-  }, [dispatch, navigate, releaseId, releaseValues]);
+  }, [dispatch, navigate, releaseValues]);
 
   const { info, credits, catNumber, pubYear, pubName, recordLabel, recYear, recName, tags } = releaseValues;
   const { artist, artistName, releaseTitle, releaseDate, price } = releaseValues;

@@ -1,30 +1,33 @@
 import { Box, Button, Center, Container, Heading, Highlight, Skeleton, useColorModeValue } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Features from "./features";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
 import SortReleases from "./sortReleases";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
 import { fetchCatalogue } from "state/releases";
+import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
   const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
     state => state.releases,
     shallowEqual
   );
+
   const { account: userAccount, isLoading: isLoadingUser } = useSelector(state => state.user, shallowEqual);
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
-  const [currentSortOrder, setCurrentSortOrder] = useState(-1);
+  const [currentSortOrder, setCurrentSortOrder] = useState("-1");
   const { service } = useParams();
   const bgHighlight = useColorModeValue("yellow.400", "purple.200");
 
@@ -44,7 +47,12 @@ const Home = () => {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.has("prev")) return navigate(searchParams.get("prev"));
+    const prev = searchParams.get("prev");
+
+    if (prev) {
+      return navigate(prev);
+    }
+
     handleFetchCatalogue().then(() => setIsLoading(false));
   }, []); // eslint-disable-line
 
@@ -97,7 +105,7 @@ const Home = () => {
           <Center>
             <Button
               isDisabled={isFetching || reachedEndOfCat}
-              leftIcon={reachedEndOfCat ? null : <FontAwesomeIcon icon={faSync} />}
+              leftIcon={reachedEndOfCat ? undefined : <FontAwesomeIcon icon={faSync} />}
               onClick={() =>
                 handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true })
               }

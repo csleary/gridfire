@@ -29,15 +29,16 @@ import {
   setValues,
   updateArtist
 } from "state/artists";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { faCheck, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "hooks";
 import Card from "components/card";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import Icon from "components/icon";
-import { useNavigate } from "react-router-dom";
 import Field from "components/field";
+import Icon from "components/icon";
 import TextAreaWithCharLimit from "components/textAreaWithCharLimit";
+import { shallowEqual } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Artists = () => {
   const buttonColorScheme = useColorModeValue("yellow", "purple");
@@ -63,9 +64,9 @@ const Artists = () => {
     dispatch(fetchArtists()).then(() => dispatch(setIsLoading(false)));
   }, []); // eslint-disable-line
 
-  const handleChange = e => {
+  const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
     dispatch(setIsPristine(false));
-    const { name, value } = e.target;
+    const { name, value } = e.currentTarget;
 
     if (name === "biography" && value.length > 2000) {
       return dispatch(setErrors({ name, value: "Please keep your biography to under 2000 characters." }));
@@ -76,15 +77,16 @@ const Artists = () => {
     }
 
     dispatch(setValues({ artistId: activeArtistId, name, value }));
-    dispatch(setErrors());
+    dispatch(setErrors(null));
   };
 
   const handleSubmit = async () => {
+    if (!activeArtist) return;
     dispatch(updateArtist(activeArtist));
   };
 
   const handleAddLink = async () => {
-    if (activeArtist.links?.length === 10) {
+    if (activeArtist?.links?.length === 10) {
       setIsAddingLink(false);
       return dispatch(setErrors({ name: "links", value: "You can have a maximum of ten links." }));
     }
@@ -193,6 +195,7 @@ const Artists = () => {
                   </WrapItem>
                   <WrapItem alignItems="center">
                     <IconButton
+                      aria-label="Remove link"
                       colorScheme="red"
                       icon={<Icon icon={faMinusCircle} />}
                       onClick={() => dispatch(removeLink({ artistId: activeArtistId, linkId }))}

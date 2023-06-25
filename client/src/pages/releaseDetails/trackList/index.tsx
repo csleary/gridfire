@@ -1,4 +1,3 @@
-import { BasketItem, ReleaseTrack, Sale, TrackForPurchase } from "types";
 import {
   Box,
   Button,
@@ -17,6 +16,7 @@ import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AddToBasketButton from "./addToBasketButton";
 import PurchaseTrackButton from "./purchaseTrackButton";
+import { TrackForPurchase } from "types";
 import { addToBasket } from "state/web3";
 import axios from "axios";
 import { loadTrack } from "state/player";
@@ -42,11 +42,11 @@ const TrackList = () => {
   const titleColour = useColorModeValue("gray.500", "gray.300");
 
   const handleAddToBasket = useCallback(
-    async ({ price, trackId, trackTitle }: BasketItem) => {
+    async ({ price, trackId, trackTitle }: { price: string; trackId: string; trackTitle: string }) => {
       try {
         const res = await axios.get(`/api/release/${releaseId}/purchase`);
         const { paymentAddress } = res.data;
-        const priceInWei = parseEther(price.toString());
+        const priceInWei = parseEther(price);
 
         dispatch(
           addToBasket({
@@ -116,11 +116,11 @@ const TrackList = () => {
 
   return (
     <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
-      {trackList.map(({ _id: trackId, duration, isBonus, isEditionOnly, price, trackTitle }: ReleaseTrack, index) => {
+      {trackList.map(({ _id: trackId, duration, isBonus, isEditionOnly, price, trackTitle }, index) => {
         const allowanceTooLow = parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
-        const inBasket = basket.some((item: BasketItem) => item.releaseId === trackId);
-        const inCollection = purchases.some((sale: Sale) => sale.release === releaseId);
-        const trackInCollection = purchases.some((sale: Sale) => sale.release === trackId);
+        const inBasket = basket.some(item => item.releaseId === trackId);
+        const inCollection = purchases.some(sale => sale.release === releaseId);
+        const trackInCollection = purchases.some(sale => sale.release === trackId);
 
         return (
           <ListItem key={trackId} display="flex" alignItems="center" role="group">

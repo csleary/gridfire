@@ -3,32 +3,39 @@ import theme from "theme";
 
 const { toast } = createStandaloneToast({
   defaultOptions: {
-    position: "top-center",
+    position: "top-right",
     duration: 5000,
     isClosable: false
   },
   theme
 });
 
-const toastError =
+interface Toast {
+  message: string;
+  title?: string;
+}
+
+type ToastCreator = (toast: Toast) => () => void;
+
+const toastError: ToastCreator =
   ({ message, title }) =>
   () => {
     toast({ description: message, duration: 10000, isClosable: true, status: "error", title });
   };
 
-const toastInfo =
+const toastInfo: ToastCreator =
   ({ message, title }) =>
   () => {
     toast({ description: message, status: "info", title });
   };
 
-const toastSuccess =
+const toastSuccess: ToastCreator =
   ({ message, title }) =>
   () => {
     toast({ description: message, status: "success", title });
   };
 
-const toastWarning =
+const toastWarning: ToastCreator =
   ({ message, title }) =>
   () => {
     toast({ description: message, status: "warning", title });

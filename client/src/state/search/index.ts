@@ -1,13 +1,23 @@
+import { AppDispatch } from "index";
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
+import { Release } from "types";
+
+interface SearchState {
+  isSearching: boolean;
+  searchQuery: string;
+  searchResults: Release[];
+}
+
+const initialState: SearchState = {
+  isSearching: false,
+  searchQuery: "",
+  searchResults: []
+};
 
 const searchSlice = createSlice({
   name: "search",
-  initialState: {
-    isSearching: false,
-    searchQuery: "",
-    searchResults: []
-  },
+  initialState,
   reducers: {
     clearResults(state) {
       state.searchResults = [];
@@ -23,7 +33,7 @@ const searchSlice = createSlice({
   }
 });
 
-const searchReleases = searchQuery => async dispatch => {
+const searchReleases = (searchQuery: string) => async (dispatch: AppDispatch) => {
   dispatch(setSearching({ isSearching: true, searchQuery }));
 
   const params = searchQuery

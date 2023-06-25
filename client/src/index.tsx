@@ -33,3 +33,5 @@ root.render(
 serviceWorker.unregister();
 
 export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;
+export type GetState = () => RootState;

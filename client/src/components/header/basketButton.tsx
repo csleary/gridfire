@@ -20,24 +20,16 @@ import {
 } from "@chakra-ui/react";
 import { formatEther } from "ethers";
 import { checkoutBasket, connectToWeb3, emptyBasket, removeFromBasket } from "state/web3";
+import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "hooks";
 import { useLocation, useNavigate } from "react-router-dom";
+import { BasketItem } from "types";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiBalance } from "state/web3";
 import { shallowEqual } from "react-redux";
 import { useState } from "react";
-
-export interface BasketItem {
-  artistName: string;
-  imageUrl: string;
-  paymentAddress: string;
-  price: string;
-  title: string;
-  releaseId: string;
-}
 
 const BasketButton = () => {
   const dispatch = useDispatch();

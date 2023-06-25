@@ -2,19 +2,25 @@ import { Box, Button, ButtonGroup, Divider, Flex, Text, useColorModeValue } from
 import { deleteRelease, publishStatus } from "state/releases";
 import { faCircle, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { faEye, faEyeSlash, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastSuccess, toastWarning } from "state/toast";
+import { useDispatch, useSelector } from "hooks";
 import Artwork from "./artwork";
 import { DateTime } from "luxon";
 import Icon from "components/icon";
 import PropTypes from "prop-types";
+import { UserRelease as IUserRelease } from "types";
 import StatusIcon from "./statusIcon";
 import Title from "./title";
 import { setReleaseIdsForDeletion } from "state/releases";
+import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-function UserRelease({ release }) {
+interface Props {
+  release: IUserRelease;
+}
+
+function UserRelease({ release }: Props) {
   const {
     _id: releaseId,
     artist,
@@ -35,7 +41,7 @@ function UserRelease({ release }) {
   const { releaseIdsForDeletion } = useSelector(state => state.releases, shallowEqual);
   const [isPublishingRelease, setPublishingRelease] = useState(false);
 
-  const cancelDeleteTrack = id => {
+  const cancelDeleteTrack = (id: string) => {
     dispatch(setReleaseIdsForDeletion({ releaseId: id, isDeleting: false }));
   };
 
@@ -69,14 +75,14 @@ function UserRelease({ release }) {
     >
       <Artwork artwork={artwork} releaseId={releaseId} releaseTitle={releaseTitle} />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
-      <Title artist={artist} artistName={artistName} favs={faves} releaseId={releaseId} releaseTitle={releaseTitle} />
+      <Title artist={artist} artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
       <Flex flexDirection="column" px={4} pt={0} pb={4}>
         <Divider borderColor={useColorModeValue("gray.200", "gray.500")} my={4} />
         <Flex marginTop="auto">
           <Box flex={1} pr={2}>
             <Text>
-              <Icon color={price > 0 ? "green.200" : "orange.300"} fixedWidth icon={faCircle} mr={2} />
-              {price > 0 ? (
+              <Icon color={Number(price) > 0 ? "green.200" : "orange.300"} fixedWidth icon={faCircle} mr={2} />
+              {Number(price) > 0 ? (
                 <>
                   <Box as="span" mr="0.15rem">
                     ◈
@@ -89,7 +95,7 @@ function UserRelease({ release }) {
             </Text>
             <Text>
               <Icon
-                color={new Date(releaseDate) - Date.now() > 0 ? "orange.300" : "green.200"}
+                color={Date.parse(releaseDate) - Date.now() > 0 ? "orange.300" : "green.200"}
                 fixedWidth
                 icon={faCircle}
                 mr={2}
@@ -150,7 +156,7 @@ function UserRelease({ release }) {
             leftIcon={<Icon icon={faTrashAlt} />}
             onBlur={() => cancelDeleteTrack(releaseId)}
             onClick={handleDeleteRelease}
-            onKeyDown={({ key }) => (key === "Escape") & cancelDeleteTrack(releaseId)}
+            onKeyDown={({ key }) => key === "Escape" && cancelDeleteTrack(releaseId)}
             size="sm"
           >
             {releaseIdsForDeletion[releaseId] ? "Confirm!" : "Delete"}

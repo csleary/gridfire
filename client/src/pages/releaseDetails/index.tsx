@@ -38,10 +38,6 @@ import { useNavigate } from "react-router-dom";
 
 const { REACT_APP_CDN_IMG } = process.env;
 
-interface Sale {
-  release: string;
-}
-
 const ActiveRelease = () => {
   const navigate = useNavigate();
   const releaseInfoColor = useColorModeValue("gray.500", "gray.700");
@@ -50,7 +46,7 @@ const ActiveRelease = () => {
   const { releaseId = "" } = useParams();
   const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
   const { purchases } = useSelector(state => state.user, shallowEqual);
-  const isInCollection = purchases.some((sale: Sale) => sale.release === releaseId);
+  const isInCollection = purchases.some(sale => sale.release === releaseId);
 
   const {
     artist,

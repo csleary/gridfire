@@ -1,15 +1,30 @@
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "state/releases";
 import { toastError, toastSuccess } from "state/toast";
+import { Sale, UserFavourite, UserListItem } from "types";
+import { AppDispatch } from "index";
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+interface UserState {
+  account: string;
+  accountShort: string;
+  emailAddress: string;
+  favourites: UserFavourite[];
+  isLoading: boolean;
+  lastLogin: string;
+  paymentAddress: string;
+  purchases: Sale[];
+  userId: string;
+  wishList: UserListItem[];
+}
+
+const initialState: UserState = {
   account: "",
   accountShort: "",
   emailAddress: "",
   favourites: [],
   isLoading: true,
-  lastLogin: null,
+  lastLogin: "",
   paymentAddress: "",
   purchases: [],
   userId: "",
@@ -26,10 +41,8 @@ const userSlice = createSlice({
     addUserWishListItem(state, action) {
       state.wishList = [...state.wishList, action.payload];
     },
-    clearUser(state) {
-      for (const key in initialState) {
-        state[key] = initialState[key];
-      }
+    clearUser() {
+      return initialState;
     },
     removeUserFavouritesItem(state, action) {
       state.favourites = state.favourites.filter(({ release }) => release !== action.payload);
@@ -61,7 +74,7 @@ const userSlice = createSlice({
   }
 });
 
-const addToFavourites = releaseId => async dispatch => {
+const addToFavourites = (releaseId: string) => async (dispatch: AppDispatch) => {
   const res = await axios.post(`/api/user/favourites/${releaseId}`);
   const { _id, dateAdded } = res.data;
   const release = res.data.release._id;
@@ -70,7 +83,7 @@ const addToFavourites = releaseId => async dispatch => {
   dispatch(toastSuccess({ message: "Added to favourites.", title: "Added!" }));
 };
 
-const removeFromFavourites = releaseId => async dispatch => {
+const removeFromFavourites = (releaseId: string) => async (dispatch: AppDispatch) => {
   dispatch(removeFavouritesItem(releaseId));
   dispatch(removeUserFavouritesItem(releaseId));
   await axios.delete(`/api/user/favourites/${releaseId}`);
@@ -78,8 +91,8 @@ const removeFromFavourites = releaseId => async dispatch => {
 };
 
 const addToWishList =
-  ({ releaseId, note }) =>
-  async dispatch => {
+  ({ releaseId, note }: { releaseId: string; note: string }) =>
+  async (dispatch: AppDispatch) => {
     const res = await axios.post(`/api/user/wishlist/${releaseId}`, { note });
     const { _id, dateAdded } = res.data;
     const release = res.data.release._id;
@@ -88,42 +101,42 @@ const addToWishList =
     dispatch(toastSuccess({ message: "Added to wish list.", title: "Added!" }));
   };
 
-const removeFromWishList = releaseId => async dispatch => {
+const removeFromWishList = (releaseId: string) => async (dispatch: AppDispatch) => {
   dispatch(removeWishListItem(releaseId));
   dispatch(removeUserWishListItem(releaseId));
   await axios.delete(`/api/user/wishlist/${releaseId}`);
   dispatch(toastSuccess({ message: "Removed from wish list.", title: "Removed" }));
 };
 
-const addPaymentAddress = values => async dispatch => {
+const addPaymentAddress = (values: { paymentAddress: string }) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.post("/api/user/address", values);
     const { paymentAddress } = res.data;
     dispatch(setPaymentAddress(paymentAddress));
     dispatch(toastSuccess({ message: "Payment address saved.", title: "Saved!" }));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   }
 };
 
-const fetchUser = () => async dispatch => {
+const fetchUser = () => async (dispatch: AppDispatch) => {
   try {
     dispatch(setIsLoading(true));
     const res = await axios.get("/api/user");
     if (res.data) dispatch(updateUser(res.data));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   } finally {
     dispatch(setIsLoading(false));
   }
 };
 
-const logOut = () => async dispatch => {
+const logOut = () => async (dispatch: AppDispatch) => {
   try {
     await axios.get("/api/auth/logout");
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
     dispatch(clearUser());
-  } catch (error) {
+  } catch (error: any) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   } finally {
     dispatch(setIsLoading(false));
