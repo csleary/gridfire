@@ -1,39 +1,23 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
-import { ChangeEvent, ChangeEventHandler, memo, useCallback, useEffect, useState } from "react";
-import { DetailedReleaseValues, ReleaseErrors } from "types";
+import { ChangeEventHandler, memo, useCallback } from "react";
+import { useDispatch, useSelector } from "hooks";
 import Field from "components/field";
 import Tags from "./tags";
+import { shallowEqual } from "react-redux";
+import { updateRelease } from "state/editor";
 
-interface Props {
-  errors: ReleaseErrors;
-  handleRemoveTag: (tag: string) => void;
-  savedState: DetailedReleaseValues;
-  updateState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-}
+const DetailedInfo = () => {
+  const dispatch = useDispatch();
+  const { release } = useSelector(state => state.editor, shallowEqual);
+  const { catNumber, credits, info, pubYear, pubName, recordLabel, recYear, recName } = release;
 
-const initialValues: DetailedReleaseValues = {
-  info: "",
-  credits: "",
-  recordLabel: "",
-  catNumber: "",
-  pubYear: "",
-  pubName: "",
-  recYear: "",
-  recName: "",
-  tags: []
-};
-
-const DetailedInfo = ({ errors, handleRemoveTag, savedState, updateState }: Props) => {
-  const [values, setValues] = useState(initialValues);
-
-  useEffect(() => {
-    setValues(savedState);
-  }, [savedState]);
-
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.currentTarget;
-    setValues(prev => ({ ...prev, [name]: value }));
-  }, []);
+  const handleChange: ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement> = useCallback(
+    e => {
+      const { checked, name, type, value } = e.currentTarget;
+      dispatch(updateRelease({ checked, name, type, value }));
+    },
+    [dispatch]
+  );
 
   return (
     <>
@@ -42,76 +26,62 @@ const DetailedInfo = ({ errors, handleRemoveTag, savedState, updateState }: Prop
         <Box>
           <Field
             component="textarea"
-            errors={errors}
             info="Notable release information, e.g. press release copy, review quotes, equipment, concepts."
             label="Release Info"
             name="info"
-            onBlur={updateState}
             onChange={handleChange}
-            values={values}
+            value={info}
           />
           <Field
             component="textarea"
-            errors={errors}
             info="Writers, performers, producers, designers and engineers involved."
             label="Credits"
             name="credits"
-            onBlur={updateState}
             onChange={handleChange}
-            values={values}
+            value={credits}
           />
-          <Field errors={errors} label="Record Label" name="recordLabel" onChange={handleChange} values={values} />
+          <Field label="Record Label" name="recordLabel" onChange={handleChange} value={recordLabel} />
           <Field
-            errors={errors}
             info="Your own release identifier, if you have one."
             label="Catalogue Number"
             name="catNumber"
-            onBlur={updateState}
             onChange={handleChange}
-            values={values}
+            value={catNumber}
           />
         </Box>
         <Box>
           <Field
-            errors={errors}
             label="Copyright Year"
             inputMode="numeric"
             name="pubYear"
-            onBlur={updateState}
             onChange={handleChange}
             type="number"
-            values={values}
+            value={pubYear}
           />
           <Field
-            errors={errors}
             info="i.e. Label, publisher or artist/individual."
             label="Copyright Owner"
             name="pubName"
-            onBlur={updateState}
             onChange={handleChange}
-            values={values}
+            value={pubName}
           />
           <Field
-            errors={errors}
             info="Year first released as a recording."
             inputMode="numeric"
             label="Recording Copyright Year"
             name="recYear"
-            onBlur={updateState}
             onChange={handleChange}
             type="number"
-            values={values}
+            value={recYear}
           />
           <Field
-            errors={errors}
             info="i.e. Label or artist/individual."
             label="Recording Copyright Owner"
             name="recName"
-            onBlur={updateState}
             onChange={handleChange}
-            values={values}
+            value={recName}
           />
-          <Tags handleChange={updateState} handleRemoveTag={handleRemoveTag} tags={savedState.tags} />
+          <Tags />
         </Box>
       </SimpleGrid>
     </>

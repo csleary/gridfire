@@ -3,27 +3,15 @@ import { MouseEventHandler, memo } from "react";
 import { cancelUpload, uploadAudio } from "state/tracks";
 import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { toastError, toastInfo } from "state/toast";
+import { trackSetError, trackUpdate } from "state/editor";
 import { useDispatch, useSelector } from "hooks";
-import ProgressIndicator from "./progressIndicator";
+import { EntityId } from "@reduxjs/toolkit";
 import Icon from "components/icon";
+import ProgressIndicator from "./progressIndicator";
 import mime from "mime";
 import { shallowEqual } from "react-redux";
-import { updateTrackStatus } from "state/releases";
+import { updateTrackStatus } from "state/editor";
 import { useDropzone } from "react-dropzone";
-
-type EncodingProgress = { [key: string]: number };
-
-type StageComplete = { [key: string]: boolean };
-
-interface ProcessingStates {
-  audioUploadProgress: EncodingProgress;
-  encodingProgressFLAC: EncodingProgress;
-  storingProgressFLAC: EncodingProgress;
-  transcodingStartedAAC: StageComplete;
-  transcodingCompleteAAC: StageComplete;
-  transcodingStartedMP3: StageComplete;
-  transcodingCompleteMP3: StageComplete;
-}
 
 interface AcceptedFileTypes {
   [key: string]: string[];
@@ -37,38 +25,30 @@ const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce((prev, ext) 
 
 interface Props {
   index: number;
-  setTrackErrors: (fn: (prev: any) => any) => void;
-  setValues: (fn: (prev: any) => any) => void;
   status: string;
-  trackId: string;
+  trackId: EntityId;
   trackTitle: string;
-  updateTrackTitle: (title: string) => void;
 }
 
-const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trackTitle, updateTrackTitle }: Props) => {
+const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
   const dispatch = useDispatch();
-  const { _id: releaseId } = useSelector(state => state.releases.editing, shallowEqual);
-
-  const {
-    audioUploadProgress,
-    encodingProgressFLAC,
-    storingProgressFLAC,
-    transcodingStartedAAC,
-    transcodingCompleteAAC,
-    transcodingStartedMP3,
-    transcodingCompleteMP3
-  }: ProcessingStates = useSelector(state => state.tracks, shallowEqual);
-
-  const isEncoding = status === "encoding" || (encodingProgressFLAC[trackId] > 0 && !storingProgressFLAC);
+  const { _id: releaseId } = useSelector(state => state.editor.release, shallowEqual);
+  const audioUploadProgress = useSelector(state => state.tracks.audioUploadProgress[trackId]);
+  const encodingProgressFLAC = useSelector(state => state.tracks.encodingProgressFLAC[trackId]);
+  const storingProgressFLAC = useSelector(state => state.tracks.storingProgressFLAC[trackId]);
+  const transcodingCompleteAAC = useSelector(state => state.tracks.transcodingCompleteAAC[trackId]);
+  const transcodingCompleteMP3 = useSelector(state => state.tracks.transcodingCompleteMP3[trackId]);
+  const transcodingStartedAAC = useSelector(state => state.tracks.transcodingStartedAAC[trackId]);
+  const transcodingStartedMP3 = useSelector(state => state.tracks.transcodingStartedMP3[trackId]);
+  const isEncoding = status === "encoding" || (encodingProgressFLAC > 0 && !storingProgressFLAC);
   const isStored = status === "stored";
-  const isTranscoding =
-    status === "transcoding" || (transcodingStartedAAC[trackId] && !transcodingCompleteMP3[trackId]);
-  const isUploading = audioUploadProgress[trackId] > 0 && audioUploadProgress[trackId] < 100;
+  const isTranscoding = status === "transcoding" || (transcodingStartedAAC && !transcodingCompleteMP3);
+  const isUploading = audioUploadProgress > 0 && audioUploadProgress < 100;
 
   const handleClick: MouseEventHandler = e => {
     if (isUploading) {
       dispatch(cancelUpload(trackId));
-      dispatch(updateTrackStatus({ releaseId, trackId, status: "pending" }));
+      dispatch(updateTrackStatus({ id: trackId, changes: { status: "pending" } }));
       e.stopPropagation();
     }
   };
@@ -84,12 +64,11 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
     }
 
     const [audioFile] = accepted;
-    const { name } = audioFile || {};
+    const { name } = audioFile;
 
     if (!trackTitle && name) {
-      setTrackErrors(({ [`${trackId}.trackTitle`]: key, ...rest }) => rest);
-      updateTrackTitle(name);
-      setValues(prev => ({ ...prev, trackTitle: name }));
+      dispatch(trackSetError({ trackId, name, value: "" }));
+      dispatch(trackUpdate({ id: trackId, changes: { trackTitle: name } }));
     }
 
     const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${index + 1}`;
@@ -119,6 +98,7 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
       flex="0 1 auto"
       fontWeight="500"
       justifyContent="center"
+      mr={4}
       padding={4}
       rounded="lg"
       spacing={4}
@@ -128,17 +108,16 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
         borderColor: useColorModeValue("green.400", "purple.300"),
         cursor: "pointer"
       }}
-      mr={4}
       {...getRootProps({ onClick: handleClick })}
     >
       <input name="trackTitle" {...getInputProps()} />
       <WrapItem>
         <ProgressIndicator
           color="purple.200"
-          labelColor={useColorModeValue("purple.300", "purple.200")}
           isStored={isStored}
-          progress={audioUploadProgress[trackId]}
-          stageHasStarted={audioUploadProgress[trackId] > 0}
+          labelColor={useColorModeValue("purple.300", "purple.200")}
+          progress={audioUploadProgress}
+          stageHasStarted={audioUploadProgress > 0}
           stageName="upload"
           tooltipText="Audio file upload progress."
           trackId={trackId}
@@ -149,10 +128,10 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
       <WrapItem>
         <ProgressIndicator
           color="blue.200"
-          labelColor="blue.200"
           isStored={isStored}
-          progress={encodingProgressFLAC[trackId]}
-          stageHasStarted={encodingProgressFLAC[trackId] > 0}
+          labelColor="blue.200"
+          progress={encodingProgressFLAC}
+          stageHasStarted={encodingProgressFLAC > 0}
           stageName="flac"
           tooltipText="Lossless FLAC encoding progress."
           trackId={trackId}
@@ -161,10 +140,10 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
       <WrapItem>
         <ProgressIndicator
           color="green.200"
-          labelColor={useColorModeValue("green.300", "green.200")}
           isStored={isStored}
-          progress={storingProgressFLAC[trackId]}
-          stageHasStarted={storingProgressFLAC[trackId] > 0}
+          labelColor={useColorModeValue("green.300", "green.200")}
+          progress={storingProgressFLAC}
+          stageHasStarted={storingProgressFLAC > 0}
           stageName="storage"
           tooltipText="Storage status."
           trackId={trackId}
@@ -175,10 +154,10 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
       <WrapItem>
         <ProgressIndicator
           color={useColorModeValue("yellow.300", "yellow.200")}
-          labelColor={useColorModeValue("yellow.500", "yellow.300")}
           isStored={isStored}
-          progress={transcodingCompleteAAC[trackId] ? 100 : 0}
-          stageHasStarted={transcodingStartedAAC[trackId]}
+          labelColor={useColorModeValue("yellow.500", "yellow.300")}
+          progress={transcodingCompleteAAC ? 100 : 0}
+          stageHasStarted={transcodingStartedAAC}
           stageName="aac"
           tooltipText="AAC streaming audio encoding progress."
           trackId={trackId}
@@ -190,8 +169,8 @@ const AudioDropzone = ({ index, setTrackErrors, setValues, status, trackId, trac
         <ProgressIndicator
           color={useColorModeValue("orange.400", "orange.200")}
           isStored={isStored}
-          progress={transcodingCompleteMP3[trackId] ? 100 : 0}
-          stageHasStarted={transcodingStartedMP3[trackId]}
+          progress={transcodingCompleteMP3 ? 100 : 0}
+          stageHasStarted={transcodingStartedMP3}
           stageName="mp3"
           tooltipText="MP3 download encoding progress."
           trackId={trackId}

@@ -1,5 +1,6 @@
 import { Box, CircularProgress, CircularProgressLabel, Tooltip, keyframes, useColorModeValue } from "@chakra-ui/react";
-import { ReactElement } from "react";
+import { ReactElement, memo } from "react";
+import { EntityId } from "@reduxjs/toolkit";
 import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
 
@@ -19,7 +20,7 @@ interface Props {
   stageName?: string;
   children?: ReactElement;
   tooltipText?: string;
-  trackId?: string;
+  trackId?: EntityId;
 }
 
 const ProgressIndicator = ({
@@ -58,4 +59,4 @@ const ProgressIndicator = ({
   );
 };
 
-export default ProgressIndicator;
+export default memo(ProgressIndicator);

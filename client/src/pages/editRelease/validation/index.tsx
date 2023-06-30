@@ -1,22 +1,16 @@
-import { ReleaseTrack, TrackErrors } from "types";
+import { EditorRelease, ReleaseTrack, TrackErrors } from "types";
 
-interface ReleaseForValidation {
-  artist: string;
-  artistName: string;
-  price: string;
-  releaseDate: string;
-  releaseTitle: string;
-  trackList: Array<ReleaseTrack>;
-}
-
-const validate = ({ artist, artistName, price, releaseDate, releaseTitle, trackList = [] }: ReleaseForValidation) => {
+const checkRelease = ({ artist, artistName, price, releaseDate, releaseTitle }: EditorRelease) => {
   const errors = { artistName: "", releaseTitle: "", releaseDate: "", price: "" };
   if (!artist && !artistName) errors.artistName = "Please select or enter an artist name.";
   if (!releaseTitle) errors.releaseTitle = "Please enter a release title.";
   if (!releaseDate) errors.releaseDate = "Please enter a release date.";
   if (price === null || price === undefined) errors.price = "Please enter a price.";
   if (price && Number(price) < 0) errors.price = "Price must be a positive number.";
+  return errors;
+};
 
+const checkTrackList = (trackList: ReleaseTrack[]) => {
   const trackErrors = {} as TrackErrors;
 
   trackList.forEach(({ _id: trackId, trackTitle }) => {
@@ -25,7 +19,7 @@ const validate = ({ artist, artistName, price, releaseDate, releaseTitle, trackL
     }
   });
 
-  return [errors, trackErrors];
+  return trackErrors;
 };
 
-export default validate;
+export { checkRelease, checkTrackList };

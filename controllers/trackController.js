@@ -25,12 +25,18 @@ const deleteTrack = async (trackId, user) => {
   console.log(`[${releaseId}] Deleting track: ${trackId}…`);
   const objectKey = `${releaseId}/${trackId}`;
 
-  await Promise.all([
+  const results = await Promise.allSettled([
     deleteObject(BUCKET_FLAC, objectKey),
     deleteObject(BUCKET_MP3, objectKey),
     deleteObject(BUCKET_SRC, objectKey),
     deleteObjects(BUCKET_MP4, objectKey)
   ]);
+
+  results.forEach(({ status, reason }) => {
+    if (status === "rejected") {
+      console.error(`[${trackId}] Unabled to delete track files: ${reason}`);
+    }
+  });
 
   await Release.findOneAndUpdate({ "trackList._id": trackId, user }, { $pull: { trackList: { _id: trackId } } }).exec();
   await Release.findOneAndUpdate({ _id: releaseId, user, trackList: { $size: 0 } }, { published: false }).exec();

@@ -15,7 +15,7 @@ import axios from "axios";
 import { fetchUser } from "state/user";
 import { setArtworkUploading } from "state/artwork";
 import { shallowEqual } from "react-redux";
-import { updateTrackStatus } from "state/releases";
+import { updateTrackStatus } from "state/editor";
 
 type SSEHandler = (event: MessageEvent) => void;
 
@@ -142,8 +142,8 @@ const useSSE = () => {
     };
 
     const onTrackStatus: SSEHandler = event => {
-      const { releaseId, status, trackId } = JSON.parse(event.data);
-      dispatch(updateTrackStatus({ releaseId, status, trackId }));
+      const { status, trackId } = JSON.parse(event.data);
+      dispatch(updateTrackStatus({ id: trackId, changes: { status } }));
     };
 
     const onWorkerMessage: SSEHandler = event => {

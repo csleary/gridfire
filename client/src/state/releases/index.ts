@@ -81,10 +81,6 @@ const releaseSlice = createSlice({
     addFavouritesItem(state, action) {
       state.userFavourites = [action.payload, ...state.userFavourites];
     },
-    addTrack(state, action) {
-      const { trackList } = state.activeRelease;
-      state.activeRelease.trackList = [...trackList, action.payload];
-    },
     addWishListItem(state, action) {
       state.userWishList = [action.payload, ...state.userWishList];
     },
@@ -148,16 +144,6 @@ const releaseSlice = createSlice({
     },
     setUserWishList(state, action) {
       state.userWishList = action.payload;
-    },
-    updateTrackStatus(state, action) {
-      const { releaseId, trackId, status } = action.payload;
-      const currentId = state.activeRelease?._id;
-
-      if (!currentId || currentId === releaseId) {
-        state.activeRelease.trackList = state.activeRelease.trackList.map(prevTrack =>
-          prevTrack._id === trackId ? { ...prevTrack, status } : prevTrack
-        );
-      }
     },
     updateUserReleases(state, action) {
       state.isLoading = false;
@@ -310,7 +296,6 @@ const updateRelease = (values: Release) => async (dispatch: AppDispatch) => {
 
 export const {
   addFavouritesItem,
-  addTrack,
   addWishListItem,
   createRelease,
   removeFavouritesItem,
@@ -329,7 +314,6 @@ export const {
   setUserFavourites,
   setUserReleases,
   setUserWishList,
-  updateTrackStatus,
   updateUserReleases
 } = releaseSlice.actions;
 
@@ -343,8 +327,8 @@ export {
   fetchReleaseForEditing,
   fetchUserEditions,
   fetchUserFavourites,
-  fetchUserWishList,
   fetchUserReleases,
+  fetchUserWishList,
   publishStatus,
   updateRelease
 };

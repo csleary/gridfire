@@ -71,6 +71,8 @@ export interface EditionPurchase {
   price: bigint;
 }
 
+export type EditorRelease = Omit<Release, "trackList">;
+
 export interface EssentialReleaseValues {
   artist: string;
   artistName: string;
@@ -145,6 +147,7 @@ export interface Release {
   releaseTitle: string;
   tags: string[];
   trackList: ReleaseTrack[];
+  [key: string]: any;
 }
 
 export interface ReleaseErrors {
@@ -152,6 +155,7 @@ export interface ReleaseErrors {
   releaseTitle: string;
   releaseDate: string;
   price: string;
+  [key: string]: any;
 }
 
 export interface ReleaseTrack {

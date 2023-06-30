@@ -2,30 +2,29 @@ import {
   Button,
   Flex,
   FormControl,
-  FormLabel,
   FormHelperText,
+  FormLabel,
   Tag,
   TagCloseButton,
   Text,
   Wrap,
   WrapItem
 } from "@chakra-ui/react";
+import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
+import { removeTag, removeTags, updateRelease } from "state/editor";
+import { useDispatch, useSelector } from "hooks";
 import Card from "components/card";
 import Field from "components/field";
-import { ChangeEvent, ChangeEventHandler, KeyboardEvent, MouseEvent, useState } from "react";
 import Icon from "components/icon";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { shallowEqual } from "react-redux";
 
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
 
-interface Props {
-  handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  handleRemoveTag: (tag: string) => void;
-  tags: Array<string>;
-}
-
-const Tags = ({ handleChange, handleRemoveTag, tags }: Props) => {
+const Tags = () => {
+  const dispatch = useDispatch();
+  const { tags } = useSelector(state => state.editor.release, shallowEqual);
   const [tagsInput, setTagsInput] = useState("");
   const [tagsError, setTagsError] = useState("");
 
@@ -38,17 +37,18 @@ const Tags = ({ handleChange, handleRemoveTag, tags }: Props) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    const { key } = e;
+    const { currentTarget, key } = e;
+    const { name, value } = currentTarget;
 
     if (key === "Enter") {
-      handleChange(e as unknown as ChangeEvent<HTMLInputElement>);
+      dispatch(updateRelease({ name, value }));
       setTagsError("");
       setTagsInput("");
     }
   };
 
   const handleRemoveTags = (e: MouseEvent<HTMLButtonElement>) => {
-    handleChange(e as unknown as ChangeEvent<HTMLInputElement>);
+    dispatch(removeTags());
     setTagsInput("");
     setTagsError("");
   };
@@ -87,7 +87,7 @@ const Tags = ({ handleChange, handleRemoveTag, tags }: Props) => {
               leftIcon={<Icon icon={faTimes} />}
               size="xs"
               isDisabled={!tags.length}
-              name="removeTagsButton"
+              name="removeTags"
               onClick={handleRemoveTags}
               title={"Remove all currently set tags."}
               variant="ghost"
@@ -102,11 +102,14 @@ const Tags = ({ handleChange, handleRemoveTag, tags }: Props) => {
           </Text>
         )}
         <Wrap role="button" tabIndex={-1}>
-          {tags.map(tag => (
+          {tags.map((tag: string) => (
             <WrapItem key={tag}>
               <Tag whiteSpace="nowrap">
                 {tag}
-                <TagCloseButton onClick={() => handleRemoveTag(tag)} title={`Click to delete \u2018${tag}\u2019.`} />
+                <TagCloseButton
+                  onClick={() => void dispatch(removeTag(tag))}
+                  title={`Click to delete \u2018${tag}\u2019.`}
+                />
               </Tag>
             </WrapItem>
           ))}

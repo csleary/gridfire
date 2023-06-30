@@ -38,14 +38,7 @@ const acceptedFileTypes = [".gif", ".jpg", ".jpeg", ".png"].reduce((prev, ext) =
 const Artwork = () => {
   const dispatch = useDispatch();
   const artworkFile = useRef("");
-
-  const {
-    _id: releaseId,
-    artwork,
-    published,
-    releaseTitle
-  } = useSelector(state => state.releases.editing, shallowEqual);
-
+  const { _id: releaseId, artwork, published, releaseTitle } = useSelector(state => state.editor.release, shallowEqual);
   const { artworkUploading, artworkUploadProgress } = useSelector(state => state.artwork, shallowEqual);
   const [coverArtPreview, setCoverArtPreview] = useState("");
   const [artworkIsLoaded, setArtworkIsLoaded] = useState(false);

@@ -1,66 +1,18 @@
 import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
-import { DragEventHandler, Dispatch, SetStateAction, memo, useCallback, useState } from "react";
-import { Release, ReleaseTrack, TrackErrors } from "types";
-import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
+import { DragEventHandler, memo, useCallback, useState } from "react";
+import { selectTrackIds, trackAdd, trackMove } from "state/editor";
 import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
 import Track from "./track";
-import { addTrack } from "state/releases";
-import { createObjectId } from "utils";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual } from "react-redux";
 
-interface TracksForDeletion {
-  trackIdsForDeletion: { [key: string]: boolean };
-}
-
-interface Props {
-  errors?: TrackErrors;
-  savedState: ReleaseTrack[];
-  setTrackErrors: Dispatch<SetStateAction<TrackErrors>>;
-  updateState: Dispatch<SetStateAction<Release>>;
-}
-
-const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }: Props) => {
+const TrackList = () => {
   const dispatch = useDispatch();
-  const { trackIdsForDeletion }: TracksForDeletion = useSelector(state => state.tracks, shallowEqual);
+  const trackIds = useSelector(selectTrackIds, shallowEqual);
   const [dragOriginId, setDragOriginId] = useState("");
   const [dragOverId, setDragOverId] = useState("");
   const [dragOriginIsInactive, setDragOriginIsInactive] = useState(false);
-
-  const handleAddTrack = useCallback(async () => {
-    const newTrack: ReleaseTrack = {
-      _id: createObjectId(),
-      duration: 0,
-      price: "1.50",
-      status: "pending",
-      trackTitle: ""
-    };
-
-    updateState((prev: Release) => ({ ...prev, trackList: [...prev.trackList, newTrack] }));
-    dispatch(addTrack(newTrack));
-  }, [dispatch, updateState]);
-
-  const cancelDeleteTrack = useCallback(
-    (trackId: string) => {
-      dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
-    },
-    [dispatch]
-  );
-
-  const handleDeleteTrack = useCallback(
-    (trackId: string, trackTitle: string) => {
-      if (trackIdsForDeletion[trackId]) {
-        updateState((prev: Release) => ({
-          ...prev,
-          trackList: prev.trackList.filter(({ _id }: ReleaseTrack) => _id !== trackId)
-        }));
-      }
-
-      dispatch(deleteTrack(trackId, trackTitle));
-    },
-    [dispatch, trackIdsForDeletion, updateState]
-  );
 
   const handleDragStart: DragEventHandler<HTMLElement> = useCallback(e => {
     const { id: trackId } = e.currentTarget;
@@ -95,30 +47,19 @@ const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }: Pro
     [dragOriginId]
   );
 
-  const handleDragEnd = useCallback(() => {
+  const handleDragEnd = () => {
     setDragOriginId("");
     setDragOriginIsInactive(false);
     setDragOverId("");
-  }, []);
-
-  const handleMoveTrack = useCallback(
-    (indexFrom: number, indexTo: number) => {
-      const nextTrackList = [...savedState];
-      nextTrackList.splice(indexTo, 0, ...nextTrackList.splice(indexFrom, 1));
-      updateState((prev: Release) => ({ ...prev, trackList: nextTrackList }));
-    },
-    [savedState, updateState]
-  );
+  };
 
   const handleDrop: DragEventHandler<HTMLElement> = useCallback(
     async e => {
       const { id: trackId } = e.currentTarget;
-      const indexFrom = savedState.findIndex(({ _id }) => _id === dragOriginId);
-      const indexTo = savedState.findIndex(({ _id }) => _id === trackId);
-      if (indexFrom === indexTo) return;
-      handleMoveTrack(indexFrom, indexTo);
+      if (dragOriginId === trackId) return;
+      dispatch(trackMove({ idFrom: dragOriginId, idTo: trackId }));
     },
-    [dragOriginId, handleMoveTrack, savedState]
+    [dispatch, dragOriginId]
   );
 
   const dragHandlers = {
@@ -158,33 +99,20 @@ const TrackList = ({ errors = {}, savedState, setTrackErrors, updateState }: Pro
         </ListItem>
       </UnorderedList>
       <Flex flexDirection="column">
-        {savedState.map((track, index) => {
-          const { _id: trackId } = track;
-
-          return (
-            <Track
-              key={trackId}
-              cancelDeleteTrack={cancelDeleteTrack}
-              dragOriginIsInactive={dragOriginIsInactive}
-              errorTrackTitle={errors[`${trackId}.trackTitle`]}
-              handleDeleteTrack={handleDeleteTrack}
-              handleMoveTrack={handleMoveTrack}
-              index={index}
-              isActiveDragOver={dragOverId === trackId && dragOverId !== dragOriginId}
-              isDragging={dragOriginId !== ""}
-              isDragOrigin={dragOriginId === trackId}
-              savedState={track}
-              setTrackErrors={setTrackErrors}
-              trackId={trackId}
-              trackListLength={savedState.length}
-              trackMarkedForDeletion={trackIdsForDeletion[trackId]}
-              updateState={updateState}
-              {...dragHandlers}
-            />
-          );
-        })}
+        {trackIds.map((trackId, index) => (
+          <Track
+            key={trackId}
+            dragOriginIsInactive={dragOriginIsInactive}
+            index={index}
+            isActiveDragOver={dragOverId === trackId && dragOverId !== dragOriginId}
+            isDragging={dragOriginId !== ""}
+            isDragOrigin={dragOriginId === trackId}
+            trackId={trackId}
+            {...dragHandlers}
+          />
+        ))}
       </Flex>
-      <Button leftIcon={<Icon icon={faPlusCircle} />} onClick={handleAddTrack} title="Add Track">
+      <Button leftIcon={<Icon icon={faPlusCircle} />} onClick={() => void dispatch(trackAdd())} title="Add Track">
         Add Track
       </Button>
     </>

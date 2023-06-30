@@ -12,27 +12,23 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "hooks";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { EssentialReleaseValues } from "types";
 import Field from "components/field";
 import Icon from "components/icon";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { fetchArtists } from "state/artists";
 import { shallowEqual } from "react-redux";
-import { ChangeEvent, ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
+import { updateRelease } from "state/editor";
+import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
 
-interface Props {
-  error?: string;
-  onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  updateRelease: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  values: EssentialReleaseValues;
-}
-
-const ArtistMenu = ({ error, onChange, updateRelease, values }: Props) => {
+const ArtistMenu = () => {
   const dispatch = useDispatch();
+  const { releaseErrors, release } = useSelector(state => state.editor, shallowEqual);
   const { artists = [], isLoading } = useSelector(state => state.artists, shallowEqual);
   const [showInput, setShowInput] = useState(false);
-  const selectedArtist = artists?.find(({ _id: artistId }) => values.artist === artistId) || { name: "" };
+  const { artist, artistName } = release;
+  const selectedArtist = artists?.find(({ _id: artistId }) => artist === artistId) || { name: "" };
   const defaultLabel = showInput ? "New artist" : "Select an artist…";
+  type FieldEventHandler = ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement>;
 
   useEffect(() => {
     dispatch(fetchArtists());
@@ -47,21 +43,18 @@ const ArtistMenu = ({ error, onChange, updateRelease, values }: Props) => {
   }, [artists.length, isLoading]);
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = e => {
-    const { value } = e.currentTarget;
+    const { name, value } = e.currentTarget;
+    dispatch(updateRelease({ name, value }));
+    if (value === "") setShowInput(true);
+  };
 
-    if (value === "") {
-      setShowInput(true);
-      onChange(e as unknown as ChangeEvent<HTMLInputElement>); // Cast as ChangeEvent as we only need the name and value.
-      updateRelease(e as unknown as ChangeEvent<HTMLInputElement>);
-    } else {
-      updateRelease(e as unknown as ChangeEvent<HTMLInputElement>);
-    }
+  const handleChange: FieldEventHandler = e => {
+    const { checked, name, type, value } = e.currentTarget;
+    dispatch(updateRelease({ checked, name, type, value }));
   };
 
   const handleBlur: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = e => {
     const { value } = e.currentTarget;
-    updateRelease(e);
-
     if (!value.trim() && artists.length > 0) {
       setShowInput(false);
     }
@@ -71,13 +64,13 @@ const ArtistMenu = ({ error, onChange, updateRelease, values }: Props) => {
     return (
       <Field
         isDisabled={isLoading}
-        error={error}
+        error={releaseErrors.artistName}
         isRequired
         label={artists.length ? "New artist name" : "Artist name"}
         name="artistName"
         onBlur={handleBlur}
-        onChange={onChange}
-        values={values}
+        onChange={handleChange}
+        value={artistName}
         size="lg"
       />
     );
@@ -90,7 +83,7 @@ const ArtistMenu = ({ error, onChange, updateRelease, values }: Props) => {
       </FormLabel>
       <Menu matchWidth>
         <MenuButton as={Button} rightIcon={<ChevronDownIcon />} height={12} mb={2}>
-          {showInput ? defaultLabel : selectedArtist?.name ?? defaultLabel}
+          {showInput ? defaultLabel : selectedArtist?.name || defaultLabel}
         </MenuButton>
         <MenuList>
           {artists.map(({ _id: artistId, name }) => (
@@ -104,10 +97,10 @@ const ArtistMenu = ({ error, onChange, updateRelease, values }: Props) => {
           </MenuItem>
         </MenuList>
       </Menu>
-      {error ? (
+      {releaseErrors.artistName ? (
         <Alert status="error">
           <AlertIcon />
-          {error}
+          {releaseErrors.artistName}
         </Alert>
       ) : null}
     </Flex>

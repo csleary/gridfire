@@ -20,9 +20,9 @@ import {
   FormControl,
   Badge
 } from "@chakra-ui/react";
-import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import { ChangeEventHandler, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { MintedEdition, ReleaseTrack } from "types";
+import { getGridFireEditionsByReleaseId, getGridFireEditionUris, mintEdition } from "web3/contract";
 import Field from "components/field";
 import Icon from "components/icon";
 import ScaleFade from "components/transitions/scaleFade";
@@ -30,6 +30,7 @@ import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { formatPrice } from "utils";
+import { selectTracks } from "state/editor";
 import { shallowEqual } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useSelector } from "hooks";
@@ -62,9 +63,9 @@ const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
   const isEditing = typeof releaseIdParam !== "undefined";
   const checkboxColour = useColorModeValue("yellow", "purple");
-  const { editing: release } = useSelector(state => state.releases, shallowEqual);
+  const { _id: releaseId, artistName, releaseTitle } = useSelector(state => state.editor.release, shallowEqual);
   const { mintedEditionIds } = useSelector(state => state.web3, shallowEqual);
-  const { _id: releaseId, trackList } = release;
+  const trackList = useSelector(selectTracks, shallowEqual);
   const [editions, setEditions] = useState([]);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -82,9 +83,8 @@ const MintEdition = () => {
   );
 
   useEffect(() => {
-    const { artistName, releaseTitle } = release;
     setValues(prev => ({ ...prev, description: `${artistName} - ${releaseTitle}` }));
-  }, [release]);
+  }, [artistName, releaseTitle]);
 
   const fetchEditions = useCallback(async () => {
     if (releaseIdParam) {
@@ -119,8 +119,8 @@ const MintEdition = () => {
   };
 
   const handleBlur = () => setValues(prev => ({ ...prev, price: formatPrice(prev.price) }));
-  const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const handleOpenModal = () => setShowModal(true);
 
   const handleMint = async () => {
     try {
@@ -213,7 +213,11 @@ const MintEdition = () => {
           );
         })
       ) : (
-        <Text mb={8}>You haven't minted any editions for this release. Use the button below to get started!</Text>
+        <Text mb={8}>
+          {!isEditing
+            ? "Please save the release first before minting editions."
+            : "You haven't minted any editions for this release. Use the button below to get started!"}
+        </Text>
       )}
       <Button isDisabled={!isEditing} leftIcon={<Icon icon={faPlusCircle} />} onClick={handleOpenModal}>
         Mint GridFire Edition
