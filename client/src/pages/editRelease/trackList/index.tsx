@@ -1,5 +1,5 @@
 import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
-import { DragEventHandler, memo, useCallback, useState } from "react";
+import { DragEventHandler, useCallback, useState } from "react";
 import { selectTrackIds, trackAdd, trackMove } from "state/editor";
 import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
@@ -119,4 +119,4 @@ const TrackList = () => {
   );
 };
 
-export default memo(TrackList);
+export default TrackList;

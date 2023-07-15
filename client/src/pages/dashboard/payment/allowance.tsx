@@ -43,15 +43,17 @@ import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiAllowance } from "state/web3";
-import { shallowEqual } from "react-redux";
 import { toastSuccess } from "state/toast";
 
 const Allowance = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const { web3 } = useSelector(state => state, shallowEqual);
-  const { account, accountShort, daiAllowance, isConnected, isFetchingAllowance } = web3;
+  const account = useSelector(state => state.web3.account);
+  const accountShort = useSelector(state => state.web3.accountShort);
+  const daiAllowance = useSelector(state => state.web3.daiAllowance);
+  const isConnected = useSelector(state => state.web3.isConnected);
+  const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
   const [error, setError] = useState("");
   const [approvals, setApprovals] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);

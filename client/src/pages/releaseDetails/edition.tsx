@@ -21,7 +21,6 @@ import Icon from "components/icon";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
 import { purchaseEdition } from "web3/contract";
-import { shallowEqual } from "react-redux";
 import { useState } from "react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
@@ -46,7 +45,10 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const { editionId, amount, balance, metadata, price } = edition;
   const { description, properties } = metadata;
   const { tracks } = properties;
-  const { account, daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
+  const account = useSelector(state => state.web3.account);
+  const daiAllowance = useSelector(state => state.web3.daiAllowance);
+  const isConnected = useSelector(state => state.web3.isConnected);
+  const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const allowanceTooLow = BigInt(price) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
   const bgColor = useColorModeValue("var(--chakra-colors-whiteAlpha-800)", "rgba(26,32,44,0.85)");

@@ -37,7 +37,7 @@ function UserRelease({ release }: Props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { releaseIdsForDeletion } = useSelector(state => state.releases, shallowEqual);
+  const releaseIdsForDeletion = useSelector(state => state.releases.releaseIdsForDeletion, shallowEqual);
   const [isPublishingRelease, setPublishingRelease] = useState(false);
 
   const cancelDeleteTrack = (id: string) => {

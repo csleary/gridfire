@@ -16,8 +16,9 @@ const Collection = () => {
   const receiptTextColour = useColorModeValue("gray.600", "gray.300");
   const receiptColour = useColorModeValue("blue.200", "blue.100");
   const dispatch = useDispatch();
-  const { collection, userEditions } = useSelector(state => state.releases, shallowEqual);
-  const { userId } = useSelector(state => state.user, shallowEqual);
+  const collection = useSelector(state => state.releases.collection, shallowEqual);
+  const userEditions = useSelector(state => state.releases.userEditions, shallowEqual);
+  const userId = useSelector(state => state.user.userId);
   const [isLoading, setLoading] = useState(false);
   const { albums, singles } = collection;
   const available = [...albums, ...singles, ...userEditions].filter(({ release }) => Boolean(release));

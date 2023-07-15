@@ -19,7 +19,6 @@ import {
 import { faArrowLeftLong, faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { fetchReleaseForEditing, saveRelease } from "state/editor";
-import { memo, useEffect } from "react";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import Artwork from "./artwork";
@@ -33,14 +32,19 @@ import { WarningIcon } from "@chakra-ui/icons";
 import { createRelease } from "state/releases";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { shallowEqual } from "react-redux";
+import { useEffect } from "react";
 
 const EditRelease = () => {
   const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false }, { ssr: false });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
-  const { isLoading, isSubmitting, releaseErrors, trackErrors } = useSelector(state => state.editor, shallowEqual);
-  const { _id: releaseId, releaseTitle } = useSelector(state => state.editor.release, shallowEqual);
+  const isLoading = useSelector(state => state.editor.isLoading);
+  const isSubmitting = useSelector(state => state.editor.isSubmitting);
+  const releaseErrors = useSelector(state => state.editor.releaseErrors, shallowEqual);
+  const releaseId = useSelector(state => state.editor.release._id);
+  const releaseTitle = useSelector(state => state.editor.release.releaseTitle, shallowEqual);
+  const trackErrors = useSelector(state => state.editor.trackErrors, shallowEqual);
   const hasReleaseError = Object.values(releaseErrors).some(Boolean);
   const hasTrackError = Object.values(trackErrors).some(Boolean);
   const isEditing = typeof releaseIdParam !== "undefined";
@@ -170,4 +174,4 @@ const EditRelease = () => {
   );
 };
 
-export default memo(EditRelease);
+export default EditRelease;

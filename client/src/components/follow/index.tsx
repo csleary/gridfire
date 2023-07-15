@@ -4,7 +4,6 @@ import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
 
 const Follow = () => {
@@ -13,7 +12,7 @@ const Follow = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { artistId: artistIdParam, artistSlug } = useParams();
-  const { account } = useSelector(state => state.user, shallowEqual);
+  const account = useSelector(state => state.user.account);
   const [followerCount, setFollowerCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isHovering, setIsHovering] = useState(false);

@@ -9,7 +9,6 @@ import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { parseEther } from "ethers";
 import { purchaseRelease } from "web3/contract";
-import { shallowEqual } from "react-redux";
 import { useState } from "react";
 
 interface Props {
@@ -24,9 +23,11 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
   const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { isLoading } = useSelector(state => state.releases, shallowEqual);
-  const { daiAllowance, isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
-  const { userId } = useSelector(state => state.user, shallowEqual);
+  const daiAllowance = useSelector(state => state.web3.daiAllowance);
+  const isConnected = useSelector(state => state.web3.isConnected);
+  const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
+  const isLoading = useSelector(state => state.releases.isLoading);
+  const userId = useSelector(state => state.user.userId);
   const allowanceTooLow = parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
 
   const handlePayment = async (price: string) => {

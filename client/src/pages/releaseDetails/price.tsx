@@ -1,5 +1,4 @@
 import { Flex, Heading, Skeleton } from "@chakra-ui/react";
-import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
 
 interface Props {
@@ -7,10 +6,8 @@ interface Props {
 }
 
 const Price = ({ price }: Props) => {
-  const { isLoading } = useSelector(state => state.releases, shallowEqual);
-
+  const isLoading = useSelector(state => state.releases.isLoading);
   if (Number(price) === 0) return null;
-
   const [dai, pennies] = Number(price).toFixed(2).split(".");
 
   return (

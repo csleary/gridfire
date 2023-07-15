@@ -8,7 +8,7 @@ import { shallowEqual } from "react-redux";
 
 const Favourites = () => {
   const dispatch = useDispatch();
-  const { userFavourites } = useSelector(state => state.releases, shallowEqual);
+  const userFavourites = useSelector(state => state.releases.userFavourites, shallowEqual);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {

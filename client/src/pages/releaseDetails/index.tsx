@@ -44,8 +44,9 @@ const ActiveRelease = () => {
   const releaseInfoText = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
   const { releaseId = "" } = useParams();
-  const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
-  const { purchases } = useSelector(state => state.user, shallowEqual);
+  const isLoading = useSelector(state => state.releases.isLoading);
+  const purchases = useSelector(state => state.user.purchases, shallowEqual);
+  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
   const isInCollection = purchases.some(sale => sale.release === releaseId);
 
   const {

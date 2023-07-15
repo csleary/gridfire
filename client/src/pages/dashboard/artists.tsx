@@ -44,11 +44,12 @@ const Artists = () => {
   const buttonColorScheme = useColorModeValue("yellow", "purple");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { activeArtistId, artists, errors, isLoading, isPristine, isSubmitting } = useSelector(
-    state => state.artists,
-    shallowEqual
-  );
+  const activeArtistId = useSelector(state => state.artists.activeArtistId);
+  const artists = useSelector(state => state.artists.artists, shallowEqual);
+  const errors = useSelector(state => state.artists.errors, shallowEqual);
+  const isLoading = useSelector(state => state.artists.isLoading);
+  const isPristine = useSelector(state => state.artists.isPristine);
+  const isSubmitting = useSelector(state => state.artists.isSubmitting);
   const [isAddingLink, setIsAddingLink] = useState(false);
   const activeArtist = artists.find(artist => artist._id === activeArtistId);
 

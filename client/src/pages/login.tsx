@@ -18,7 +18,6 @@ import Icon from "components/icon";
 import axios from "axios";
 import { connectToWeb3 } from "state/web3";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { shallowEqual } from "react-redux";
 import { useState } from "react";
 
 declare const window: any; // eslint-disable-line
@@ -26,7 +25,7 @@ declare const window: any; // eslint-disable-line
 const Login = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const { isLoading } = useSelector(state => state.user, shallowEqual);
+  const isLoading = useSelector(state => state.user.isLoading);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 

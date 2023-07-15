@@ -12,7 +12,7 @@ import { shallowEqual } from "react-redux";
 
 const WishList = () => {
   const dispatch = useDispatch();
-  const { userWishList } = useSelector(state => state.releases, shallowEqual);
+  const userWishList = useSelector(state => state.releases.userWishList, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const noteIcon = useColorModeValue(faStickyNoteOutline, faStickyNote);
   const noteTextColour = useColorModeValue("gray.600", "gray.300");

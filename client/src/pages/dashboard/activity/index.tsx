@@ -12,7 +12,7 @@ import { Activity as IActivity } from "types";
 
 const Activity = () => {
   const dispatch = useDispatch();
-  const { activity } = useSelector(state => state.artists, shallowEqual);
+  const activity = useSelector(state => state.artists.activity, shallowEqual);
 
   useEffect(() => {
     dispatch(fetchActivity());

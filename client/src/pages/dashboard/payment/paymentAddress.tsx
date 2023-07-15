@@ -27,7 +27,6 @@ import { formatEther } from "ethers";
 import Icon from "components/icon";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { shallowEqual } from "react-redux";
 
 const defaultErrorState = {
   paymentAddress: ""
@@ -35,7 +34,7 @@ const defaultErrorState = {
 
 const PaymentAddress = () => {
   const dispatch = useDispatch();
-  const { paymentAddress } = useSelector(state => state.user, shallowEqual);
+  const paymentAddress = useSelector(state => state.user.paymentAddress);
   const [errors, setError] = useState(defaultErrorState);
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -28,19 +28,18 @@ import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { fetchDaiBalance } from "state/web3";
-import { shallowEqual } from "react-redux";
 import { useState } from "react";
 
 const BasketButton = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const { account, basket, daiAllowance, isCheckingOut, isConnected, isFetchingAllowance } = useSelector(
-    state => state.web3,
-    shallowEqual
-  );
-
+  const account = useSelector(state => state.web3.account);
+  const basket = useSelector(state => state.web3.basket);
+  const daiAllowance = useSelector(state => state.web3.daiAllowance);
+  const isCheckingOut = useSelector(state => state.web3.isCheckingOut);
+  const isConnected = useSelector(state => state.web3.isConnected);
+  const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
   const [showModal, setShowModal] = useState(false);
   const total = basket.reduce((prev, { price }: BasketItem) => prev + BigInt(price), BigInt("0"));
   const allowanceTooLow = total > BigInt(daiAllowance);

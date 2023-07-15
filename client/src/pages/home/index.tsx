@@ -17,13 +17,12 @@ const Home: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const { catalogue, catalogueLimit, catalogueSkip, reachedEndOfCat } = useSelector(
-    state => state.releases,
-    shallowEqual
-  );
-
-  const { account: userAccount, isLoading: isLoadingUser } = useSelector(state => state.user, shallowEqual);
+  const catalogue = useSelector(state => state.releases.catalogue, shallowEqual);
+  const catalogueLimit = useSelector(state => state.releases.catalogueLimit);
+  const catalogueSkip = useSelector(state => state.releases.catalogueSkip);
+  const isLoadingUser = useSelector(state => state.user.isLoading);
+  const reachedEndOfCat = useSelector(state => state.releases.reachedEndOfCat);
+  const userAccount = useSelector(state => state.user.account);
   const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");

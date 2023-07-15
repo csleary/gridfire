@@ -32,13 +32,13 @@ const Actions = () => {
   const [note, setNote] = useState("");
   const [isSavingToFaves, setIsSavingToFaves] = useState(false);
   const [isSavingToList, setIsSavingToList] = useState(false);
-  const { isLoading } = useSelector(state => state.releases, shallowEqual);
-  const { favourites, wishList } = useSelector(state => state.user, shallowEqual);
-  const { account } = useSelector(state => state.user, shallowEqual);
-  const release = useSelector(state => state.releases.activeRelease, shallowEqual);
-  const { _id: releaseId } = release;
-  const isInFaves = favourites.some(({ release }: UserListItem) => release === releaseId);
-  const isInWishList = wishList.some(({ release }: UserListItem) => release === releaseId);
+  const account = useSelector(state => state.user.account);
+  const favourites = useSelector(state => state.user.favourites, shallowEqual);
+  const isLoading = useSelector(state => state.releases.isLoading);
+  const releaseId = useSelector(state => state.releases.activeRelease._id);
+  const wishList = useSelector(state => state.user.wishList, shallowEqual);
+  const isInFaves = favourites.some(({ release }: UserListItem) => release === releaseId); // TODO: use createSelector for this.
+  const isInWishList = wishList.some(({ release }: UserListItem) => release === releaseId); // TODO: use createSelector for this.
 
   useEffect(() => {
     if (wishList.length && releaseId) {

@@ -45,7 +45,6 @@ import { connectToWeb3 } from "state/web3";
 import debounce from "lodash.debounce";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { logOut } from "state/user";
-import { shallowEqual } from "react-redux";
 
 const MenuDrawer = () => {
   const [isTop, setIsTop] = useBoolean(true);
@@ -61,8 +60,12 @@ const MenuDrawer = () => {
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const navRef = useRef<HTMLDivElement | null>();
   const navigate = useNavigate();
-  const { account: userAccount, accountShort: userAccountShort } = useSelector(state => state.user, shallowEqual);
-  const { account = "", accountShort, daiBalance, isConnected } = useSelector(state => state.web3, shallowEqual);
+  const userAccount = useSelector(state => state.user.account);
+  const userAccountShort = useSelector(state => state.user.accountShort);
+  const account = useSelector(state => state.web3.account);
+  const accountShort = useSelector(state => state.web3.accountShort);
+  const daiBalance = useSelector(state => state.web3.daiBalance);
+  const isConnected = useSelector(state => state.web3.isConnected);
   const daiDisplayBalance = Number.parseFloat(formatEther(daiBalance)).toFixed(2);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

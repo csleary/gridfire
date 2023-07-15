@@ -24,9 +24,9 @@ const Player = () => {
   const playLoggerRef = useRef();
   const seekBarRef = useRef();
   const shakaRef = useRef();
+  const activeRelease = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const favourites = useSelector(state => state.user.favourites, shallowEqual);
   const player = useSelector(state => state.player, shallowEqual);
-  const { activeRelease } = useSelector(state => state.releases, shallowEqual);
-  const { favourites } = useSelector(state => state.user, shallowEqual);
   const [bufferRanges, setBufferRanges] = useState([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);

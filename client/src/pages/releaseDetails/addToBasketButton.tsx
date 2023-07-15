@@ -22,8 +22,9 @@ interface Props {
 
 const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title }: Props) => {
   const dispatch = useDispatch();
-  const { basket, isAddingToBasket } = useSelector(state => state.web3, shallowEqual);
-  const { isLoading } = useSelector(state => state.releases, shallowEqual);
+  const basket = useSelector(state => state.web3.basket, shallowEqual);
+  const isAddingToBasket = useSelector(state => state.web3.isAddingToBasket);
+  const isLoading = useSelector(state => state.releases.isLoading);
   const [showModal, setShowModal] = useState(false);
   const isInBasket = basket.some((item: BasketItem) => item.releaseId === releaseId);
 

@@ -11,7 +11,7 @@ import { shallowEqual } from "react-redux";
 function UserReleases() {
   const addReleaseButtonColor = useColorModeValue("yellow", "purple");
   const dispatch = useDispatch();
-  const { userReleases } = useSelector(state => state.releases, shallowEqual);
+  const userReleases = useSelector(state => state.releases.userReleases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const offlineCount = userReleases.filter(release => release.published === false).length;
 

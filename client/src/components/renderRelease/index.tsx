@@ -9,7 +9,6 @@ import OverlayDownloadButton from "./downloadButton";
 import { fadeAudio } from "utils";
 import placeholder from "placeholder.svg";
 import { setIsLoading } from "state/releases";
-import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
 
 const { REACT_APP_CDN_IMG } = process.env;
@@ -29,7 +28,8 @@ const isPurchasedRelease = (release: Release | PurchasedRelease): release is Pur
 const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }: Props) => {
   const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
-  const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
+  const isPlaying = useSelector(state => state.player.isPlaying);
+  const playerReleaseId = useSelector(state => state.player.releaseId);
 
   if (!release) {
     return (

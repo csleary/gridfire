@@ -63,8 +63,10 @@ const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();
   const isEditing = typeof releaseIdParam !== "undefined";
   const checkboxColour = useColorModeValue("yellow", "purple");
-  const { _id: releaseId, artistName, releaseTitle } = useSelector(state => state.editor.release, shallowEqual);
-  const { mintedEditionIds } = useSelector(state => state.web3, shallowEqual);
+  const artistName = useSelector(state => state.editor.release.artistName);
+  const mintedEditionIds = useSelector(state => state.web3.mintedEditionIds, shallowEqual);
+  const releaseId = useSelector(state => state.editor.release._id);
+  const releaseTitle = useSelector(state => state.editor.release.releaseTitle);
   const trackList = useSelector(selectTracks, shallowEqual);
   const [editions, setEditions] = useState([]);
   const [isPurchasing, setIsPurchasing] = useState(false);

@@ -1,7 +1,6 @@
 import { Box, Button, Tooltip, useColorModeValue } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "hooks";
 import NameYourPriceModal from "../nameYourPriceModal";
-import { shallowEqual } from "react-redux";
 import { toastWarning } from "state/toast";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -37,7 +36,8 @@ const PurchaseTrackButton = ({
   const nypColour = useColorModeValue("yellow", "purple");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isConnected, isFetchingAllowance } = useSelector(state => state.web3, shallowEqual);
+  const isConnected = useSelector(state => state.web3.isConnected);
+  const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
   const [showModal, setShowModal] = useState(false);
 
   return (

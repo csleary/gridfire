@@ -22,10 +22,12 @@ import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "reac
 
 const ArtistMenu = () => {
   const dispatch = useDispatch();
-  const { releaseErrors, release } = useSelector(state => state.editor, shallowEqual);
-  const { artists = [], isLoading } = useSelector(state => state.artists, shallowEqual);
+  const artist = useSelector(state => state.editor.release.artist);
+  const artistName = useSelector(state => state.editor.release.artistName);
+  const artists = useSelector(state => state.artists.artists, shallowEqual);
+  const isLoading = useSelector(state => state.artists.isLoading);
+  const releaseErrors = useSelector(state => state.editor.releaseErrors, shallowEqual);
   const [showInput, setShowInput] = useState(false);
-  const { artist, artistName } = release;
   const selectedArtist = artists?.find(({ _id: artistId }) => artist === artistId) || { name: "" };
   const defaultLabel = showInput ? "New artist" : "Select an artist…";
   type FieldEventHandler = ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement>;

@@ -12,8 +12,12 @@ interface Props {
 
 const EssentialInfo = ({ isEditing }: Props) => {
   const dispatch = useDispatch();
-  const { release, releaseErrors } = useSelector(state => state.editor, shallowEqual);
-  const { artist, artistName, price, releaseDate, releaseTitle } = release;
+  const artist = useSelector(state => state.editor.release.artist);
+  const artistName = useSelector(state => state.editor.release.artistName);
+  const price = useSelector(state => state.editor.release.price);
+  const releaseDate = useSelector(state => state.editor.release.releaseDate);
+  const releaseErrors = useSelector(state => state.editor.releaseErrors, shallowEqual);
+  const releaseTitle = useSelector(state => state.editor.release.releaseTitle);
 
   const handleChange: ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement> = useCallback(
     e => {

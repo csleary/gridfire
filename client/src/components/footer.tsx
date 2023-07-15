@@ -15,13 +15,12 @@ import { faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import Icon from "./icon";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
 
 const { REACT_APP_GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 
 const Footer: React.FC = () => {
-  const { account } = useSelector(state => state.user, shallowEqual);
+  const account = useSelector(state => state.user.account);
   const today = new Date();
   const year = today.getFullYear();
 

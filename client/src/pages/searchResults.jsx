@@ -8,7 +8,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const SearchResults = () => {
   const dispatch = useDispatch();
-  const { isSearching, searchQuery, searchResults } = useSelector(state => state.search, shallowEqual);
+  const isSearching = useSelector(state => state.search.isSearching);
+  const searchQuery = useSelector(state => state.search.searchQuery);
+  const searchResults = useSelector(state => state.search.searchResults, shallowEqual);
   const resultsNum = searchResults.length;
   const renderReleases = searchResults.map(release => <RenderRelease key={release._id} release={release} />);
 

@@ -1,13 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { ReactElement } from "react";
-import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
 
 const PrivateRoute = ({ children }: { children: ReactElement }) => {
   const navigate = useNavigate();
-  const { user } = useSelector(state => state, shallowEqual);
+  const account = useSelector(state => state.user.account);
+  const isLoading = useSelector(state => state.user.isLoading);
   const location = useLocation();
-  const { account, isLoading } = user;
 
   if (!isLoading && !account) {
     navigate("/login", { state: location });

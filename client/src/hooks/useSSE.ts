@@ -14,7 +14,6 @@ import { useEffect, useRef } from "react";
 import axios from "axios";
 import { fetchUser } from "state/user";
 import { setArtworkUploading } from "state/artwork";
-import { shallowEqual } from "react-redux";
 import { updateTrackStatus } from "state/editor";
 
 type SSEHandler = (event: MessageEvent) => void;
@@ -25,7 +24,8 @@ const useSSE = () => {
   const dispatch = useDispatch();
   const pingInterval = useRef<ReturnType<typeof setInterval>>();
   const sourceRef = useRef<EventSource>();
-  const { account, userId } = useSelector(state => state.user, shallowEqual);
+  const account = useSelector(state => state.user.account);
+  const userId = useSelector(state => state.user.userId);
 
   useEffect(() => {
     const uuid = window.crypto.randomUUID();

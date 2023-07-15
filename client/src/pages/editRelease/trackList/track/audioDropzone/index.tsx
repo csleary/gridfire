@@ -9,7 +9,6 @@ import { EntityId } from "@reduxjs/toolkit";
 import Icon from "components/icon";
 import ProgressIndicator from "./progressIndicator";
 import mime from "mime";
-import { shallowEqual } from "react-redux";
 import { updateTrackStatus } from "state/editor";
 import { useDropzone } from "react-dropzone";
 
@@ -32,9 +31,9 @@ interface Props {
 
 const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
   const dispatch = useDispatch();
-  const { _id: releaseId } = useSelector(state => state.editor.release, shallowEqual);
   const audioUploadProgress = useSelector(state => state.tracks.audioUploadProgress[trackId]);
   const encodingProgressFLAC = useSelector(state => state.tracks.encodingProgressFLAC[trackId]);
+  const releaseId = useSelector(state => state.editor.release._id);
   const storingProgressFLAC = useSelector(state => state.tracks.storingProgressFLAC[trackId]);
   const transcodingCompleteAAC = useSelector(state => state.tracks.transcodingCompleteAAC[trackId]);
   const transcodingCompleteMP3 = useSelector(state => state.tracks.transcodingCompleteMP3[trackId]);

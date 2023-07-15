@@ -15,9 +15,14 @@ const { REACT_APP_CDN_IMG } = process.env;
 const Artwork = () => {
   const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
-  const { isLoading, activeRelease: release } = useSelector(state => state.releases, shallowEqual);
-  const { isPlaying, releaseId: playerReleaseId } = useSelector(state => state.player, shallowEqual);
-  const { _id: releaseId, artistName, artwork, releaseTitle, trackList } = release;
+  const artistName = useSelector(state => state.releases.activeRelease.artistName);
+  const artwork = useSelector(state => state.releases.activeRelease.artwork, shallowEqual);
+  const isLoading = useSelector(state => state.releases.isLoading);
+  const isPlaying = useSelector(state => state.player.isPlaying);
+  const playerReleaseId = useSelector(state => state.player.releaseId);
+  const releaseId = useSelector(state => state.releases.activeRelease._id);
+  const releaseTitle = useSelector(state => state.releases.activeRelease.releaseTitle);
+  const trackList = useSelector(state => state.releases.activeRelease.trackList);
   const hasNoPlayableTracks = trackList.every(({ isBonus }: ReleaseTrack) => isBonus === true);
 
   const handlePlayRelease = useCallback(() => {

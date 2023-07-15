@@ -1,15 +1,20 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
-import { ChangeEventHandler, memo, useCallback } from "react";
+import { ChangeEventHandler, useCallback } from "react";
 import { useDispatch, useSelector } from "hooks";
 import Field from "components/field";
 import Tags from "./tags";
-import { shallowEqual } from "react-redux";
 import { updateRelease } from "state/editor";
 
 const DetailedInfo = () => {
   const dispatch = useDispatch();
-  const { release } = useSelector(state => state.editor, shallowEqual);
-  const { catNumber, credits, info, pubYear, pubName, recordLabel, recYear, recName } = release;
+  const catNumber = useSelector(state => state.editor.release.catNumber);
+  const credits = useSelector(state => state.editor.release.credits);
+  const info = useSelector(state => state.editor.release.info);
+  const pubName = useSelector(state => state.editor.release.pubName);
+  const pubYear = useSelector(state => state.editor.release.pubYear);
+  const recName = useSelector(state => state.editor.release.recName);
+  const recordLabel = useSelector(state => state.editor.release.recordLabel);
+  const recYear = useSelector(state => state.editor.release.recYear);
 
   const handleChange: ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement> = useCallback(
     e => {
@@ -88,4 +93,4 @@ const DetailedInfo = () => {
   );
 };
 
-export default memo(DetailedInfo);
+export default DetailedInfo;

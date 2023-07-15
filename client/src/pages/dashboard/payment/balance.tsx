@@ -26,14 +26,13 @@ import { useEffect, useState } from "react";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { fetchDaiBalance } from "state/web3";
 import { formatEther } from "ethers";
-import { shallowEqual } from "react-redux";
 import Icon from "components/icon";
 
 const Balance = () => {
   const dispatch = useDispatch();
-  const { user, web3 } = useSelector(state => state, shallowEqual);
-  const { paymentAddress } = user;
-  const { account, isConnected } = web3;
+  const account = useSelector(state => state.web3.account);
+  const isConnected = useSelector(state => state.web3.isConnected);
+  const paymentAddress = useSelector(state => state.user.paymentAddress);
   const [balance, setBalance] = useState("0");
   const [isClaiming, setIsClaiming] = useState(false);
   const [claims, setClaims] = useState([]);

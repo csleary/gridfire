@@ -11,7 +11,6 @@ import PrivateRoute from "components/privateRoute";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
-import { shallowEqual } from "react-redux";
 import useSSE from "hooks/useSSE";
 
 const { REACT_APP_CHAIN_ID = "" } = process.env;
@@ -30,7 +29,7 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
   const ethereumRef = useRef<any>();
   const providerRef = useRef<BrowserProvider>();
-  const { chainId } = useSelector(state => state.web3, shallowEqual);
+  const chainId = useSelector(state => state.web3.chainId);
   const isCorrectChain = Boolean(chainId) && chainId === REACT_APP_CHAIN_ID;
 
   const getNetwork = useCallback(async () => {

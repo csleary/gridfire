@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const Tags = () => {
   const navigate = useNavigate();
-  const { tags } = useSelector(state => state.releases.activeRelease, shallowEqual);
+  const tags = useSelector(state => state.releases.activeRelease.tags, shallowEqual);
   const keys = tags.map(() => nanoid(8));
 
   if (!tags.length) return null;

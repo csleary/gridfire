@@ -32,12 +32,18 @@ const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate inf
 
 const TrackList = () => {
   const dispatch = useDispatch();
-  const { basket, daiAllowance } = useSelector(state => state.web3, shallowEqual);
-  const { purchases, userId } = useSelector(state => state.user, shallowEqual);
-  const { activeRelease: release } = useSelector(state => state.releases, shallowEqual);
-  const { isPlaying, isPaused, trackId: playerTrackId } = useSelector(state => state.player, shallowEqual);
+  const artistName = useSelector(state => state.releases.activeRelease.artistName);
+  const basket = useSelector(state => state.web3.basket, shallowEqual);
+  const daiAllowance = useSelector(state => state.web3.daiAllowance);
+  const isPaused = useSelector(state => state.player.isPaused);
+  const isPlaying = useSelector(state => state.player.isPlaying);
+  const playerTrackId = useSelector(state => state.player.trackId, shallowEqual);
+  const purchases = useSelector(state => state.user.purchases, shallowEqual);
+  const releaseId = useSelector(state => state.releases.activeRelease._id);
+  const releaseTitle = useSelector(state => state.releases.activeRelease.releaseTitle);
+  const trackList = useSelector(state => state.releases.activeRelease.trackList, shallowEqual);
+  const userId = useSelector(state => state.user.userId);
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const { _id: releaseId, artistName, releaseTitle, trackList } = release;
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
 

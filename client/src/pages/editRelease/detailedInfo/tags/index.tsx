@@ -24,7 +24,7 @@ const NUM_MAX_TAGS = 20;
 
 const Tags = () => {
   const dispatch = useDispatch();
-  const { tags } = useSelector(state => state.editor.release, shallowEqual);
+  const tags = useSelector(state => state.editor.release.tags, shallowEqual);
   const [tagsInput, setTagsInput] = useState("");
   const [tagsError, setTagsError] = useState("");
 

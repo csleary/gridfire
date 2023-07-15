@@ -55,7 +55,9 @@ const SearchBar = ({ ...rest }) => {
   const { search } = useLocation();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { isSearching, searchQuery, searchResults } = useSelector(state => state.search, shallowEqual);
+  const isSearching = useSelector(state => state.search.isSearching);
+  const searchQuery = useSelector(state => state.search.searchQuery);
+  const searchResults = useSelector(state => state.search.searchResults, shallowEqual);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {

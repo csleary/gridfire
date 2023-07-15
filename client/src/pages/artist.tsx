@@ -13,7 +13,10 @@ import { useParams } from "react-router-dom";
 const Artist = () => {
   const { artistId, artistSlug } = useParams();
   const dispatch = useDispatch();
-  const { biography, links, name, releases } = useSelector(state => state.releases.artist, shallowEqual);
+  const biography = useSelector(state => state.releases.artist.biography);
+  const links = useSelector(state => state.releases.artist.links, shallowEqual);
+  const name = useSelector(state => state.releases.artist.name, shallowEqual);
+  const releases = useSelector(state => state.releases.artist.releases, shallowEqual);
   const [isLoading, setLoading] = useState(false);
   const releaseCount = releases?.length ?? 0;
   const dividerColor = useColorModeValue("gray.200", "gray.500");

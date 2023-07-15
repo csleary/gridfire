@@ -11,7 +11,7 @@ interface Props {
 }
 
 const Title = ({ artist, artistName, releaseId, releaseTitle }: Props) => {
-  const { artists } = useSelector(state => state.artists, shallowEqual);
+  const artists = useSelector(state => state.artists.artists, shallowEqual);
   const slug = artists.find(a => a._id === artist)?.slug;
 
   return (
