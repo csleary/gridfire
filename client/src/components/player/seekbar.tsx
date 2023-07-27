@@ -1,5 +1,5 @@
 import { Box, useColorModeValue } from "@chakra-ui/react";
-import { MouseEvent, MutableRefObject } from "react";
+import { MouseEventHandler, MutableRefObject } from "react";
 
 interface BufferRange {
   end: number;
@@ -7,9 +7,9 @@ interface BufferRange {
 }
 
 interface Props {
-  audioPlayerRef: MutableRefObject<HTMLAudioElement | { duration: number }>;
+  audioPlayerRef: MutableRefObject<HTMLAudioElement | null>;
   bufferRanges: Array<BufferRange>;
-  handleSeek: (e: MouseEvent) => void;
+  handleSeek: MouseEventHandler;
   progressPercent: number;
   seekBarRef: MutableRefObject<HTMLDivElement | null>;
 }
@@ -29,7 +29,7 @@ const SeekBar = ({ audioPlayerRef, bufferRanges, handleSeek, progressPercent, se
       _groupHover={{ background: "gray.200", cursor: "pointer", height: "8px", marginTop: "6px" }}
     >
       {bufferRanges.map(({ start, end }: BufferRange) => {
-        const { duration } = audioPlayerRef.current;
+        const { duration } = audioPlayerRef.current!;
         const left = (start / duration) * 100;
         const width = ((end - start) / duration) * 100;
 

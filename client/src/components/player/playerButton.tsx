@@ -1,14 +1,13 @@
-import { IconButton } from "@chakra-ui/react";
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { ChakraProps, IconButton } from "@chakra-ui/react";
 import Icon from "components/icon";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { MouseEventHandler } from "react";
 
-interface Props {
+interface Props extends ChakraProps {
   ariaLabel: string;
   icon: IconDefinition;
   isDisabled?: boolean;
-  mr?: number;
-  mx?: number | number[];
-  onClick: () => void;
+  onClick: MouseEventHandler;
   pulse?: boolean;
   spin?: boolean;
   title?: string;

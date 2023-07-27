@@ -10,8 +10,8 @@ import {
   Heading,
   Tab,
   TabList,
-  TabPanels,
   TabPanel,
+  TabPanels,
   Tabs,
   useBreakpointValue,
   useColorModeValue
@@ -23,11 +23,11 @@ import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import Artwork from "./artwork";
 import DetailedInfo from "./detailedInfo";
+import Editions from "./mintEdition";
 import EssentialInfo from "./essentialInfo";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import TrackList from "./trackList";
-import Editions from "./mintEdition";
 import { WarningIcon } from "@chakra-ui/icons";
 import { createRelease } from "state/releases";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
@@ -35,7 +35,7 @@ import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 
 const EditRelease = () => {
-  const isSmallScreen = useBreakpointValue({ base: false, sm: true, md: false }, { ssr: false });
+  const isSmallScreen = useBreakpointValue({ base: false, md: false, sm: true }, { ssr: false });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { releaseId: releaseIdParam } = useParams();
@@ -43,7 +43,7 @@ const EditRelease = () => {
   const isSubmitting = useSelector(state => state.editor.isSubmitting);
   const releaseErrors = useSelector(state => state.editor.releaseErrors, shallowEqual);
   const releaseId = useSelector(state => state.editor.release._id);
-  const releaseTitle = useSelector(state => state.editor.release.releaseTitle, shallowEqual);
+  const releaseTitle = useSelector(state => state.editor.release.releaseTitle);
   const trackErrors = useSelector(state => state.editor.trackErrors, shallowEqual);
   const hasReleaseError = Object.values(releaseErrors).some(Boolean);
   const hasTrackError = Object.values(trackErrors).some(Boolean);

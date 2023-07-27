@@ -1,9 +1,9 @@
+import { ActiveProcess, Sale, UserFavourite, UserListItem } from "types";
+import { AppDispatch, RootState } from "index";
+import { EntityState, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "state/releases";
 import { toastError, toastSuccess } from "state/toast";
-import { Sale, UserFavourite, UserListItem } from "types";
-import { AppDispatch } from "index";
 import axios from "axios";
-import { createSlice } from "@reduxjs/toolkit";
 
 interface UserState {
   account: string;
@@ -13,10 +13,13 @@ interface UserState {
   isLoading: boolean;
   lastLogin: string;
   paymentAddress: string;
+  processList: EntityState<ActiveProcess>;
   purchases: Sale[];
   userId: string;
   wishList: UserListItem[];
 }
+
+const processAdapter = createEntityAdapter<ActiveProcess>();
 
 const initialState: UserState = {
   account: "",
@@ -26,6 +29,7 @@ const initialState: UserState = {
   isLoading: true,
   lastLogin: "",
   paymentAddress: "",
+  processList: processAdapter.getInitialState(),
   purchases: [],
   userId: "",
   wishList: []
@@ -35,6 +39,10 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    addActiveProcess(state, action) {
+      const newProcess = action.payload;
+      processAdapter.addOne(state.processList, newProcess);
+    },
     addUserFavouritesItem(state, action) {
       state.favourites = [...state.favourites, action.payload];
     },
@@ -43,6 +51,10 @@ const userSlice = createSlice({
     },
     clearUser() {
       return initialState;
+    },
+    removeActiveProcess(state, action) {
+      const processId = action.payload;
+      processAdapter.removeOne(state.processList, processId);
     },
     removeUserFavouritesItem(state, action) {
       state.favourites = state.favourites.filter(({ release }) => release !== action.payload);
@@ -143,12 +155,12 @@ const logOut = () => async (dispatch: AppDispatch) => {
   }
 };
 
-export default userSlice.reducer;
-
 export const {
+  addActiveProcess,
   addUserFavouritesItem,
   addUserWishListItem,
   clearUser,
+  removeActiveProcess,
   removeUserFavouritesItem,
   removeUserWishListItem,
   setIsLoading,
@@ -156,6 +168,13 @@ export const {
   updateFavourites,
   updateUser
 } = userSlice.actions;
+
+const {
+  selectAll: selectActiveProcessList,
+  selectIds: selectActiveProcessIds,
+  selectById: selectActiveProcessById,
+  selectTotal: selectActiveProcessTotal
+} = processAdapter.getSelectors((state: RootState) => state.user.processList);
 
 export {
   addPaymentAddress,
@@ -165,5 +184,11 @@ export {
   initialState as userInitialState,
   logOut,
   removeFromFavourites,
-  removeFromWishList
+  removeFromWishList,
+  selectActiveProcessList,
+  selectActiveProcessIds,
+  selectActiveProcessById,
+  selectActiveProcessTotal
 };
+
+export default userSlice.reducer;

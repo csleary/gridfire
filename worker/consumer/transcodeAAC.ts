@@ -1,6 +1,7 @@
+import { ReleaseContext } from "gridfire-worker/types/index.js";
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "gridfire-worker/consumer/ffmpeg.js";
 import { streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
-import { strict as assert } from "assert/strict";
+import assert from "assert/strict";
 import fs from "fs";
 import mongoose from "mongoose";
 import packageMP4 from "gridfire-worker/consumer/packageMP4.js";
@@ -10,11 +11,14 @@ import postMessage from "gridfire-worker/consumer/postMessage.js";
 import { randomUUID } from "crypto";
 
 const { BUCKET_FLAC, BUCKET_MP4, TEMP_PATH } = process.env;
-assert(TEMP_PATH, "TEMP_PATH is not set.");
 const Release = mongoose.model("Release");
 const fsPromises = fs.promises;
 
-const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
+assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
+assert(BUCKET_MP4, "BUCKET_MP4 env var missing.");
+assert(TEMP_PATH, "TEMP_PATH env var missing.");
+
+const transcodeAAC = async ({ releaseId, trackId, trackName, userId }: ReleaseContext) => {
   const inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
   const outputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
   const outputDir = randomUUID({ disableEntropyCache: true });
@@ -33,8 +37,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackName, userId }) => {
 
     // Probe for track duration.
     fs.accessSync(inputPath, fs.constants.R_OK);
-    const probeReadStream = fs.createReadStream(inputPath);
-    const metadata = await ffprobeGetTrackDuration(probeReadStream);
+    const metadata = await ffprobeGetTrackDuration(inputPath);
 
     // Transcode to AAC MP4.
     console.log(`[${trackId}] Transcoding flac to aac file: ${outputPath}…`);

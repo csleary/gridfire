@@ -5,12 +5,12 @@ const { ObjectId } = Schema.Types;
 
 const activitySchema = new Schema(
   {
-    user: { type: ObjectId, ref: "User", required: true },
-    type: { type: String, enum: ["favourite", "follow", "mint", "publish", "sale"], required: true },
     artist: { type: ObjectId, ref: "Artist", required: true },
-    release: { type: ObjectId, ref: "Release" },
     editionId: { type: String },
-    sale: { type: ObjectId, ref: "Sale" }
+    release: { type: ObjectId, ref: "Release" },
+    sale: { type: ObjectId, ref: "Sale" },
+    type: { type: String, enum: ["favourite", "follow", "mint", "publish", "sale"], required: true },
+    user: { type: ObjectId, ref: "User", required: true }
   },
   { timestamps: true }
 );
@@ -50,7 +50,7 @@ activitySchema.static("mint", function (artist, editionId) {
 activitySchema.static("sale", function ({ artist, editionId, release, sale, user }) {
   return this.findOneAndUpdate(
     { ...(editionId ? { editionId } : {}), artist, release, sale, user },
-    { $setOnInsert: { ...(editionId ? { editionId } : {}), artist, release, type: "sale", sale, user } },
+    { $setOnInsert: { ...(editionId ? { editionId } : {}), artist, release, sale, type: "sale", user } },
     { upsert: true }
   ).exec();
 });

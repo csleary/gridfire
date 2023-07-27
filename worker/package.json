@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r dotenv/config index.js dotenv_config_path=.env"
+    "dev": "nodemon --esm -r dotenv/config index.ts dotenv_config_path=.env"
   },
   "type": "module",
   "author": "",
@@ -24,7 +24,10 @@
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
-    "@types/fluent-ffmpeg": "^2.1.20",
-    "nodemon": "^2.0.15"
+    "@types/fluent-ffmpeg": "^2.1.21",
+    "@types/node": "^20.4.5",
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
   }
 }

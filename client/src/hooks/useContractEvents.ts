@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Contract, ContractEventName, EventLog, Log } from "ethers";
 
-const useContractEvents = (contract: any, filter: any) => {
-  const [events, setEvents] = useState([]);
+const useContractEvents = (contract: Contract, filter: ContractEventName) => {
+  const [events, setEvents] = useState<EventLog[] | Log[]>([]);
 
   useEffect(() => {
     if (contract && filter) {

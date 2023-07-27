@@ -14,5 +14,7 @@ const userSchema = new Schema(
 );
 
 userSchema.set("toJSON", { versionKey: false });
+
 const User = mongoose.model("User", userSchema, "users");
+
 export default User;

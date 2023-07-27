@@ -1,14 +1,24 @@
-import amqp from "amqplib";
-import { isFatalError } from "amqplib/lib/connection.js";
+import { ErrorCodes, MessageTuple, Notification } from "gridfire-worker/types/index.js";
+import amqp, { Channel, Connection } from "amqplib";
 import logger from "gridfire-worker/controllers/logger.js";
 import reconnect from "gridfire-worker/controllers/amqp/reconnect.js";
 import startConsumer from "gridfire-worker/consumer/index.js";
 import startPublisher from "gridfire-worker/publisher/index.js";
 
+const isFatalError = (error: any) => {
+  switch (error && error.code) {
+    case ErrorCodes.CONNECTION_FORCED:
+    case ErrorCodes.REPLY_SUCCESS:
+      return false;
+    default:
+      return true;
+  }
+};
+
 const { RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
-let connection;
-let consumerChannel;
-let consumerTags = [];
+let connection: Connection | null = null;
+let consumerChannel: Channel | null = null;
+let consumerTags: string[] = [];
 
 const amqpClose = async () => {
   if (!connection) return;
@@ -41,7 +51,7 @@ const amqpConnect = async () => {
 
     startPublisher(connection);
     consumerChannel = await startConsumer(connection, consumerTags);
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === "ECONNREFUSED") {
       logger.error(`AMQP connection error! ${error.code}: ${error.message}`);
     } else {

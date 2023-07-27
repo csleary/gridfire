@@ -40,8 +40,7 @@ const releaseSchema = new Schema(
         type: String,
         enum: ["pending", "storing", "stored"],
         default: "pending"
-      },
-      cid: { type: String }
+      }
     },
     releaseDate: { type: Date },
     price: { type: String },
@@ -65,4 +64,5 @@ releaseSchema.post("save", release => {
 });
 
 const Release = mongoose.model("Release", releaseSchema, "releases");
+
 export default Release;

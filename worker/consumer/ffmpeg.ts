@@ -1,8 +1,17 @@
 import ffmpeg from "fluent-ffmpeg";
+import { Readable } from "stream";
 
-const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
+interface Progress {
+  percent: number;
+  loaded: number;
+  total: number;
+}
+
+type ProgressListener = (progress: Progress) => void;
+
+const ffmpegEncodeFragmentedAAC = (inputStream: Readable, outputFilepath: string, onProgress?: ProgressListener) =>
   new Promise((resolve, reject) => {
-    ffmpeg(inputFilepath)
+    ffmpeg(inputStream)
       .noVideo()
       .audioChannels(2)
       .audioCodec("aac")
@@ -11,7 +20,7 @@ const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
       // .on("codecData", console.log)
       .on("end", (stdout, stderr) => {
         // console.log(stderr);
-        resolve();
+        resolve(void 0);
       })
       .on("error", reject)
       // .on("progress", onProgress)
@@ -19,7 +28,7 @@ const ffmpegEncodeFragmentedAAC = (inputFilepath, outputFilepath, onProgress) =>
       .save(outputFilepath);
   });
 
-const ffmpegEncodeFLAC = async (inputFilepath, outputFilepath, onProgress) =>
+const ffmpegEncodeFLAC = async (inputFilepath: string, outputFilepath: string, onProgress: ProgressListener) =>
   new Promise((resolve, reject) => {
     ffmpeg(inputFilepath)
       .noVideo() // Strip-out non-audio streams.
@@ -29,7 +38,7 @@ const ffmpegEncodeFLAC = async (inputFilepath, outputFilepath, onProgress) =>
       // .on("codecData", console.log)
       .on("end", (stdout, stderr) => {
         // console.log(stderr);
-        resolve();
+        resolve(void 0);
       })
       .on("error", reject)
       .on("progress", onProgress)
@@ -38,7 +47,11 @@ const ffmpegEncodeFLAC = async (inputFilepath, outputFilepath, onProgress) =>
       .save(outputFilepath);
   });
 
-const ffmpegEncodeMP3FromStream = async (inputStream, outputStream, onProgress) =>
+const ffmpegEncodeMP3FromStream = async (
+  inputStream: Readable,
+  outputFilepath: string,
+  onProgress?: ProgressListener
+) =>
   new Promise((resolve, reject) => {
     ffmpeg(inputStream)
       .noVideo()
@@ -49,15 +62,15 @@ const ffmpegEncodeMP3FromStream = async (inputStream, outputStream, onProgress) 
       // .on("codecData", console.log)
       .on("end", async (stdout, stderr) => {
         // console.log(stderr);
-        resolve();
+        resolve(void 0);
       })
       .on("error", reject)
       // .on("progress", onProgress)
       .on("start", console.log)
-      .save(outputStream);
+      .save(outputFilepath);
   });
 
-const ffprobeGetTrackDuration = probeSrc =>
+const ffprobeGetTrackDuration = (probeSrc: string): Promise<ffmpeg.FfprobeData> =>
   new Promise((resolve, reject) =>
     ffmpeg.ffprobe(probeSrc, (error, metadata) => {
       if (error) return reject(`Probing error: ${error.message}`);

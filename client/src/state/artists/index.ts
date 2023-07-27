@@ -171,5 +171,4 @@ export const {
 } = artistSlice.actions;
 
 export { addLink, fetchActivity, fetchArtists, updateArtist };
-
 export default artistSlice.reducer;

@@ -37,5 +37,7 @@ artistSchema.post("save", release => {
 });
 
 artistSchema.set("toJSON", { versionKey: false });
+
 const Artist = mongoose.model("Artist", artistSchema, "artists");
+
 export default Artist;

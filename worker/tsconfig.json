@@ -6,7 +6,7 @@
     "moduleResolution": "node16",
     "baseUrl": "./",
     "paths": {
-      "gridfire-web3-events/*": ["*"]
+      "gridfire-worker/*": ["*"]
     },
     "allowJs": true,
     "outDir": "./dist",

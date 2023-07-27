@@ -1,6 +1,8 @@
-/* eslint-disable indent */
+import { ReleaseContext, TrackContext } from "gridfire-worker/types/index.js";
 import { deleteObject, streamFromBucket, streamToBucket } from "gridfire-worker/controllers/storage.js";
+import { Progress } from "@aws-sdk/lib-storage";
 import { ffmpegEncodeFLAC } from "gridfire-worker/consumer/ffmpeg.js";
+import assert from "assert/strict";
 import fs from "fs";
 import mongoose from "mongoose";
 import path from "path";
@@ -13,21 +15,33 @@ const { BUCKET_FLAC, BUCKET_SRC, TEMP_PATH, QUEUE_TRANSCODE } = process.env;
 const Release = mongoose.model("Release");
 const fsPromises = fs.promises;
 
+assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
+assert(BUCKET_SRC, "BUCKET_SRC env var missing.");
+assert(TEMP_PATH, "TEMP_PATH env var missing.");
+assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE env var missing.");
+
+interface EncodingProgress {
+  percent: number;
+  loaded: number;
+  total: number;
+}
+
 const onEncodingProgress =
-  ({ trackId, userId }) =>
-  ({ percent }) => {
+  ({ trackId, userId }: TrackContext) =>
+  ({ percent }: EncodingProgress) => {
     postMessage({ type: "encodingProgressFLAC", progress: Math.round(percent), trackId, userId });
   };
 
 const onStorageProgress =
-  ({ trackId, userId }) =>
-  ({ loaded, total }) => {
+  ({ trackId, userId }: TrackContext) =>
+  ({ loaded = 0, total = 0 }: Progress) => {
     const progress = Math.floor((loaded / total) * 100);
     postMessage({ type: "storingProgressFLAC", progress, trackId, userId });
   };
 
-const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
-  let inputPath, outputPath;
+const encodeFLAC = async ({ releaseId, trackId, trackName, userId }: ReleaseContext) => {
+  let inputPath: string = "";
+  let outputPath: string = "";
 
   try {
     await Release.findOneAndUpdate(
@@ -37,6 +51,7 @@ const encodeFLAC = async ({ releaseId, trackId, trackName, userId }) => {
     ).exec();
 
     const srcStream = await streamFromBucket(BUCKET_SRC, `${releaseId}/${trackId}`);
+    if (!srcStream) throw new Error("Source audio file stream not found.");
     inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     const streamToDisk = fs.createWriteStream(inputPath);
     await pipeline(srcStream, streamToDisk);

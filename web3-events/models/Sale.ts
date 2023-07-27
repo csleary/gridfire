@@ -16,5 +16,7 @@ const saleSchema = new Schema({
 });
 
 saleSchema.index({ user: 1, release: 1 });
+
 const Sale = mongoose.model("Sale", saleSchema, "sales");
+
 export default Sale;

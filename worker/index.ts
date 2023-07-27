@@ -5,8 +5,8 @@ import logger from "gridfire-worker/controllers/logger.js";
 import mongoose from "mongoose";
 import net from "net";
 
-const { MONGODB_URI } = process.env;
-let healthProbeServer;
+const { MONGODB_URI = "" } = process.env;
+let healthProbeServer: net.Server | null = null;
 
 process
   .on("uncaughtException", error => logger.error("Uncaught exception:", error))
@@ -27,7 +27,7 @@ const setupHealthProbe = () =>
 
     healthProbeServer.listen(9090, () => {
       logger.info("Health probe server listening on port 9090.");
-      resolve();
+      resolve(void 0);
     });
   });
 
@@ -35,7 +35,7 @@ try {
   await mongoose.connect(MONGODB_URI);
   await amqpConnect();
   await setupHealthProbe();
-} catch (error) {
+} catch (error: any) {
   logger.error(`Startup error: ${error.message}`);
 }
 
@@ -43,16 +43,16 @@ const handleShutdown = async () => {
   logger.info("Gracefully shutting down…");
 
   try {
-    if (healthProbeServer) {
-      logger.info("Closing health probe server…");
+    await new Promise(resolve => {
+      if (healthProbeServer) {
+        logger.info("Closing health probe server…");
 
-      await new Promise(resolve =>
         healthProbeServer.close(() => {
           logger.info("Health probe server closed.");
-          resolve();
-        })
-      );
-    }
+          resolve(void 0);
+        });
+      }
+    });
 
     await amqpClose();
 

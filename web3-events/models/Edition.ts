@@ -16,5 +16,7 @@ const editionSchema = new Schema(
 );
 
 editionSchema.index({ release: 1 });
+
 const Edition = mongoose.model("Edition", editionSchema, "editions");
+
 export default Edition;

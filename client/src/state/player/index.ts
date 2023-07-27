@@ -49,8 +49,8 @@ const playerSlice = createSlice({
       state.playList = state.playList.filter(({ releaseId }) => releaseId !== action.payload);
     },
     playerHide(state) {
-      state.isPlaying = false; // Required to avoid showing pause icon when player is hidden.
-      state.isPaused = false; // As above.
+      state.isPlaying = false;
+      state.isPaused = false;
       state.showPlayer = false;
     },
     playerPause(state) {
@@ -61,9 +61,13 @@ const playerSlice = createSlice({
       state.isPlaying = true;
       state.isPaused = false;
       state.showPlayer = true;
+    },
+    playerStop(state) {
+      state.isPlaying = false;
+      state.isPaused = false;
     }
   }
 });
 
-export const { loadTrack, playerHide, playerPause, playerPlay } = playerSlice.actions;
+export const { loadTrack, playerHide, playerPause, playerPlay, playerStop } = playerSlice.actions;
 export default playerSlice.reducer;

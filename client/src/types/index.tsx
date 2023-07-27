@@ -1,16 +1,47 @@
-export interface Activity {
+export type Activity = ActivityFavourite & ActivityFollow & ActivityMint & ActivitySaleEdition & ActivitySale;
+
+export interface ActivityFavourite extends ActivityCommon {
+  releaseTitle: string;
+  type: ActivityType.Favourite;
+}
+
+export interface ActivityFollow extends ActivityCommon {
+  type: ActivityType.Follow;
+}
+
+export interface ActivityMint extends ActivityCommon {
+  editionId: string;
+  type: ActivityType.Mint;
+}
+
+export interface ActivitySaleEdition extends ActivitySale {
+  editionDescription: string;
+  type: ActivityType.Sale;
+}
+
+export interface ActivitySale extends ActivityCommon {
+  amountPaid: string;
+  release: string;
+  releaseTitle: string;
+  sale: string;
+  type: ActivityType.Sale;
+}
+
+export enum ActivityType {
+  Favourite = "favourite",
+  Follow = "follow",
+  Mint = "mint",
+  Publish = "publish",
+  Sale = "sale"
+}
+
+interface ActivityCommon {
   _id: string;
   account: string;
-  amountPaid?: string;
   artist: string;
   artistName: string;
   createdAt: string;
-  editionDescription?: string;
-  editionId?: string;
-  release?: string;
-  releaseTitle?: string;
-  sale?: string;
-  type: "favourite" | "follow" | "mint" | "publish" | "sale";
+  type: ActivityType;
   user: string;
   username: string;
 }
@@ -110,6 +141,18 @@ export interface MintedEdition {
   metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
   price: bigint;
   uri: string;
+}
+
+enum ActiveProcessType {
+  Mint = "mint",
+  Purchase = "purchase",
+  Upload = "upload"
+}
+
+export interface ActiveProcess {
+  id: string;
+  type: ActiveProcessType;
+  description: string;
 }
 
 export interface Purchase {

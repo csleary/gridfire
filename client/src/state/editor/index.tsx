@@ -1,7 +1,7 @@
 import { AppDispatch, GetState, RootState } from "index";
 import { EditorRelease, Release, ReleaseErrors, ReleaseTrack, TrackErrors } from "types";
-import { checkRelease, checkTrackList } from "pages/editRelease/validation";
 import { EntityState, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { checkRelease, checkTrackList } from "pages/editRelease/validation";
 import { toastError, toastSuccess } from "state/toast";
 import { DateTime } from "luxon";
 import axios from "axios";
