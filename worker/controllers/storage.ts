@@ -8,8 +8,12 @@ import {
 } from "@aws-sdk/client-s3";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "stream";
+import assert from "assert/strict";
 
 const { S3_ENDPOINT } = process.env;
+
+assert(S3_ENDPOINT, "S3_ENDPOINT env var missing.");
+
 const client = new S3Client({ endpoint: S3_ENDPOINT, region: "us-east-1" });
 
 const streamFromBucket = async (bucketName: string, objectKey: string) => {

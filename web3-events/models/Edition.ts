@@ -1,14 +1,27 @@
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const { Schema } = mongoose;
+enum EditionStatus {
+  Pending = "pending",
+  Minted = "minted"
+}
 
-const editionSchema = new Schema(
+interface IEdition {
+  release: Types.ObjectId;
+  editionId: string;
+  amount: string;
+  price: string;
+  status: EditionStatus;
+  metadata: object;
+  cid: string;
+}
+
+const editionSchema = new Schema<IEdition>(
   {
     release: { type: Schema.Types.ObjectId, ref: "Release", required: true },
     editionId: { type: String },
     amount: { type: String, required: true },
     price: { type: String, required: true },
-    status: { type: String, enum: ["pending", "minted"], default: "pending" },
+    status: { type: String, enum: EditionStatus, default: EditionStatus.Pending },
     metadata: { type: Object, required: true },
     cid: { type: String, required: true }
   },
@@ -17,6 +30,6 @@ const editionSchema = new Schema(
 
 editionSchema.index({ release: 1 });
 
-const Edition = mongoose.model("Edition", editionSchema, "editions");
+const Edition = model("Edition", editionSchema, "editions");
 
 export default Edition;

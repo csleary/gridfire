@@ -17,10 +17,10 @@ import mongoose from "mongoose";
 import net from "net";
 
 const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
+let healthProbeServer: net.Server | null = null;
+
 assert(HEALTH_PROBE_PORT, "Health probe port env var missing.");
 assert(MONGODB_URI, "MongoDB connection URI env var missing.");
-
-let healthProbeServer: net.Server | null = null;
 
 process
   .on("uncaughtException", error => logger.error("Uncaught exception:", error))

@@ -1,9 +1,10 @@
-import { ErrorCodes, MessageTuple, Notification } from "gridfire-worker/types/index.js";
 import amqp, { Channel, Connection } from "amqplib";
+import { ErrorCodes } from "gridfire-worker/types/index.js";
 import logger from "gridfire-worker/controllers/logger.js";
 import reconnect from "gridfire-worker/controllers/amqp/reconnect.js";
 import startConsumer from "gridfire-worker/consumer/index.js";
 import startPublisher from "gridfire-worker/publisher/index.js";
+import assert from "assert/strict";
 
 const isFatalError = (error: any) => {
   switch (error && error.code) {
@@ -19,6 +20,10 @@ const { RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.
 let connection: Connection | null = null;
 let consumerChannel: Channel | null = null;
 let consumerTags: string[] = [];
+
+assert(RABBITMQ_DEFAULT_PASS, "RABBITMQ_DEFAULT_PASS env var missing.");
+assert(RABBITMQ_DEFAULT_USER, "RABBITMQ_DEFAULT_USER env var missing.");
+assert(RABBITMQ_HOST, "RABBITMQ_HOST env var missing.");
 
 const amqpClose = async () => {
   if (!connection) return;

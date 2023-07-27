@@ -56,7 +56,7 @@ const releaseSchema = new Schema(
     tags: [String],
     published: { type: Boolean, default: false }
   },
-  { timestamps: true, usePushEach: true }
+  { timestamps: true }
 );
 
 releaseSchema.post("save", release => {

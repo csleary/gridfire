@@ -1,11 +1,17 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const { Schema } = mongoose;
+interface IUser {
+  account: string;
+  email: string;
+  lastLogin: Date;
+  paymentAddress: string;
+  username: string;
+}
 
-const userSchema = new Schema(
+const userSchema = new Schema<IUser>(
   {
     account: { type: String, trim: true },
-    emailAddress: { type: String, trim: true },
+    email: { type: String, trim: true },
     lastLogin: { type: Date },
     paymentAddress: { type: String, trim: true },
     username: { type: String, trim: true }
@@ -13,6 +19,6 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema, "users");
+const User = model("User", userSchema, "users");
 
 export default User;

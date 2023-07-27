@@ -18,12 +18,11 @@ const isFatalError = (error: any) => {
 const { RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
 let channel: ConfirmChannel | null = null;
 let connection: Connection | null = null;
-
 const offlineQueue: MessageTuple[] = [];
 
-assert(RABBITMQ_DEFAULT_PASS, "Rabbitmq password env var missing.");
-assert(RABBITMQ_DEFAULT_USER, "Rabbitmq username env var missing.");
-assert(RABBITMQ_HOST, "Rabbitmq host env var missing.");
+assert(RABBITMQ_DEFAULT_PASS, "RABBITMQ_DEFAULT_PASS env var missing.");
+assert(RABBITMQ_DEFAULT_USER, "RABBITMQ_DEFAULT_USER env var missing.");
+assert(RABBITMQ_HOST, "RABBITMQ_HOST env var missing.");
 
 const amqpClose = async () => {
   if (!connection) return;

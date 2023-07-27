@@ -9,7 +9,8 @@ import transcodeMP3 from "gridfire-worker/consumer/transcodeMP3.js";
 const { IPFS_NODE_HOST, QUEUE_TRANSCODE } = process.env;
 const ipfs = create(IPFS_NODE_HOST);
 const jobs = { encodeFLAC, transcodeAAC, transcodeMP3 };
-assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE is not set.");
+
+assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE env var missing.");
 
 const startConsumer = async (connection: Connection, consumerTags: string[]) => {
   try {

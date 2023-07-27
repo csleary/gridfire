@@ -4,9 +4,12 @@ import { amqpClose, amqpConnect } from "gridfire-worker/controllers/amqp/index.j
 import logger from "gridfire-worker/controllers/logger.js";
 import mongoose from "mongoose";
 import net from "net";
+import assert from "assert/strict";
 
 const { MONGODB_URI = "" } = process.env;
 let healthProbeServer: net.Server | null = null;
+
+assert(MONGODB_URI, "MONGODB_URI env var missing.");
 
 process
   .on("uncaughtException", error => logger.error("Uncaught exception:", error))
