@@ -30,6 +30,7 @@ const editionSchema = new Schema<IEdition>(
   { timestamps: true }
 );
 
+editionSchema.index({ editionId: 1 });
 editionSchema.index({ release: 1 });
 
 const Edition = model("Edition", editionSchema, "editions");

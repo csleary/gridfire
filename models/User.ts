@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 
 interface IUser {
+  _id: ObjectId;
   account: string;
   emailAddress: string;
   lastLogin: Date;
@@ -23,4 +24,5 @@ userSchema.set("toJSON", { versionKey: false });
 
 const User = model("User", userSchema, "users");
 
+export { IUser };
 export default User;

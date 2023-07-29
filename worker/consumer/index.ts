@@ -1,5 +1,5 @@
 import { Connection, ConsumeMessage } from "amqplib";
-import { strict as assert } from "assert/strict";
+import assert from "assert/strict";
 import closeOnError from "gridfire-worker/controllers/amqp/closeOnError.js";
 import { create } from "ipfs-http-client";
 import encodeFLAC from "gridfire-worker/consumer/encodeFLAC.js";

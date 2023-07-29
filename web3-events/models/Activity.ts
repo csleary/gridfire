@@ -1,6 +1,21 @@
 import { Model, ObjectId, Schema, model } from "mongoose";
 
-const { ObjectId } = Schema.Types;
+enum ActivityType {
+  Favourite = "favourite",
+  Follow = "follow",
+  Mint = "mint",
+  Publish = "publish",
+  Sale = "sale"
+}
+
+interface IActivity {
+  artist: ObjectId;
+  editionId: string;
+  release: ObjectId;
+  sale: ObjectId;
+  type: ActivityType;
+  user: ObjectId;
+}
 
 interface SaleParams {
   artist: string;
@@ -10,24 +25,17 @@ interface SaleParams {
   user: string;
 }
 
-interface IActivity {
-  user: ObjectId;
-  type: string;
-  artist: ObjectId;
-  release: ObjectId;
-  editionId: string;
-  sale: ObjectId;
-}
-
 interface ActivityModel extends Model<IActivity> {
   mint(artist: string, editionId: string): void;
   sale(params: SaleParams): void;
 }
 
+const { ObjectId } = Schema.Types;
+
 const activitySchema = new Schema<IActivity, ActivityModel>(
   {
     user: { type: ObjectId, ref: "User", required: true },
-    type: { type: String, enum: ["favourite", "follow", "mint", "publish", "sale"], required: true },
+    type: { type: String, enum: ActivityType, required: true },
     artist: { type: ObjectId, ref: "Artist" },
     release: { type: ObjectId, ref: "Release" },
     editionId: { type: String },
@@ -54,6 +62,6 @@ activitySchema.static("sale", function ({ artist, editionId, release, sale, user
 
 activitySchema.index({ artist: 1, user: 1 });
 
-const Activity = model<IActivity, ActivityModel>("Activity", activitySchema, "activities");
+const Activity = model<IActivity, ActivityModel>("Activity", activitySchema, "activity");
 
 export default Activity;

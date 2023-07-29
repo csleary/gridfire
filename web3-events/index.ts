@@ -19,8 +19,8 @@ import net from "net";
 const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
 let healthProbeServer: net.Server | null = null;
 
-assert(HEALTH_PROBE_PORT, "Health probe port env var missing.");
-assert(MONGODB_URI, "MongoDB connection URI env var missing.");
+assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
+assert(MONGODB_URI, "MONGODB_URI env var missing.");
 
 process
   .on("uncaughtException", error => logger.error("Uncaught exception:", error))

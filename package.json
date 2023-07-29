@@ -3,14 +3,14 @@
   "version": "1.0",
   "description": "A music sales platform.",
   "repository": "https://github.com/csleary/gridfire",
-  "main": "index.js",
+  "main": "index.ts",
   "type": "module",
   "exports": {
     "./*": "./*"
   },
   "scripts": {
     "start": "node index.js",
-    "server": "nodemon --ignore client --ignore hardhat --ignore web3-events --ignore worker -r dotenv/config index.js dotenv_config_path=.env",
+    "server": "nodemon --esm --ignore client --ignore hardhat --ignore web3-events --ignore worker -r dotenv/config index.ts dotenv_config_path=.env",
     "client": "yarn --cwd ./client/ start",
     "dev": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\" \"yarn --cwd ./web3-events/ run dev\" \"yarn run hardhat:node\"",
     "dev-testnet": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
@@ -55,22 +55,26 @@
     "passport": "0.5",
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
-    "sharp": "^0.31.3",
-    "slugify": "^1.4.5"
+    "sharp": "^0.32.4",
+    "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.1",
     "@types/archiver": "^5.3.1",
     "@types/busboy": "^1.5.0",
     "@types/cookie-parser": "^1.4.3",
     "@types/cookie-session": "^2.0.44",
     "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/mime-types": "^2.1.1",
     "@types/node": "^20.4.5",
     "@types/passport": "^1.0.7",
     "concurrently": "^7.1.0",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.8.0",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
   },
   "nodemonConfig": {
     "ignore": [
