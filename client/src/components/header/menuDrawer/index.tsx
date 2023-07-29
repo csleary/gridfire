@@ -103,8 +103,7 @@ const MenuDrawer = () => {
         backdropFilter="blur(10px)"
         backgroundColor={navBackgroundColor}
         overflow="visible"
-        py={2}
-        px={2}
+        p={2}
         position="sticky"
         ref={el => (navRef.current = el)}
         top={0}
@@ -135,13 +134,13 @@ const MenuDrawer = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader color="gray.400">
+          <DrawerHeader color="gray.400" p={4}>
             <Flex alignItems="center">
               <Icon icon={faUserCircle} title={`Login account: ${userAccount}`} mr={2} />
               {userAccountShort || "Dashboard"}
             </Flex>
           </DrawerHeader>
-          <DrawerBody>
+          <DrawerBody p={4}>
             <VStack alignItems="flex-start" spacing={4}>
               {!userAccount ? (
                 <>
@@ -289,7 +288,7 @@ const MenuDrawer = () => {
               )}
             </VStack>
           </DrawerBody>
-          <DrawerFooter>
+          <DrawerFooter p={4}>
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>

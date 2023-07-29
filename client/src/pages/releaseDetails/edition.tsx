@@ -188,7 +188,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
                   isDisabled={isDisabled}
                   leftIcon={<Icon icon={faEthereum} />}
                   minWidth="16rem"
-                  onClick={handleClick.bind(null, { allowanceTooLow, editionId, price })}
+                  onClick={() => handleClick({ allowanceTooLow, editionId, price })}
                 >
                   Buy {description}
                 </Button>

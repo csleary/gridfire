@@ -64,8 +64,8 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
 
   const handleClick = () => {
     const { pathname } = location;
-    if (allowanceTooLow) return void navigate("/dashboard/payment/approvals", { state: { pathname } });
     if (inCollection) return void navigate("/dashboard/collection");
+    if (allowanceTooLow) return void navigate("/dashboard/payment/approvals", { state: { pathname } });
     if (Number(price) === 0) return void setShowModal(true);
     handlePayment(Number(price).toFixed(2));
   };

@@ -102,7 +102,7 @@ const App: React.FC = () => {
         <Suspense fallback={<></>}>
           <Header />
         </Suspense>
-        <Flex direction="column" flex={1} px={[3, 4, null, 8]} py={[2, 3, null, 6]}>
+        <Flex direction="column" flex={1} px={[3, 4]} py={[2, 3, null, 6]}>
           <Suspense
             fallback={
               <Center flex={1}>

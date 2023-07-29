@@ -104,8 +104,7 @@ const MenuBar = () => {
       backdropFilter="blur(10px)"
       backgroundColor={navBackgroundColor}
       overflow="visible"
-      py={3}
-      px={8}
+      p={4}
       position="sticky"
       ref={el => (navRef.current = el)}
       top={0}
