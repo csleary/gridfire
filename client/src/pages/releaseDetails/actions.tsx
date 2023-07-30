@@ -82,7 +82,7 @@ const Actions = () => {
         title="Save to favourites."
         flex={1}
       >
-        Favourite
+        Like
       </Button>
       <Popover isOpen={isOpen} onClose={onClose}>
         <PopoverTrigger>

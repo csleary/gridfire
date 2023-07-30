@@ -1,11 +1,11 @@
-import { Box, Flex, Link, Stack, StackDivider, Switch, Text } from "@chakra-ui/react";
+import { Box, Flex, FormLabel, Link, Stack, StackDivider, Switch, Text } from "@chakra-ui/react";
 import { MintedEdition } from "types";
 import Icon from "components/icon";
 import ScaleFade from "components/transitions/scaleFade";
+import { faFileAudio } from "@fortawesome/free-regular-svg-icons";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { useParams } from "react-router-dom";
-import { faEye, faEyeSlash, faFileAudio } from "@fortawesome/free-regular-svg-icons";
 
 const { REACT_APP_IPFS_GATEWAY } = process.env;
 
@@ -86,6 +86,9 @@ const MintedEditions = ({ editions, handleChangeVisibility }: Props) => {
               <Box ml="auto">
                 <Stack spacing={4}>
                   <Flex alignItems="center">
+                    <FormLabel htmlFor={`${editionId}-visibility`} m={0} mr={2}>
+                      Visible
+                    </FormLabel>
                     <Switch
                       colorScheme="blackAlpha"
                       isChecked={visibility === "visible"}
@@ -94,10 +97,7 @@ const MintedEditions = ({ editions, handleChangeVisibility }: Props) => {
                       }
                       title="Toggle Edition visibility for the release page."
                       value={visibility}
-                    >
-                      <Icon icon={visibility === "visible" ? faEye : faEyeSlash} mr={2} />
-                      Visibile
-                    </Switch>
+                    />
                   </Flex>
                 </Stack>
               </Box>
