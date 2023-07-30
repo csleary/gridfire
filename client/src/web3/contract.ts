@@ -69,13 +69,18 @@ const getGridFireClaimEvents = async () => {
   return res.data;
 };
 
-const getGridFireEditionsByReleaseId = async (releaseId: string) => {
-  const res = await axios.get(`/api/web3/editions/${releaseId}`);
+const getVisibleGridFireEditionsByReleaseId = async (releaseId: string) => {
+  const res = await axios.get(`/api/editions/${releaseId}`);
+  return res.data;
+};
+
+const getMintedGridFireEditionsByReleaseId = async (releaseId: string) => {
+  const res = await axios.get(`/api/editions/${releaseId}/minted`);
   return res.data;
 };
 
 const getGridFireEditionUris = async (releaseId: string) => {
-  const res = await axios.get(`/api/web3/editions/${releaseId}/uri`);
+  const res = await axios.get(`/api/editions/${releaseId}/uri`);
   return res.data;
 };
 
@@ -85,7 +90,7 @@ const getGridFirePurchaseEvents = async () => {
 };
 
 const getUserEditions = async () => {
-  const res = await axios.get("/api/web3/editions/user");
+  const res = await axios.get("/api/editions/user");
   return res.data;
 };
 
@@ -120,7 +125,7 @@ const mintEdition = async ({ amount, description, price, releaseId, tracks }: Mi
   const provider = await getProvider();
   const signer = await provider.getSigner();
   const gridFireEditions = getGridFireEditionsContract(signer);
-  const res = await axios.post(`/api/web3/editions/mint`, { amount, description, price, releaseId, tracks });
+  const res = await axios.post(`/api/editions/mint`, { amount, description, price, releaseId, tracks });
   const { metadataUri, objectId } = res.data;
   const bigNumAmount = BigInt(`${amount}`);
   const weiPrice = parseEther(`${price}`);
@@ -204,9 +209,10 @@ export {
   getDaiApprovalEvents,
   getGridFireClaimEvents,
   getGridFireContract,
-  getGridFireEditionsByReleaseId,
+  getVisibleGridFireEditionsByReleaseId,
   getGridFireEditionUris,
   getGridFirePurchaseEvents,
+  getMintedGridFireEditionsByReleaseId,
   getUserEditions,
   mintEdition,
   purchaseEdition,

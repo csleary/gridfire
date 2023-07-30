@@ -7,7 +7,7 @@ const notifyUser = async (userId: string, payload: Notification) => {
   }
 
   if (payload != null && typeof payload === "object" && Array.isArray(payload) === false) {
-    publishToQueue("user", userId.toString(), payload);
+    await publishToQueue("user", userId.toString(), payload);
   } else {
     throw new Error("Payload must be an object.");
   }

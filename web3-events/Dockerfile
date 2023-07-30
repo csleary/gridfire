@@ -1,10 +1,10 @@
-FROM node:16-slim as build
+FROM node:18-slim as build
 WORKDIR /home/node/app
 COPY . .
 RUN yarn install --frozen-lockfile
 RUN yarn tsc
 
-FROM node:16-slim
+FROM node:18-slim
 WORKDIR /home/node/app
 COPY package.json yarn.lock ./
 RUN yarn install --production --frozen-lockfile

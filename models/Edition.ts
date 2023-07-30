@@ -1,31 +1,40 @@
 import { Schema, Types, model } from "mongoose";
 
 enum EditionStatus {
-  Pending = "pending",
-  Minted = "minted"
+  Minted = "minted",
+  Pending = "pending"
 }
 
-interface IEdition {
-  release: Types.ObjectId;
-  editionId: string;
+enum EditionVisibility {
+  Hidden = "hidden",
+  Visible = "visible"
+}
+
+export interface IEdition {
   amount: string;
-  price: string;
-  status: EditionStatus;
-  metadata: object;
   cid: string;
+  editionId: string;
+  metadata: object;
+  price: string;
+  release: Types.ObjectId;
+  status: EditionStatus;
+  user: Types.ObjectId;
+  visibility: EditionVisibility;
 }
 
 const { ObjectId } = Schema.Types;
 
 const editionSchema = new Schema<IEdition>(
   {
-    release: { type: ObjectId, ref: "Release", required: true },
-    editionId: { type: String },
     amount: { type: String, required: true },
-    price: { type: String, required: true },
-    status: { type: String, enum: EditionStatus, default: EditionStatus.Pending },
+    cid: { type: String, required: true },
+    editionId: { type: String },
     metadata: { type: Object, required: true },
-    cid: { type: String, required: true }
+    price: { type: String, required: true },
+    release: { type: ObjectId, ref: "Release", required: true },
+    status: { type: String, enum: EditionStatus, default: EditionStatus.Pending },
+    user: { type: ObjectId, ref: "User", required: true },
+    visibility: { type: String, enum: EditionVisibility, default: EditionVisibility.Visible }
   },
   { timestamps: true }
 );

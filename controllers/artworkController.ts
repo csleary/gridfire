@@ -54,7 +54,7 @@ const uploadArtwork = async ({
     });
 
     const file = fs.createReadStream(filePath);
-    const optimisedImg = sharp().resize(1000, 1000).toFormat("jpeg");
+    const optimisedImg = sharp().resize(1000, 1000).webp();
     await streamToBucket(BUCKET_IMG, releaseId, file.pipe(optimisedImg));
 
     await Release.findByIdAndUpdate(releaseId, {

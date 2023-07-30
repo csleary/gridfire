@@ -44,18 +44,18 @@ const activitySchema = new Schema<IActivity, ActivityModel>(
   { timestamps: true }
 );
 
-activitySchema.static("mint", function (artist, editionId) {
+activitySchema.static(ActivityType.Mint, function (artist, editionId) {
   return this.findOneAndUpdate(
-    { artist, editionId, type: "mint" },
-    { $setOnInsert: { artist, editionId, type: "mint" } },
+    { artist, editionId, type: ActivityType.Mint },
+    { $setOnInsert: { artist, editionId, type: ActivityType.Mint } },
     { upsert: true }
   ).exec();
 });
 
-activitySchema.static("sale", function ({ artist, editionId, release, sale, user }) {
+activitySchema.static(ActivityType.Sale, function ({ artist, editionId, release, sale, user }) {
   return this.findOneAndUpdate(
-    { ...(editionId ? { editionId } : {}), artist, release, sale, type: "sale", user },
-    { $setOnInsert: { ...(editionId ? { editionId } : {}), artist, release, type: "sale", sale, user } },
+    { ...(editionId ? { editionId } : {}), artist, release, sale, type: ActivityType.Sale, user },
+    { $setOnInsert: { ...(editionId ? { editionId } : {}), artist, release, type: ActivityType.Sale, sale, user } },
     { upsert: true }
   ).exec();
 });

@@ -16,8 +16,8 @@ const isFatalError = (error: any) => {
 };
 
 const { RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
-let channel: ConfirmChannel | null = null;
-let connection: Connection | null = null;
+let channel: ConfirmChannel;
+let connection: Connection;
 const offlineQueue: MessageTuple[] = [];
 
 assert(RABBITMQ_DEFAULT_PASS, "RABBITMQ_DEFAULT_PASS env var missing.");
@@ -30,11 +30,20 @@ const amqpClose = async () => {
   logger.info("AMQP closed.");
 };
 
-const publishToQueue = (exchange: string, routingKey: string, message: Notification) => {
+const publishToQueue = async (exchange: string, routingKey: string, message: Notification) => {
   const data = Buffer.from(JSON.stringify(message));
 
   try {
-    channel?.publish(exchange, routingKey, data, { persistent: true });
+    await new Promise((resolve, reject) => {
+      if (!channel) {
+        return reject(new Error("No AMQP publishing channel available."));
+      }
+
+      channel.publish(exchange, routingKey, data, { persistent: true }, error => {
+        if (error) return reject(error);
+        resolve(void 0);
+      });
+    });
   } catch (error) {
     logger.error(error);
     offlineQueue.push([exchange, routingKey, data]);
@@ -44,8 +53,13 @@ const publishToQueue = (exchange: string, routingKey: string, message: Notificat
 
 const startPublisher = async () => {
   try {
-    channel = (await connection?.createConfirmChannel()) || null;
-    channel?.on("error", error => logger.error(`AMQP Channel error: ${error.message}`));
+    if (!connection) {
+      logger.warn("No AMQP connection available.");
+      return;
+    }
+
+    channel = (await connection.createConfirmChannel()) as ConfirmChannel;
+    channel.on("error", error => logger.error(`AMQP Channel error: ${error.message}`));
 
     while (offlineQueue.length) {
       const job = offlineQueue.shift();
@@ -62,7 +76,7 @@ const startPublisher = async () => {
 const amqpConnect = async () => {
   try {
     const url = `amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@${RABBITMQ_HOST}:5672`;
-    connection = await amqp.connect(url);
+    connection = (await amqp.connect(url)) as Connection;
     logger.info("AMQP connected.");
     connection.on("error", error => logger.error(`AMQP error: ${error.message}`));
 

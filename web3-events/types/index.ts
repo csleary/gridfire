@@ -1,7 +1,3 @@
-import { Model, ObjectId, Schema } from "mongoose";
-
-const { ObjectId } = Schema.Types;
-
 interface BigIntValues {
   gasUsed: bigint;
   cumulativeGasUsed: bigint;
@@ -27,20 +23,6 @@ enum NotificationType {
   Purchase = "purchaseEvent",
   Sale = "saleEvent",
   PurchaseEdition = "purchaseEditionEvent"
-}
-
-interface IActivity {
-  user: ObjectId;
-  type: string;
-  artist: ObjectId;
-  release: ObjectId;
-  editionId: string;
-  sale: ObjectId;
-}
-
-interface ActivityModel extends Model<IActivity> {
-  mint(artist: string, editionId: string): void;
-  sale(params: SaleParams): void;
 }
 
 interface MessageTuple extends Array<string | Buffer> {
@@ -108,7 +90,6 @@ interface ValidatePurchaseParams {
 }
 
 export {
-  ActivityModel,
   BigIntToString,
   BigIntValues,
   ErrorCodes,

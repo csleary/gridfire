@@ -141,6 +141,7 @@ export interface MintedEdition {
   metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
   price: bigint;
   uri: string;
+  visibility: "visible" | "hidden";
 }
 
 enum ActiveProcessType {

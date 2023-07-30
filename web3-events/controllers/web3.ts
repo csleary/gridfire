@@ -1,4 +1,5 @@
 import {
+  AddressLike,
   BytesLike,
   Contract,
   ContractEventPayload,
@@ -7,8 +8,10 @@ import {
   getAddress,
   getDefaultProvider
 } from "ethers";
-import { ActivityModel } from "gridfire-web3-events/types/index.js";
+import Activity from "gridfire-web3-events/models/Activity.js";
 import { NotificationType } from "gridfire-web3-events/types/index.js";
+import { SaleType } from "gridfire-web3-events/models/Sale.js";
+import assert from "assert/strict";
 import gridFireEditionsABI from "gridfire-web3-events/controllers/gridFireEditionsABI.js";
 import gridFirePaymentABI from "gridfire-web3-events/controllers/gridFirePaymentABI.js";
 import logger from "gridfire-web3-events/controllers/logger.js";
@@ -18,9 +21,14 @@ import { recordSale } from "gridfire-web3-events/controllers/sale.js";
 import { updateEditionStatus } from "gridfire-web3-events/controllers/edition.js";
 import { validatePurchase } from "gridfire-web3-events/controllers/release.js";
 
-const { GRIDFIRE_EDITIONS_ADDRESS = "", GRIDFIRE_PAYMENT_ADDRESS = "", NETWORK_URL, NETWORK_KEY } = process.env;
-const { Activity, Release, User } = mongoose.models as { Activity: ActivityModel; Release: any; User: any };
+const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY, NODE_ENV } = process.env;
+const { Release, User } = mongoose.models;
 const timeZone = "Europe/Amsterdam";
+
+assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var missing.");
+assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var missing.");
+assert(NETWORK_URL, "NETWORK_URL env var missing.");
+assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), "NETWORK_KEY env var missing.");
 
 const getProvider = () => {
   return getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
@@ -37,14 +45,19 @@ const getGridFirePaymentContract = () => {
 
 const onEditionMinted = async (
   releaseIdBytes: BytesLike,
-  artist: string,
+  artist: AddressLike,
   objectIdBytes: BytesLike,
-  editionId: bigint
+  editionId: bigint,
+  amount: bigint,
+  price: bigint,
+  event: ContractEventPayload
 ) => {
   try {
     const date = new Date().toLocaleString("en-UK", { timeZone });
     const releaseId = decodeBytes32String(releaseIdBytes);
-    logger.info(`(${date}) Edition minted by address: ${artist} for releaseId ${releaseId}.`);
+    logger.info(
+      `${date}: Edition minted by ${artist} for release ${releaseId} (qty.: ${amount}, DAI: ${formatEther(price)}).`
+    );
     const decodedObjectId = decodeBytes32String(objectIdBytes);
     const edition = await updateEditionStatus(releaseId, decodedObjectId, editionId.toString());
     const { user: userId, artist: artistId } = edition?.release || {};
@@ -153,7 +166,7 @@ const onPurchaseEdition = async (
       platformFee,
       releaseId,
       transactionReceipt,
-      type: "edition",
+      type: SaleType.Edition,
       userId
     });
 

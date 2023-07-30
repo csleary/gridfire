@@ -1,4 +1,4 @@
-FROM node:16-slim as build
+FROM node:18-slim as build
 WORKDIR /home/node/app
 COPY .env.production package.json yarn.lock tsconfig.json ./
 COPY public/ ./public/

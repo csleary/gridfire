@@ -1,10 +1,11 @@
 import { BytesLike, Contract, EventLog, Interface, ethers, encodeBytes32String, getAddress } from "ethers";
-import { ObjectId, model } from "mongoose";
+import { FilterQuery, ObjectId, model } from "mongoose";
 import GridFireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditions.sol/GridFireEditions.json" assert { type: "json" };
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import assert from "assert/strict";
 import daiAbi from "gridfire/controllers/web3/dai.js";
 import { AddressLike } from "ethers";
+import { IEdition } from "gridfire/models/Edition.js";
 
 const Edition = model("Edition");
 const Release = model("Release");
@@ -19,7 +20,6 @@ const {
   NODE_ENV
 } = process.env;
 
-const REQUIRES_NETWORK_KEY = NODE_ENV === "development" || NODE_ENV === "test";
 const { abi: gridFireEditionsABI } = GridFireEditions;
 const { abi: gridFirePaymentABI } = GridFirePayment;
 
@@ -27,7 +27,7 @@ assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var not set.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var not set.");
 assert(DAI_CONTRACT_ADDRESS, "DAI_CONTRACT_ADDRESS env var not set.");
 assert(NETWORK_URL, "NETWORK_URL env var not set.");
-assert(REQUIRES_NETWORK_KEY, "NETWORK_KEY env var not set.");
+assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), "NETWORK_KEY env var missing.");
 
 const getProvider = () => {
   return ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
@@ -57,17 +57,13 @@ interface MintedEdition {
   metadata: any;
   price: string;
   releaseId: string;
+  visibility: "hidden" | "visible";
 }
 
-const getGridFireEditionsByReleaseId = async (releaseId: string) => {
+const getGridFireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => {
+  const { release: releaseId } = filter;
   const gridFireEditionsContract = getGridFireEditionsContract();
-
-  const offChainEditions = await Edition.find(
-    { release: releaseId, status: "minted" },
-    "createdAt editionId metadata",
-    { lean: true }
-  ).exec();
-
+  const offChainEditions = await Edition.find(filter, "createdAt editionId metadata visibility", { lean: true }).exec();
   const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
   const artistAccount: AddressLike = getAddress(release.user.account);
   const releaseIdBytes: BytesLike = encodeBytes32String(releaseId);
@@ -85,7 +81,8 @@ const getGridFireEditionsByReleaseId = async (releaseId: string) => {
       artist,
       metadata: {},
       price: price.toString(),
-      releaseId
+      releaseId,
+      visibility: "visible"
     };
   });
 
@@ -99,10 +96,11 @@ const getGridFireEditionsByReleaseId = async (releaseId: string) => {
   // Filter out editions we don't have in the db, add balances and metadata for convenience.
   return editions.filter(matchedOffChain).map(edition => {
     const { editionId } = edition;
-    const { createdAt, metadata } = offChainEditionsMap.get(editionId);
-    edition.balance = balancesMap.get(editionId);
+    const { createdAt, metadata, visibility } = offChainEditionsMap.get(editionId);
     edition.createdAt = createdAt;
+    edition.balance = balancesMap.get(editionId);
     edition.metadata = metadata;
+    edition.visibility = visibility;
     return edition;
   });
 };
@@ -183,6 +181,10 @@ const getUserGridFireEditions = async (userId: ObjectId) => {
   return editions.filter(Boolean);
 };
 
+const setVisibility = async (user: ObjectId, editionId: string, visibility: "hidden" | "visible") => {
+  await Edition.updateOne({ editionId, user }, { visibility }).exec();
+};
+
 export {
   getDaiContract,
   getGridFireEditionsContract,
@@ -191,5 +193,6 @@ export {
   getGridFireEditionUris,
   getProvider,
   getTransaction,
-  getUserGridFireEditions
+  getUserGridFireEditions,
+  setVisibility
 };

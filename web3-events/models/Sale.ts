@@ -1,6 +1,6 @@
 import { Schema, Types, model } from "mongoose";
 
-enum SaleType {
+export enum SaleType {
   Single = "single",
   Album = "album",
   Edition = "edition"
