@@ -156,8 +156,13 @@ const MenuBar = () => {
               <WrapItem alignItems="center">
                 <Tooltip label="Your active account's DAI balance.">
                   <Badge
+                    alignItems="center"
+                    display="flex"
+                    height={10}
                     colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : primaryButtonColor}
                     fontSize="md"
+                    rounded="md"
+                    px={4}
                   >
                     ◈ {daiDisplayBalance}
                   </Badge>
@@ -167,10 +172,12 @@ const MenuBar = () => {
                 <Tooltip label={`Your active web3 account. Click to view account details on the explorer.`}>
                   <Button
                     as={Link}
+                    color="gray.400"
                     colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
                     href={`https://arbiscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon icon={faEthereum} />}
+                    _hover={{ color: "initial", textDecoration: "none" }}
                     variant="ghost"
                   >
                     {accountShort}

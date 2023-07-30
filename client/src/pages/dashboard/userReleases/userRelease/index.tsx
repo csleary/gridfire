@@ -1,7 +1,14 @@
-import { Box, Button, ButtonGroup, Divider, Flex, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, FormLabel, Stack, Switch, Text, useColorModeValue } from "@chakra-ui/react";
 import { deleteRelease, publishStatus } from "state/releases";
-import { faCircle, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { faEye, faEyeSlash, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import {
+  faCashRegister,
+  faCircle,
+  faDollarSign,
+  faHeart,
+  faPencilAlt,
+  faPlay
+} from "@fortawesome/free-solid-svg-icons";
+import { faCalendar, faEye, faEyeSlash, faFileAudio, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { toastSuccess, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import Artwork from "./artwork";
@@ -75,62 +82,92 @@ function UserRelease({ release }: Props) {
       <Artwork artwork={artwork} releaseId={releaseId} releaseTitle={releaseTitle} />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
       <Title artist={artist} artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
-      <Flex flexDirection="column" px={4} pt={0} pb={4}>
-        <Divider borderColor={useColorModeValue("gray.200", "gray.500")} my={4} />
-        <Flex marginTop="auto">
-          <Box flex={1} pr={2}>
-            <Text>
-              <Icon color={Number(price) > 0 ? "green.200" : "orange.300"} fixedWidth icon={faCircle} mr={2} />
-              {Number(price) > 0 ? (
-                <>
-                  <Box as="span" mr="0.15rem">
-                    ◈
-                  </Box>
-                  {price} DAI
-                </>
-              ) : (
-                "Name your price"
-              )}
-            </Text>
-            <Text>
+      <Stack direction="column" spacing={4} p={4}>
+        <Divider borderColor={useColorModeValue("gray.200", "gray.600")} />
+        <Stack
+          color={useColorModeValue("gray.600", "gray.400")}
+          direction="row"
+          fontWeight="500"
+          justifyContent="space-between"
+          marginTop="auto"
+          spacing={4}
+        >
+          <Box flex="1 1 50%">
+            <Box>
+              <Icon color={Number(price) > 0 ? "green.200" : "orange.300"} fixedWidth icon={faDollarSign} mr={2} />
+              {Number(price) > 0 ? <>{price} DAI</> : "Name your price"}
+            </Box>
+            <Box>
               <Icon
                 color={Date.parse(releaseDate) - Date.now() > 0 ? "orange.300" : "green.200"}
                 fixedWidth
-                icon={faCircle}
+                icon={faCalendar}
                 mr={2}
               />
               {DateTime.fromISO(releaseDate).toLocaleString(DateTime.DATE_SHORT)}
-            </Text>
-            <Text>
-              <Icon color={hasAudio ? "green.200" : "red.400"} fixedWidth icon={faCircle} mr={2} />
+            </Box>
+            <Box>
+              <Icon color={hasAudio ? "green.200" : "red.400"} fixedWidth icon={faFileAudio} mr={2} />
               {trackList.length} track{trackList.length === 1 ? "" : "s"}
               {trackList.length && !hasAudio ? " (incomplete)" : null}
-            </Text>
-            <Text>
+            </Box>
+            <Box>
               <Icon
                 color={sales > 0 ? "green.200" : "gray.500"}
                 fixedWidth
-                icon={faCircle}
+                icon={faCashRegister}
                 title="Number of copies sold."
                 mr={2}
               />
               {sales} sold
-            </Text>
+            </Box>
           </Box>
-          <Box>
-            <Text title="Total plays for this release.">
-              {plays}
-              <Icon color={plays > 0 ? "green.200" : "gray.500"} fixedWidth icon={faPlay} ml={2} />
-            </Text>
-            <Text title="Total favourites for this release.">
-              {faves}
-              <Icon color={faves > 0 ? "red.400" : "gray.500"} fixedWidth icon={faHeart} ml={2} />
-            </Text>
+          <Box flex="1 1 50%">
+            <Box>
+              <Icon
+                color={plays > 0 ? "green.200" : "gray.500"}
+                fixedWidth
+                icon={faPlay}
+                mr={2}
+                title="Total plays for this release."
+              />
+              {plays} {plays === 1 ? "play" : "plays"}
+            </Box>
+            <Box>
+              <Icon
+                color={faves > 0 ? "red.400" : "gray.500"}
+                fixedWidth
+                icon={faHeart}
+                mr={2}
+                title="Total likes for this release."
+              />
+              {faves} {faves === 1 ? "like" : "likes"}
+            </Box>
+            <Flex alignItems="center" justifyContent="space-between">
+              <FormLabel htmlFor={`${releaseId}-published`} m={0}>
+                <Icon
+                  color={published ? "green.200" : "orange.300"}
+                  fixedWidth
+                  icon={published ? faEye : faEyeSlash}
+                  mr={2}
+                />
+                <Box as="span" mr={2}>
+                  Published
+                </Box>
+              </FormLabel>
+              <Switch
+                colorScheme="green"
+                isChecked={published}
+                isDisabled={isPublishingRelease}
+                id={`${releaseId}-published`}
+                onChange={handlePublishStatus}
+              />
+            </Flex>
           </Box>
-        </Flex>
-        <ButtonGroup isAttached mt={4}>
+        </Stack>
+        <Divider borderColor={useColorModeValue("gray.200", "gray.600")} />
+        <Stack direction="row" justifyContent="space-between" spacing={4}>
           <Button
-            flex={1}
             leftIcon={<Icon icon={faPencilAlt} />}
             onClick={() => navigate(`/release/${releaseId}/edit`)}
             mr="-px"
@@ -139,29 +176,18 @@ function UserRelease({ release }: Props) {
             Edit
           </Button>
           <Button
-            flex={1}
-            leftIcon={<Icon icon={published ? faEyeSlash : faEye} />}
-            isLoading={isPublishingRelease}
-            loadingText="Publishing…"
-            onClick={handlePublishStatus}
-            mr="-px"
-            size="sm"
-          >
-            {published ? "Unpublish" : "Publish"}
-          </Button>
-          <Button
-            colorScheme={releaseIdsForDeletion[releaseId] ? "red" : "gray"}
-            flex={1}
+            colorScheme="red"
             leftIcon={<Icon icon={faTrashAlt} />}
             onBlur={() => cancelDeleteTrack(releaseId)}
             onClick={handleDeleteRelease}
             onKeyDown={({ key }) => key === "Escape" && cancelDeleteTrack(releaseId)}
             size="sm"
+            variant={releaseIdsForDeletion[releaseId] ? undefined : "ghost"}
           >
             {releaseIdsForDeletion[releaseId] ? "Confirm!" : "Delete"}
           </Button>
-        </ButtonGroup>
-      </Flex>
+        </Stack>
+      </Stack>
     </Flex>
   );
 }
