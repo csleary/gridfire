@@ -190,7 +190,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
                   minWidth="16rem"
                   onClick={() => handleClick({ allowanceTooLow, editionId, price })}
                 >
-                  Buy {description}
+                  {!isConnected ? "Connect wallet" : "Buy edition"}
                 </Button>
               </Center>
             </Box>
