@@ -15,6 +15,18 @@ import requireLogin from "gridfire/middlewares/requireLogin.js";
 const { Edition, Release } = mongoose.models;
 const router = express.Router();
 
+router.get("/user", requireLogin, async (req, res) => {
+  try {
+    const { _id: userId } = req.user || {};
+    if (!userId) return res.sendStatus(401);
+    const editions = await getUserGridFireEditions(userId);
+    res.json(editions);
+  } catch (error: any) {
+    console.error(error);
+    res.status(400).json({ error: error.message || error.toString() });
+  }
+});
+
 router.get("/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
@@ -103,18 +115,6 @@ router.post("/mint", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
-  }
-});
-
-router.get("/user", async (req, res) => {
-  try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
-    const editions = await getUserGridFireEditions(userId);
-    res.json(editions);
-  } catch (error: any) {
-    console.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
