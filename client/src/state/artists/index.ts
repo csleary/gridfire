@@ -83,8 +83,8 @@ const artistSlice = createSlice({
     setIsSubmitting(state, action) {
       state.isSubmitting = action.payload;
     },
-    setLastCheckedOn(state) {
-      state.lastCheckedOn = DateTime.utc().toISO();
+    setLastCheckedOn(state, action) {
+      state.lastCheckedOn = action.payload;
     },
     setLink(state, action) {
       const { artistId, link } = action.payload;

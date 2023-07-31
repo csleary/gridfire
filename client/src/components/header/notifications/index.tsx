@@ -13,33 +13,38 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { fetchActivity, selectRecentActivity, selectTotalUnread, setLastCheckedOn } from "state/artists";
+import { useCallback, useEffect, useRef } from "react";
 import ActivityItem from "components/activityItem";
 import { BellIcon } from "@chakra-ui/icons";
+import { DateTime } from "luxon";
 import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "hooks";
 import { shallowEqual } from "react-redux";
-import { useEffect, useRef } from "react";
 
 const Notifications = () => {
   const color = useColorModeValue("yellow", "purple");
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const dispatch = useDispatch();
   const activityList = useSelector(selectRecentActivity, shallowEqual);
+  const user = useSelector(state => state.user.userId);
   const numUnread = useSelector(selectTotalUnread);
 
   useEffect(() => {
     dispatch(fetchActivity());
   }, [dispatch]);
 
-  const onOpen = () => {
+  const onOpen = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
     timeoutRef.current = setTimeout(() => {
-      dispatch(setLastCheckedOn());
+      const date = DateTime.utc().toISO() as string;
+      dispatch(setLastCheckedOn(date));
+      if (!user) return;
+      window.localStorage.setItem("lastCheckedOn", JSON.stringify({ user, date }));
     }, 3000);
-  };
+  }, [dispatch, user]);
 
   const onClose = () => {
     if (timeoutRef.current) {
