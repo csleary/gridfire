@@ -238,7 +238,7 @@ const MenuDrawer = () => {
                     leftIcon={<Icon icon={faRectangleList} fixedWidth />}
                     variant="link"
                   >
-                    Activity Log
+                    Activity
                   </Button>
                   <Button
                     _hover={{ textDecoration: "none" }}

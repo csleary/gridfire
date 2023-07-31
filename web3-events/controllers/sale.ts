@@ -1,4 +1,5 @@
 import { BigIntToString, BigIntValues, RecordSaleParams } from "gridfire-web3-events/types/index.js";
+import { ISale } from "gridfire-web3-events/models/Sale.js";
 import mongoose from "mongoose";
 
 const { Sale } = mongoose.models;
@@ -16,7 +17,7 @@ const recordSale = async ({
   transactionReceipt,
   type,
   userId
-}: RecordSaleParams) => {
+}: RecordSaleParams): Promise<ISale> => {
   const paid = amountPaid.toString();
   const { gasUsed, cumulativeGasUsed, gasPrice, ...restTxReceipt } = transactionReceipt;
   const { from: buyer, hash, status } = restTxReceipt;

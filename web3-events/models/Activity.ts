@@ -9,6 +9,7 @@ enum ActivityType {
 }
 
 interface IActivity {
+  _id: ObjectId;
   artist: ObjectId;
   editionId: string;
   release: ObjectId;

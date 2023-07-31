@@ -9,6 +9,8 @@ import {
   getDefaultProvider
 } from "ethers";
 import Activity from "gridfire-web3-events/models/Activity.js";
+import { IRelease } from "gridfire-web3-events/models/Release.js";
+import { IUser } from "gridfire-web3-events/models/User.js";
 import { NotificationType } from "gridfire-web3-events/types/index.js";
 import { SaleType } from "gridfire-web3-events/models/Sale.js";
 import assert from "assert/strict";
@@ -60,9 +62,10 @@ const onEditionMinted = async (
     );
     const decodedObjectId = decodeBytes32String(objectIdBytes);
     const edition = await updateEditionStatus(releaseId, decodedObjectId, editionId.toString());
-    const { user: userId, artist: artistId } = edition?.release || {};
+    const { user, artist: artistId } = edition.release;
+    const userId = user.toString();
     notifyUser(userId, { editionId: decodedObjectId.toString(), type: NotificationType.Mint, userId });
-    Activity.mint(artistId, editionId.toString());
+    Activity.mint(artistId.toString(), editionId.toString());
   } catch (error) {
     logger.error(error);
   }
@@ -148,7 +151,10 @@ const onPurchaseEdition = async (
     const daiPaid = formatEther(amountPaid);
     const releaseId = decodeBytes32String(releaseIdBytes);
     const buyerAddressNormalised = getAddress(buyerAddress);
-    const buyerUser = await User.findOne({ account: buyerAddressNormalised }, "_id", { lean: true }).exec();
+
+    const buyerUser: Pick<IUser, "_id"> = await User.findOne({ account: buyerAddressNormalised }, "_id", {
+      lean: true
+    }).exec();
 
     if (!buyerUser) {
       throw new Error(`Buyer user not found. Address: ${buyerAddressNormalised}`);
@@ -157,7 +163,13 @@ const onPurchaseEdition = async (
     const userId = buyerUser._id.toString();
     const id = editionId.toString();
     logger.info(`(${date}) User ${userId} paid ${daiPaid} DAI to ${artistAddress} for Edition ${id} (${releaseId}).`);
-    const release = await Release.findById(releaseId, "artist artistName releaseTitle user", { lean: true }).exec();
+
+    const release: Pick<IRelease, "_id" | "artist" | "artistName" | "releaseTitle" | "user"> = await Release.findById(
+      releaseId,
+      "artist artistName releaseTitle user",
+      { lean: true }
+    ).exec();
+
     const transactionReceipt = await event.getTransactionReceipt();
 
     const sale = await recordSale({

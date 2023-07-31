@@ -1,6 +1,12 @@
+import {
+  PurchasedRelease,
+  ReleaseAlbum,
+  ReleaseSingle,
+  ValidatePurchaseParams
+} from "gridfire-web3-events/types/index.js";
 import { getAddress, parseEther } from "ethers";
-import { ValidatePurchaseParams } from "gridfire-web3-events/types/index.js";
 import mongoose from "mongoose";
+import { SaleType } from "gridfire-web3-events/models/Sale.js";
 
 const { Release, Sale, User } = mongoose.models;
 
@@ -10,26 +16,37 @@ const validatePurchase = async ({
   transactionHash,
   releaseId,
   userId
-}: ValidatePurchaseParams) => {
+}: ValidatePurchaseParams): PurchasedRelease => {
+  let release;
   let price;
   let releaseTitle;
-  let type = "album";
+  let type = SaleType.Album;
 
   // Check if the purchase is for a single or an album.
-  let release = await Release.findOne({ "trackList._id": releaseId }, "artist artistName trackList.$", { lean: true })
-    .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+  const releaseWithSingle: ReleaseSingle = await Release.findOne(
+    { "trackList._id": releaseId },
+    "artist artistName trackList.$",
+    {
+      lean: true
+    }
+  )
+    .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
     .exec();
 
-  if (release) {
+  if (releaseWithSingle) {
+    release = releaseWithSingle;
     const [track] = release.trackList;
-    releaseTitle = track.trackTitle;
     ({ price } = track);
-    type = "single";
+    releaseTitle = track.trackTitle;
+    type = SaleType.Single;
   } else {
-    release = await Release.findById(releaseId, "artist artistName price releaseTitle", { lean: true })
-      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+    const releaseAlbum: ReleaseAlbum = await Release.findById(releaseId, "artist artistName price releaseTitle", {
+      lean: true
+    })
+      .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
       .exec();
 
+    release = releaseAlbum;
     ({ price, releaseTitle } = release);
   }
 

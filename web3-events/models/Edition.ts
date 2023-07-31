@@ -1,12 +1,13 @@
-import { Schema, Types, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 
 enum EditionStatus {
   Pending = "pending",
   Minted = "minted"
 }
 
-interface IEdition {
-  release: Types.ObjectId;
+export interface IEdition {
+  _id: ObjectId;
+  release: ObjectId;
   editionId: string;
   amount: string;
   price: string;

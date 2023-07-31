@@ -1,4 +1,4 @@
-import { Schema, Types, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 
 enum TrackStatus {
   Pending = "pending",
@@ -19,6 +19,7 @@ enum ReleaseStatus {
 }
 
 interface ITrack {
+  _id: ObjectId;
   position: number;
   trackTitle: string;
   status: TrackStatus;
@@ -29,8 +30,9 @@ interface ITrack {
 }
 
 export interface IRelease {
-  user: Types.ObjectId;
-  artist: Types.ObjectId;
+  _id: ObjectId;
+  user: ObjectId;
+  artist: ObjectId;
   artistName: string;
   releaseTitle: string;
   artwork: {

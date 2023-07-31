@@ -1,4 +1,4 @@
-import { Schema, Types, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 
 export enum SaleType {
   Single = "single",
@@ -6,15 +6,16 @@ export enum SaleType {
   Edition = "edition"
 }
 
-interface ISale {
+export interface ISale {
+  _id: ObjectId;
   purchaseDate: Date;
-  release: Types.ObjectId;
+  release: ObjectId;
   paid: string;
   fee: string;
   netAmount: string;
   transaction: object;
   type: SaleType;
-  user: Types.ObjectId;
+  user: ObjectId;
   userAddress: string;
 }
 

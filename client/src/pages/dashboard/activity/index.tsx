@@ -18,10 +18,10 @@ const Activity = () => {
   return (
     <>
       <Helmet>
-        <title>Activity Log</title>
+        <title>Activity</title>
       </Helmet>
       <Container as="main" p={0} maxWidth="container.xl">
-        <Heading as="h2">Activity Log</Heading>
+        <Heading as="h2">Activity</Heading>
         <List>
           <Stack>
             {activityList.map(activity => (

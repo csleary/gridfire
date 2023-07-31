@@ -241,7 +241,7 @@ const MenuBar = () => {
                   icon={<Icon icon={faRectangleList} fixedWidth />}
                   sx={activeStyle}
                 >
-                  Activity Log
+                  Activity
                 </MenuItem>
                 <MenuItem
                   as={NavLink}

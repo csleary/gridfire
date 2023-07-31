@@ -1,3 +1,6 @@
+import { IRelease } from "gridfire-web3-events/models/Release.js";
+import { IUser } from "gridfire-web3-events/models/User.js";
+
 interface BigIntValues {
   gasUsed: bigint;
   cumulativeGasUsed: bigint;
@@ -63,6 +66,20 @@ interface RecordSaleParams {
   userId: string;
 }
 
+type PurchasedRelease = Promise<{
+  release: ReleaseSingle | ReleaseAlbum;
+  releaseTitle: string;
+  type: string;
+}>;
+
+type ReleaseSingle = Pick<IRelease, "artist" | "artistName" | "trackList"> & {
+  user: Pick<IUser, "_id" | "paymentAddress">;
+};
+
+type ReleaseAlbum = Pick<IRelease, "artist" | "artistName" | "price" | "releaseTitle"> & {
+  user: Pick<IUser, "_id" | "paymentAddress">;
+};
+
 interface SaleNotification {
   artistName: string;
   artistShare: string;
@@ -71,14 +88,6 @@ interface SaleNotification {
   releaseTitle: string;
   type: NotificationType.Sale;
   userId: string;
-}
-
-interface SaleParams {
-  artist: string;
-  editionId?: string;
-  release: string;
-  sale: string;
-  user: string;
 }
 
 interface ValidatePurchaseParams {
@@ -97,9 +106,12 @@ export {
   MintNotification,
   Notification,
   NotificationType,
+  PurchasedRelease,
   PurchaseEditionNotification,
   PurchaseNotification,
   RecordSaleParams,
+  ReleaseSingle,
+  ReleaseAlbum,
   SaleNotification,
   ValidatePurchaseParams
 };
