@@ -4,6 +4,7 @@ import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import { setIsConnected, setNetworkName } from "state/web3";
 import { useDispatch, useSelector } from "hooks";
 import { BrowserProvider, Eip1193Provider, isError } from "ethers";
+import { DateTime } from "luxon";
 import Icon from "components/icon";
 import Footer from "components/footer";
 import Player from "components/player";
@@ -12,6 +13,7 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import useSSE from "hooks/useSSE";
+import { fetchActivity } from "state/artists";
 
 const { REACT_APP_CHAIN_ID = "" } = process.env;
 const About = lazy(() => import("pages/about"));
@@ -73,7 +75,10 @@ const App: React.FC = () => {
   }, [getNetwork, handleChainChanged]);
 
   useEffect(() => {
-    dispatch(fetchUser());
+    dispatch(fetchUser()).then(({ _id: user }) => {
+      if (!user) return;
+      window.localStorage.setItem("lastVisitedOn", JSON.stringify({ user, date: DateTime.utc().toISO() as string }));
+    });
     initialiseWeb3();
   }, [dispatch, initialiseWeb3]);
 

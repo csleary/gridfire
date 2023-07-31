@@ -34,6 +34,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "hooks";
 import BasketButton from "components/header/basketButton";
 import Icon from "components/icon";
+import Notifications from "components/header/notifications";
 import SearchBar from "components/searchBar";
 import { connectToWeb3 } from "state/web3";
 import debounce from "lodash.debounce";
@@ -194,6 +195,9 @@ const MenuBar = () => {
           )}
           <WrapItem>
             <BasketButton />
+          </WrapItem>
+          <WrapItem>
+            <Notifications />
           </WrapItem>
           <WrapItem>
             <Menu>

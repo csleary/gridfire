@@ -1,34 +1,46 @@
 import { Activity, Artist } from "types";
+import { EntityState, createDraftSafeSelector, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import { toastError, toastSuccess } from "state/toast";
-import { AppDispatch } from "index";
+import { AppDispatch, RootState } from "index";
+import { DateTime } from "luxon";
 import axios from "axios";
 import { batch } from "react-redux";
-import { createSlice } from "@reduxjs/toolkit";
 
 interface ArtistState {
   activeArtistId: string;
-  activity: Activity[];
+  activity: EntityState<Activity>;
   artists: Artist[];
   errors: { [key: string]: string };
+  hasNotifications: boolean;
   isLoading: boolean;
   isSubmitting: boolean;
   isPristine: boolean;
+  lastCheckedOn: string | null;
 }
+
+const activityAdapter = createEntityAdapter<Activity>({
+  selectId: activity => activity._id
+});
 
 const initialState: ArtistState = {
   activeArtistId: "",
-  activity: [],
+  activity: activityAdapter.getInitialState(),
   artists: [],
   errors: {},
+  hasNotifications: false,
   isLoading: false,
   isSubmitting: false,
-  isPristine: true
+  isPristine: true,
+  lastCheckedOn: DateTime.utc().toISO()
 };
 
 const artistSlice = createSlice({
   name: "artists",
   initialState,
   reducers: {
+    addActivity(state, action) {
+      activityAdapter.addOne(state.activity, action.payload);
+    },
     removeLink(state, action) {
       const { artistId, linkId } = action.payload;
       state.isPristine = false;
@@ -42,7 +54,7 @@ const artistSlice = createSlice({
       state.activeArtistId = action.payload;
     },
     setActivity(state, action) {
-      state.activity = action.payload;
+      activityAdapter.setAll(state.activity, action.payload);
     },
     setArtist(state, action) {
       state.artists = state.artists.map(artist => {
@@ -70,6 +82,9 @@ const artistSlice = createSlice({
     },
     setIsSubmitting(state, action) {
       state.isSubmitting = action.payload;
+    },
+    setLastCheckedOn(state) {
+      state.lastCheckedOn = DateTime.utc().toISO();
     },
     setLink(state, action) {
       const { artistId, link } = action.payload;
@@ -165,10 +180,39 @@ export const {
   setErrors,
   setIsPristine,
   setIsSubmitting,
+  setLastCheckedOn,
   setLink,
   setValues,
   setIsLoading
 } = artistSlice.actions;
 
-export { addLink, fetchActivity, fetchArtists, updateArtist };
+const { selectAll: selectAllActivity, selectTotal: selectTotalActivity } = activityAdapter.getSelectors(
+  (state: RootState) => state.artists.activity
+);
+
+const selectTotalUnread = createDraftSafeSelector(
+  (state: RootState) => state.artists.lastCheckedOn,
+  (state: RootState) => state,
+  (lastCheckedOn, state) =>
+    selectAllActivity(state).filter(
+      ({ createdAt }) => DateTime.fromISO(createdAt) > DateTime.fromISO(lastCheckedOn as string)
+    ).length
+);
+
+const selectRecentActivity = createDraftSafeSelector(
+  (state: RootState) => state,
+  state => selectAllActivity(state).slice(0, 20)
+);
+
+export {
+  addLink,
+  fetchActivity,
+  fetchArtists,
+  selectAllActivity,
+  selectRecentActivity,
+  selectTotalActivity,
+  selectTotalUnread,
+  updateArtist
+};
+
 export default artistSlice.reducer;

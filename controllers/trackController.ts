@@ -57,10 +57,10 @@ const logPlay = async (trackId: string, release: string, streamId: string, user:
   await StreamSession.findByIdAndDelete(streamId).exec();
 };
 
-const logStream = async ({ trackId, userId, type }: { trackId: string; userId: ObjectId; type: string }) => {
+const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: ObjectId; type: string }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
   const releaseId = release._id;
-  const user = userId.toString() || new Types.ObjectId().toString();
+  const user = userId?.toString() || new Types.ObjectId().toString();
 
   switch (Number.parseInt(type)) {
     case 0:

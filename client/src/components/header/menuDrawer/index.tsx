@@ -39,6 +39,7 @@ import { formatEther, getAddress } from "ethers";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "hooks";
 import BasketButton from "components/header/basketButton";
+import Notifications from "components/header/notifications";
 import SearchBar from "components/searchBar";
 import Icon from "components/icon";
 import { connectToWeb3 } from "state/web3";
@@ -125,6 +126,9 @@ const MenuDrawer = () => {
         <Spacer />
         <WrapItem>
           <BasketButton />
+        </WrapItem>
+        <WrapItem>
+          <Notifications />
         </WrapItem>
         <WrapItem>
           <IconButton aria-label="Open the menu." icon={<Icon icon={faBars} />} onClick={onOpen} ref={btnRef} />

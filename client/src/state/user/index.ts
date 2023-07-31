@@ -136,6 +136,7 @@ const fetchUser = () => async (dispatch: AppDispatch) => {
     dispatch(setIsLoading(true));
     const res = await axios.get("/api/user");
     if (res.data) dispatch(updateUser(res.data));
+    return res.data;
   } catch (error: any) {
     dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
   } finally {

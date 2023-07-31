@@ -66,7 +66,7 @@ const Home: React.FC = () => {
     <>
       <Helmet>
         <title>GridFire</title>
-        <meta name="description" content="Listen to the latest releases on GridFire." />
+        <meta name="description" content="Listen to the latest releases on GridFire, a web3 music download store." />
       </Helmet>
       {isLoadingUser || userAccount ? null : (
         <>

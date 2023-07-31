@@ -1,4 +1,4 @@
-export type Activity = ActivityFavourite & ActivityFollow & ActivityMint & ActivitySaleEdition & ActivitySale;
+export type Activity = ActivityFavourite | ActivityFollow | ActivityMint | ActivitySaleEdition | ActivitySale;
 
 export interface ActivityFavourite extends ActivityCommon {
   releaseTitle: string;
@@ -16,7 +16,6 @@ export interface ActivityMint extends ActivityCommon {
 
 export interface ActivitySaleEdition extends ActivitySale {
   editionDescription: string;
-  type: ActivityType.Sale;
 }
 
 export interface ActivitySale extends ActivityCommon {
