@@ -7,7 +7,7 @@ data:
   GRIDFIRE_EDITIONS_ADDRESS: "0xA85954b918c8065bE62fa1F68E2AAae27FaBB3d0"
   GRIDFIRE_PAYMENT_ADDRESS: "0x10392831Abc8ddaa814b24327F1669c9e6F225aa"
   IPFS_NODE_HOST: http://ipfs-node.default.svc.cluster.local:5001
-  NETWORK_URL: https://arb-mainnet.g.alchemy.com/v2
+  NETWORK_URL: wss://arb-mainnet.g.alchemy.com/v2
   NODE_ENV: production
   QUEUE_MESSAGE: message
   QUEUE_TRANSCODE: transcode

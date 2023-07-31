@@ -32,16 +32,17 @@ assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var missing.");
 assert(NETWORK_URL, "NETWORK_URL env var missing.");
 assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), "NETWORK_KEY env var missing.");
 
-const getProvider = () => {
-  return getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
-};
+const provider = getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
+provider.on("error", logger.error);
+
+if (NODE_ENV !== "production") {
+  provider.on("debug", logger.info);
+}
 
 const getGridFireEditionsContract = () => {
-  const provider = getProvider();
   return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsABI, provider);
 };
 const getGridFirePaymentContract = () => {
-  const provider = getProvider();
   return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
 };
 

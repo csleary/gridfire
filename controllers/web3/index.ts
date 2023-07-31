@@ -1,4 +1,4 @@
-import { BytesLike, Contract, EventLog, Interface, ethers, encodeBytes32String, getAddress } from "ethers";
+import { BytesLike, Contract, EventLog, Interface, encodeBytes32String, getAddress, getDefaultProvider } from "ethers";
 import { FilterQuery, ObjectId, model } from "mongoose";
 import GridFireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditions.sol/GridFireEditions.json" assert { type: "json" };
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
@@ -29,22 +29,18 @@ assert(DAI_CONTRACT_ADDRESS, "DAI_CONTRACT_ADDRESS env var not set.");
 assert(NETWORK_URL, "NETWORK_URL env var not set.");
 assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), "NETWORK_KEY env var missing.");
 
-const getProvider = () => {
-  return ethers.getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
-};
+const provider = getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
+provider.on("error", console.error);
 
 const getDaiContract = () => {
-  const provider = getProvider();
   return new Contract(DAI_CONTRACT_ADDRESS, daiAbi, provider);
 };
 
 const getGridFireEditionsContract = () => {
-  const provider = getProvider();
   return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsABI, provider);
 };
 
 const getGridFirePaymentContract = () => {
-  const provider = getProvider();
   return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
 };
 
@@ -118,7 +114,6 @@ const getGridFireEditionUris = async (releaseId: string) => {
 };
 
 const getTransaction = async (txId: string) => {
-  const provider = getProvider();
   const tx = await provider.getTransaction(txId);
   if (!tx) return null;
   const iface = new Interface(gridFireEditionsABI);
@@ -191,7 +186,6 @@ export {
   getGridFirePaymentContract,
   getGridFireEditionsByReleaseId,
   getGridFireEditionUris,
-  getProvider,
   getTransaction,
   getUserGridFireEditions,
   setVisibility
