@@ -1,15 +1,13 @@
 import { BytesLike, Contract, EventLog, Interface, encodeBytes32String, getAddress, getDefaultProvider } from "ethers";
-import { FilterQuery, ObjectId, model } from "mongoose";
+import Edition, { IEdition } from "gridfire/models/Edition.js";
+import { FilterQuery, ObjectId } from "mongoose";
+import Release, { IRelease } from "gridfire/models/Release.js";
+import User, { IUser } from "gridfire/models/User.js";
+import { AddressLike } from "ethers";
 import GridFireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditions.sol/GridFireEditions.json" assert { type: "json" };
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import assert from "assert/strict";
 import daiAbi from "gridfire/controllers/web3/dai.js";
-import { AddressLike } from "ethers";
-import { IEdition } from "gridfire/models/Edition.js";
-
-const Edition = model("Edition");
-const Release = model("Release");
-const User = model("User");
 
 const {
   GRIDFIRE_EDITIONS_ADDRESS,
@@ -60,7 +58,13 @@ const getGridFireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => 
   const { release: releaseId } = filter;
   const gridFireEditionsContract = getGridFireEditionsContract();
   const offChainEditions = await Edition.find(filter, "createdAt editionId metadata visibility", { lean: true }).exec();
-  const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
+  const release = await Release.findById(releaseId, "user", { lean: true }).populate<{ user: IUser }>("user").exec();
+
+  if (!release) {
+    console.warn(`Release ${releaseId} not found.`);
+    return [];
+  }
+
   const artistAccount: AddressLike = getAddress(release.user.account);
   const releaseIdBytes: BytesLike = encodeBytes32String(releaseId);
   const mintFilter = gridFireEditionsContract.filters.EditionMinted(releaseIdBytes, artistAccount);
@@ -103,7 +107,8 @@ const getGridFireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => 
 
 const getGridFireEditionUris = async (releaseId: string) => {
   const gridFireEditionsContract = getGridFireEditionsContract();
-  const release = await Release.findById(releaseId, "user", { lean: true }).populate("user").exec();
+  const release = await Release.findById(releaseId, "user", { lean: true }).populate<{ user: IUser }>("user").exec();
+  if (!release) return [];
   const artistAccount = getAddress(release.user.account);
   const releaseIdBytes = encodeBytes32String(releaseId);
   const mintFilter = gridFireEditionsContract.filters.EditionMinted(releaseIdBytes, artistAccount);
@@ -123,6 +128,12 @@ const getTransaction = async (txId: string) => {
 
 const getUserGridFireEditions = async (userId: ObjectId) => {
   const user = await User.findById(userId).exec();
+
+  if (!user) {
+    console.warn(`User ${userId} not found.`);
+    return [];
+  }
+
   const userAccount = getAddress(user.account);
   const gridFireEditionsContract = getGridFireEditionsContract();
 
@@ -130,19 +141,25 @@ const getUserGridFireEditions = async (userId: ObjectId) => {
   const editionsTransferFilter = gridFireEditionsContract.filters.TransferSingle(null, null, userAccount);
   const transfers = (await gridFireEditionsContract.queryFilter(editionsTransferFilter)) as EventLog[];
   if (!transfers.length) return []; // User account has never received anything, so we can return early.
-  const transferEditionIds = transfers.map(({ args }) => args.id);
-  const accounts = Array(transferEditionIds.length).fill(userAccount);
-  const balances = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
+  const transferEditionIds: bigint[] = transfers.map(({ args }) => args.id);
+  const accounts: AddressLike[] = Array(transferEditionIds.length).fill(userAccount);
+  const balances: bigint[] = await gridFireEditionsContract.balanceOfBatch(accounts, transferEditionIds);
   const transferEditions = transfers.map((transfer, index) => ({ ...transfer, balance: balances[index] }));
   const inPossession = transferEditions.filter(({ balance }) => balance !== 0n);
-  const inPossessionIds = inPossession.map(({ args }) => args.id.toString());
+  const inPossessionIds: string[] = inPossession.map(({ args }) => args.id.toString());
 
   // From these IDs, fetch minted Editions that we have recorded off-chain, for release info.
   const filter = { editionId: { $in: inPossessionIds }, status: "minted" };
-  const populate = { path: "user", model: User, options: { lean: true }, select: "account" };
   const select = "artistName artwork releaseTitle trackList._id trackList.trackTitle user";
-  const popQuery = { path: "release", model: Release, options: { lean: true }, populate, select };
-  const mintedEditions = await Edition.find(filter, "-cid", { lean: true }).populate(popQuery).exec();
+  const populateRelease = { path: "release", model: Release, options: { lean: true }, select };
+  const populateUser = { path: "user", model: User, options: { lean: true }, select: "account" };
+
+  const mintedEditions = await Edition.find(filter, "-cid", {
+    lean: true
+  })
+    .populate<{ release: IRelease }>(populateRelease)
+    .populate<{ user: IUser }>(populateUser)
+    .exec();
 
   // All editions purchased by user (to get amount paid).
   const editions = await Promise.all(
@@ -150,17 +167,17 @@ const getUserGridFireEditions = async (userId: ObjectId) => {
       const edition = mintedEditions.find(({ editionId }) => editionId.toString() === args.id.toString());
 
       if (!edition) {
-        console.warn(`[getUserGridFireEditions] Edition ${args.id} not found in database.`);
+        console.warn(`Edition '${args.id}' not found offchain.`);
         return null;
       }
 
-      const artistAccount = getAddress(edition.release.user.account);
+      const artistAccount: AddressLike = getAddress(edition.user.account);
 
       // Get purchase information for Editions that were purchased directly rather than transferred from a third party.
       const editionsPurchaseFilter = gridFireEditionsContract.filters.PurchaseEdition(userAccount, artistAccount);
       const purchases = (await gridFireEditionsContract.queryFilter(editionsPurchaseFilter)) as EventLog[];
       const purchase = purchases.find(p => p.transactionHash === transactionHash) as EventLog;
-      const { amountPaid } = purchase.args || {};
+      const { amountPaid } = purchase.args as unknown as { amountPaid: bigint };
       const paid = amountPaid?.toString();
 
       return {
@@ -168,7 +185,7 @@ const getUserGridFireEditions = async (userId: ObjectId) => {
         _id: transactionHash,
         balance: balance.toString(),
         ...(paid != null ? { paid } : {}),
-        transaction: { transactionHash }
+        transaction: { hash: transactionHash }
       };
     })
   );

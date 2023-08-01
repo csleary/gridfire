@@ -10,8 +10,6 @@ import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { shallowEqual } from "react-redux";
 
-// Note: the shape of the transactions object is different for userEditions and albums/singles.
-
 const Collection = () => {
   const receiptTextColour = useColorModeValue("gray.600", "gray.300");
   const receiptColour = useColorModeValue("blue.200", "blue.100");
@@ -46,29 +44,34 @@ const Collection = () => {
         <>
           <Heading as="h3">GridFire Editions</Heading>
           <Grid>
-            {userEditions.map(({ _id: purchaseId, paid, release, transaction = {} }) => (
-              <Box key={purchaseId}>
-                <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
-                <Flex justifyContent="flex-end">
-                  <Text color={receiptTextColour}>
-                    <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                    <Link href={`https://arbiscan.io/tx/${transaction.transactionHash}`} variant="unstyled">
-                      {transaction.transactionHash.slice(0, 4) + "…" + transaction.transactionHash.slice(-4)}
-                    </Link>
-                    {paid ? (
-                      <>
-                        ,{" "}
-                        <Box as="span" mr="0.2rem">
-                          ◈
-                        </Box>
-                        {Number(formatEther(paid)).toFixed(2)}
-                      </>
-                    ) : null}
-                    .
-                  </Text>
-                </Flex>
-              </Box>
-            ))}
+            {userEditions.map(({ _id: purchaseId, paid, release, transaction }) => {
+              const hash = transaction.hash;
+              const shortHash = hash.slice(0, 4) + "…" + hash.slice(-4);
+
+              return (
+                <Box key={purchaseId}>
+                  <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
+                  <Flex justifyContent="flex-end">
+                    <Text color={receiptTextColour}>
+                      <Icon color={receiptColour} icon={faReceipt} mr={2} />
+                      <Link href={`https://arbiscan.io/tx/${hash}`} variant="unstyled">
+                        {shortHash}
+                      </Link>
+                      {paid ? (
+                        <>
+                          ,{" "}
+                          <Box as="span" mr="0.2rem">
+                            ◈
+                          </Box>
+                          {Number(formatEther(paid)).toFixed(2)}
+                        </>
+                      ) : null}
+                      .
+                    </Text>
+                  </Flex>
+                </Box>
+              );
+            })}
           </Grid>
         </>
       ) : null}
@@ -76,24 +79,28 @@ const Collection = () => {
         <>
           <Heading as="h3">Albums</Heading>
           <Grid>
-            {albums.map(({ _id: purchaseId, paid, purchaseDate, release, transaction = {} }) => (
-              <Box key={purchaseId}>
-                <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
-                <Flex justifyContent="flex-end">
-                  <Text color={receiptTextColour}>
-                    <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                    <Link href={`https://arbiscan.io/tx/${transaction.hash}`} variant="unstyled">
-                      {DateTime.fromISO(purchaseDate).toFormat("ff")}
-                    </Link>
-                    ,{" "}
-                    <Box as="span" mr="0.2rem">
-                      ◈
-                    </Box>
-                    {Number(formatEther(paid)).toFixed(2)}.
-                  </Text>
-                </Flex>
-              </Box>
-            ))}
+            {albums.map(({ _id: purchaseId, paid, purchaseDate, release, transaction }) => {
+              const hash = transaction.hash;
+
+              return (
+                <Box key={purchaseId}>
+                  <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
+                  <Flex justifyContent="flex-end">
+                    <Text color={receiptTextColour}>
+                      <Icon color={receiptColour} icon={faReceipt} mr={2} />
+                      <Link href={`https://arbiscan.io/tx/${hash}`} variant="unstyled">
+                        {DateTime.fromISO(purchaseDate).toFormat("ff")}
+                      </Link>
+                      ,{" "}
+                      <Box as="span" mr="0.2rem">
+                        ◈
+                      </Box>
+                      {Number(formatEther(paid)).toFixed(2)}.
+                    </Text>
+                  </Flex>
+                </Box>
+              );
+            })}
           </Grid>
         </>
       ) : null}
@@ -103,7 +110,8 @@ const Collection = () => {
             Singles
           </Heading>
           <Grid>
-            {singles.map(({ _id: purchaseId, paid, purchaseDate, release, trackId, transaction = {} }) => {
+            {singles.map(({ _id: purchaseId, paid, purchaseDate, release, trackId, transaction }) => {
+              const hash = transaction.hash;
               const single = release.trackList.find(({ _id }) => _id === trackId);
 
               return (
@@ -120,7 +128,7 @@ const Collection = () => {
                   <Flex justifyContent="flex-end">
                     <Text color={receiptTextColour}>
                       <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                      <Link href={`https://arbiscan.io/tx/${transaction.hash}`} variant="unstyled">
+                      <Link href={`https://arbiscan.io/tx/${hash}`} variant="unstyled">
                         {DateTime.fromISO(purchaseDate).toFormat("ff")}
                       </Link>
                       ,{" "}

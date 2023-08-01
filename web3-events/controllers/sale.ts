@@ -39,7 +39,10 @@ const recordSale = async ({
   }
 
   const bigIntValues: BigIntValues = { cumulativeGasUsed, gasPrice, gasUsed };
-  const bigIntValuesAsString = Object.entries(bigIntValues).reduce(bigIntToString, {});
+
+  const bigIntValuesAsString: { cumulativeGasUsed: string; gasPrice: string; gasUsed: string } = Object.entries(
+    bigIntValues
+  ).reduce(bigIntToString, {});
 
   const sale = await Sale.create({
     purchaseDate: Date.now(),

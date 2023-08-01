@@ -1,3 +1,5 @@
+import { TransactionReceipt } from "ethers";
+
 export type Activity = ActivityFavourite | ActivityFollow | ActivityMint | ActivitySaleEdition | ActivitySale;
 
 export interface ActivityFavourite extends ActivityCommon {
@@ -76,7 +78,7 @@ export interface CollectionAlbum {
   paid: string;
   purchaseDate: string;
   release: Release;
-  transaction: any;
+  transaction: TransactionReceipt;
 }
 
 export interface CollectionSingle extends CollectionAlbum {
@@ -217,7 +219,7 @@ export interface Sale {
   paid: string;
   purchaseDate: string;
   release: string; // Album/track ID.
-  transaction: any;
+  transaction: TransactionReceipt;
 }
 
 export interface TrackErrors {

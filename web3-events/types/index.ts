@@ -1,4 +1,6 @@
+import { TransactionReceipt } from "ethers";
 import { IRelease } from "gridfire-web3-events/models/Release.js";
+import { SaleType } from "gridfire-web3-events/models/Sale.js";
 import { IUser } from "gridfire-web3-events/models/User.js";
 
 interface BigIntValues {
@@ -61,15 +63,15 @@ interface RecordSaleParams {
   artistShare: bigint;
   platformFee: bigint;
   releaseId: string;
-  transactionReceipt: any;
-  type: string;
+  transactionReceipt: TransactionReceipt;
+  type: SaleType;
   userId: string;
 }
 
 type PurchasedRelease = Promise<{
   release: ReleaseSingle | ReleaseAlbum;
   releaseTitle: string;
-  type: string;
+  type: SaleType;
 }>;
 
 type ReleaseSingle = Pick<IRelease, "artist" | "artistName" | "trackList"> & {
