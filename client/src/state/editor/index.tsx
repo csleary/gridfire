@@ -45,7 +45,7 @@ const defaultReleaseState: EditorRelease = {
   recName: "",
   recordLabel: "",
   recYear: "",
-  releaseDate: "",
+  releaseDate: DateTime.local().toISODate() as string,
   releaseTitle: "",
   tags: []
 };
@@ -66,10 +66,12 @@ const editorSlice = createSlice({
   initialState,
   reducers: {
     createRelease(state) {
+      state.releaseErrors = defaultErrorState;
+
       state.release = {
         ...defaultReleaseState,
         _id: createObjectId(),
-        releaseDate: DateTime.local().toISODate() || ""
+        releaseDate: DateTime.local().toISODate() as string
       };
     },
     removeTag(state, action) {

@@ -2,7 +2,6 @@ import { toastError, toastSuccess } from "state/toast";
 import { Artist, Collection, CollectionAlbum, Favourite, ListItem, Release, UserRelease } from "types";
 import { DateTime } from "luxon";
 import axios from "axios";
-import { createObjectId } from "utils";
 import { createSlice } from "@reduxjs/toolkit";
 import { getUserEditions } from "web3/contract";
 import { AppDispatch, GetState } from "index";
@@ -41,7 +40,7 @@ const defaultReleaseState: Release = {
   recName: "",
   recYear: "",
   recordLabel: "",
-  releaseDate: DateTime.local().toISODate() || "",
+  releaseDate: DateTime.local().toISODate() as string,
   releaseTitle: "",
   tags: [],
   trackList: []
@@ -83,13 +82,6 @@ const releaseSlice = createSlice({
     },
     addWishListItem(state, action) {
       state.userWishList = [action.payload, ...state.userWishList];
-    },
-    createRelease(state) {
-      state.editing = {
-        ...defaultReleaseState,
-        _id: createObjectId(),
-        releaseDate: new Date(Date.now()).toISOString()
-      };
     },
     removeFavouritesItem(state, action) {
       state.userFavourites = state.userFavourites.filter(({ release }) => release._id !== action.payload);
@@ -297,7 +289,6 @@ const updateRelease = (values: Release) => async (dispatch: AppDispatch) => {
 export const {
   addFavouritesItem,
   addWishListItem,
-  createRelease,
   removeFavouritesItem,
   removeRelease,
   removeWishListItem,

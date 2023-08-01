@@ -16,9 +16,9 @@ import {
   useBreakpointValue,
   useColorModeValue
 } from "@chakra-ui/react";
+import { createRelease, fetchReleaseForEditing, saveRelease } from "state/editor";
 import { faArrowLeftLong, faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
-import { fetchReleaseForEditing, saveRelease } from "state/editor";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import Artwork from "./artwork";
@@ -29,7 +29,6 @@ import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import TrackList from "./trackList";
 import { WarningIcon } from "@chakra-ui/icons";
-import { createRelease } from "state/releases";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
