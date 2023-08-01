@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
-    "lib": ["ES2021"],
-    "module": "node16",
-    "moduleResolution": "node16",
-    "baseUrl": "./",
-    "paths": {
-      "gridfire-web3-events/*": ["*"]
-    },
     "allowJs": true,
-    "outDir": "./dist",
     "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "paths": { "gridfire-web3-events/*": ["*"] },
+    "skipLibCheck": true,
     "strict": true,
-    "skipLibCheck": true
+    "target": "ES2022"
   }
 }

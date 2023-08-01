@@ -1,14 +1,7 @@
-import { Box, Button, Divider, Flex, FormLabel, Stack, Switch, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, FormLabel, Stack, Switch, useColorModeValue } from "@chakra-ui/react";
 import { deleteRelease, publishStatus } from "state/releases";
-import {
-  faCashRegister,
-  faCircle,
-  faDollarSign,
-  faHeart,
-  faPencilAlt,
-  faPlay
-} from "@fortawesome/free-solid-svg-icons";
 import { faCalendar, faEye, faEyeSlash, faFileAudio, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { faCashRegister, faDollarSign, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { toastSuccess, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import Artwork from "./artwork";
@@ -42,6 +35,7 @@ function UserRelease({ release }: Props) {
     trackList
   } = release;
 
+  const iconColor = useColorModeValue("green.400", "green.200");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const releaseIdsForDeletion = useSelector(state => state.releases.releaseIdsForDeletion, shallowEqual);
@@ -94,12 +88,12 @@ function UserRelease({ release }: Props) {
         >
           <Box flex="1 1 50%">
             <Box>
-              <Icon color={Number(price) > 0 ? "green.200" : "orange.300"} fixedWidth icon={faDollarSign} mr={2} />
+              <Icon color={Number(price) > 0 ? iconColor : "orange.300"} fixedWidth icon={faDollarSign} mr={2} />
               {Number(price) > 0 ? <>{price} DAI</> : "Name your price"}
             </Box>
             <Box>
               <Icon
-                color={Date.parse(releaseDate) - Date.now() > 0 ? "orange.300" : "green.200"}
+                color={Date.parse(releaseDate) - Date.now() > 0 ? "orange.300" : iconColor}
                 fixedWidth
                 icon={faCalendar}
                 mr={2}
@@ -107,13 +101,13 @@ function UserRelease({ release }: Props) {
               {DateTime.fromISO(releaseDate).toLocaleString(DateTime.DATE_SHORT)}
             </Box>
             <Box>
-              <Icon color={hasAudio ? "green.200" : "red.400"} fixedWidth icon={faFileAudio} mr={2} />
+              <Icon color={hasAudio ? iconColor : "red.400"} fixedWidth icon={faFileAudio} mr={2} />
               {trackList.length} track{trackList.length === 1 ? "" : "s"}
               {trackList.length && !hasAudio ? " (incomplete)" : null}
             </Box>
             <Box>
               <Icon
-                color={sales > 0 ? "green.200" : "gray.500"}
+                color={sales > 0 ? iconColor : "gray.500"}
                 fixedWidth
                 icon={faCashRegister}
                 title="Number of copies sold."
@@ -125,7 +119,7 @@ function UserRelease({ release }: Props) {
           <Box flex="1 1 50%">
             <Box>
               <Icon
-                color={plays > 0 ? "green.200" : "gray.500"}
+                color={plays > 0 ? iconColor : "gray.500"}
                 fixedWidth
                 icon={faPlay}
                 mr={2}
@@ -146,7 +140,7 @@ function UserRelease({ release }: Props) {
             <Flex alignItems="center" justifyContent="space-between">
               <FormLabel htmlFor={`${releaseId}-published`} m={0}>
                 <Icon
-                  color={published ? "green.200" : "orange.300"}
+                  color={published ? iconColor : "orange.300"}
                   fixedWidth
                   icon={published ? faEye : faEyeSlash}
                   mr={2}

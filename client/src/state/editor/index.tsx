@@ -180,9 +180,13 @@ const editorSlice = createSlice({
       } else if (name === "artist") {
         state.release.artistName = "";
         state.release.artist = value;
+        state.releaseErrors[name] = "";
+        state.releaseErrors.artistName = "";
       } else if (name === "artistName") {
         state.release.artist = "";
         state.release.artistName = value;
+        state.releaseErrors[name] = "";
+        state.releaseErrors.artist = "";
       } else if (name === "tags") {
         const tag = value
           .replace(/[^0-9a-z\s]/gi, "")

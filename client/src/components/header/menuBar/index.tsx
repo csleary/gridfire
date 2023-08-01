@@ -16,17 +16,20 @@ import {
   useColorMode,
   useColorModeValue
 } from "@chakra-ui/react";
-import { ChevronDownIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   faArchive,
+  faChevronDown,
   faFireAlt,
-  faHeadphonesAlt,
+  faHeadphones,
   faHeart,
   faMagic,
+  faMoon,
+  faMusic,
   faRectangleList,
   faSignInAlt,
   faSignOutAlt,
+  faSun,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { formatEther, getAddress } from "ethers";
@@ -44,8 +47,7 @@ import { logOut } from "state/user";
 const MenuBar = () => {
   const [isTop, setIsTop] = useBoolean(true);
   const { toggleColorMode } = useColorMode();
-  const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
-  const colorModeTextHover = useColorModeValue("purple", "yellow");
+  const colorModeIcon = useColorModeValue(<Icon fixedWidth icon={faMoon} />, <Icon fixedWidth icon={faSun} />);
   const primaryButtonColor = useColorModeValue("yellow", "purple");
 
   const activeStyle = {
@@ -98,6 +100,10 @@ const MenuBar = () => {
     await dispatch(connectToWeb3());
   };
 
+  const toggleThemeButton = (
+    <IconButton aria-label="Switch between light and dark modes." icon={colorModeIcon} onClick={toggleColorMode} />
+  );
+
   return (
     <Wrap
       spacing={4}
@@ -120,7 +126,7 @@ const MenuBar = () => {
           as={NavLink}
           to={"/"}
           fontStyle="italic"
-          leftIcon={<Icon icon={faFireAlt} />}
+          leftIcon={<Icon fixedWidth icon={faFireAlt} />}
           textTransform="uppercase"
           variant="ghost"
         >
@@ -135,20 +141,13 @@ const MenuBar = () => {
               as={NavLink}
               to={"/login"}
               colorScheme={primaryButtonColor}
-              leftIcon={<Icon icon={faSignInAlt} />}
+              leftIcon={<Icon fixedWidth icon={faSignInAlt} />}
               title="Click to log in."
             >
               Log In
             </Button>
           </WrapItem>
-          <WrapItem>
-            <IconButton
-              aria-label="Switch between light and dark modes."
-              _hover={{ color: colorModeTextHover }}
-              icon={colorModeIcon}
-              onClick={toggleColorMode}
-            />
-          </WrapItem>
+          <WrapItem>{toggleThemeButton}</WrapItem>
         </>
       ) : (
         <>
@@ -177,7 +176,7 @@ const MenuBar = () => {
                     colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
                     href={`https://arbiscan.io/address/${account}`}
                     isExternal
-                    leftIcon={<Icon icon={faEthereum} />}
+                    leftIcon={<Icon fixedWidth icon={faEthereum} />}
                     _hover={{ color: "initial", textDecoration: "none" }}
                     variant="ghost"
                   >
@@ -188,7 +187,7 @@ const MenuBar = () => {
             </>
           ) : (
             <WrapItem>
-              <Button leftIcon={<Icon icon={faEthereum} />} onClick={handleConnect}>
+              <Button leftIcon={<Icon fixedWidth icon={faEthereum} />} onClick={handleConnect}>
                 Connect
               </Button>
             </WrapItem>
@@ -204,8 +203,8 @@ const MenuBar = () => {
               <MenuButton
                 as={Button}
                 colorScheme={primaryButtonColor}
-                leftIcon={<Icon icon={faUserCircle} title={`Login account: ${userAccount}`} />}
-                rightIcon={<ChevronDownIcon />}
+                leftIcon={<Icon fixedWidth icon={faUserCircle} title={`Login account: ${userAccount}`} />}
+                rightIcon={<Icon fixedWidth icon={faChevronDown} />}
               >
                 {userAccountShort || "Dashboard"}
               </MenuButton>
@@ -213,24 +212,18 @@ const MenuBar = () => {
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/payment"}
-                  icon={<Icon icon={faEthereum} fixedWidth />}
+                  icon={<Icon fixedWidth icon={faEthereum} />}
                   sx={activeStyle}
                 >
                   Payment
                 </MenuItem>
-                <MenuItem
-                  as={NavLink}
-                  to={"/dashboard"}
-                  end
-                  icon={<Icon icon={faHeadphonesAlt} fixedWidth />}
-                  sx={activeStyle}
-                >
+                <MenuItem as={NavLink} to={"/dashboard"} end icon={<Icon fixedWidth icon={faMusic} />} sx={activeStyle}>
                   Releases
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/artists"}
-                  icon={<Icon icon={faArchive} fixedWidth />}
+                  icon={<Icon fixedWidth icon={faHeadphones} />}
                   sx={activeStyle}
                 >
                   Artists
@@ -238,7 +231,7 @@ const MenuBar = () => {
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/activity"}
-                  icon={<Icon icon={faRectangleList} fixedWidth />}
+                  icon={<Icon fixedWidth icon={faRectangleList} />}
                   sx={activeStyle}
                 >
                   Activity
@@ -246,7 +239,7 @@ const MenuBar = () => {
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/collection"}
-                  icon={<Icon icon={faArchive} fixedWidth />}
+                  icon={<Icon fixedWidth icon={faArchive} />}
                   sx={activeStyle}
                 >
                   Collection
@@ -254,7 +247,7 @@ const MenuBar = () => {
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/favourites"}
-                  icon={<Icon icon={faHeart} fixedWidth />}
+                  icon={<Icon fixedWidth icon={faHeart} />}
                   sx={activeStyle}
                 >
                   Faves
@@ -262,26 +255,19 @@ const MenuBar = () => {
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/wishlist"}
-                  icon={<Icon icon={faMagic} fixedWidth />}
+                  icon={<Icon fixedWidth icon={faMagic} />}
                   sx={activeStyle}
                 >
                   List
                 </MenuItem>
                 <MenuDivider />
-                <MenuItem icon={<Icon icon={faSignOutAlt} fixedWidth />} onClick={handleLogout}>
+                <MenuItem icon={<Icon fixedWidth icon={faSignOutAlt} />} onClick={handleLogout}>
                   Sign Out
                 </MenuItem>
               </MenuList>
             </Menu>
           </WrapItem>
-          <WrapItem>
-            <IconButton
-              aria-label="Switch between light and dark modes."
-              _hover={{ color: colorModeTextHover }}
-              icon={colorModeIcon}
-              onClick={toggleColorMode}
-            />
-          </WrapItem>
+          <WrapItem>{toggleThemeButton}</WrapItem>
         </>
       )}
     </Wrap>

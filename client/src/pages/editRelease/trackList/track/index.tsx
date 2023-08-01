@@ -19,14 +19,13 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowUp, faBars } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEventHandler, DragEventHandler, memo, useCallback } from "react";
 import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
 import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "state/editor";
 import { useDispatch, useSelector } from "hooks";
 import AudioDropzone from "./audioDropzone";
 import { EntityId } from "@reduxjs/toolkit";
-import { HamburgerIcon } from "@chakra-ui/icons";
 import Icon from "components/icon";
 import { ReleaseTrack } from "types";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
@@ -201,7 +200,7 @@ const Track = ({
         <AudioDropzone index={index} status={status} trackId={trackId} trackTitle={trackTitle} />
         <VStack spacing={2} alignItems="center" justifyContent="space-between">
           <Menu onClose={() => isDeleting && cancelDeleteTrack(trackId)}>
-            <MenuButton as={IconButton} aria-label="Options" icon={<HamburgerIcon />} variant="ghost" />
+            <MenuButton as={IconButton} aria-label="Options" icon={<Icon fixedWidth icon={faBars} />} variant="ghost" />
             <MenuList>
               <MenuItem
                 icon={<Icon icon={faArrowUp} />}

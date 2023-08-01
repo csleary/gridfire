@@ -14,11 +14,12 @@ import {
 } from "@chakra-ui/react";
 import { fetchActivity, selectRecentActivity, selectTotalUnread, setLastCheckedOn } from "state/artists";
 import { useCallback, useEffect, useRef } from "react";
-import ActivityItem from "components/activityItem";
-import { BellIcon } from "@chakra-ui/icons";
-import { DateTime } from "luxon";
-import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "hooks";
+import ActivityItem from "components/activityItem";
+import { DateTime } from "luxon";
+import Icon from "components/icon";
+import { Link as RouterLink } from "react-router-dom";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual } from "react-redux";
 
 const Notifications = () => {
@@ -57,7 +58,7 @@ const Notifications = () => {
       <Popover isLazy placement="bottom-end" onOpen={onOpen} onClose={onClose}>
         <Box position="relative">
           <PopoverTrigger>
-            <IconButton aria-label="Notifications" icon={<BellIcon />} />
+            <IconButton aria-label="Notifications" icon={<Icon fixedWidth icon={faBell} />} />
           </PopoverTrigger>
           {numUnread > 0 ? (
             <Badge

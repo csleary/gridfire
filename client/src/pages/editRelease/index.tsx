@@ -1,7 +1,6 @@
 import {
   Alert,
   AlertDescription,
-  AlertIcon,
   AlertTitle,
   Box,
   Button,
@@ -17,7 +16,14 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { createRelease, fetchReleaseForEditing, saveRelease } from "state/editor";
-import { faArrowLeftLong, faCheck, faInfo, faLink, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeftLong,
+  faCheck,
+  faInfo,
+  faLink,
+  faTimes,
+  faTriangleExclamation
+} from "@fortawesome/free-solid-svg-icons";
 import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import { useDispatch, useSelector } from "hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,7 +34,6 @@ import EssentialInfo from "./essentialInfo";
 import { Helmet } from "react-helmet";
 import Icon from "components/icon";
 import TrackList from "./trackList";
-import { WarningIcon } from "@chakra-ui/icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
@@ -109,7 +114,9 @@ const EditRelease = () => {
                 <Tab alignItems="center" whiteSpace="nowrap">
                   <Icon icon={faInfo} mr={2} />
                   Essential Info
-                  {hasReleaseError ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
+                  {hasReleaseError ? (
+                    <Icon fixedWidth icon={faTriangleExclamation} color={errorAlertColor} ml={3} />
+                  ) : null}
                 </Tab>
                 <Tab alignItems="center" whiteSpace="nowrap">
                   <Icon icon={faImage} mr={2} />
@@ -122,7 +129,9 @@ const EditRelease = () => {
                 <Tab alignItems="center" whiteSpace="nowrap">
                   <Icon icon={faFileAudio} mr={2} />
                   Tracks
-                  {hasTrackError ? <WarningIcon ml={3} color={errorAlertColor} /> : null}
+                  {hasTrackError ? (
+                    <Icon fixedWidth icon={faTriangleExclamation} color={errorAlertColor} ml={3} />
+                  ) : null}
                 </Tab>
                 <Tab alignItems="center" whiteSpace="nowrap">
                   <Icon icon={faListAlt} mr={2} />
@@ -151,7 +160,7 @@ const EditRelease = () => {
         </Tabs>
         {hasReleaseError || hasTrackError ? (
           <Alert status="error" mb={8}>
-            <AlertIcon />
+            <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
             <AlertTitle mr={2}>Error!</AlertTitle>
             <AlertDescription>Please address the form errors before saving.</AlertDescription>
           </Alert>

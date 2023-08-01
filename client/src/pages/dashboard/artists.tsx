@@ -30,10 +30,9 @@ import {
   updateArtist
 } from "state/artists";
 import { ChangeEventHandler, useEffect, useState } from "react";
-import { faCheck, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faChevronDown, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "hooks";
 import Card from "components/card";
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import Field from "components/field";
 import Icon from "components/icon";
 import TextAreaWithCharLimit from "components/textAreaWithCharLimit";
@@ -114,7 +113,7 @@ const Artists = () => {
         <Card>
           <Text mb={4}>Select an artist to edit their details:</Text>
           <Menu matchWidth>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />} width="100%">
+            <MenuButton as={Button} rightIcon={<Icon fixedWidth icon={faChevronDown} />} width="100%">
               {activeArtist?.name ?? "Select…"}
             </MenuButton>
             <MenuList>

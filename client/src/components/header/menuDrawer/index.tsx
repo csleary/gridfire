@@ -21,18 +21,20 @@ import {
   useColorModeValue,
   useDisclosure
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   faArchive,
   faBars,
   faFireAlt,
-  faHeadphonesAlt,
+  faHeadphones,
   faHeart,
   faMagic,
+  faMoon,
+  faMusic,
   faRectangleList,
   faSignInAlt,
   faSignOutAlt,
+  faSun,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { formatEther, getAddress } from "ethers";
@@ -50,7 +52,7 @@ import { logOut } from "state/user";
 const MenuDrawer = () => {
   const [isTop, setIsTop] = useBoolean(true);
   const { toggleColorMode } = useColorMode();
-  const colorModeIcon = useColorModeValue(<MoonIcon />, <SunIcon />);
+  const colorModeIcon = useColorModeValue(<Icon fixedWidth icon={faMoon} />, <Icon fixedWidth icon={faSun} />);
   const colorModeText = useColorModeValue("Dark Mode", "Light Mode");
   const navBgLightColor = isTop ? "var(--chakra-colors-gray-50)" : "var(--chakra-colors-blackAlpha-200)";
   const navBgDarkColor = isTop ? "var(--chakra-colors-gray-900)" : "var(--chakra-colors-blackAlpha-500)";
@@ -116,7 +118,7 @@ const MenuDrawer = () => {
             as={NavLink}
             to={"/"}
             fontStyle="italic"
-            leftIcon={<Icon icon={faFireAlt} />}
+            leftIcon={<Icon fixedWidth icon={faFireAlt} />}
             textTransform="uppercase"
             variant="ghost"
           >
@@ -131,7 +133,12 @@ const MenuDrawer = () => {
           <Notifications />
         </WrapItem>
         <WrapItem>
-          <IconButton aria-label="Open the menu." icon={<Icon icon={faBars} />} onClick={onOpen} ref={btnRef} />
+          <IconButton
+            aria-label="Open the menu."
+            icon={<Icon fixedWidth icon={faBars} />}
+            onClick={onOpen}
+            ref={btnRef}
+          />
         </WrapItem>
       </Wrap>
       <Drawer finalFocusRef={btnRef} isOpen={isOpen} placement="right" onClose={onClose}>
@@ -140,7 +147,7 @@ const MenuDrawer = () => {
           <DrawerCloseButton />
           <DrawerHeader color="gray.400" p={4}>
             <Flex alignItems="center">
-              <Icon icon={faUserCircle} title={`Login account: ${userAccount}`} mr={2} />
+              <Icon fixedWidth icon={faUserCircle} title={`Login account: ${userAccount}`} mr={2} />
               {userAccountShort || "Dashboard"}
             </Flex>
           </DrawerHeader>
@@ -152,7 +159,7 @@ const MenuDrawer = () => {
                     as={NavLink}
                     colorScheme={primaryButtonColor}
                     to={"/login"}
-                    leftIcon={<Icon icon={faSignInAlt} fixedWidth mr={2} />}
+                    leftIcon={<Icon fixedWidth icon={faSignInAlt} mr={2} />}
                     title="Click to log in."
                   >
                     Log In
@@ -177,7 +184,7 @@ const MenuDrawer = () => {
                         colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
                         height="unset"
                         href={`https://arbiscan.io/address/${account}`}
-                        leftIcon={<Icon icon={faEthereum} fixedWidth />}
+                        leftIcon={<Icon fixedWidth icon={faEthereum} />}
                         isExternal
                         mr={2}
                         variant="link"
@@ -196,7 +203,7 @@ const MenuDrawer = () => {
                     <Button
                       colorScheme={primaryButtonColor}
                       justifyContent="flex-start"
-                      leftIcon={<Icon icon={faEthereum} fixedWidth />}
+                      leftIcon={<Icon fixedWidth icon={faEthereum} />}
                       onClick={handleConnect}
                     >
                       Connect
@@ -207,7 +214,7 @@ const MenuDrawer = () => {
                     as={NavLink}
                     to={"/dashboard/payment"}
                     justifyContent="flex-start"
-                    leftIcon={<Icon icon={faEthereum} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faEthereum} />}
                     variant="link"
                   >
                     Payment
@@ -217,7 +224,7 @@ const MenuDrawer = () => {
                     as={NavLink}
                     to={"/dashboard"}
                     end
-                    leftIcon={<Icon icon={faHeadphonesAlt} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faMusic} />}
                     variant="link"
                   >
                     Releases
@@ -226,7 +233,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     to={"/dashboard/artists"}
-                    leftIcon={<Icon icon={faArchive} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faHeadphones} />}
                     variant="link"
                   >
                     Artists
@@ -235,7 +242,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     to={"/dashboard/activity"}
-                    leftIcon={<Icon icon={faRectangleList} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faRectangleList} />}
                     variant="link"
                   >
                     Activity
@@ -244,7 +251,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     to={"/dashboard/collection"}
-                    leftIcon={<Icon icon={faArchive} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faArchive} />}
                     variant="link"
                   >
                     Collection
@@ -253,7 +260,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     to={"/dashboard/favourites"}
-                    leftIcon={<Icon icon={faHeart} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faHeart} />}
                     variant="link"
                   >
                     Faves
@@ -282,7 +289,7 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     aria-label="Sign out of GridFire."
-                    leftIcon={<Icon icon={faSignOutAlt} fixedWidth />}
+                    leftIcon={<Icon fixedWidth icon={faSignOutAlt} />}
                     onClick={handleLogout}
                     variant="link"
                   >

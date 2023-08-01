@@ -1,6 +1,5 @@
 import {
   Alert,
-  AlertIcon,
   Button,
   Flex,
   Menu,
@@ -8,19 +7,20 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
-  FormLabel
+  FormLabel,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "hooks";
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import Field from "components/field";
 import Icon from "components/icon";
-import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faPlusCircle, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { fetchArtists } from "state/artists";
 import { shallowEqual } from "react-redux";
 import { updateRelease } from "state/editor";
 import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
 
 const ArtistMenu = () => {
+  const errorAlertColor = useColorModeValue("red.800", "red.200");
   const dispatch = useDispatch();
   const artist = useSelector(state => state.editor.release.artist);
   const artistName = useSelector(state => state.editor.release.artistName);
@@ -84,7 +84,7 @@ const ArtistMenu = () => {
         Artist name
       </FormLabel>
       <Menu matchWidth>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />} height={12} mb={2}>
+        <MenuButton as={Button} rightIcon={<Icon fixedWidth icon={faChevronDown} />} height={12}>
           {showInput ? defaultLabel : selectedArtist?.name || defaultLabel}
         </MenuButton>
         <MenuList>
@@ -100,8 +100,8 @@ const ArtistMenu = () => {
         </MenuList>
       </Menu>
       {releaseErrors.artistName ? (
-        <Alert status="error">
-          <AlertIcon />
+        <Alert status="error" mt={2}>
+          <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
           {releaseErrors.artistName}
         </Alert>
       ) : null}

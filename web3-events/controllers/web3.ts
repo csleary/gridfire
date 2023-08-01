@@ -35,9 +35,9 @@ assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), 
 const provider = getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
 provider.on("error", logger.error);
 
-if (NODE_ENV !== "production") {
-  provider.on("debug", logger.info);
-}
+// if (NODE_ENV !== "production") {
+//   provider.on("debug", logger.info);
+// }
 
 const getGridFireEditionsContract = () => {
   return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsABI, provider);

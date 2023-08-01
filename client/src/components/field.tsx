@@ -1,14 +1,16 @@
 import {
   Alert,
   AlertDescription,
-  AlertIcon,
   FormControl,
   FormLabel,
   FormHelperText,
   Input,
-  Textarea
+  Textarea,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { ChangeEvent, HTMLAttributes, KeyboardEvent, ReactNode } from "react";
+import Icon from "components/icon";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   component?: string;
@@ -54,8 +56,10 @@ const Field = ({
   variant,
   ...rest
 }: Props) => {
+  const errorAlertColor = useColorModeValue("red.800", "red.200");
+
   return (
-    <FormControl as="fieldset" mb={mb}>
+    <FormControl as="fieldset" isInvalid={error || errors[name]} mb={mb}>
       <FormLabel htmlFor={name} color="gray.500" fontWeight={500} mb={1}>
         {label}
       </FormLabel>
@@ -91,11 +95,11 @@ const Field = ({
         />
       )}
       {error || errors[name] ? (
-        <Alert status="error">
-          <AlertIcon />
+        <Alert status="error" mt={2}>
+          <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
           <AlertDescription>{error || errors[name]}</AlertDescription>
         </Alert>
-      ) : typeof info !== "undefined" ? (
+      ) : info ? (
         <FormHelperText>{info}</FormHelperText>
       ) : null}
     </FormControl>
