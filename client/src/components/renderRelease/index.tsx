@@ -22,7 +22,8 @@ interface Props {
 }
 
 const isPurchasedRelease = (release: Release | PurchasedRelease): release is PurchasedRelease => {
-  return (release as PurchasedRelease).purchaseId !== undefined;
+  if ("purchaseId" in release) return true;
+  return false;
 };
 
 const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...rest }: Props) => {

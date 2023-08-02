@@ -1,17 +1,15 @@
+import Release, { ITrack } from "gridfire/models/Release.js";
+import User, { IUser } from "gridfire/models/User.js";
 import Activity from "gridfire/models/Activity.js";
-import { ITrack } from "gridfire/models/Release.js";
+import Artist from "gridfire/models/Artist.js";
+import Favourite from "gridfire/models/Favourite.js";
+import WishList from "gridfire/models/WishList.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
 import { deleteArtwork } from "gridfire/controllers/artworkController.js";
 import { deleteTrack } from "gridfire/controllers/trackController.js";
 import express from "express";
-import mongoose, { ObjectId } from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const Artist = mongoose.model("Artist");
-const Favourite = mongoose.model("Favourite");
-const Release = mongoose.model("Release");
-const User = mongoose.model("User");
-const WishList = mongoose.model("WishList");
 const router = express.Router();
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
@@ -19,7 +17,8 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const { _id: user } = req.user || {};
     if (!user) return res.sendStatus(401);
     const { releaseId } = req.params;
-    const release = await Release.findOne({ _id: releaseId, user }, "artist artwork trackList").exec();
+    const release = await Release.findOne({ _id: releaseId, user }, "artist trackList").exec();
+    if (!release) return res.sendStatus(403);
     const { artist, trackList } = release;
 
     // Delete from buckets.
@@ -28,17 +27,20 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     await deleteArtwork(releaseId);
     console.log(`[${releaseId}] Artwork deleted.`);
     console.log(`[${releaseId}] Deleting audio files…`);
-    await Promise.all(trackList.map(({ _id: trackId }: { _id: ObjectId }) => deleteTrack(trackId, user)));
+    await Promise.all(trackList.map(({ _id: trackId }) => deleteTrack(trackId.toString(), user)));
     console.log(`[${releaseId}] Audio files deleted.`);
 
     // Delete from database.
     await Release.findOneAndRemove({ _id: releaseId, user }).exec();
     const artistHasOtherReleases = await Release.exists({ artist });
-    let deleteArtist = Promise.resolve();
-    if (!artistHasOtherReleases) deleteArtist = Artist.findOneAndRemove({ _id: artist, user }).exec();
+
+    if (!artistHasOtherReleases) {
+      await Artist.findOneAndRemove({ _id: artist, user }).exec();
+    }
+
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();
     const deleteFromWishlists = WishList.deleteMany({ release: releaseId }).exec();
-    await Promise.all([deleteArtist, deleteFromFavourites, deleteFromWishlists]);
+    await Promise.all([deleteFromFavourites, deleteFromWishlists]);
     console.log(`Release ${releaseId} deleted.`);
     res.sendStatus(200);
   } catch (error) {
@@ -72,13 +74,16 @@ router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
 
-    const {
-      price,
-      user: { paymentAddress }
-    } = await Release.findById(releaseId, "price", { lean: true })
-      .populate({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+    const release = await Release.findById(releaseId, "price", { lean: true })
+      .populate<{ user: IUser }>({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
       .exec();
 
+    if (!release) {
+      return void res.sendStatus(404);
+    }
+
+    const { price, user } = release;
+    const { paymentAddress } = user;
     res.json({ paymentAddress, price });
   } catch (error: any) {
     console.error(error);

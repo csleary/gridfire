@@ -1,10 +1,19 @@
+import { AppDispatch, GetState } from "index";
+import {
+  Artist,
+  CollectionEdition,
+  CollectionRelease,
+  CollectionSingle,
+  Favourite,
+  ListItem,
+  Release,
+  UserRelease
+} from "types";
 import { toastError, toastSuccess } from "state/toast";
-import { Artist, Collection, CollectionEdition, Favourite, ListItem, Release, UserRelease } from "types";
 import { DateTime } from "luxon";
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
 import { getUserEditions } from "web3";
-import { AppDispatch, GetState } from "index";
 
 interface ReleasesState {
   activeRelease: Release;
@@ -14,13 +23,14 @@ interface ReleasesState {
   catalogue: Release[];
   catalogueLimit: number;
   catalogueSkip: number;
-  collection: Collection;
   editing: Release;
   isLoading: boolean;
   reachedEndOfCat: boolean;
   releaseIdsForDeletion: { [key: string]: boolean };
+  userAlbums: CollectionRelease[];
   userFavourites: Favourite[];
   userReleases: UserRelease[];
+  userSingles: CollectionSingle[];
   userEditions: CollectionEdition[];
   userWishList: ListItem[];
 }
@@ -63,12 +73,13 @@ const initialState: ReleasesState = {
   catalogue: [],
   catalogueLimit: 12,
   catalogueSkip: 0,
-  collection: { albums: [], singles: [] },
   editing: defaultReleaseState,
   reachedEndOfCat: false,
   releaseIdsForDeletion: {},
+  userAlbums: [],
   userFavourites: [],
   userReleases: [],
+  userSingles: [],
   userEditions: [],
   userWishList: []
 };
@@ -109,9 +120,6 @@ const releaseSlice = createSlice({
       state.catalogueSkip = isPaging ? state.catalogueSkip + state.catalogueLimit : 0;
       state.reachedEndOfCat = reachedEndOfCat;
     },
-    setCollection(state, action) {
-      state.collection = action.payload;
-    },
     setActiveRelease(state, action) {
       state.activeRelease = action.payload;
     },
@@ -125,6 +133,9 @@ const releaseSlice = createSlice({
       const { releaseId, isDeleting } = action.payload;
       state.releaseIdsForDeletion = { ...state.releaseIdsForDeletion, [releaseId]: isDeleting };
     },
+    setUserAlbums(state, action) {
+      state.userAlbums = action.payload;
+    },
     setUserEditions(state, action) {
       state.userEditions = action.payload;
     },
@@ -133,6 +144,9 @@ const releaseSlice = createSlice({
     },
     setUserReleases(state, action) {
       state.userReleases = action.payload;
+    },
+    setUserSingles(state, action) {
+      state.userSingles = action.payload;
     },
     setUserWishList(state, action) {
       state.userWishList = action.payload;
@@ -203,15 +217,6 @@ const fetchCatalogue =
     }
   };
 
-const fetchCollection = () => async (dispatch: AppDispatch) => {
-  try {
-    const res = await axios.get("/api/user/collection");
-    dispatch(setCollection(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
-  }
-};
-
 const fetchRelease = (releaseId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
@@ -229,6 +234,15 @@ const fetchReleaseForEditing = (releaseId: string) => async (dispatch: AppDispat
   } catch (error: any) {
     dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
     throw error;
+  }
+};
+
+const fetchUserAlbums = () => async (dispatch: AppDispatch) => {
+  try {
+    const res = await axios.get("/api/user/albums");
+    dispatch(setUserAlbums(res.data));
+  } catch (error: any) {
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 
@@ -253,6 +267,15 @@ const fetchUserFavourites = () => async (dispatch: AppDispatch) => {
 const fetchUserReleases = () => async (dispatch: AppDispatch) => {
   const res = await axios.get("/api/user/releases");
   dispatch(setUserReleases(res.data));
+};
+
+const fetchUserSingles = () => async (dispatch: AppDispatch) => {
+  try {
+    const res = await axios.get("/api/user/singles");
+    dispatch(setUserSingles(res.data));
+  } catch (error: any) {
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  }
 };
 
 const fetchUserWishList = () => async (dispatch: AppDispatch) => {
@@ -297,13 +320,14 @@ export const {
   setArtworkUploading,
   setArtworkUploadProgress,
   setCatalogue,
-  setCollection,
   setIsLoading,
   setReleaseForEditing,
   setReleaseIdsForDeletion,
+  setUserAlbums,
   setUserEditions,
   setUserFavourites,
   setUserReleases,
+  setUserSingles,
   setUserWishList,
   updateUserReleases
 } = releaseSlice.actions;
@@ -313,12 +337,13 @@ export {
   deleteRelease,
   fetchArtistCatalogue,
   fetchCatalogue,
-  fetchCollection,
   fetchRelease,
   fetchReleaseForEditing,
+  fetchUserAlbums,
   fetchUserEditions,
   fetchUserFavourites,
   fetchUserReleases,
+  fetchUserSingles,
   fetchUserWishList,
   publishStatus,
   updateRelease

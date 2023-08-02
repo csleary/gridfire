@@ -103,6 +103,6 @@ releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-const Release = model("Release", releaseSchema, "releases");
+const Release = model<IRelease>("Release", releaseSchema, "releases");
 
 export default Release;

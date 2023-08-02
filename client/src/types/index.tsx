@@ -67,11 +67,6 @@ export interface BasketItem {
   releaseId: string;
 }
 
-export interface Collection {
-  albums: CollectionRelease[];
-  singles: CollectionSingle[];
-}
-
 export interface CollectionRelease {
   _id: string;
   purchaseId: string;

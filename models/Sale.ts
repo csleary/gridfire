@@ -34,6 +34,6 @@ const saleSchema = new Schema<ISale>({
 
 saleSchema.index({ user: 1, release: 1 });
 
-const Sale = model("Sale", saleSchema, "sales");
+const Sale = model<ISale>("Sale", saleSchema, "sales");
 
 export default Sale;

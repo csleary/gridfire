@@ -51,6 +51,6 @@ artistSchema.post("save", release => {
 
 artistSchema.set("toJSON", { versionKey: false });
 
-const Artist = model("Artist", artistSchema, "artists");
+const Artist = model<IArtist>("Artist", artistSchema, "artists");
 
 export default Artist;

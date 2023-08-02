@@ -18,6 +18,6 @@ const followerSchema = new Schema<IFollower>(
 followerSchema.index({ follower: 1, following: 1 }, { unique: true });
 followerSchema.index({ following: 1, follower: 1 }, { unique: true });
 
-const Followers = model("Follower", followerSchema, "followers");
+const Followers = model<IFollower>("Follower", followerSchema, "followers");
 
 export default Followers;

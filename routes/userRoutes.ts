@@ -1,13 +1,12 @@
 import { getUser, setPaymentAddress } from "gridfire/controllers/userController.js";
 import Activity from "gridfire/models/Activity.js";
+import Favourite from "gridfire/models/Favourite.js";
+import Release, { IRelease } from "gridfire/models/Release.js";
+import Sale from "gridfire/models/Sale.js";
+import WishList from "gridfire/models/WishList.js";
 import express from "express";
-import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const Favourite = mongoose.model("Favourite");
-const Release = mongoose.model("Release");
-const Sale = mongoose.model("Sale");
-const WishList = mongoose.model("WishList");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -29,59 +28,62 @@ router.post("/address", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/collection", requireLogin, async (req, res) => {
+router.get("/albums", requireLogin, async (req, res) => {
   const { _id: userId } = req.user || {};
   if (!userId) return res.sendStatus(401);
 
-  const [albums, singles] = await Promise.all([
-    // Get full-releases.
-    Sale.find({ type: "album", user: userId }, "paid purchaseDate transaction.hash type", {
-      lean: true,
-      sort: "-purchaseDate"
+  const albums = await Sale.find({ type: "album", user: userId }, "paid purchaseDate transaction.hash type", {
+    lean: true,
+    sort: "-purchaseDate"
+  })
+    .populate({
+      path: "release",
+      model: Release,
+      options: { lean: true },
+      select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
     })
-      .populate({
-        path: "release",
-        model: Release,
-        options: { lean: true },
-        select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
-      })
-      .exec(),
+    .exec();
 
-    // Get singles.
-    Sale.aggregate([
-      { $match: { type: "single", user: userId } },
-      { $addFields: { trackId: "$release" } },
-      {
-        $lookup: {
-          from: "releases",
-          localField: "release",
-          foreignField: "trackList._id",
-          as: "release"
-        }
-      },
-      { $unwind: { path: "$release", preserveNullAndEmptyArrays: true } },
-      { $sort: { purchaseDate: -1 } },
-      {
-        $project: {
-          paid: 1,
-          purchaseDate: 1,
-          release: {
-            _id: 1,
-            artistName: 1,
-            artwork: 1,
-            releaseTitle: 1,
-            "trackList._id": 1,
-            "trackList.trackTitle": 1
-          },
-          trackId: 1,
-          "transaction.hash": 1,
-          type: 1
-        }
+  res.send(albums);
+});
+
+router.get("/singles", requireLogin, async (req, res) => {
+  const { _id: userId } = req.user || {};
+  if (!userId) return res.sendStatus(401);
+
+  const singles = await Sale.aggregate([
+    { $match: { type: "single", user: userId } },
+    { $addFields: { trackId: "$release" } },
+    {
+      $lookup: {
+        from: "releases",
+        localField: "release",
+        foreignField: "trackList._id",
+        as: "release"
       }
-    ]).exec()
-  ]);
+    },
+    { $unwind: { path: "$release", preserveNullAndEmptyArrays: true } },
+    { $sort: { purchaseDate: -1 } },
+    {
+      $project: {
+        paid: 1,
+        purchaseDate: 1,
+        release: {
+          _id: 1,
+          artistName: 1,
+          artwork: 1,
+          releaseTitle: 1,
+          "trackList._id": 1,
+          "trackList.trackTitle": 1
+        },
+        trackId: 1,
+        "transaction.hash": 1,
+        type: 1
+      }
+    }
+  ]).exec();
 
-  res.send({ albums, singles });
+  res.send(singles);
 });
 
 router.get("/favourites", requireLogin, async (req, res) => {
@@ -93,7 +95,7 @@ router.get("/favourites", requireLogin, async (req, res) => {
       lean: true,
       sort: "-release.releaseDate"
     })
-      .populate({
+      .populate<{ release: IRelease }>({
         path: "release",
         match: { published: true },
         model: Release,
@@ -120,7 +122,7 @@ router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
       { dateAdded: Date.now(), user },
       { new: true, upsert: true }
     )
-      .populate({
+      .populate<{ release: IRelease }>({
         path: "release",
         match: { published: true },
         model: Release,
@@ -200,7 +202,7 @@ router.get("/wishlist", requireLogin, async (req, res) => {
     if (!user) return res.sendStatus(401);
 
     const userWishList = await WishList.find({ user }, "", { lean: true, sort: "-release.releaseDate" })
-      .populate({
+      .populate<{ release: IRelease }>({
         path: "release",
         match: { published: true },
         model: Release,
@@ -228,7 +230,7 @@ router.post("/wishlist/:releaseId", requireLogin, async (req, res) => {
       { dateAdded: Date.now(), note, user },
       { new: true, upsert: true }
     )
-      .populate({
+      .populate<{ release: IRelease }>({
         path: "release",
         match: { published: true },
         model: Release,

@@ -21,6 +21,6 @@ const streamSessionSchema = new Schema<IStreamSession>({
 streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });
 streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
 
-const StreamSession = model("StreamSession", streamSessionSchema, "stream-sessions");
+const StreamSession = model<IStreamSession>("StreamSession", streamSessionSchema, "stream-sessions");
 
 export default StreamSession;

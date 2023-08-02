@@ -18,6 +18,6 @@ const playSchema = new Schema<IPlay>({
 
 playSchema.index({ release: 1, trackId: 1, date: -1, user: 1 });
 
-const Play = model("Play", playSchema, "plays");
+const Play = model<IPlay>("Play", playSchema, "plays");
 
 export default Play;

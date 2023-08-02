@@ -22,7 +22,7 @@ assert(BUCKET_MP4, "BUCKET_MP4 env var missing.");
 assert(BUCKET_SRC, "BUCKET_SRC env var missing.");
 assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE env var missing.");
 
-const deleteTrack = async (trackId: string | ObjectId, user: ObjectId) => {
+const deleteTrack = async (trackId: string, user: ObjectId) => {
   const release = await Release.findOneAndUpdate(
     { "trackList._id": trackId, user },
     { "trackList.$.status": "deleting" },
