@@ -11,7 +11,7 @@ interface Props extends ChakraProps {
 }
 
 const ItemDate = ({ createdAt, isUnread }: { createdAt: string; isUnread: boolean }) => {
-  const date = DateTime.fromISO(createdAt).toLocaleString(DateTime.DATETIME_SHORT);
+  const date = DateTime.fromISO(createdAt).toRelative();
   const color = useColorModeValue("gray.600", "gray.400");
   const unreadColor = useColorModeValue("orange.500", "yellow.400");
 
