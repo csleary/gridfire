@@ -73,14 +73,17 @@ const Notifications = () => {
             </Badge>
           ) : null}
         </Box>
-        <PopoverContent>
-          <PopoverBody maxHeight="32rem" overflow="auto">
+        <PopoverContent overflow="hidden">
+          <PopoverBody maxHeight="32rem" overflow="auto" py={0}>
             <List>
-              <Stack divider={<StackDivider borderColor={useColorModeValue("blackAlpha.200", "whiteAlpha.200")} />}>
+              <Stack
+                divider={<StackDivider borderColor={useColorModeValue("blackAlpha.200", "whiteAlpha.200")} />}
+                spacing={0}
+              >
                 {activityList.map(activity => (
-                  <ActivityItem activity={activity} key={activity._id} />
+                  <ActivityItem activity={activity} key={activity._id} mx={-3} px={3} py={2} />
                 ))}
-                <Link as={RouterLink} to={"/dashboard/activity"} textAlign="center">
+                <Link as={RouterLink} to={"/dashboard/activity"} textAlign="center" px={3} py={2}>
                   See all activity…
                 </Link>
               </Stack>

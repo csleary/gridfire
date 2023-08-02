@@ -208,7 +208,7 @@ const MenuBar = () => {
               >
                 {userAccountShort || "Dashboard"}
               </MenuButton>
-              <MenuList>
+              <MenuList py={0}>
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/payment"}
