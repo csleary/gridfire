@@ -1,7 +1,7 @@
 import { Accordion, Box, Collapse, Divider, Flex, ScaleFade, VStack, useColorModeValue } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import Edition from "./edition";
-import { getVisibleGridFireEditionsByReleaseId } from "web3/contract";
+import { getVisibleGridFireEditionsByReleaseId } from "web3";
 import { useParams } from "react-router-dom";
 
 const Editions = () => {

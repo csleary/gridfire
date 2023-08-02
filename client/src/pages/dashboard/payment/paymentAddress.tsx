@@ -1,104 +1,162 @@
 import {
+  Alert,
+  AlertDescription,
   Button,
-  Center,
   Divider,
+  Flex,
+  FormControl,
+  FormHelperText,
   Heading,
   Input,
   InputGroup,
   InputLeftElement,
   Link,
-  TableContainer,
   Table,
   TableCaption,
-  Text,
-  Thead,
-  Td,
-  Tr,
-  Th,
+  TableContainer,
   Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
   useColorModeValue
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "hooks";
-import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
-import { PurchaseHistory } from "types";
-import { getGridFirePurchaseEvents } from "web3/contract";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
-import { formatEther } from "ethers";
+import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
+import { getGridFirePurchaseEvents, getResolvedAddress } from "web3";
+import { faCheck, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { formatEther, getAddress, isAddress } from "ethers";
 import Icon from "components/icon";
+import { SalesHistory } from "types";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
-const defaultErrorState = {
-  paymentAddress: ""
-};
-
 const PaymentAddress = () => {
+  const errorAlertColor = useColorModeValue("red.800", "red.200");
   const dispatch = useDispatch();
   const paymentAddress = useSelector(state => state.user.paymentAddress);
-  const [errors, setError] = useState(defaultErrorState);
+  const [error, setError] = useState("");
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [purchases, setPurchases] = useState<PurchaseHistory>([]);
-  const [address, setAddress] = useState(paymentAddress);
-  const hasErrors = Object.values(errors).some(error => Boolean(error));
+  const [salesHistory, setSalesHistory] = useState<SalesHistory>([]);
+  const [address, setAddress] = useState("");
   const hasChanged = address !== paymentAddress;
 
-  // Fetch payments received.
   useEffect(() => {
     if (paymentAddress) {
-      getGridFirePurchaseEvents().then(setPurchases);
+      setAddress(paymentAddress);
     }
   }, [paymentAddress]);
+
+  const getPurchases = useCallback(async () => {
+    const sales = await getGridFirePurchaseEvents();
+    setSalesHistory(sales);
+  }, []);
+
+  useEffect(() => {
+    if (paymentAddress) {
+      getPurchases();
+    }
+  }, [getPurchases, paymentAddress]);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
     const { value } = e.currentTarget;
     setIsPristine(false);
-    setError({ ...defaultErrorState, paymentAddress: "" });
+    setError("");
     setAddress(value);
   };
 
-  const handleSubmit: MouseEventHandler<HTMLButtonElement> = async e => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    dispatch(addPaymentAddress({ paymentAddress: address })).then(() => setIsSubmitting(false));
-  };
+  const saveAddress = useCallback(async () => {
+    try {
+      let proposedAddress = address.trim();
+
+      if (!proposedAddress) {
+        setError("Please enter a payment address or ENS domain.");
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      if (isAddress(proposedAddress)) {
+        try {
+          getAddress(proposedAddress);
+        } catch (error) {
+          setError("Please enter a valid payment address.");
+          return;
+        }
+      } else {
+        try {
+          proposedAddress = await getResolvedAddress(proposedAddress);
+        } catch (error) {
+          setError("Please enter a valid payment address or ENS domain.");
+          return;
+        }
+      }
+
+      const updatedAddress = await dispatch(addPaymentAddress(proposedAddress));
+
+      if (updatedAddress) {
+        setAddress(updatedAddress);
+        getPurchases();
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [address, dispatch, getPurchases]);
 
   return (
     <>
       <Heading fontWeight={300} mb={8} textAlign="center">
         Payment Address
       </Heading>
-      <InputGroup mb={8}>
-        <InputLeftElement
-          children={<Icon icon={faEthereum} />}
-          color="purple.300"
-          fontSize="1.5em"
-          pointerEvents="none"
-          top=".25rem"
-        />
-        <Input
-          bg={useColorModeValue("white", "gray.400")}
-          isDisabled={isSubmitting}
-          isInvalid={Boolean(errors.paymentAddress)}
-          fontSize="1.5rem"
-          name="paymentAddress"
-          onChange={handleChange}
-          placeholder="0x…"
-          size="lg"
-          textAlign="center"
-          value={address}
-        />
-      </InputGroup>
-      <Center mb={8}>
+      <FormControl isInvalid={Boolean(error)} mb={8}>
+        <InputGroup>
+          <InputLeftElement
+            children={<Icon icon={faEthereum} />}
+            color="purple.300"
+            fontSize="1.5em"
+            pointerEvents="none"
+            top=".25rem"
+          />
+          <Input
+            bg={useColorModeValue("white", "gray.400")}
+            isDisabled={isSubmitting}
+            isInvalid={Boolean(error)}
+            fontSize="1.5rem"
+            name="paymentAddress"
+            onChange={handleChange}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                saveAddress();
+              }
+            }}
+            placeholder="0x…"
+            size="lg"
+            textAlign="center"
+            value={address}
+          />
+        </InputGroup>
+        {error ? (
+          <Alert status="error" mt={2}>
+            <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : (
+          <FormHelperText>We will normalise your address and attempt to resolve any ENS domains.</FormHelperText>
+        )}
+      </FormControl>
+      <Flex justifyContent="flex-end" mb={8}>
         <Button
           leftIcon={<Icon icon={faCheck} />}
-          isDisabled={Boolean(hasErrors) || !hasChanged || isPristine}
+          isDisabled={Boolean(error) || !hasChanged || isPristine}
           isLoading={isSubmitting}
-          onClick={handleSubmit}
+          loadingText="Saving…"
+          onClick={() => saveAddress()}
         >
           Save Address
         </Button>
-      </Center>
+      </Flex>
       <Text mb={12}>
         This is the address to which music sales payments and rewards will be sent. By default this is also the address
         you used to sign in, but it can be updated to any address or ENS domain.
@@ -119,7 +177,7 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {purchases.map(
+            {salesHistory.map(
               ({ blockNumber, buyer, editionId, releaseId, artistShare, platformFee, transactionHash }) => (
                 <Tr key={`${transactionHash}.${releaseId}`}>
                   <Td>

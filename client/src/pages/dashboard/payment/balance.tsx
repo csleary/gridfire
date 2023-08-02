@@ -19,7 +19,7 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { claimBalance, getBalance, getGridFireClaimEvents } from "web3/contract";
+import { claimBalance, getBalance, getGridFireClaimEvents } from "web3";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";

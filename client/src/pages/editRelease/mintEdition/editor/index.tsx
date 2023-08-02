@@ -22,7 +22,7 @@ import Field from "components/field";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatPrice } from "utils";
-import { mintEdition } from "web3/contract";
+import { mintEdition } from "web3";
 import { selectTracks } from "state/editor";
 import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";

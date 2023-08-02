@@ -1,4 +1,13 @@
-import { BytesLike, Contract, EventLog, Interface, encodeBytes32String, getAddress, getDefaultProvider } from "ethers";
+import {
+  BytesLike,
+  Contract,
+  EventLog,
+  Interface,
+  encodeBytes32String,
+  getAddress,
+  getDefaultProvider,
+  resolveAddress
+} from "ethers";
 import Edition, { IEdition } from "gridfire/models/Edition.js";
 import { FilterQuery, ObjectId } from "mongoose";
 import Release, { IRelease } from "gridfire/models/Release.js";
@@ -13,6 +22,8 @@ const {
   GRIDFIRE_EDITIONS_ADDRESS,
   GRIDFIRE_PAYMENT_ADDRESS,
   DAI_CONTRACT_ADDRESS,
+  MAINNET_NETWORK_URL,
+  MAINNET_NETWORK_KEY,
   NETWORK_URL,
   NETWORK_KEY,
   NODE_ENV
@@ -24,6 +35,8 @@ const { abi: gridFirePaymentABI } = GridFirePayment;
 assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var not set.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var not set.");
 assert(DAI_CONTRACT_ADDRESS, "DAI_CONTRACT_ADDRESS env var not set.");
+assert(MAINNET_NETWORK_URL, "MAINNET_NETWORK_URL env var not set.");
+assert(MAINNET_NETWORK_KEY, "MAINNET_NETWORK_KEY env var not set.");
 assert(NETWORK_URL, "NETWORK_URL env var not set.");
 assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), "NETWORK_KEY env var missing.");
 
@@ -118,6 +131,13 @@ const getGridFireEditionUris = async (releaseId: string) => {
   return uris;
 };
 
+const getResolvedAddress = async (address: string) => {
+  const mainnetProvider = getDefaultProvider(`${MAINNET_NETWORK_URL}/${MAINNET_NETWORK_KEY}`);
+  const resolvedAddress = await resolveAddress(address, mainnetProvider);
+  mainnetProvider.provider.destroy();
+  return resolvedAddress;
+};
+
 const getTransaction = async (txId: string) => {
   const tx = await provider.getTransaction(txId);
   if (!tx) return null;
@@ -203,6 +223,7 @@ export {
   getGridFirePaymentContract,
   getGridFireEditionsByReleaseId,
   getGridFireEditionUris,
+  getResolvedAddress,
   getTransaction,
   getUserGridFireEditions,
   setVisibility

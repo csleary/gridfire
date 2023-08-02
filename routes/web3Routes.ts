@@ -1,7 +1,8 @@
 import {
   getDaiContract,
   getGridFireEditionsContract,
-  getGridFirePaymentContract
+  getGridFirePaymentContract,
+  getResolvedAddress
 } from "gridfire/controllers/web3/index.js";
 import express from "express";
 import mongoose from "mongoose";
@@ -56,6 +57,17 @@ router.get("/claims", requireLogin, async (req, res) => {
     });
 
     res.send(leanClaims);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/domain/:ensDomain", requireLogin, async (req, res) => {
+  try {
+    const { ensDomain } = req.params;
+    const resolvedAddress = await getResolvedAddress(ensDomain);
+    res.send(resolvedAddress);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);

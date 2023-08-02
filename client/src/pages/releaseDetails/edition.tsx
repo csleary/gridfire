@@ -20,7 +20,7 @@ import { EditionPurchase, MintedEdition } from "types";
 import Icon from "components/icon";
 import axios from "axios";
 import { fetchDaiBalance } from "state/web3";
-import { purchaseEdition } from "web3/contract";
+import { purchaseEdition } from "web3";
 import { useState } from "react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 

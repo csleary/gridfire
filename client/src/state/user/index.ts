@@ -120,16 +120,20 @@ const removeFromWishList = (releaseId: string) => async (dispatch: AppDispatch) 
   dispatch(toastSuccess({ message: "Removed from wish list.", title: "Removed" }));
 };
 
-const addPaymentAddress = (values: { paymentAddress: string }) => async (dispatch: AppDispatch) => {
-  try {
-    const res = await axios.post("/api/user/address", values);
-    const { paymentAddress } = res.data;
-    dispatch(setPaymentAddress(paymentAddress));
-    dispatch(toastSuccess({ message: "Payment address saved.", title: "Saved!" }));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
-  }
-};
+const addPaymentAddress =
+  (paymentAddress: string) =>
+  async (dispatch: AppDispatch): Promise<string | undefined> => {
+    try {
+      const res = await axios.post("/api/user/address", { paymentAddress });
+      dispatch(setPaymentAddress(res.data));
+      dispatch(toastSuccess({ message: "Payment address saved.", title: "Saved!" }));
+      return res.data;
+    } catch (error: any) {
+      dispatch(
+        toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" })
+      );
+    }
+  };
 
 const fetchUser = () => async (dispatch: AppDispatch) => {
   try {

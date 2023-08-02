@@ -1,9 +1,9 @@
 import { toastError, toastSuccess } from "state/toast";
-import { Artist, Collection, CollectionAlbum, Favourite, ListItem, Release, UserRelease } from "types";
+import { Artist, Collection, CollectionEdition, Favourite, ListItem, Release, UserRelease } from "types";
 import { DateTime } from "luxon";
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
-import { getUserEditions } from "web3/contract";
+import { getUserEditions } from "web3";
 import { AppDispatch, GetState } from "index";
 
 interface ReleasesState {
@@ -21,7 +21,7 @@ interface ReleasesState {
   releaseIdsForDeletion: { [key: string]: boolean };
   userFavourites: Favourite[];
   userReleases: UserRelease[];
-  userEditions: CollectionAlbum[];
+  userEditions: CollectionEdition[];
   userWishList: ListItem[];
 }
 

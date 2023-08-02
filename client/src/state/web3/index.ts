@@ -1,5 +1,5 @@
 import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
-import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3/contract";
+import { getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3";
 import { toastError, toastWarning } from "state/toast";
 import { AppDispatch, GetState } from "index";
 import { BasketItem } from "types";

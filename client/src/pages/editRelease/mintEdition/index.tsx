@@ -1,5 +1,5 @@
 import { Button, Heading, Text } from "@chakra-ui/react";
-import { getGridFireEditionUris, getMintedGridFireEditionsByReleaseId } from "web3/contract";
+import { getGridFireEditionUris, getMintedGridFireEditionsByReleaseId } from "web3";
 import { useCallback, useEffect, useState } from "react";
 import EditionEditor from "./editor";
 import Icon from "components/icon";

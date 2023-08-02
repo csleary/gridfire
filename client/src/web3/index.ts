@@ -1,4 +1,12 @@
-import { BrowserProvider, Contract, Eip1193Provider, JsonRpcSigner, encodeBytes32String, parseEther } from "ethers";
+import {
+  BrowserProvider,
+  Contract,
+  Eip1193Provider,
+  JsonRpcSigner,
+  encodeBytes32String,
+  parseEther,
+  resolveAddress
+} from "ethers";
 import { BasketItem } from "types";
 import axios from "axios";
 import daiAbi from "web3/dai";
@@ -12,9 +20,21 @@ const {
   REACT_APP_DAI_CONTRACT_ADDRESS: daiContractAddress = ""
 } = process.env;
 
+const ethereum = await detectEthereumProvider();
+let provider = new BrowserProvider(ethereum as unknown as Eip1193Provider) as BrowserProvider;
+
 const getProvider = async () => {
+  if (provider) {
+    return provider;
+  }
+
   const ethereum = await detectEthereumProvider();
-  return new BrowserProvider(ethereum as unknown as Eip1193Provider);
+  if (!ethereum) {
+    throw new Error("Please install a we3 wallet (e.g. MetaMask).");
+  }
+
+  provider = new BrowserProvider(ethereum as unknown as Eip1193Provider) as BrowserProvider;
+  return provider;
 };
 
 const claimBalance = async () => {
@@ -86,6 +106,11 @@ const getGridFireEditionUris = async (releaseId: string) => {
 
 const getGridFirePurchaseEvents = async () => {
   const res = await axios.get("/api/web3/purchases");
+  return res.data;
+};
+
+const getResolvedAddress = async (address: string) => {
+  const res = await axios.get(`/api/web3/domain/${address}`);
   return res.data;
 };
 
@@ -201,19 +226,20 @@ const setDaiAllowance = async (newLimitInDai = "") => {
 
 export {
   claimBalance,
-  gridFireCheckout,
   getBalance,
   getDaiAllowance,
+  getDaiApprovalEvents,
   getDaiBalance,
   getDaiContract,
-  getDaiApprovalEvents,
   getGridFireClaimEvents,
   getGridFireContract,
-  getVisibleGridFireEditionsByReleaseId,
   getGridFireEditionUris,
   getGridFirePurchaseEvents,
   getMintedGridFireEditionsByReleaseId,
+  getResolvedAddress,
   getUserEditions,
+  getVisibleGridFireEditionsByReleaseId,
+  gridFireCheckout,
   mintEdition,
   purchaseEdition,
   purchaseRelease,

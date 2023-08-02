@@ -21,7 +21,7 @@ import { addToBasket } from "state/web3";
 import axios from "axios";
 import { loadTrack } from "state/player";
 import { parseEther } from "ethers";
-import { purchaseRelease } from "web3/contract";
+import { purchaseRelease } from "web3";
 import { shallowEqual } from "react-redux";
 import Icon from "components/icon";
 import { fadeAudio } from "utils";

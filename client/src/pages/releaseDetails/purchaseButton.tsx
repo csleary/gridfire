@@ -8,7 +8,7 @@ import axios from "axios";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { parseEther } from "ethers";
-import { purchaseRelease } from "web3/contract";
+import { purchaseRelease } from "web3";
 import { useState } from "react";
 
 interface Props {

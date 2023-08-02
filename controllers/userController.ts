@@ -1,5 +1,5 @@
-import { getAddress } from "ethers";
 import { ObjectId, model } from "mongoose";
+import { getResolvedAddress } from "gridfire/controllers/web3/index.js";
 
 const User = model("User");
 
@@ -15,8 +15,16 @@ const getUser = async (userId: ObjectId) => {
   return user;
 };
 
-const setPaymentAddress = async ({ paymentAddress, userId }: { paymentAddress: string; userId: ObjectId }) => {
-  return User.findByIdAndUpdate(userId, { paymentAddress: getAddress(paymentAddress) }).exec();
+const setPaymentAddress = async ({
+  paymentAddress,
+  userId
+}: {
+  paymentAddress: string;
+  userId: ObjectId;
+}): Promise<string> => {
+  const resolvedAddress = await getResolvedAddress(paymentAddress);
+  await User.findByIdAndUpdate(userId, { paymentAddress: resolvedAddress }).exec();
+  return resolvedAddress;
 };
 
 export { getUser, setPaymentAddress };

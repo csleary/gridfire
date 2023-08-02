@@ -44,13 +44,15 @@ const Collection = () => {
         <>
           <Heading as="h3">GridFire Editions</Heading>
           <Grid>
-            {userEditions.map(({ _id: purchaseId, paid, release, transaction }) => {
+            {userEditions.map(({ _id: purchaseId, metadata, paid, release, transaction }) => {
+              const { description } = metadata || {};
               const hash = transaction.hash;
+              const releaseTitle = description || release.releaseTitle;
               const shortHash = hash.slice(0, 4) + "…" + hash.slice(-4);
 
               return (
                 <Box key={purchaseId}>
-                  <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
+                  <RenderRelease release={{ ...release, releaseTitle, purchaseId }} type="collection" mb={2} />
                   <Flex justifyContent="flex-end">
                     <Text color={receiptTextColour}>
                       <Icon color={receiptColour} icon={faReceipt} mr={2} />

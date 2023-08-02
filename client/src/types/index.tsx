@@ -68,11 +68,11 @@ export interface BasketItem {
 }
 
 export interface Collection {
-  albums: CollectionAlbum[];
+  albums: CollectionRelease[];
   singles: CollectionSingle[];
 }
 
-export interface CollectionAlbum {
+export interface CollectionRelease {
   _id: string;
   purchaseId: string;
   paid: string;
@@ -81,7 +81,11 @@ export interface CollectionAlbum {
   transaction: TransactionReceipt;
 }
 
-export interface CollectionSingle extends CollectionAlbum {
+export interface CollectionEdition extends CollectionRelease {
+  metadata: { description: string; properties: { tracks: [{ id: string; title: string }] } };
+}
+
+export interface CollectionSingle extends CollectionRelease {
   trackId: string;
 }
 
@@ -167,7 +171,7 @@ export interface Purchase {
   transactionHash: string;
 }
 
-export type PurchaseHistory = Purchase[];
+export type SalesHistory = Purchase[];
 
 export interface PurchasedRelease extends Release {
   purchaseId: string;

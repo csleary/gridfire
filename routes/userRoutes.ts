@@ -21,8 +21,8 @@ router.post("/address", requireLogin, async (req, res) => {
     const { paymentAddress } = req.body;
     const { _id: userId } = req.user || {};
     if (!userId) return res.sendStatus(401);
-    await setPaymentAddress({ paymentAddress, userId });
-    res.json({ paymentAddress });
+    const updatedAddress = await setPaymentAddress({ paymentAddress, userId });
+    res.send(updatedAddress);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);

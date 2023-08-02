@@ -35,7 +35,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { FixedNumber, formatEther } from "ethers";
-import { getDaiApprovalEvents, setDaiAllowance } from "web3/contract";
+import { getDaiApprovalEvents, setDaiAllowance } from "web3";
 import { useDispatch, useSelector } from "hooks";
 import { ChangeEventHandler, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
