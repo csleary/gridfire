@@ -1,9 +1,11 @@
 import {
   AddressLike,
+  AlchemyProvider,
   BytesLike,
   Contract,
   ContractEventPayload,
   decodeBytes32String,
+  FallbackProvider,
   formatEther,
   getAddress,
   getDefaultProvider
@@ -23,21 +25,42 @@ import { recordSale } from "gridfire-web3-events/controllers/sale.js";
 import { updateEditionStatus } from "gridfire-web3-events/controllers/edition.js";
 import { validatePurchase } from "gridfire-web3-events/controllers/release.js";
 
-const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS, NETWORK_URL, NETWORK_KEY, NODE_ENV } = process.env;
+const {
+  API_KEY_1RPC,
+  API_KEY_ALCHEMY,
+  API_KEY_CHAINNODES,
+  GRIDFIRE_EDITIONS_ADDRESS,
+  GRIDFIRE_PAYMENT_ADDRESS,
+  NODE_ENV
+} = process.env;
+
 const { Release, User } = mongoose.models;
 const timeZone = "Europe/Amsterdam";
 
 assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var missing.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var missing.");
-assert(NETWORK_URL, "NETWORK_URL env var missing.");
-assert(NODE_ENV !== "production" || (NODE_ENV === "production" && NETWORK_KEY), "NETWORK_KEY env var missing.");
+assert(NODE_ENV !== "production" || (NODE_ENV === "production" && API_KEY_1RPC), "API_KEY_1RPC env var missing.");
+assert(NODE_ENV !== "production" || (NODE_ENV === "production" && API_KEY_ALCHEMY), "API_KEY_ALCHEMY env var missing.");
+assert(
+  NODE_ENV !== "production" || (NODE_ENV === "production" && API_KEY_CHAINNODES),
+  "API_KEY_CHAINNODES env var missing."
+);
 
-const provider = getDefaultProvider(`${NETWORK_URL}/${NETWORK_KEY}`);
+const providers = [];
+if (NODE_ENV !== "production") {
+  const provider = getDefaultProvider("http://localhost:8545");
+  providers.push({ provider, priority: 1, weight: 1 });
+} else {
+  const alchemyProvider = new AlchemyProvider("arbitrum", API_KEY_ALCHEMY);
+  const chainNodesProvider = getDefaultProvider(`https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`);
+  const oneRpcProvider = getDefaultProvider(`https://1rpc.io/${API_KEY_1RPC}/arb`);
+  providers.push({ provider: alchemyProvider, priority: 1 });
+  providers.push({ provider: chainNodesProvider, priority: 2 });
+  providers.push({ provider: oneRpcProvider, priority: 3 });
+}
+
+const provider = new FallbackProvider(providers);
 provider.on("error", logger.error);
-
-// if (NODE_ENV !== "production") {
-//   provider.on("debug", logger.info);
-// }
 
 const getGridFireEditionsContract = () => {
   return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsABI, provider);
