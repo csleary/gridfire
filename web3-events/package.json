@@ -16,12 +16,15 @@
   "dependencies": {
     "amqplib": "^0.10.3",
     "dotenv": "^16.0.0",
-    "ethers": "^6.6.7",
-    "mongoose": "^6.1.4"
+    "ethers": "^6.7.1",
+    "mongoose": "^6.1.4",
+    "object-hash": "^3.0.0"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
     "@types/node": "^20.4.5",
+    "@types/object-hash": "^3.0.3",
+    "json-rpc-2.0": "^1.6.0",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3"

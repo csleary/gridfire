@@ -19,17 +19,16 @@ const recordSale = async ({
   userId
 }: RecordSaleParams): Promise<ISale> => {
   const paid = amountPaid.toString();
-  const { gasUsed, cumulativeGasUsed, gasPrice, ...restTxReceipt } = transactionReceipt;
-  const { from: buyer, hash, status } = restTxReceipt;
+  const { from: buyer, status, transactionHash } = transactionReceipt;
 
-  if (status !== 1) {
-    throw new Error(`Transaction failed. Status: ${status}. Hash: ${hash}.`);
+  if (status !== "0x1") {
+    throw new Error(`Transaction failed. Status: ${status}. Hash: ${transactionHash}.`);
   }
 
   const saleExists = await Sale.exists({
     paid,
     release: releaseId,
-    "transaction.hash": hash,
+    transactionHash,
     type,
     user: userId
   });
@@ -38,19 +37,13 @@ const recordSale = async ({
     throw new Error("This sale has already been recorded.");
   }
 
-  const bigIntValues: BigIntValues = { cumulativeGasUsed, gasPrice, gasUsed };
-
-  const bigIntValuesAsString: { cumulativeGasUsed: string; gasPrice: string; gasUsed: string } = Object.entries(
-    bigIntValues
-  ).reduce(bigIntToString, {});
-
   const sale = await Sale.create({
     purchaseDate: Date.now(),
     release: releaseId,
     paid,
     fee: platformFee.toString(),
     netAmount: artistShare.toString(),
-    transaction: { ...restTxReceipt, ...bigIntValuesAsString },
+    transactionHash,
     type,
     user: userId,
     userAddress: buyer

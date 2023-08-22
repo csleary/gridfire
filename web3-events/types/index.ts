@@ -63,7 +63,7 @@ interface RecordSaleParams {
   artistShare: bigint;
   platformFee: bigint;
   releaseId: string;
-  transactionReceipt: TransactionReceipt;
+  transactionReceipt: any;
   type: SaleType;
   userId: string;
 }

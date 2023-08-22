@@ -13,7 +13,7 @@ export interface ISale {
   paid: string;
   fee: string;
   netAmount: string;
-  transaction: object;
+  transactionHash: string;
   type: SaleType;
   user: ObjectId;
   userAddress: string;
@@ -27,7 +27,7 @@ const saleSchema = new Schema<ISale>({
   paid: { type: String },
   fee: { type: String },
   netAmount: { type: String },
-  transaction: { type: Object },
+  transactionHash: { type: String, required: true },
   type: { type: String, enum: SaleType, default: SaleType.Album },
   user: { type: ObjectId, ref: "User" },
   userAddress: { type: String }

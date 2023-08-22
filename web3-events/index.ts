@@ -4,19 +4,20 @@ import "gridfire-web3-events/models/Release.js";
 import "gridfire-web3-events/models/Sale.js";
 import "gridfire-web3-events/models/User.js";
 import { amqpClose, amqpConnect } from "gridfire-web3-events/controllers/amqp/index.js";
-import {
-  getGridFireEditionsContract,
-  getGridFirePaymentContract,
-  onEditionMinted,
-  onPurchase,
-  onPurchaseEdition
-} from "gridfire-web3-events/controllers/web3.js";
+// import {
+//   getGridFireEditionsContract,
+//   getGridFirePaymentContract
+// } from "gridfire-web3-events/controllers/web3/index.js";
+import GridfireProvider from "gridfire-web3-events/controllers/web3/gridfireProvider/index.js";
+import onEditionMinted from "gridfire-web3-events/controllers/web3/onEditionMinted/index.js";
+import onPurchase from "gridfire-web3-events/controllers/web3/onPurchase/index.js";
+import onPurchaseEdition from "gridfire-web3-events/controllers/web3/onPurchaseEdition/index.js";
 import { strict as assert } from "assert/strict";
 import logger from "gridfire-web3-events/controllers/logger.js";
 import mongoose from "mongoose";
 import net from "net";
 
-const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
+const { HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
 let healthProbeServer: net.Server | null = null;
 
 assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
@@ -79,11 +80,21 @@ try {
   await mongoose.connect(MONGODB_URI);
   await amqpConnect();
   await setupHealthProbe();
-  const gridFirePayment = getGridFirePaymentContract();
-  const gridFireEditions = getGridFireEditionsContract();
-  gridFireEditions.on("EditionMinted", onEditionMinted);
-  gridFireEditions.on("PurchaseEdition", onPurchaseEdition);
-  gridFirePayment.on("Purchase", onPurchase);
+  // const gridFirePayment = getGridFirePaymentContract();
+  // const gridFireEditions = getGridFireEditionsContract();
+  // gridFireEditions.on("EditionMinted", onEditionMinted);
+  // gridFireEditions.on("PurchaseEdition", onPurchaseEdition);
+  // gridFirePayment.on("Purchase", onPurchase);
+
+  // Lighter custom provider for gridfire events.
+
+  const gridfireProvider = new GridfireProvider();
+
+  gridfireProvider
+    .on("EditionMinted", onEditionMinted)
+    .on("PurchaseEdition", onPurchaseEdition)
+    .on("Purchase", onPurchase)
+    .on("error", logger.error);
 } catch (error: any) {
   logger.error(`Startup error: ${error.message}`);
 }
