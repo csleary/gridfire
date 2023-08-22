@@ -122,7 +122,7 @@ const MenuDrawer = () => {
             textTransform="uppercase"
             variant="ghost"
           >
-            GridFire
+            Gridfire
           </Button>
         </WrapItem>
         <Spacer />
@@ -288,7 +288,7 @@ const MenuDrawer = () => {
                   <Divider />
                   <Button
                     _hover={{ textDecoration: "none" }}
-                    aria-label="Sign out of GridFire."
+                    aria-label="Sign out of Gridfire."
                     leftIcon={<Icon fixedWidth icon={faSignOutAlt} />}
                     onClick={handleLogout}
                     variant="link"

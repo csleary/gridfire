@@ -1,6 +1,6 @@
 import { Interface, getBigInt, toQuantity } from "ethers";
 import axios, { AxiosResponse } from "axios";
-import { JSONRPCResponse, JSONRPCSuccessResponse } from "json-rpc-2.0";
+import { JSONRPCResponse } from "json-rpc-2.0";
 import { EventEmitter } from "node:events";
 import GridfireEditionsAbi from "gridfire-web3-events/controllers/web3/gridfireEditionsABI.js";
 import GridfirePaymentAbi from "gridfire-web3-events/controllers/web3/gridfirePaymentABI.js";
@@ -48,9 +48,9 @@ const ONE_RPC = Symbol("1rpc");
 
 const PROVIDERS: [name: symbol, url: string][] = [
   [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
-  [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
-  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`],
-  [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
+  // [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`], // eth_getFilterLogs not available.
+  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
+  // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
 ];
 
 class GridfireProvider extends EventEmitter {
@@ -71,7 +71,7 @@ class GridfireProvider extends EventEmitter {
       PROVIDERS.forEach(([provider, url]) => this.#providers.set(provider, url));
     }
 
-    this.#quorum = Math.ceil(this.#providers.size / 2);
+    this.#quorum = Math.floor(this.#providers.size / 2) || 1;
     this.#setTopics();
     this.#interval = setInterval(this.#setNewFilters.bind(this), this.#pollingInterval);
   }
@@ -98,7 +98,7 @@ class GridfireProvider extends EventEmitter {
 
   async #getBlockNumber(): Promise<string> {
     const method = "eth_blockNumber";
-    const responses = await this.#send([{ method, params: [] }], { timeout: 1000 });
+    const responses = await this.#send([{ method, params: [] }]);
     const definitiveResult = this.#getQuorumValue(responses);
     const [{ result }] = definitiveResult.data;
     return result;
@@ -130,7 +130,10 @@ class GridfireProvider extends EventEmitter {
 
       eventFilters.forEach(eventFilter => {
         eventFilter.forEach(({ provider, data, error }) => {
-          if (error) return logger.warn(error);
+          if (error || data.some(result => result.error)) {
+            return logger.warn({ provider: provider.description, data, error });
+          }
+
           const [{ result: filterId }] = data;
           this.#filterIds.set(provider, [...(this.#filterIds.get(provider) || []), filterId]);
         });
@@ -173,7 +176,7 @@ class GridfireProvider extends EventEmitter {
           jsonrpc: "2.0"
         }));
 
-        return axios.post(url!, body, { timeout: 3000 });
+        return axios.post(url!, body, { timeout: 5000 });
       });
 
       const results = await Promise.allSettled(requests);
@@ -198,7 +201,7 @@ class GridfireProvider extends EventEmitter {
 
   async #getTransactionReceipt(transactionHash: string): Promise<JSONRPCResponse> {
     const method = "eth_getTransactionReceipt";
-    const responses = await this.#send([{ method, params: [transactionHash] }], { timeout: 1000 });
+    const responses = await this.#send([{ method, params: [transactionHash] }]);
     const definitiveResult = this.#getQuorumValue(responses);
     const [{ result }] = definitiveResult.data;
     return result;
@@ -209,7 +212,19 @@ class GridfireProvider extends EventEmitter {
     const total = new Map();
 
     results
-      .filter(({ error }) => !error)
+      .filter(result => {
+        const { data, error, provider } = result;
+
+        if (error || data.some(result => result.error)) {
+          logger.warn(
+            "JSON-RPC response error:",
+            JSON.stringify({ data, error, provider: provider.description }, null, 2)
+          );
+          return false;
+        }
+
+        return true;
+      })
       .forEach(result => {
         if (definitiveResult) return;
         const hash = objectHash(result.data, { excludeKeys: key => key === "id" });

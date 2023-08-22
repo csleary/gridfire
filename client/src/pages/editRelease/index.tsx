@@ -75,7 +75,7 @@ const EditRelease = () => {
         <title>{isEditing ? "Update Release" : "Add Release"}</title>
         <meta
           name="description"
-          content={isEditing ? "Update your releases on GridFire." : "Add a new release to your GridFire account."}
+          content={isEditing ? "Update your releases on Gridfire." : "Add a new release to your Gridfire account."}
         />
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>

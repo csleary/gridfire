@@ -111,7 +111,7 @@ const Login = () => {
           </Alert>
         ) : (
           <Text textAlign="center" fontSize="xl">
-            Welcome to GridFire.
+            Welcome to Gridfire.
             <br />
             Please use your web3 wallet to log in (e.g. Metamask).
           </Text>

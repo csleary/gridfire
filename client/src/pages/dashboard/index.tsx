@@ -11,10 +11,10 @@ import WishList from "./wishList";
 const Dashboard = () => (
   <>
     <Helmet>
-      <title>Dashboard | GridFire</title>
+      <title>Dashboard | Gridfire</title>
       <meta
         name="description"
-        content="Take control of your GridFire account. Add music, configure your payment details, add artist information and more."
+        content="Take control of your Gridfire account. Add music, configure your payment details, add artist information and more."
       />
     </Helmet>
     <Routes>

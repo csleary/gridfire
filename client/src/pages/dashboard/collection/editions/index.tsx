@@ -26,7 +26,7 @@ const Editions = () => {
   if (userEditions.length) {
     return (
       <>
-        <Heading as="h3">GridFire Editions</Heading>
+        <Heading as="h3">Gridfire Editions</Heading>
         <Grid>
           {userEditions.map(({ _id: purchaseId, metadata, paid, release, transaction }) => {
             const { description } = metadata || {};

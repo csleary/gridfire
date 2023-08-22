@@ -1,6 +1,6 @@
 {
-  "short_name": "GridFire",
-  "name": "GridFire",
+  "short_name": "Gridfire",
+  "name": "Gridfire",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#292c44",

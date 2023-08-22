@@ -4,13 +4,13 @@ import { Helmet } from "react-helmet";
 const About = () => (
   <>
     <Helmet>
-      <title>About GridFire</title>
-      <meta name="description" content="Learn about the GridFire music streaming and download platform." />
+      <title>About Gridfire</title>
+      <meta name="description" content="Learn about the Gridfire music streaming and download platform." />
     </Helmet>
     <Container as="main" p={0}>
-      <Heading as="h2">About GridFire</Heading>
+      <Heading as="h2">About Gridfire</Heading>
       <Text fontSize="xl" mb={6}>
-        GridFire is a music streaming and download store, using the Arbitrum blockchain for payments and NFT Editions.
+        Gridfire is a music streaming and download store, using the Arbitrum blockchain for payments and NFT Editions.
       </Text>
       <Text fontSize="xl" mb={6}>
         Artists set a price for their releases in DAI (arguably the most trusted and decentralised USD stablecoin),

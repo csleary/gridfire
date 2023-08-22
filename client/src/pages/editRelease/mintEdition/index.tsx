@@ -59,7 +59,7 @@ const MintEdition = () => {
         Editions
       </Heading>
       <Text mb={6}>
-        Mint a limited run of NFT-backed GridFire Editions for your release, with exclusive tracks. These will be listed
+        Mint a limited run of NFT-backed Gridfire Editions for your release, with exclusive tracks. These will be listed
         on the release page, below the standard audio-only release.
       </Text>
       <Heading size="lg" textAlign="left">
@@ -67,7 +67,7 @@ const MintEdition = () => {
       </Heading>
       <MintedEditions editions={editions} handleChangeVisibility={handleChangeVisibility} />
       <Button isDisabled={!isEditing} leftIcon={<Icon icon={faPlusCircle} />} onClick={handleOpenModal}>
-        Mint GridFire Edition
+        Mint Gridfire Edition
       </Button>
       <EditionEditor editions={editions} handleCloseModal={handleCloseModal} showModal={showModal} />
     </>

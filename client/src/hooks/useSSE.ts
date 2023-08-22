@@ -90,7 +90,7 @@ const useSSE = () => {
 
       dispatch(
         toastSuccess({
-          message: `GridFire Edition \u2018${releaseTitle}\u2019 by ${artistName} has been added to your wallet.`,
+          message: `Gridfire Edition \u2018${releaseTitle}\u2019 by ${artistName} has been added to your wallet.`,
           title: "Purchased!"
         })
       );

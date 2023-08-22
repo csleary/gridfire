@@ -102,7 +102,7 @@ const App: React.FC = () => {
           <Box>
             <Box>
               <Icon icon={faNetworkWired} mr={2} />
-              Please switch to the Arbitrum network to use GridFire
+              Please switch to the Arbitrum network to use Gridfire
             </Box>
             <Link
               isExternal

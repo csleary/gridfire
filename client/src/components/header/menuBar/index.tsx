@@ -130,7 +130,7 @@ const MenuBar = () => {
           textTransform="uppercase"
           variant="ghost"
         >
-          GridFire
+          Gridfire
         </Button>
       </WrapItem>
       <Spacer />

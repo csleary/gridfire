@@ -1,9 +1,7 @@
 import {
-  AlchemyProvider,
   BytesLike,
   Contract,
   EventLog,
-  FallbackProvider,
   Interface,
   encodeBytes32String,
   getAddress,
@@ -19,49 +17,24 @@ import GridFireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditi
 import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import assert from "assert/strict";
 import daiAbi from "gridfire/controllers/web3/dai.js";
+import provider from "./providers/index.js";
 
 const {
-  API_KEY_1RPC,
-  API_KEY_ALCHEMY,
-  API_KEY_CHAINNODES,
   GRIDFIRE_EDITIONS_ADDRESS,
   GRIDFIRE_PAYMENT_ADDRESS,
   DAI_CONTRACT_ADDRESS,
-  MAINNET_NETWORK_URL,
   MAINNET_NETWORK_KEY,
-  NODE_ENV
+  MAINNET_NETWORK_URL
 } = process.env;
 
 const { abi: gridFireEditionsABI } = GridFireEditions;
 const { abi: gridFirePaymentABI } = GridFirePayment;
 
-assert(NODE_ENV !== "production" || (NODE_ENV === "production" && API_KEY_1RPC), "API_KEY_1RPC env var missing.");
-assert(NODE_ENV !== "production" || (NODE_ENV === "production" && API_KEY_ALCHEMY), "API_KEY_ALCHEMY env var missing.");
-assert(
-  NODE_ENV !== "production" || (NODE_ENV === "production" && API_KEY_CHAINNODES),
-  "API_KEY_CHAINNODES env var missing."
-);
 assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var not set.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var not set.");
 assert(DAI_CONTRACT_ADDRESS, "DAI_CONTRACT_ADDRESS env var not set.");
-assert(MAINNET_NETWORK_URL, "MAINNET_NETWORK_URL env var not set.");
 assert(MAINNET_NETWORK_KEY, "MAINNET_NETWORK_KEY env var not set.");
-
-const providers = [];
-if (NODE_ENV !== "production") {
-  const provider = getDefaultProvider("http://localhost:8545");
-  providers.push({ provider, priority: 1, weight: 1 });
-} else {
-  const alchemyProvider = new AlchemyProvider("arbitrum", API_KEY_ALCHEMY);
-  const chainNodesProvider = getDefaultProvider(`https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`);
-  const oneRpcProvider = getDefaultProvider(`https://1rpc.io/${API_KEY_1RPC}/arb`);
-  providers.push({ provider: alchemyProvider, priority: 1 });
-  // providers.push({ provider: chainNodesProvider, priority: 2 });
-  // providers.push({ provider: oneRpcProvider, priority: 3 });
-}
-
-const provider = new FallbackProvider(providers);
-provider.on("error", console.error);
+assert(MAINNET_NETWORK_URL, "MAINNET_NETWORK_URL env var not set.");
 
 const getDaiContract = () => {
   return new Contract(DAI_CONTRACT_ADDRESS, daiAbi, provider);

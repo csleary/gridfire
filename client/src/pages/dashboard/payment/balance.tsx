@@ -73,7 +73,7 @@ const Balance = () => {
   return (
     <>
       <Heading fontWeight={300} mb={8} textAlign="center">
-        Your GridFire Balance
+        Your Gridfire Balance
       </Heading>
       <Flex
         bg={useColorModeValue("white", "gray.800")}
@@ -90,7 +90,7 @@ const Balance = () => {
           <StatNumber fontSize="4xl" textAlign="center">
             ◈ {Number(formatEther(balance)).toFixed(2)}
           </StatNumber>
-          <StatHelpText textAlign="center">The claimable amount in your GridFire account</StatHelpText>
+          <StatHelpText textAlign="center">The claimable amount in your Gridfire account</StatHelpText>
         </Stat>
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
@@ -110,7 +110,7 @@ const Balance = () => {
         </Button>
       </Flex>
       <Text mb={12}>
-        Your live GridFire account balance, accruing with every music sale. You may withdraw this at any time using the
+        Your live Gridfire account balance, accruing with every music sale. You may withdraw this at any time using the
         account matching the sales payment address.
       </Text>
       <Divider mb={12} />
@@ -119,7 +119,7 @@ const Balance = () => {
       </Heading>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption placement="top">DAI withdrawals from your GridFire account</TableCaption>
+          <TableCaption placement="top">DAI withdrawals from your Gridfire account</TableCaption>
           <Thead>
             <Tr>
               <Th>Block</Th>

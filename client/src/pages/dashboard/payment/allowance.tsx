@@ -149,7 +149,7 @@ const Allowance = () => {
           <StatNumber fontSize="4xl" textAlign="center">
             ◈ {Number(formatEther(daiAllowance)).toFixed(2)}
           </StatNumber>
-          <StatHelpText textAlign="center">Will decrease with each GridFire purchase</StatHelpText>
+          <StatHelpText textAlign="center">Will decrease with each Gridfire purchase</StatHelpText>
         </Stat>
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
@@ -161,7 +161,7 @@ const Allowance = () => {
         </Button>
       </Flex>
       <Text mb={8}>
-        Each account you connect with GridFire has a DAI spending allowance, as a security measure to limit the amount a
+        Each account you connect with Gridfire has a DAI spending allowance, as a security measure to limit the amount a
         contract can spend on your behalf. Once this allowance reaches zero, another limit must be approved before
         further paymenta can be made. As this request costs gas, we advise setting a reasonable budget to avoid
         inconvenience.
@@ -172,7 +172,7 @@ const Allowance = () => {
       </Heading>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption placement="top">GridFire DAI approvals for the connected account</TableCaption>
+          <TableCaption placement="top">Gridfire DAI approvals for the connected account</TableCaption>
           <Thead>
             <Tr>
               <Th>Block</Th>
