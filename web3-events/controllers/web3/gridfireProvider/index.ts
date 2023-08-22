@@ -2,11 +2,10 @@ import { Interface, getBigInt, toQuantity } from "ethers";
 import axios, { AxiosResponse } from "axios";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import { EventEmitter } from "node:events";
-import GridfireEditionsAbi from "gridfire-web3-events/controllers/web3/gridfireEditionsABI.js";
-import GridfirePaymentAbi from "gridfire-web3-events/controllers/web3/gridfirePaymentABI.js";
+import GridfireEditionsAbi from "gridfire-web3-events/controllers/web3/abi/editions/index.js";
+import GridfirePaymentAbi from "gridfire-web3-events/controllers/web3/abi/payment/index.js";
 import { LogDescription } from "ethers";
 import assert from "node:assert/strict";
-import logger from "gridfire-web3-events/controllers/logger.js";
 import objectHash from "object-hash";
 import removeErrors from "./removeErrors/index.js";
 
@@ -49,14 +48,13 @@ const ONE_RPC = Symbol("1rpc");
 
 const PROVIDERS: [name: symbol, url: string][] = [
   [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
-  // [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`], // eth_getFilterLogs not available.
-  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
-  // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
+  [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
+  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`],
+  [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
 ];
 
 class GridfireProvider extends EventEmitter {
   #currentBlockNumber: string = "";
-  #filterIds: Map<symbol, string[]> = new Map([[LOCALHOST, []]]);
   #id: bigint = 0n;
   #interval: NodeJS.Timeout;
   #pollingInterval: number = 4000;
@@ -72,9 +70,9 @@ class GridfireProvider extends EventEmitter {
       PROVIDERS.forEach(([provider, url]) => this.#providers.set(provider, url));
     }
 
-    this.#quorum = Math.floor(this.#providers.size / 2) || 1;
     this.#setTopics();
-    this.#interval = setInterval(this.#setNewFilters.bind(this), this.#pollingInterval);
+    this.#quorum = Math.ceil(this.#providers.size / 2);
+    this.#interval = setInterval(this.#getLogs.bind(this), this.#pollingInterval);
   }
 
   destroy() {
@@ -100,47 +98,20 @@ class GridfireProvider extends EventEmitter {
   async #getBlockNumber(): Promise<string> {
     const method = "eth_blockNumber";
     const responses = await this.#send([{ method, params: [] }]);
-    const definitiveResult = this.#getQuorumValue(responses);
-    const [{ result }] = definitiveResult.data;
+    // Sort block height from all providers and use the highest block.
+
+    const highestBlock = responses
+      .sort((a, b) => {
+        const blockHeightA = getBigInt(a.data[0]?.result) || 0n;
+        const blockHeightB = getBigInt(b.data[0]?.result) || 0n;
+        if (blockHeightA < blockHeightB) return -1;
+        if (blockHeightA > blockHeightB) return 1;
+        return 0;
+      })
+      .pop()!;
+
+    const [{ result }] = highestBlock.data;
     return result;
-  }
-
-  async #setNewFilters(): Promise<void> {
-    try {
-      const blockNumber = await this.#getBlockNumber();
-
-      if (blockNumber === this.#currentBlockNumber) {
-        return;
-      }
-
-      let fromBlock = "0x0";
-      if (!this.#currentBlockNumber) {
-        fromBlock = blockNumber;
-      } else {
-        fromBlock = toQuantity(getBigInt(this.#currentBlockNumber) + 1n);
-      }
-
-      const requests = Array.from(this.#topics).map(([eventName, topics]) => {
-        const address = this.#getAddressByEventName(eventName);
-        const params = [{ fromBlock, toBlock: blockNumber, address, topics }];
-        return this.#send([{ method: "eth_newFilter", params }]);
-      });
-
-      const eventFilters = await Promise.all(requests);
-      this.#filterIds.clear(); // Clear filters from previous block range.
-
-      eventFilters.forEach(eventFilter => {
-        eventFilter.filter(removeErrors).forEach(({ provider, data }) => {
-          const [{ result: filterId }] = data;
-          this.#filterIds.set(provider, [...(this.#filterIds.get(provider) || []), filterId]);
-        });
-      });
-
-      this.#currentBlockNumber = blockNumber;
-      this.#getFilterLogs();
-    } catch (error: any) {
-      this.emit("error", "[#setNewFilters]", error.response?.data || error);
-    }
   }
 
   #getId(): string {
@@ -158,27 +129,28 @@ class GridfireProvider extends EventEmitter {
     }
   }
 
-  async #getFilterLogs(): Promise<void> {
+  async #getLogs(): Promise<void> {
     try {
-      const providerFilterIds = Array.from(this.#filterIds.entries());
+      const blockNumber = await this.#getBlockNumber();
 
-      // Can't use the fan-out #send method here because each provider's filterId is unique.
-      const requests = providerFilterIds.map(([provider, filterIds]) => {
-        const url = this.#providers.get(provider);
+      if (blockNumber === this.#currentBlockNumber) {
+        return;
+      }
 
-        const body = filterIds.map(filterId => ({
-          method: "eth_getFilterLogs",
-          params: [filterId],
-          id: this.#getId(),
-          jsonrpc: "2.0"
-        }));
+      let fromBlock = "0x0";
+      if (!this.#currentBlockNumber) {
+        fromBlock = blockNumber;
+      } else {
+        fromBlock = toQuantity(getBigInt(this.#currentBlockNumber) + 1n);
+      }
 
-        return axios.post(url!, body, { timeout: 5000 });
+      const batch = Array.from(this.#topics).map(([eventName, topics]) => {
+        const address = this.#getAddressByEventName(eventName);
+        return { method: "eth_getLogs", params: [{ fromBlock, toBlock: blockNumber, address, topics }] };
       });
 
-      const results = await Promise.allSettled(requests);
-      const normalised = this.#normaliseProviderResults(results);
-      const definitiveResult = this.#getQuorumValue(normalised);
+      const responses = await this.#send(batch);
+      const definitiveResult = this.#getQuorumValue(responses);
 
       definitiveResult.data.forEach(({ result: logs }: any, index: number) => {
         const eventName = Array.from(this.#topics.keys())[index];
@@ -190,6 +162,8 @@ class GridfireProvider extends EventEmitter {
           this.#emitEvent(eventName, description!, transactionHash);
         });
       });
+
+      this.#currentBlockNumber = blockNumber;
     } catch (error: any) {
       this.emit("error", "[#getFilterLogs]", error.response?.data || error);
     }

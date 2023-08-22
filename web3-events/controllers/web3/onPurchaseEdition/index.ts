@@ -1,4 +1,4 @@
-import { BytesLike, ContractEventPayload, decodeBytes32String, formatEther, getAddress } from "ethers";
+import { BytesLike, decodeBytes32String, formatEther, getAddress } from "ethers";
 import Activity from "gridfire-web3-events/models/Activity.js";
 import { IRelease } from "gridfire-web3-events/models/Release.js";
 import { IUser } from "gridfire-web3-events/models/User.js";

@@ -1,4 +1,4 @@
-import { BytesLike, ContractEventPayload, decodeBytes32String, formatEther } from "ethers";
+import { BytesLike, decodeBytes32String, formatEther } from "ethers";
 import Activity from "gridfire-web3-events/models/Activity.js";
 import { NotificationType } from "gridfire-web3-events/types/index.js";
 import logger from "gridfire-web3-events/controllers/logger.js";
