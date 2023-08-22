@@ -8,6 +8,7 @@ import { LogDescription } from "ethers";
 import assert from "node:assert/strict";
 import logger from "gridfire-web3-events/controllers/logger.js";
 import objectHash from "object-hash";
+import removeErrors from "./removeErrors/index.js";
 
 enum EventNames {
   EDITION_MINTED = "EditionMinted",
@@ -129,11 +130,7 @@ class GridfireProvider extends EventEmitter {
       this.#filterIds.clear(); // Clear filters from previous block range.
 
       eventFilters.forEach(eventFilter => {
-        eventFilter.forEach(({ provider, data, error }) => {
-          if (error || data.some(result => result.error)) {
-            return logger.warn({ provider: provider.description, data, error });
-          }
-
+        eventFilter.filter(removeErrors).forEach(({ provider, data }) => {
           const [{ result: filterId }] = data;
           this.#filterIds.set(provider, [...(this.#filterIds.get(provider) || []), filterId]);
         });
@@ -190,8 +187,7 @@ class GridfireProvider extends EventEmitter {
         logs.forEach((log: any) => {
           const { transactionHash } = log;
           const description = iface.parseLog(log);
-          assert(description, `Log '${JSON.stringify(log)}' not found in ABI.`);
-          this.#emitEvent(eventName, description, transactionHash);
+          this.#emitEvent(eventName, description!, transactionHash);
         });
       });
     } catch (error: any) {
@@ -211,29 +207,15 @@ class GridfireProvider extends EventEmitter {
     let definitiveResult: any = null;
     const total = new Map();
 
-    results
-      .filter(result => {
-        const { data, error, provider } = result;
+    results.filter(removeErrors).forEach(result => {
+      if (definitiveResult) return;
+      const hash = objectHash(result.data, { excludeKeys: key => key === "id" });
+      total.set(hash, (total.get(hash) ?? 0) + 1);
 
-        if (error || data.some(result => result.error)) {
-          logger.warn(
-            "JSON-RPC response error:",
-            JSON.stringify({ data, error, provider: provider.description }, null, 2)
-          );
-          return false;
-        }
-
-        return true;
-      })
-      .forEach(result => {
-        if (definitiveResult) return;
-        const hash = objectHash(result.data, { excludeKeys: key => key === "id" });
-        total.set(hash, (total.get(hash) ?? 0) + 1);
-
-        if (total.get(hash) === this.#quorum) {
-          definitiveResult = result;
-        }
-      });
+      if (total.get(hash) === this.#quorum) {
+        definitiveResult = result;
+      }
+    });
 
     if (!definitiveResult) {
       throw new Error("Quorum not reached on result.");

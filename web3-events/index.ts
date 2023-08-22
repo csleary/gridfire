@@ -4,10 +4,6 @@ import "gridfire-web3-events/models/Release.js";
 import "gridfire-web3-events/models/Sale.js";
 import "gridfire-web3-events/models/User.js";
 import { amqpClose, amqpConnect } from "gridfire-web3-events/controllers/amqp/index.js";
-// import {
-//   getGridFireEditionsContract,
-//   getGridFirePaymentContract
-// } from "gridfire-web3-events/controllers/web3/index.js";
 import GridfireProvider from "gridfire-web3-events/controllers/web3/gridfireProvider/index.js";
 import onEditionMinted from "gridfire-web3-events/controllers/web3/onEditionMinted/index.js";
 import onPurchase from "gridfire-web3-events/controllers/web3/onPurchase/index.js";
@@ -80,14 +76,6 @@ try {
   await mongoose.connect(MONGODB_URI);
   await amqpConnect();
   await setupHealthProbe();
-  // const gridFirePayment = getGridFirePaymentContract();
-  // const gridFireEditions = getGridFireEditionsContract();
-  // gridFireEditions.on("EditionMinted", onEditionMinted);
-  // gridFireEditions.on("PurchaseEdition", onPurchaseEdition);
-  // gridFirePayment.on("Purchase", onPurchase);
-
-  // Lighter custom provider for gridfire events.
-
   const gridfireProvider = new GridfireProvider();
 
   gridfireProvider
