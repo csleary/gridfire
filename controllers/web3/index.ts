@@ -198,7 +198,7 @@ const getUserGridFireEditions = async (userId: ObjectId) => {
         _id: transactionHash,
         balance: balance.toString(),
         ...(paid != null ? { paid } : {}),
-        transaction: { hash: transactionHash }
+        transactionHash
       };
     })
   );

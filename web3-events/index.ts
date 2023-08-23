@@ -15,6 +15,7 @@ import net from "net";
 
 const { HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
 let healthProbeServer: net.Server | null = null;
+let gridfireProvider: GridfireProvider;
 
 assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
 assert(MONGODB_URI, "MONGODB_URI env var missing.");
@@ -46,6 +47,11 @@ const handleShutdown = async () => {
   logger.info("Gracefully shutting down…");
 
   try {
+    if (gridfireProvider) {
+      logger.info("Closing gridfireProvider…");
+      gridfireProvider.destroy();
+    }
+
     if (healthProbeServer != null) {
       logger.info("Closing health probe server…");
 
@@ -76,7 +82,7 @@ try {
   await mongoose.connect(MONGODB_URI);
   await amqpConnect();
   await setupHealthProbe();
-  const gridfireProvider = new GridfireProvider();
+  gridfireProvider = new GridfireProvider();
 
   gridfireProvider
     .on("EditionMinted", onEditionMinted)

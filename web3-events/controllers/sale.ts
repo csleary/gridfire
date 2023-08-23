@@ -1,13 +1,8 @@
-import { BigIntToString, BigIntValues, RecordSaleParams } from "gridfire-web3-events/types/index.js";
+import { RecordSaleParams } from "gridfire-web3-events/types/index.js";
 import { ISale } from "gridfire-web3-events/models/Sale.js";
 import mongoose from "mongoose";
 
 const { Sale } = mongoose.models;
-
-const bigIntToString: BigIntToString = (prev, [key, value]) => ({
-  ...prev,
-  [key]: value.toString()
-});
 
 const recordSale = async ({
   amountPaid,

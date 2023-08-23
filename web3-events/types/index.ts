@@ -1,22 +1,6 @@
-import { TransactionReceipt } from "ethers";
 import { IRelease } from "gridfire-web3-events/models/Release.js";
 import { SaleType } from "gridfire-web3-events/models/Sale.js";
 import { IUser } from "gridfire-web3-events/models/User.js";
-
-interface BigIntValues {
-  gasUsed: bigint;
-  cumulativeGasUsed: bigint;
-  gasPrice: bigint;
-}
-
-interface BigIntTuple extends Array<string | bigint> {
-  0: string;
-  1: bigint;
-}
-
-interface BigIntToString {
-  (prev: any, [key, value]: BigIntTuple): any;
-}
 
 enum ErrorCodes {
   REPLY_SUCCESS = 200,
@@ -101,8 +85,6 @@ interface ValidatePurchaseParams {
 }
 
 export {
-  BigIntToString,
-  BigIntValues,
   ErrorCodes,
   MessageTuple,
   MintNotification,

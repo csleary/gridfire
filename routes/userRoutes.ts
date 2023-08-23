@@ -32,7 +32,7 @@ router.get("/albums", requireLogin, async (req, res) => {
   const { _id: userId } = req.user || {};
   if (!userId) return res.sendStatus(401);
 
-  const albums = await Sale.find({ type: "album", user: userId }, "paid purchaseDate transaction.hash type", {
+  const albums = await Sale.find({ type: "album", user: userId }, "paid purchaseDate transactionHash type", {
     lean: true,
     sort: "-purchaseDate"
   })
@@ -77,7 +77,7 @@ router.get("/singles", requireLogin, async (req, res) => {
           "trackList.trackTitle": 1
         },
         trackId: 1,
-        "transaction.hash": 1,
+        transactionHash: 1,
         type: 1
       }
     }

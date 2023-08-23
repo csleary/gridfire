@@ -6,8 +6,9 @@ import GridfireEditionsAbi from "gridfire-web3-events/controllers/web3/abi/editi
 import GridfirePaymentAbi from "gridfire-web3-events/controllers/web3/abi/payment/index.js";
 import { LogDescription } from "ethers";
 import assert from "node:assert/strict";
+import filterErrors from "./filterErrors/index.js";
+import logger from "gridfire-web3-events/controllers/logger.js";
 import objectHash from "object-hash";
-import removeErrors from "./removeErrors/index.js";
 
 enum EventNames {
   EDITION_MINTED = "EditionMinted",
@@ -49,16 +50,16 @@ const ONE_RPC = Symbol("1rpc");
 const PROVIDERS: [name: symbol, url: string][] = [
   [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
   [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
-  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`],
-  [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
+  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
+  // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
 ];
 
 class GridfireProvider extends EventEmitter {
   #currentBlockNumber: string = "";
   #id: bigint = 0n;
-  #interval: NodeJS.Timeout;
-  #pollingInterval: number = 4000;
+  #pollingInterval: number = 5000;
   #quorum: number = 1;
+  #timeout: NodeJS.Timeout;
   #topics: Map<string, string[]> = new Map();
   #providers: Map<symbol, string> = new Map([[LOCALHOST, "http://localhost:8545"]]);
 
@@ -72,11 +73,14 @@ class GridfireProvider extends EventEmitter {
 
     this.#setTopics();
     this.#quorum = Math.ceil(this.#providers.size / 2);
-    this.#interval = setInterval(this.#getLogs.bind(this), this.#pollingInterval);
+    this.#timeout = setTimeout(() => {}, 0);
+    this.#getLogs();
   }
 
   destroy() {
-    clearInterval(this.#interval);
+    super.removeAllListeners();
+    clearTimeout(this.#timeout);
+    logger.info("Listeners removed, timeout cleared. Ready for shutdown.");
   }
 
   #emitEvent(eventName: string, log: LogDescription, transactionHash: string): void {
@@ -98,17 +102,21 @@ class GridfireProvider extends EventEmitter {
   async #getBlockNumber(): Promise<string> {
     const method = "eth_blockNumber";
     const responses = await this.#send([{ method, params: [] }]);
-    // Sort block height from all providers and use the highest block.
 
     const highestBlock = responses
+      .filter(filterErrors)
       .sort((a, b) => {
-        const blockHeightA = getBigInt(a.data[0]?.result) || 0n;
-        const blockHeightB = getBigInt(b.data[0]?.result) || 0n;
+        const blockHeightA = getBigInt(a.data[0]?.result || 0n);
+        const blockHeightB = getBigInt(b.data[0]?.result || 0n);
         if (blockHeightA < blockHeightB) return -1;
         if (blockHeightA > blockHeightB) return 1;
         return 0;
       })
-      .pop()!;
+      .pop();
+
+    if (!highestBlock) {
+      throw new Error("Could not get block height from any provider.");
+    }
 
     const [{ result }] = highestBlock.data;
     return result;
@@ -166,6 +174,8 @@ class GridfireProvider extends EventEmitter {
       this.#currentBlockNumber = blockNumber;
     } catch (error: any) {
       this.emit("error", "[#getFilterLogs]", error.response?.data || error);
+    } finally {
+      this.#timeout = setTimeout(this.#getLogs.bind(this), this.#pollingInterval);
     }
   }
 
@@ -180,10 +190,11 @@ class GridfireProvider extends EventEmitter {
   #getQuorumValue(results: ProviderResult[]): ProviderResult {
     let definitiveResult: any = null;
     const total = new Map();
+    const excludeKeys = (key: string) => key === "id";
 
-    results.filter(removeErrors).forEach(result => {
+    results.filter(filterErrors).forEach(result => {
       if (definitiveResult) return;
-      const hash = objectHash(result.data, { excludeKeys: key => key === "id" });
+      const hash = objectHash(result.data, { excludeKeys });
       total.set(hash, (total.get(hash) ?? 0) + 1);
 
       if (total.get(hash) === this.#quorum) {

@@ -73,7 +73,7 @@ export interface CollectionRelease {
   paid: string;
   purchaseDate: string;
   release: Release;
-  transaction: TransactionReceipt;
+  transactionHash: string;
 }
 
 export interface CollectionEdition extends CollectionRelease {

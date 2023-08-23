@@ -28,8 +28,7 @@ const Singles = () => {
           Singles
         </Heading>
         <Grid>
-          {singles.map(({ _id: purchaseId, paid, purchaseDate, release, trackId, transaction }) => {
-            const hash = transaction.hash;
+          {singles.map(({ _id: purchaseId, paid, purchaseDate, release, trackId, transactionHash }) => {
             const single = release.trackList.find(({ _id }) => _id === trackId);
 
             return (
@@ -46,7 +45,7 @@ const Singles = () => {
                 <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                    <Link href={`https://arbiscan.io/tx/${hash}`} variant="unstyled">
+                    <Link href={`https://arbiscan.io/tx/${transactionHash}`} variant="unstyled">
                       {DateTime.fromISO(purchaseDate).toFormat("ff")}
                     </Link>
                     ,{" "}

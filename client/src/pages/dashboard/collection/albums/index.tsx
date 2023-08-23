@@ -26,16 +26,14 @@ const Albums = () => {
       <>
         <Heading as="h3">Albums</Heading>
         <Grid>
-          {albums.map(({ _id: purchaseId, paid, purchaseDate, release, transaction }) => {
-            const hash = transaction.hash;
-
+          {albums.map(({ _id: purchaseId, paid, purchaseDate, release, transactionHash }) => {
             return (
               <Box key={purchaseId}>
                 <RenderRelease release={{ ...release, purchaseId }} type="collection" mb={2} />
                 <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                    <Link href={`https://arbiscan.io/tx/${hash}`} variant="unstyled">
+                    <Link href={`https://arbiscan.io/tx/${transactionHash}`} variant="unstyled">
                       {DateTime.fromISO(purchaseDate).toFormat("ff")}
                     </Link>
                     ,{" "}

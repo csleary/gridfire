@@ -28,11 +28,10 @@ const Editions = () => {
       <>
         <Heading as="h3">Gridfire Editions</Heading>
         <Grid>
-          {userEditions.map(({ _id: purchaseId, metadata, paid, release, transaction }) => {
+          {userEditions.map(({ _id: purchaseId, metadata, paid, release, transactionHash }) => {
             const { description } = metadata || {};
-            const hash = transaction.hash;
             const releaseTitle = description || release.releaseTitle;
-            const shortHash = hash.slice(0, 4) + "…" + hash.slice(-4);
+            const shortHash = transactionHash.slice(0, 4) + "…" + transactionHash.slice(-4);
 
             return (
               <Box key={purchaseId}>
@@ -40,7 +39,7 @@ const Editions = () => {
                 <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
-                    <Link href={`https://arbiscan.io/tx/${hash}`} variant="unstyled">
+                    <Link href={`https://arbiscan.io/tx/${transactionHash}`} variant="unstyled">
                       {shortHash}
                     </Link>
                     {paid ? (
