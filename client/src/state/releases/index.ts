@@ -13,7 +13,7 @@ import { toastError, toastSuccess } from "state/toast";
 import { DateTime } from "luxon";
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
-import { getUserEditions } from "web3";
+import { fetchUserEditions as _fetchUserEditions } from "web3";
 
 interface ReleasesState {
   activeRelease: Release;
@@ -61,7 +61,8 @@ const defaultArtistState: Artist = {
   name: "",
   slug: "",
   biography: "",
-  links: []
+  links: [],
+  releases: []
 };
 
 const initialState: ReleasesState = {
@@ -248,7 +249,7 @@ const fetchUserAlbums = () => async (dispatch: AppDispatch) => {
 
 const fetchUserEditions = () => async (dispatch: AppDispatch) => {
   try {
-    const editions = await getUserEditions();
+    const editions = await _fetchUserEditions();
     dispatch(setUserEditions(editions));
   } catch (error: any) {
     dispatch(toastError({ message: error.response.data.error, title: "Error" }));

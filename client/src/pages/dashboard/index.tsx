@@ -6,7 +6,7 @@ import Collection from "./collection";
 import Favourites from "./favourites";
 import { Helmet } from "react-helmet";
 import UserReleases from "./userReleases";
-import WishList from "./wishList";
+import Wishlist from "./wishlist";
 
 const Dashboard = () => (
   <>
@@ -23,7 +23,7 @@ const Dashboard = () => (
       <Route path="/collection" element={<Collection />} />
       <Route path="/favourites" element={<Favourites />} />
       <Route path="/payment/*" element={<Payment />} />
-      <Route path="/wishlist" element={<WishList />} />
+      <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/" element={<UserReleases />} />
     </Routes>
   </>

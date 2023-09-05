@@ -1,5 +1,5 @@
 import { Button, Heading, Text } from "@chakra-ui/react";
-import { getGridFireEditionUris, getMintedGridFireEditionsByReleaseId } from "web3";
+import { fetchGridfireEditionUris, fetchMintedGridfireEditionsByReleaseId } from "web3";
 import { useCallback, useEffect, useState } from "react";
 import EditionEditor from "./editor";
 import Icon from "components/icon";
@@ -21,8 +21,8 @@ const MintEdition = () => {
   const fetchEditions = useCallback(async () => {
     if (releaseIdParam) {
       const [editions, uris] = await Promise.all([
-        getMintedGridFireEditionsByReleaseId(releaseIdParam),
-        getGridFireEditionUris(releaseIdParam)
+        fetchMintedGridfireEditionsByReleaseId(releaseIdParam),
+        fetchGridfireEditionUris(releaseIdParam)
       ]);
 
       editions.forEach((edition: MintedEdition, index: number) => (edition.uri = uris[index]));

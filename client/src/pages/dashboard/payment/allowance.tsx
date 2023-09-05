@@ -34,15 +34,15 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { FixedNumber, formatEther } from "ethers";
-import { getDaiApprovalEvents, setDaiAllowance } from "web3";
-import { useDispatch, useSelector } from "hooks";
 import { ChangeEventHandler, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { FixedNumber, formatEther } from "ethers";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { fetchDaiAllowance, fetchDaiApprovals, fetchDaiPurchases } from "state/web3";
+import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
-import { fetchDaiAllowance } from "state/web3";
+import { setDaiAllowance } from "web3";
 import { toastSuccess } from "state/toast";
 
 const Allowance = () => {
@@ -52,10 +52,12 @@ const Allowance = () => {
   const account = useSelector(state => state.web3.account);
   const accountShort = useSelector(state => state.web3.accountShort);
   const daiAllowance = useSelector(state => state.web3.daiAllowance);
+  const approvals = useSelector(state => state.web3.daiApprovals);
+  const purchases = useSelector(state => state.web3.daiPurchases);
   const isConnected = useSelector(state => state.web3.isConnected);
   const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
+  const isFetchingApprovals = useSelector(state => state.web3.isFetchingApprovals);
   const [error, setError] = useState("");
-  const [approvals, setApprovals] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [allowance, setAllowance] = useState("0");
@@ -63,6 +65,8 @@ const Allowance = () => {
   useEffect(() => {
     if (account) {
       dispatch(fetchDaiAllowance(account));
+      dispatch(fetchDaiApprovals(account));
+      dispatch(fetchDaiPurchases(account));
     }
   }, [account, dispatch]);
 
@@ -71,12 +75,6 @@ const Allowance = () => {
       setAllowance(Number(formatEther(daiAllowance)).toFixed(2));
     }
   }, [daiAllowance]);
-
-  useEffect(() => {
-    if (account) {
-      getDaiApprovalEvents(account).then(setApprovals);
-    }
-  }, [account]);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
     const { value } = e.currentTarget;
@@ -99,6 +97,7 @@ const Allowance = () => {
       setIsSubmitting(true);
       await setDaiAllowance(allowance);
       dispatch(fetchDaiAllowance(account));
+      dispatch(fetchDaiApprovals(account));
 
       dispatch(
         toastSuccess({
@@ -107,7 +106,6 @@ const Allowance = () => {
         })
       );
 
-      getDaiApprovalEvents(account).then(setApprovals);
       setShowModal(false);
       const { pathname } = location.state || {};
       if (pathname) return navigate(pathname);
@@ -170,7 +168,7 @@ const Allowance = () => {
       <Heading fontWeight={300} mb={8} textAlign="center">
         DAI Approval History
       </Heading>
-      <TableContainer>
+      <TableContainer mb={12}>
         <Table variant="simple">
           <TableCaption placement="top">Gridfire DAI approvals for the connected account</TableCaption>
           <Thead>
@@ -188,6 +186,46 @@ const Allowance = () => {
                 <Td isNumeric>◈ {Number(formatEther(amount)).toFixed(2)}</Td>
               </Tr>
             ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+      <Heading fontWeight={300} mb={8} textAlign="center">
+        DAI Purchase History
+      </Heading>
+      <TableContainer>
+        <Table variant="simple">
+          <TableCaption placement="top">Gridfire DAI purchases made by connected account</TableCaption>
+          <Thead>
+            <Tr>
+              <Th>Block</Th>
+              <Th>Artist</Th>
+              <Th>Release</Th>
+              <Th isNumeric>Amount</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {purchases.map(
+              ({ amountPaid, artistId, artistName, blockNumber, releaseId, releaseTitle, transactionHash }) => {
+                return (
+                  <Tr key={transactionHash}>
+                    <Td>
+                      <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    </Td>
+                    <Td>
+                      <Link as={RouterLink} to={`/artist/${artistId}`}>
+                        {artistName}
+                      </Link>
+                    </Td>
+                    <Td>
+                      <Link as={RouterLink} to={`/release/${releaseId}`}>
+                        {releaseTitle}
+                      </Link>
+                    </Td>
+                    <Td isNumeric>◈ {Number(formatEther(amountPaid)).toFixed(2)}</Td>
+                  </Tr>
+                );
+              }
+            )}
           </Tbody>
         </Table>
       </TableContainer>

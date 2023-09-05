@@ -7,8 +7,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "components/grid";
 import { Helmet } from "react-helmet";
 import RenderRelease from "components/renderRelease";
-import SortReleases from "./sortReleases";
-import { faSync } from "@fortawesome/free-solid-svg-icons";
+import SortReleases from "./sort";
+import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { fetchCatalogue } from "state/releases";
 import { shallowEqual } from "react-redux";
 import { toastInfo } from "state/toast";
@@ -24,7 +24,7 @@ const Home: React.FC = () => {
   const reachedEndOfCat = useSelector(state => state.releases.reachedEndOfCat);
   const userAccount = useSelector(state => state.user.account);
   const [isFetching, setIsFetching] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
   const [currentSortOrder, setCurrentSortOrder] = useState("-1");
   const { service } = useParams();
@@ -41,10 +41,6 @@ const Home: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!catalogue.length) setIsLoading(true);
-  }, []); // eslint-disable-line
-
-  useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const prev = searchParams.get("prev");
 
@@ -52,7 +48,7 @@ const Home: React.FC = () => {
       return navigate(prev);
     }
 
-    handleFetchCatalogue().then(() => setIsLoading(false));
+    handleFetchCatalogue().finally(() => setIsLoading(false));
   }, []); // eslint-disable-line
 
   useEffect(() => {
@@ -100,17 +96,18 @@ const Home: React.FC = () => {
             </Skeleton>
           ))}
         </Grid>
-        {!catalogue.length || reachedEndOfCat ? null : (
+        {!catalogue.length ? null : (
           <Center>
             <Button
               isDisabled={isFetching || reachedEndOfCat}
-              leftIcon={reachedEndOfCat ? undefined : <FontAwesomeIcon icon={faSync} />}
+              leftIcon={<FontAwesomeIcon icon={faArrowDown} />}
               onClick={() =>
                 handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true })
               }
               size="sm"
+              mt={12}
             >
-              Load More
+              More
             </Button>
           </Center>
         )}

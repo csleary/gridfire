@@ -11,7 +11,6 @@ interface ArtistState {
   activity: EntityState<Activity>;
   artists: Artist[];
   errors: { [key: string]: string };
-  hasNotifications: boolean;
   isLoading: boolean;
   isSubmitting: boolean;
   isPristine: boolean;
@@ -27,7 +26,6 @@ const initialState: ArtistState = {
   activity: activityAdapter.getInitialState(),
   artists: [],
   errors: {},
-  hasNotifications: false,
   isLoading: false,
   isSubmitting: false,
   isPristine: true,

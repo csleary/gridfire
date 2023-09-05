@@ -1,6 +1,13 @@
 import { IRelease } from "gridfire-web3-events/models/Release.js";
 import { SaleType } from "gridfire-web3-events/models/Sale.js";
 import { IUser } from "gridfire-web3-events/models/User.js";
+import { JSONRPCResponse } from "json-rpc-2.0";
+
+interface Contract {
+  address: string;
+  abi: any;
+  eventNames: string[];
+}
 
 enum ErrorCodes {
   REPLY_SUCCESS = 200,
@@ -42,6 +49,20 @@ interface PurchaseNotification {
   userId: string;
 }
 
+type PurchasedRelease = Promise<{
+  release: ReleaseSingle | ReleaseAlbum;
+  releaseTitle: string;
+  type: SaleType;
+}>;
+
+type Provider = readonly [name: symbol, url: string];
+
+interface ProviderResult {
+  provider: symbol;
+  data: JSONRPCResponse[];
+  error: any;
+}
+
 interface RecordSaleParams {
   amountPaid: bigint;
   artistShare: bigint;
@@ -52,12 +73,6 @@ interface RecordSaleParams {
   userId: string;
 }
 
-type PurchasedRelease = Promise<{
-  release: ReleaseSingle | ReleaseAlbum;
-  releaseTitle: string;
-  type: SaleType;
-}>;
-
 type ReleaseSingle = Pick<IRelease, "artist" | "artistName" | "trackList"> & {
   user: Pick<IUser, "_id" | "paymentAddress">;
 };
@@ -65,6 +80,9 @@ type ReleaseSingle = Pick<IRelease, "artist" | "artistName" | "trackList"> & {
 type ReleaseAlbum = Pick<IRelease, "artist" | "artistName" | "price" | "releaseTitle"> & {
   user: Pick<IUser, "_id" | "paymentAddress">;
 };
+
+type Request = { method: string; params: any[] };
+type RequestOptions = { timeout?: number };
 
 interface SaleNotification {
   artistName: string;
@@ -85,17 +103,22 @@ interface ValidatePurchaseParams {
 }
 
 export {
+  Contract,
   ErrorCodes,
   MessageTuple,
   MintNotification,
   Notification,
   NotificationType,
+  Provider,
+  ProviderResult,
   PurchasedRelease,
   PurchaseEditionNotification,
   PurchaseNotification,
   RecordSaleParams,
   ReleaseSingle,
   ReleaseAlbum,
+  Request,
+  RequestOptions,
   SaleNotification,
   ValidatePurchaseParams
 };

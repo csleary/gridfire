@@ -13,8 +13,8 @@ import { FilterQuery, ObjectId } from "mongoose";
 import Release, { IRelease } from "gridfire/models/Release.js";
 import User, { IUser } from "gridfire/models/User.js";
 import { AddressLike } from "ethers";
-import GridFireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditions.sol/GridFireEditions.json" assert { type: "json" };
-import GridFirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
+import GridfireEditions from "gridfire/hardhat/artifacts/contracts/GridFireEditions.sol/GridFireEditions.json" assert { type: "json" };
+import GridfirePayment from "gridfire/hardhat/artifacts/contracts/GridFirePayment.sol/GridFirePayment.json" assert { type: "json" };
 import assert from "assert/strict";
 import daiAbi from "gridfire/controllers/web3/dai.js";
 import provider from "./providers/index.js";
@@ -27,8 +27,8 @@ const {
   MAINNET_NETWORK_URL
 } = process.env;
 
-const { abi: gridFireEditionsABI } = GridFireEditions;
-const { abi: gridFirePaymentABI } = GridFirePayment;
+const { abi: gridfireEditionsABI } = GridfireEditions;
+const { abi: gridfirePaymentABI } = GridfirePayment;
 
 assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var not set.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var not set.");
@@ -40,12 +40,12 @@ const getDaiContract = () => {
   return new Contract(DAI_CONTRACT_ADDRESS, daiAbi, provider);
 };
 
-const getGridFireEditionsContract = () => {
-  return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsABI, provider);
+const getGridfireEditionsContract = () => {
+  return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridfireEditionsABI, provider);
 };
 
-const getGridFirePaymentContract = () => {
-  return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentABI, provider);
+const getGridfirePaymentContract = () => {
+  return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridfirePaymentABI, provider);
 };
 
 interface MintedEdition {
@@ -60,9 +60,14 @@ interface MintedEdition {
   visibility: "hidden" | "visible";
 }
 
-const getGridFireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => {
+const getBlockNumber = async () => {
+  const blockNumber = await provider.getBlockNumber();
+  return blockNumber;
+};
+
+const getGridfireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => {
   const { release: releaseId } = filter;
-  const gridFireEditionsContract = getGridFireEditionsContract();
+  const gridFireEditionsContract = getGridfireEditionsContract();
   const offChainEditions = await Edition.find(filter, "createdAt editionId metadata visibility", { lean: true }).exec();
   const release = await Release.findById(releaseId, "user", { lean: true }).populate<{ user: IUser }>("user").exec();
 
@@ -111,8 +116,8 @@ const getGridFireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => 
   });
 };
 
-const getGridFireEditionUris = async (releaseId: string) => {
-  const gridFireEditionsContract = getGridFireEditionsContract();
+const getGridfireEditionUris = async (releaseId: string) => {
+  const gridFireEditionsContract = getGridfireEditionsContract();
   const release = await Release.findById(releaseId, "user", { lean: true }).populate<{ user: IUser }>("user").exec();
   if (!release) return [];
   const artistAccount = getAddress(release.user.account);
@@ -134,12 +139,12 @@ const getResolvedAddress = async (address: string) => {
 const getTransaction = async (txId: string) => {
   const tx = await provider.getTransaction(txId);
   if (!tx) return null;
-  const iface = new Interface(gridFireEditionsABI);
+  const iface = new Interface(gridfireEditionsABI);
   const parsedTx = iface.parseTransaction(tx);
   return parsedTx;
 };
 
-const getUserGridFireEditions = async (userId: ObjectId) => {
+const getUserGridfireEditions = async (userId: ObjectId) => {
   const user = await User.findById(userId).exec();
 
   if (!user) {
@@ -148,7 +153,7 @@ const getUserGridFireEditions = async (userId: ObjectId) => {
   }
 
   const userAccount = getAddress(user.account);
-  const gridFireEditionsContract = getGridFireEditionsContract();
+  const gridFireEditionsContract = getGridfireEditionsContract();
 
   // Get all editions sent to user (may not still be in possession, so check balances).
   const editionsTransferFilter = gridFireEditionsContract.filters.TransferSingle(null, null, userAccount);
@@ -211,13 +216,14 @@ const setVisibility = async (user: ObjectId, editionId: string, visibility: "hid
 };
 
 export {
+  getBlockNumber,
   getDaiContract,
-  getGridFireEditionsContract,
-  getGridFirePaymentContract,
-  getGridFireEditionsByReleaseId,
-  getGridFireEditionUris,
+  getGridfireEditionsContract,
+  getGridfirePaymentContract,
+  getGridfireEditionsByReleaseId,
+  getGridfireEditionUris,
   getResolvedAddress,
   getTransaction,
-  getUserGridFireEditions,
+  getUserGridfireEditions,
   setVisibility
 };

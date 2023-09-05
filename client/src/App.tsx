@@ -23,7 +23,7 @@ const Header = lazy(() => import("components/header"));
 const Home = lazy(() => import("pages/home"));
 const Login = lazy(() => import("pages/login"));
 const ReleaseDetails = lazy(() => import("pages/releaseDetails"));
-const SearchResults = lazy(() => import("pages/searchResults"));
+const SearchResults = lazy(() => import("pages/search"));
 
 const App: React.FC = () => {
   useSSE();

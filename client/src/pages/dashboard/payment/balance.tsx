@@ -19,30 +19,29 @@ import {
   Tbody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { claimBalance, getBalance, getGridFireClaimEvents } from "web3";
+import { claimBalance, getBalance } from "web3";
+import { fetchDaiBalance, fetchGridfireClaims } from "state/web3";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
-import { fetchDaiBalance } from "state/web3";
 import { formatEther } from "ethers";
 import Icon from "components/icon";
 
 const Balance = () => {
   const dispatch = useDispatch();
   const account = useSelector(state => state.web3.account);
+  const claims = useSelector(state => state.web3.claims);
   const isConnected = useSelector(state => state.web3.isConnected);
   const paymentAddress = useSelector(state => state.user.paymentAddress);
   const [balance, setBalance] = useState("0");
   const [isClaiming, setIsClaiming] = useState(false);
-  const [claims, setClaims] = useState([]);
 
-  // Fetch payments received.
   useEffect(() => {
     if (paymentAddress) {
-      getGridFireClaimEvents().then(setClaims);
+      dispatch(fetchGridfireClaims());
     }
-  }, [balance, paymentAddress]);
+  }, [balance, dispatch, paymentAddress]);
 
   useEffect(() => {
     if (!isConnected) return;
@@ -110,7 +109,7 @@ const Balance = () => {
         </Button>
       </Flex>
       <Text mb={12}>
-        Your live Gridfire account balance, accruing with every music sale. You may withdraw this at any time using the
+        Your live Gridfire account balance, accruing with every music sale. You can withdraw this at any time using the
         account matching the sales payment address.
       </Text>
       <Divider mb={12} />

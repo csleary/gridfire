@@ -24,23 +24,23 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "hooks";
 import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
-import { getGridFirePurchaseEvents, getResolvedAddress } from "web3";
 import { faCheck, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { formatEther, getAddress, isAddress } from "ethers";
 import Icon from "components/icon";
-import { SalesHistory } from "types";
 import { addPaymentAddress } from "state/user";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { fetchResolvedAddress } from "web3";
+import { fetchSales } from "state/web3";
 
 const PaymentAddress = () => {
   const errorAlertColor = useColorModeValue("red.800", "red.200");
   const dispatch = useDispatch();
   const paymentAddress = useSelector(state => state.user.paymentAddress);
+  const salesHistory = useSelector(state => state.web3.sales);
+  const [address, setAddress] = useState("");
   const [error, setError] = useState("");
   const [isPristine, setIsPristine] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [salesHistory, setSalesHistory] = useState<SalesHistory>([]);
-  const [address, setAddress] = useState("");
   const hasChanged = address !== paymentAddress;
 
   useEffect(() => {
@@ -49,16 +49,11 @@ const PaymentAddress = () => {
     }
   }, [paymentAddress]);
 
-  const getPurchases = useCallback(async () => {
-    const sales = await getGridFirePurchaseEvents();
-    setSalesHistory(sales);
-  }, []);
-
   useEffect(() => {
     if (paymentAddress) {
-      getPurchases();
+      dispatch(fetchSales());
     }
-  }, [getPurchases, paymentAddress]);
+  }, [dispatch, paymentAddress]);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
     const { value } = e.currentTarget;
@@ -87,7 +82,7 @@ const PaymentAddress = () => {
         }
       } else {
         try {
-          proposedAddress = await getResolvedAddress(proposedAddress);
+          proposedAddress = await fetchResolvedAddress(proposedAddress);
         } catch (error) {
           setError("Please enter a valid payment address or ENS domain.");
           return;
@@ -98,12 +93,12 @@ const PaymentAddress = () => {
 
       if (updatedAddress) {
         setAddress(updatedAddress);
-        getPurchases();
+        dispatch(fetchSales());
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [address, dispatch, getPurchases]);
+  }, [address, dispatch]);
 
   return (
     <>

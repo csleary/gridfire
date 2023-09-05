@@ -1,12 +1,4 @@
-import {
-  BrowserProvider,
-  Contract,
-  Eip1193Provider,
-  JsonRpcSigner,
-  encodeBytes32String,
-  parseEther,
-  resolveAddress
-} from "ethers";
+import { BrowserProvider, Contract, Eip1193Provider, JsonRpcSigner, encodeBytes32String, parseEther } from "ethers";
 import { BasketItem } from "types";
 import axios from "axios";
 import daiAbi from "web3/dai";
@@ -40,7 +32,7 @@ const getProvider = async () => {
 const claimBalance = async () => {
   const provider = await getProvider();
   const signer = await provider.getSigner();
-  const gridFireContract = getGridFireContract(signer);
+  const gridFireContract = getGridfireContract(signer);
   const transactionReceipt = await gridFireContract.claim();
   const { status } = await transactionReceipt.wait();
   if (status !== 1) throw new Error("Claim unsuccessful.");
@@ -48,7 +40,7 @@ const claimBalance = async () => {
 
 const getBalance = async (paymentAddress: string): Promise<string> => {
   const provider = await getProvider();
-  const gridFireContract = getGridFireContract(provider);
+  const gridFireContract = getGridfireContract(provider);
   const balanceBigInt = await gridFireContract.getBalance(paymentAddress);
   return balanceBigInt.toString();
 };
@@ -67,8 +59,13 @@ const getDaiBalance = async (account: string): Promise<string> => {
   return balanceBigInt.toString();
 };
 
-const getDaiApprovalEvents = async (account: string) => {
+const fetchDaiApprovalEvents = async (account: string) => {
   const res = await axios.get(`/api/web3/approvals/${account}`);
+  return res.data;
+};
+
+const fetchDaiPurchaseEvents = async (account: string) => {
+  const res = await axios.get(`/api/web3/purchases/${account}`);
   return res.data;
 };
 
@@ -76,45 +73,45 @@ const getDaiContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
   return new Contract(daiContractAddress, daiAbi, signerOrProvider);
 };
 
-const getGridFireContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
+const getGridfireContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
   return new Contract(REACT_APP_GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
 };
 
-const getGridFireEditionsContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
+const getGridfireEditionsContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
   return new Contract(REACT_APP_GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsAbi, signerOrProvider);
 };
 
-const getGridFireClaimEvents = async () => {
+const fetchGridfireClaimEvents = async () => {
   const res = await axios.get("/api/web3/claims");
   return res.data;
 };
 
-const getVisibleGridFireEditionsByReleaseId = async (releaseId: string) => {
+const fetchVisibleGridfireEditionsByReleaseId = async (releaseId: string) => {
   const res = await axios.get(`/api/editions/${releaseId}`);
   return res.data;
 };
 
-const getMintedGridFireEditionsByReleaseId = async (releaseId: string) => {
+const fetchMintedGridfireEditionsByReleaseId = async (releaseId: string) => {
   const res = await axios.get(`/api/editions/${releaseId}/minted`);
   return res.data;
 };
 
-const getGridFireEditionUris = async (releaseId: string) => {
+const fetchGridfireEditionUris = async (releaseId: string) => {
   const res = await axios.get(`/api/editions/${releaseId}/uri`);
   return res.data;
 };
 
-const getGridFirePurchaseEvents = async () => {
-  const res = await axios.get("/api/web3/purchases");
+const fetchGridfirePurchaseEvents = async () => {
+  const res = await axios.get("/api/web3/sales");
   return res.data;
 };
 
-const getResolvedAddress = async (address: string) => {
+const fetchResolvedAddress = async (address: string) => {
   const res = await axios.get(`/api/web3/domain/${address}`);
   return res.data;
 };
 
-const getUserEditions = async () => {
+const fetchUserEditions = async () => {
   const res = await axios.get("/api/editions/user");
   return res.data;
 };
@@ -122,7 +119,7 @@ const getUserEditions = async () => {
 const gridFireCheckout = async (basket: BasketItem[], userId: string) => {
   const provider = await getProvider();
   const signer = await provider.getSigner();
-  const gridFireContract = getGridFireContract(signer);
+  const gridFireContract = getGridfireContract(signer);
 
   const contractBasket = basket.map(
     ({ paymentAddress, price, releaseId }: { paymentAddress: string; price: bigint; releaseId: string }) => ({
@@ -149,7 +146,7 @@ interface MintEditionParams {
 const mintEdition = async ({ amount, description, price, releaseId, tracks }: MintEditionParams) => {
   const provider = await getProvider();
   const signer = await provider.getSigner();
-  const gridFireEditions = getGridFireEditionsContract(signer);
+  const gridFireEditions = getGridfireEditionsContract(signer);
   const res = await axios.post(`/api/editions/mint`, { amount, description, price, releaseId, tracks });
   const { metadataUri, objectId } = res.data;
   const bigNumAmount = BigInt(`${amount}`);
@@ -179,7 +176,7 @@ interface PurchaseEditionParams {
 const purchaseEdition = async ({ artist, editionId, price, releaseId }: PurchaseEditionParams) => {
   const provider = await getProvider();
   const signer = await provider.getSigner();
-  const gridFireEditions = getGridFireEditionsContract(signer);
+  const gridFireEditions = getGridfireEditionsContract(signer);
   const releaseIdBytes = encodeBytes32String(releaseId);
   const transactionReceipt = await gridFireEditions.purchaseGridFireEdition(editionId, price, artist, releaseIdBytes);
   const { status, transactionHash } = await transactionReceipt.wait();
@@ -197,7 +194,7 @@ interface PurchaseReleaseParams {
 const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }: PurchaseReleaseParams) => {
   const provider = await getProvider();
   const signer = await provider.getSigner();
-  const gridFirePayment = getGridFireContract(signer);
+  const gridFirePayment = getGridfireContract(signer);
   const weiReleasePrice = parseEther(`${price}`);
   const releaseIdBytes = encodeBytes32String(releaseId);
   const userIdBytes = encodeBytes32String(userId);
@@ -228,17 +225,17 @@ export {
   claimBalance,
   getBalance,
   getDaiAllowance,
-  getDaiApprovalEvents,
   getDaiBalance,
   getDaiContract,
-  getGridFireClaimEvents,
-  getGridFireContract,
-  getGridFireEditionUris,
-  getGridFirePurchaseEvents,
-  getMintedGridFireEditionsByReleaseId,
-  getResolvedAddress,
-  getUserEditions,
-  getVisibleGridFireEditionsByReleaseId,
+  fetchDaiApprovalEvents,
+  fetchDaiPurchaseEvents,
+  fetchGridfireClaimEvents,
+  fetchGridfireEditionUris,
+  fetchGridfirePurchaseEvents,
+  fetchMintedGridfireEditionsByReleaseId,
+  fetchResolvedAddress,
+  fetchUserEditions,
+  fetchVisibleGridfireEditionsByReleaseId,
   gridFireCheckout,
   mintEdition,
   purchaseEdition,

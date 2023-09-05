@@ -1,7 +1,7 @@
 import {
-  getGridFireEditionUris,
-  getGridFireEditionsByReleaseId,
-  getUserGridFireEditions,
+  getGridfireEditionsByReleaseId,
+  getGridfireEditionUris,
+  getUserGridfireEditions,
   setVisibility
 } from "gridfire/controllers/web3/index.js";
 import { IRelease } from "gridfire/models/Release.js";
@@ -19,7 +19,7 @@ router.get("/user", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
     if (!userId) return res.sendStatus(401);
-    const editions = await getUserGridFireEditions(userId);
+    const editions = await getUserGridfireEditions(userId);
     res.json(editions);
   } catch (error: any) {
     console.error(error);
@@ -31,7 +31,7 @@ router.get("/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
 
-    const editions = await getGridFireEditionsByReleaseId({
+    const editions = await getGridfireEditionsByReleaseId({
       release: releaseId,
       status: "minted",
       visibility: "visible"
@@ -121,7 +121,7 @@ router.post("/mint", async (req, res) => {
 router.get("/:releaseId/uri", async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const uris = await getGridFireEditionUris(releaseId);
+    const uris = await getGridfireEditionUris(releaseId);
     res.json(uris);
   } catch (error: any) {
     console.error(error);
@@ -134,7 +134,7 @@ router.get("/:releaseId/minted", async (req, res) => {
     const { _id: user } = req.user || {};
     const { releaseId } = req.params;
 
-    const editions = await getGridFireEditionsByReleaseId({
+    const editions = await getGridfireEditionsByReleaseId({
       release: releaseId,
       status: "minted",
       user

@@ -1,5 +1,8 @@
-const Input = {
-  parts: ["field", "addon"],
+import { createMultiStyleConfigHelpers } from "@chakra-ui/react";
+
+const { defineMultiStyleConfig } = createMultiStyleConfigHelpers(["field", "addon"]);
+
+const Input = defineMultiStyleConfig({
   variants: {
     outline: {
       field: {
@@ -20,7 +23,11 @@ const Input = {
         borderWidth: "1px",
         _dark: {
           backgroundColor: "gray.800",
-          borderColor: "gray.600"
+          borderColor: "gray.600",
+          _invalid: {
+            borderColor: "red.300",
+            boxShadow: `0 0 0 1px red.300`
+          }
         }
       }
     }
@@ -28,6 +35,6 @@ const Input = {
   defaultProps: {
     size: "md"
   }
-};
+});
 
 export default Input;

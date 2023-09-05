@@ -6,8 +6,6 @@ import { notifyUser } from "gridfire-web3-events/controllers/notifyUser.js";
 import { recordSale } from "gridfire-web3-events/controllers/sale.js";
 import { validatePurchase } from "gridfire-web3-events/controllers/release.js";
 
-const timeZone = "Europe/Amsterdam";
-
 const onPurchase = async (
   buyerAddress: string,
   artistAddress: string,
@@ -19,11 +17,10 @@ const onPurchase = async (
   event: any
 ) => {
   try {
-    const date = new Date().toLocaleString("en-UK", { timeZone });
     const daiPaid = formatEther(amountPaid);
     const releaseId = decodeBytes32String(releaseIdBytes);
     const userId = decodeBytes32String(userIdBytes);
-    logger.info(`(${date}) User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
+    logger.info(`User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
     const transactionReceipt = await event.getTransactionReceipt();
     const { transactionHash } = transactionReceipt;
 

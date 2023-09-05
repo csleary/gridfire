@@ -5,8 +5,6 @@ import logger from "gridfire-web3-events/controllers/logger.js";
 import { notifyUser } from "gridfire-web3-events/controllers/notifyUser.js";
 import { updateEditionStatus } from "gridfire-web3-events/controllers/edition.js";
 
-const timeZone = "Europe/Amsterdam";
-
 const onEditionMinted = async (
   releaseIdBytes: BytesLike,
   artist: AddressLike,
@@ -16,12 +14,9 @@ const onEditionMinted = async (
   price: bigint
 ) => {
   try {
-    const date = new Date().toLocaleString("en-UK", { timeZone });
     const releaseId = decodeBytes32String(releaseIdBytes);
 
-    logger.info(
-      `${date}: Edition minted by ${artist} for release ${releaseId} (qty.: ${amount}, DAI: ${formatEther(price)}).`
-    );
+    logger.info(`Edition minted by ${artist} for release ${releaseId} (qty.: ${amount}, DAI: ${formatEther(price)}).`);
 
     const decodedObjectId = decodeBytes32String(objectIdBytes);
     const edition = await updateEditionStatus(releaseId, decodedObjectId, editionId.toString());

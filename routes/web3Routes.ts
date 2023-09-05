@@ -1,15 +1,16 @@
+import { EventLog, decodeBytes32String } from "ethers";
 import {
+  getBlockNumber,
   getDaiContract,
-  getGridFireEditionsContract,
-  getGridFirePaymentContract,
+  getGridfireEditionsContract,
+  getGridfirePaymentContract,
   getResolvedAddress
 } from "gridfire/controllers/web3/index.js";
 import express from "express";
 import mongoose from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
-import { EventLog } from "ethers";
 
-const { User } = mongoose.models;
+const { Release, User } = mongoose.models;
 const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 const router = express.Router();
 
@@ -37,26 +38,38 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
   }
 });
 
+// async function getClaimsBatched(account: string) {
+//   const batchSize = 10_000n;
+//   const blockNumber = await getBlockNumber();
+//   const gridFirePaymentContract = getGridfirePaymentContract();
+//   const claimFilter = gridFirePaymentContract.filters.Claim(account);
+//   const claims = [];
+
+//   for (let fromBlock = 0n; fromBlock < BigInt(blockNumber); fromBlock += batchSize) {
+//     const toBlock = fromBlock + batchSize - 1n;
+//     const batch = await gridFirePaymentContract.queryFilter(claimFilter, fromBlock, toBlock);
+//     claims.push(...(batch as EventLog[]));
+//   }
+
+//   return claims;
+// }
+
 router.get("/claims", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
     if (!userId) return res.sendStatus(401);
     const { account } = await User.findById(userId).exec();
-    const gridFirePaymentContract = getGridFirePaymentContract();
-    const claimFilter = gridFirePaymentContract.filters.Claim(account);
-    const claims = (await gridFirePaymentContract.queryFilter(claimFilter)) as EventLog[];
+    const gridfirePaymentContract = getGridfirePaymentContract();
+    const claimFilter = gridfirePaymentContract.filters.Claim(account);
+    const claims = (await gridfirePaymentContract.queryFilter(claimFilter)) as EventLog[];
 
-    const leanClaims = claims.map(({ args, blockNumber, transactionHash }) => {
-      const { amount } = args;
+    const leanClaims = claims.map(({ args, blockNumber, transactionHash }) => ({
+      amount: args.amount.toString(),
+      blockNumber,
+      transactionHash
+    }));
 
-      return {
-        amount: amount.toString(),
-        blockNumber,
-        transactionHash
-      };
-    });
-
-    res.send(leanClaims);
+    res.json(leanClaims);
   } catch (error) {
     console.error(error);
     res.sendStatus(400);
@@ -74,14 +87,65 @@ router.get("/domain/:ensDomain", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/purchases", requireLogin, async (req, res) => {
+router.get("/purchases/:account", requireLogin, async (req, res) => {
+  try {
+    const { _id: userId } = req.user || {};
+    if (!userId) return res.sendStatus(401);
+    const { account } = req.params;
+    const gridfirePaymentContract = getGridfirePaymentContract();
+    const purchaseFilter = gridfirePaymentContract.filters.Purchase(account);
+    const gridfireEditionsContract = getGridfireEditionsContract();
+    const purchaseEditionFilter = gridfireEditionsContract.filters.PurchaseEdition(account);
+
+    const [purchases, editionPurchases] = await Promise.all([
+      gridfirePaymentContract.queryFilter(purchaseFilter),
+      gridfireEditionsContract.queryFilter(purchaseEditionFilter)
+    ]);
+
+    const leanPurchases = [...(purchases as EventLog[]), ...(editionPurchases as EventLog[])].map(
+      ({ args, blockNumber, transactionHash }) => {
+        const { amountPaid, editionId, releaseId } = args;
+
+        return {
+          amountPaid: amountPaid.toString(),
+          blockNumber,
+          ...(editionId ? { editionId: editionId.toString() } : {}),
+          releaseId: decodeBytes32String(releaseId),
+          transactionHash
+        };
+      }
+    );
+
+    const sortedPurchases = leanPurchases.sort((a, b) => a.blockNumber - b.blockNumber);
+
+    const withReleaseInfo = await Promise.all(
+      sortedPurchases.map(async ({ releaseId, ...purchase }) => {
+        const release = await Release.findOne(
+          { $or: [{ _id: releaseId }, { "trackList._id": releaseId }] },
+          { artistId: "$artist", artistName: 1, releaseTitle: 1, "trackList.trackTitle": 1 },
+          { lean: true }
+        ).exec();
+
+        const { artistId, artistName, releaseTitle } = release || {};
+        return { ...purchase, artistId, artistName, releaseId, releaseTitle };
+      })
+    );
+
+    res.json(withReleaseInfo);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/sales", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
     if (!userId) return res.sendStatus(401);
     const { paymentAddress } = await User.findById(userId).exec();
-    const gridFirePaymentContract = getGridFirePaymentContract();
+    const gridFirePaymentContract = getGridfirePaymentContract();
     const purchaseFilter = gridFirePaymentContract.filters.Purchase(null, paymentAddress);
-    const gridFireEditionsContract = getGridFireEditionsContract();
+    const gridFireEditionsContract = getGridfireEditionsContract();
     const purchaseEditionFilter = gridFireEditionsContract.filters.PurchaseEdition(null, paymentAddress);
 
     const [purchases, editionPurchases] = await Promise.all([
@@ -89,21 +153,23 @@ router.get("/purchases", requireLogin, async (req, res) => {
       gridFireEditionsContract.queryFilter(purchaseEditionFilter)
     ]);
 
-    const leanPurchases = [...(purchases as EventLog[]), ...(editionPurchases as EventLog[])]
-      .map(({ args, blockNumber, transactionHash }) => {
-        const { buyer, editionId, releaseId, artistShare, platformFee } = args;
+    const leanPurchases = await Promise.all(
+      [...(purchases as EventLog[]), ...(editionPurchases as EventLog[])]
+        .map(({ args, blockNumber, transactionHash }) => {
+          const { buyer, editionId, releaseId, artistShare, platformFee } = args;
 
-        return {
-          blockNumber,
-          buyer,
-          ...(editionId ? { editionId: editionId.toString() } : {}),
-          releaseId,
-          artistShare: artistShare.toString(),
-          platformFee: platformFee.toString(),
-          transactionHash
-        };
-      })
-      .sort((a, b) => a.blockNumber - b.blockNumber);
+          return {
+            blockNumber,
+            buyer,
+            ...(editionId ? { editionId: editionId.toString() } : {}),
+            releaseId,
+            artistShare: artistShare.toString(),
+            platformFee: platformFee.toString(),
+            transactionHash
+          };
+        })
+        .sort((a, b) => a.blockNumber - b.blockNumber)
+    );
 
     res.json(leanPurchases);
   } catch (error) {

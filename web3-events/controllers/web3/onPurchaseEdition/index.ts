@@ -10,7 +10,6 @@ import { notifyUser } from "gridfire-web3-events/controllers/notifyUser.js";
 import { recordSale } from "gridfire-web3-events/controllers/sale.js";
 
 const { Release, User } = mongoose.models;
-const timeZone = "Europe/Amsterdam";
 
 const onPurchaseEdition = async (
   buyerAddress: string,
@@ -23,7 +22,6 @@ const onPurchaseEdition = async (
   event: any
 ) => {
   try {
-    const date = new Date().toLocaleString("en-UK", { timeZone });
     const daiPaid = formatEther(amountPaid);
     const releaseId = decodeBytes32String(releaseIdBytes);
     const buyerAddressNormalised = getAddress(buyerAddress);
@@ -38,7 +36,7 @@ const onPurchaseEdition = async (
 
     const userId = buyerUser._id.toString();
     const id = editionId.toString();
-    logger.info(`(${date}) User ${userId} paid ${daiPaid} DAI to ${artistAddress} for Edition ${id} (${releaseId}).`);
+    logger.info(`User ${userId} paid ${daiPaid} DAI to ${artistAddress} for Edition ${id} (${releaseId}).`);
 
     const release: Pick<IRelease, "_id" | "artist" | "artistName" | "releaseTitle" | "user"> = await Release.findById(
       releaseId,

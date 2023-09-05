@@ -3,6 +3,7 @@ import "gridfire-web3-events/models/Edition.js";
 import "gridfire-web3-events/models/Release.js";
 import "gridfire-web3-events/models/Sale.js";
 import "gridfire-web3-events/models/User.js";
+import { PROVIDERS, contracts } from "gridfire-web3-events/controllers/web3/gridfireProvider/rpcProviders/index.js";
 import { amqpClose, amqpConnect } from "gridfire-web3-events/controllers/amqp/index.js";
 import GridfireProvider from "gridfire-web3-events/controllers/web3/gridfireProvider/index.js";
 import onEditionMinted from "gridfire-web3-events/controllers/web3/onEditionMinted/index.js";
@@ -82,13 +83,13 @@ try {
   await mongoose.connect(MONGODB_URI);
   await amqpConnect();
   await setupHealthProbe();
-  gridfireProvider = new GridfireProvider();
+  gridfireProvider = new GridfireProvider({ providers: PROVIDERS, contracts });
 
   gridfireProvider
     .on("EditionMinted", onEditionMinted)
     .on("PurchaseEdition", onPurchaseEdition)
     .on("Purchase", onPurchase)
-    .on("error", logger.error);
+    .on("error", (...errors) => logger.error(...errors));
 } catch (error: any) {
   logger.error(`Startup error: ${error.message}`);
 }

@@ -84,12 +84,45 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
 
   const handleBlur = () => setValues(prev => ({ ...prev, price: formatPrice(prev.price) }));
 
+  const handleClose = () => {
+    handleCloseModal();
+    resetValues();
+  };
+
+  const validate = () => {
+    const { amount, description, price } = values;
+    const errors = { amount: "", description: "", price: "" };
+
+    if (!description) {
+      errors.description = "Please enter a description for this Edition.";
+    }
+
+    if (!amount) {
+      errors.amount = "Please enter the amount of Editions you wish to create.";
+    } else if (Number(amount) < 1) {
+      errors.amount = "Please enter an amount of at least 1.";
+    }
+
+    if (Number(price) < 0.01) {
+      errors.price = "Please enter a valid price for this Edition.";
+    }
+
+    return errors;
+  };
+
   const handleMint = async () => {
     try {
       setIsPurchasing(true);
+      const errors = validate();
+
+      if (Object.values(errors).some(Boolean)) {
+        setErrors(errors);
+        return;
+      }
+
       const { amount, description, price, tracks } = values;
       await mintEdition({ amount, description, price, releaseId, tracks });
-      handleCloseModal();
+      handleClose();
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -97,16 +130,21 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
     }
   };
 
+  const resetValues = () => {
+    setValues(defaultValues);
+    setErrors({ amount: "", description: "", price: "" });
+  };
+
   return (
-    <Modal isOpen={showModal} onClose={handleCloseModal} size="md" isCentered>
+    <Modal isOpen={showModal} onClose={handleClose} size="md" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
         <ModalHeader>Mint a GridFire Edition</ModalHeader>
         <ModalBody>
           <Field
-            errors={errors}
-            info="This will be used for the Edition NFT metadata. It might be useful to name these according to theme, depending on the exclusive tracks selected, e.g. 'Outtakes', 'Remixes', 'Live Sets', 'Superfan Pack' etc."
+            error={errors.description}
+            info="This will also be used for the Edition NFT metadata. e.g. 'Outtakes', 'Remixes', 'Live Sets', 'Superfan Pack' etc."
             label="Description"
             name="description"
             onChange={handleChange}
@@ -115,10 +153,11 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
             variant="modal"
           />
           <Field
-            errors={errors}
+            error={errors.amount}
             info="The total supply or amount to mint for this edition. Think how rare or unique you wish this edition to be."
             inputMode="numeric"
             label="Amount"
+            min={1}
             name="amount"
             onChange={handleChange}
             size="lg"
@@ -127,8 +166,8 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
             variant="modal"
           />
           <Field
-            errors={errors}
-            info="The price you wish to sell each edition for. As a guide, the lower the amount, the higher the price."
+            error={errors.price}
+            info="The price you wish to sell each edition for. As a guide, the lower the amount (and more rare the Edition), the higher the price."
             inputMode="numeric"
             label="Price (DAI/USD)"
             name="price"
@@ -145,7 +184,12 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
           {editionTrackPool.map(({ _id: trackId, trackTitle }: ReleaseTrack, index: number) => {
             return (
               <Box key={trackId}>
-                <Checkbox colorScheme={checkboxColour} name={trackId} onChange={handleChangeTrack}>
+                <Checkbox
+                  colorScheme={checkboxColour}
+                  isChecked={values.tracks.includes(trackId)}
+                  name={trackId}
+                  onChange={handleChangeTrack}
+                >
                   <Box as="span" mr={2}>
                     {index + 1}.
                   </Box>
@@ -168,7 +212,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
           <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mt={8} />
         </ModalBody>
         <ModalFooter>
-          <Button onClick={handleCloseModal}>Cancel</Button>
+          <Button onClick={handleClose}>Cancel</Button>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}
             leftIcon={<Icon icon={faEthereum} />}

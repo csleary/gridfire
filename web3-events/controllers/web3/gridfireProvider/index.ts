@@ -1,77 +1,36 @@
+import { Contract, Provider, ProviderResult, Request, RequestOptions } from "gridfire-web3-events/types/index.js";
 import { Interface, getBigInt, toQuantity } from "ethers";
 import axios, { AxiosResponse } from "axios";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import { EventEmitter } from "node:events";
-import GridfireEditionsAbi from "gridfire-web3-events/controllers/web3/abi/editions/index.js";
-import GridfirePaymentAbi from "gridfire-web3-events/controllers/web3/abi/payment/index.js";
 import { LogDescription } from "ethers";
 import assert from "node:assert/strict";
 import filterErrors from "./filterErrors/index.js";
 import logger from "gridfire-web3-events/controllers/logger.js";
 import objectHash from "object-hash";
 
-enum EventNames {
-  EDITION_MINTED = "EditionMinted",
-  PURCHASE_EDITION = "PurchaseEdition",
-  PURCHASE = "Purchase"
+const isRejected = <T>(p: PromiseSettledResult<T>): p is PromiseRejectedResult => p.status === "rejected";
+
+interface GridfireProviderConfig {
+  providers: Provider[];
+  contracts: Contract[];
 }
 
-type ProviderResult = { provider: symbol; data: JSONRPCResponse[]; error: any };
-type Request = { method: string; params: any[] };
-type RequestOptions = { timeout?: number };
-
-const {
-  API_KEY_1RPC,
-  API_KEY_ALCHEMY,
-  API_KEY_CHAINNODES,
-  API_KEY_QUICKNODE,
-  GRIDFIRE_EDITIONS_ADDRESS,
-  GRIDFIRE_PAYMENT_ADDRESS,
-  NODE_ENV
-} = process.env;
-
-const hasKey = (key: string | undefined): boolean =>
-  NODE_ENV !== "production" || (NODE_ENV === "production" && Boolean(key));
-
-assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var missing.");
-assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var missing.");
-assert(hasKey(API_KEY_1RPC), "API_KEY_1RPC env var missing.");
-assert(hasKey(API_KEY_ALCHEMY), "API_KEY_ALCHEMY env var missing.");
-assert(hasKey(API_KEY_CHAINNODES), "API_KEY_CHAINNODES env var missing.");
-assert(hasKey(API_KEY_QUICKNODE), "API_KEY_QUICKNODE env var missing.");
-
-const isRejected = <T>(p: PromiseSettledResult<T>): p is PromiseRejectedResult => p.status === "rejected";
-const ALCHEMY = Symbol("alchemy");
-const CHAINNODES = Symbol("chainnodes");
-const LOCALHOST = Symbol("localhost");
-const QUIKNODE = Symbol("quiknode");
-const ONE_RPC = Symbol("1rpc");
-
-const PROVIDERS: [name: symbol, url: string][] = [
-  [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
-  [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
-  [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
-  // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
-];
-
 class GridfireProvider extends EventEmitter {
+  #contracts: Contract[] = [];
   #currentBlockNumber: string = "";
   #id: bigint = 0n;
-  #pollingInterval: number = 5000;
+  #pollingInterval: number = 10_000;
   #quorum: number = 1;
   #timeout: NodeJS.Timeout;
-  #topics: Map<string, string[]> = new Map();
-  #providers: Map<symbol, string> = new Map([[LOCALHOST, "http://localhost:8545"]]);
+  #providers: Map<symbol, string> = new Map([]);
 
-  constructor() {
+  constructor({ providers, contracts }: GridfireProviderConfig) {
     super();
-
-    if (NODE_ENV === "production") {
-      this.#providers.clear();
-      PROVIDERS.forEach(([provider, url]) => this.#providers.set(provider, url));
-    }
-
-    this.#setTopics();
+    assert(providers.length > 0, "No providers provided.");
+    assert(contracts.length > 0, "No contracts provided.");
+    providers.forEach(([provider, url]) => this.#providers.set(provider, url));
+    contracts.forEach(contract => this.#contracts.push(contract));
     this.#quorum = Math.ceil(this.#providers.size / 2);
     this.#timeout = setTimeout(() => {}, 0);
     this.#getLogs();
@@ -86,17 +45,6 @@ class GridfireProvider extends EventEmitter {
   #emitEvent(eventName: string, log: LogDescription, transactionHash: string): void {
     const { args } = log;
     this.emit(eventName, ...args, { getTransactionReceipt: this.#getTransactionReceipt.bind(this, transactionHash) });
-  }
-
-  #getAddressByEventName(eventName: string): string {
-    switch (eventName) {
-      case EventNames.EDITION_MINTED:
-      case EventNames.PURCHASE_EDITION:
-        return GRIDFIRE_EDITIONS_ADDRESS!;
-      case EventNames.PURCHASE:
-      default:
-        return GRIDFIRE_PAYMENT_ADDRESS!;
-    }
   }
 
   async #getBlockNumber(): Promise<string> {
@@ -126,17 +74,6 @@ class GridfireProvider extends EventEmitter {
     return (this.#id++).toString();
   }
 
-  #getInterfaceByEventName(eventName: string): Interface {
-    switch (eventName) {
-      case EventNames.EDITION_MINTED:
-      case EventNames.PURCHASE_EDITION:
-        return new Interface(GridfireEditionsAbi);
-      case EventNames.PURCHASE:
-      default:
-        return new Interface(GridfirePaymentAbi);
-    }
-  }
-
   async #getLogs(): Promise<void> {
     try {
       const blockNumber = await this.#getBlockNumber();
@@ -145,26 +82,34 @@ class GridfireProvider extends EventEmitter {
         return;
       }
 
-      let fromBlock = "0x0";
+      let fromBlock = "";
       if (!this.#currentBlockNumber) {
         fromBlock = blockNumber;
       } else {
         fromBlock = toQuantity(getBigInt(this.#currentBlockNumber) + 1n);
       }
 
-      const batch = Array.from(this.#topics).map(([eventName, topics]) => {
-        const address = this.#getAddressByEventName(eventName);
-        return { method: "eth_getLogs", params: [{ fromBlock, toBlock: blockNumber, address, topics }] };
+      const config = this.#contracts.flatMap(contract => {
+        const { abi, address, eventNames } = contract;
+        const iface = new Interface(abi);
+
+        return eventNames.flatMap(eventName => {
+          const event = iface.getEvent(eventName);
+          const topics = iface.encodeFilterTopics(event!, []);
+          const params = [{ fromBlock, toBlock: blockNumber, address, topics }];
+          const request = { method: "eth_getLogs", params };
+          return { eventName, iface, request };
+        });
       });
 
+      const batch = config.map(({ request }) => request);
       const responses = await this.#send(batch);
       const definitiveResult = this.#getQuorumValue(responses);
 
-      definitiveResult.data.forEach(({ result: logs }: any, index: number) => {
-        const eventName = Array.from(this.#topics.keys())[index];
-        const iface = this.#getInterfaceByEventName(eventName);
+      definitiveResult.data.forEach(({ result }: any, index: number) => {
+        const { eventName, iface } = config[index];
 
-        logs.forEach((log: any) => {
+        result.forEach((log: any) => {
           const { transactionHash } = log;
           const description = iface.parseLog(log);
           this.#emitEvent(eventName, description!, transactionHash);
@@ -188,16 +133,18 @@ class GridfireProvider extends EventEmitter {
   }
 
   #getQuorumValue(results: ProviderResult[]): ProviderResult {
-    let definitiveResult: any = null;
+    const filtered = results.filter(filterErrors);
+    const tooFewResults = filtered.length < this.#quorum;
+    let definitiveResult: ProviderResult | null = null;
     const total = new Map();
     const excludeKeys = (key: string) => key === "id";
 
-    results.filter(filterErrors).forEach(result => {
+    filtered.forEach(result => {
       if (definitiveResult) return;
       const hash = objectHash(result.data, { excludeKeys });
       total.set(hash, (total.get(hash) ?? 0) + 1);
 
-      if (total.get(hash) === this.#quorum) {
+      if (tooFewResults || total.get(hash) === this.#quorum) {
         definitiveResult = result;
       }
     });
@@ -224,22 +171,13 @@ class GridfireProvider extends EventEmitter {
     });
   }
 
-  async #send(requests: Request[], { timeout = 5000 }: RequestOptions = {}): Promise<ProviderResult[]> {
+  async #send(requests: Request[], { timeout = 5_000 }: RequestOptions = {}): Promise<ProviderResult[]> {
     const providers = Array.from(this.#providers);
     const body = requests.map(({ method, params }) => ({ method, params, id: this.#getId(), jsonrpc: "2.0" }));
     const providerRequests = providers.map(([, url]) => axios.post(url, body, { timeout }));
     const promiseResults = await Promise.allSettled(providerRequests);
     const providerResults = this.#normaliseProviderResults(promiseResults);
     return providerResults;
-  }
-
-  #setTopics(): void {
-    Object.values(EventNames).forEach(eventName => {
-      const iface = this.#getInterfaceByEventName(eventName);
-      const event = iface.getEvent(eventName);
-      const topic = iface.encodeFilterTopics(event!, []) as string[];
-      this.#topics.set(eventName, topic);
-    });
   }
 }
 

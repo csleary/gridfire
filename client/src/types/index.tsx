@@ -53,7 +53,7 @@ export interface Artist {
   slug: string;
   biography: string;
   links: Link[];
-  releases?: Release[];
+  releases: Release[];
 }
 
 export interface BasketItem {

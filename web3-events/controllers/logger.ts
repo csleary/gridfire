@@ -1,10 +1,30 @@
-const deploymentName = "[Web3 Events]";
+class Logger {
+  #contextName: string;
 
-const logger = {
-  error: console.error.bind(null, deploymentName),
-  info: console.info.bind(null, deploymentName),
-  log: console.log.bind(null, deploymentName),
-  warn: console.warn.bind(null, deploymentName)
-};
+  constructor(contextName: string) {
+    this.#contextName = `[${contextName}]`;
+  }
 
-export default logger;
+  #getDate(): string {
+    const timeZone = "Europe/Amsterdam";
+    return new Date().toLocaleString("en-UK", { timeZone });
+  }
+
+  error(...args: any[]) {
+    console.error(this.#getDate(), this.#contextName, ...args);
+  }
+
+  info(...args: any[]) {
+    console.info(this.#getDate(), this.#contextName, ...args);
+  }
+
+  log(...args: any[]) {
+    console.log(this.#getDate(), this.#contextName, ...args);
+  }
+
+  warn(...args: any[]) {
+    console.warn(this.#getDate(), this.#contextName, ...args);
+  }
+}
+
+export default new Logger("web3-events");
