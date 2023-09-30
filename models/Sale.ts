@@ -1,20 +1,21 @@
-import { Schema, Types, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
 
-enum SaleType {
+export enum SaleType {
   Single = "single",
   Album = "album",
   Edition = "edition"
 }
 
-interface ISale {
+export interface ISale {
+  _id: ObjectId;
   purchaseDate: Date;
-  release: Types.ObjectId;
+  release: ObjectId;
   paid: string;
   fee: string;
   netAmount: string;
   transactionHash: string;
   type: SaleType;
-  user: Types.ObjectId;
+  user: ObjectId;
   userAddress: string;
 }
 

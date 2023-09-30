@@ -4,6 +4,7 @@ import Activity from "gridfire/models/Activity.js";
 import Artist from "gridfire/models/Artist.js";
 import Favourite from "gridfire/models/Favourite.js";
 import WishList from "gridfire/models/WishList.js";
+import { checkoutFreeBasket } from "gridfire/controllers/releaseController.js";
 import { createArtist } from "gridfire/controllers/artistController.js";
 import { deleteArtwork } from "gridfire/controllers/artworkController.js";
 import { deleteTrack } from "gridfire/controllers/trackController.js";
@@ -125,6 +126,19 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
     res.json(updatedRelease.toJSON());
   } catch (error: any) {
     res.status(200).json({ error: error.message });
+  }
+});
+
+router.post("/checkout", requireLogin, async (req, res) => {
+  try {
+    const { _id: user } = req.user || {};
+    if (!user) return res.sendStatus(401);
+    const basket = req.body;
+    await checkoutFreeBasket(basket, user.toString());
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
   }
 });
 

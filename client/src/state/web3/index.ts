@@ -1,57 +1,27 @@
 import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
-import {
-  fetchDaiApprovalEvents,
-  fetchGridfireClaimEvents,
-  fetchGridfirePurchaseEvents,
-  getDaiAllowance,
-  getDaiBalance,
-  fetchDaiPurchaseEvents,
-  gridFireCheckout
-} from "web3";
+import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3";
 import { AppDispatch, GetState } from "index";
 import { BasketItem, SalesHistory } from "types";
 import { toastError, toastWarning } from "state/toast";
+import { checkoutFreeBasket } from "state/releases";
 import { createSlice } from "@reduxjs/toolkit";
 import { batch } from "react-redux";
 import detectEthereumProvider from "@metamask/detect-provider";
 
 const { REACT_APP_CHAIN_ID = "" } = process.env;
 
-interface GridfireLog {
-  amount: string;
-  blockNumber: number;
-  transactionHash: string;
-}
-
-interface GridfirePaymentLog {
-  amountPaid: string;
-  artistId: string;
-  artistName: string;
-  blockNumber: number;
-  editionId?: string;
-  releaseId: string;
-  releaseTitle: string;
-  transactionHash: string;
-}
-
 interface Web3State {
   account: string;
   accountShort: string;
   basket: BasketItem[];
   chainId: string;
-  claims: GridfireLog[];
   daiAllowance: string;
-  daiApprovals: GridfireLog[];
   daiBalance: string;
-  daiPurchases: GridfirePaymentLog[];
   error: string;
   isAddingToBasket: boolean;
   isCheckingOut: boolean;
   isConnected: boolean;
   isFetchingAllowance: boolean;
-  isFetchingApprovals: boolean;
-  isFetchingClaims: boolean;
-  isFetchingPurchases: boolean;
   isFetchingSales: boolean;
   mintedEditionIds: string[];
   networkName: string;
@@ -63,19 +33,13 @@ const initialState: Web3State = {
   accountShort: "",
   basket: [],
   chainId: "",
-  claims: [],
   daiAllowance: 0n.toString(),
-  daiApprovals: [],
   daiBalance: 0n.toString(),
-  daiPurchases: [],
   error: "",
   isAddingToBasket: false,
   isCheckingOut: false,
   isConnected: false,
   isFetchingAllowance: false,
-  isFetchingApprovals: false,
-  isFetchingClaims: false,
-  isFetchingPurchases: false,
   isFetchingSales: false,
   mintedEditionIds: [],
   networkName: "",
@@ -106,14 +70,8 @@ const web3Slice = createSlice({
     setDaiAllowance(state, action) {
       state.daiAllowance = action.payload;
     },
-    setDaiApprovals(state, action) {
-      state.daiApprovals = action.payload;
-    },
     setDaiBalance(state, action) {
       state.daiBalance = action.payload;
-    },
-    setDaiPurchases(state, action) {
-      state.daiPurchases = action.payload;
     },
     setError(state, action) {
       state.error = action.payload;
@@ -124,29 +82,17 @@ const web3Slice = createSlice({
     setIsCheckingOut(state, action) {
       state.isCheckingOut = action.payload;
     },
-    setGridfireClaims(state, action) {
-      state.claims = action.payload;
-    },
     setIsConnected(state, action) {
       state.isConnected = action.payload;
     },
     setIsFetchingAllowance(state, action) {
       state.isFetchingAllowance = action.payload;
     },
-    setIsFetchingApprovals(state, action) {
-      state.isFetchingApprovals = action.payload;
-    },
-    setIsFetchingClaims(state, action) {
-      state.isFetchingClaims = action.payload;
-    },
     setIsFetchingSales(state, action) {
       state.isFetchingSales = action.payload;
     },
     setMintedEditionIds(state, action) {
       state.mintedEditionIds = [...state.mintedEditionIds, action.payload];
-    },
-    setIsFetchingPurchases(state, action) {
-      state.isFetchingPurchases = action.payload;
     },
     setNetworkName(state, action) {
       const { chainId, name } = action.payload;
@@ -169,11 +115,13 @@ const checkoutBasket =
       });
 
       const total = basket.reduce((prev, { price }) => prev + price, 0n);
+      const { userId } = getState().user;
 
       // Only do contract checkout if there's a non-zero price.
       if (total > 0n) {
-        const { userId } = getState().user;
         await gridFireCheckout(basket, userId);
+      } else {
+        await dispatch(checkoutFreeBasket(basket));
       }
     } catch (error) {
       dispatch(setError(error));
@@ -195,48 +143,12 @@ const fetchDaiAllowance = (account: string) => async (dispatch: AppDispatch) => 
   }
 };
 
-const fetchDaiApprovals = (account: string) => async (dispatch: AppDispatch) => {
-  try {
-    dispatch(setIsFetchingApprovals(true));
-    const approvals = await fetchDaiApprovalEvents(account);
-    dispatch(setDaiApprovals(approvals));
-  } catch (error) {
-    console.error(error);
-  } finally {
-    dispatch(setIsFetchingApprovals(false));
-  }
-};
-
 const fetchDaiBalance = (account: string) => async (dispatch: AppDispatch) => {
   try {
     const currentBalance = await getDaiBalance(account);
     dispatch(setDaiBalance(currentBalance));
   } catch (error) {
     console.error(error);
-  }
-};
-
-const fetchDaiPurchases = (account: string) => async (dispatch: AppDispatch) => {
-  try {
-    dispatch(setIsFetchingPurchases(true));
-    const purchases = await fetchDaiPurchaseEvents(account);
-    dispatch(setDaiPurchases(purchases));
-  } catch (error) {
-    console.error(error);
-  } finally {
-    dispatch(setIsFetchingPurchases(false));
-  }
-};
-
-const fetchGridfireClaims = () => async (dispatch: AppDispatch) => {
-  try {
-    dispatch(setIsFetchingClaims(true));
-    const claims = await fetchGridfireClaimEvents();
-    dispatch(setClaims(claims));
-  } catch (error) {
-    console.error(error);
-  } finally {
-    dispatch(setIsFetchingClaims(false));
   }
 };
 
@@ -309,33 +221,18 @@ export const {
   removeFromBasket,
   setAccount,
   setDaiAllowance,
-  setDaiApprovals,
   setDaiBalance,
-  setDaiPurchases,
   setError,
-  setGridfireClaims: setClaims,
   setIsAddingToBasket,
   setIsCheckingOut,
   setIsConnected,
   setIsFetchingAllowance,
-  setIsFetchingApprovals,
-  setIsFetchingClaims,
-  setIsFetchingPurchases,
   setIsFetchingSales,
   setMintedEditionIds,
   setNetworkName,
   setSales
 } = web3Slice.actions;
 
-export {
-  checkoutBasket,
-  connectToWeb3,
-  fetchDaiAllowance,
-  fetchDaiApprovals,
-  fetchDaiBalance,
-  fetchDaiPurchases,
-  fetchGridfireClaims,
-  fetchSales
-};
+export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance, fetchSales };
 
 export default web3Slice.reducer;

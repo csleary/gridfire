@@ -20,28 +20,29 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { claimBalance, getBalance } from "web3";
-import { fetchDaiBalance, fetchGridfireClaims } from "state/web3";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
+import { fetchDaiBalance } from "state/web3";
 import { formatEther } from "ethers";
 import Icon from "components/icon";
+import { useLazyGetClaimsQuery } from "state/logs";
 
 const Balance = () => {
   const dispatch = useDispatch();
   const account = useSelector(state => state.web3.account);
-  const claims = useSelector(state => state.web3.claims);
   const isConnected = useSelector(state => state.web3.isConnected);
   const paymentAddress = useSelector(state => state.user.paymentAddress);
+  const [getClaims, { data: claims = [] }] = useLazyGetClaimsQuery();
   const [balance, setBalance] = useState("0");
   const [isClaiming, setIsClaiming] = useState(false);
 
   useEffect(() => {
     if (paymentAddress) {
-      dispatch(fetchGridfireClaims());
+      getClaims();
     }
-  }, [balance, dispatch, paymentAddress]);
+  }, [balance, getClaims, paymentAddress]);
 
   useEffect(() => {
     if (!isConnected) return;

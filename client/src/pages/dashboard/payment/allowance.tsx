@@ -37,11 +37,12 @@ import {
 import { ChangeEventHandler, useEffect, useState } from "react";
 import { FixedNumber, formatEther } from "ethers";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { fetchDaiAllowance, fetchDaiApprovals, fetchDaiPurchases } from "state/web3";
 import { useDispatch, useSelector } from "hooks";
+import { useLazyGetPurchasesQuery, useLazyGetApprovalsQuery } from "state/logs";
 import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
+import { fetchDaiAllowance } from "state/web3";
 import { setDaiAllowance } from "web3";
 import { toastSuccess } from "state/toast";
 
@@ -52,23 +53,23 @@ const Allowance = () => {
   const account = useSelector(state => state.web3.account);
   const accountShort = useSelector(state => state.web3.accountShort);
   const daiAllowance = useSelector(state => state.web3.daiAllowance);
-  const approvals = useSelector(state => state.web3.daiApprovals);
-  const purchases = useSelector(state => state.web3.daiPurchases);
   const isConnected = useSelector(state => state.web3.isConnected);
   const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
-  const isFetchingApprovals = useSelector(state => state.web3.isFetchingApprovals);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [allowance, setAllowance] = useState("0");
+  const [getPurchases, { data: purchases = [] }] = useLazyGetPurchasesQuery();
+  const [getApprovals, { data: approvals = [] }] = useLazyGetApprovalsQuery();
 
   useEffect(() => {
     if (account) {
       dispatch(fetchDaiAllowance(account));
-      dispatch(fetchDaiApprovals(account));
-      dispatch(fetchDaiPurchases(account));
+      getApprovals(account);
+      getPurchases(account);
     }
-  }, [account, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
 
   useEffect(() => {
     if (daiAllowance != null) {
@@ -97,7 +98,7 @@ const Allowance = () => {
       setIsSubmitting(true);
       await setDaiAllowance(allowance);
       dispatch(fetchDaiAllowance(account));
-      dispatch(fetchDaiApprovals(account));
+      getApprovals(account);
 
       dispatch(
         toastSuccess({

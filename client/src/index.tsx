@@ -5,14 +5,18 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import { createRoot } from "react-dom/client";
 import { createStandaloneToast } from "@chakra-ui/toast";
+import { logsApi } from "state/logs";
 import rootReducer from "state";
+import { setupListeners } from "@reduxjs/toolkit/query";
 import theme from "./theme";
 
 const store = configureStore({
   reducer: rootReducer,
-  middleware: getDefaultMiddleware => getDefaultMiddleware({ immutableCheck: true, serializableCheck: true })
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({ immutableCheck: true, serializableCheck: true }).concat(logsApi.middleware)
 });
 
+setupListeners(store.dispatch);
 const container = document.getElementById("root")!;
 const root = createRoot(container);
 const { ToastContainer } = createStandaloneToast();
@@ -35,3 +39,4 @@ serviceWorker.unregister();
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
 export type GetState = () => RootState;
+export { store };

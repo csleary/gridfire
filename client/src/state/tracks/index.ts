@@ -1,9 +1,9 @@
 import { AppDispatch, GetState } from "index";
-import { EntityId, createSlice } from "@reduxjs/toolkit";
+import { EntityId, createSlice, nanoid } from "@reduxjs/toolkit";
+import { addActiveProcess, removeActiveProcess } from "state/user";
 import axios, { AxiosProgressEvent } from "axios";
 import { toastError, toastInfo, toastSuccess } from "state/toast";
-import { selectTrackById } from "state/editor";
-import { trackRemove } from "state/editor";
+import { selectTrackById, trackRemove } from "state/editor";
 
 const calls = new Map();
 
@@ -127,6 +127,16 @@ interface UploadAudioParams {
 const uploadAudio =
   ({ releaseId, trackId, trackName, audioFile }: UploadAudioParams) =>
   async (dispatch: AppDispatch) => {
+    const processId = nanoid();
+
+    dispatch(
+      addActiveProcess({
+        id: processId,
+        description: `Uploading audio for \u2018${trackName}\u2019…`,
+        type: "upload"
+      })
+    );
+
     try {
       dispatch(setUploadProgress({ trackId, progress: 0 }));
       const formData = new FormData();
@@ -152,6 +162,8 @@ const uploadAudio =
 
       toastError({ message: "We encountered an error uploading this track." });
       dispatch(setUploadProgress({ trackId, progress: 0 }));
+    } finally {
+      dispatch(removeActiveProcess(processId));
     }
   };
 

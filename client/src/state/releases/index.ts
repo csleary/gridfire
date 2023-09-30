@@ -1,6 +1,7 @@
 import { AppDispatch, GetState } from "index";
 import {
   Artist,
+  BasketItem,
   CollectionEdition,
   CollectionRelease,
   CollectionSingle,
@@ -12,8 +13,9 @@ import {
 import { toastError, toastSuccess } from "state/toast";
 import { DateTime } from "luxon";
 import axios from "axios";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
 import { fetchUserEditions as _fetchUserEditions } from "web3";
+import { addActiveProcess, removeActiveProcess } from "state/user";
 
 interface ReleasesState {
   activeRelease: Release;
@@ -161,6 +163,19 @@ const releaseSlice = createSlice({
     }
   }
 });
+
+const checkoutFreeBasket = (basket: BasketItem[]) => async (dispatch: AppDispatch) => {
+  const processId = nanoid();
+  dispatch(addActiveProcess({ id: processId, description: "Checking out…", type: "purchase" }));
+
+  try {
+    await axios.post("/api/release/checkout", basket);
+  } catch (error: any) {
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } finally {
+    dispatch(removeActiveProcess(processId));
+  }
+};
 
 const deleteRelease =
   (releaseId: string, releaseTitle = "release") =>
@@ -334,6 +349,7 @@ export const {
 } = releaseSlice.actions;
 
 export {
+  checkoutFreeBasket,
   defaultReleaseState,
   deleteRelease,
   fetchArtistCatalogue,

@@ -2,6 +2,7 @@ import artists from "state/artists";
 import artwork from "state/artwork";
 import { combineReducers } from "redux";
 import editor from "state/editor";
+import { logsApi } from "state/logs";
 import player from "state/player";
 import releases from "state/releases";
 import search from "state/search";
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   artists,
   artwork,
   editor,
+  [logsApi.reducerPath]: logsApi.reducer,
   player,
   releases,
   search,

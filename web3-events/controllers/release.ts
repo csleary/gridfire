@@ -26,9 +26,7 @@ const validatePurchase = async ({
   const releaseWithSingle: ReleaseSingle = await Release.findOne(
     { "trackList._id": releaseId },
     "artist artistName trackList.$",
-    {
-      lean: true
-    }
+    { lean: true }
   )
     .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
     .exec();

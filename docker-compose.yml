@@ -1,10 +1,10 @@
-version: '3.8'
+version: "3.8"
 services:
   app:
     build:
       context: .
     command: node /home/node/app/index.js
-    container_name: 'gridfire-server'
+    container_name: "gridfire-server"
     depends_on:
       - rabbitmq
       - mongo
@@ -54,6 +54,7 @@ services:
     ports:
       - 8080:8080
       - 5001:5001
+    restart: always
     volumes:
       - ipfs-data:/data/ipfs
     networks:

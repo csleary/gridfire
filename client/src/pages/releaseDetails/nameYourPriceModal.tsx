@@ -56,10 +56,6 @@ const NameYourPriceModal = ({
   const [price, setPrice] = useState(initialPrice);
 
   const handleNameYourPricePayment = async () => {
-    if (Number(price) === 0) {
-      return void setError("Please enter a price greater than zero.");
-    }
-
     await handleSubmit(price);
     handleCloseModal();
   };

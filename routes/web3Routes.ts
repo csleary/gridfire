@@ -38,6 +38,8 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
   }
 });
 
+// Batched option, but not needed for now.
+
 // async function getClaimsBatched(account: string) {
 //   const batchSize = 10_000n;
 //   const blockNumber = await getBlockNumber();

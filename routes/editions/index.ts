@@ -118,6 +118,25 @@ router.post("/mint", async (req, res) => {
   }
 });
 
+router.delete("/mint/:objectId", async (req, res) => {
+  try {
+    const { _id: user } = req.user || {};
+    const { objectId } = req.params;
+    const edition = await Edition.findById(objectId).exec();
+    const { cid } = edition || {};
+
+    if (cid) {
+      await ipfs.pin.rm(cid);
+    }
+
+    await Edition.deleteOne({ _id: objectId, user }).exec();
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
 router.get("/:releaseId/uri", async (req, res) => {
   try {
     const { releaseId } = req.params;

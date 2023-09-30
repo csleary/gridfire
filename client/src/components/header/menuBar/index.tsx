@@ -208,7 +208,7 @@ const MenuBar = () => {
               >
                 {userAccountShort || "Dashboard"}
               </MenuButton>
-              <MenuList py={0}>
+              <MenuList overflow="hidden" py={0}>
                 <MenuItem
                   as={NavLink}
                   to={"/dashboard/payment"}
@@ -260,7 +260,7 @@ const MenuBar = () => {
                 >
                   List
                 </MenuItem>
-                <MenuDivider />
+                <MenuDivider m={0} />
                 <MenuItem icon={<Icon fixedWidth icon={faSignOutAlt} />} onClick={handleLogout}>
                   Sign Out
                 </MenuItem>

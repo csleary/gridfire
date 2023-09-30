@@ -4,6 +4,7 @@ import {
   IconButton,
   Link,
   List,
+  ListItem,
   Popover,
   PopoverBody,
   PopoverContent,
@@ -19,16 +20,21 @@ import ActivityItem from "components/activityItem";
 import { DateTime } from "luxon";
 import Icon from "components/icon";
 import { Link as RouterLink } from "react-router-dom";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faBolt } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual } from "react-redux";
+import { selectActiveProcessList, selectActiveProcessTotal } from "state/user";
 
 const Notifications = () => {
-  const color = useColorModeValue("yellow", "purple");
+  const badgeColor = useColorModeValue("yellow", "purple");
+  const processBadgeColor = useColorModeValue("orange", "yellow");
+  const dividerColor = useColorModeValue("blackAlpha.200", "whiteAlpha.200");
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const dispatch = useDispatch();
   const activityList = useSelector(selectRecentActivity, shallowEqual);
+  const processList = useSelector(selectActiveProcessList, shallowEqual);
   const user = useSelector(state => state.user.userId);
   const numUnread = useSelector(selectTotalUnread);
+  const numProcesses = useSelector(selectActiveProcessTotal);
 
   useEffect(() => {
     dispatch(fetchActivity());
@@ -62,7 +68,7 @@ const Notifications = () => {
           </PopoverTrigger>
           {numUnread > 0 ? (
             <Badge
-              colorScheme={color}
+              colorScheme={badgeColor}
               pointerEvents="none"
               position="absolute"
               right="0"
@@ -72,14 +78,37 @@ const Notifications = () => {
               {numUnread}
             </Badge>
           ) : null}
+          {numProcesses > 0 ? (
+            <Badge
+              colorScheme={processBadgeColor}
+              pointerEvents="none"
+              position="absolute"
+              left="0"
+              top="0"
+              transform="translate(-25%, -25%)"
+            >
+              <Icon icon={faBolt} />
+              {numProcesses}
+            </Badge>
+          ) : null}
         </Box>
         <PopoverContent overflow="hidden">
           <PopoverBody maxHeight="32rem" overflow="auto" py={0}>
             <List>
-              <Stack
-                divider={<StackDivider borderColor={useColorModeValue("blackAlpha.200", "whiteAlpha.200")} />}
-                spacing={0}
-              >
+              <Stack divider={<StackDivider borderColor={dividerColor} />} spacing={0}>
+                {processList.length
+                  ? processList.map(process => {
+                      const { id, description, type } = process;
+
+                      return (
+                        <ListItem key={id} mx={-3} px={3} py={2}>
+                          <Icon color="yellow.200" icon={faBolt} mr={2} />
+                          {description}
+                        </ListItem>
+                      );
+                    })
+                  : null}
+                {processList.length ? <StackDivider borderColor={dividerColor} /> : null}
                 {activityList.map(activity => (
                   <ActivityItem activity={activity} key={activity._id} mx={-3} px={3} py={2} />
                 ))}
