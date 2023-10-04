@@ -10,6 +10,7 @@ import {
 } from "gridfire/controllers/artistController.js";
 import express from "express";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
+import { Error } from "mongoose";
 
 const router = express.Router();
 
@@ -65,6 +66,14 @@ router.post("/:artistId", async (req, res) => {
         name: "slug",
         value: "This slug is in use. Please try another."
       });
+    }
+
+    if (error instanceof Error.ValidationError) {
+      const { errors } = error;
+      const errorKeys = Object.keys(errors);
+      const errorKey = errorKeys[0];
+      const { message, path } = errors[errorKey];
+      return res.send({ error: message, name: path, value: message });
     }
 
     console.error(error);

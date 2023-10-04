@@ -113,8 +113,8 @@ const Artists = () => {
         <Card>
           <Text mb={4}>Select an artist to edit their details:</Text>
           <Menu matchWidth>
-            <MenuButton as={Button} rightIcon={<Icon fixedWidth icon={faChevronDown} />} width="100%">
-              {activeArtist?.name ?? "Select…"}
+            <MenuButton as={Button} rightIcon={<Icon fixedWidth icon={faChevronDown} />} overflow="hidden" width="100%">
+              <Box as="span">{activeArtist?.name ?? "Select…"}</Box>
             </MenuButton>
             <MenuList>
               {artists.map(artist => (
@@ -152,6 +152,7 @@ const Artists = () => {
               errors={errors}
               info="Alphanumerics and dashes only."
               label="URL Slug"
+              mb={0}
               name="slug"
               onChange={handleChange}
               values={activeArtist}

@@ -7,10 +7,12 @@ import {
   getResolvedAddress
 } from "gridfire/controllers/web3/index.js";
 import express from "express";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import requireLogin from "gridfire/middlewares/requireLogin.js";
 
-const { Release, User } = mongoose.models;
+import Release, { IRelease } from "gridfire/models/Release.js";
+
+const { User } = mongoose.models;
 const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 const router = express.Router();
 
@@ -124,11 +126,14 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
       sortedPurchases.map(async ({ releaseId, ...purchase }) => {
         const release = await Release.findOne(
           { $or: [{ _id: releaseId }, { "trackList._id": releaseId }] },
-          { artistId: "$artist", artistName: 1, releaseTitle: 1, "trackList.trackTitle": 1 },
-          { lean: true }
+          { artistId: "$artist", artistName: 1, releaseTitle: 1, "trackList.trackTitle": 1 }
         ).exec();
 
-        const { artistId, artistName, releaseTitle } = release || {};
+        if (!release) {
+          return { ...purchase, releaseId };
+        }
+
+        const { artistId, artistName, releaseTitle } = release.toJSON() as IRelease & { artistId: ObjectId };
         return { ...purchase, artistId, artistName, releaseId, releaseTitle };
       })
     );

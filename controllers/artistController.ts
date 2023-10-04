@@ -2,15 +2,20 @@ import { ObjectId, Types, model } from "mongoose";
 import Activity from "gridfire/models/Activity.js";
 import { Link } from "gridfire/types/index.js";
 import slugify from "./imports/slugify/index.js";
+import Artist from "gridfire/models/Artist.js";
 
-const Artist = model("Artist");
 const Follower = model("Follower");
 const Release = model("Release");
 
 const addLink = async (_id: string, user: ObjectId) => {
   const artist = await Artist.findOne({ _id, user }, "links").exec();
-  const newLink = artist.links.create();
-  return newLink;
+
+  if (!artist) {
+    throw new Error("Artist not found.");
+  }
+
+  const newLink = artist.links.create({ title: "", uri: "" });
+  return newLink.toJSON();
 };
 
 const createArtist = async (artistName: string, userId: ObjectId, suffix: string = ""): Promise<any> =>
@@ -141,7 +146,7 @@ const updateArtist = async ({ artistId, name, slug, biography, links, userId }: 
       biography,
       links: links.slice(0, 10)
     },
-    { fields: { __v: 0 }, lean: true, new: true }
+    { fields: { __v: 0 }, lean: true, new: true, runValidators: true }
   ).exec();
 
   // Update existing releases with the new artist name.

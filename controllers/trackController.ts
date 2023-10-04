@@ -4,6 +4,7 @@ import { deleteObject, deleteObjects, streamToBucket } from "gridfire/controller
 import Busboy from "busboy";
 import { IncomingHttpHeaders } from "http";
 import { MessageType } from "gridfire/types/messages/index.js";
+import Release from "gridfire/models/Release.js";
 import { Request } from "express";
 import mime from "mime-types";
 import { publishToQueue } from "gridfire/controllers/amqp/publisher.js";
@@ -13,7 +14,6 @@ import assert from "assert/strict";
 const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
 const MIN_DURATION = 1000 * 25;
 const Play = model("Play");
-const Release = model("Release");
 const StreamSession = model("StreamSession");
 
 assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
@@ -26,11 +26,11 @@ const deleteTrack = async (trackId: string, user: ObjectId) => {
   const release = await Release.findOneAndUpdate(
     { "trackList._id": trackId, user },
     { "trackList.$.status": "deleting" },
-    { fields: { _id: 1 }, lean: true, new: true }
+    { fields: { _id: 1 }, new: true }
   ).exec();
 
   if (!release) return;
-  const { _id: releaseId } = release;
+  const { _id: releaseId } = release.toJSON();
   console.log(`[${releaseId}] Deleting track: ${trackId.toString()}…`);
   const objectKey = `${releaseId}/${trackId}`;
 
@@ -59,7 +59,12 @@ const logPlay = async (trackId: string, release: string, streamId: string, user:
 
 const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: ObjectId; type: string }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
-  const releaseId = release._id;
+
+  if (!release) {
+    throw new Error("Release not found.");
+  }
+
+  const releaseId = release._id.toString();
   const user = userId?.toString() || new Types.ObjectId().toString();
 
   switch (Number.parseInt(type)) {
@@ -74,7 +79,7 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
       break;
     case 1: // Update total time on pause/stop.
       {
-        const stream = await StreamSession.findOne({ user, trackId }, "", { lean: true }).exec();
+        const stream = await StreamSession.findOne({ user, trackId }).exec();
         if (!stream) break;
         // console.log(`[${trackId}] Updating playback time.`);
 
@@ -86,7 +91,7 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
       break;
     case 2:
       {
-        const stream = await StreamSession.findOne({ user, trackId }, "", { lean: true }).exec();
+        const stream = await StreamSession.findOne({ user, trackId }).exec();
         if (!stream) break;
         // console.log(`[${trackId}] Total playback time: ${stream.totalTimePlayed + Date.now() - stream.startTime}ms.`);
 
@@ -152,9 +157,14 @@ const uploadTrack = async ({
         const filter = { _id: releaseId, user: userId };
         const options = { new: true, upsert: true };
         const release = await Release.findOneAndUpdate(filter, {}, options).exec();
+
+        if (!release) {
+          throw new Error("Release not found.");
+        }
+
         let track = release.trackList.id(trackId);
         release.trackList.addToSet({ _id: trackId, dateUpdated: Date.now(), status: "uploading" });
-        track = release.trackList.id(trackId);
+        track = release.trackList.id(trackId)!;
         sseClient.send(userId.toString(), { type: MessageType.TrackStatus, releaseId, trackId, status: "uploading" });
         await streamToBucket(BUCKET_SRC, `${releaseId}/${trackId}`, fileStream);
         console.log(`Uploaded src file ${filename} for track ${trackId}.`);

@@ -61,8 +61,8 @@ const Home: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>GridFire</title>
-        <meta name="description" content="Listen to the latest releases on GridFire, a web3 music download store." />
+        <title>Gridfire</title>
+        <meta name="description" content="Listen to the latest releases on Gridfire, a web3 music download store." />
       </Helmet>
       {isLoadingUser || userAccount ? null : (
         <>
@@ -72,7 +72,7 @@ const Home: React.FC = () => {
                 query={["gridfire", "equitable", "sustainable", "supportive"]}
                 styles={{ px: "2", py: "1", rounded: "full", bg: bgHighlight }}
               >
-                GridFire is a new music streaming and download service, powered by decentralised protocols, to create a
+                Gridfire is a new music streaming and download service, powered by decentralised protocols, to create a
                 more equitable, sustainable and supportive creative economy.
               </Highlight>
             </Heading>

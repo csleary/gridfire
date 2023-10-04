@@ -98,7 +98,7 @@ const Notifications = () => {
               <Stack divider={<StackDivider borderColor={dividerColor} />} spacing={0}>
                 {processList.length
                   ? processList.map(process => {
-                      const { id, description, type } = process;
+                      const { id, description } = process;
 
                       return (
                         <ListItem key={id} mx={-3} px={3} py={2}>

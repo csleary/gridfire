@@ -1,5 +1,6 @@
-import { Request } from "express";
 import { IUser } from "gridfire/models/User.js";
+import { ObjectId } from "mongoose";
+import { Request } from "express";
 
 interface BasketItem {
   artistName: string;
@@ -18,7 +19,7 @@ enum ErrorCodes {
 }
 
 interface Link {
-  _id: string;
+  _id?: ObjectId;
   title: string;
   uri: string;
 }

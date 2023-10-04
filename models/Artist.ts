@@ -1,6 +1,7 @@
-import { ObjectId, Schema, Types, model } from "mongoose";
+import { Model, ObjectId, Schema, Types, model } from "mongoose";
 
 interface ILink {
+  _id: ObjectId;
   title: string;
   uri: string;
 }
@@ -14,18 +15,22 @@ interface IArtist {
 }
 
 const linkSchema = new Schema<ILink>({
-  title: { type: String, trim: true, default: "" },
-  uri: { type: String, trim: true, default: "" }
+  title: { type: String, trim: true, default: "", maxLength: 100 },
+  uri: { type: String, trim: true, default: "", maxLength: 100 }
 });
 
-const { ObjectId } = Schema.Types;
+type ArtistDocumentProps = {
+  links: Types.DocumentArray<ILink>;
+};
+
+type ArtistModelType = Model<IArtist, {}, ArtistDocumentProps>;
 
 const artistSchema = new Schema<IArtist>(
   {
-    user: { type: ObjectId, ref: "User" },
-    name: { type: String, trim: true },
-    slug: { type: String, trim: true },
-    biography: { type: String, trim: true },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    name: { type: String, trim: true, maxLength: 100 },
+    slug: { type: String, trim: true, maxLength: 50 },
+    biography: { type: String, trim: true, maxLength: 2000 },
     links: [linkSchema]
   },
   { timestamps: true }
@@ -51,6 +56,6 @@ artistSchema.post("save", release => {
 
 artistSchema.set("toJSON", { versionKey: false });
 
-const Artist = model<IArtist>("Artist", artistSchema, "artists");
+const Artist = model<IArtist, ArtistModelType>("Artist", artistSchema, "artists");
 
 export default Artist;

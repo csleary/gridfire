@@ -1,19 +1,5 @@
 version: "3.8"
 services:
-  app:
-    build:
-      context: .
-    command: node /home/node/app/index.js
-    container_name: "gridfire-server"
-    depends_on:
-      - rabbitmq
-      - mongo
-    networks:
-      - internal
-    ports:
-      - 5000:5000
-    restart: always
-    tmpfs: /home/node/app/tmp
   mongo:
     container_name: mongo
     environment:

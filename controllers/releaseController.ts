@@ -1,13 +1,12 @@
 import { ISale, SaleType } from "gridfire/models/Sale.js";
 import Activity from "gridfire/models/Activity.js";
 import { BasketItem } from "gridfire/types/index.js";
-import { IRelease } from "gridfire/models/Release.js";
-import { IUser } from "gridfire/models/User.js";
+import Release from "gridfire/models/Release.js";
 import mongoose from "mongoose";
-import { publishToQueue } from "./amqp/publisher.js";
 import { parseEther } from "ethers";
+import { publishToQueue } from "./amqp/publisher.js";
 
-const { Release, Sale, User } = mongoose.models;
+const { Sale, User } = mongoose.models;
 
 enum NotificationType {
   Purchase = "purchaseEvent",
@@ -24,14 +23,6 @@ interface RecordSaleParams {
   userId: string;
 }
 
-type ReleaseSingle = Pick<IRelease, "artist" | "artistName" | "trackList"> & {
-  user: Pick<IUser, "_id" | "paymentAddress">;
-};
-
-type ReleaseAlbum = Pick<IRelease, "artist" | "artistName" | "price" | "releaseTitle"> & {
-  user: Pick<IUser, "_id" | "paymentAddress">;
-};
-
 const validateFreePurchase = async ({ releaseId, userId }: { releaseId: string; userId: string }) => {
   let release;
   let price;
@@ -39,29 +30,27 @@ const validateFreePurchase = async ({ releaseId, userId }: { releaseId: string; 
   let type = SaleType.Album;
 
   // Check if the purchase is for a single or an album.
-  const releaseWithSingle: ReleaseSingle = await Release.findOne(
-    { "trackList._id": releaseId },
-    "artist artistName trackList.$",
-    { lean: true }
-  )
+  const releaseWithSingle = await Release.findOne({ "trackList._id": releaseId }, "artist artistName trackList.$")
     .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
     .exec();
 
   if (releaseWithSingle) {
-    release = releaseWithSingle;
+    release = releaseWithSingle.toJSON();
     const [track] = release.trackList;
     ({ price } = track);
     releaseTitle = track.trackTitle;
     type = SaleType.Single;
   } else {
-    const releaseAlbum: ReleaseAlbum = await Release.findById(releaseId, "artist artistName price releaseTitle", {
-      lean: true
-    })
+    const releaseAlbum = await Release.findById(releaseId, "artist artistName price releaseTitle")
       .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
       .exec();
 
+    if (!releaseAlbum) {
+      throw new Error("Release not found.");
+    }
+
     release = releaseAlbum;
-    ({ price, releaseTitle } = release);
+    ({ price, releaseTitle } = release.toJSON());
   }
 
   if (parseEther(price.toString()) > 0n) {
@@ -121,13 +110,13 @@ const recordSale = async ({
 };
 
 const checkoutFreeBasket = async (basket: BasketItem[], userId: string) => {
-  const user = await User.findById(userId, "account", { lean: true }).exec();
+  const user = await User.findById(userId, "account").exec();
 
   if (!user) {
     throw new Error("User not found.");
   }
 
-  const { account: userAddress } = user;
+  const { account: userAddress } = user.toJSON();
 
   for (const basketItem of basket) {
     const { releaseId } = basketItem;

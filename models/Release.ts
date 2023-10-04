@@ -1,4 +1,4 @@
-import { Schema, Types, model } from "mongoose";
+import { Model, Schema, Types, model } from "mongoose";
 
 enum TrackStatus {
   Pending = "pending",
@@ -67,6 +67,12 @@ const trackSchema = new Schema<ITrack>(
   { timestamps: true }
 );
 
+type ReleaseDocumentProps = {
+  trackList: Types.DocumentArray<ITrack>;
+};
+
+type ReleaseModelType = Model<IRelease, {}, ReleaseDocumentProps>;
+
 const releaseSchema = new Schema<IRelease>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User" },
@@ -103,6 +109,6 @@ releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-const Release = model<IRelease>("Release", releaseSchema, "releases");
+const Release = model<IRelease, ReleaseModelType>("Release", releaseSchema, "releases");
 
 export default Release;

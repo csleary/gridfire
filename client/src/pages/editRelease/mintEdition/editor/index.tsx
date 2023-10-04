@@ -140,7 +140,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
-        <ModalHeader>Mint a GridFire Edition</ModalHeader>
+        <ModalHeader>Mint a Gridfire Edition</ModalHeader>
         <ModalBody>
           <Field
             error={errors.description}
@@ -222,7 +222,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
             onClick={handleMint}
             ml="auto"
           >
-            Mint GridFire Edition
+            Mint Gridfire Edition
           </Button>
         </ModalFooter>
       </ModalContent>
