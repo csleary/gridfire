@@ -20,7 +20,7 @@
     "dotenv": "^16.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "ipfs-http-client": "^60.0.0",
-    "mongoose": "^6.1.4"
+    "mongoose": "^7.5.3"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",

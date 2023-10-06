@@ -58,11 +58,9 @@ const handleShutdown = async () => {
     });
 
     await amqpClose();
-
-    mongoose.connection.close(false, () => {
-      logger.info("Mongoose closed.");
-      process.exit(0);
-    });
+    mongoose.connection.close(false);
+    logger.info("Mongoose closed.");
+    process.exit(0);
   } catch (error) {
     logger.info(error);
     process.exitCode = 1;

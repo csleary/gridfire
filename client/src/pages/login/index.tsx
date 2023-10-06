@@ -68,7 +68,7 @@ const Login = () => {
       navigate("/");
     } catch (error: any) {
       if (error.code === 4001) {
-        const message = "Please approve our signature request in order to log in.";
+        const message = "Sign-in request declined.";
         return void dispatch(toastWarning({ message, title: "Login cancelled" }));
       }
 

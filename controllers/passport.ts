@@ -25,12 +25,13 @@ const loginWeb3: VerifyCallback = async (req, done: AuthenticateCallback) => {
   try {
     const { address, messageHash } = JSON.parse(req.signedCookies.web3Login);
     const { message, signature } = req.body;
+    const decodedMessage = Buffer.from(message.slice(2), "hex").toString("utf8");
 
-    if (keccak256(toUtf8Bytes(message)) !== messageHash) {
+    if (keccak256(toUtf8Bytes(decodedMessage)) !== messageHash) {
       return done(null, false, "Could not verify signature.");
     }
 
-    const outputAddress = verifyMessage(message, signature);
+    const outputAddress = verifyMessage(decodedMessage, signature);
 
     if (getAddress(address) !== getAddress(outputAddress)) {
       return done(null, false, "Could not verify signature.");

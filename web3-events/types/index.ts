@@ -73,11 +73,11 @@ interface RecordSaleParams {
   userId: string;
 }
 
-type ReleaseSingle = Pick<IRelease, "artist" | "artistName" | "trackList"> & {
+type ReleaseSingle = Pick<Omit<IRelease, "user">, "artist" | "artistName" | "trackList"> & {
   user: Pick<IUser, "_id" | "paymentAddress">;
 };
 
-type ReleaseAlbum = Pick<IRelease, "artist" | "artistName" | "price" | "releaseTitle"> & {
+type ReleaseAlbum = Pick<Omit<IRelease, "user">, "artist" | "artistName" | "price" | "releaseTitle"> & {
   user: Pick<IUser, "_id" | "paymentAddress">;
 };
 

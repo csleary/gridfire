@@ -18,7 +18,7 @@
     "axios": "^1.4.0",
     "dotenv": "^16.0.0",
     "ethers": "^6.7.1",
-    "mongoose": "^6.1.4",
+    "mongoose": "^7.5.3",
     "object-hash": "^3.0.0"
   },
   "devDependencies": {

@@ -2,24 +2,22 @@ import { keccak256, toUtf8Bytes } from "ethers";
 import express from "express";
 import { getUser } from "gridfire/controllers/userController.js";
 import passport from "passport";
-import { randomUUID } from "crypto";
+import { randomBytes } from "crypto";
 
 const { NODE_ENV } = process.env;
 const router = express.Router();
 
 router.get("/web3", (req, res) => {
-  const nonce = randomUUID();
   const { address } = req.query;
+  const { hostname } = req;
+  const protocol = req.get("x-forwarded-proto") || req.protocol;
+  const domain = `${protocol}://${hostname}`;
+  const nonce = randomBytes(4).toString("hex");
+  const date = new Date().toISOString();
 
-  const message = `Hi! Welcome to Gridfire.
+  const siweMessage = `gridfire.app wants you to sign in with your Ethereum account:\n${address}\n\nWelcome to Gridfire!\n\nURI: ${domain}/login\nVersion: 1\nChain ID: 42161\nNonce: ${nonce}\nIssued At: ${date}`;
 
-Using your Ether wallet you can safely and securely sign in, without needing an email or password. 'Signing' a message proves you are the owner of the account. This is a free process, costing you no ether, and doesn't require access to the blockchain.
-
-We've included a unique, randomly-generated code below to ensure that your signature is recent.
-
-${nonce}`;
-
-  const messageHash = keccak256(toUtf8Bytes(message));
+  const messageHash = keccak256(toUtf8Bytes(siweMessage));
 
   res.cookie("web3Login", JSON.stringify({ messageHash, address }), {
     httpOnly: true,
@@ -29,6 +27,7 @@ ${nonce}`;
     signed: true
   });
 
+  const message = `0x${Buffer.from(siweMessage).toString("hex")}`;
   res.json({ message });
 });
 
