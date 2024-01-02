@@ -6,7 +6,7 @@ const Features = () => {
     <Box
       as="section"
       bg={useColorModeValue("whiteAlpha.800", "blackAlpha.500")}
-      mx={[-1, -4, null, -8]} // Mirror parent padding.
+      mx={[-3, -4]} // Mirror parent padding.
       mb={24}
       py={12}
     >

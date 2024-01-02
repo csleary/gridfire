@@ -8,7 +8,7 @@ interface Props {
 const Price = ({ price }: Props) => {
   const isLoading = useSelector(state => state.releases.isLoading);
   if (Number(price) === 0) return null;
-  const [dai, pennies] = Number(price).toFixed(2).split(".");
+  const [dai, cents] = Number(price).toFixed(2).split(".");
 
   return (
     <Skeleton isLoaded={!isLoading} mb={6}>
@@ -20,9 +20,9 @@ const Price = ({ price }: Props) => {
           <Heading as="span" size="2xl" mr={1} mb={0}>
             {dai}
           </Heading>
-          {pennies ? (
-            <Heading as="span" borderBottomColor="gray.500" borderBottomWidth="1px" size="md" mr={2} mb={0} mt={1}>
-              .{pennies}
+          {cents ? (
+            <Heading as="span" borderBottomColor="gray.500" borderBottomWidth="1px" size="md" mb={0} mt={1}>
+              .{cents}
             </Heading>
           ) : null}
         </Flex>

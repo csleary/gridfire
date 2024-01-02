@@ -9,11 +9,19 @@ const Editions = () => {
   const color = useColorModeValue("gray.200", "gray.500");
   const { releaseId = "" } = useParams();
   const [editions, setEditions] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
 
   const fetchEditions = useCallback(async () => {
     if (releaseId) {
-      const editions = await fetchVisibleGridfireEditionsByReleaseId(releaseId);
-      setEditions(editions);
+      try {
+        setIsFetching(true);
+        const editions = await fetchVisibleGridfireEditionsByReleaseId(releaseId);
+        setEditions(editions);
+      } catch (error) {
+        console.info(error);
+      } finally {
+        setIsFetching(false);
+      }
     }
   }, [releaseId]);
 
@@ -24,7 +32,7 @@ const Editions = () => {
   return (
     <>
       <Collapse
-        transition={{ enter: { delay: 0.3, ease: [0.25, 0.1, 0.25, 1] } }}
+        transition={{ enter: { delay: 0.3, ease: [0.25, 0.8, 0.25, 1] } }}
         in={editions.length > 0}
         animateOpacity
         unmountOnExit
@@ -36,7 +44,7 @@ const Editions = () => {
           <Divider borderColor={color} />
         </Flex>
         <ScaleFade in>
-          <Accordion defaultIndex={[]} allowMultiple>
+          <Accordion allowMultiple>
             <VStack spacing={6} mb={8}>
               {editions.map((edition, index) => {
                 const { editionId } = edition;

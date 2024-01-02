@@ -26,7 +26,12 @@ const Player = () => {
   const shakaRef = useRef<shaka.Player | null>(null);
   const activeRelease = useSelector(state => state.releases.activeRelease, shallowEqual);
   const favourites = useSelector(state => state.user.favourites, shallowEqual);
-  const player = useSelector(state => state.player, shallowEqual);
+  const artistName = useSelector(state => state.player.artistName);
+  const isPlaying = useSelector(state => state.player.isPlaying);
+  const releaseId = useSelector(state => state.player.releaseId);
+  const showPlayer = useSelector(state => state.player.showPlayer);
+  const trackId = useSelector(state => state.player.trackId);
+  const trackTitle = useSelector(state => state.player.trackTitle);
   const [bufferRanges, setBufferRanges] = useState<shaka.extern.BufferedRange[]>([]);
   const [elapsedTime, setElapsedTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +39,6 @@ const Player = () => {
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
   const [requiresGesture, setRequiresGesture] = useState(false);
-  const { artistName, isPlaying, releaseId, showPlayer, trackId, trackTitle } = player;
   const prevTrackId = usePrevious(trackId);
   const { releaseTitle, trackList } = activeRelease;
   const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
@@ -134,8 +138,9 @@ const Player = () => {
   const onPause = useCallback(() => {
     playLoggerRef.current!.updatePlayTime();
     navigator.mediaSession.playbackState = "paused";
+    if (!showPlayer) return;
     dispatch(playerPause());
-  }, [dispatch]);
+  }, [dispatch, showPlayer]);
 
   useEffect(() => {
     audioPlayerRef.current!.addEventListener("playing", onPlaying);
