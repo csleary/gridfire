@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.20;
 
-interface IGridFireEditions {
-    struct GridFireEdition {
+interface IGridfireEditions {
+    struct GridfireEdition {
         uint256 price;
         string uri;
     }
@@ -39,7 +39,7 @@ interface IGridFireEditions {
         bytes32 objectId
     ) external;
 
-    function purchaseGridFireEdition(
+    function purchaseGridfireEdition(
         uint256 editionId,
         uint256 amountPaid,
         address paymentAddress,

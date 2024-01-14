@@ -511,7 +511,7 @@ const gridFireAbi = [
         type: "bytes32"
       }
     ],
-    name: "purchaseGridFireEdition",
+    name: "purchaseGridfireEdition",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function"

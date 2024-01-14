@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+
 const { DEPLOYER_TESTNET_PRIVATE_KEY, GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 
 async function main() {
@@ -6,7 +7,7 @@ async function main() {
   const provider = ethers.getDefaultProvider(hre.config.networks["arb-rinkeby"].url);
   const signer = wallet.connect(provider);
   console.log(signer.address);
-  const contract = await ethers.getContractAt("GridFirePayment", GRIDFIRE_PAYMENT_ADDRESS, signer);
+  const contract = await ethers.getContractAt("GridfirePayment", GRIDFIRE_PAYMENT_ADDRESS, signer);
   const result = await contract.withdraw();
   console.log(result);
 }

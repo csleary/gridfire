@@ -81,7 +81,7 @@ router.post("/mint", async (req, res) => {
         value: Date.parse(releaseDate.toISOString())
       },
       name: title,
-      description: description || `${artist} - ${title} (GridFire edition)`,
+      description: description || `${artist} - ${title} (Gridfire edition)`,
       external_url: `${protocol}://${hostname}/release/${releaseId}`,
       image: `ipfs://${cidArtwork}`,
       properties: {

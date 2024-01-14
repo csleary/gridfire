@@ -1,8 +1,7 @@
 /* eslint-disable no-undef */
-require("dotenv").config();
-require("@nomiclabs/hardhat-etherscan");
-require("@nomiclabs/hardhat-waffle");
+require("@nomicfoundation/hardhat-toolbox");
 require("@openzeppelin/hardhat-upgrades");
+require("dotenv/config");
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -11,6 +10,7 @@ require("@openzeppelin/hardhat-upgrades");
 const {
   ALCHEMY_ARBITRUM_MAINNET_KEY,
   ALCHEMY_ARBITRUM_RINKEBY_KEY,
+  ALCHEMY_ARBITRUM_SEPOLIA_KEY,
   ARBISCAN_API_KEY,
   GRIDFIRE_EDITIONS_ADDRESS,
   GRIDFIRE_PAYMENT_ADDRESS
@@ -28,6 +28,9 @@ config = {
     "arb-rinkeby": {
       url: `https://arb-rinkeby.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_RINKEBY_KEY}`
     },
+    "arb-sepolia": {
+      url: `https://arb-sepolia.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_SEPOLIA_KEY}`
+    },
     hardhat: {
       chainId: 1337,
       forking: {
@@ -43,7 +46,7 @@ config = {
   paths: {
     artifacts: "./artifacts"
   },
-  solidity: "0.8.16"
+  solidity: "0.8.20"
 };
 
 task("deploy", "Deploy contracts to Arbitrum mainnet")
@@ -54,15 +57,24 @@ task("deploy", "Deploy contracts to Arbitrum mainnet")
     const wallet = new ethers.Wallet(account);
     const provider = ethers.getDefaultProvider(config.networks["arb-mainnet"].url);
     const deployer = wallet.connect(provider);
-    console.log(`Provider URL: ${provider.connection.url}`);
+    const connection = provider._getConnection();
+    console.log("Provider URL:", connection.url);
 
-    const gridFirePaymentContract = await ethers.getContractFactory("GridFirePayment", deployer);
-    const gridFirePayment = await upgrades.deployProxy(gridFirePaymentContract);
-    console.log(`GridFirePayment deployed to: ${gridFirePayment.address} (update client), by ${deployer.address}`);
+    const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
+    const gridfirePayment = await upgrades.deployProxy(gridfirePaymentContract, [], { kind: "uups" });
+    const gridfirePaymentAddress = await gridfirePayment.getAddress();
+    console.log(`GridfirePayment deployed to: ${gridfirePaymentAddress} (update client), by ${deployer.address}`);
 
-    const gridFireEditionsContract = await ethers.getContractFactory("GridFireEditions", deployer);
-    const gridFireEditions = await upgrades.deployProxy(gridFireEditionsContract, [gridFirePayment.address]);
-    console.log(`GridFireEditions deployed to: ${gridFireEditions.address} (update client), by ${deployer.address}`);
+    const gridfireEditionsContract = await ethers.getContractFactory("GridfireEditions", deployer);
+    const gridfireEditions = await upgrades.deployProxy(gridfireEditionsContract, [gridfirePaymentAddress], {
+      kind: "uups"
+    });
+    const gridfireEditionsAddress = await gridfireEditions.getAddress();
+    console.log(`GridfireEditions deployed to: ${gridfireEditionsAddress} (update client), by ${deployer.address}`);
+
+    await gridfirePayment.setGridfireEditionsAddress(gridfireEditionsAddress);
+    const gridfireEditionsSavedAddress = await gridfirePayment.getGridfireEditionsAddress();
+    console.log(`gridfireEditionsAddress: ${gridfireEditionsSavedAddress}`);
   });
 
 task("upgrade", "Upgrade contracts on Arbitrum mainnet")
@@ -72,16 +84,51 @@ task("upgrade", "Upgrade contracts on Arbitrum mainnet")
     const { account } = taskArgs;
     const wallet = new ethers.Wallet(account);
     const provider = ethers.getDefaultProvider(config.networks["arb-mainnet"].url);
-    console.log("Provider URL:", provider.connection.url);
+    const connection = provider._getConnection();
+    console.log("Provider URL:", connection.url);
     const deployer = wallet.connect(provider);
 
-    const gridFirePaymentContract = await ethers.getContractFactory("GridFirePayment", deployer);
-    const gridFirePayment = await upgrades.upgradeProxy(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentContract);
-    console.log(`GridFirePayment upgraded: ${gridFirePayment.address} (update client), by ${deployer.address}`);
+    const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
+    const gridfirePayment = await upgrades.upgradeProxy(GRIDFIRE_PAYMENT_ADDRESS, gridfirePaymentContract);
+    const gridfirePaymentAddress = await gridfirePayment.getAddress();
+    console.log(`GridfirePayment upgraded: ${gridfirePaymentAddress} (update client), by ${deployer.address}`);
 
-    const gridFireEditionsContract = await ethers.getContractFactory("GridFireEditions", deployer);
-    const gridFireEditions = await upgrades.upgradeProxy(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsContract);
-    console.log(`GridFireEditions upgraded: ${gridFireEditions.address} (update client), by ${deployer.address}`);
+    const gridfireEditionsContract = await ethers.getContractFactory("GridfireEditions", deployer);
+    const gridfireEditions = await upgrades.upgradeProxy(GRIDFIRE_EDITIONS_ADDRESS, gridfireEditionsContract);
+    const gridfireEditionsAddress = await gridfireEditions.getAddress();
+    console.log(`GridfireEditions upgraded: ${gridfireEditionsAddress} (update client), by ${deployer.address}`);
+
+    await gridfirePayment.setGridfireEditionsAddress(gridfireEditionsAddress);
+    const gridfireEditionsSavedAddress = await gridfirePayment.getGridfireEditionsAddress();
+    console.log(`gridfireEditionsAddress: ${gridfireEditionsSavedAddress}`);
+  });
+
+task("deploy-sepolia", "Deploy contracts to Arbitrum Sepolia testnet")
+  .addParam("account", "Deployer account")
+  .setAction(async (taskArgs, hre) => {
+    const { ethers, upgrades } = hre;
+    const { account } = taskArgs;
+    const wallet = new ethers.Wallet(account);
+    const provider = ethers.getDefaultProvider(config.networks["arb-sepolia"].url);
+    const connection = provider._getConnection();
+    console.log("Provider URL:", connection.url);
+    const deployer = wallet.connect(provider);
+
+    const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
+    const gridfirePayment = await upgrades.deployProxy(gridfirePaymentContract, [], { kind: "uups" });
+    const gridfirePaymentAddress = await gridfirePayment.getAddress();
+    console.log(`GridfirePayment deployed to: ${gridfirePaymentAddress} (update client), by ${deployer.address}`);
+
+    const gridfireEditionsContract = await ethers.getContractFactory("GridfireEditions", deployer);
+    const gridfireEditions = await upgrades.deployProxy(gridfireEditionsContract, [gridfirePaymentAddress], {
+      kind: "uups"
+    });
+    const gridfireEditionsAddress = await gridfireEditions.getAddress();
+    console.log(`GridfireEditions deployed to: ${gridfireEditionsAddress} (update client), by ${deployer.address}`);
+
+    await gridfirePayment.setGridfireEditionsAddress(gridfireEditionsAddress);
+    const gridfireEditionsSavedAddress = await gridfirePayment.getGridfireEditionsAddress();
+    console.log(`gridfireEditionsAddress: ${gridfireEditionsSavedAddress}`);
   });
 
 module.exports = config;

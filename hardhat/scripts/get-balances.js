@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+const { ethers } = require("ethers");
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
 const GRIDFIRE_PAYMENT_ADDRESS = "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0";
 const OWNER_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
@@ -10,11 +11,11 @@ async function main() {
   const daiContract = new ethers.Contract(DAI_CONTRACT_ADDRESS, daiAbi, signer);
   const contract = await ethers.getContractAt("GridFirePayment", GRIDFIRE_PAYMENT_ADDRESS, signer);
   const ownerBalance = await contract.getBalance(OWNER_ADDRESS);
-  console.log("Owner balance: DAI", ethers.utils.formatEther(ownerBalance));
+  console.log("Owner balance: DAI", ethers.formatEther(ownerBalance));
   const artistBalance = await contract.getBalance(ARTIST_ADDRESS);
-  console.log("Artist balance: DAI", ethers.utils.formatEther(artistBalance));
+  console.log("Artist balance: DAI", ethers.formatEther(artistBalance));
   const daiOwned = await daiContract.balanceOf(GRIDFIRE_PAYMENT_ADDRESS);
-  console.log("Contract balance: DAI", ethers.utils.formatEther(daiOwned));
+  console.log("Contract balance: DAI", ethers.formatEther(daiOwned));
 }
 
 main()

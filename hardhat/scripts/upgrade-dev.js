@@ -4,13 +4,19 @@ const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  const gridFirePaymentContract = await ethers.getContractFactory("GridFirePayment", deployer);
-  const gridFirePayment = await upgrades.upgradeProxy(GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentContract);
-  console.log(`GridFirePayment upgraded: ${gridFirePayment.address} (update client), by ${deployer.address}`);
+  const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
+  const gridfirePayment = await upgrades.upgradeProxy(GRIDFIRE_PAYMENT_ADDRESS, gridfirePaymentContract);
+  const gridfirePaymentAddress = await gridfirePayment.getAddress();
+  console.log(`GridfirePayment upgraded: ${gridfirePaymentAddress} (update client), by ${deployer.address}`);
 
-  const gridFireEditionsContract = await ethers.getContractFactory("GridFireEditions", deployer);
-  const gridFireEditions = await upgrades.upgradeProxy(GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsContract);
-  console.log(`GridFireEditions upgraded: ${gridFireEditions.address} (update client), by ${deployer.address}`);
+  const gridfireEditionsContract = await ethers.getContractFactory("GridfireEditions", deployer);
+  const gridfireEditions = await upgrades.upgradeProxy(GRIDFIRE_EDITIONS_ADDRESS, gridfireEditionsContract);
+  const gridfireEditionsAddress = await gridfireEditions.getAddress();
+  console.log(`GridfireEditions upgraded: ${gridfireEditionsAddress} (update client), by ${deployer.address}`);
+
+  await gridfirePayment.setGridfireEditionsAddress(gridfireEditionsAddress);
+  const gridfireEditionsSavedAddress = await gridfirePayment.getGridfireEditionsAddress();
+  console.log(`gridfireEditionsAddress: ${gridfireEditionsSavedAddress}`);
 }
 
 main()

@@ -192,7 +192,7 @@ const purchaseEdition = async ({ artist, editionId, price, releaseId }: Purchase
     const signer = await provider.getSigner();
     const gridFireEditions = getGridfireEditionsContract(signer);
     const releaseIdBytes = encodeBytes32String(releaseId);
-    const transactionReceipt = await gridFireEditions.purchaseGridFireEdition(editionId, price, artist, releaseIdBytes);
+    const transactionReceipt = await gridFireEditions.purchaseGridfireEdition(editionId, price, artist, releaseIdBytes);
     const { status, transactionHash } = await transactionReceipt.wait();
     if (status !== 1) throw new Error("Transaction unsuccessful.");
     return transactionHash;

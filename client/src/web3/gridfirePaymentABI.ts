@@ -157,7 +157,7 @@ const gridFireAbi = [
             type: "bytes32"
           }
         ],
-        internalType: "struct IGridFirePayment.BasketItem[]",
+        internalType: "struct IGridfirePayment.BasketItem[]",
         name: "basket",
         type: "tuple[]"
       },
