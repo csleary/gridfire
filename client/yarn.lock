@@ -9692,7 +9692,7 @@ setprototypeof@1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-shaka-player@^4.2.1:
+shaka-player@^4.7.4:
   version "4.7.4"
   resolved "https://registry.yarnpkg.com/shaka-player/-/shaka-player-4.7.4.tgz#41764b69cfd85ebb4ed800c2aeee78b4db494e03"
   integrity sha512-FbEmXCcXqwk+reZ8Crlra4VA9UnJTrVgWmeaeOaeRZ1QG01HESJZ60fZAhNAPNyhvXbSAiangYuASyJq8ZI1fQ==

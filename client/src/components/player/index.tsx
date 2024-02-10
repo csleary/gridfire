@@ -67,7 +67,8 @@ const Player = () => {
       );
     }
 
-    shakaRef.current = new shaka.Player(audioPlayerRef.current);
+    shakaRef.current = new shaka.Player();
+    shakaRef.current.attach(audioPlayerRef.current!);
     const eventManager = new shaka.util.EventManager();
     eventManager.listen(shakaRef.current, `buffering`, e => onBuffering(e as Event & { buffering: boolean }));
     eventManager.listen(shakaRef.current, `loaded`, () => setIsLoading(false));
@@ -241,13 +242,17 @@ const Player = () => {
       shaka.Player.probeSupport().then(supportInfo => {
         const urlStem = `${REACT_APP_CDN_MP4}/${releaseId}/${trackId}`;
         audioPlayerRef.current!.volume = 1;
+        const mpdSupport = supportInfo.manifest["application/dash+xml"];
+        const m3uSupport = supportInfo.manifest["application/vnd.apple.mpegurl"];
 
-        if (supportInfo.manifest.mpd) {
+        if (mpdSupport) {
           const mimeType = "application/dash+xml";
           shakaRef.current!.load(`${urlStem}/dash.mpd`, null, mimeType).then(handlePlay).catch(onError);
-        } else if (supportInfo.manifest.m3u8) {
+        } else if (m3uSupport) {
           const mimeType = "application/vnd.apple.mpegurl";
           shakaRef.current!.load(`${urlStem}/master.m3u8`, null, mimeType).then(handlePlay).catch(onError);
+        } else {
+          console.warn("No supported manifest format found for audio player.");
         }
 
         playLoggerRef.current = new PlayLogger(trackId);
