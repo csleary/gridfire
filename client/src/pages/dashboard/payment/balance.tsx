@@ -20,7 +20,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { claimBalance, getBalance } from "web3";
-import { toastError, toastInfo, toastSuccess } from "state/toast";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
 import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
@@ -55,15 +55,21 @@ const Balance = () => {
       await claimBalance();
       setBalance("0");
       dispatch(fetchDaiBalance(account));
-      dispatch(toastSuccess({ message: "DAI balance claimed successfully", title: "Success!" }));
+      dispatch(
+        toastSuccess({ message: "Your DAI balance has been transferred to your wallet address.", title: "Claimed!" })
+      );
     } catch (error: any) {
       if (balance === "0") {
         return void dispatch(
-          toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim." })
+          toastInfo({ message: "There's nothing to claim at the moment.", title: "Nothing to claim" })
         );
       }
 
-      dispatch(toastError({ message: error.message, title: "Error" }));
+      if (error.info?.error.code === 4001) {
+        return void dispatch(toastWarning({ message: "Claim rejected.", title: "Rejected" }));
+      }
+
+      dispatch(toastError({ message: error.info?.error.message || error.message, title: "Error" }));
       console.error(error);
     } finally {
       setIsClaiming(false);
