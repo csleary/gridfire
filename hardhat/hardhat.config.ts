@@ -1,22 +1,19 @@
-/* eslint-disable no-undef */
-require("@nomicfoundation/hardhat-toolbox");
-require("@openzeppelin/hardhat-upgrades");
-require("dotenv/config");
-
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
+import { HardhatUserConfig, task } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import "@openzeppelin/hardhat-upgrades";
+import "dotenv/config";
+import { HttpNetworkUserConfig } from "hardhat/types/config";
 
 const {
   ALCHEMY_ARBITRUM_MAINNET_KEY,
   ALCHEMY_ARBITRUM_RINKEBY_KEY,
   ALCHEMY_ARBITRUM_SEPOLIA_KEY,
   ARBISCAN_API_KEY,
-  GRIDFIRE_EDITIONS_ADDRESS,
-  GRIDFIRE_PAYMENT_ADDRESS
+  GRIDFIRE_EDITIONS_ADDRESS = "",
+  GRIDFIRE_PAYMENT_ADDRESS = ""
 } = process.env;
 
-config = {
+const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
     apiKey: ARBISCAN_API_KEY
@@ -46,7 +43,7 @@ config = {
   paths: {
     artifacts: "./artifacts"
   },
-  solidity: "0.8.20"
+  solidity: "0.8.23"
 };
 
 task("deploy", "Deploy contracts to Arbitrum mainnet")
@@ -55,10 +52,11 @@ task("deploy", "Deploy contracts to Arbitrum mainnet")
     const { ethers, upgrades } = hre;
     const { account } = taskArgs;
     const wallet = new ethers.Wallet(account);
-    const provider = ethers.getDefaultProvider(config.networks["arb-mainnet"].url);
+    const arbMainnet = config.networks?.["arb-mainnet"] as HttpNetworkUserConfig;
+    const provider = ethers.getDefaultProvider(arbMainnet.url);
     const deployer = wallet.connect(provider);
-    const connection = provider._getConnection();
-    console.log("Provider URL:", connection.url);
+    // const connection = provider._getConnection();
+    // console.log("Provider URL:", connection.url);
 
     const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
     const gridfirePayment = await upgrades.deployProxy(gridfirePaymentContract, [], { kind: "uups" });
@@ -83,9 +81,10 @@ task("upgrade", "Upgrade contracts on Arbitrum mainnet")
     const { ethers, upgrades } = hre;
     const { account } = taskArgs;
     const wallet = new ethers.Wallet(account);
-    const provider = ethers.getDefaultProvider(config.networks["arb-mainnet"].url);
-    const connection = provider._getConnection();
-    console.log("Provider URL:", connection.url);
+    const arbMainnet = config.networks?.["arb-mainnet"] as HttpNetworkUserConfig;
+    const provider = ethers.getDefaultProvider(arbMainnet.url);
+    // const connection = provider._getConnection();
+    // console.log("Provider URL:", connection.url);
     const deployer = wallet.connect(provider);
 
     const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
@@ -109,9 +108,11 @@ task("deploy-sepolia", "Deploy contracts to Arbitrum Sepolia testnet")
     const { ethers, upgrades } = hre;
     const { account } = taskArgs;
     const wallet = new ethers.Wallet(account);
-    const provider = ethers.getDefaultProvider(config.networks["arb-sepolia"].url);
-    const connection = provider._getConnection();
-    console.log("Provider URL:", connection.url);
+    const arbTestnet = config.networks?.["arb-sepolia"] as HttpNetworkUserConfig;
+    const provider = ethers.getDefaultProvider(arbTestnet.url);
+
+    // const connection = provider._getConnection();
+    // console.log("Provider URL:", connection.url);
     const deployer = wallet.connect(provider);
 
     const gridfirePaymentContract = await ethers.getContractFactory("GridfirePayment", deployer);
@@ -131,4 +132,4 @@ task("deploy-sepolia", "Deploy contracts to Arbitrum Sepolia testnet")
     console.log(`gridfireEditionsAddress: ${gridfireEditionsSavedAddress}`);
   });
 
-module.exports = config;
+export default config;

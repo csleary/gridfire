@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+import { ethers, upgrades } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

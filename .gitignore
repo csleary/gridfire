@@ -1,6 +1,7 @@
 .env*
 .vscode
 hardhat/.*
+hardhat/typechain-types
 hardhat/artifacts
 hardhat/cache
 manifests/secrets
