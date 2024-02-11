@@ -129,9 +129,11 @@ const MenuDrawer = () => {
         <WrapItem>
           <BasketButton />
         </WrapItem>
-        <WrapItem>
-          <Notifications />
-        </WrapItem>
+        {userAccount ? (
+          <WrapItem>
+            <Notifications />
+          </WrapItem>
+        ) : null}
         <WrapItem>
           <IconButton
             aria-label="Open the menu."
