@@ -126,13 +126,15 @@ const MenuDrawer = () => {
           </Button>
         </WrapItem>
         <Spacer />
-        <WrapItem>
-          <BasketButton />
-        </WrapItem>
         {userAccount ? (
-          <WrapItem>
-            <Notifications />
-          </WrapItem>
+          <>
+            <WrapItem>
+              <BasketButton />
+            </WrapItem>
+            <WrapItem>
+              <Notifications />
+            </WrapItem>
+          </>
         ) : null}
         <WrapItem>
           <IconButton
@@ -160,6 +162,7 @@ const MenuDrawer = () => {
                   <Button
                     as={NavLink}
                     colorScheme={primaryButtonColor}
+                    onClick={onClose}
                     to={"/login"}
                     leftIcon={<Icon fixedWidth icon={faSignInAlt} mr={2} />}
                     title="Click to log in."
