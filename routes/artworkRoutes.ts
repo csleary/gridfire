@@ -18,7 +18,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
 
     busboy.on("error", async error => {
       console.error(error);
@@ -28,7 +28,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     });
 
     busboy.on("file", async (fieldName, file, info) => {
-      if (fieldName !== "artworkImageFile") return res.sendStatus(403);
+      if (fieldName !== "artworkImageFile") return void res.sendStatus(403);
       const { filename, encoding, mimeType } = info;
 
       console.log(
@@ -64,9 +64,9 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const releaseExists = await Release.findOne({ _id: releaseId, user: userId });
-    if (!releaseExists) return res.end();
+    if (!releaseExists) return void res.end();
     console.log(`[${releaseId}] Deleting artwork…`);
     const updated = await deleteArtwork(releaseId);
     console.log(`[${releaseId}] Artwork deleted successfully.`);

@@ -121,7 +121,7 @@ const SearchBar = ({ ...rest }) => {
               onChange={handleSearchInput}
               onKeyDown={handleKeyDown}
               placeholder="Search…"
-              ref={el => (inputRef.current = el)}
+              ref={el => void (inputRef.current = el)}
               value={searchText}
               variant="flushed"
             />

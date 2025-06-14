@@ -32,11 +32,11 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     console.log(`[${releaseId}] Audio files deleted.`);
 
     // Delete from database.
-    await Release.findOneAndRemove({ _id: releaseId, user }).exec();
+    await Release.findOneAndDelete({ _id: releaseId, user }).exec();
     const artistHasOtherReleases = await Release.exists({ artist });
 
     if (!artistHasOtherReleases) {
-      await Artist.findOneAndRemove({ _id: artist, user }).exec();
+      await Artist.findOneAndDelete({ _id: artist, user }).exec();
     }
 
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();

@@ -1,8 +1,9 @@
-import { Box, CircularProgress, CircularProgressLabel, Tooltip, keyframes, useColorModeValue } from "@chakra-ui/react";
-import { ReactElement, memo } from "react";
+import { Box, CircularProgress, CircularProgressLabel, Tooltip, useColorModeValue } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 import { EntityId } from "@reduxjs/toolkit";
-import { shallowEqual } from "react-redux";
 import { useSelector } from "hooks";
+import { ReactElement, memo } from "react";
+import { shallowEqual } from "react-redux";
 
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;

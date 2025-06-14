@@ -8,26 +8,25 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --esm -r dotenv/config index.ts dotenv_config_path=.env"
+    "dev": "tsx watch --env-file=.env index.ts"
   },
   "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.259.0",
-    "@aws-sdk/lib-storage": "^3.259.0",
+    "@aws-sdk/client-s3": "^3.828.0",
+    "@aws-sdk/lib-storage": "^3.828.0",
     "amqplib": "^0.10.3",
     "dotenv": "^16.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "ipfs-http-client": "^60.0.0",
-    "mongoose": "^7.5.3"
+    "mongoose": "^8.15.0"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
     "@types/fluent-ffmpeg": "^2.1.21",
-    "@types/node": "^20.4.5",
-    "nodemon": "^2.0.15",
-    "ts-node": "^10.9.1",
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
     "typescript": "^5.1.6"
   }
 }

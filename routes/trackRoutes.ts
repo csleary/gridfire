@@ -8,7 +8,7 @@ router.put("/", requireLogin, async (req, res) => {
   try {
     const { headers, user } = req;
     const { _id: userId } = user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     await uploadTrack({ headers, req, userId });
     res.sendStatus(200);
   } catch (error: any) {
@@ -40,7 +40,7 @@ router.delete("/:trackId", requireLogin, async (req, res) => {
     const { params, user } = req;
     const { trackId } = params;
     const { _id: userId } = user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     await deleteTrack(trackId, userId);
     res.sendStatus(200);
   } catch (error) {

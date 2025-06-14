@@ -29,7 +29,7 @@ const Notifications = () => {
   const processBadgeColor = useColorModeValue("orange", "yellow");
   const dividerColor = useColorModeValue("blackAlpha.200", "whiteAlpha.200");
   const dispatch = useDispatch();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
   const activityList = useSelector(selectRecentActivity, shallowEqual);
   const processList = useSelector(selectActiveProcessList, shallowEqual);
   const user = useSelector(state => state.user.userId);

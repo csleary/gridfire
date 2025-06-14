@@ -73,7 +73,7 @@ const TrackList = () => {
 
   return (
     <>
-      <Heading as="h3">Track List</Heading>
+      <Heading as="h3">Tracklist</Heading>
       <Text mb={2}>Tips:</Text>
       <UnorderedList>
         <ListItem>

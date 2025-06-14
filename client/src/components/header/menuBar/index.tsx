@@ -63,7 +63,7 @@ const MenuBar = () => {
   );
 
   const dispatch = useDispatch();
-  const navRef = useRef<HTMLDivElement | null>();
+  const navRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const account = useSelector(state => state.web3.account);
   const accountShort = useSelector(state => state.web3.accountShort);
@@ -113,7 +113,7 @@ const MenuBar = () => {
       overflow="visible"
       p={4}
       position="sticky"
-      ref={el => (navRef.current = el)}
+      ref={el => void (navRef.current = el)}
       top={0}
       transition="background-color 300ms ease-in-out"
       zIndex={1000}

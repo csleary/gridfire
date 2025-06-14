@@ -18,7 +18,7 @@ import auth from "./routes/authRoutes.js";
 import catalogue from "./routes/catalogueRoutes.js";
 import cookieParser from "cookie-parser";
 import cookieSession from "cookie-session";
-import { createServer } from "http";
+import { createServer } from "node:http";
 import download from "./routes/downloadRoutes.js";
 import express from "express";
 import logger from "./controllers/logger.js";
@@ -30,7 +30,7 @@ import sse from "./routes/sseRoutes.js";
 import track from "./routes/trackRoutes.js";
 import user from "./routes/userRoutes.js";
 import web3 from "./routes/web3Routes.js";
-import assert from "assert/strict";
+import assert from "node:assert/strict";
 
 const { COOKIE_KEY, MONGODB_URI, PORT = 5000 } = process.env;
 let isReady = false;
@@ -65,7 +65,6 @@ app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 
 app.use(clientErrorHandler);
 app.use(errorHandler);
 app.use(logErrors);
-app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/artist", artists);
 app.use("/api/artwork", artwork);
@@ -78,8 +77,8 @@ app.use("/api/sse", sse);
 app.use("/api/track", track);
 app.use("/api/user", user);
 app.use("/api/web3", web3);
-app.use("/livez", (req, res) => res.sendStatus(200));
-app.use("/readyz", (req, res) => (isReady ? res.sendStatus(200) : res.sendStatus(400)));
+app.use("/livez", (req, res) => void res.sendStatus(200));
+app.use("/readyz", (req, res) => (isReady ? void res.sendStatus(200) : void res.sendStatus(400)));
 
 const handleShutdown = async () => {
   isReady = false;

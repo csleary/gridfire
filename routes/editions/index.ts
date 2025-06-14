@@ -18,7 +18,7 @@ const router = express.Router();
 router.get("/user", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const editions = await getUserGridfireEditions(userId);
     res.json(editions);
   } catch (error: any) {
@@ -169,7 +169,7 @@ router.get("/:releaseId/minted", async (req, res) => {
 router.patch("/:editionId/visibility", async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const { editionId } = req.params;
     const { visibility } = req.body;
     console.log(`Hiding edition ${editionId} for user ${userId}…`);

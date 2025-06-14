@@ -21,7 +21,7 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
     const { account } = req.params;
     const daiContract = getDaiContract();
     const approvalsFilter = daiContract.filters.Approval(account, GRIDFIRE_PAYMENT_ADDRESS);
-    const approvals = (await daiContract.queryFilter(approvalsFilter)) as EventLog[];
+    const approvals = (await daiContract.queryFilter(approvalsFilter, 0n, 499n)) as EventLog[];
 
     const leanApprovals = approvals.map(({ args, blockNumber, transactionHash }) => {
       const { wad } = args;
@@ -61,11 +61,11 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
 router.get("/claims", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const { account } = await User.findById(userId).exec();
     const gridfirePaymentContract = getGridfirePaymentContract();
     const claimFilter = gridfirePaymentContract.filters.Claim(account);
-    const claims = (await gridfirePaymentContract.queryFilter(claimFilter)) as EventLog[];
+    const claims = (await gridfirePaymentContract.queryFilter(claimFilter, 0n, 499n)) as EventLog[];
 
     const leanClaims = claims.map(({ args, blockNumber, transactionHash }) => ({
       amount: args.amount.toString(),
@@ -94,7 +94,7 @@ router.get("/domain/:ensDomain", requireLogin, async (req, res) => {
 router.get("/purchases/:account", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const { account } = req.params;
     const gridfirePaymentContract = getGridfirePaymentContract();
     const purchaseFilter = gridfirePaymentContract.filters.Purchase(account);
@@ -103,7 +103,7 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
 
     const [purchases, editionPurchases] = await Promise.all([
       gridfirePaymentContract.queryFilter(purchaseFilter),
-      gridfireEditionsContract.queryFilter(purchaseEditionFilter)
+      gridfireEditionsContract.queryFilter(purchaseEditionFilter, 0n, 499n)
     ]);
 
     const leanPurchases = [...(purchases as EventLog[]), ...(editionPurchases as EventLog[])].map(
@@ -133,7 +133,7 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
           return { ...purchase, releaseId };
         }
 
-        const { artistId, artistName, releaseTitle } = release.toJSON() as IRelease & { artistId: ObjectId };
+        const { artistId, artistName, releaseTitle } = release.toJSON() as unknown as IRelease & { artistId: ObjectId };
         return { ...purchase, artistId, artistName, releaseId, releaseTitle };
       })
     );
@@ -148,7 +148,7 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
 router.get("/sales", requireLogin, async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const { paymentAddress } = await User.findById(userId).exec();
     const gridFirePaymentContract = getGridfirePaymentContract();
     const purchaseFilter = gridFirePaymentContract.filters.Purchase(null, paymentAddress);
@@ -156,8 +156,8 @@ router.get("/sales", requireLogin, async (req, res) => {
     const purchaseEditionFilter = gridFireEditionsContract.filters.PurchaseEdition(null, paymentAddress);
 
     const [purchases, editionPurchases] = await Promise.all([
-      gridFirePaymentContract.queryFilter(purchaseFilter),
-      gridFireEditionsContract.queryFilter(purchaseEditionFilter)
+      gridFirePaymentContract.queryFilter(purchaseFilter, 0n, 499n),
+      gridFireEditionsContract.queryFilter(purchaseEditionFilter, 0n, 499n)
     ]);
 
     const leanPurchases = await Promise.all(

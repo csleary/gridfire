@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --esm -r dotenv/config index.ts dotenv_config_path=.env"
+    "dev": "tsx watch --env-file=.env index.ts"
   },
   "type": "module",
   "author": "",
@@ -18,16 +18,15 @@
     "axios": "^1.4.0",
     "dotenv": "^16.0.0",
     "ethers": "^6.7.1",
-    "mongoose": "^7.5.3",
+    "mongoose": "^8.15.0",
     "object-hash": "^3.0.0"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
-    "@types/node": "^20.4.5",
+    "@types/node": "^22.15.21",
     "@types/object-hash": "^3.0.3",
     "json-rpc-2.0": "^1.6.0",
-    "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1",
+    "tsx": "^4.19.4",
     "typescript": "^5.1.3"
   }
 }

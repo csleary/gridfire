@@ -35,7 +35,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
       ({ release } = edition);
     } else {
       const sale = await Sale.findOne({ user: userId, _id: purchaseId }).exec();
-      if (!sale) return res.status(401).send({ error: "Not authorised." });
+      if (!sale) return void res.status(401).send({ error: "Not authorised." });
 
       if (sale.type === "single") {
         release = await Release.findOne(
@@ -52,7 +52,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
       }
     }
 
-    if (!release) return res.sendStatus(404);
+    if (!release) return void res.sendStatus(404);
     zipDownload({ isEdition, release, res, format });
   } catch (error) {
     console.error(error);

@@ -7,10 +7,17 @@ import {
   S3Client
 } from "@aws-sdk/client-s3";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 
 const { S3_ENDPOINT } = process.env;
-const client = new S3Client({ endpoint: S3_ENDPOINT, region: "us-east-1" });
+
+const client = new S3Client({
+  endpoint: S3_ENDPOINT,
+  region: "us-east-1",
+  forcePathStyle: true,
+  requestChecksumCalculation: "WHEN_REQUIRED",
+  responseChecksumValidation: "WHEN_REQUIRED"
+});
 
 const streamFromBucket = async (bucketName: string, objectKey: string) => {
   const getObjectCommand = new GetObjectCommand({ Bucket: bucketName, Key: objectKey });

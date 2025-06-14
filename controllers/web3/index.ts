@@ -79,7 +79,7 @@ const getGridfireEditionsByReleaseId = async (filter: FilterQuery<IEdition>) => 
   const artistAccount: AddressLike = getAddress(release.user.account);
   const releaseIdBytes: BytesLike = encodeBytes32String(releaseId);
   const mintFilter = gridFireEditionsContract.filters.EditionMinted(releaseIdBytes, artistAccount);
-  const mintEvents = (await gridFireEditionsContract.queryFilter(mintFilter)) as EventLog[];
+  const mintEvents = (await gridFireEditionsContract.queryFilter(mintFilter, 0n, 499n)) as EventLog[];
 
   const editions: MintedEdition[] = mintEvents.map(({ args }: EventLog) => {
     const { amount, editionId, artist, price } = args;
@@ -123,7 +123,7 @@ const getGridfireEditionUris = async (releaseId: string) => {
   const artistAccount = getAddress(release.user.account);
   const releaseIdBytes = encodeBytes32String(releaseId);
   const mintFilter = gridFireEditionsContract.filters.EditionMinted(releaseIdBytes, artistAccount);
-  const mintEvents = (await gridFireEditionsContract.queryFilter(mintFilter)) as EventLog[];
+  const mintEvents = (await gridFireEditionsContract.queryFilter(mintFilter, 0n, 499n)) as EventLog[];
   const ids = mintEvents.map(({ args }) => args.editionId);
   const uris = Promise.all(ids.map(id => gridFireEditionsContract.uri(id)));
   return uris;
@@ -157,7 +157,7 @@ const getUserGridfireEditions = async (userId: ObjectId) => {
 
   // Get all editions sent to user (may not still be in possession, so check balances).
   const editionsTransferFilter = gridFireEditionsContract.filters.TransferSingle(null, null, userAccount);
-  const transfers = (await gridFireEditionsContract.queryFilter(editionsTransferFilter)) as EventLog[];
+  const transfers = (await gridFireEditionsContract.queryFilter(editionsTransferFilter, 0n, 499n)) as EventLog[];
   if (!transfers.length) return []; // User account has never received anything, so we can return early.
   const transferEditionIds: bigint[] = transfers.map(({ args }) => args.id);
   const accounts: AddressLike[] = Array(transferEditionIds.length).fill(userAccount);
@@ -193,7 +193,7 @@ const getUserGridfireEditions = async (userId: ObjectId) => {
 
       // Get purchase information for Editions that were purchased directly rather than transferred from a third party.
       const editionsPurchaseFilter = gridFireEditionsContract.filters.PurchaseEdition(userAccount, artistAccount);
-      const purchases = (await gridFireEditionsContract.queryFilter(editionsPurchaseFilter)) as EventLog[];
+      const purchases = (await gridFireEditionsContract.queryFilter(editionsPurchaseFilter, 0n, 499n)) as EventLog[];
       const purchase = purchases.find(p => p.transactionHash === transactionHash) as EventLog;
       const { amountPaid } = purchase.args as unknown as { amountPaid: bigint };
       const paid = amountPaid?.toString();

@@ -88,7 +88,7 @@ const Player = () => {
     setProgressPercent(currentTime / duration);
     const { audio } = shakaRef.current.getBufferedInfo();
     setBufferRanges(audio);
-    playLoggerRef.current!.checkPlayTime();
+    playLoggerRef.current?.checkPlayTime();
   }, []);
 
   const handleStop = useCallback(() => {
@@ -123,13 +123,13 @@ const Player = () => {
   );
 
   const onEnded = useCallback(() => {
-    playLoggerRef.current!.checkPlayTime();
+    playLoggerRef.current?.checkPlayTime();
     cueNextTrack();
   }, [cueNextTrack]);
 
   const onPlaying = useCallback(() => {
     navigator.mediaSession.playbackState = "playing";
-    playLoggerRef.current!.setStartTime();
+    playLoggerRef.current?.setStartTime();
   }, []);
 
   const onPlay = useCallback(() => {
@@ -137,7 +137,7 @@ const Player = () => {
   }, [dispatch]);
 
   const onPause = useCallback(() => {
-    playLoggerRef.current!.updatePlayTime();
+    playLoggerRef.current?.updatePlayTime();
     navigator.mediaSession.playbackState = "paused";
     if (!showPlayer) return;
     dispatch(playerPause());

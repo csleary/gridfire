@@ -1,4 +1,5 @@
-import { defineStyleConfig, keyframes } from "@chakra-ui/react";
+import { defineStyleConfig } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 
 const animation = keyframes`
   to { background-position:left; }

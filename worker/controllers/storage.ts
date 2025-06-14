@@ -14,7 +14,12 @@ const { S3_ENDPOINT } = process.env;
 
 assert(S3_ENDPOINT, "S3_ENDPOINT env var missing.");
 
-const client = new S3Client({ endpoint: S3_ENDPOINT, region: "us-east-1" });
+const client = new S3Client({
+  endpoint: S3_ENDPOINT,
+  region: "us-east-1",
+  requestChecksumCalculation: "WHEN_REQUIRED",
+  responseChecksumValidation: "WHEN_REQUIRED"
+});
 
 const streamFromBucket = async (bucketName: string, objectKey: string) => {
   const getObjectCommand = new GetObjectCommand({ Bucket: bucketName, Key: objectKey });

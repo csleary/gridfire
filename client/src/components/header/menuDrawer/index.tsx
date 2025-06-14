@@ -61,7 +61,7 @@ const MenuDrawer = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
   const btnRef = useRef<HTMLButtonElement | null>(null);
-  const navRef = useRef<HTMLDivElement | null>();
+  const navRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const userAccount = useSelector(state => state.user.account);
   const userAccountShort = useSelector(state => state.user.accountShort);
@@ -108,7 +108,7 @@ const MenuDrawer = () => {
         overflow="visible"
         p={2}
         position="sticky"
-        ref={el => (navRef.current = el)}
+        ref={el => void (navRef.current = el)}
         top={0}
         transition="background-color 300ms ease-in-out"
         zIndex={1000}

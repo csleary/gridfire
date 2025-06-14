@@ -22,8 +22,8 @@ const PING_INTERVAL = 1000 * 30;
 
 const useSSE = () => {
   const dispatch = useDispatch();
-  const pingInterval = useRef<ReturnType<typeof setInterval>>();
-  const sourceRef = useRef<EventSource>();
+  const pingInterval = useRef<ReturnType<typeof setInterval>>(null);
+  const sourceRef = useRef<EventSource>(null);
   const account = useSelector(state => state.user.account);
   const userId = useSelector(state => state.user.userId);
 
@@ -196,7 +196,7 @@ const useSSE = () => {
         source.removeEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
         source.removeEventListener("transcodingCompleteMP3", onTranscodingCompleteMP3);
         source.removeEventListener("workerMessage", onWorkerMessage);
-        sourceRef.current = undefined;
+        sourceRef.current = null;
         window.removeEventListener("beforeunload", cleanup);
       }
     };

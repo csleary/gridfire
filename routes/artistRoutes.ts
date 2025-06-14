@@ -42,7 +42,7 @@ router.use(requireLogin);
 router.get("/", async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const artists = await getUserArtists(userId);
     res.send(artists);
   } catch (error) {
@@ -56,7 +56,7 @@ router.post("/:artistId", async (req, res) => {
     const { name, slug, biography, links } = req.body;
     const { artistId } = req.params;
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const artist = await updateArtist({ artistId, name, slug, biography, links, userId });
     res.send(artist);
   } catch (error: any) {
@@ -85,7 +85,7 @@ router.post("/:artistId/follow", async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
     const { artistId } = req.params;
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     await followArtist(artistId, userId);
     res.sendStatus(200);
   } catch (error) {
@@ -98,7 +98,7 @@ router.delete("/:artistId/follow", async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
     const { artistId } = req.params;
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     await unfollowArtist(artistId, userId);
     res.sendStatus(200);
   } catch (error) {
@@ -111,7 +111,7 @@ router.patch("/:artistId/link", async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
     const { artistId } = req.params;
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const newLink = await addLink(artistId, userId);
     res.send(newLink);
   } catch (error) {
@@ -123,7 +123,7 @@ router.patch("/:artistId/link", async (req, res) => {
 router.get("/activity", async (req, res) => {
   try {
     const { _id: userId } = req.user || {};
-    if (!userId) return res.sendStatus(401);
+    if (!userId) return void res.sendStatus(401);
     const activity = await getActivity(userId);
     res.json(activity);
   } catch (error) {

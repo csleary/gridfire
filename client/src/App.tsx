@@ -28,8 +28,8 @@ const SearchResults = lazy(() => import("pages/search"));
 const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
-  const ethereumRef = useRef<any>();
-  const providerRef = useRef<BrowserProvider>();
+  const ethereumRef = useRef<any>(null);
+  const providerRef = useRef<BrowserProvider>(null);
   const chainId = useSelector(state => state.web3.chainId);
   const isCorrectChain = Boolean(chainId) && chainId === REACT_APP_CHAIN_ID;
 
@@ -65,6 +65,27 @@ const App: React.FC = () => {
 
   const handleChainChanged = useCallback(getNetwork, [getNetwork]);
 
+  const getUser = useCallback(async () => {
+    const user = await dispatch(fetchUser());
+    const { _id: userId } = user || {};
+    if (!userId) return;
+    const lastCheckedOn = window.localStorage.getItem("lastCheckedOn");
+    let storedUserDate = null;
+
+    try {
+      if (lastCheckedOn) {
+        storedUserDate = JSON.parse(lastCheckedOn);
+      }
+    } catch (error) {
+      //
+    }
+
+    if (storedUserDate && storedUserDate.user === userId) {
+      const { date } = storedUserDate;
+      dispatch(setLastCheckedOn(date));
+    }
+  }, [dispatch]);
+
   const initialiseWeb3 = useCallback(async () => {
     const ethereum = await detectEthereumProvider();
     if (ethereum == null) return;
@@ -74,26 +95,9 @@ const App: React.FC = () => {
   }, [getNetwork, handleChainChanged]);
 
   useEffect(() => {
-    dispatch(fetchUser()).then(({ _id: userId }) => {
-      if (!userId) return;
-      const lastCheckedOn = window.localStorage.getItem("lastCheckedOn");
-      let storedUserDate = null;
-
-      try {
-        if (lastCheckedOn) {
-          storedUserDate = JSON.parse(lastCheckedOn);
-        }
-      } catch (error) {
-        //
-      }
-
-      if (storedUserDate && storedUserDate.user === userId) {
-        const { date } = storedUserDate;
-        dispatch(setLastCheckedOn(date));
-      }
-    });
+    getUser();
     initialiseWeb3();
-  }, [dispatch, initialiseWeb3]);
+  }, [getUser, initialiseWeb3]);
 
   return (
     <BrowserRouter>

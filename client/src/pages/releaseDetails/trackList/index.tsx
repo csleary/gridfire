@@ -1,30 +1,21 @@
-import {
-  Box,
-  Button,
-  ListItem,
-  Spacer,
-  UnorderedList,
-  keyframes,
-  useColorModeValue,
-  Badge,
-  Tooltip
-} from "@chakra-ui/react";
+import { Badge, Box, Button, ListItem, Spacer, Tooltip, UnorderedList, useColorModeValue } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "hooks";
-import { toastError, toastInfo, toastWarning } from "state/toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import Icon from "components/icon";
+import { parseEther } from "ethers";
+import { useDispatch, useSelector } from "hooks";
+import { useCallback, useState } from "react";
+import { shallowEqual } from "react-redux";
+import { loadTrack } from "state/player";
+import { toastError, toastInfo, toastWarning } from "state/toast";
+import { addToBasket } from "state/web3";
+import { TrackForPurchase } from "types";
+import { fadeAudio } from "utils";
+import { purchaseRelease } from "web3";
 import AddToBasketButton from "./addToBasketButton";
 import PurchaseTrackButton from "./purchaseTrackButton";
-import { TrackForPurchase } from "types";
-import { addToBasket } from "state/web3";
-import axios from "axios";
-import { loadTrack } from "state/player";
-import { parseEther } from "ethers";
-import { purchaseRelease } from "web3";
-import { shallowEqual } from "react-redux";
-import Icon from "components/icon";
-import { fadeAudio } from "utils";
 
 const { REACT_APP_CDN_IMG } = process.env;
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;

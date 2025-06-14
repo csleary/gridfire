@@ -2,7 +2,7 @@ import { Heading, Text, VStack } from "@chakra-ui/react";
 import { useSelector } from "hooks";
 
 const Artist = () => {
-  const biography = useSelector(state => state.releases.artist.biography);
+  const biography = useSelector(state => state.releases.artist.biography) ?? "";
 
   return (
     <>

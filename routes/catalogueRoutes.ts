@@ -65,7 +65,7 @@ router.get("/search", async (req, res) => {
 });
 
 router.get("/count", async (req, res) => {
-  const count = await Release.count();
+  const count = await Release.countDocuments();
   res.send({ count });
 });
 
