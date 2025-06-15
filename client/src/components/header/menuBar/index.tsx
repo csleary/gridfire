@@ -110,6 +110,8 @@ const MenuBar = () => {
       alignItems="center"
       backdropFilter="blur(10px)"
       backgroundColor={navBackgroundColor}
+      borderBottomColor="gray.700"
+      borderBottomWidth="1px"
       overflow="visible"
       p={4}
       position="sticky"

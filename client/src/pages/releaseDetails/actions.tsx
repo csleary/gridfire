@@ -58,7 +58,7 @@ const Actions = () => {
   }
 
   return (
-    <ButtonGroup size="sm" isAttached variant="outline" bg={buttonGroupBg} mb={4}>
+    <ButtonGroup size="sm" isAttached variant="outline" bg={buttonGroupBg}>
       <Button
         isLoading={isSavingToFaves}
         loadingText="Saving…"
