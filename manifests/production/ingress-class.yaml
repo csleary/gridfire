@@ -4,6 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
   name: nginx
+  namespace: gridfire-prod
   annotations:
     ingressclass.kubernetes.io/is-default-class: "true"
 spec:

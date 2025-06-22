@@ -1,0 +1,23 @@
+{
+  "name": "@gridfire/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./amqp/*.js": "./amqp/*.ts",
+    "./models/*.js": "./models/*.ts",
+    "./types/*.js": "./types/*.ts",
+    "./logger": "./logger.ts",
+    "./sseController": "./sseController.ts"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3"
+  }
+}

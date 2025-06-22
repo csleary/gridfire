@@ -69,7 +69,8 @@ describe("GridfireEditions contract", async () => {
     const instanceArtist = await gridfireEditions.connect(artist);
     await instanceArtist.mintEdition(...Object.values(editionToMint));
     const mintFilter = gridfireEditions.filters.EditionMinted(releaseIdBytes, artist.address);
-    const mintEvents = await gridfireEditions.queryFilter(mintFilter);
+    currentBlock = await ethers.provider.getBlockNumber();
+    const mintEvents = await gridfireEditions.queryFilter(mintFilter, currentBlock - 100);
     ({ editionId } = mintEvents[0].args);
     assert(editionId === 1n);
   });

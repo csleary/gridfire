@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gridfire-api
+  namespace: gridfire-prod
   labels:
     app: gridfire-api
 spec:
@@ -64,6 +65,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: gridfire-api
+  namespace: gridfire-prod
 spec:
   selector:
     app: gridfire-api

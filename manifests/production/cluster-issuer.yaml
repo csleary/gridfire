@@ -24,6 +24,34 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-production-key
     solvers:
-      - http01:
-          ingress:
-            class: nginx
+      - dns01:
+          webhook:
+            groupName: gridfire.app
+            solverName: hetzner
+            config:
+              secretName: hetzner-secret
+              # zoneName: gridfire.app
+              apiUrl: https://dns.hetzner.com/api/v1
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hetzner-secret
+  namespace: cert-manager
+type: Opaque
+data:
+  api-key: YjFSVWw0eVpSNVNETGRUN1pXdVhuaE9zSkRRTUd2WEk=
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tls-secret
+  namespace: cert-manager
+spec:
+  commonName: gridfire.app
+  dnsNames:
+    - gridfire.app
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  secretName: tls-secret

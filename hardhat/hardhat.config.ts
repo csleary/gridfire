@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       forking: {
         url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`,
-        blockNumber: 14000000
+        blockNumber: 348_000_000
       },
       mining: {
         auto: true,
@@ -43,7 +43,7 @@ const config: HardhatUserConfig = {
   paths: {
     artifacts: "./artifacts"
   },
-  solidity: "0.8.23"
+  solidity: "0.8.28"
 };
 
 task("deploy", "Deploy contracts to Arbitrum mainnet")

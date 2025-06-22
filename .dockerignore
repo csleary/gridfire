@@ -1,9 +1,0 @@
-.env*
-.vscode
-client/
-manifests/
-hardhat/node_modules/
-hardhat/cache/
-node_modules/
-tmp/
-worker/

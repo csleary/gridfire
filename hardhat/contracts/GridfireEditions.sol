@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155PausableUpgradeable.sol";
@@ -29,8 +29,8 @@ contract GridfireEditions is
 
     function initialize(address _gridfirePaymentAddress) public initializer {
         assert(_gridfirePaymentAddress != address(0));
-        __ERC1155_init("");
         __Ownable_init(msg.sender);
+        __ERC1155_init("");
         __ERC1155Pausable_init();
         __ERC1155Burnable_init();
         __ERC1155Supply_init();
@@ -73,9 +73,11 @@ contract GridfireEditions is
         bytes32 releaseId,
         bytes32 objectId
     ) external {
-        require(amount > 0 && price > 0);
-        require(bytes(metadataUri).length != 0);
-        require(releaseId.length != 0 && objectId.length != 0);
+        require(amount > 0, "Amount must be greater than 0");
+        require(price > 0, "Price must be greater than 0");
+        require(bytes(metadataUri).length != 0, "Metadata URI must not be empty");
+        require(releaseId.length != 0, "Release ID must not be empty");
+        require(objectId.length != 0, "Object ID must not be empty");
         uint256 editionId = ++_tokenIds;
         _mint(address(this), editionId, amount, "");
         editions[editionId].price = price;
@@ -89,10 +91,10 @@ contract GridfireEditions is
         address paymentAddress,
         bytes32 releaseId
     ) external {
-        require(balanceOf(address(this), editionId) != 0);
-        require(amountPaid >= editions[editionId].price);
-        require(paymentAddress != address(0));
-        require(releaseId.length > 0);
+        require(balanceOf(address(this), editionId) != 0, "Edition sold out");
+        require(amountPaid >= editions[editionId].price, "Insufficient payment amount");
+        require(paymentAddress != address(0), "Payment address invalid");
+        require(releaseId.length > 0, "Release ID must not be empty");
         _transferEditionPayment(editionId, amountPaid, paymentAddress, releaseId);
         _safeTransferFrom(address(this), msg.sender, editionId, 1, "");
     }

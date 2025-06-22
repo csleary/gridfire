@@ -1,4 +1,4 @@
 tcp:
-  "4001": default/ipfs-node:4001
-  "8080": default/ipfs-node:8080
-  "15672": default/rabbitmq:15672
+  "4001": gridfire-prod/ipfs-node:4001
+  "8080": gridfire-prod/ipfs-node:8080
+  "15672": gridfire-prod/rabbitmq:15672
