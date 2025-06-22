@@ -139,7 +139,7 @@ const Artwork = () => {
         {coverArtPreview ? (
           <Fade in={artworkIsLoaded}>
             <Img
-              alt={`The cover art for ${(releaseTitle && `\u2018${releaseTitle}\u2019`) || "this release."}`}
+              alt={`The cover art for ${(releaseTitle && `'${releaseTitle}'`) || "this release."}`}
               onLoad={() => setArtworkIsLoaded(true)}
               src={coverArtPreview}
               position="absolute"

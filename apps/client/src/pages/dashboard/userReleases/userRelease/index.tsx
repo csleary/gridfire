@@ -46,7 +46,7 @@ function UserRelease({ release }: Props) {
   };
 
   const handleDeleteRelease = () => {
-    const releaseName = releaseTitle ? `\u2018${releaseTitle}\u2019` : "release";
+    const releaseName = releaseTitle ? `'${releaseTitle}'` : "release";
     dispatch(deleteRelease(releaseId, releaseName));
   };
 
@@ -54,9 +54,9 @@ function UserRelease({ release }: Props) {
     setPublishingRelease(true);
     const success = await dispatch(publishStatus(releaseId));
     if (success && published)
-      dispatch(toastWarning({ message: `\u2018${releaseTitle}\u2019 has been taken offline.`, title: "Note" }));
+      dispatch(toastWarning({ message: `'${releaseTitle}' has been taken offline.`, title: "Note" }));
     else if (success)
-      dispatch(toastSuccess({ message: `\u2018${releaseTitle}\u2019 is now live and on sale.`, title: "Published!" }));
+      dispatch(toastSuccess({ message: `'${releaseTitle}' is now live and on sale.`, title: "Published!" }));
     setPublishingRelease(false);
   };
 

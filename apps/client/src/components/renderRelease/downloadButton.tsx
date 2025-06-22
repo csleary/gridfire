@@ -49,7 +49,7 @@ const OverlayDownloadButton = ({ artistName, purchaseId, releaseId, releaseTitle
         onClick={() => setShowModal(true)}
         p="0"
         role="group"
-        title={`Download ${artistName} - \u2018${releaseTitle}\u2019`}
+        title={`Download ${artistName} - '${releaseTitle}'`}
         variant="unstyled"
         _hover={{ color: "#fff" }}
       />

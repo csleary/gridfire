@@ -1,4 +1,4 @@
-import { publishToQueue } from "@gridfire/shared/amqp/publisher.js";
+import { publishToQueue } from "@gridfire/shared/amqp";
 import { Notification } from "@gridfire/shared/types/index.js";
 
 const notifyUser = async (userId: string, payload: Notification) => {

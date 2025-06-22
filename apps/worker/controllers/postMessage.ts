@@ -1,4 +1,4 @@
-import { publishToQueue } from "@gridfire/shared/amqp/publisher.js";
+import { publishToQueue } from "@gridfire/shared/amqp";
 import type { ServerSentMessage } from "@gridfire/shared/types/messages.js";
 
 const postMessage = (message: ServerSentMessage) => {

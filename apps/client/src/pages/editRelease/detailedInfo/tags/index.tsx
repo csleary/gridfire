@@ -61,7 +61,7 @@ const Tags = () => {
         </FormLabel>
         <FormHelperText mb={1}>
           {tagsInput.length
-            ? `Hit return to tag your release with \u2018${tagsInput}\u2019.`
+            ? `Hit return to tag your release with '${tagsInput}'.`
             : "Enter a tag for your release below:"}
         </FormHelperText>
         <Field
@@ -106,10 +106,7 @@ const Tags = () => {
             <WrapItem key={tag}>
               <Tag whiteSpace="nowrap">
                 {tag}
-                <TagCloseButton
-                  onClick={() => void dispatch(removeTag(tag))}
-                  title={`Click to delete \u2018${tag}\u2019.`}
-                />
+                <TagCloseButton onClick={() => void dispatch(removeTag(tag))} title={`Click to delete '${tag}'.`} />
               </Tag>
             </WrapItem>
           ))}

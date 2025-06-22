@@ -80,11 +80,7 @@ const EditRelease = () => {
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>
         <Heading as="h2">
-          {isEditing && releaseTitle
-            ? `Editing \u2018${releaseTitle}\u2019`
-            : isEditing
-            ? "Editing Release"
-            : "Add Release"}
+          {isEditing && releaseTitle ? `Editing '${releaseTitle}'` : isEditing ? "Editing Release" : "Add Release"}
           <Button
             colorScheme={buttonColor}
             leftIcon={<Icon icon={faLink} />}

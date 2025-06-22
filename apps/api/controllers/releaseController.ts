@@ -1,4 +1,4 @@
-import { publishToQueue } from "@gridfire/shared/amqp/publisher.js";
+import { publishToQueue } from "@gridfire/shared/amqp";
 import Activity from "@gridfire/shared/models/Activity.js";
 import Release from "@gridfire/shared/models/Release.js";
 import { ISale, SaleType } from "@gridfire/shared/models/Sale.js";

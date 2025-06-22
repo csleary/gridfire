@@ -2,7 +2,7 @@ import { Progress } from "@aws-sdk/lib-storage";
 import { ffmpegEncodeFLAC } from "@gridfire/worker/controllers/ffmpeg.js";
 import postMessage from "@gridfire/worker/controllers/postMessage.js";
 import { deleteObject, streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage.js";
-import { publishToQueue } from "@gridfire/shared/amqp/publisher.js";
+import { publishToQueue } from "@gridfire/shared/amqp";
 import { ReleaseContext, TrackContext } from "@gridfire/shared/types/index.js";
 import { MessageType } from "@gridfire/shared/types/messages.js";
 import mongoose from "mongoose";

@@ -94,7 +94,7 @@ const ActiveRelease = () => {
     <>
       <Helmet>
         {releaseTitle ? <title>{isLoading ? "Loading…" : `${releaseTitle} | ${artistName}`}</title> : null}
-        <meta name="description" content={`Listen to \u2018${releaseTitle}\u2019 by ${artistName}.`} />
+        <meta name="description" content={`Listen to '${releaseTitle}' by ${artistName}.`} />
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>
         <Wrap spacing={4} alignItems="stretch">

@@ -1,6 +1,8 @@
-import { Channel, ConsumeMessage } from "amqplib";
-import { Response } from "express";
+import Logger from "@gridfire/shared/logger";
 import { MessageType, ServerSentMessage } from "@gridfire/shared/types/messages.js";
+import type { ChannelWrapper } from "amqp-connection-manager";
+import type { ConsumeMessage } from "amqplib";
+import { Response } from "express";
 import { ObjectId } from "mongoose";
 import { UUID } from "node:crypto";
 
@@ -11,6 +13,7 @@ type UserId = string;
 
 const CHECK_INTERVAL = 1000 * 60 * 2;
 const { POD_NAME = "dev" } = process.env;
+const logger = new Logger("SSE");
 
 interface Connection {
   res: Response;
@@ -18,7 +21,7 @@ interface Connection {
 }
 
 class SSEClient {
-  #consumerChannel: Channel | null;
+  #consumerChannel: ChannelWrapper | null;
   #consumerTags: Map<string, string>;
   #messageHandler: MessageHandler | null;
   #interval: NodeJS.Timeout | null;
@@ -38,21 +41,21 @@ class SSEClient {
       const connections = this.get(userId);
 
       if (!connections) {
-        console.warn(`[SSE] No open connections found for user ${userId}.`);
+        logger.warn(`No open connections found for user ${userId}.`);
         return;
       }
 
       if (connections.has(socketId)) {
-        console.log(`[SSE] Closing existing connection [${socketId}] for user ${userId}…`);
+        logger.info(`Closing existing connection ${socketId} for user ${userId}…`);
         const connection = connections.get(socketId) as Connection;
         connection.res.end();
       }
 
-      console.log(`[SSE] Storing additional connection [${socketId}] for user ${userId}…`);
+      logger.info(`Storing connection ${socketId} for user ${userId}…`);
       return connections.set(socketId, { res, lastPing: Date.now() });
     }
 
-    console.log(`[SSE] Storing first connection [${socketId}] for user ${userId}…`);
+    logger.info(`Storing first connection ${socketId} for user ${userId}…`);
     const connections = new Map();
     connections.set(socketId, { res, lastPing: Date.now() });
     this.#sessions.set(userId, connections);
@@ -67,10 +70,10 @@ class SSEClient {
         const { consumerTag } = await this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false });
         this.#consumerTags.set(userId, consumerTag);
       } else {
-        console.warn("[SSE] Message handler not set.");
+        logger.warn("Message handler not set.");
       }
     } else {
-      console.warn("[SSE] Consumer channel not set.");
+      logger.warn("Consumer channel not set.");
     }
   }
 
@@ -86,7 +89,7 @@ class SSEClient {
     const connections = this.get(userId);
 
     if (!connections) {
-      console.log(`No connection found for ${userId}. Removing user from sessions…`);
+      logger.info(`No connection found for ${userId}. Removing user from sessions…`);
       this.#sessions.delete(userId);
       return;
     }
@@ -101,16 +104,16 @@ class SSEClient {
       return;
     }
 
-    console.log(`Connection ${socketId} for user ${userId} not present on this pod.`);
+    logger.info(`Connection ${socketId} for user ${userId} not present on this pod.`);
   }
 
   async remove(userId: UserId) {
-    console.log(`[SSE] Removing connection for user ${userId}…`);
+    logger.info(`Removing connection for user ${userId}…`);
     this.#sessions.delete(userId);
     const userQueue = `user.${userId}.${POD_NAME}`;
 
     if (!this.#consumerChannel) {
-      console.warn("[SSE] Consumer channel not set.");
+      logger.warn("Consumer channel not set.");
       return;
     }
 
@@ -120,7 +123,7 @@ class SSEClient {
     if (consumerTag) {
       await this.#consumerChannel.cancel(consumerTag);
     } else {
-      console.warn(`[SSE] Consumer tag not found for user ${userId}.`);
+      logger.warn(`Consumer tag not found for user ${userId}.`);
     }
   }
 
@@ -131,17 +134,17 @@ class SSEClient {
 
     const checkUserConnections = () => {
       if (this.#sessions.size === 0) return;
-      // console.log("[SSE] Checking for stale sockets…");
+      logger.info("Checking for stale sockets…");
       const iterator = this.#sessions.entries();
 
       const checkForStaleConnection = ({ value, done }: IteratorResult<[UserId, Session]>) => {
         if (done) return;
         const [userId, connections] = value;
-        // console.log(`[SSE] User ${userId} has ${connections.size} connections.`);
+        // logger.info(`User ${userId} has ${connections.size} connections.`);
 
         for (const [socketId, { lastPing, res }] of connections.entries()) {
           if (Date.now() - lastPing > CHECK_INTERVAL) {
-            console.log(`[SSE] Removing stale connection [${socketId}] for user ${userId}.`);
+            logger.info(`Removing stale connection ${socketId} for user ${userId}.`);
             if (res) res.end();
             connections.delete(socketId);
           }
@@ -163,7 +166,7 @@ class SSEClient {
 
     for (const [socketId, { res }] of connections.entries()) {
       const logEntry = JSON.stringify(message);
-      console.log(`[SSE] Sending message for user ${userId} via socket ${socketId}: ${logEntry}`);
+      logger.info(`Sending message for user ${userId} via socket ${socketId}: ${logEntry}`);
       const data = JSON.stringify(message);
 
       if (message.type === MessageType.WorkerMessage) {
@@ -176,7 +179,7 @@ class SSEClient {
     }
   }
 
-  setConsumerChannel(channel: Channel, messageHandler: MessageHandler) {
+  setConsumerChannel(channel: ChannelWrapper, messageHandler: MessageHandler) {
     this.#consumerChannel = channel;
     this.#messageHandler = messageHandler;
   }

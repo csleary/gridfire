@@ -70,8 +70,8 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       dispatch(trackUpdate({ id: trackId, changes: { trackTitle: name } }));
     }
 
-    const trackName = trackTitle ? `\u2018${trackTitle}\u2019` : `track ${index + 1}`;
-    dispatch(toastInfo({ message: `Uploading file \u2018${name}\u2019 for ${trackName}.`, title: "Uploading" }));
+    const trackName = trackTitle ? `'${trackTitle}'` : `track ${index + 1}`;
+    dispatch(toastInfo({ message: `Uploading file '${name}' for ${trackName}.`, title: "Uploading" }));
 
     dispatch(uploadAudio({ releaseId, trackId, trackName, audioFile })).catch((error: any) =>
       dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }))

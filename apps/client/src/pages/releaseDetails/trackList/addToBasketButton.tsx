@@ -51,9 +51,7 @@ const AddToBasketButton = ({
   return (
     <>
       <Tooltip
-        label={
-          trackInCollection ? "You own this track." : `Add \u2018${trackTitle}\u2019, by ${artistName}, to your basket.`
-        }
+        label={trackInCollection ? "You own this track." : `Add '${trackTitle}', by ${artistName}, to your basket.`}
       >
         <IconButton
           aria-label="Set a price for a release and add it to the basket."

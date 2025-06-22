@@ -24,7 +24,7 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
     <Fade in={isOpen}>
       <Link as={RouterLink} to={`/release/${releaseId}`} display="block" pt="100%" position="relative">
         <Image
-          alt={isStored ? `\u2018${releaseTitle}\u2019 artwork.` : "No artwork uploaded."}
+          alt={isStored ? `'${releaseTitle}' artwork.` : "No artwork uploaded."}
           fallbackSrc={placeholder}
           inset={0}
           loading="lazy"

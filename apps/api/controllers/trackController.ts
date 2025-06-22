@@ -1,5 +1,5 @@
 import { deleteObject, deleteObjects, streamToBucket } from "@gridfire/api/controllers/storage.js";
-import { publishToQueue } from "@gridfire/shared/amqp/publisher.js";
+import { publishToQueue } from "@gridfire/shared/amqp";
 import Release from "@gridfire/shared/models/Release.js";
 import sseClient from "@gridfire/shared/sseController";
 import { MessageType } from "@gridfire/shared/types/messages.js";

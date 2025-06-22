@@ -151,12 +151,12 @@ const TrackList = () => {
               <Box as={FontAwesomeIcon} icon={faPause} animation={animation} ml={2} />
             ) : null}
             {isBonus ? (
-              <Tooltip label={`\u2018${trackTitle}\u2019 is a download exclusive.`}>
+              <Tooltip label={`'${trackTitle}' is a download exclusive.`}>
                 <Icon color="gray.300" icon={faCloudDownload} ml={2} />
               </Tooltip>
             ) : null}
             {isEditionOnly ? (
-              <Tooltip label={`\u2018${trackTitle}\u2019 is an exclusive for one or more Editions.`}>
+              <Tooltip label={`'${trackTitle}' is an exclusive for one or more Editions.`}>
                 <Badge
                   _before={{
                     content: '""',

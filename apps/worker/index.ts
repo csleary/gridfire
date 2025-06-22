@@ -1,6 +1,6 @@
 import "@gridfire/shared/models/Release.js";
 import "@gridfire/shared/models/User.js";
-import { amqpClose, amqpConnect } from "@gridfire/shared/amqp/index.js";
+import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import messageHandler from "@gridfire/worker/controllers/messageHandler.js";
 import mongoose from "mongoose";

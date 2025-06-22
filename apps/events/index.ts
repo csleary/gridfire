@@ -8,7 +8,7 @@ import { PROVIDERS, contracts } from "@gridfire/events/controllers/web3/gridfire
 import onEditionMinted from "@gridfire/events/controllers/web3/onEditionMinted/index.js";
 import onPurchase from "@gridfire/events/controllers/web3/onPurchase/index.js";
 import onPurchaseEdition from "@gridfire/events/controllers/web3/onPurchaseEdition/index.js";
-import { amqpClose, amqpConnect } from "@gridfire/shared/amqp/index.js";
+import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";

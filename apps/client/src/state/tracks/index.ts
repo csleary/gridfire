@@ -99,7 +99,7 @@ const deleteTrack = (trackId: EntityId) => async (dispatch: AppDispatch, getStat
       dispatch(trackRemove(trackId));
       await axios.delete(`/api/track/${trackId}`);
       const trackTitle = selectTrackById(getState(), trackId)?.trackTitle || "";
-      const message = `${trackTitle ? `\u2018${trackTitle}\u2019` : "Track"} deleted.`;
+      const message = `${trackTitle ? `'${trackTitle}'` : "Track"} deleted.`;
       dispatch(toastSuccess({ message, title: "Done" }));
       dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
     } else {
@@ -132,7 +132,7 @@ const uploadAudio =
     dispatch(
       addActiveProcess({
         id: processId,
-        description: `Uploading audio for \u2018${trackName}\u2019…`,
+        description: `Uploading audio for '${trackName}'…`,
         type: "upload"
       })
     );

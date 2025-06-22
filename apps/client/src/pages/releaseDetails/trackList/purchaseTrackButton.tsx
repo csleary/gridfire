@@ -42,7 +42,7 @@ const PurchaseTrackButton = ({
 
   return (
     <>
-      <Tooltip label={`Purchase \u2018${trackTitle}\u2019, by ${artistName}.`}>
+      <Tooltip label={`Purchase '${trackTitle}', by ${artistName}.`}>
         <Button
           colorScheme={Number(price) === 0 ? nypColour : undefined}
           isDisabled={!isConnected || isFetchingAllowance || inCollection || isPurchasing || trackInCollection}
