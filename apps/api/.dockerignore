@@ -1,4 +1,0 @@
-.env*
-.vscode
-node_modules/
-tmp/

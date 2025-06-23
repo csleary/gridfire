@@ -6,6 +6,5 @@ data:
   BENTO4_DIR: /home/node/bento4/bin
   IPFS_NODE_HOST: http://ipfs-node.default.svc.cluster.local:5001
   NODE_ENV: production
-  QUEUE_MESSAGE: message
   QUEUE_TRANSCODE: transcode
   TEMP_PATH: /home/node/tmp

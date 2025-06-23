@@ -11,6 +11,5 @@ data:
   MAINNET_NETWORK_URL: https://eth-mainnet.g.alchemy.com/v2
   NETWORK_URL: https://arb-mainnet.g.alchemy.com/v2
   NODE_ENV: production
-  QUEUE_MESSAGE: message
   QUEUE_TRANSCODE: transcode
   TEMP_PATH: /tmp

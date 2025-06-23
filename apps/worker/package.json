@@ -2,20 +2,20 @@
   "name": "@gridfire/worker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "exports": {
-    "./*": "./*"
+    "./*": "./dist/*.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch --env-file=.env index.ts"
+    "dev": "tsx watch --env-file=.env src/app.ts"
   },
   "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.828.0",
-    "@aws-sdk/lib-storage": "^3.828.0",
+    "@gridfire/shared": "*",
+    "@aws-sdk/client-s3": "3.726.1",
+    "@aws-sdk/lib-storage": "3.726.1",
     "amqplib": "^0.10.3",
     "dotenv": "^16.0.0",
     "fluent-ffmpeg": "^2.1.3",

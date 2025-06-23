@@ -1,8 +1,12 @@
 {
   "name": "@gridfire/hardhat",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "license": "MIT",
+  "exports": {
+    "./abi/*.json": "./artifacts/contracts/*.sol/*.json"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",

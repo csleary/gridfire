@@ -4,8 +4,8 @@ import { BasketItem } from "types";
 import axios from "axios";
 import daiAbi from "web3/dai";
 import detectEthereumProvider from "@metamask/detect-provider";
-import gridFireEditionsAbi from "web3/gridfireEditionsABI";
-import gridFirePaymentAbi from "web3/gridfirePaymentABI";
+import GridfireEditions from "@gridfire/hardhat/abi/GridfireEditions.json";
+import GridfirePayment from "@gridfire/hardhat/abi/GridfirePayment.json";
 import { nanoid } from "@reduxjs/toolkit";
 import { store } from "index";
 
@@ -14,6 +14,9 @@ const {
   REACT_APP_GRIDFIRE_PAYMENT_ADDRESS = "",
   REACT_APP_DAI_CONTRACT_ADDRESS: daiContractAddress = ""
 } = process.env;
+
+const { abi: gridFireEditionsAbi } = GridfireEditions;
+const { abi: gridFirePaymentAbi } = GridfirePayment;
 
 const ethereum = await detectEthereumProvider();
 let provider = new BrowserProvider(ethereum as unknown as Eip1193Provider) as BrowserProvider;

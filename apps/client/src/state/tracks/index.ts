@@ -121,18 +121,18 @@ interface UploadAudioParams {
   audioFile: File;
   releaseId: string;
   trackId: EntityId;
-  trackName: string;
+  trackTitle: string;
 }
 
 const uploadAudio =
-  ({ releaseId, trackId, trackName, audioFile }: UploadAudioParams) =>
+  ({ releaseId, trackId, trackTitle, audioFile }: UploadAudioParams) =>
   async (dispatch: AppDispatch) => {
     const processId = nanoid();
 
     dispatch(
       addActiveProcess({
         id: processId,
-        description: `Uploading audio for '${trackName}'…`,
+        description: `Uploading audio for '${trackTitle}'…`,
         type: "upload"
       })
     );
@@ -142,7 +142,7 @@ const uploadAudio =
       const formData = new FormData();
       formData.append("releaseId", releaseId);
       formData.append("trackId", trackId as string);
-      formData.append("trackName", trackName);
+      formData.append("trackTitle", trackTitle);
       formData.append("trackAudioFile", audioFile, audioFile.name);
       const cancelToken = dispatch(getCancelToken(trackId));
 

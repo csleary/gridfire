@@ -4,9 +4,9 @@ metadata:
   name: worker-config
   namespace: gridfire-prod
 data:
+  INPUT_QUEUES: transcode
   IPFS_GATEWAY_URL: https://gridfire.app/ipfs
   IPFS_NODE_HOST: http://ipfs-node.default.svc.cluster.local:5001
   NODE_ENV: production
-  QUEUE_MESSAGE: message
   QUEUE_TRANSCODE: transcode
   TEMP_PATH: /home/node/tmp

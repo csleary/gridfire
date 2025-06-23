@@ -1,19 +1,20 @@
 {
   "name": "@gridfire/events",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.ts",
+  "private": true,
+  "main": "dist/app.js",
   "exports": {
-    "./*": "./*"
+    "./*": "./dist/*.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch --env-file=.env index.ts"
+    "dev": "tsx watch --env-file=.env src/app.ts"
   },
   "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@gridfire/hardhat": "*",
+    "@gridfire/shared": "*",
     "amqplib": "^0.10.8",
     "axios": "^1.4.0",
     "dotenv": "^16.5.0",

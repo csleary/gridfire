@@ -1,0 +1,22 @@
+FROM node:22-slim AS build
+WORKDIR /home/node/app
+COPY package.json yarn.lock tsconfig.json ./
+COPY apps/events ./apps/events/
+COPY hardhat ./hardhat/
+COPY shared ./shared/
+RUN yarn install --frozen-lockfile
+RUN yarn workspace @gridfire/shared tsc --build
+RUN yarn workspace @gridfire/events tsc --build
+
+FROM node:22-slim
+WORKDIR /home/node/app
+COPY apps/events/package.json apps/events/
+COPY --from=build /home/node/app/apps/events/dist/ ./apps/events/dist/
+COPY shared/package.json ./shared/
+COPY --from=build /home/node/app/shared/dist ./shared/dist/
+COPY hardhat/package.json ./hardhat/
+COPY --from=build /home/node/app/hardhat/artifacts/contracts ./hardhat/artifacts/contracts/
+COPY package.json yarn.lock ./
+RUN yarn install --production --frozen-lockfile
+EXPOSE 9090
+ENTRYPOINT [ "node", "apps/events/dist/app.js" ]

@@ -1,0 +1,10 @@
+*.md
+.env*
+.git
+.gitattributes
+.gitignore
+.vscode
+Dockerfile
+docker-compose.yml
+manifests/
+node_modules/

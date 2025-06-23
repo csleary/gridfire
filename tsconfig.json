@@ -1,3 +1,20 @@
 {
-  "extends": "@tsconfig/node22/tsconfig.json"
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "paths": {
+      "@gridfire/api/*": ["./apps/api/src/*.ts", "./apps/api/src/*/index.ts"],
+      "@gridfire/events/*": ["./apps/events/src/*.ts", "./apps/events/src/*/index.ts"],
+      "@gridfire/worker/*": ["./apps/worker/src/*.ts", "./apps/worker/src/*/index.ts"],
+      "@gridfire/shared/amqp": ["./shared/src/amqp.ts"],
+      "@gridfire/shared/logger": ["./shared/src/logger.ts"],
+      "@gridfire/shared/models/*": ["./shared/src/models/*.ts"],
+      "@gridfire/shared/sseController": ["./shared/src/sseController.ts"],
+      "@gridfire/shared/types": ["./shared/src/types/index.ts"],
+      "@gridfire/shared/types/*": ["./shared/src/types/*.ts", "./shared/src/types/*/index.ts"]
+    },
+    "resolveJsonModule": true
+  },
+  "ignore": ["hardhat"]
 }

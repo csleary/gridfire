@@ -6,16 +6,17 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    "./amqp": "./amqp.ts",
-    "./models/*.js": "./models/*.ts",
-    "./types/*.js": "./types/*.ts",
-    "./logger": "./logger.ts",
-    "./sseController": "./sseController.ts"
+    "./amqp": "./dist/amqp.js",
+    "./models/*": "./dist/models/*.js",
+    "./types/*": "./dist/types/*.js",
+    "./logger": "./dist/logger.js",
+    "./sseController": "./dist/sseController.js"
   },
   "dependencies": {
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.8",
     "express": "^5.1.0",
+    "json-rpc-2.0": "^1.7.0",
     "mongoose": "^8.15.0"
   },
   "devDependencies": {
