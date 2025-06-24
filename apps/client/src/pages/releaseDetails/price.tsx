@@ -7,6 +7,7 @@ interface Props {
 
 const Price = ({ price }: Props) => {
   const isLoading = useSelector(state => state.releases.isLoading);
+  if (!price || Number.isNaN(price)) return null;
   if (Number(price) === 0) return null;
   const [dai, cents] = Number(price).toFixed(2).split(".");
 

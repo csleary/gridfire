@@ -129,6 +129,8 @@ const createAsyncFileHandler =
     { filename, mimeType }: { filename: string; mimeType: string }
   ) => {
     const { releaseId, trackId, trackTitle = "" } = fields;
+    const bucketKey = `${releaseId}/${trackId}`;
+    const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
     const extension = mime.extension(mimeType);
 
     const isAccepted =
@@ -140,7 +142,6 @@ const createAsyncFileHandler =
     }
 
     logger.info(`Uploading src file ${filename} for track ${trackId}…`);
-    const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
 
     // Update track if it already exists.
     const release = await Release.findOneAndUpdate(
@@ -162,12 +163,25 @@ const createAsyncFileHandler =
     }
 
     sseClient.send(userId.toString(), { type: MessageType.TrackStatus, releaseId, trackId, status: "uploading" });
-    await streamToBucket(BUCKET_SRC, `${releaseId}/${trackId}`, fileStream);
+    await streamToBucket(BUCKET_SRC, bucketKey, fileStream);
     logger.info(`Uploaded src file '${filename}' for track ${trackId}.`);
     await Release.updateOne(filter, { $set: { "trackList.$.status": "uploaded" } }).exec();
     sseClient.send(userId.toString(), { type: MessageType.TrackStatus, releaseId, trackId, status: "uploaded" });
     publishToQueue("", QUEUE_TRANSCODE, { job: "encodeFLAC", releaseId, trackId, trackTitle, userId });
   };
+
+const reEncodeTrack = async (userId: ObjectId, trackId: string) => {
+  const release = await Release.findOne({ "trackList._id": trackId, user: userId }, { "trackList.$": 1 }).lean();
+
+  if (!release) {
+    throw new Error("Release not found.");
+  }
+
+  const { _id: releaseId, trackList } = release;
+  const [{ trackTitle = "" }] = trackList;
+  await publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackTitle, userId });
+  await publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
+};
 
 const uploadTrack = async ({
   headers,
@@ -214,4 +228,4 @@ const uploadTrack = async ({
   await pipeline(req, busboy, { signal });
 };
 
-export { deleteTrack, logStream, uploadTrack };
+export { deleteTrack, logStream, reEncodeTrack, uploadTrack };

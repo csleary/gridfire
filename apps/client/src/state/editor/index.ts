@@ -66,13 +66,18 @@ const editorSlice = createSlice({
   initialState,
   reducers: {
     createRelease(state) {
-      state.releaseErrors = defaultErrorState;
-
+      state.artworkUploading = false;
+      state.artworkUploadProgress = 0;
+      state.isLoading = false;
+      state.isSubmitting = false;
       state.release = {
         ...defaultReleaseState,
         _id: createObjectId(),
         releaseDate: DateTime.local().toISODate() as string
       };
+      state.releaseErrors = { ...defaultErrorState };
+      state.trackErrors = {};
+      state.trackList = tracksAdapter.getInitialState();
     },
     removeTag(state, action) {
       state.release.tags = state.release.tags.filter((t: string) => t !== action.payload);
@@ -137,7 +142,7 @@ const editorSlice = createSlice({
       const trackIds = [...selectIds(state.trackList)];
       const indexFrom = trackIds.findIndex(id => id === trackId);
       const indexTo = direction === "up" ? indexFrom - 1 : indexFrom + 1;
-      if (indexTo < 0 || indexTo < selectTotal(state.trackList) - 1) return;
+      if (indexTo < 0 || indexTo >= selectTotal(state.trackList)) return;
       const tracks = [...selectAll(state.trackList)];
       const nextTrackList = [...tracks];
       nextTrackList.splice(indexTo, 0, ...nextTrackList.splice(indexFrom, 1));

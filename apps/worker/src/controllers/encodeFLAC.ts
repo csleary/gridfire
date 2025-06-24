@@ -41,17 +41,14 @@ const onStorageProgress =
   };
 
 const encodeFLAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseContext) => {
+  const bucketKey = `${releaseId}/${trackId}`;
+  const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
   let inputPath: string = "";
   let outputPath: string = "";
 
   try {
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "encoding" },
-      { fields: "trackList.$", lean: true }
-    ).exec();
-
-    const srcStream = await streamFromBucket(BUCKET_SRC, `${releaseId}/${trackId}`);
+    await Release.updateOne(filter, { "trackList.$.status": "encoding" }).exec();
+    const srcStream = await streamFromBucket(BUCKET_SRC, bucketKey);
     if (!srcStream) throw new Error("Source audio file stream not found.");
     inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     const streamToDisk = fs.createWriteStream(inputPath);
@@ -59,26 +56,17 @@ const encodeFLAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseCon
     outputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
     await ffmpegEncodeFLAC(inputPath, outputPath, onEncodingProgress({ trackId, userId }));
     fs.accessSync(outputPath, fs.constants.R_OK);
-    const key = `${releaseId}/${trackId}`;
     const body = fs.createReadStream(outputPath);
-    await streamToBucket(BUCKET_FLAC, key, body, onStorageProgress({ trackId, userId }));
-
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "encoded" }
-    ).exec();
-
-    await deleteObject(BUCKET_SRC, `${releaseId}/${trackId}`);
+    await streamToBucket(BUCKET_FLAC, bucketKey, body, onStorageProgress({ trackId, userId }));
+    await Release.updateOne(filter, { "trackList.$.status": "encoded" }).exec();
+    console.log(`Removing SRC file: ${bucketKey}…`);
+    await deleteObject(BUCKET_SRC, bucketKey);
+    console.log(`SRC file '${bucketKey}' removed from B2.`);
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackTitle, userId });
     publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
   } catch (error) {
     console.error(error);
-
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "error", "trackList.$.dateUpdated": Date.now() }
-    ).exec();
-
+    await Release.updateOne(filter, { "trackList.$.status": "error" }).exec();
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "error", userId });
     postMessage({ type: MessageType.PipelineError, stage: "flac", trackId, userId });
     throw error;

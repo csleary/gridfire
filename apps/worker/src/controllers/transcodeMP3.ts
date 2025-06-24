@@ -18,21 +18,18 @@ assert(BUCKET_MP3, "BUCKET_MP3 env var missing.");
 assert(TEMP_PATH, "TEMP_PATH env var missing.");
 
 const transcodeMP3 = async ({ releaseId, trackId, userId }: ReleaseContext) => {
+  const bucketKey = `${releaseId}/${trackId}`;
+  const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
   let mp3FilePath;
 
   try {
     postMessage({ type: MessageType.TranscodingStartedMP3, trackId, userId });
-    const srcStream = await streamFromBucket(BUCKET_FLAC, `${releaseId}/${trackId}`);
+    const srcStream = await streamFromBucket(BUCKET_FLAC, bucketKey);
     const tempFilename = randomUUID({ disableEntropyCache: true });
     mp3FilePath = path.resolve(TEMP_PATH, tempFilename);
     await ffmpegEncodeMP3FromStream(srcStream, mp3FilePath);
-    await streamToBucket(BUCKET_MP3, `${releaseId}/${trackId}`, fs.createReadStream(mp3FilePath));
-
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId, user: userId },
-      { "trackList.$.status": "stored" }
-    ).exec();
-
+    await streamToBucket(BUCKET_MP3, bucketKey, fs.createReadStream(mp3FilePath));
+    await Release.updateOne(filter, { "trackList.$.status": "stored" }).exec();
     postMessage({ type: MessageType.TranscodingCompleteMP3, trackId, userId });
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "stored", userId });
     console.log(`[Worker] Track ${trackId} converted to MP3 and uploaded to B2.`);

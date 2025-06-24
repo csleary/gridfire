@@ -1,24 +1,23 @@
-import { AppDispatch, GetState } from "index";
 import { EntityId, createSlice, nanoid } from "@reduxjs/toolkit";
-import { addActiveProcess, removeActiveProcess } from "state/user";
 import axios, { AxiosProgressEvent } from "axios";
-import { toastError, toastInfo, toastSuccess } from "state/toast";
+import { AppDispatch, GetState } from "index";
 import { selectTrackById, trackRemove } from "state/editor";
+import { toastError, toastInfo, toastSuccess } from "state/toast";
+import { addActiveProcess, removeActiveProcess } from "state/user";
 
-const calls = new Map();
+const controllers = new Map<EntityId, AbortController>();
 
 interface TracksState {
-  audioUploadProgress: { [key: string]: number };
-  encodingCompleteFLAC: { [key: string]: boolean };
-  encodingProgressFLAC: { [key: string]: number };
-  pipelineErrors: { [key: string]: { [key: string]: string } };
-  storingProgressFLAC: { [key: string]: number };
-  trackIdsForDeletion: { [key: string]: boolean };
-  transcodingCompleteAAC: { [key: string]: boolean };
-  transcodingCompleteMP3: { [key: string]: boolean };
-  transcodingStartedAAC: { [key: string]: boolean };
-  transcodingStartedMP3: { [key: string]: boolean };
-  uploadCancelled: boolean;
+  audioUploadProgress: Record<EntityId, number>;
+  encodingCompleteFLAC: Record<EntityId, boolean>;
+  encodingProgressFLAC: Record<EntityId, number>;
+  pipelineErrors: Record<EntityId, Record<EntityId, string>>;
+  storingProgressFLAC: Record<EntityId, number>;
+  trackIdsForDeletion: Record<EntityId, boolean>;
+  transcodingCompleteAAC: Record<EntityId, boolean>;
+  transcodingCompleteMP3: Record<EntityId, boolean>;
+  transcodingStartedAAC: Record<EntityId, boolean>;
+  transcodingStartedMP3: Record<EntityId, boolean>;
 }
 
 const initialState: TracksState = {
@@ -31,64 +30,62 @@ const initialState: TracksState = {
   transcodingCompleteAAC: {},
   transcodingCompleteMP3: {},
   transcodingStartedAAC: {},
-  transcodingStartedMP3: {},
-  uploadCancelled: false
+  transcodingStartedMP3: {}
 };
 
 const trackSlice = createSlice({
   name: "tracks",
   initialState,
   reducers: {
-    cancelUpload(state, action) {
-      const trackId = action.payload;
-      const call = calls.get(trackId);
-
-      if (call) {
-        call.cancel();
-        calls.delete(trackId);
-      }
-
-      state.audioUploadProgress = { ...state.audioUploadProgress, [trackId]: 0 };
-    },
-    setUploadProgress(state, action) {
-      const { progress, trackId } = action.payload;
-      state.audioUploadProgress = { ...state.audioUploadProgress, [trackId]: progress };
-    },
-    setEncodingProgressFLAC(state, action) {
-      const { progress, trackId } = action.payload;
-      state.encodingProgressFLAC = { ...state.encodingProgressFLAC, [trackId]: progress };
-    },
-    setPipelineError(state, action) {
-      const { message, stage, trackId } = action.payload;
-
-      state.pipelineErrors = {
-        ...state.pipelineErrors,
-        [trackId]: { ...state.pipelineErrors[trackId], [stage]: message || "" }
-      };
-    },
-    setStoringProgressFLAC(state, action) {
-      const { progress, trackId } = action.payload;
-      state.storingProgressFLAC = { ...state.storingProgressFLAC, [trackId]: progress };
-    },
-    setTranscodingStartedAAC(state, action) {
+    setTrackDefaults(state, action) {
       const { trackId } = action.payload;
-      state.transcodingStartedAAC = { ...state.transcodingStartedAAC, [trackId]: true };
-    },
-    setTranscodingCompleteAAC(state, action) {
-      const { trackId } = action.payload;
-      state.transcodingCompleteAAC = { ...state.transcodingCompleteAAC, [trackId]: true };
-    },
-    setTranscodingStartedMP3(state, action) {
-      const { trackId } = action.payload;
-      state.transcodingStartedMP3 = { ...state.transcodingStartedMP3, [trackId]: true };
-    },
-    setTranscodingCompleteMP3(state, action) {
-      const { trackId } = action.payload;
-      state.transcodingCompleteMP3 = { ...state.transcodingCompleteMP3, [trackId]: true };
+      state.audioUploadProgress[trackId] = 0;
+      state.encodingCompleteFLAC[trackId] = false;
+      state.encodingProgressFLAC[trackId] = 0;
+      state.pipelineErrors[trackId] = {};
+      state.storingProgressFLAC[trackId] = 0;
+      state.trackIdsForDeletion[trackId] = false;
+      state.transcodingCompleteAAC[trackId] = false;
+      state.transcodingCompleteMP3[trackId] = false;
+      state.transcodingStartedAAC[trackId] = false;
+      state.transcodingStartedMP3[trackId] = false;
     },
     setTrackIdsForDeletion(state, action) {
       const { trackId, isDeleting } = action.payload;
-      state.trackIdsForDeletion = { ...state.trackIdsForDeletion, [trackId]: isDeleting };
+      state.trackIdsForDeletion[trackId] = isDeleting;
+    },
+    setEncodingProgressFLAC(state, action) {
+      const { progress, trackId } = action.payload;
+      state.encodingProgressFLAC[trackId] = progress;
+    },
+    setPipelineError(state, action) {
+      const { message, stage, trackId } = action.payload;
+      if (!state.pipelineErrors[trackId]) state.pipelineErrors[trackId] = {};
+      state.pipelineErrors[trackId][stage] = message || "";
+    },
+    setStoringProgressFLAC(state, action) {
+      const { progress, trackId } = action.payload;
+      state.storingProgressFLAC[trackId] = progress;
+    },
+    setTranscodingCompleteAAC(state, action) {
+      const { trackId, isComplete } = action.payload;
+      state.transcodingCompleteAAC[trackId] = isComplete ?? true;
+    },
+    setTranscodingCompleteMP3(state, action) {
+      const { trackId, isComplete } = action.payload;
+      state.transcodingCompleteMP3[trackId] = isComplete ?? true;
+    },
+    setTranscodingStartedAAC(state, action) {
+      const { trackId, isStarted } = action.payload;
+      state.transcodingStartedAAC[trackId] = isStarted ?? true;
+    },
+    setTranscodingStartedMP3(state, action) {
+      const { trackId, isStarted } = action.payload;
+      state.transcodingStartedMP3[trackId] = isStarted ?? true;
+    },
+    setUploadProgress(state, action) {
+      const { progress, trackId } = action.payload;
+      state.audioUploadProgress[trackId] = progress;
     }
   }
 });
@@ -111,10 +108,26 @@ const deleteTrack = (trackId: EntityId) => async (dispatch: AppDispatch, getStat
   }
 };
 
-const getCancelToken = (uploadId: EntityId) => () => {
-  const call = axios.CancelToken.source();
-  calls.set(uploadId, call);
-  return call.token;
+const cancelUpload = (trackId: EntityId) => (dispatch: AppDispatch) => {
+  const controller = controllers.get(trackId);
+
+  if (controller) {
+    controller.abort();
+    controllers.delete(trackId);
+    dispatch(setTrackDefaults({ trackId }));
+    dispatch(toastInfo({ message: "Upload cancelled.", title: "Cancelled" }));
+  }
+};
+
+const getAbortController = (trackId: EntityId) => {
+  let controller = controllers.get(trackId);
+
+  if (!controller) {
+    controller = new AbortController();
+    controllers.set(trackId, controller);
+  }
+
+  return controller;
 };
 
 interface UploadAudioParams {
@@ -123,6 +136,24 @@ interface UploadAudioParams {
   trackId: EntityId;
   trackTitle: string;
 }
+
+const reEncodeTrack = (trackId: EntityId) => async (dispatch: AppDispatch, getState: GetState) => {
+  const track = selectTrackById(getState(), trackId);
+  if (!track) return;
+  const { status, trackTitle } = track;
+  if (status !== "stored") return;
+
+  try {
+    dispatch(setTranscodingStartedAAC({ trackId, isStarted: false }));
+    dispatch(setTranscodingStartedMP3({ trackId, isStarted: false }));
+    dispatch(setTranscodingCompleteAAC({ trackId, isComplete: false }));
+    dispatch(setTranscodingCompleteMP3({ trackId, isComplete: false }));
+    await axios.patch(`/api/track/${trackId}`);
+    dispatch(toastSuccess({ message: `Re-encoding '${trackTitle}'…`, title: "Re-encoding" }));
+  } catch (error) {
+    dispatch(toastError({ message: `We were unable to re-enqueue '${trackTitle}' for encoding.`, title: "Error" }));
+  }
+};
 
 const uploadAudio =
   ({ releaseId, trackId, trackTitle, audioFile }: UploadAudioParams) =>
@@ -138,40 +169,40 @@ const uploadAudio =
     );
 
     try {
-      dispatch(setUploadProgress({ trackId, progress: 0 }));
+      dispatch(setTrackDefaults({ trackId }));
       const formData = new FormData();
       formData.append("releaseId", releaseId);
       formData.append("trackId", trackId as string);
       formData.append("trackTitle", trackTitle);
       formData.append("trackAudioFile", audioFile, audioFile.name);
-      const cancelToken = dispatch(getCancelToken(trackId));
+      const controller = getAbortController(trackId);
 
       const config = {
         onUploadProgress: (event: AxiosProgressEvent) => {
           const progress = Math.floor((event.loaded / (event.total || 0)) * 100);
           dispatch(setUploadProgress({ trackId, progress }));
         },
-        cancelToken
+        signal: controller.signal
       };
 
       await axios.put("/api/track", formData, config);
-    } catch (error) {
+    } catch (error: any) {
       if (axios.isCancel(error)) {
-        return toastInfo({ message: "Upload cancelled.", title: "Cancelled" });
+        return;
       }
 
-      toastError({ message: "We encountered an error uploading this track." });
-      dispatch(setUploadProgress({ trackId, progress: 0 }));
+      dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }));
     } finally {
+      controllers.delete(trackId);
       dispatch(removeActiveProcess(processId));
     }
   };
 
 export const {
-  cancelUpload,
   setEncodingProgressFLAC,
   setPipelineError,
   setStoringProgressFLAC,
+  setTrackDefaults,
   setTrackIdsForDeletion,
   setTranscodingCompleteAAC,
   setTranscodingCompleteMP3,
@@ -180,5 +211,5 @@ export const {
   setUploadProgress
 } = trackSlice.actions;
 
-export { deleteTrack, getCancelToken, uploadAudio };
+export { cancelUpload, deleteTrack, reEncodeTrack, uploadAudio };
 export default trackSlice.reducer;

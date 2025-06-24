@@ -1,6 +1,6 @@
 import { Schema, Types, model } from "mongoose";
 
-enum TrackStatus {
+export enum TrackStatus {
   Pending = "pending",
   Uploading = "uploading",
   Uploaded = "uploaded",

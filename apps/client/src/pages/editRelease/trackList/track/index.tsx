@@ -19,17 +19,16 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import { faArrowDown, faArrowUp, faBars } from "@fortawesome/free-solid-svg-icons";
-import { ChangeEventHandler, DragEventHandler, memo, useCallback } from "react";
-import { deleteTrack, setTrackIdsForDeletion } from "state/tracks";
-import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "state/editor";
-import { useDispatch, useSelector } from "hooks";
-import AudioDropzone from "./audioDropzone";
+import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { faArrowDown, faArrowUp, faBars, faMagicWandSparkles } from "@fortawesome/free-solid-svg-icons";
 import { EntityId } from "@reduxjs/toolkit";
 import Icon from "components/icon";
-import { ReleaseTrack } from "types";
-import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { useDispatch, useSelector } from "hooks";
+import { ChangeEventHandler, DragEventHandler, memo, useCallback } from "react";
+import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "state/editor";
+import { deleteTrack, reEncodeTrack, setTrackIdsForDeletion } from "state/tracks";
 import { formatPrice } from "utils";
+import AudioDropzone from "./audioDropzone";
 
 interface Props {
   dragOriginIsInactive: boolean;
@@ -66,7 +65,7 @@ const Track = ({
   const track = useSelector(trackList => selectTrackById(trackList, trackId));
   const isDeleting = useSelector(state => state.tracks.trackIdsForDeletion[trackId]);
   const trackTitleError: string = useSelector(state => state.editor.trackErrors[`${trackId}.trackTitle`]);
-  const { isBonus, isEditionOnly, price, status, trackTitle } = track as ReleaseTrack;
+  const { isBonus, isEditionOnly, price, status = "", trackTitle = "" } = track || {};
 
   const cancelDeleteTrack = (trackId: EntityId) => {
     dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
@@ -217,6 +216,13 @@ const Track = ({
                 Move track down
               </MenuItem>
               <MenuDivider />
+              <MenuItem
+                icon={<Icon icon={faMagicWandSparkles} />}
+                isDisabled={status !== "stored"}
+                onClick={() => dispatch(reEncodeTrack(trackId))}
+              >
+                Re-encode
+              </MenuItem>
               <MenuItem
                 closeOnSelect={isDeleting ? true : false}
                 bgColor={isDeleting ? "red.300" : undefined}

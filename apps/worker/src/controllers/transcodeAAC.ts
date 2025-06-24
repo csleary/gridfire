@@ -20,17 +20,15 @@ assert(BUCKET_MP4, "BUCKET_MP4 env var missing.");
 assert(TEMP_PATH, "TEMP_PATH env var missing.");
 
 const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseContext) => {
+  const bucketKey = `${releaseId}/${trackId}`;
+  const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
   const inputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
   const outputPath = path.resolve(TEMP_PATH, randomUUID({ disableEntropyCache: true }));
   const outputDir = randomUUID({ disableEntropyCache: true });
 
   try {
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "transcoding" }
-    ).exec();
-
-    const srcStream = await streamFromBucket(BUCKET_FLAC, `${releaseId}/${trackId}`);
+    await Release.updateOne(filter, { "trackList.$.status": "transcoding" }).exec();
+    const srcStream = await streamFromBucket(BUCKET_FLAC, bucketKey);
     await pipeline(srcStream, fs.createWriteStream(inputPath));
     console.log(`[${trackId}] Downloaded flac…`);
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "transcoding", userId });
@@ -55,24 +53,15 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
 
     for (const file of files) {
       const mp4Stream = fs.createReadStream(path.resolve(TEMP_PATH, outputDir, file));
-      await streamToBucket(BUCKET_MP4, `${releaseId}/${trackId}/${file}`, mp4Stream);
+      await streamToBucket(BUCKET_MP4, `${bucketKey}/${file}`, mp4Stream);
     }
 
     // Save track and clean up.
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId, user: userId },
-      { "trackList.$.duration": metadata.format.duration }
-    ).exec();
-
+    await Release.updateOne(filter, { "trackList.$.duration": metadata.format.duration }).exec();
     postMessage({ type: MessageType.TranscodingCompleteAAC, trackId, trackTitle, userId });
   } catch (error) {
     console.error(error);
-
-    await Release.findOneAndUpdate(
-      { _id: releaseId, "trackList._id": trackId },
-      { "trackList.$.status": "error" }
-    ).exec();
-
+    await Release.updateOne(filter, { "trackList.$.status": "error" }).exec();
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "error", userId });
     postMessage({ type: MessageType.PipelineError, stage: "aac", trackId, userId });
     throw error;

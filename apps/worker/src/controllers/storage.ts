@@ -11,7 +11,6 @@ import { Readable } from "stream";
 import assert from "assert/strict";
 
 const { S3_ENDPOINT } = process.env;
-
 assert(S3_ENDPOINT, "S3_ENDPOINT env var missing.");
 
 const client = new S3Client({

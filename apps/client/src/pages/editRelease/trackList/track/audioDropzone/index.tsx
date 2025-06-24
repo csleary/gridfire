@@ -1,26 +1,34 @@
 import { Box, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
-import { MouseEventHandler, memo } from "react";
-import { cancelUpload, uploadAudio } from "state/tracks";
 import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { toastError, toastInfo } from "state/toast";
-import { trackSetError, trackUpdate } from "state/editor";
-import { useDispatch, useSelector } from "hooks";
 import { EntityId } from "@reduxjs/toolkit";
 import Icon from "components/icon";
-import ProgressIndicator from "./progressIndicator";
+import { useDispatch, useSelector } from "hooks";
 import mime from "mime";
-import { updateTrackStatus } from "state/editor";
+import { MouseEventHandler, memo } from "react";
 import { useDropzone } from "react-dropzone";
+import { trackSetError, trackUpdate, updateTrackStatus } from "state/editor";
+import { toastError, toastInfo } from "state/toast";
+import { cancelUpload, uploadAudio } from "state/tracks";
+import ProgressIndicator from "./progressIndicator";
 
-interface AcceptedFileTypes {
-  [key: string]: string[];
+type AcceptedFileTypes = { [key: string]: string[] };
+
+const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce(
+  (prev: AcceptedFileTypes, ext) => {
+    const type = mime.getType(ext);
+    if (!type) return prev;
+    return { ...prev, [type]: [...(prev[type] ?? []), ext] };
+  },
+  { "audio/flac": [".flac"] }
+);
+
+enum PROCESS_STAGE {
+  AAC = "aac",
+  FLAC = "flac",
+  MP3 = "mp3",
+  STORAGE = "storage",
+  UPLOAD = "upload"
 }
-
-const acceptedFileTypes = [".aif", ".aiff", ".flac", ".wav"].reduce((prev, ext) => {
-  const type = mime.getType(ext);
-  if (!type) return prev;
-  return { ...prev, [type]: [...(prev[type] || []), ext] };
-}, {} as AcceptedFileTypes);
 
 interface Props {
   index: number;
@@ -39,27 +47,32 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
   const transcodingCompleteMP3 = useSelector(state => state.tracks.transcodingCompleteMP3[trackId]);
   const transcodingStartedAAC = useSelector(state => state.tracks.transcodingStartedAAC[trackId]);
   const transcodingStartedMP3 = useSelector(state => state.tracks.transcodingStartedMP3[trackId]);
-  const isEncoding = status === "encoding" || (encodingProgressFLAC > 0 && !storingProgressFLAC);
   const isStored = status === "stored";
-  const isTranscoding = status === "transcoding" || (transcodingStartedAAC && !transcodingCompleteMP3);
   const isUploading = audioUploadProgress > 0 && audioUploadProgress < 100;
+  const isProcessing = audioUploadProgress === 100 && !transcodingCompleteAAC && !transcodingCompleteMP3;
 
   const handleClick: MouseEventHandler = e => {
     if (isUploading) {
       dispatch(cancelUpload(trackId));
       dispatch(updateTrackStatus({ id: trackId, changes: { status: "pending" } }));
       e.stopPropagation();
+      e.preventDefault();
     }
   };
 
   const onDrop = (accepted: any, rejected: any) => {
     if (rejected?.length) {
-      return dispatch(
+      return void dispatch(
         toastError({
           message: "This does not seem to be an audio file. Please select a wav or aiff audio file.",
           title: "File type error"
         })
       );
+    }
+
+    if (isUploading) {
+      dispatch(cancelUpload(trackId));
+      dispatch(toastInfo({ message: "Previous upload cancelled.", title: "Info" }));
     }
 
     const [audioFile] = accepted;
@@ -70,17 +83,23 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       dispatch(trackUpdate({ id: trackId, changes: { trackTitle: name } }));
     }
 
-    trackTitle ||= name;
-    dispatch(toastInfo({ message: `Uploading ${trackTitle}…`, title: "Uploading" }));
-
-    dispatch(uploadAudio({ releaseId, trackId, trackTitle, audioFile })).catch((error: any) =>
-      dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }))
-    );
+    if (isProcessing) {
+      dispatch(
+        toastInfo({
+          message: "Track is already being processed. Please wait for this to complete before re-uploading/deleting.",
+          title: "Please wait"
+        })
+      );
+    } else {
+      trackTitle ||= name;
+      dispatch(toastInfo({ message: `Uploading ${trackTitle}…`, title: "Uploading" }));
+      dispatch(uploadAudio({ releaseId, trackId, trackTitle, audioFile }));
+    }
   };
 
-  const { getRootProps, getInputProps, isDragReject } = useDropzone({
+  const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
     accept: acceptedFileTypes,
-    disabled: isEncoding || isTranscoding,
+    disabled: isProcessing,
     multiple: false,
     noDragEventsBubbling: true,
     noKeyboard: false,
@@ -90,7 +109,7 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
   return (
     <Wrap
       backgroundColor={useColorModeValue("gray.50", "gray.900")}
-      borderColor={useColorModeValue("gray.400", isDragReject ? "red" : "gray.600")}
+      borderColor={useColorModeValue("gray.400", isDragAccept ? "blue.200" : isDragReject ? "red" : "gray.600")}
       borderStyle="dashed"
       borderWidth="2px"
       color="gray.500"
@@ -113,11 +132,11 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color="purple.200"
-          isStored={isStored}
+          isComplete={["uploaded", "transcoding", "stored"].includes(status)}
           labelColor={useColorModeValue("purple.300", "purple.200")}
           progress={audioUploadProgress}
           stageHasStarted={audioUploadProgress > 0}
-          stageName="upload"
+          stageName={PROCESS_STAGE.UPLOAD}
           tooltipText="Audio file upload progress."
           trackId={trackId}
         >
@@ -127,11 +146,11 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color="blue.200"
-          isStored={isStored}
+          isComplete={["uploaded", "encoded", "transcoding", "stored"].includes(status)}
           labelColor="blue.200"
           progress={encodingProgressFLAC}
           stageHasStarted={encodingProgressFLAC > 0}
-          stageName="flac"
+          stageName={PROCESS_STAGE.FLAC}
           tooltipText="Lossless FLAC encoding progress."
           trackId={trackId}
         />
@@ -139,11 +158,11 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color="green.200"
-          isStored={isStored}
+          isComplete={["uploaded", "encoded", "transcoding", "stored"].includes(status)}
           labelColor={useColorModeValue("green.300", "green.200")}
           progress={storingProgressFLAC}
           stageHasStarted={storingProgressFLAC > 0}
-          stageName="storage"
+          stageName={PROCESS_STAGE.STORAGE}
           tooltipText="Storage status."
           trackId={trackId}
         >
@@ -153,11 +172,11 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color={useColorModeValue("yellow.300", "yellow.200")}
-          isStored={isStored}
+          isComplete={isStored}
           labelColor={useColorModeValue("yellow.500", "yellow.300")}
           progress={transcodingCompleteAAC ? 100 : 0}
           stageHasStarted={transcodingStartedAAC}
-          stageName="aac"
+          stageName={PROCESS_STAGE.AAC}
           tooltipText="AAC streaming audio encoding progress."
           trackId={trackId}
         >
@@ -167,10 +186,10 @@ const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color={useColorModeValue("orange.400", "orange.200")}
-          isStored={isStored}
+          isComplete={isStored}
           progress={transcodingCompleteMP3 ? 100 : 0}
           stageHasStarted={transcodingStartedMP3}
-          stageName="mp3"
+          stageName={PROCESS_STAGE.MP3}
           tooltipText="MP3 download encoding progress."
           trackId={trackId}
         >

@@ -1,11 +1,13 @@
 import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
-import { DragEventHandler, useCallback, useState } from "react";
+import { DragEvent, DragEventHandler, useCallback, useState } from "react";
 import { selectTrackIds, trackAdd, trackMove } from "state/editor";
 import { useDispatch, useSelector } from "hooks";
 import Icon from "components/icon";
 import Track from "./track";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { shallowEqual } from "react-redux";
+
+const isFileDrag = (e: DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
 
 const TrackList = () => {
   const dispatch = useDispatch();
@@ -23,6 +25,8 @@ const TrackList = () => {
 
   const handleDragEnter: DragEventHandler<HTMLElement> = useCallback(
     e => {
+      if (isFileDrag(e)) return;
+
       if (dragOriginId == null) {
         return void (e.dataTransfer.dropEffect = "none");
       }
@@ -33,7 +37,10 @@ const TrackList = () => {
     [dragOriginId]
   );
 
-  const handleDragOver: DragEventHandler<HTMLElement> = useCallback(() => false, []);
+  const handleDragOver: DragEventHandler<HTMLElement> = useCallback(e => {
+    if (isFileDrag(e)) return;
+    e.preventDefault();
+  }, []);
 
   const handleDragLeave: DragEventHandler<HTMLElement> = useCallback(
     e => {

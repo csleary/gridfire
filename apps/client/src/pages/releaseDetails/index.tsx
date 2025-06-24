@@ -33,7 +33,7 @@ import TrackList from "./trackList/index";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { fetchUser } from "state/user";
 import { shallowEqual } from "react-redux";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const { REACT_APP_CDN_IMG } = process.env;
@@ -65,24 +65,31 @@ const ActiveRelease = () => {
     releaseDate
   } = release;
 
-  useEffect(() => {
-    if (releaseId !== release._id) dispatch(setIsLoading(true));
-  }, [release._id, releaseId]); // eslint-disable-line
+  const loadRelease = useCallback(async () => {
+    try {
+      await dispatch(fetchRelease(releaseId));
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return void navigate("/");
+      }
+      console.error("Failed to fetch release:", error);
+    } finally {
+      dispatch(setIsLoading(false));
+    }
+  }, [dispatch, navigate, releaseId]);
 
   useEffect(() => {
-    dispatch(fetchRelease(releaseId))
-      .then(() => dispatch(setIsLoading(false)))
-      .catch((error: { response: { status: number } }) => {
-        if (error.response.status === 404) {
-          navigate("/");
-        }
-      })
-      .finally(() => dispatch(setIsLoading(false)));
-  }, [releaseId]); // eslint-disable-line
+    if (releaseId !== release._id) dispatch(setIsLoading(true));
+  }, [dispatch, release._id, releaseId]);
+
+  useEffect(() => {
+    if (!releaseId) return;
+    loadRelease();
+  }, [loadRelease, releaseId]);
 
   useEffect(() => {
     dispatch(fetchUser());
-  }, []); // eslint-disable-line
+  }, [dispatch]);
 
   const handleSearch = (terms: Array<Array<string>>) => {
     const searchParams = new URLSearchParams();
@@ -186,26 +193,28 @@ const ActiveRelease = () => {
                 {isLoading ? (
                   <Skeleton height={6} mb={2} />
                 ) : (
-                  <Flex mb={2}>
-                    <Flex
-                      as={Button}
-                      align="center"
-                      bg="blue.100"
-                      height="unset"
-                      justify="center"
-                      minW={10}
-                      mr={3}
-                      onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
-                      rounded="sm"
-                      variant="unstyled"
-                      _hover={{ backgroundColor: "blue.200" }}
-                    >
-                      <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
+                  releaseDate && (
+                    <Flex mb={2}>
+                      <Flex
+                        as={Button}
+                        align="center"
+                        bg="blue.100"
+                        height="unset"
+                        justify="center"
+                        minW={10}
+                        mr={3}
+                        onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
+                        rounded="sm"
+                        variant="unstyled"
+                        _hover={{ backgroundColor: "blue.200" }}
+                      >
+                        <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
+                      </Flex>
+                      <Box color={releaseInfoText}>
+                        {DateTime.fromISO(releaseDate).toLocaleString(DateTime.DATE_FULL)}
+                      </Box>
                     </Flex>
-                    <Box color={releaseInfoText}>
-                      {DateTime.fromISO(releaseDate).toLocaleString(DateTime.DATE_FULL)}
-                    </Box>
-                  </Flex>
+                  )
                 )}
                 {isLoading ? (
                   <Skeleton height={6} mb={2} />

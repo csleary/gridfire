@@ -28,7 +28,7 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
   const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
   const isLoading = useSelector(state => state.releases.isLoading);
   const userId = useSelector(state => state.user.userId);
-  const allowanceTooLow = parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
+  const allowanceTooLow = price && (parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n);
 
   const handlePayment = async (price: string) => {
     try {
