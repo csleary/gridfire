@@ -103,6 +103,10 @@ router.get("/:artistIdOrSlug", async (req, res) => {
       }
     ]).exec();
 
+    if (!artistWorks) {
+      return void res.sendStatus(404);
+    }
+
     res.send(artistWorks);
   } catch (error) {
     console.error(error);
@@ -139,7 +143,7 @@ router.get("/", async (req, res) => {
     res.send(releases);
   } catch (error) {
     console.error(error);
-    res.status(400).send({ error: "Music catalogue could not be fetched." });
+    res.status(400).json({ error: "Music catalogue could not be fetched." });
   }
 });
 

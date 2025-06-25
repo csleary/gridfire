@@ -1,10 +1,11 @@
 import Logger from "@gridfire/shared/logger";
-import { MessageType, ServerSentMessage } from "@gridfire/shared/types/messages";
+import type { ServerSentMessage } from "@gridfire/shared/types/messages";
+import { MessageType } from "@gridfire/shared/types/messages";
 import type { ChannelWrapper } from "amqp-connection-manager";
 import type { ConsumeMessage } from "amqplib";
-import { Response } from "express";
-import { ObjectId } from "mongoose";
-import { UUID } from "node:crypto";
+import type { Response } from "express";
+import type { ObjectId } from "mongoose";
+import type { UUID } from "node:crypto";
 
 type SocketId = UUID;
 type MessageHandler = (data: ConsumeMessage | null) => Promise<undefined>;
@@ -37,25 +38,24 @@ class SSEClient {
   }
 
   async add(res: Response, userId: UserId, socketId: SocketId) {
+    const context = `[user ${userId}]::[${POD_NAME}]::[socket ${socketId}]`;
+
     if (this.#has(userId)) {
       const connections = this.get(userId);
 
-      if (!connections) {
-        logger.warn(`No open connections found for user ${userId}.`);
-        return;
-      }
-
-      if (connections.has(socketId)) {
-        logger.info(`Closing existing connection ${socketId} for user ${userId}…`);
+      if (connections && connections.has(socketId)) {
+        logger.info(`${context} Closing existing connection…`);
         const connection = connections.get(socketId) as Connection;
         connection.res.end();
       }
 
-      logger.info(`Storing connection ${socketId} for user ${userId}…`);
-      return connections.set(socketId, { res, lastPing: Date.now() });
+      if (connections) {
+        logger.info(`${context} Storing connection…`);
+        return connections.set(socketId, { res, lastPing: Date.now() });
+      }
     }
 
-    logger.info(`Storing first connection ${socketId} for user ${userId}…`);
+    logger.info(`${context} Storing first connection…`);
     const connections = new Map();
     connections.set(socketId, { res, lastPing: Date.now() });
     this.#sessions.set(userId, connections);
@@ -70,10 +70,10 @@ class SSEClient {
         const { consumerTag } = await this.#consumerChannel.consume(userQueue, this.#messageHandler, { noAck: false });
         this.#consumerTags.set(userId, consumerTag);
       } else {
-        logger.warn("Message handler not set.");
+        logger.warn(`${context} Message handler not set.`);
       }
     } else {
-      logger.warn("Consumer channel not set.");
+      logger.warn(`${context} Consumer channel not set.`);
     }
   }
 
@@ -110,14 +110,12 @@ class SSEClient {
   async remove(userId: UserId) {
     logger.info(`Removing connection for user ${userId}…`);
     this.#sessions.delete(userId);
-    const userQueue = `user.${userId}.${POD_NAME}`;
 
     if (!this.#consumerChannel) {
       logger.warn("Consumer channel not set.");
       return;
     }
 
-    await this.#consumerChannel.unbindQueue(userQueue, "user", userId);
     const consumerTag = this.#consumerTags.get(userId);
 
     if (consumerTag) {
@@ -140,7 +138,7 @@ class SSEClient {
       const checkForStaleConnection = ({ value, done }: IteratorResult<[UserId, Session]>) => {
         if (done) return;
         const [userId, connections] = value;
-        // logger.info(`User ${userId} has ${connections.size} connections.`);
+        logger.debug(`User ${userId} has ${connections.size} connections.`);
 
         for (const [socketId, { lastPing, res }] of connections.entries()) {
           if (Date.now() - lastPing > CHECK_INTERVAL) {

@@ -16,12 +16,17 @@ class Logger {
     return new Date().toLocaleString("en-UK", { timeZone });
   }
 
+  debug(...args: any[]) {
+    if (NODE_ENV === "production") return;
+    this.log(...args);
+  }
+
   error(...args: any[]) {
     console.error(this.#getDate(), this.#hostname, this.#contextName, ...args);
   }
 
   info(...args: any[]) {
-    console.info(this.#getDate(), this.#hostname, this.#contextName, ...args);
+    this.log(...args);
   }
 
   log(...args: any[]) {

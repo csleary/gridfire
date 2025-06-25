@@ -23,6 +23,7 @@ const PING_INTERVAL = 1000 * 15;
 const useSSE = () => {
   const dispatch = useDispatch();
   const pingInterval = useRef<ReturnType<typeof setInterval>>(null);
+  const keepAlive = useRef<ReturnType<typeof setTimeout>>(null);
   const sourceRef = useRef<EventSource>(null);
   const account = useSelector(state => state.user.account);
   const userId = useSelector(state => state.user.userId);
@@ -69,6 +70,16 @@ const useSSE = () => {
     },
     [dispatch]
   );
+
+  const onPong: SSEHandler = useCallback(() => {
+    if (keepAlive.current) {
+      clearTimeout(keepAlive.current);
+    }
+
+    keepAlive.current = setTimeout(() => {
+      setShouldReconnect(true);
+    }, PING_INTERVAL * 2);
+  }, []);
 
   const onPurchaseEvent: SSEHandler = useCallback(
     event => {
@@ -185,15 +196,14 @@ const useSSE = () => {
   );
 
   const cleanup = useCallback(() => {
-    if (pingInterval.current) {
-      clearInterval(pingInterval.current);
+    if (keepAlive.current) {
+      clearTimeout(keepAlive.current);
+      keepAlive.current = null;
     }
 
-    window.removeEventListener("beforeunload", cleanup);
-
-    if (sourceRef.current && connectionIdRef.current) {
-      const connectionId = connectionIdRef.current;
-      axios.delete(`/api/sse/${userId}/${connectionId}`).catch(error => {});
+    if (pingInterval.current) {
+      clearInterval(pingInterval.current);
+      pingInterval.current = null;
     }
 
     if (sourceRef.current) {
@@ -203,16 +213,18 @@ const useSSE = () => {
       source.removeEventListener("mintedEvent", onEditionMinted);
       source.removeEventListener("notify", onNotify);
       source.removeEventListener("pipelineError", onPipelineError);
-      source.removeEventListener("purchaseEvent", onPurchaseEvent);
+      source.removeEventListener("pong", onPong);
       source.removeEventListener("purchaseEditionEvent", onPurchaseEditionEvent);
+      source.removeEventListener("purchaseEvent", onPurchaseEvent);
       source.removeEventListener("saleEvent", onSaleEvent);
       source.removeEventListener("storingProgressFLAC", onStoringProgressFLAC);
       source.removeEventListener("trackStatus", onTrackStatus);
-      source.removeEventListener("transcodingStartedAAC", onTranscodingStartedAAC);
       source.removeEventListener("transcodingCompleteAAC", onTranscodingCompleteAAC);
-      source.removeEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
       source.removeEventListener("transcodingCompleteMP3", onTranscodingCompleteMP3);
+      source.removeEventListener("transcodingStartedAAC", onTranscodingStartedAAC);
+      source.removeEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
       source.removeEventListener("workerMessage", onWorkerMessage);
+      window.removeEventListener("beforeunload", cleanup);
       sourceRef.current.close();
       sourceRef.current = null;
     }
@@ -222,6 +234,7 @@ const useSSE = () => {
     onEncodingProgressFLAC,
     onNotify,
     onPipelineError,
+    onPong,
     onPurchaseEditionEvent,
     onPurchaseEvent,
     onSaleEvent,
@@ -231,8 +244,7 @@ const useSSE = () => {
     onTranscodingCompleteMP3,
     onTranscodingStartedAAC,
     onTranscodingStartedMP3,
-    onWorkerMessage,
-    userId
+    onWorkerMessage
   ]);
 
   const pingConnection = useCallback(async () => {
@@ -240,7 +252,6 @@ const useSSE = () => {
       const connectionId = connectionIdRef.current;
       await axios.get(`/api/sse/${userId}/${connectionId}/ping`);
     } catch (error) {
-      console.error("[SSE] Ping error:", error);
       setShouldReconnect(true);
     }
   }, [connectionIdRef, userId]);
@@ -249,25 +260,34 @@ const useSSE = () => {
     if (sourceRef.current) return;
     const connectionId = connectionIdRef.current;
     sourceRef.current = new EventSource(`/api/sse/${userId}/${connectionId}`);
+
+    keepAlive.current = setTimeout(() => {
+      setShouldReconnect(true);
+    }, PING_INTERVAL * 2);
+
     pingInterval.current = setInterval(pingConnection, PING_INTERVAL);
     const source = sourceRef.current;
     source.onopen = () => console.log("[SSE] Connection to server opened.");
     source.onmessage = (event: MessageEvent) => console.info(event.data);
-    source.onerror = (error: any) => console.log("[SSE] Error:", error);
+    source.onerror = (error: any) => {
+      console.error("[SSE] Error:", error);
+      setShouldReconnect(true);
+    };
     source.addEventListener("artworkUploaded", onArtworkUploaded);
     source.addEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
     source.addEventListener("mintedEvent", onEditionMinted);
     source.addEventListener("notify", onNotify);
     source.addEventListener("pipelineError", onPipelineError);
-    source.addEventListener("purchaseEvent", onPurchaseEvent);
+    source.addEventListener("pong", onPong);
     source.addEventListener("purchaseEditionEvent", onPurchaseEditionEvent);
+    source.addEventListener("purchaseEvent", onPurchaseEvent);
     source.addEventListener("saleEvent", onSaleEvent);
     source.addEventListener("storingProgressFLAC", onStoringProgressFLAC);
     source.addEventListener("trackStatus", onTrackStatus);
-    source.addEventListener("transcodingStartedAAC", onTranscodingStartedAAC);
     source.addEventListener("transcodingCompleteAAC", onTranscodingCompleteAAC);
-    source.addEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
     source.addEventListener("transcodingCompleteMP3", onTranscodingCompleteMP3);
+    source.addEventListener("transcodingStartedAAC", onTranscodingStartedAAC);
+    source.addEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
     source.addEventListener("workerMessage", onWorkerMessage);
     window.addEventListener("beforeunload", cleanup);
   }, [
@@ -277,6 +297,7 @@ const useSSE = () => {
     onEncodingProgressFLAC,
     onNotify,
     onPipelineError,
+    onPong,
     onPurchaseEditionEvent,
     onPurchaseEvent,
     onSaleEvent,
@@ -303,9 +324,9 @@ const useSSE = () => {
     if (!shouldReconnect) return;
     console.warn("[SSE] Reconnecting…");
     cleanup();
-    connectionIdRef.current = window.crypto.randomUUID();
     setShouldReconnect(false);
     console.info("[SSE] Initialising connection…");
+    connectionIdRef.current = window.crypto.randomUUID();
     createConnection();
   }, [cleanup, createConnection, shouldReconnect, userId]);
 };
