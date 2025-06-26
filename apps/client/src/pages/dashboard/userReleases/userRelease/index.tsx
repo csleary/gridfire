@@ -1,19 +1,18 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { deleteRelease, publishStatus, setReleaseIdsForDeletion } from "@/state/releases";
+import { toastSuccess, toastWarning } from "@/state/toast";
+import { UserRelease as IUserRelease } from "@/types";
 import { Box, Button, Divider, Flex, FormLabel, Stack, Switch, useColorModeValue } from "@chakra-ui/react";
-import { deleteRelease, publishStatus } from "state/releases";
 import { faCalendar, faEye, faEyeSlash, faFileAudio, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faCashRegister, faDollarSign, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { toastSuccess, toastWarning } from "state/toast";
-import { useDispatch, useSelector } from "hooks";
-import Artwork from "./artwork";
 import { DateTime } from "luxon";
-import Icon from "components/icon";
-import { UserRelease as IUserRelease } from "types";
-import StatusIcon from "./statusIcon";
-import Title from "./title";
-import { setReleaseIdsForDeletion } from "state/releases";
+import { useState } from "react";
 import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import Artwork from "./artwork";
+import StatusIcon from "./statusIcon";
+import Title from "./title";
 
 interface Props {
   release: IUserRelease;

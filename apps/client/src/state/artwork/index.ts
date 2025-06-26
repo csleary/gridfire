@@ -1,9 +1,9 @@
-import { AppDispatch } from "index";
+import { AppDispatch } from "@/main";
+import { setActiveRelease } from "@/state/releases";
+import { toastError } from "@/state/toast";
+import { createSlice } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
 import { batch } from "react-redux";
-import { createSlice } from "@reduxjs/toolkit";
-import { setActiveRelease } from "state/releases";
-import { toastError } from "state/toast";
 
 interface ArtworkState {
   artworkUploading: boolean;

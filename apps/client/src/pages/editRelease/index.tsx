@@ -1,3 +1,6 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { createRelease, fetchReleaseForEditing, saveRelease } from "@/state/editor";
 import {
   Alert,
   AlertDescription,
@@ -15,7 +18,8 @@ import {
   useBreakpointValue,
   useColorModeValue
 } from "@chakra-ui/react";
-import { createRelease, fetchReleaseForEditing, saveRelease } from "state/editor";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import {
   faArrowLeftLong,
   faCheck,
@@ -24,19 +28,15 @@ import {
   faTimes,
   faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
-import { faFileAudio, faImage, faListAlt } from "@fortawesome/free-regular-svg-icons";
-import { useDispatch, useSelector } from "hooks";
+import { useEffect } from "react";
+import { Helmet } from "react-helmet";
+import { shallowEqual } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Artwork from "./artwork";
 import DetailedInfo from "./detailedInfo";
-import Editions from "./mintEdition";
 import EssentialInfo from "./essentialInfo";
-import { Helmet } from "react-helmet";
-import Icon from "components/icon";
+import Editions from "./mintEdition";
 import TrackList from "./trackList";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { shallowEqual } from "react-redux";
-import { useEffect } from "react";
 
 const EditRelease = () => {
   const isSmallScreen = useBreakpointValue({ base: false, md: false, sm: true }, { ssr: false });

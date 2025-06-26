@@ -1,3 +1,8 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { usePrevious } from "@/hooks/usePrevious";
+import { clearResults, searchReleases } from "@/state/search";
+import { ReleaseTrack } from "@/types";
 import {
   Box,
   Button,
@@ -5,36 +10,30 @@ import {
   IconButton,
   Image,
   Input,
+  InputGroup,
   InputLeftElement,
   InputRightElement,
-  InputGroup,
   LinkBox,
   LinkOverlay,
   Modal,
-  ModalContent,
   ModalBody,
+  ModalContent,
   ModalOverlay,
   Spinner,
   Text,
-  VStack,
   useColorModeValue,
+  useDisclosure,
+  VStack,
   Wrap,
   WrapItem
 } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
-import { clearResults, searchReleases } from "state/search";
 import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "hooks";
-import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
-import Icon from "components/icon";
 import debounce from "lodash.debounce";
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { shallowEqual } from "react-redux";
-import { useDisclosure } from "@chakra-ui/react";
-import { useLocation } from "react-router-dom";
-import { usePrevious } from "hooks/usePrevious";
-import { ReleaseTrack } from "types";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface Release {
   _id: string;
@@ -163,7 +162,7 @@ const SearchBar = ({ ...rest }) => {
                             objectFit="cover"
                             loading="lazy"
                             rounded="full"
-                            src={`${REACT_APP_CDN_IMG}/${releaseId}`}
+                            src={`${VITE_CDN_IMG}/${releaseId}`}
                           />
                         </WrapItem>
                         <WrapItem flex="1 1 32ch">

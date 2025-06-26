@@ -1,7 +1,9 @@
+import Icon from "@/components/icon";
+import { formatPrice } from "@/utils";
 import {
   Alert,
-  AlertIcon,
   AlertDescription,
+  AlertIcon,
   Button,
   ButtonGroup,
   Divider,
@@ -10,19 +12,17 @@ import {
   InputLeftAddon,
   InputRightAddon,
   Modal,
-  ModalOverlay,
-  ModalContent,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
   ModalFooter,
   ModalHeader,
+  ModalOverlay,
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
-import { FormEvent, useCallback, useState } from "react";
-import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { formatPrice } from "utils";
+import { FormEvent, useCallback, useState } from "react";
 
 const INFO_TEXT = "Enter the amount you wish to pay for this release.";
 const SUBMIT_INFO = "When you hit 'buy now', you will be prompted by your web3 wallet to finalise the payment.";

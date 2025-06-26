@@ -1,12 +1,11 @@
-import { AppDispatch, GetState, RootState } from "index";
-import { EditorRelease, Release, ReleaseErrors, ReleaseTrack, TrackErrors } from "types";
+import { AppDispatch, GetState, RootState } from "@/main";
+import { checkRelease, checkTrackList } from "@/pages/editRelease/validation";
+import { toastError, toastSuccess } from "@/state/toast";
+import { EditorRelease, Release, ReleaseErrors, ReleaseTrack, TrackErrors } from "@/types";
+import { createObjectId, formatPrice } from "@/utils";
 import { EntityState, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import { checkRelease, checkTrackList } from "pages/editRelease/validation";
-import { toastError, toastSuccess } from "state/toast";
-import { DateTime } from "luxon";
 import axios from "axios";
-import { createObjectId } from "utils";
-import { formatPrice } from "utils";
+import { DateTime } from "luxon";
 
 interface EditorState {
   artworkUploading: boolean;
@@ -16,7 +15,7 @@ interface EditorState {
   release: EditorRelease;
   releaseErrors: ReleaseErrors;
   trackErrors: TrackErrors;
-  trackList: EntityState<ReleaseTrack>;
+  trackList: EntityState<ReleaseTrack, string>;
 }
 
 const defaultErrorState: ReleaseErrors = {
@@ -26,8 +25,8 @@ const defaultErrorState: ReleaseErrors = {
   releaseTitle: ""
 };
 
-const tracksAdapter = createEntityAdapter<ReleaseTrack>({
-  selectId: track => track._id
+const tracksAdapter = createEntityAdapter({
+  selectId: (track: ReleaseTrack) => track._id
 });
 
 const defaultReleaseState: EditorRelease = {
@@ -45,7 +44,7 @@ const defaultReleaseState: EditorRelease = {
   recName: "",
   recordLabel: "",
   recYear: "",
-  releaseDate: DateTime.local().toISODate() as string,
+  releaseDate: DateTime.local().toISODate(),
   releaseTitle: "",
   tags: []
 };
@@ -73,7 +72,7 @@ const editorSlice = createSlice({
       state.release = {
         ...defaultReleaseState,
         _id: createObjectId(),
-        releaseDate: DateTime.local().toISODate() as string
+        releaseDate: DateTime.local().toISODate()
       };
       state.releaseErrors = { ...defaultErrorState };
       state.trackErrors = {};
@@ -278,10 +277,10 @@ const {
 export {
   defaultReleaseState,
   fetchReleaseForEditing,
+  saveRelease,
   selectTrackById,
   selectTrackIds,
   selectTrackListSize,
-  selectTracks,
-  saveRelease
+  selectTracks
 };
 export default editorSlice.reducer;

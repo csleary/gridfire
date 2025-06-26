@@ -1,9 +1,9 @@
+import { AppDispatch, GetState } from "@/main";
+import { selectTrackById, trackRemove } from "@/state/editor";
+import { toastError, toastInfo, toastSuccess } from "@/state/toast";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { EntityId, createSlice, nanoid } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
-import { AppDispatch, GetState } from "index";
-import { selectTrackById, trackRemove } from "state/editor";
-import { toastError, toastInfo, toastSuccess } from "state/toast";
-import { addActiveProcess, removeActiveProcess } from "state/user";
 
 const controllers = new Map<EntityId, AbortController>();
 
@@ -90,7 +90,7 @@ const trackSlice = createSlice({
   }
 });
 
-const deleteTrack = (trackId: EntityId) => async (dispatch: AppDispatch, getState: GetState) => {
+const deleteTrack = (trackId: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     if (getState().tracks.trackIdsForDeletion[trackId]) {
       dispatch(trackRemove(trackId));
@@ -133,11 +133,11 @@ const getAbortController = (trackId: EntityId) => {
 interface UploadAudioParams {
   audioFile: File;
   releaseId: string;
-  trackId: EntityId;
+  trackId: string;
   trackTitle: string;
 }
 
-const reEncodeTrack = (trackId: EntityId) => async (dispatch: AppDispatch, getState: GetState) => {
+const reEncodeTrack = (trackId: string) => async (dispatch: AppDispatch, getState: GetState) => {
   const track = selectTrackById(getState(), trackId);
   if (!track) return;
   const { status, trackTitle } = track;
@@ -172,7 +172,7 @@ const uploadAudio =
       dispatch(setTrackDefaults({ trackId }));
       const formData = new FormData();
       formData.append("releaseId", releaseId);
-      formData.append("trackId", trackId as string);
+      formData.append("trackId", trackId);
       formData.append("trackTitle", trackTitle);
       formData.append("trackAudioFile", audioFile, audioFile.name);
       const controller = getAbortController(trackId);

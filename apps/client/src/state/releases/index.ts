@@ -1,4 +1,10 @@
-import { AppDispatch, GetState } from "index";
+import { toastError, toastSuccess } from "@/state/toast";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
+import { fetchUserEditions as _fetchUserEditions } from "@/web3";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
+import axios from "axios";
+import { DateTime } from "luxon";
+import { AppDispatch, GetState } from "main";
 import {
   Artist,
   BasketItem,
@@ -10,12 +16,6 @@ import {
   Release,
   UserRelease
 } from "types";
-import { toastError, toastSuccess } from "state/toast";
-import { DateTime } from "luxon";
-import axios from "axios";
-import { createSlice, nanoid } from "@reduxjs/toolkit";
-import { fetchUserEditions as _fetchUserEditions } from "web3";
-import { addActiveProcess, removeActiveProcess } from "state/user";
 
 interface ReleasesState {
   activeRelease: Release;
@@ -52,7 +52,7 @@ const defaultReleaseState: Release = {
   recName: "",
   recYear: "",
   recordLabel: "",
-  releaseDate: DateTime.local().toISODate() as string,
+  releaseDate: DateTime.local().toISODate(),
   releaseTitle: "",
   tags: [],
   trackList: []

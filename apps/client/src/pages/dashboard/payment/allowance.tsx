@@ -1,7 +1,13 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { useLazyGetApprovalsQuery, useLazyGetPurchasesQuery } from "@/state/logs";
+import { toastSuccess } from "@/state/toast";
+import { fetchDaiAllowance } from "@/state/web3";
+import { setDaiAllowance } from "@/web3";
 import {
   Alert,
-  AlertIcon,
   AlertDescription,
+  AlertIcon,
   Button,
   ButtonGroup,
   Divider,
@@ -13,38 +19,32 @@ import {
   InputRightAddon,
   Link,
   Modal,
-  ModalOverlay,
-  ModalContent,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
   ModalFooter,
   ModalHeader,
-  Text,
+  ModalOverlay,
   Stat,
-  StatLabel,
   StatHelpText,
+  StatLabel,
   StatNumber,
-  TableContainer,
   Table,
   TableCaption,
-  Thead,
-  Td,
-  Tr,
-  Th,
+  TableContainer,
   Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
   useColorModeValue
 } from "@chakra-ui/react";
-import { ChangeEventHandler, useEffect, useState } from "react";
-import { FixedNumber, formatEther } from "ethers";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "hooks";
-import { useLazyGetPurchasesQuery, useLazyGetApprovalsQuery } from "state/logs";
-import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
-import { fetchDaiAllowance } from "state/web3";
-import { setDaiAllowance } from "web3";
-import { toastSuccess } from "state/toast";
+import { FixedNumber, formatEther } from "ethers";
+import { ChangeEventHandler, useEffect, useState } from "react";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 const Allowance = () => {
   const dispatch = useDispatch();

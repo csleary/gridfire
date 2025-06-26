@@ -1,22 +1,23 @@
+import { useDispatch, useSelector } from "@/hooks";
+import { usePrevious } from "@/hooks/usePrevious";
+import { loadTrack, playerHide, playerPause, playerPlay, playerStop } from "@/state/player";
+import { toastWarning } from "@/state/toast";
+import { addToFavourites, removeFromFavourites } from "@/state/user";
+import { fadeAudio } from "@/utils";
 import { Box, Flex, Spacer } from "@chakra-ui/react";
-import { addToFavourites, removeFromFavourites } from "state/user";
+import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faChevronDown, faHeart, faPause, faPlay, faSpinner, faStop } from "@fortawesome/free-solid-svg-icons";
-import { loadTrack, playerHide, playerPlay, playerPause, playerStop } from "state/player";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "hooks";
+import { shallowEqual } from "react-redux";
+import shaka from "shaka-player";
 import PlaybackTime from "./playbackTime";
 import PlayerButton from "./playerButton";
 import PlayLogger from "./playLogger";
 import SeekBar from "./seekbar";
 import TrackInfo from "./trackInfo";
-import { fadeAudio } from "utils";
-import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
-import shaka from "shaka-player";
-import { shallowEqual } from "react-redux";
-import { toastWarning } from "state/toast";
-import { usePrevious } from "hooks/usePrevious";
 
-const { REACT_APP_CDN_IMG, REACT_APP_CDN_MP4 } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
+const VITE_CDN_MP4 = import.meta.env.VITE_CDN_MP4;
 
 const Player = () => {
   const dispatch = useDispatch();
@@ -197,7 +198,7 @@ const Player = () => {
       title: trackTitle,
       artist: artistName,
       album: releaseTitle,
-      artwork: [{ src: `${REACT_APP_CDN_IMG}/${releaseId}`, sizes: "1000x1000", type: "image/png" }]
+      artwork: [{ src: `${VITE_CDN_IMG}/${releaseId}`, sizes: "1000x1000", type: "image/png" }]
     });
 
     navigator.mediaSession.setActionHandler("play", handlePlay);
@@ -240,7 +241,7 @@ const Player = () => {
       }
 
       shaka.Player.probeSupport().then(supportInfo => {
-        const urlStem = `${REACT_APP_CDN_MP4}/${releaseId}/${trackId}`;
+        const urlStem = `${VITE_CDN_MP4}/${releaseId}/${trackId}`;
         audioPlayerRef.current!.volume = 1;
         const mpdSupport = supportInfo.manifest["application/dash+xml"];
         const m3uSupport = supportInfo.manifest["application/vnd.apple.mpegurl"];

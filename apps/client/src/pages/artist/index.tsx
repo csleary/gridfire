@@ -1,15 +1,15 @@
+import Card from "@/components/card";
+import Follow from "@/components/follow";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchArtistCatalogue } from "@/state/releases";
 import { Divider, Heading, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
-import Biography from "./biography";
-import Card from "components/card";
-import Follow from "components/follow";
 import { Helmet } from "react-helmet";
-import Links from "./links";
-import Releases from "./releases";
-import { fetchArtistCatalogue } from "state/releases";
 import { shallowEqual } from "react-redux";
 import { useParams } from "react-router-dom";
+import Biography from "./biography";
+import Links from "./links";
+import Releases from "./releases";
 
 const Artist = () => {
   const dividerColor = useColorModeValue("gray.200", "gray.600");

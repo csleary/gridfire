@@ -1,4 +1,4 @@
-import { ReleaseTrack } from "types";
+import { ReleaseTrack } from "@/types";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface PlaylistTrack extends ReleaseTrack {

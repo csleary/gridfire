@@ -1,10 +1,10 @@
+import Field from "@/components/field";
+import { useDispatch, useSelector } from "@/hooks";
+import { setFormattedPrice, updateRelease } from "@/state/editor";
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { ChangeEventHandler, useCallback } from "react";
-import { useDispatch, useSelector } from "hooks";
-import ArtistMenu from "./artistMenu";
-import Field from "components/field";
 import { shallowEqual } from "react-redux";
-import { setFormattedPrice, updateRelease } from "state/editor";
+import ArtistMenu from "./artistMenu";
 
 interface Props {
   isEditing: boolean;

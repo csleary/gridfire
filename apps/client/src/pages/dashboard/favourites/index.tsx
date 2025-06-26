@@ -1,9 +1,9 @@
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserFavourites } from "@/state/releases";
 import { Box, Heading } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
-import Grid from "components/grid";
-import RenderRelease from "components/renderRelease";
-import { fetchUserFavourites } from "state/releases";
 import { shallowEqual } from "react-redux";
 
 const Favourites = () => {

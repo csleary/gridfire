@@ -1,9 +1,9 @@
-import { Box, Button, Image, Link, Wrap, VStack, WrapItem, Text, useColorModeValue } from "@chakra-ui/react";
-import Icon from "components/icon";
+import Icon from "@/components/icon";
+import placeholder from "@/placeholder.svg";
+import { Box, Button, Image, Link, Text, useColorModeValue, VStack, Wrap, WrapItem } from "@chakra-ui/react";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
-import placeholder from "placeholder.svg";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface Props {
   artistName: string;
@@ -23,7 +23,7 @@ const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }: Prop
             alt={`${artistName} - ${releaseTitle}`}
             className="lazyload"
             fallbackSrc={placeholder}
-            src={`${REACT_APP_CDN_IMG}/${releaseId}`}
+            src={`${VITE_CDN_IMG}/${releaseId}`}
           />
         </WrapItem>
         <WrapItem alignItems="stretch" flex="1 1 24rem">

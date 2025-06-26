@@ -1,6 +1,6 @@
-import { Button, ButtonGroup, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
 type SortOrder = "-1" | "1";

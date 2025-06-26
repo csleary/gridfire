@@ -1,15 +1,15 @@
-import { addToBasket, setIsAddingToBasket } from "state/web3";
-import { useDispatch, useSelector } from "hooks";
-import { BasketItem } from "types";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastError } from "@/state/toast";
+import { addToBasket, setIsAddingToBasket } from "@/state/web3";
+import { BasketItem } from "@/types";
 import { Button } from "@chakra-ui/react";
-import Icon from "components/icon";
-import NameYourPriceModal from "./nameYourPriceModal";
-import axios from "axios";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import { parseEther } from "ethers";
-import { shallowEqual } from "react-redux";
-import { toastError } from "state/toast";
 import { useState } from "react";
+import { shallowEqual } from "react-redux";
+import NameYourPriceModal from "./nameYourPriceModal";
 
 interface Props {
   artistName: string;

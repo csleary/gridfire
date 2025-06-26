@@ -1,3 +1,19 @@
+import Card from "@/components/card";
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import TextAreaWithCharLimit from "@/components/textAreaWithCharLimit";
+import { useDispatch, useSelector } from "@/hooks";
+import {
+  addLink,
+  fetchArtists,
+  removeLink,
+  setActiveArtistId,
+  setErrors,
+  setIsLoading,
+  setIsPristine,
+  setValues,
+  updateArtist
+} from "@/state/artists";
 import {
   Alert,
   AlertIcon,
@@ -18,24 +34,8 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import {
-  addLink,
-  fetchArtists,
-  removeLink,
-  setActiveArtistId,
-  setErrors,
-  setIsLoading,
-  setIsPristine,
-  setValues,
-  updateArtist
-} from "state/artists";
-import { ChangeEventHandler, useEffect, useState } from "react";
 import { faCheck, faChevronDown, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "hooks";
-import Card from "components/card";
-import Field from "components/field";
-import Icon from "components/icon";
-import TextAreaWithCharLimit from "components/textAreaWithCharLimit";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
 

@@ -1,7 +1,7 @@
+import { useSelector } from "@/hooks";
 import { Box, Flex, Link, useColorModeValue } from "@chakra-ui/react";
-import { Link as RouterLink } from "react-router-dom";
 import { shallowEqual } from "react-redux";
-import { useSelector } from "hooks";
+import { Link as RouterLink } from "react-router-dom";
 
 interface Props {
   artist: string;

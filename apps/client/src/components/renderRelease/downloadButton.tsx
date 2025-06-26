@@ -1,20 +1,20 @@
+import DownloadModal from "@/components/renderRelease/downloadModal";
 import {
-  Button,
   Box,
+  Button,
   Divider,
   IconButton,
   Modal,
-  ModalOverlay,
-  ModalContent,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
   ModalFooter,
   ModalHeader,
+  ModalOverlay,
   useColorModeValue
 } from "@chakra-ui/react";
-import DownloadModal from "components/renderRelease/downloadModal";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
 interface Props {

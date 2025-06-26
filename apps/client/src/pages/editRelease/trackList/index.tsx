@@ -1,11 +1,11 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { selectTrackIds, trackAdd, trackMove } from "@/state/editor";
 import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
-import { DragEvent, DragEventHandler, useCallback, useState } from "react";
-import { selectTrackIds, trackAdd, trackMove } from "state/editor";
-import { useDispatch, useSelector } from "hooks";
-import Icon from "components/icon";
-import Track from "./track";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { DragEvent, DragEventHandler, useCallback, useState } from "react";
 import { shallowEqual } from "react-redux";
+import Track from "./track";
 
 const isFileDrag = (e: DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
 

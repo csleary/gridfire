@@ -1,29 +1,29 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastInfo } from "@/state/toast";
+import { addToFavourites, addToWishList, removeFromFavourites, removeFromWishList } from "@/state/user";
+import { UserListItem } from "@/types";
 import {
   Box,
   Button,
   ButtonGroup,
   Input,
   Popover,
-  PopoverFooter,
-  PopoverTrigger,
-  PopoverContent,
   PopoverArrow,
-  PopoverCloseButton,
-  PopoverHeader,
   PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTrigger,
   Skeleton,
   useColorModeValue,
   useDisclosure
 } from "@chakra-ui/react";
-import { addToFavourites, removeFromFavourites, addToWishList, removeFromWishList } from "state/user";
-import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "hooks";
-import { useEffect, useState } from "react";
-import Icon from "components/icon";
-import { UserListItem } from "types";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
+import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
-import { toastInfo } from "state/toast";
 
 const Actions = () => {
   const buttonGroupBg = useColorModeValue("white", undefined);

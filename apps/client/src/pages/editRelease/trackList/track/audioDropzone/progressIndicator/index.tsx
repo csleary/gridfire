@@ -1,7 +1,7 @@
+import { useSelector } from "@/hooks";
 import { Box, CircularProgress, CircularProgressLabel, Tooltip, useColorModeValue } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { EntityId } from "@reduxjs/toolkit";
-import { useSelector } from "hooks";
 import { ReactElement, memo } from "react";
 import { shallowEqual } from "react-redux";
 

@@ -1,8 +1,8 @@
+import { fetchVisibleGridfireEditionsByReleaseId } from "@/web3";
 import { Accordion, Box, Collapse, Divider, Flex, ScaleFade, VStack, useColorModeValue } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
-import Edition from "./edition";
-import { fetchVisibleGridfireEditionsByReleaseId } from "web3";
 import { useParams } from "react-router-dom";
+import Edition from "./edition";
 
 const Editions = () => {
   const textColor = useColorModeValue("gray.400", "gray.500");

@@ -1,10 +1,10 @@
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserEditions } from "@/state/releases";
 import { Box, Heading } from "@chakra-ui/react";
-import Grid from "components/grid";
-import RenderRelease from "components/renderRelease";
-import { useDispatch, useSelector } from "hooks";
 import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
-import { fetchUserEditions } from "state/releases";
 
 const Editions = () => {
   const dispatch = useDispatch();

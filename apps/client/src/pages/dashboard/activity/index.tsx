@@ -1,11 +1,10 @@
-import { Container, Heading, Stack } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
-import { fetchActivity, selectAllActivity } from "state/artists";
-import ActivityItem from "components/activityItem";
+import ActivityItem from "@/components/activityItem";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchActivity, selectAllActivity } from "@/state/artists";
+import { Container, Heading, List, Stack } from "@chakra-ui/react";
+import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
-import { useEffect } from "react";
-import { List } from "@chakra-ui/react";
 
 const Activity = () => {
   const dispatch = useDispatch();

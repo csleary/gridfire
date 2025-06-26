@@ -1,8 +1,8 @@
-import { ActiveProcess, Sale, UserFavourite, UserListItem } from "types";
-import { AppDispatch, RootState } from "index";
+import { AppDispatch, RootState } from "@/main";
+import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "@/state/releases";
+import { toastError, toastSuccess } from "@/state/toast";
+import { ActiveProcess, Sale, UserFavourite, UserListItem } from "@/types";
 import { EntityState, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "state/releases";
-import { toastError, toastSuccess } from "state/toast";
 import axios from "axios";
 
 interface UserState {
@@ -13,7 +13,7 @@ interface UserState {
   isLoading: boolean;
   lastLogin: string;
   paymentAddress: string;
-  processList: EntityState<ActiveProcess>;
+  processList: EntityState<ActiveProcess, string>;
   purchases: Sale[];
   userId: string;
   wishList: UserListItem[];
@@ -186,14 +186,14 @@ export {
   addToFavourites,
   addToWishList,
   fetchUser,
-  initialState as userInitialState,
   logOut,
   removeFromFavourites,
   removeFromWishList,
-  selectActiveProcessList,
-  selectActiveProcessIds,
   selectActiveProcessById,
-  selectActiveProcessTotal
+  selectActiveProcessIds,
+  selectActiveProcessList,
+  selectActiveProcessTotal,
+  initialState as userInitialState
 };
 
 export default userSlice.reducer;

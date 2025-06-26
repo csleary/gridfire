@@ -1,14 +1,14 @@
-import { Activity, Artist } from "types";
+import { AppDispatch, RootState } from "@/main";
+import { toastError, toastSuccess } from "@/state/toast";
+import { Activity, Artist } from "@/types";
 import { EntityState, createDraftSafeSelector, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import { toastError, toastSuccess } from "state/toast";
-import { AppDispatch, RootState } from "index";
-import { DateTime } from "luxon";
 import axios from "axios";
+import { DateTime } from "luxon";
 import { batch } from "react-redux";
 
 interface ArtistState {
   activeArtistId: string;
-  activity: EntityState<Activity>;
+  activity: EntityState<Activity, string>;
   artists: Artist[];
   errors: { [key: string]: string };
   isLoading: boolean;
@@ -17,8 +17,8 @@ interface ArtistState {
   lastCheckedOn: string | null;
 }
 
-const activityAdapter = createEntityAdapter<Activity>({
-  selectId: activity => activity._id
+const activityAdapter = createEntityAdapter({
+  selectId: (activity: Activity) => activity._id
 });
 
 const initialState: ArtistState = {
@@ -193,7 +193,7 @@ const selectTotalUnread = createDraftSafeSelector(
   (state: RootState) => state,
   (lastCheckedOn, state) =>
     selectAllActivity(state).filter(
-      ({ createdAt }) => DateTime.fromISO(createdAt) > DateTime.fromISO(lastCheckedOn as string)
+      ({ createdAt }) => DateTime.fromISO(createdAt) > DateTime.fromISO(lastCheckedOn ?? new Date(0).toISOString())
     ).length
 );
 

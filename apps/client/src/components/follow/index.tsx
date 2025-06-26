@@ -1,10 +1,10 @@
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
 import { Button, Center, Flex, useColorModeValue } from "@chakra-ui/react";
-import Icon from "components/icon";
 import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useEffect, useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "hooks";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const Follow = () => {
   const accentColor = useColorModeValue("yellow.500", "purple.300");

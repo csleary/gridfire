@@ -1,5 +1,5 @@
+import theme from "@/theme";
 import { createStandaloneToast } from "@chakra-ui/toast";
-import theme from "theme";
 
 const { toast } = createStandaloneToast({
   defaultOptions: {
@@ -41,4 +41,4 @@ const toastWarning: ToastCreator =
     toast({ description: message, status: "warning", title });
   };
 
-export { toastInfo, toastError, toastSuccess, toastWarning };
+export { toastError, toastInfo, toastSuccess, toastWarning };

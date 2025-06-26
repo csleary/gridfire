@@ -1,10 +1,10 @@
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { clearResults } from "@/state/search";
 import { Button, Heading } from "@chakra-ui/react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import Grid from "components/grid";
-import RenderRelease from "components/renderRelease";
-import { clearResults } from "state/search";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
 const SearchResults = () => {
   const dispatch = useDispatch();

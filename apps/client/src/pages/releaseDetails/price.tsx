@@ -1,5 +1,5 @@
+import { useSelector } from "@/hooks";
 import { Flex, Heading, Skeleton } from "@chakra-ui/react";
-import { useSelector } from "hooks";
 
 interface Props {
   price: string;

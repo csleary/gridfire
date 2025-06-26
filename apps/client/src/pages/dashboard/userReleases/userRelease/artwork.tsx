@@ -1,10 +1,10 @@
+import placeholder from "@/placeholder.svg";
+import { setIsLoading } from "@/state/releases";
 import { Fade, Image, Link, chakra, useDisclosure } from "@chakra-ui/react";
-import { Link as RouterLink } from "react-router-dom";
-import placeholder from "placeholder.svg";
-import { setIsLoading } from "state/releases";
 import { useDispatch } from "react-redux";
+import { Link as RouterLink } from "react-router-dom";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface Props {
   artwork: {
@@ -33,7 +33,7 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
           onLoad={onOpen}
           onError={onOpen}
           position="absolute"
-          src={isStored ? `${REACT_APP_CDN_IMG}/${releaseId}` : placeholder}
+          src={isStored ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
         />
       </Link>
     </Fade>

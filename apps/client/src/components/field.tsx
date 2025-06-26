@@ -1,16 +1,16 @@
+import Icon from "@/components/icon";
 import {
   ChakraProps,
   FormControl,
   FormErrorMessage,
-  FormLabel,
   FormHelperText,
+  FormLabel,
   Input,
   Textarea,
   useColorModeValue
 } from "@chakra-ui/react";
-import { ChangeEvent, HTMLAttributes, KeyboardEvent, ReactNode } from "react";
-import Icon from "components/icon";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { ChangeEvent, HTMLAttributes, KeyboardEvent, ReactNode } from "react";
 
 interface Props extends ChakraProps {
   component?: string;

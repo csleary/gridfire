@@ -1,10 +1,10 @@
+import { Helmet } from "react-helmet";
 import { Route, Routes } from "react-router-dom";
-import Payment from "./payment";
 import Activity from "./activity";
 import Artists from "./artists";
 import Collection from "./collection";
 import Favourites from "./favourites";
-import { Helmet } from "react-helmet";
+import Payment from "./payment";
 import UserReleases from "./userReleases";
 import Wishlist from "./wishlist";
 

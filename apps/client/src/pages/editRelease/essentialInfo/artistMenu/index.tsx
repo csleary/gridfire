@@ -1,23 +1,23 @@
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchArtists } from "@/state/artists";
+import { updateRelease } from "@/state/editor";
 import {
   Alert,
   Button,
   Flex,
+  FormLabel,
   Menu,
   MenuButton,
-  MenuList,
-  MenuItem,
   MenuDivider,
-  FormLabel,
+  MenuItem,
+  MenuList,
   useColorModeValue
 } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
-import Field from "components/field";
-import Icon from "components/icon";
 import { faChevronDown, faPlusCircle, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-import { fetchArtists } from "state/artists";
-import { shallowEqual } from "react-redux";
-import { updateRelease } from "state/editor";
 import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
+import { shallowEqual } from "react-redux";
 
 const ArtistMenu = () => {
   const errorAlertColor = useColorModeValue("red.800", "red.200");

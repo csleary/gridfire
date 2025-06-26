@@ -1,17 +1,17 @@
+import { useDispatch, useSelector } from "@/hooks";
+import placeholder from "@/placeholder.svg";
+import { loadTrack, playerPause, playerPlay } from "@/state/player";
+import { setIsLoading } from "@/state/releases";
+import { toastInfo } from "@/state/toast";
+import { PurchasedRelease, Release, ReleaseTrack } from "@/types";
+import { fadeAudio } from "@/utils";
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
-import { PurchasedRelease, Release, ReleaseTrack } from "types";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { loadTrack, playerPause, playerPlay } from "state/player";
-import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
 import OverlayDownloadButton from "./downloadButton";
-import { fadeAudio } from "utils";
-import placeholder from "placeholder.svg";
-import { setIsLoading } from "state/releases";
-import { toastInfo } from "state/toast";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface Props {
   release: Release | PurchasedRelease;
@@ -113,7 +113,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             onLoad={onOpen}
             onError={onOpen}
             position="absolute"
-            src={artwork.status === "stored" ? `${REACT_APP_CDN_IMG}/${releaseId}` : placeholder}
+            src={artwork.status === "stored" ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
           />
         </Fade>
       </Box>

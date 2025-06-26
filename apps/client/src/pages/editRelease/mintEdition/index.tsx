@@ -1,15 +1,15 @@
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
+import { MintedEdition } from "@/types";
+import { fetchGridfireEditionUris, fetchMintedGridfireEditionsByReleaseId } from "@/web3";
 import { Button, Heading, Text } from "@chakra-ui/react";
-import { fetchGridfireEditionUris, fetchMintedGridfireEditionsByReleaseId } from "web3";
-import { useCallback, useEffect, useState } from "react";
-import EditionEditor from "./editor";
-import Icon from "components/icon";
-import { MintedEdition } from "types";
-import MintedEditions from "./mintedEditions";
-import axios from "axios";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 import { useParams } from "react-router-dom";
-import { useSelector } from "hooks";
+import EditionEditor from "./editor";
+import MintedEditions from "./mintedEditions";
 
 const MintEdition = () => {
   const { releaseId: releaseIdParam } = useParams();

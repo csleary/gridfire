@@ -1,3 +1,8 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { addPaymentAddress } from "@/state/user";
+import { fetchSales } from "@/state/web3";
+import { fetchResolvedAddress } from "@/web3";
 import {
   Alert,
   AlertDescription,
@@ -22,15 +27,10 @@ import {
   Tr,
   useColorModeValue
 } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
-import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faCheck, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { formatEther, getAddress, isAddress } from "ethers";
-import Icon from "components/icon";
-import { addPaymentAddress } from "state/user";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { fetchResolvedAddress } from "web3";
-import { fetchSales } from "state/web3";
+import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
 
 const PaymentAddress = () => {
   const errorAlertColor = useColorModeValue("red.800", "red.200");

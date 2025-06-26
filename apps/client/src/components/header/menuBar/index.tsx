@@ -1,3 +1,10 @@
+import BasketButton from "@/components/header/basketButton";
+import Notifications from "@/components/header/notifications";
+import Icon from "@/components/icon";
+import SearchBar from "@/components/searchBar";
+import { useDispatch, useSelector } from "@/hooks";
+import { logOut } from "@/state/user";
+import { connectToWeb3 } from "@/state/web3";
 import {
   Badge,
   Button,
@@ -5,9 +12,9 @@ import {
   Link,
   Menu,
   MenuButton,
-  MenuList,
-  MenuItem,
   MenuDivider,
+  MenuItem,
+  MenuList,
   Spacer,
   Tooltip,
   Wrap,
@@ -16,7 +23,7 @@ import {
   useColorMode,
   useColorModeValue
 } from "@chakra-ui/react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import {
   faArchive,
   faChevronDown,
@@ -33,16 +40,9 @@ import {
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { formatEther, getAddress } from "ethers";
-import { useCallback, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "hooks";
-import BasketButton from "components/header/basketButton";
-import Icon from "components/icon";
-import Notifications from "components/header/notifications";
-import SearchBar from "components/searchBar";
-import { connectToWeb3 } from "state/web3";
 import debounce from "lodash.debounce";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { logOut } from "state/user";
+import { useCallback, useEffect, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const MenuBar = () => {
   const [isTop, setIsTop] = useBoolean(true);

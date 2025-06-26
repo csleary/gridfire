@@ -1,3 +1,7 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { deleteArtwork, uploadArtwork } from "@/state/artwork";
+import { toastError, toastSuccess, toastWarning } from "@/state/toast";
 import {
   Box,
   Center,
@@ -12,17 +16,13 @@ import {
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
-import { deleteArtwork, uploadArtwork } from "state/artwork";
-import { faTimesCircle, faThumbsUp, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { MouseEvent, useEffect, useRef, useState } from "react";
-import { toastError, toastSuccess, toastWarning } from "state/toast";
-import { useDispatch, useSelector } from "hooks";
-import Icon from "components/icon";
+import { faThumbsUp, faTimesCircle, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import mime from "mime";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface AcceptedFileTypes {
   [key: string]: string[];
@@ -48,7 +48,7 @@ const Artwork = () => {
   const isStored = status === "stored";
 
   useEffect(() => {
-    if (isStored) return setCoverArtPreview(`${REACT_APP_CDN_IMG}/${releaseId}`);
+    if (isStored) return setCoverArtPreview(`${VITE_CDN_IMG}/${releaseId}`);
     setCoverArtPreview("");
 
     return () => {

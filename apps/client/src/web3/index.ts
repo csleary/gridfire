@@ -1,20 +1,17 @@
-import { BrowserProvider, Contract, Eip1193Provider, JsonRpcSigner, encodeBytes32String, parseEther } from "ethers";
-import { addActiveProcess, removeActiveProcess } from "state/user";
-import { BasketItem } from "types";
-import axios from "axios";
-import daiAbi from "web3/dai";
-import detectEthereumProvider from "@metamask/detect-provider";
+import { store } from "@/main";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
+import { BasketItem } from "@/types";
+import daiAbi from "@/web3/dai";
 import GridfireEditions from "@gridfire/hardhat/abi/GridfireEditions.json";
 import GridfirePayment from "@gridfire/hardhat/abi/GridfirePayment.json";
+import detectEthereumProvider from "@metamask/detect-provider";
 import { nanoid } from "@reduxjs/toolkit";
-import { store } from "index";
+import axios from "axios";
+import { BrowserProvider, Contract, Eip1193Provider, JsonRpcSigner, encodeBytes32String, parseEther } from "ethers";
 
-const {
-  REACT_APP_GRIDFIRE_EDITIONS_ADDRESS = "",
-  REACT_APP_GRIDFIRE_PAYMENT_ADDRESS = "",
-  REACT_APP_DAI_CONTRACT_ADDRESS: daiContractAddress = ""
-} = process.env;
-
+const VITE_GRIDFIRE_EDITIONS_ADDRESS = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
+const VITE_GRIDFIRE_PAYMENT_ADDRESS = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
+const daiContractAddress = import.meta.env.VITE_DAI_CONTRACT_ADDRESS;
 const { abi: gridFireEditionsAbi } = GridfireEditions;
 const { abi: gridFirePaymentAbi } = GridfirePayment;
 
@@ -54,7 +51,7 @@ const getBalance = async (paymentAddress: string): Promise<string> => {
 const getDaiAllowance = async (account: string): Promise<string> => {
   const provider = await getProvider();
   const daiContract = new Contract(daiContractAddress, daiAbi, provider);
-  const allowanceBigInt = await daiContract.allowance(account, REACT_APP_GRIDFIRE_PAYMENT_ADDRESS);
+  const allowanceBigInt = await daiContract.allowance(account, VITE_GRIDFIRE_PAYMENT_ADDRESS);
   return allowanceBigInt.toString();
 };
 
@@ -70,11 +67,11 @@ const getDaiContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
 };
 
 const getGridfireContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
-  return new Contract(REACT_APP_GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
+  return new Contract(VITE_GRIDFIRE_PAYMENT_ADDRESS, gridFirePaymentAbi, signerOrProvider);
 };
 
 const getGridfireEditionsContract = (signerOrProvider: BrowserProvider | JsonRpcSigner) => {
-  return new Contract(REACT_APP_GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsAbi, signerOrProvider);
+  return new Contract(VITE_GRIDFIRE_EDITIONS_ADDRESS, gridFireEditionsAbi, signerOrProvider);
 };
 
 const fetchVisibleGridfireEditionsByReleaseId = async (releaseId: string) => {
@@ -243,23 +240,23 @@ const setDaiAllowance = async (newLimitInDai = "") => {
   const signer = await provider.getSigner();
   const daiContract = getDaiContract(signer);
   const requestedAllowance = parseEther(newLimitInDai);
-  const approvalReceipt = await daiContract.approve(REACT_APP_GRIDFIRE_PAYMENT_ADDRESS, requestedAllowance);
+  const approvalReceipt = await daiContract.approve(VITE_GRIDFIRE_PAYMENT_ADDRESS, requestedAllowance);
   const { status } = await approvalReceipt.wait();
   if (status !== 1) throw new Error("Approval unsuccessful.");
 };
 
 export {
   claimBalance,
-  getBalance,
-  getDaiAllowance,
-  getDaiBalance,
-  getDaiContract,
   fetchGridfireEditionUris,
   fetchGridfirePurchaseEvents,
   fetchMintedGridfireEditionsByReleaseId,
   fetchResolvedAddress,
   fetchUserEditions,
   fetchVisibleGridfireEditionsByReleaseId,
+  getBalance,
+  getDaiAllowance,
+  getDaiBalance,
+  getDaiContract,
   gridFireCheckout,
   mintEdition,
   purchaseEdition,

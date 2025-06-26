@@ -1,7 +1,7 @@
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { useSelector } from "@/hooks";
 import { Heading } from "@chakra-ui/react";
-import { useSelector } from "hooks";
-import Grid from "components/grid";
-import RenderRelease from "components/renderRelease";
 import { shallowEqual } from "react-redux";
 
 const Artist = () => {

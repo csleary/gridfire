@@ -1,3 +1,8 @@
+import ActivityItem from "@/components/activityItem";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchActivity, selectRecentActivity, selectTotalUnread, setLastCheckedOn } from "@/state/artists";
+import { selectActiveProcessList, selectActiveProcessTotal } from "@/state/user";
 import {
   Badge,
   Box,
@@ -13,16 +18,11 @@ import {
   StackDivider,
   useColorModeValue
 } from "@chakra-ui/react";
-import { fetchActivity, selectRecentActivity, selectTotalUnread, setLastCheckedOn } from "state/artists";
-import { useCallback, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "hooks";
-import ActivityItem from "components/activityItem";
-import { DateTime } from "luxon";
-import Icon from "components/icon";
-import { Link as RouterLink } from "react-router-dom";
 import { faBell, faBolt } from "@fortawesome/free-solid-svg-icons";
+import { DateTime } from "luxon";
+import { useCallback, useEffect, useRef } from "react";
 import { shallowEqual } from "react-redux";
-import { selectActiveProcessList, selectActiveProcessTotal } from "state/user";
+import { Link as RouterLink } from "react-router-dom";
 
 const Notifications = () => {
   const badgeColor = useColorModeValue("yellow", "purple");
@@ -46,7 +46,7 @@ const Notifications = () => {
     }
 
     timeoutRef.current = setTimeout(() => {
-      const date = DateTime.utc().toISO() as string;
+      const date = DateTime.utc().toISO();
       dispatch(setLastCheckedOn(date));
       if (!user) return;
       window.localStorage.setItem("lastCheckedOn", JSON.stringify({ user, date }));

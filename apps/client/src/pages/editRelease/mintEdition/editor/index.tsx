@@ -1,3 +1,10 @@
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
+import { selectTracks } from "@/state/editor";
+import { MintedEdition, ReleaseTrack } from "@/types";
+import { formatPrice } from "@/utils";
+import { mintEdition } from "@/web3";
 import {
   Badge,
   Box,
@@ -16,16 +23,9 @@ import {
   ModalOverlay,
   useColorModeValue
 } from "@chakra-ui/react";
-import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
-import { MintedEdition, ReleaseTrack } from "types";
-import Field from "components/field";
-import Icon from "components/icon";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { formatPrice } from "utils";
-import { mintEdition } from "web3";
-import { selectTracks } from "state/editor";
+import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
 import { shallowEqual } from "react-redux";
-import { useSelector } from "hooks";
 
 interface DefaultValues {
   amount: number;

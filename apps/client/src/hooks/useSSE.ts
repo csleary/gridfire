@@ -1,20 +1,20 @@
-import { fetchDaiBalance, setMintedEditionIds } from "state/web3";
+import { useDispatch, useSelector } from "@/hooks";
+import { setArtworkUploading } from "@/state/artwork";
+import { updateTrackStatus } from "@/state/editor";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
 import {
   setEncodingProgressFLAC,
   setPipelineError,
   setStoringProgressFLAC,
-  setTranscodingStartedAAC,
   setTranscodingCompleteAAC,
-  setTranscodingStartedMP3,
-  setTranscodingCompleteMP3
-} from "state/tracks";
-import { useDispatch, useSelector } from "hooks";
-import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
-import { useCallback, useEffect, useRef, useState } from "react";
+  setTranscodingCompleteMP3,
+  setTranscodingStartedAAC,
+  setTranscodingStartedMP3
+} from "@/state/tracks";
+import { fetchUser } from "@/state/user";
+import { fetchDaiBalance, setMintedEditionIds } from "@/state/web3";
 import axios from "axios";
-import { fetchUser } from "state/user";
-import { setArtworkUploading } from "state/artwork";
-import { updateTrackStatus } from "state/editor";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type SSEHandler = (event: MessageEvent) => void;
 

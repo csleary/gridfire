@@ -1,6 +1,6 @@
+import { useSelector } from "@/hooks";
 import { Heading, Link, VStack } from "@chakra-ui/react";
 import { shallowEqual } from "react-redux";
-import { useSelector } from "hooks";
 
 const Artist = () => {
   const links = useSelector(state => state.releases.artist.links, shallowEqual);

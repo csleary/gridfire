@@ -1,3 +1,9 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastError, toastWarning } from "@/state/toast";
+import { fetchDaiBalance } from "@/state/web3";
+import { EditionPurchase, MintedEdition } from "@/types";
+import { purchaseEdition } from "@/web3";
 import {
   AccordionButton,
   AccordionItem,
@@ -12,17 +18,11 @@ import {
   Text,
   useColorModeValue
 } from "@chakra-ui/react";
-import { formatEther } from "ethers";
-import { toastError, toastWarning } from "state/toast";
-import { useDispatch, useSelector } from "hooks";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { EditionPurchase, MintedEdition } from "types";
-import Icon from "components/icon";
-import axios from "axios";
-import { fetchDaiBalance } from "state/web3";
-import { purchaseEdition } from "web3";
-import { useState } from "react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import axios from "axios";
+import { formatEther } from "ethers";
+import { useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const colors = [
   "var(--chakra-colors-green-200)",

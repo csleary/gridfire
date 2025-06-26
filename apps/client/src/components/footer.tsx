@@ -1,3 +1,4 @@
+import { useSelector } from "@/hooks";
 import {
   Center,
   Container,
@@ -12,12 +13,11 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import Icon from "./icon";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { useSelector } from "hooks";
+import Icon from "./icon";
 
-const { REACT_APP_GRIDFIRE_PAYMENT_ADDRESS } = process.env;
+const paymentContractAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
 
 const Footer: React.FC = () => {
   const account = useSelector(state => state.user.account);
@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
               </Link>
             </ListItem>
             <ListItem>
-              <Link href={`https://arbiscan.io/address/${REACT_APP_GRIDFIRE_PAYMENT_ADDRESS}`} isExternal>
+              <Link href={`https://arbiscan.io/address/${paymentContractAddress}`} isExternal>
                 Contract
               </Link>
             </ListItem>
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
             </Text>
           </WrapItem>
           <WrapItem>
-            <Link href="https://bsky.app/profile/ochremusic.com" isExternal>
+            <Link fontSize="small" href="https://bsky.app/profile/ochremusic.com" isExternal>
               Bluesky
             </Link>
           </WrapItem>

@@ -1,6 +1,6 @@
+import Icon from "@/components/icon";
 import { Square, useColorModeValue } from "@chakra-ui/react";
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
-import Icon from "components/icon";
 
 interface Props {
   published: boolean;

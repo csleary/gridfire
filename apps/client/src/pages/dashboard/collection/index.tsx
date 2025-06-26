@@ -1,9 +1,9 @@
+import { useSelector } from "@/hooks";
 import { Box, Heading } from "@chakra-ui/react";
+import { shallowEqual } from "react-redux";
 import Albums from "./albums";
 import Editions from "./editions";
 import Singles from "./singles";
-import { shallowEqual } from "react-redux";
-import { useSelector } from "hooks";
 
 const Collection = () => {
   const albums = useSelector(state => state.releases.userAlbums, shallowEqual);

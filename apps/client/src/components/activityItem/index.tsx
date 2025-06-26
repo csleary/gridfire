@@ -1,10 +1,10 @@
-import { Activity, ActivityFavourite, ActivityFollow, ActivitySale, ActivitySaleEdition, ActivityType } from "types";
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
+import { Activity, ActivityFavourite, ActivityFollow, ActivitySale, ActivitySaleEdition, ActivityType } from "@/types";
 import { Box, ChakraProps, Flex, ListItem, useColorModeValue } from "@chakra-ui/react";
-import { faUserPlus, faHeart, faMoneyBillWave, faAsterisk } from "@fortawesome/free-solid-svg-icons";
-import { DateTime } from "luxon";
-import Icon from "components/icon";
+import { faAsterisk, faHeart, faMoneyBillWave, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
-import { useSelector } from "hooks";
+import { DateTime } from "luxon";
 
 interface Props extends ChakraProps {
   activity: Activity;
@@ -30,7 +30,7 @@ const ActivityItem = ({ activity, ...rest }: Props) => {
   const green = useColorModeValue("green.400", "green.200");
   const lastCheckedOn = useSelector(state => state.artists.lastCheckedOn);
   const { createdAt, type } = activity;
-  const isUnread = DateTime.fromISO(createdAt) > DateTime.fromISO(lastCheckedOn as string);
+  const isUnread = DateTime.fromISO(createdAt) > DateTime.fromISO(lastCheckedOn ?? new Date(0).toISOString());
 
   switch (type) {
     case ActivityType.Favourite: {

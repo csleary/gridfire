@@ -1,22 +1,18 @@
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchCatalogue } from "@/state/releases";
 import { Box, Button, Center, Container, Heading, Highlight, Skeleton, useColorModeValue } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "hooks";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Features from "./features";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Grid from "components/grid";
-import { Helmet } from "react-helmet";
-import RenderRelease from "components/renderRelease";
-import SortReleases from "./sort";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { fetchCatalogue } from "state/releases";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useCallback, useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
-import { toastInfo } from "state/toast";
+import Features from "./features";
+import SortReleases from "./sort";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
   const catalogue = useSelector(state => state.releases.catalogue, shallowEqual);
   const catalogueLimit = useSelector(state => state.releases.catalogueLimit);
   const catalogueSkip = useSelector(state => state.releases.catalogueSkip);
@@ -27,7 +23,6 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
   const [currentSortOrder, setCurrentSortOrder] = useState("-1");
-  const { service } = useParams();
   const bgHighlight = useColorModeValue("yellow.400", "purple.200");
 
   const handleFetchCatalogue = useCallback(
@@ -41,22 +36,8 @@ const Home: React.FC = () => {
   );
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const prev = searchParams.get("prev");
-
-    if (prev) {
-      return navigate(prev);
-    }
-
     handleFetchCatalogue().finally(() => setIsLoading(false));
-  }, []); // eslint-disable-line
-
-  useEffect(() => {
-    if (service) {
-      const serviceName = `${service.charAt(0).toUpperCase()}${service.substring(1)}`;
-      dispatch(toastInfo({ message: `You are now logged in using your ${serviceName} account.`, title: "Logged in" }));
-    }
-  }, [service]); // eslint-disable-line
+  }, [handleFetchCatalogue]);
 
   return (
     <>

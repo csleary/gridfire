@@ -1,16 +1,16 @@
+import { useDispatch, useSelector } from "@/hooks";
+import placeholder from "@/placeholder.svg";
+import { loadTrack, playerPause, playerPlay } from "@/state/player";
+import { toastInfo } from "@/state/toast";
+import { ReleaseTrack } from "@/types";
+import { fadeAudio } from "@/utils";
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { loadTrack, playerPause, playerPlay } from "state/player";
-import { useDispatch, useSelector } from "hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ReleaseTrack } from "types";
-import { fadeAudio } from "utils";
-import placeholder from "placeholder.svg";
-import { shallowEqual } from "react-redux";
-import { toastInfo } from "state/toast";
 import { useCallback } from "react";
+import { shallowEqual } from "react-redux";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 const Artwork = () => {
   const { isOpen, onOpen } = useDisclosure();
@@ -80,7 +80,7 @@ const Artwork = () => {
               position="absolute"
               src={
                 artwork.status === "stored"
-                  ? `${REACT_APP_CDN_IMG}/${releaseId}`
+                  ? `${VITE_CDN_IMG}/${releaseId}`
                   : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
               }
             />

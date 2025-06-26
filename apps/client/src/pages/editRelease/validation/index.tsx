@@ -1,4 +1,4 @@
-import { EditorRelease, ReleaseTrack, TrackErrors } from "types";
+import { EditorRelease, ReleaseTrack, TrackErrors } from "@/types";
 
 const checkRelease = ({ artist, artistName, price, releaseDate, releaseTitle }: EditorRelease) => {
   const errors = { artistName: "", releaseTitle: "", releaseDate: "", price: "" };

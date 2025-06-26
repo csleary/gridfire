@@ -1,9 +1,9 @@
+import Field from "@/components/field";
+import { useDispatch, useSelector } from "@/hooks";
+import { updateRelease } from "@/state/editor";
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { ChangeEventHandler, useCallback } from "react";
-import { useDispatch, useSelector } from "hooks";
-import Field from "components/field";
 import Tags from "./tags";
-import { updateRelease } from "state/editor";
 
 const DetailedInfo = () => {
   const dispatch = useDispatch();

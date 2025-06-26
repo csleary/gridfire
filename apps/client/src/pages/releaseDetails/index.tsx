@@ -1,7 +1,12 @@
+import Card from "@/components/card";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchRelease, setIsLoading } from "@/state/releases";
+import { fetchUser } from "@/state/user";
 import {
   Badge,
-  Button,
   Box,
+  Button,
   Container,
   Divider,
   Flex,
@@ -15,28 +20,22 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import { Link as RouterLink, useParams } from "react-router-dom";
-import { fetchRelease, setIsLoading } from "state/releases";
-import { useDispatch, useSelector } from "hooks";
-import Actions from "./actions";
-import Artwork from "./artwork";
-import Card from "components/card";
-import { Helmet } from "react-helmet";
-import Icon from "components/icon";
-import AddToBasketButton from "./addToBasketButton";
+import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { DateTime } from "luxon";
+import { useCallback, useEffect } from "react";
+import { Helmet } from "react-helmet";
+import { shallowEqual } from "react-redux";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+import Actions from "./actions";
+import AddToBasketButton from "./addToBasketButton";
+import Artwork from "./artwork";
 import Editions from "./editions";
 import Price from "./price";
 import PurchaseButton from "./purchaseButton";
 import Tags from "./tags";
 import TrackList from "./trackList/index";
-import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
-import { fetchUser } from "state/user";
-import { shallowEqual } from "react-redux";
-import { useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 const ActiveRelease = () => {
   const navigate = useNavigate();
@@ -156,7 +155,7 @@ const ActiveRelease = () => {
                 </WrapItem>
                 <WrapItem>
                   <AddToBasketButton
-                    imageUrl={`${REACT_APP_CDN_IMG}/${releaseId}`}
+                    imageUrl={`${VITE_CDN_IMG}/${releaseId}`}
                     artistName={artistName}
                     inCollection={isInCollection}
                     price={price}

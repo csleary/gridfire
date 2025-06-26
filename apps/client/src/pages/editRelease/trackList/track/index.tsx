@@ -1,3 +1,8 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "@/state/editor";
+import { deleteTrack, reEncodeTrack, setTrackIdsForDeletion } from "@/state/tracks";
+import { formatPrice } from "@/utils";
 import {
   Alert,
   AlertDescription,
@@ -21,13 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faArrowDown, faArrowUp, faBars, faMagicWandSparkles } from "@fortawesome/free-solid-svg-icons";
-import { EntityId } from "@reduxjs/toolkit";
-import Icon from "components/icon";
-import { useDispatch, useSelector } from "hooks";
 import { ChangeEventHandler, DragEventHandler, memo, useCallback } from "react";
-import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "state/editor";
-import { deleteTrack, reEncodeTrack, setTrackIdsForDeletion } from "state/tracks";
-import { formatPrice } from "utils";
 import AudioDropzone from "./audioDropzone";
 
 interface Props {
@@ -42,7 +41,7 @@ interface Props {
   isActiveDragOver: boolean;
   isDragging: boolean;
   isDragOrigin: boolean;
-  trackId: EntityId;
+  trackId: string;
 }
 
 const Track = ({
@@ -67,7 +66,7 @@ const Track = ({
   const trackTitleError: string = useSelector(state => state.editor.trackErrors[`${trackId}.trackTitle`]);
   const { isBonus, isEditionOnly, price, status = "", trackTitle = "" } = track || {};
 
-  const cancelDeleteTrack = (trackId: EntityId) => {
+  const cancelDeleteTrack = (trackId: string) => {
     dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
   };
 
@@ -116,7 +115,7 @@ const Track = ({
         borderWidth="1px"
         boxShadow="lg"
         draggable={true}
-        id={trackId as string}
+        id={trackId}
         onDragEnd={handleDragEnd}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}

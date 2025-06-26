@@ -1,9 +1,9 @@
+import { useDispatch, useSelector } from "@/hooks";
+import { toastWarning } from "@/state/toast";
 import { Box, Button, Tooltip, useColorModeValue } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
-import NameYourPriceModal from "../nameYourPriceModal";
-import { toastWarning } from "state/toast";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import NameYourPriceModal from "../nameYourPriceModal";
 
 interface TrackForPurchase {
   price: string;

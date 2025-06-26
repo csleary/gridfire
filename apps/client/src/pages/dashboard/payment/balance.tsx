@@ -1,3 +1,9 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { useLazyGetClaimsQuery } from "@/state/logs";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
+import { fetchDaiBalance } from "@/state/web3";
+import { claimBalance, getBalance } from "@/web3";
 import {
   Button,
   Divider,
@@ -5,29 +11,23 @@ import {
   Heading,
   Link,
   Stat,
-  StatLabel,
   StatHelpText,
+  StatLabel,
   StatNumber,
-  TableContainer,
   Table,
   TableCaption,
-  Text,
-  Thead,
-  Td,
-  Tr,
-  Th,
+  TableContainer,
   Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
   useColorModeValue
 } from "@chakra-ui/react";
-import { claimBalance, getBalance } from "web3";
-import { toastError, toastInfo, toastSuccess, toastWarning } from "state/toast";
-import { useDispatch, useSelector } from "hooks";
-import { useEffect, useState } from "react";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
-import { fetchDaiBalance } from "state/web3";
 import { formatEther } from "ethers";
-import Icon from "components/icon";
-import { useLazyGetClaimsQuery } from "state/logs";
+import { useEffect, useState } from "react";
 
 const Balance = () => {
   const dispatch = useDispatch();

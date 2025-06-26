@@ -1,5 +1,5 @@
+import Icon from "@/components/icon";
 import { ChakraProps, IconButton } from "@chakra-ui/react";
-import Icon from "components/icon";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { MouseEventHandler } from "react";
 

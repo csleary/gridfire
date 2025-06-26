@@ -1,14 +1,14 @@
-import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
-import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "web3";
-import { AppDispatch, GetState } from "index";
-import { BasketItem, SalesHistory } from "types";
-import { toastError, toastWarning } from "state/toast";
-import { checkoutFreeBasket } from "state/releases";
-import { createSlice } from "@reduxjs/toolkit";
-import { batch } from "react-redux";
+import { AppDispatch, GetState } from "@/main";
+import { checkoutFreeBasket } from "@/state/releases";
+import { toastError, toastWarning } from "@/state/toast";
+import { BasketItem, SalesHistory } from "@/types";
+import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "@/web3";
 import detectEthereumProvider from "@metamask/detect-provider";
+import { createSlice } from "@reduxjs/toolkit";
+import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
+import { batch } from "react-redux";
 
-const { REACT_APP_CHAIN_ID = "" } = process.env;
+const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
 interface Web3State {
   account: string;
@@ -166,7 +166,7 @@ const fetchSales = () => async (dispatch: AppDispatch) => {
 
 const connectToWeb3 = () => async (dispatch: AppDispatch) => {
   const ethereum = await detectEthereumProvider();
-  const requiredChainId = BigInt(REACT_APP_CHAIN_ID);
+  const requiredChainId = BigInt(VITE_CHAIN_ID);
 
   if (!ethereum) {
     return void dispatch(

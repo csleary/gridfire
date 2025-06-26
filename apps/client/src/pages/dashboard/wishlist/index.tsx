@@ -1,13 +1,13 @@
+import Grid from "@/components/grid";
+import Icon from "@/components/icon";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserWishList } from "@/state/releases";
 import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
-import { useEffect, useState } from "react";
-import { DateTime } from "luxon";
-import Grid from "components/grid";
-import Icon from "components/icon";
-import RenderRelease from "components/renderRelease";
-import { fetchUserWishList } from "state/releases";
 import { faStickyNote as faStickyNoteOutline } from "@fortawesome/free-regular-svg-icons";
 import { faStickyNote } from "@fortawesome/free-solid-svg-icons";
+import { DateTime } from "luxon";
+import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 
 const WishList = () => {

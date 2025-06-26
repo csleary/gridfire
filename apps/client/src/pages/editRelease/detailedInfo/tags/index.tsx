@@ -1,3 +1,8 @@
+import Card from "@/components/card";
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { removeTag, removeTags, updateRelease } from "@/state/editor";
 import {
   Button,
   Flex,
@@ -10,13 +15,8 @@ import {
   Wrap,
   WrapItem
 } from "@chakra-ui/react";
-import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
-import { removeTag, removeTags, updateRelease } from "state/editor";
-import { useDispatch, useSelector } from "hooks";
-import Card from "components/card";
-import Field from "components/field";
-import Icon from "components/icon";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
 import { shallowEqual } from "react-redux";
 
 const NUM_MAX_CHARS = 30;

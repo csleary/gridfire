@@ -1,13 +1,13 @@
+import Icon from "@/components/icon";
+import ScaleFade from "@/components/transitions/scaleFade";
+import { MintedEdition } from "@/types";
 import { Box, Flex, FormLabel, Link, Stack, StackDivider, Switch, Text } from "@chakra-ui/react";
-import { MintedEdition } from "types";
-import Icon from "components/icon";
-import ScaleFade from "components/transitions/scaleFade";
 import { faFileAudio } from "@fortawesome/free-regular-svg-icons";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { useParams } from "react-router-dom";
 
-const { REACT_APP_IPFS_GATEWAY } = process.env;
+const VITE_IPFS_GATEWAY = import.meta.env.VITE_IPFS_GATEWAY;
 
 const colors = [
   "var(--chakra-colors-green-200)",
@@ -60,7 +60,7 @@ const MintedEditions = ({ editions, handleChangeVisibility }: Props) => {
                   {Number(formatEther(price)).toFixed(2)}
                 </Box>
                 <Box fontFamily="monospace">
-                  <Link href={`${REACT_APP_IPFS_GATEWAY}/${uri.slice(7)}`} isExternal>
+                  <Link href={`${VITE_IPFS_GATEWAY}/${uri.slice(7)}`} isExternal>
                     {shortUri}
                   </Link>
                 </Box>

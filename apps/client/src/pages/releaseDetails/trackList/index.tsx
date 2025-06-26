@@ -1,23 +1,23 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { loadTrack } from "@/state/player";
+import { toastError, toastInfo, toastWarning } from "@/state/toast";
+import { addToBasket } from "@/state/web3";
+import { TrackForPurchase } from "@/types";
+import { fadeAudio } from "@/utils";
+import { purchaseRelease } from "@/web3";
 import { Badge, Box, Button, ListItem, Spacer, Tooltip, UnorderedList, useColorModeValue } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import Icon from "components/icon";
 import { parseEther } from "ethers";
-import { useDispatch, useSelector } from "hooks";
 import { useCallback, useState } from "react";
 import { shallowEqual } from "react-redux";
-import { loadTrack } from "state/player";
-import { toastError, toastInfo, toastWarning } from "state/toast";
-import { addToBasket } from "state/web3";
-import { TrackForPurchase } from "types";
-import { fadeAudio } from "utils";
-import { purchaseRelease } from "web3";
 import AddToBasketButton from "./addToBasketButton";
 import PurchaseTrackButton from "./purchaseTrackButton";
 
-const { REACT_APP_CDN_IMG } = process.env;
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;
 
@@ -49,7 +49,7 @@ const TrackList = () => {
           addToBasket({
             artistName,
             releaseId: trackId,
-            imageUrl: `${REACT_APP_CDN_IMG}/${releaseId}`,
+            imageUrl: `${VITE_CDN_IMG}/${releaseId}`,
             paymentAddress,
             price: priceInWei.toString(),
             title: trackTitle

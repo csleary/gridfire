@@ -1,29 +1,29 @@
+import Footer from "@/components/footer";
+import Icon from "@/components/icon";
+import Player from "@/components/player";
+import PrivateRoute from "@/components/privateRoute";
+import { useDispatch, useSelector } from "@/hooks";
+import useSSE from "@/hooks/useSSE";
+import { setLastCheckedOn } from "@/state/artists";
+import { fetchUser } from "@/state/user";
+import { setIsConnected, setNetworkName } from "@/state/web3";
 import { Box, Center, Flex, Link, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
-import { setIsConnected, setNetworkName } from "state/web3";
-import { useDispatch, useSelector } from "hooks";
-import { BrowserProvider, Eip1193Provider, isError } from "ethers";
-import Icon from "components/icon";
-import Footer from "components/footer";
-import Player from "components/player";
-import PrivateRoute from "components/privateRoute";
-import detectEthereumProvider from "@metamask/detect-provider";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
-import { fetchUser } from "state/user";
-import { setLastCheckedOn } from "state/artists";
-import useSSE from "hooks/useSSE";
+import detectEthereumProvider from "@metamask/detect-provider";
+import { BrowserProvider, Eip1193Provider, isError } from "ethers";
+import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+const About = lazy(() => import("@/pages/about"));
+const Artist = lazy(() => import("@/pages/artist"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const EditRelease = lazy(() => import("@/pages/editRelease"));
+const Header = lazy(() => import("@/components/header"));
+const Home = lazy(() => import("@/pages/home"));
+const Login = lazy(() => import("@/pages/login"));
+const ReleaseDetails = lazy(() => import("@/pages/releaseDetails"));
+const SearchResults = lazy(() => import("@/pages/search"));
 
-const { REACT_APP_CHAIN_ID = "" } = process.env;
-const About = lazy(() => import("pages/about"));
-const Artist = lazy(() => import("pages/artist"));
-const Dashboard = lazy(() => import("pages/dashboard"));
-const EditRelease = lazy(() => import("pages/editRelease"));
-const Header = lazy(() => import("components/header"));
-const Home = lazy(() => import("pages/home"));
-const Login = lazy(() => import("pages/login"));
-const ReleaseDetails = lazy(() => import("pages/releaseDetails"));
-const SearchResults = lazy(() => import("pages/search"));
+const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
 const App: React.FC = () => {
   useSSE();
@@ -31,7 +31,7 @@ const App: React.FC = () => {
   const ethereumRef = useRef<any>(null);
   const providerRef = useRef<BrowserProvider>(null);
   const chainId = useSelector(state => state.web3.chainId);
-  const isCorrectChain = Boolean(chainId) && chainId === REACT_APP_CHAIN_ID;
+  const isCorrectChain = Boolean(chainId) && chainId === VITE_CHAIN_ID;
 
   const getNetwork = useCallback(async () => {
     const browserProvider = new BrowserProvider(ethereumRef.current as unknown as Eip1193Provider);
@@ -53,7 +53,7 @@ const App: React.FC = () => {
       dispatch(setNetworkName({ chainId: id, name }));
       console.info(`Connected to ${name} network (${id}).`);
 
-      if (Boolean(id) && id !== REACT_APP_CHAIN_ID) {
+      if (Boolean(id) && id !== VITE_CHAIN_ID) {
         dispatch(setIsConnected(false));
       }
     } catch (error: any) {
@@ -134,7 +134,6 @@ const App: React.FC = () => {
           >
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/oauth/:service" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/about" element={<About />} />

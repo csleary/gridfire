@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "api": "yarn workspace @gridfire/api dev",
-    "client": "yarn workspace @gridfire/client start",
+    "client": "yarn workspace @gridfire/client vite",
     "dev-testnet": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
     "dev": "tsx node_modules/.bin/concurrently \"yarn run api\" \"yarn run client\" \"yarn run worker\" \"yarn run events\" \"yarn run hardhat:node\" \"sleep 5 && yarn run hardhat:dev\"",
     "docker:build:api": "docker build -f ./docker/Dockerfile.api -t csleary/gridfire-api .",

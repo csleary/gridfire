@@ -1,12 +1,13 @@
-import { Container, Tabs, TabList, TabPanel, TabPanels, Tab, useColorModeValue } from "@chakra-ui/react";
+import Icon from "@/components/icon";
+import { Container, Tab, TabList, TabPanel, TabPanels, Tabs, useColorModeValue } from "@chakra-ui/react";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { faCheckCircle, faCoins } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Allowance from "./allowance";
 import Balance from "./balance";
-import Icon from "components/icon";
 import PaymentAddress from "./paymentAddress";
-import { faCheckCircle, faCoins } from "@fortawesome/free-solid-svg-icons";
-import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+
 const stem = "/dashboard/payment";
 
 const Payment = () => {

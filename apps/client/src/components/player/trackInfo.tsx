@@ -1,7 +1,7 @@
 import { Flex, Text, useMediaQuery } from "@chakra-ui/react";
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import PlayerButton from "./playerButton";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   artistName: string;

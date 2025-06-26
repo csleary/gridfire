@@ -1,14 +1,13 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { trackSetError, trackUpdate, updateTrackStatus } from "@/state/editor";
+import { toastError, toastInfo } from "@/state/toast";
+import { cancelUpload, uploadAudio } from "@/state/tracks";
 import { Box, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
 import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { EntityId } from "@reduxjs/toolkit";
-import Icon from "components/icon";
-import { useDispatch, useSelector } from "hooks";
 import mime from "mime";
 import { MouseEventHandler, memo } from "react";
 import { useDropzone } from "react-dropzone";
-import { trackSetError, trackUpdate, updateTrackStatus } from "state/editor";
-import { toastError, toastInfo } from "state/toast";
-import { cancelUpload, uploadAudio } from "state/tracks";
 import ProgressIndicator from "./progressIndicator";
 
 type AcceptedFileTypes = { [key: string]: string[] };
@@ -33,7 +32,7 @@ enum PROCESS_STAGE {
 interface Props {
   index: number;
   status: string;
-  trackId: EntityId;
+  trackId: string;
   trackTitle: string;
 }
 

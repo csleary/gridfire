@@ -1,7 +1,7 @@
-import { AppDispatch } from "index";
-import axios from "axios";
+import { AppDispatch } from "@/main";
+import { Release } from "@/types";
 import { createSlice } from "@reduxjs/toolkit";
-import { Release } from "types";
+import axios from "axios";
 
 interface SearchState {
   isSearching: boolean;

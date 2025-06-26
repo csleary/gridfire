@@ -1,9 +1,9 @@
+import Icon from "@/components/icon";
 import { IconButton, Tooltip, useColorModeValue } from "@chakra-ui/react";
 import { faCheck, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
-import Icon from "components/icon";
-import NameYourPriceModal from "../nameYourPriceModal";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import NameYourPriceModal from "../nameYourPriceModal";
 
 interface Props {
   artistName: string;

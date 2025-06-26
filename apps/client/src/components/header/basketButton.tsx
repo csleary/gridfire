@@ -1,3 +1,7 @@
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { checkoutBasket, connectToWeb3, emptyBasket, fetchDaiBalance, removeFromBasket } from "@/state/web3";
+import { BasketItem } from "@/types";
 import {
   Avatar,
   AvatarGroup,
@@ -7,28 +11,22 @@ import {
   Flex,
   IconButton,
   Modal,
-  ModalOverlay,
-  ModalContent,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
   ModalFooter,
   ModalHeader,
+  ModalOverlay,
   Spacer,
   Text,
   VStack,
   useColorModeValue
 } from "@chakra-ui/react";
-import { formatEther } from "ethers";
-import { checkoutBasket, connectToWeb3, emptyBasket, removeFromBasket } from "state/web3";
-import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "hooks";
-import { useLocation, useNavigate } from "react-router-dom";
-import { BasketItem } from "types";
-import Icon from "components/icon";
-import { Link as RouterLink } from "react-router-dom";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { fetchDaiBalance } from "state/web3";
+import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { formatEther } from "ethers";
 import { useState } from "react";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 const BasketButton = () => {
   const dispatch = useDispatch();

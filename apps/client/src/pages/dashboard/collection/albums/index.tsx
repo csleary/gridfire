@@ -1,9 +1,9 @@
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserAlbums } from "@/state/releases";
 import { Box, Heading } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "hooks";
-import { useState, useEffect } from "react";
-import Grid from "components/grid";
-import RenderRelease from "components/renderRelease";
-import { fetchUserAlbums } from "state/releases";
+import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 
 const Albums = () => {
