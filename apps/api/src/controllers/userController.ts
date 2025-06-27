@@ -23,7 +23,7 @@ const setPaymentAddress = async ({
   userId: ObjectId;
 }): Promise<string> => {
   const resolvedAddress = await getResolvedAddress(paymentAddress);
-  await User.findByIdAndUpdate(userId, { paymentAddress: resolvedAddress }).exec();
+  await User.updateOne({ _id: userId }, { paymentAddress: resolvedAddress }).exec();
   return resolvedAddress;
 };
 

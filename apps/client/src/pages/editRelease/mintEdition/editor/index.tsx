@@ -48,7 +48,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   const releaseId = useSelector(state => state.editor.release._id);
   const releaseTitle = useSelector(state => state.editor.release.releaseTitle);
   const trackList = useSelector(selectTracks, shallowEqual);
-  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isPurchasing, setIsMinting] = useState(false);
   const [values, setValues] = useState(defaultValues);
   const [errors, setErrors] = useState({ amount: "", description: "", price: "" });
   const hasError = Object.values(errors).some(Boolean);
@@ -112,7 +112,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
 
   const handleMint = async () => {
     try {
-      setIsPurchasing(true);
+      setIsMinting(true);
       const errors = validate();
 
       if (Object.values(errors).some(Boolean)) {
@@ -126,7 +126,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
     } catch (error: any) {
       console.error(error);
     } finally {
-      setIsPurchasing(false);
+      setIsMinting(false);
     }
   };
 

@@ -144,7 +144,7 @@ router.delete("/favourites/:releaseId", requireLogin, async (req, res) => {
     const { releaseId: release } = req.params;
     const { _id: user } = req.user || {};
     if (!user) return void res.sendStatus(401);
-    await Favourite.findOneAndDelete({ release, user });
+    await Favourite.deleteOne({ release, user }).exec();
     res.end();
   } catch (error) {
     console.error(error);
@@ -251,7 +251,7 @@ router.delete("/wishlist/:releaseId", requireLogin, async (req, res) => {
     const { releaseId: release } = req.params;
     const { _id: user } = req.user || {};
     if (!user) return void res.sendStatus(401);
-    await WishList.findOneAndDelete({ release, user });
+    await WishList.deleteOne({ release, user }).exec();
     res.end();
   } catch (error) {
     console.error(error);

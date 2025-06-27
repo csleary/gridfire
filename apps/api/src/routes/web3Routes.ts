@@ -42,7 +42,6 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
 
 router.get("/claims", requireLogin, async (req, res) => {
   try {
-    // should be in the db instead.
     const { _id: userId } = req.user || {};
     if (!userId) return void res.sendStatus(401);
     const { account } = await User.findById(userId).exec();

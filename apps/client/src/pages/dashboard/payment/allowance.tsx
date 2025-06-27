@@ -195,7 +195,7 @@ const Allowance = () => {
       </Heading>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption placement="top">Gridfire purchases made by connected account</TableCaption>
+          <TableCaption placement="top">Gridfire purchases made by the connected account</TableCaption>
           <Thead>
             <Tr>
               <Th>Block</Th>

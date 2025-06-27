@@ -6,7 +6,6 @@ import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCh
 import detectEthereumProvider from "@metamask/detect-provider";
 import { createSlice } from "@reduxjs/toolkit";
 import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
-import { batch } from "react-redux";
 
 const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
@@ -109,10 +108,8 @@ const checkoutBasket =
   (basket: BasketItem[] = []) =>
   async (dispatch: AppDispatch, getState: GetState) => {
     try {
-      batch(() => {
-        dispatch(setError(""));
-        dispatch(setIsCheckingOut(true));
-      });
+      dispatch(setError(""));
+      dispatch(setIsCheckingOut(true));
 
       const total = basket.reduce((prev, { price }) => prev + price, 0n);
       const { userId } = getState().user;
@@ -192,14 +189,11 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
     }
 
     const { chainId, name } = network;
-
-    batch(() => {
-      dispatch(fetchDaiAllowance(firstAccount));
-      dispatch(fetchDaiBalance(firstAccount));
-      dispatch(setAccount(firstAccount));
-      dispatch(setIsConnected(true));
-      dispatch(setNetworkName({ chainId: chainId.toString(), name }));
-    });
+    dispatch(fetchDaiAllowance(firstAccount));
+    dispatch(fetchDaiBalance(firstAccount));
+    dispatch(setAccount(firstAccount));
+    dispatch(setIsConnected(true));
+    dispatch(setNetworkName({ chainId: chainId.toString(), name }));
   } catch (error: any) {
     if (error.code === -32002) {
       dispatch(
@@ -234,5 +228,4 @@ export const {
 } = web3Slice.actions;
 
 export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance, fetchSales };
-
 export default web3Slice.reducer;

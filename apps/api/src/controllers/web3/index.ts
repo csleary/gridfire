@@ -9,9 +9,9 @@ import { FilterQuery, ObjectId } from "mongoose";
 import assert from "node:assert/strict";
 
 const {
+  DAI_CONTRACT_ADDRESS,
   GRIDFIRE_EDITIONS_ADDRESS,
   GRIDFIRE_PAYMENT_ADDRESS,
-  DAI_CONTRACT_ADDRESS,
   MAINNET_NETWORK_KEY,
   MAINNET_NETWORK_URL
 } = process.env;
