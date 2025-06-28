@@ -1,8 +1,5 @@
-import { ISale } from "@gridfire/shared/models/Sale";
+import Sale, { ISale } from "@gridfire/shared/models/Sale";
 import { RecordSaleParams } from "@gridfire/shared/types/index";
-import mongoose from "mongoose";
-
-const { Sale } = mongoose.models;
 
 const recordSale = async ({
   amountPaid,

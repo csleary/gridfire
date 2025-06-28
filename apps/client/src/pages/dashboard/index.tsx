@@ -1,12 +1,13 @@
+import { lazy } from "react";
 import { Helmet } from "react-helmet";
 import { Route, Routes } from "react-router-dom";
-import Activity from "./activity";
-import Artists from "./artists";
-import Collection from "./collection";
-import Favourites from "./favourites";
-import Payment from "./payment";
-import UserReleases from "./userReleases";
-import Wishlist from "./wishlist";
+const Artists = lazy(() => import("./artists"));
+const Collection = lazy(() => import("./collection"));
+const Favourites = lazy(() => import("./favourites"));
+const Payment = lazy(() => import("./payment"));
+const UserReleases = lazy(() => import("./userReleases"));
+const Activity = lazy(() => import("./activity"));
+const Wishlist = lazy(() => import("./wishlist"));
 
 const Dashboard = () => (
   <>

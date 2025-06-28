@@ -3,7 +3,7 @@ import { validatePurchase } from "@gridfire/events/controllers/release";
 import { recordSale } from "@gridfire/events/controllers/sale";
 import Logger from "@gridfire/shared/logger";
 import Activity from "@gridfire/shared/models/Activity";
-import { NotificationType } from "@gridfire/shared/types/index";
+import { NotificationType } from "@gridfire/shared/types";
 import { BytesLike, decodeBytes32String, formatEther, getAddress } from "ethers";
 
 const logger = new Logger("onPurchase");

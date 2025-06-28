@@ -18,6 +18,5 @@ const favouriteSchema = new Schema<IFavourite>({
 
 favouriteSchema.index({ user: 1, release: 1 }, { unique: true });
 
-const Favourite = model<IFavourite>("Favourite", favouriteSchema, "favourites");
-
-export default Favourite;
+export { IFavourite };
+export default model<IFavourite>("Favourite", favouriteSchema, "favourites");

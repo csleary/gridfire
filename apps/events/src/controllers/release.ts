@@ -1,10 +1,7 @@
 import Release from "@gridfire/shared/models/Release";
-import { SaleType } from "@gridfire/shared/models/Sale";
+import Sale, { SaleType } from "@gridfire/shared/models/Sale";
 import { PurchasedRelease, ReleaseAlbum, ReleaseSingle, ValidatePurchaseParams } from "@gridfire/shared/types";
 import { getAddress, parseEther } from "ethers";
-import mongoose from "mongoose";
-
-const { Sale } = mongoose.models;
 
 const validatePurchase = async ({
   amountPaid,

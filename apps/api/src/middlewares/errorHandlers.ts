@@ -1,12 +1,12 @@
-import type { Request, Response, NextFunction } from "express";
 import Logger from "@gridfire/shared/logger";
+import type { NextFunction, Request, Response } from "express";
 
 const logger = new Logger("errorHandlers");
 
 const clientErrorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
   if (req.xhr) {
     logger.error("Error processing client request: %s", req.headers.host);
-    res.status(500).send({ error: "An API server error occurred." });
+    res.status(500).json({ error: "An API server error occurred." });
   } else {
     next(error);
   }
@@ -19,7 +19,7 @@ const logErrors = (error: any, req: Request, res: Response, next: NextFunction) 
 
 const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) return next(error);
-  res.status(500).send({ error });
+  res.status(500).json({ error: "An API server error occurred." });
 };
 
 process.on("uncaughtException", error => {

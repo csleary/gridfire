@@ -1,6 +1,6 @@
 import filterErrors from "@gridfire/events/controllers/web3/filterErrors";
 import Logger from "@gridfire/shared/logger";
-import { Contract, Provider, ProviderRequest, ProviderResult, RequestOptions } from "@gridfire/shared/types";
+import type { Contract, Provider, ProviderRequest, ProviderResult, RequestOptions } from "@gridfire/shared/types";
 import axios, { AxiosResponse } from "axios";
 import { Interface, LogDescription, getBigInt, toQuantity } from "ethers";
 import { JSONRPCResponse } from "json-rpc-2.0";

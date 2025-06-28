@@ -26,8 +26,8 @@ import {
 } from "@chakra-ui/react";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faArrowDown, faArrowUp, faBars, faMagicWandSparkles } from "@fortawesome/free-solid-svg-icons";
-import { ChangeEventHandler, DragEventHandler, memo, useCallback } from "react";
-import AudioDropzone from "./audioDropzone";
+import { ChangeEventHandler, DragEventHandler, lazy, memo, useCallback } from "react";
+const AudioDropzone = lazy(() => import("./audioDropzone"));
 
 interface Props {
   dragOriginIsInactive: boolean;

@@ -8,11 +8,14 @@ import {
   unfollowArtist,
   updateArtist
 } from "@gridfire/api/controllers/artistController";
+import logger from "@gridfire/api/controllers/logger";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
-import express from "express";
+import type { IArtist } from "@gridfire/shared/models/Artist";
+import type { IUser } from "@gridfire/shared/models/User";
+import { Router } from "express";
 import { Error } from "mongoose";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/:artistId/followers", async (req, res) => {
   try {
@@ -21,7 +24,7 @@ router.get("/:artistId/followers", async (req, res) => {
     const { numFollowers, isFollowing } = await getFollowers(artistId, userId);
     res.json({ numFollowers, isFollowing });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -32,7 +35,7 @@ router.get("/:slug/id", async (req, res) => {
     const artist = await findIdBySlug(slug);
     res.json(artist);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -41,12 +44,11 @@ router.use(requireLogin);
 
 router.get("/", async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
     const artists = await getUserArtists(userId);
     res.send(artists);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -55,9 +57,8 @@ router.post("/:artistId", async (req, res) => {
   try {
     const { name, slug, biography, links } = req.body;
     const { artistId } = req.params;
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
-    const artist = await updateArtist({ artistId, name, slug, biography, links, userId });
+    const { _id: userId } = req.user as IUser;
+    const artist = (await updateArtist({ artistId, name, slug, biography, links, userId })) as IArtist;
     res.send(artist);
   } catch (error: any) {
     if (error.codeName === "DuplicateKey") {
@@ -76,58 +77,54 @@ router.post("/:artistId", async (req, res) => {
       return void res.send({ error: message, name: path, value: message });
     }
 
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.post("/:artistId/follow", async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
+    const { _id: userId } = req.user as IUser;
     const { artistId } = req.params;
-    if (!userId) return void res.sendStatus(401);
     await followArtist(artistId, userId);
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.delete("/:artistId/follow", async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
+    const { _id: userId } = req.user as IUser;
     const { artistId } = req.params;
-    if (!userId) return void res.sendStatus(401);
     await unfollowArtist(artistId, userId);
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.patch("/:artistId/link", async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
+    const { _id: userId } = req.user as IUser;
     const { artistId } = req.params;
-    if (!userId) return void res.sendStatus(401);
     const newLink = await addLink(artistId, userId);
     res.send(newLink);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/activity", async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
     const activity = await getActivity(userId);
     res.json(activity);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });

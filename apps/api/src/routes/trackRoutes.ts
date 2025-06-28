@@ -1,14 +1,14 @@
 import { deleteTrack, logStream, reEncodeTrack, uploadTrack } from "@gridfire/api/controllers/trackController";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
-import express from "express";
+import { IUser } from "@gridfire/shared/models/User";
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
 router.put("/", requireLogin, async (req, res) => {
   try {
     const { headers, user } = req;
-    const { _id: userId } = user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = user as IUser;
     await uploadTrack({ headers, req, userId });
     res.sendStatus(201);
   } catch (error: any) {
@@ -21,8 +21,7 @@ router.put("/", requireLogin, async (req, res) => {
 router.patch("/:trackId", async (req, res) => {
   try {
     const { user } = req;
-    const { _id: userId } = user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = user as IUser;
     const { trackId } = req.params;
     await reEncodeTrack(userId, trackId);
     res.sendStatus(200);
@@ -53,8 +52,7 @@ router.delete("/:trackId", requireLogin, async (req, res) => {
   try {
     const { params, user } = req;
     const { trackId } = params;
-    const { _id: userId } = user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = user as IUser;
     await deleteTrack(trackId, userId);
     res.sendStatus(200);
   } catch (error) {

@@ -5,11 +5,11 @@ import { fetchCatalogue } from "@/state/releases";
 import { Box, Button, Center, Container, Heading, Highlight, Skeleton, useColorModeValue } from "@chakra-ui/react";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useEffect, useState } from "react";
+import { lazy, useCallback, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
-import Features from "./features";
-import SortReleases from "./sort";
+const SortReleases = lazy(() => import("./sort"));
+const Features = lazy(() => import("./features"));
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();

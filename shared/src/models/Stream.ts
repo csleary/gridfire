@@ -1,6 +1,6 @@
 import { ObjectId, Schema, model } from "mongoose";
 
-interface IStreamSession {
+interface IStream {
   date: Date;
   startTime: number;
   totalTimePlayed: number;
@@ -10,7 +10,7 @@ interface IStreamSession {
 
 const { ObjectId } = Schema.Types;
 
-const streamSessionSchema = new Schema<IStreamSession>({
+const streamSchema = new Schema<IStream>({
   date: { type: Date, default: Date.now },
   startTime: { type: Number },
   totalTimePlayed: { type: Number, default: 0 },
@@ -18,9 +18,7 @@ const streamSessionSchema = new Schema<IStreamSession>({
   user: { type: ObjectId, ref: "User" }
 });
 
-streamSessionSchema.index({ user: 1, trackId: 1 }, { unique: true });
-streamSessionSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
+streamSchema.index({ user: 1, trackId: 1 }, { unique: true });
+streamSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
 
-const StreamSession = model<IStreamSession>("StreamSession", streamSessionSchema, "stream-sessions");
-
-export default StreamSession;
+export default model<IStream>("Stream", streamSchema, "streams");

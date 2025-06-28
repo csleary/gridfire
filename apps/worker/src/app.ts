@@ -1,5 +1,3 @@
-import "@gridfire/shared/models/Release";
-import "@gridfire/shared/models/User";
 import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import messageHandler from "@gridfire/worker/controllers/messageHandler";

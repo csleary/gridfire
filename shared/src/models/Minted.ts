@@ -1,6 +1,6 @@
 import { ObjectId, Schema, model } from "mongoose";
-import Release from "./Release.js";
 import Edition from "./Edition.js";
+import Release from "./Release.js";
 
 interface Minted {
   transactionHash: string;
@@ -32,6 +32,4 @@ const MintedSchema = new Schema<Minted>(
 MintedSchema.index({ transactionHash: 1 }, { unique: true });
 MintedSchema.index({ releaseId: 1 });
 
-const Minted = model<Minted>("Minted", MintedSchema, "minted");
-
-export default Minted;
+export default model<Minted>("Minted", MintedSchema, "minted");

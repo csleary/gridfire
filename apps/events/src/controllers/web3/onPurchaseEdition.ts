@@ -5,7 +5,7 @@ import Activity from "@gridfire/shared/models/Activity";
 import Release from "@gridfire/shared/models/Release";
 import { SaleType } from "@gridfire/shared/models/Sale";
 import User from "@gridfire/shared/models/User";
-import { NotificationType } from "@gridfire/shared/types/index";
+import { NotificationType } from "@gridfire/shared/types";
 import { BytesLike, decodeBytes32String, formatEther, getAddress } from "ethers";
 
 const logger = new Logger("onPurchaseEdition");

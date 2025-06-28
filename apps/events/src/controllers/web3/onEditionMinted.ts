@@ -3,7 +3,7 @@ import { notifyUser } from "@gridfire/events/controllers/notifyUser";
 import Logger from "@gridfire/shared/logger";
 import Activity from "@gridfire/shared/models/Activity";
 import Minted from "@gridfire/shared/models/Minted";
-import { NotificationType } from "@gridfire/shared/types/index";
+import { NotificationType } from "@gridfire/shared/types";
 import { AddressLike, BytesLike, decodeBytes32String, formatEther, Log } from "ethers";
 
 const logger = new Logger("onEditionMinted");

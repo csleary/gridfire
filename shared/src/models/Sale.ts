@@ -40,6 +40,4 @@ const saleSchema = new Schema<ISale>({
 saleSchema.index({ user: 1, release: 1 });
 saleSchema.index({ artistAddress: 1 });
 
-const Sale = model("Sale", saleSchema, "sales");
-
-export default Sale;
+export default model("Sale", saleSchema, "sales");

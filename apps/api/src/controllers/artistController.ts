@@ -1,11 +1,10 @@
 import Activity from "@gridfire/shared/models/Activity";
 import Artist, { IArtist, ILink } from "@gridfire/shared/models/Artist";
+import Follower from "@gridfire/shared/models/Follower";
+import Release from "@gridfire/shared/models/Release";
 import { Link } from "@gridfire/shared/types";
-import { ObjectId, Types, model } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import slugify from "./imports/slugify.js";
-
-const Follower = model("Follower");
-const Release = model("Release");
 
 const addLink = async (_id: string, user: ObjectId): Promise<ILink> => {
   const artist = await Artist.findOne({ _id, user }, "links").exec();
@@ -153,8 +152,8 @@ const updateArtist = async ({
       biography,
       links: links.slice(0, 10)
     },
-    { fields: { __v: 0 }, lean: true, new: true, runValidators: true }
-  ).exec();
+    { fields: { __v: 0 }, new: true, runValidators: true }
+  ).lean();
 
   if (!artist) {
     throw new Error("Artist not found.");

@@ -1,9 +1,9 @@
 import { publishToQueue } from "@gridfire/shared/amqp";
 import sseClient from "@gridfire/shared/sseController";
-import express from "express";
+import { Router } from "express";
 import { UUID } from "node:crypto";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/:userId/:uuid", async (req, res) => {
   const { userId, uuid } = req.params;

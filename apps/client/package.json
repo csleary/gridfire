@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@chakra-ui/react": "2",
     "@chakra-ui/system": "^2.6.2",
     "@chakra-ui/toast": "^7.0.2",
@@ -39,8 +38,7 @@
     "react-helmet": "^6.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.2",
-    "shaka-player": "^4.15.2",
-    "typescript": "^5.8.3"
+    "shaka-player": "^4.15.2"
   },
   "scripts": {
     "dev": "vite",

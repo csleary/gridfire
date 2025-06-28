@@ -1,8 +1,3 @@
-import "@gridfire/shared/models/Activity";
-import "@gridfire/shared/models/Edition";
-import "@gridfire/shared/models/Release";
-import "@gridfire/shared/models/Sale";
-import "@gridfire/shared/models/User";
 import GridfireProvider from "@gridfire/events/controllers/web3/gridfireProvider";
 import onEditionMinted from "@gridfire/events/controllers/web3/onEditionMinted";
 import onPurchase from "@gridfire/events/controllers/web3/onPurchase";

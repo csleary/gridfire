@@ -12,7 +12,7 @@ export enum TrackStatus {
   Deleting = "deleting"
 }
 
-enum ReleaseStatus {
+export enum ReleaseStatus {
   Pending = "pending",
   Storing = "storing",
   Stored = "stored"
@@ -103,6 +103,4 @@ releaseSchema.post("save", release => {
   release.updateOne({ dateUpdated: Date.now() }).exec();
 });
 
-const Release = model("Release", releaseSchema, "releases");
-
-export default Release;
+export default model("Release", releaseSchema, "releases");

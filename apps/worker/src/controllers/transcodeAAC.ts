@@ -1,23 +1,22 @@
+import Logger from "@gridfire/shared/logger";
+import Release from "@gridfire/shared/models/Release";
 import { ReleaseContext } from "@gridfire/shared/types/index";
 import { MessageType } from "@gridfire/shared/types/messages";
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "@gridfire/worker/controllers/ffmpeg";
 import packageMP4 from "@gridfire/worker/controllers/packageMP4";
 import postMessage from "@gridfire/worker/controllers/postMessage";
 import { streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage";
-import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import fs from "node:fs";
+import fs, { promises as fsPromises } from "node:fs";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 
 const { BUCKET_FLAC, BUCKET_MP4, TEMP_PATH } = process.env;
-const Release = mongoose.model("Release");
-const fsPromises = fs.promises;
-
 assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
 assert(BUCKET_MP4, "BUCKET_MP4 env var missing.");
 assert(TEMP_PATH, "TEMP_PATH env var missing.");
+const logger = new Logger("transcodeAAC");
 
 const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseContext) => {
   const bucketKey = `${releaseId}/${trackId}`;
@@ -30,7 +29,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
     await Release.updateOne(filter, { "trackList.$.status": "transcoding" }).exec();
     const srcStream = await streamFromBucket(BUCKET_FLAC, bucketKey);
     await pipeline(srcStream, fs.createWriteStream(inputPath));
-    console.log(`[${trackId}] Downloaded flac…`);
+    logger.info(`[${trackId}] Downloaded flac…`);
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "transcoding", userId });
     postMessage({ type: MessageType.TranscodingStartedAAC, trackId, userId });
 
@@ -39,13 +38,13 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
     const metadata = await ffprobeGetTrackDuration(inputPath);
 
     // Transcode to AAC MP4.
-    console.log(`[${trackId}] Transcoding flac to aac file: ${outputPath}…`);
+    logger.info(`[${trackId}] Transcoding flac to aac file: ${outputPath}…`);
     await ffmpegEncodeFragmentedAAC(fs.createReadStream(inputPath), outputPath);
 
     // Package MP4.
     fs.accessSync(outputPath, fs.constants.R_OK);
     await fsPromises.mkdir(path.resolve(TEMP_PATH, outputDir));
-    console.log(`[${trackId}] Packaging mp4 files in dir: ${outputDir}…`);
+    logger.info(`[${trackId}] Packaging mp4 files in dir: ${outputDir}…`);
     await packageMP4(outputPath, outputDir);
 
     // Upload packaged mp4 files.
@@ -60,13 +59,13 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
     await Release.updateOne(filter, { "trackList.$.duration": metadata.format.duration }).exec();
     postMessage({ type: MessageType.TranscodingCompleteAAC, trackId, trackTitle, userId });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     await Release.updateOne(filter, { "trackList.$.status": "error" }).exec();
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "error", userId });
     postMessage({ type: MessageType.PipelineError, stage: "aac", trackId, userId });
     throw error;
   } finally {
-    console.log("Removing temp AAC stage files:\n", inputPath, "\n", outputPath);
+    logger.info("Removing temp AAC stage files:\n", inputPath, "\n", outputPath);
 
     await Promise.allSettled([
       fsPromises.unlink(inputPath),

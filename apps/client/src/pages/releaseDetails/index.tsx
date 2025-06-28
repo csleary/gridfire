@@ -22,18 +22,18 @@ import {
 } from "@chakra-ui/react";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { DateTime } from "luxon";
-import { useCallback, useEffect } from "react";
+import { lazy, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
-import Actions from "./actions";
-import AddToBasketButton from "./addToBasketButton";
-import Artwork from "./artwork";
-import Editions from "./editions";
-import Price from "./price";
-import PurchaseButton from "./purchaseButton";
-import Tags from "./tags";
-import TrackList from "./trackList/index";
+const Actions = lazy(() => import("./actions"));
+const AddToBasketButton = lazy(() => import("./addToBasketButton"));
+const Artwork = lazy(() => import("./artwork"));
+const Editions = lazy(() => import("./editions"));
+const Price = lazy(() => import("./price"));
+const PurchaseButton = lazy(() => import("./purchaseButton"));
+const Tags = lazy(() => import("./tags"));
+const TrackList = lazy(() => import("./trackList"));
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 

@@ -142,7 +142,7 @@ const fetchUser = () => async (dispatch: AppDispatch) => {
     if (res.data) dispatch(updateUser(res.data));
     return res.data;
   } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
+    dispatch(toastError({ message: error.message, title: "Error" }));
   } finally {
     dispatch(setIsLoading(false));
   }

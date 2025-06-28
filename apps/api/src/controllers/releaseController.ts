@@ -1,12 +1,10 @@
 import { publishToQueue } from "@gridfire/shared/amqp";
 import Activity from "@gridfire/shared/models/Activity";
 import Release from "@gridfire/shared/models/Release";
-import { ISale, SaleType } from "@gridfire/shared/models/Sale";
+import Sale, { ISale, SaleType } from "@gridfire/shared/models/Sale";
+import User from "@gridfire/shared/models/User";
 import { BasketItem } from "@gridfire/shared/types";
 import { parseEther } from "ethers";
-import mongoose from "mongoose";
-
-const { Sale, User } = mongoose.models;
 
 enum NotificationType {
   Purchase = "purchaseEvent",

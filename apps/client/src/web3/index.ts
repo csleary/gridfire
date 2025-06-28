@@ -1,9 +1,7 @@
 import { store } from "@/main";
 import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { BasketItem } from "@/types";
-import daiAbi from "@/web3/dai";
-import GridfireEditions from "@gridfire/hardhat/abi/GridfireEditions.json";
-import GridfirePayment from "@gridfire/hardhat/abi/GridfirePayment.json";
+import { daiAbi, gridFireEditionsAbi, gridFirePaymentAbi } from "@/web3/abis";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -12,8 +10,6 @@ import { BrowserProvider, Contract, Eip1193Provider, JsonRpcSigner, encodeBytes3
 const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContactAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
 const daiContractAddress = import.meta.env.VITE_DAI_CONTRACT_ADDRESS;
-const { abi: gridFireEditionsAbi } = GridfireEditions;
-const { abi: gridFirePaymentAbi } = GridfirePayment;
 const ethereum = await detectEthereumProvider();
 let provider = new BrowserProvider(ethereum as unknown as Eip1193Provider) as BrowserProvider;
 

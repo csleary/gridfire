@@ -15,7 +15,7 @@
     "api": "yarn workspace @gridfire/api dev",
     "client": "yarn workspace @gridfire/client vite",
     "dev-testnet": "concurrently \"yarn run server\" \"yarn run client\" \"yarn --cwd ./worker/ run dev\"",
-    "dev": "tsx node_modules/.bin/concurrently \"yarn run api\" \"yarn run client\" \"yarn run worker\" \"yarn run events\" \"yarn run hardhat:node\" \"sleep 5 && yarn run hardhat:dev\"",
+    "dev": "tsx node_modules/.bin/concurrently \"yarn run api\" \"sleep 10 && yarn run client\" \"yarn run worker\" \"sleep 5 && yarn run events\" \"yarn run hardhat:node\" \"sleep 5 && yarn run hardhat:dev\"",
     "docker:build:api": "docker build -f ./docker/Dockerfile.api -t csleary/gridfire-api .",
     "docker:build:client": "docker build -f ./docker/Dockerfile.client -t csleary/gridfire-client .",
     "docker:build:events": "docker build -f ./docker/Dockerfile.events -t csleary/gridfire-web3-events .",
@@ -42,7 +42,12 @@
     "worker": "yarn workspace @gridfire/worker dev"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.30.0",
     "@tsconfig/node22": "^22.0.2",
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "globals": "^16.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   }
 }

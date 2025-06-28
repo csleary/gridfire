@@ -1,5 +1,6 @@
 import { getArtworkStream } from "@gridfire/api/controllers/artworkController";
 import ipfs from "@gridfire/api/controllers/ipfsController";
+import logger from "@gridfire/api/controllers/logger";
 import {
   getGridfireEditionsByReleaseId,
   getGridfireEditionUris,
@@ -7,22 +8,21 @@ import {
   setVisibility
 } from "@gridfire/api/controllers/web3/index";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
-import { IRelease } from "@gridfire/shared/models/Release";
+import Edition from "@gridfire/shared/models/Edition";
+import Release, { IRelease } from "@gridfire/shared/models/Release";
+import type { IUser } from "@gridfire/shared/models/User";
 import { parseEther } from "ethers";
-import express from "express";
-import mongoose from "mongoose";
+import { Router } from "express";
 
-const { Edition, Release } = mongoose.models;
-const router = express.Router();
+const router = Router();
 
 router.get("/user", requireLogin, async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
     const editions = await getUserGridfireEditions(userId);
     res.json(editions);
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -39,7 +39,7 @@ router.get("/:releaseId", async (req, res) => {
 
     res.json(editions);
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -48,10 +48,14 @@ router.use(requireLogin);
 
 router.post("/mint", async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
+    const { _id: user } = req.user as IUser;
     const { body, hostname, protocol } = req;
     const { amount, description, price, releaseId, tracks: trackIds } = body;
     const release = await Release.findById(releaseId).exec();
+
+    if (!release) {
+      throw new Error("Release not found.");
+    }
 
     const {
       artistName: artist,
@@ -113,14 +117,14 @@ router.post("/mint", async (req, res) => {
     const metadataUri = `ipfs://${cid}`;
     res.send({ metadataUri, objectId });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.delete("/mint/:objectId", async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
+    const { _id: user } = req.user as IUser;
     const { objectId } = req.params;
     const edition = await Edition.findById(objectId).exec();
     const { cid } = edition || {};
@@ -132,7 +136,7 @@ router.delete("/mint/:objectId", async (req, res) => {
     await Edition.deleteOne({ _id: objectId, user }).exec();
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -143,14 +147,14 @@ router.get("/:releaseId/uri", async (req, res) => {
     const uris = await getGridfireEditionUris(releaseId);
     res.json(uris);
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
 router.get("/:releaseId/minted", async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
+    const { _id: user } = req.user as IUser;
     const { releaseId } = req.params;
 
     const editions = await getGridfireEditionsByReleaseId({
@@ -161,23 +165,22 @@ router.get("/:releaseId/minted", async (req, res) => {
 
     res.json(editions);
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
 
 router.patch("/:editionId/visibility", async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
     const { editionId } = req.params;
     const { visibility } = req.body;
-    console.log(`Hiding edition ${editionId} for user ${userId}…`);
+    logger.info(`Hiding edition ${editionId} for user ${userId}…`);
     await setVisibility(userId, editionId, visibility);
-    console.log(`Edition ${editionId} hidden for user ${userId}.`);
+    logger.info(`Edition ${editionId} hidden for user ${userId}.`);
     res.sendStatus(200);
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });

@@ -12,10 +12,10 @@ import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-ic
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { parseEther } from "ethers";
-import { useCallback, useState } from "react";
+import { lazy, useCallback, useState } from "react";
 import { shallowEqual } from "react-redux";
-import AddToBasketButton from "./addToBasketButton";
-import PurchaseTrackButton from "./purchaseTrackButton";
+const AddToBasketButton = lazy(() => import("./addToBasketButton"));
+const PurchaseTrackButton = lazy(() => import("./purchaseTrackButton"));
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;

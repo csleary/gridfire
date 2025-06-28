@@ -1,23 +1,14 @@
-import { IUser } from "@gridfire/shared/models/User";
+import User from "@gridfire/shared/models/User";
 import { getAddress, keccak256, toUtf8Bytes, verifyMessage } from "ethers";
-import mongoose from "mongoose";
 import passport, { AuthenticateCallback } from "passport";
 import { Strategy as PassportCustom, VerifyCallback } from "passport-custom";
-
-const User = mongoose.model("User");
-
-declare global {
-  namespace Express {
-    interface User extends IUser {}
-  }
-}
 
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
 
 passport.deserializeUser(async (userId, done) => {
-  const user = (await User.findById(userId, "-__v").exec()) as Express.User;
+  const user = await User.findById(userId, "-__v").exec();
   done(null, user);
 });
 

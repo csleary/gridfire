@@ -1,3 +1,4 @@
+import logger from "@gridfire/api/controllers/logger";
 import {
   getBlockNumber,
   getDaiContract,
@@ -7,11 +8,10 @@ import {
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Release from "@gridfire/shared/models/Release";
 import Sale from "@gridfire/shared/models/Sale";
+import { IUser } from "@gridfire/shared/models/User";
 import { EventLog } from "ethers";
 import express from "express";
-import mongoose from "mongoose";
 
-const { User } = mongoose.models;
 const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
 const router = express.Router();
 
@@ -35,16 +35,14 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
 
     res.send(leanApprovals);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/claims", requireLogin, async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
-    const { account } = await User.findById(userId).exec();
+    const { account } = req.user as IUser;
     const gridfirePaymentContract = getGridfirePaymentContract();
     const claimFilter = gridfirePaymentContract.filters.Claim(account);
     const currentBlock = await getBlockNumber();
@@ -58,7 +56,7 @@ router.get("/claims", requireLogin, async (req, res) => {
 
     res.json(leanClaims);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -69,32 +67,29 @@ router.get("/domain/:ensDomain", requireLogin, async (req, res) => {
     const resolvedAddress = await getResolvedAddress(ensDomain);
     res.send(resolvedAddress);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/purchases/:account", requireLogin, async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
     const purchases = await Sale.find({ user: userId }).populate({ path: "release", model: Release }).lean();
     res.json(purchases);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/sales", requireLogin, async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
-    const { paymentAddress } = await User.findById(userId).exec();
+    const { paymentAddress } = req.user as IUser;
     const sales = await Sale.find({ artistAddress: paymentAddress }, {}).lean();
     res.json(sales);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });

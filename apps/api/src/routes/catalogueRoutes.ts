@@ -1,9 +1,10 @@
-import express from "express";
+import logger from "@gridfire/api/controllers/logger";
+import Artist from "@gridfire/shared/models/Artist";
+import Release from "@gridfire/shared/models/Release";
+import { Router } from "express";
 import mongoose from "mongoose";
 
-const Artist = mongoose.model("Artist");
-const Release = mongoose.model("Release");
-const router = express.Router();
+const router = Router();
 
 const mapKeyToModel = {
   artist: "artistName",
@@ -109,7 +110,7 @@ router.get("/:artistIdOrSlug", async (req, res) => {
 
     res.send(artistWorks);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -142,7 +143,7 @@ router.get("/", async (req, res) => {
 
     res.send(releases);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: "Music catalogue could not be fetched." });
   }
 });

@@ -42,7 +42,6 @@ const editionSchema = new Schema<IEdition>(
 editionSchema.index({ editionId: 1 });
 editionSchema.index({ release: 1 });
 
-const Edition = model<IEdition>("Edition", editionSchema, "editions");
-
-export default Edition;
-export type { IEdition, EditionStatus, EditionVisibility };
+export { EditionStatus };
+export type { EditionVisibility, IEdition };
+export default model<IEdition>("Edition", editionSchema, "editions");

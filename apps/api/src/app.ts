@@ -1,14 +1,4 @@
-import "@gridfire/shared/models/Activity";
-import "@gridfire/shared/models/Artist";
-import "@gridfire/shared/models/Edition";
-import "@gridfire/shared/models/Favourite";
-import "@gridfire/shared/models/Follower";
-import "@gridfire/shared/models/Play";
-import "@gridfire/shared/models/Release";
-import "@gridfire/shared/models/Sale";
-import "@gridfire/shared/models/StreamSession";
-import "@gridfire/shared/models/User";
-import "@gridfire/shared/models/WishList";
+import logger from "@gridfire/api/controllers/logger";
 import "@gridfire/api/controllers/passport";
 import { clientErrorHandler, errorHandler, logErrors } from "@gridfire/api/middlewares/errorHandlers";
 import artists from "@gridfire/api/routes/artistRoutes";
@@ -23,7 +13,6 @@ import track from "@gridfire/api/routes/trackRoutes";
 import user from "@gridfire/api/routes/userRoutes";
 import web3 from "@gridfire/api/routes/web3Routes";
 import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
-import Logger from "@gridfire/shared/logger";
 import cookieParser from "cookie-parser";
 import cookieSession from "cookie-session";
 import express from "express";
@@ -33,7 +22,6 @@ import { createServer } from "node:http";
 import passport from "passport";
 
 const { COOKIE_KEY, MONGODB_URI, PORT = 5000 } = process.env;
-const logger = new Logger("API");
 let isReady = false;
 let isShuttingDown = false;
 
@@ -64,9 +52,10 @@ await mongoose.connect(MONGODB_URI).catch(error => logger.error("Mongoose connec
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
 app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));
+app.use(logErrors);
 app.use(clientErrorHandler);
 app.use(errorHandler);
-app.use(logErrors);
+app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/artist", artists);
 app.use("/api/artwork", artwork);

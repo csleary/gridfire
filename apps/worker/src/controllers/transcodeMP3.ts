@@ -1,21 +1,20 @@
+import Logger from "@gridfire/shared/logger";
+import Release from "@gridfire/shared/models/Release";
 import { ReleaseContext } from "@gridfire/shared/types/index";
 import { MessageType } from "@gridfire/shared/types/messages";
 import { ffmpegEncodeMP3FromStream } from "@gridfire/worker/controllers/ffmpeg";
 import postMessage from "@gridfire/worker/controllers/postMessage";
 import { streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage";
-import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import fs from "node:fs";
+import fs, { promises as fsPromises } from "node:fs";
 import path from "node:path";
 
 const { BUCKET_FLAC, BUCKET_MP3, TEMP_PATH } = process.env;
-const Release = mongoose.model("Release");
-const fsPromises = fs.promises;
-
 assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
 assert(BUCKET_MP3, "BUCKET_MP3 env var missing.");
 assert(TEMP_PATH, "TEMP_PATH env var missing.");
+const logger = new Logger("transcodeMP3");
 
 const transcodeMP3 = async ({ releaseId, trackId, userId }: ReleaseContext) => {
   const bucketKey = `${releaseId}/${trackId}`;
@@ -32,12 +31,12 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }: ReleaseContext) => {
     await Release.updateOne(filter, { "trackList.$.status": "stored" }).exec();
     postMessage({ type: MessageType.TranscodingCompleteMP3, trackId, userId });
     postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "stored", userId });
-    console.log(`[Worker] Track ${trackId} converted to MP3 and uploaded to B2.`);
+    logger.info(`[Worker] Track ${trackId} converted to MP3 and uploaded to B2.`);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     postMessage({ type: MessageType.PipelineError, stage: "mp3", trackId, userId });
   } finally {
-    console.log("Removing temp MP3 stage file:", mp3FilePath);
+    logger.info("Removing temp MP3 stage file:", mp3FilePath);
 
     if (mp3FilePath) {
       await fsPromises.unlink(mp3FilePath);

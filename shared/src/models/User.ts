@@ -22,7 +22,5 @@ const userSchema = new Schema<IUser>(
 
 userSchema.set("toJSON", { versionKey: false });
 
-const User = model("User", userSchema, "users");
-
 export { IUser };
-export default User;
+export default model("User", userSchema, "users");

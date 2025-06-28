@@ -1,13 +1,15 @@
+import logger from "@gridfire/api/controllers/logger";
 import { getUser, setPaymentAddress } from "@gridfire/api/controllers/userController";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Activity from "@gridfire/shared/models/Activity";
 import Favourite from "@gridfire/shared/models/Favourite";
 import Release, { IRelease } from "@gridfire/shared/models/Release";
 import Sale from "@gridfire/shared/models/Sale";
+import type { IUser } from "@gridfire/shared/models/User";
 import WishList from "@gridfire/shared/models/WishList";
-import express from "express";
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/", async (req, res) => {
   if (!req.user) return void res.end();
@@ -18,19 +20,17 @@ router.get("/", async (req, res) => {
 router.post("/address", requireLogin, async (req, res) => {
   try {
     const { paymentAddress } = req.body;
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
     const updatedAddress = await setPaymentAddress({ paymentAddress, userId });
     res.send(updatedAddress);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/albums", requireLogin, async (req, res) => {
-  const { _id: userId } = req.user || {};
-  if (!userId) return void res.sendStatus(401);
+  const { _id: userId } = req.user as IUser;
 
   const albums = await Sale.find({ type: "album", user: userId }, "paid purchaseDate transactionHash type", {
     lean: true,
@@ -48,8 +48,7 @@ router.get("/albums", requireLogin, async (req, res) => {
 });
 
 router.get("/singles", requireLogin, async (req, res) => {
-  const { _id: userId } = req.user || {};
-  if (!userId) return void res.sendStatus(401);
+  const { _id: userId } = req.user as IUser;
 
   const singles = await Sale.aggregate([
     { $match: { type: "single", user: userId } },
@@ -88,8 +87,7 @@ router.get("/singles", requireLogin, async (req, res) => {
 
 router.get("/favourites", requireLogin, async (req, res) => {
   try {
-    const { _id: userId } = req.user || {};
-    if (!userId) return void res.sendStatus(401);
+    const { _id: userId } = req.user as IUser;
 
     const userFavourites = await Favourite.find({ user: userId }, "", {
       lean: true,
@@ -106,7 +104,7 @@ router.get("/favourites", requireLogin, async (req, res) => {
 
     res.send(userFavourites);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -114,8 +112,7 @@ router.get("/favourites", requireLogin, async (req, res) => {
 router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId: release } = req.params;
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
 
     const favourite = await Favourite.findOneAndUpdate(
       { release },
@@ -126,15 +123,14 @@ router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
         path: "release",
         match: { published: true },
         model: Release,
-        options: { lean: true },
         select: "artist artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
-      .exec();
+      .lean();
 
     Activity.favourite(favourite.release.artist.toString(), release, user.toString());
     res.json(favourite);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -142,20 +138,18 @@ router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
 router.delete("/favourites/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId: release } = req.params;
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
     await Favourite.deleteOne({ release, user }).exec();
     res.end();
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/releases", requireLogin, async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
 
     const releases = await Release.aggregate([
       { $match: { user } },
@@ -191,29 +185,27 @@ router.get("/releases", requireLogin, async (req, res) => {
 
     res.send(releases);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.get("/wishlist", requireLogin, async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
 
     const userWishList = await WishList.find({ user }, "", { lean: true, sort: "-release.releaseDate" })
       .populate<{ release: IRelease }>({
         path: "release",
         match: { published: true },
         model: Release,
-        options: { lean: true },
         select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
-      .exec();
+      .lean();
 
     res.send(userWishList);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -222,8 +214,7 @@ router.post("/wishlist/:releaseId", requireLogin, async (req, res) => {
   try {
     const { note } = req.body;
     const { releaseId: release } = req.params;
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
 
     const wishListItem = await WishList.findOneAndUpdate(
       { release },
@@ -234,14 +225,13 @@ router.post("/wishlist/:releaseId", requireLogin, async (req, res) => {
         path: "release",
         match: { published: true },
         model: Release,
-        options: { lean: true },
         select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
-      .exec();
+      .lean();
 
     res.json(wishListItem);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -249,12 +239,11 @@ router.post("/wishlist/:releaseId", requireLogin, async (req, res) => {
 router.delete("/wishlist/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId: release } = req.params;
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
     await WishList.deleteOne({ release, user }).exec();
     res.end();
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });

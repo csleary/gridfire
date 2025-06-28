@@ -1,13 +1,15 @@
 import { deleteObject, deleteObjects, streamToBucket } from "@gridfire/api/controllers/storage";
 import { publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
+import Play from "@gridfire/shared/models/Play";
 import Release from "@gridfire/shared/models/Release";
+import Stream from "@gridfire/shared/models/Stream";
 import sseClient from "@gridfire/shared/sseController";
 import { MessageType } from "@gridfire/shared/types/messages";
 import Busboy from "busboy";
 import { Request } from "express";
 import mime from "mime-types";
-import { ObjectId, Types, model } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import assert from "node:assert/strict";
 import { IncomingHttpHeaders } from "node:http";
 import type { Readable } from "node:stream";
@@ -15,8 +17,6 @@ import { pipeline } from "node:stream/promises";
 
 const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
 const MIN_DURATION = 1000 * 25;
-const Play = model("Play");
-const StreamSession = model("StreamSession");
 const logger = new Logger("trackController");
 
 assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
@@ -34,7 +34,7 @@ const deleteTrack = async (trackId: string, user: ObjectId) => {
 
   if (!release) return;
   const { _id: releaseId } = release;
-  logger.info(`[${releaseId}] Deleting track: ${trackId.toString()}…`);
+  logger.info(`[track ${trackId.toString()}] Deleting track…`);
   const objectKey = `${releaseId}/${trackId}`;
 
   const results = await Promise.allSettled([
@@ -46,7 +46,7 @@ const deleteTrack = async (trackId: string, user: ObjectId) => {
 
   results.forEach(result => {
     if (result.status === "rejected") {
-      logger.error(`[${trackId.toString()}] Unabled to delete track files: ${result.reason}`);
+      logger.error(`[track ${trackId.toString()}] Unabled to delete track files: ${result.reason}`);
     }
   });
 
@@ -60,8 +60,10 @@ const deleteTrack = async (trackId: string, user: ObjectId) => {
 };
 
 const logPlay = async (trackId: string, release: string, streamId: string, user: string) => {
+  logger.debug(`[${trackId}] Logging play…`);
   await Play.create({ date: Date.now(), trackId, release, user });
-  await StreamSession.findByIdAndDelete(streamId).exec();
+  logger.debug(`[${trackId}] Play logged.`);
+  await Stream.deleteOne({ _id: streamId }).exec();
 };
 
 const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: ObjectId; type: string }) => {
@@ -76,8 +78,8 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
 
   switch (Number.parseInt(type)) {
     case 0:
-      // logger.info(`[${trackId}] Logging start of playback.`);
-      StreamSession.findOneAndUpdate({ user, trackId }, { startTime: Date.now() }, { upsert: true })
+      logger.debug(`[${trackId}] Logging play time start.`);
+      Stream.updateOne({ user, trackId }, { startTime: Date.now() }, { upsert: true })
         .exec()
         .catch((error: any) => {
           if (error.code === 11000) return;
@@ -87,11 +89,11 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
 
     case 1: // Update total time on pause/stop.
       {
-        const stream = await StreamSession.findOne({ user, trackId }).exec();
+        const stream = await Stream.findOne({ user, trackId }).exec();
         if (!stream) break;
-        // logger.info(`[${trackId}] Updating playback time.`);
+        logger.debug(`[${trackId}] Updating play time.`);
 
-        StreamSession.findOneAndUpdate(
+        Stream.updateOne(
           { user, trackId },
           { totalTimePlayed: stream.totalTimePlayed + Date.now() - stream.startTime, startTime: null }
         ).exec();
@@ -100,17 +102,16 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
 
     case 2:
       {
-        const stream = await StreamSession.findOne({ user, trackId }).exec();
+        const stream = await Stream.findOne({ user, trackId }).exec();
         if (!stream) break;
-        // logger.info(`[${trackId}] Total playback time: ${stream.totalTimePlayed + Date.now() - stream.startTime}ms.`);
+        logger.debug(`[${trackId}] Total play time: ${stream.totalTimePlayed + Date.now() - stream.startTime}ms.`);
 
         if (
           stream != null &&
           stream.startTime !== null &&
           stream.totalTimePlayed + Date.now() - stream.startTime > MIN_DURATION
         ) {
-          logger.info(`[${trackId}] Logging play.`);
-          logPlay(trackId, releaseId, stream._id, user);
+          logPlay(trackId, releaseId, stream._id.toString(), user);
         }
       }
       break;

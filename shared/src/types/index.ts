@@ -1,9 +1,22 @@
 import { IRelease } from "@gridfire/shared/models/Release";
 import { SaleType } from "@gridfire/shared/models/Sale";
 import { IUser } from "@gridfire/shared/models/User";
+import "express";
 import type { Request } from "express";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import { ObjectId } from "mongoose";
+
+declare global {
+  namespace Express {
+    interface User extends IUser {}
+  }
+}
+
+declare module "express" {
+  interface Request {
+    user?: Express.User;
+  }
+}
 
 interface AuthenticatedRequest extends Request {
   user: IUser;

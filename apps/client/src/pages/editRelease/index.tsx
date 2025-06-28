@@ -28,15 +28,15 @@ import {
   faTimes,
   faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import Artwork from "./artwork";
-import DetailedInfo from "./detailedInfo";
-import EssentialInfo from "./essentialInfo";
-import Editions from "./mintEdition";
-import TrackList from "./trackList";
+const Artwork = lazy(() => import("./artwork"));
+const DetailedInfo = lazy(() => import("./detailedInfo"));
+const Editions = lazy(() => import("./mintEdition"));
+const EssentialInfo = lazy(() => import("./essentialInfo"));
+const TrackList = lazy(() => import("./trackList"));
 
 const EditRelease = () => {
   const isSmallScreen = useBreakpointValue({ base: false, md: false, sm: true }, { ssr: false });

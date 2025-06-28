@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { JSONRPCResponse } from "json-rpc-2.0";
 
 type ProviderResult = { provider: symbol; data: JSONRPCResponse | JSONRPCResponse[]; error: any };
-const logger = new Logger("Web3Events:filterErrors");
+const logger = new Logger("filterErrors");
 const isBatchResponse = (data: JSONRPCResponse | JSONRPCResponse[]): data is JSONRPCResponse[] => Array.isArray(data);
 
 const filterErrors = (result: ProviderResult): boolean => {

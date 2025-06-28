@@ -3,10 +3,10 @@ import { fetchUserReleases } from "@/state/releases";
 import { Box, Button, Center, Grid, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
-import UserRelease from "./userRelease";
+const UserRelease = lazy(() => import("./userRelease"));
 
 function UserReleases() {
   const addReleaseButtonColor = useColorModeValue("yellow", "purple");

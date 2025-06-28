@@ -1,5 +1,6 @@
 import { createArtist } from "@gridfire/api/controllers/artistController";
 import { deleteArtwork } from "@gridfire/api/controllers/artworkController";
+import logger from "@gridfire/api/controllers/logger";
 import { checkoutFreeBasket } from "@gridfire/api/controllers/releaseController";
 import { deleteTrack } from "@gridfire/api/controllers/trackController";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
@@ -9,27 +10,26 @@ import Favourite from "@gridfire/shared/models/Favourite";
 import Release, { ITrack } from "@gridfire/shared/models/Release";
 import User, { IUser } from "@gridfire/shared/models/User";
 import WishList from "@gridfire/shared/models/WishList";
-import express from "express";
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
 router.delete("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
     const { releaseId } = req.params;
     const release = await Release.findOne({ _id: releaseId, user }, "artist trackList").exec();
     if (!release) return void res.sendStatus(403);
     const { artist, trackList } = release;
 
     // Delete from buckets.
-    console.log(`[${releaseId}] Deleting release…`);
-    console.log(`[${releaseId}] Deleting artwork…`);
+    logger.info(`[${releaseId}] Deleting release…`);
+    logger.info(`[${releaseId}] Deleting artwork…`);
     await deleteArtwork(releaseId);
-    console.log(`[${releaseId}] Artwork deleted.`);
-    console.log(`[${releaseId}] Deleting audio files…`);
+    logger.info(`[${releaseId}] Artwork deleted.`);
+    logger.info(`[${releaseId}] Deleting audio files…`);
     await Promise.all(trackList.map(({ _id: trackId }) => deleteTrack(trackId.toString(), user)));
-    console.log(`[${releaseId}] Audio files deleted.`);
+    logger.info(`[${releaseId}] Audio files deleted.`);
 
     // Delete from database.
     await Release.findOneAndDelete({ _id: releaseId, user }).exec();
@@ -42,10 +42,10 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
     const deleteFromFavourites = Favourite.deleteMany({ release: releaseId }).exec();
     const deleteFromWishlists = WishList.deleteMany({ release: releaseId }).exec();
     await Promise.all([deleteFromFavourites, deleteFromWishlists]);
-    console.log(`Release ${releaseId} deleted.`);
+    logger.info(`Release ${releaseId} deleted.`);
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -53,7 +53,7 @@ router.delete("/:releaseId", requireLogin, async (req, res) => {
 router.get("/:releaseId", async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const userId = req.user?._id;
+    const userId = (req.user as IUser)?._id;
 
     const release = await Release.findOne({
       _id: releaseId,
@@ -66,7 +66,7 @@ router.get("/:releaseId", async (req, res) => {
 
     res.json(release);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
@@ -87,7 +87,7 @@ router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
     const { paymentAddress } = user;
     res.json({ paymentAddress, price });
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     res.status(400).json({ error: error.message || error.toString() });
   }
 });
@@ -95,8 +95,7 @@ router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
 router.patch("/:releaseId", requireLogin, async (req, res) => {
   try {
     const { releaseId } = req.params;
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
     const release = await Release.findOne({ _id: releaseId, user }).exec();
     if (!release) return void res.sendStatus(403);
 
@@ -131,21 +130,19 @@ router.patch("/:releaseId", requireLogin, async (req, res) => {
 
 router.post("/checkout", requireLogin, async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
     const basket = req.body;
     await checkoutFreeBasket(basket, user.toString());
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });
 
 router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { _id: user } = req.user || {};
-    if (!user) return void res.sendStatus(401);
+    const { _id: user } = req.user as IUser;
     const { releaseId } = req.params;
     if (!releaseId) return void res.sendStatus(400);
 
@@ -247,7 +244,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
     await Release.bulkWrite(updateOps, { ordered: true });
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(400);
   }
 });

@@ -27,8 +27,6 @@
     "@types/amqplib": "^0.10.7",
     "@types/node": "^22.15.21",
     "@types/object-hash": "^3.0.3",
-    "json-rpc-2.0": "^1.6.0",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "json-rpc-2.0": "^1.6.0"
   }
 }

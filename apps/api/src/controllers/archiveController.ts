@@ -6,10 +6,9 @@ import { Response } from "express";
 import assert from "node:assert/strict";
 
 const { BUCKET_FLAC, BUCKET_MP3 } = process.env;
-const logger = new Logger("archiveController");
-
 assert(BUCKET_FLAC, "BUCKET_FLAC env var not set.");
 assert(BUCKET_MP3, "BUCKET_MP3 env var not set.");
+const logger = new Logger("archiveController");
 
 interface Buckets {
   flac: string;

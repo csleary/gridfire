@@ -1,11 +1,11 @@
 import { getUser } from "@gridfire/api/controllers/userController";
 import { keccak256, toUtf8Bytes } from "ethers";
-import express from "express";
+import { Router } from "express";
 import { randomBytes } from "node:crypto";
 import passport from "passport";
 
 const { NODE_ENV } = process.env;
-const router = express.Router();
+const router = Router();
 
 router.get("/web3", (req, res) => {
   const { address } = req.query;

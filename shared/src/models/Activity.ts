@@ -91,6 +91,4 @@ activitySchema.static(ActivityType.Sale, function ({ artist, editionId, release,
 activitySchema.index({ artist: 1, user: 1 });
 activitySchema.index({ createdAt: -1 });
 
-const Activity = model<IActivity, ActivityModel>("Activity", activitySchema, "activity");
-
-export default Activity;
+export default model<IActivity, ActivityModel>("Activity", activitySchema, "activity");

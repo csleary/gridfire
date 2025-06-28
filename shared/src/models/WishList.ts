@@ -18,6 +18,5 @@ const wishListSchema = new Schema<IWishList>({
 
 wishListSchema.index({ user: 1, release: 1 }, { unique: true });
 
-const WishList = model<IWishList>("WishList", wishListSchema, "lists");
-
-export default WishList;
+export { IWishList };
+export default model<IWishList>("WishList", wishListSchema, "lists");

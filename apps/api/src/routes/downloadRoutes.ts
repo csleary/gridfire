@@ -1,19 +1,20 @@
 import { zipDownload } from "@gridfire/api/controllers/archiveController";
+import logger from "@gridfire/api/controllers/logger";
 import { getTransaction } from "@gridfire/api/controllers/web3/index";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
+import Edition from "@gridfire/shared/models/Edition";
+import Release from "@gridfire/shared/models/Release";
+import Sale from "@gridfire/shared/models/Sale";
+import type { IUser } from "@gridfire/shared/models/User";
 import { isHexString, TransactionDescription } from "ethers";
-import express from "express";
-import mongoose from "mongoose";
+import { Router } from "express";
 
-const Edition = mongoose.model("Edition");
-const Release = mongoose.model("Release");
-const Sale = mongoose.model("Sale");
-const router = express.Router();
+const router = Router();
 
 router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
   try {
     const { format, purchaseId } = req.params;
-    const { _id: userId } = req.user || {};
+    const { _id: userId } = req.user as IUser;
     const isEdition = isHexString(purchaseId);
     let release;
 
@@ -31,6 +32,10 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
           }
         })
         .exec();
+
+      if (!edition) {
+        throw new Error("Edition not found.");
+      }
 
       ({ release } = edition);
     } else {
@@ -55,7 +60,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
     if (!release) return void res.sendStatus(404);
     zipDownload({ isEdition, release, res, format });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.sendStatus(403);
   }
 });
