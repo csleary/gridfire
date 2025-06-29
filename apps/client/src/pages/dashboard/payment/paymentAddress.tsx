@@ -172,20 +172,18 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {salesHistory.map(
-              ({ blockNumber, userAddress, releaseId, netAmount: artistShare, fee: platformFee, transactionHash }) => (
-                <Tr key={`${transactionHash}.${releaseId}`}>
-                  <Td>
-                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
-                  </Td>
-                  <Td>
-                    {userAddress.slice(0, 6)}…{userAddress.slice(-4)}
-                  </Td>
-                  <Td isNumeric>◈ {Number(formatEther(platformFee)).toFixed(2)}</Td>
-                  <Td isNumeric>◈ {Number(formatEther(artistShare)).toFixed(2)}</Td>
-                </Tr>
-              )
-            )}
+            {salesHistory.map(({ blockNumber, userAddress, releaseId, artistShare, platformFee, transactionHash }) => (
+              <Tr key={`${transactionHash}.${releaseId}`}>
+                <Td>
+                  <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                </Td>
+                <Td>
+                  {userAddress.slice(0, 6)}…{userAddress.slice(-4)}
+                </Td>
+                <Td isNumeric>◈ {Number(formatEther(platformFee)).toFixed(2)}</Td>
+                <Td isNumeric>◈ {Number(formatEther(artistShare)).toFixed(2)}</Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </TableContainer>

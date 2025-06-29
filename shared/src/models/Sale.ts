@@ -1,3 +1,5 @@
+import Release from "@gridfire/shared/models/Release";
+import User from "@gridfire/shared/models/User";
 import { ObjectId, Schema, model } from "mongoose";
 
 export enum SaleType {
@@ -30,10 +32,10 @@ const saleSchema = new Schema<ISale>({
   netAmount: { type: String },
   paid: { type: String },
   purchaseDate: Date,
-  release: { type: ObjectId, ref: "Release" },
+  release: { type: ObjectId, ref: Release },
   transactionHash: { type: String, required: true },
   type: { type: String, enum: SaleType, default: SaleType.Album },
-  user: { type: ObjectId, ref: "User" },
+  user: { type: ObjectId, ref: User },
   userAddress: { type: String }
 });
 

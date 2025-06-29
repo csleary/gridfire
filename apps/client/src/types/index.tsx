@@ -157,10 +157,10 @@ export interface ActiveProcess {
 }
 
 export interface Purchase {
-  netAmount: bigint;
+  artistShare: bigint;
   blockNumber: number;
   editionId: bigint;
-  fee: bigint;
+  platformFee: bigint;
   releaseId: string;
   transactionHash: string;
   userAddress: string;
