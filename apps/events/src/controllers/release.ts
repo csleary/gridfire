@@ -1,15 +1,9 @@
 import Release from "@gridfire/shared/models/Release";
-import Sale, { SaleType } from "@gridfire/shared/models/Sale";
+import { SaleType } from "@gridfire/shared/models/Sale";
 import { PurchasedRelease, ReleaseAlbum, ReleaseSingle, ValidatePurchaseParams } from "@gridfire/shared/types";
 import { getAddress, parseEther } from "ethers";
 
-const validatePurchase = async ({
-  amountPaid,
-  artistAddress,
-  transactionHash,
-  releaseId,
-  userId
-}: ValidatePurchaseParams): PurchasedRelease => {
+const validatePurchase = async ({ amountPaid, artistAddress, releaseId }: ValidatePurchaseParams): PurchasedRelease => {
   let release;
   let price;
   let releaseTitle;
@@ -47,18 +41,6 @@ const validatePurchase = async ({
 
   if (amountPaid < parseEther(price.toString())) {
     throw new Error("The amount paid is lower than the release price.");
-  }
-
-  if (
-    await Sale.exists({
-      paid: amountPaid.toString(),
-      release: releaseId,
-      "transaction.hash": transactionHash,
-      type,
-      user: userId
-    })
-  ) {
-    throw new Error("The buyer already owns this release.");
   }
 
   return { release, releaseTitle, type };

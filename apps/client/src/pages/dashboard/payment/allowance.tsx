@@ -205,26 +205,28 @@ const Allowance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {purchases.map(({ paid, artistId, artistName, blockNumber, releaseId, releaseTitle, transactionHash }) => {
-              return (
-                <Tr key={transactionHash}>
-                  <Td>
-                    <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
-                  </Td>
-                  <Td>
-                    <Link as={RouterLink} to={`/artist/${artistId}`}>
-                      {artistName}
-                    </Link>
-                  </Td>
-                  <Td>
-                    <Link as={RouterLink} to={`/release/${releaseId}`}>
-                      {releaseTitle}
-                    </Link>
-                  </Td>
-                  <Td isNumeric>◈ {Number(formatEther(paid)).toFixed(2)}</Td>
-                </Tr>
-              );
-            })}
+            {purchases.map(
+              ({ paid, artistId, artistName, blockNumber, logIndex, releaseId, releaseTitle, transactionHash }) => {
+                return (
+                  <Tr key={`${transactionHash}-${logIndex}`}>
+                    <Td>
+                      <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
+                    </Td>
+                    <Td>
+                      <Link as={RouterLink} to={`/artist/${artistId}`}>
+                        {artistName}
+                      </Link>
+                    </Td>
+                    <Td>
+                      <Link as={RouterLink} to={`/release/${releaseId}`}>
+                        {releaseTitle}
+                      </Link>
+                    </Td>
+                    <Td isNumeric>◈ {Number(formatEther(paid)).toFixed(2)}</Td>
+                  </Tr>
+                );
+              }
+            )}
           </Tbody>
         </Table>
       </TableContainer>

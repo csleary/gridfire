@@ -13,6 +13,7 @@ export interface ISale {
   artistAddress: string;
   blockNumber: string;
   fee: string;
+  logIndex: string;
   netAmount: string;
   paid: string;
   purchaseDate: Date;
@@ -29,6 +30,7 @@ const saleSchema = new Schema<ISale>({
   artistAddress: { type: String },
   blockNumber: { type: String, required: true },
   fee: { type: String },
+  logIndex: { type: String },
   netAmount: { type: String },
   paid: { type: String },
   purchaseDate: Date,
@@ -39,6 +41,7 @@ const saleSchema = new Schema<ISale>({
   userAddress: { type: String }
 });
 
+saleSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
 saleSchema.index({ user: 1, release: 1 });
 saleSchema.index({ artistAddress: 1 });
 

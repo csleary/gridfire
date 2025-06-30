@@ -10,6 +10,7 @@ interface GridfirePaymentLog {
   paid: string;
   artistId: string;
   artistName: string;
+  logIndex: string;
   blockNumber: number;
   editionId?: string;
   releaseId: string;

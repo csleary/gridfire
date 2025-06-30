@@ -5,6 +5,7 @@ const recordSale = async ({
   amountPaid,
   artistAddress,
   artistShare,
+  logIndex,
   platformFee,
   releaseId,
   transactionReceipt,
@@ -19,12 +20,13 @@ const recordSale = async ({
   }
 
   const sale = await Sale.findOneAndUpdate(
-    { transactionHash },
+    { logIndex, transactionHash },
     {
       $setOnInsert: {
         artistAddress,
         blockNumber: blockNumber.toString(),
         fee: platformFee.toString(),
+        logIndex,
         netAmount: artistShare.toString(),
         paid,
         purchaseDate: Date.now(),

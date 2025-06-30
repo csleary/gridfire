@@ -172,8 +172,8 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {salesHistory.map(({ blockNumber, userAddress, releaseId, artistShare, platformFee, transactionHash }) => (
-              <Tr key={`${transactionHash}.${releaseId}`}>
+            {salesHistory.map(({ blockNumber, logIndex, artistShare, platformFee, transactionHash, userAddress }) => (
+              <Tr key={`${transactionHash}-${logIndex}`}>
                 <Td>
                   <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                 </Td>

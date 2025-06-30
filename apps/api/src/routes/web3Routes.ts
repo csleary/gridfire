@@ -106,6 +106,7 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
                 artistId: { $first: "$release.artist" },
                 artistName: { $first: "$release.artistName" },
                 blockNumber: 1,
+                logIndex: 1,
                 paid: 1,
                 releaseId: { $first: "$release._id" },
                 releaseTitle: { $first: "$release.releaseTitle" },
@@ -129,6 +130,7 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
                 artistId: { $first: "$release.artist" },
                 artistName: { $first: "$release.artistName" },
                 blockNumber: 1,
+                logIndex: 1,
                 paid: 1,
                 releaseId: { $first: "$release._id" },
                 releaseTitle: { $first: "$release.releaseTitle" },
@@ -188,6 +190,7 @@ router.get("/sales", requireLogin, async (req, res) => {
               $project: {
                 artistShare: "$netAmount",
                 blockNumber: 1,
+                logIndex: 1,
                 platformFee: "$fee",
                 releaseId: { $first: "$release._id" },
                 transactionHash: 1,
@@ -209,6 +212,7 @@ router.get("/sales", requireLogin, async (req, res) => {
               $project: {
                 artistShare: "$netAmount",
                 blockNumber: 1,
+                logIndex: 1,
                 platformFee: "$fee",
                 releaseId: { $first: "$release._id" },
                 transactionHash: 1,

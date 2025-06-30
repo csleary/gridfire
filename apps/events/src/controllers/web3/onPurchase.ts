@@ -4,7 +4,7 @@ import { recordSale } from "@gridfire/events/controllers/sale";
 import Logger from "@gridfire/shared/logger";
 import Activity from "@gridfire/shared/models/Activity";
 import { NotificationType } from "@gridfire/shared/types";
-import { BytesLike, decodeBytes32String, formatEther, getAddress } from "ethers";
+import { BytesLike, decodeBytes32String, EventLog, formatEther, getAddress } from "ethers";
 
 const logger = new Logger("onPurchase");
 
@@ -16,7 +16,7 @@ const onPurchase = async (
   amountPaid: bigint,
   artistShare: bigint,
   platformFee: bigint,
-  event: any
+  event: EventLog & { logIndex: string }
 ) => {
   try {
     const daiPaid = formatEther(amountPaid);
@@ -24,20 +24,19 @@ const onPurchase = async (
     const userId = decodeBytes32String(userIdBytes);
     logger.info(`User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
     const transactionReceipt = await event.getTransactionReceipt();
-    const { transactionHash } = transactionReceipt;
+    const { logIndex } = event;
 
     const { release, releaseTitle, type } = await validatePurchase({
       amountPaid,
       artistAddress,
-      transactionHash,
-      releaseId,
-      userId
+      releaseId
     });
 
     const sale = await recordSale({
       amountPaid,
       artistAddress: getAddress(artistAddress),
       artistShare,
+      logIndex,
       platformFee,
       releaseId,
       transactionReceipt,

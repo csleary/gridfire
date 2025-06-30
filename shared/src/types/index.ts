@@ -94,6 +94,7 @@ interface RecordSaleParams {
   amountPaid: bigint;
   artistAddress: string;
   artistShare: bigint;
+  logIndex: string;
   platformFee: bigint;
   releaseId: string;
   transactionReceipt: any;
@@ -134,9 +135,7 @@ interface TrackContext {
 interface ValidatePurchaseParams {
   amountPaid: bigint;
   artistAddress: string;
-  transactionHash: string;
   releaseId: string;
-  userId: string;
 }
 
 export { NotificationType };

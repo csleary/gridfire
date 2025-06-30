@@ -2,7 +2,7 @@ import filterErrors from "@gridfire/events/controllers/web3/filterErrors";
 import Logger from "@gridfire/shared/logger";
 import type { Contract, Provider, ProviderRequest, ProviderResult, RequestOptions } from "@gridfire/shared/types";
 import axios, { AxiosResponse } from "axios";
-import { Interface, LogDescription, getBigInt, toQuantity } from "ethers";
+import { EventLog, Interface, LogDescription, getBigInt, toQuantity } from "ethers";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
@@ -42,9 +42,13 @@ class GridfireProvider extends EventEmitter {
     logger.info("Listeners removed, timeout cleared. Ready for shutdown.");
   }
 
-  #emitEvent(eventName: string, log: LogDescription, transactionHash: string): void {
-    const { args } = log;
-    this.emit(eventName, ...args, { getTransactionReceipt: this.#getTransactionReceipt.bind(this, transactionHash) });
+  #emitEvent(eventName: string, logDescription: LogDescription, log: EventLog): void {
+    const { args } = logDescription;
+
+    this.emit(eventName, ...args, {
+      ...log,
+      getTransactionReceipt: this.#getTransactionReceipt.bind(this, log.transactionHash)
+    });
   }
 
   async #getBlockNumber(): Promise<string> {
@@ -109,10 +113,9 @@ class GridfireProvider extends EventEmitter {
       definitiveResult.data.forEach(({ result }: any, index: number) => {
         const { eventName, iface } = config[index];
 
-        result.forEach((log: any) => {
-          const { transactionHash } = log;
+        result.forEach((log: EventLog) => {
           const description = iface.parseLog(log);
-          this.#emitEvent(eventName, description!, transactionHash);
+          this.#emitEvent(eventName, description!, log);
         });
       });
 

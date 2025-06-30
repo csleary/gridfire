@@ -160,6 +160,7 @@ export interface Purchase {
   artistShare: bigint;
   blockNumber: number;
   editionId: bigint;
+  logIndex: string;
   platformFee: bigint;
   releaseId: string;
   transactionHash: string;
