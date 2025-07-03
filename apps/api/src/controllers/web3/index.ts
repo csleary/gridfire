@@ -1,6 +1,7 @@
-import { GridfireEditions, GridfirePayment } from "@gridfire/api/controllers/imports/contracts";
 import provider from "@gridfire/api/controllers/web3/provider";
 import daiAbi from "@gridfire/shared/abi/dai";
+import editionsABI from "@gridfire/shared/abi/editions";
+import paymentABI from "@gridfire/shared/abi/payment";
 import Edition, { IEdition } from "@gridfire/shared/models/Edition";
 import Release from "@gridfire/shared/models/Release";
 import User from "@gridfire/shared/models/User";
@@ -16,9 +17,6 @@ const {
   MAINNET_NETWORK_URL
 } = process.env;
 
-const { abi: gridfireEditionsABI } = GridfireEditions;
-const { abi: gridfirePaymentABI } = GridfirePayment;
-
 assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var not set.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var not set.");
 assert(DAI_CONTRACT_ADDRESS, "DAI_CONTRACT_ADDRESS env var not set.");
@@ -30,11 +28,11 @@ const getDaiContract = () => {
 };
 
 const getGridfireEditionsContract = () => {
-  return new Contract(GRIDFIRE_EDITIONS_ADDRESS, gridfireEditionsABI, provider);
+  return new Contract(GRIDFIRE_EDITIONS_ADDRESS, editionsABI, provider);
 };
 
 const getGridfirePaymentContract = () => {
-  return new Contract(GRIDFIRE_PAYMENT_ADDRESS, gridfirePaymentABI, provider);
+  return new Contract(GRIDFIRE_PAYMENT_ADDRESS, paymentABI, provider);
 };
 
 const getBlockNumber = async () => {
@@ -72,7 +70,7 @@ const getResolvedAddress = async (address: string) => {
 const getTransaction = async (txId: string) => {
   const tx = await provider.getTransaction(txId);
   if (!tx) return null;
-  const iface = new Interface(gridfireEditionsABI);
+  const iface = new Interface(editionsABI);
   const parsedTx = iface.parseTransaction(tx);
   return parsedTx;
 };

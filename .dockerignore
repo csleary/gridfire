@@ -1,5 +1,7 @@
 *.md
+.dockerignore
 .env*
+**/.env
 .git
 .gitattributes
 .gitignore
@@ -7,4 +9,4 @@
 Dockerfile
 docker-compose.yml
 manifests
-node_modules
+**/node_modules

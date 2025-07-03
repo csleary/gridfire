@@ -140,9 +140,7 @@ const Player = () => {
   const onPause = useCallback(() => {
     playLoggerRef.current?.updatePlayTime();
     navigator.mediaSession.playbackState = "paused";
-    if (!showPlayer) return;
-    dispatch(playerPause());
-  }, [dispatch, showPlayer]);
+  }, [dispatch]);
 
   useEffect(() => {
     audioPlayerRef.current!.addEventListener("playing", onPlaying);
@@ -234,35 +232,41 @@ const Player = () => {
   }, [artistName, cueNextTrack, dispatch, handlePlay, releaseId, releaseTitle, trackIndex, trackList, trackTitle]);
 
   useEffect(() => {
-    if (trackId && trackId !== prevTrackId) {
-      if (isBonus) {
-        // Skip non-streaming tracks.
-        return void cueNextTrack();
+    if (!trackId || trackId === prevTrackId) return;
+
+    if (audioPlayerRef.current && prevTrackId) {
+      // User changed track; pause player to avoid time continuing to elapse.
+      audioPlayerRef.current.currentTime = 0;
+      audioPlayerRef.current.pause();
+    }
+
+    if (isBonus) {
+      // Skip non-streaming tracks.
+      return void cueNextTrack();
+    }
+
+    shaka.Player.probeSupport().then(supportInfo => {
+      const urlStem = `${VITE_CDN_MP4}/${releaseId}/${trackId}`;
+      audioPlayerRef.current!.volume = 1;
+      const mpdSupport = supportInfo.manifest["application/dash+xml"];
+      const m3uSupport = supportInfo.manifest["application/vnd.apple.mpegurl"];
+
+      if (mpdSupport) {
+        const mimeType = "application/dash+xml";
+        shakaRef.current!.load(`${urlStem}/dash.mpd`, null, mimeType).then(handlePlay).catch(onError);
+      } else if (m3uSupport) {
+        const mimeType = "application/vnd.apple.mpegurl";
+        shakaRef.current!.load(`${urlStem}/master.m3u8`, null, mimeType).then(handlePlay).catch(onError);
+      } else {
+        console.warn("No supported manifest format found for audio player.");
       }
 
-      shaka.Player.probeSupport().then(supportInfo => {
-        const urlStem = `${VITE_CDN_MP4}/${releaseId}/${trackId}`;
-        audioPlayerRef.current!.volume = 1;
-        const mpdSupport = supportInfo.manifest["application/dash+xml"];
-        const m3uSupport = supportInfo.manifest["application/vnd.apple.mpegurl"];
+      playLoggerRef.current = new PlayLogger(trackId);
 
-        if (mpdSupport) {
-          const mimeType = "application/dash+xml";
-          shakaRef.current!.load(`${urlStem}/dash.mpd`, null, mimeType).then(handlePlay).catch(onError);
-        } else if (m3uSupport) {
-          const mimeType = "application/vnd.apple.mpegurl";
-          shakaRef.current!.load(`${urlStem}/master.m3u8`, null, mimeType).then(handlePlay).catch(onError);
-        } else {
-          console.warn("No supported manifest format found for audio player.");
-        }
-
-        playLoggerRef.current = new PlayLogger(trackId);
-
-        if ("mediaSession" in navigator) {
-          setMediaSession();
-        }
-      });
-    }
+      if ("mediaSession" in navigator) {
+        setMediaSession();
+      }
+    });
   }, [cueNextTrack, handlePlay, isBonus, onError, prevTrackId, releaseId, setMediaSession, trackId]);
 
   const handleClickFavourites = () => {

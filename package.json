@@ -1,5 +1,4 @@
 {
-  "private": "true",
   "name": "gridfire",
   "version": "1.0.0",
   "main": "index.js",
@@ -49,5 +48,6 @@
     "globals": "^16.2.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }

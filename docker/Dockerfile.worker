@@ -1,23 +1,25 @@
 FROM node:22-slim AS build
 WORKDIR /home/node/app
-COPY package.json yarn.lock tsconfig.json ./
+COPY package.json yarn.lock tsconfig.json .yarnrc.yml ./
 COPY apps/worker ./apps/worker/
 COPY shared ./shared/
-RUN yarn install --frozen-lockfile
-RUN yarn workspace @gridfire/shared tsc --build
-RUN yarn workspace @gridfire/worker tsc --build
+COPY .yarn/releases/ .yarn/releases/
+RUN yarn install
+RUN yarn tsc --build shared
+RUN yarn tsc --build apps/worker
 
 FROM node:22-slim
 WORKDIR /home/node/app
 COPY --from=csleary/ffmpeg /root/bin /usr/bin
 COPY ./apps/worker/bin/packager-linux-x64 /usr/bin
 RUN apt-get update -qq && apt-get -y install libass-dev libvorbis-dev
+COPY package.json yarn.lock .yarnrc.yml ./
 COPY apps/worker/package.json apps/worker/
 COPY --from=build /home/node/app/apps/worker/dist/ ./apps/worker/dist/
 COPY shared/package.json ./shared/
 COPY --from=build /home/node/app/shared/dist ./shared/dist/
-COPY package.json yarn.lock ./
-RUN yarn install --production --frozen-lockfile
+COPY .yarn/releases/ .yarn/releases/
+RUN yarn workspaces focus @gridfire/worker --production
 RUN mkdir ./tmp
 EXPOSE 9090
 ENTRYPOINT [ "node", "apps/worker/dist/app.js" ]

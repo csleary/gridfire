@@ -16,7 +16,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.726.1",
     "@aws-sdk/lib-storage": "3.726.1",
-    "@gridfire/hardhat": "*",
     "@gridfire/shared": "*",
     "amqplib": "^0.10.8",
     "archiver": "^7.0.1",
@@ -53,12 +52,5 @@
     "@types/passport": "^1.0.7",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5"
-  },
-  "nodemonConfig": {
-    "ignore": [
-      "client/*",
-      "hardhat/*",
-      "tmp/*"
-    ]
   }
 }

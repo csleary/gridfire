@@ -6,5 +6,5 @@
     "rootDir": "src"
   },
   "include": ["src"],
-  "references": [{ "path": "../../shared" }, { "path": "../../hardhat" }]
+  "references": [{ "path": "../../shared" }]
 }

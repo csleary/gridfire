@@ -1,10 +1,10 @@
+import slugify from "@gridfire/api/controllers/slugify";
 import Activity from "@gridfire/shared/models/Activity";
 import Artist, { IArtist, ILink } from "@gridfire/shared/models/Artist";
 import Follower from "@gridfire/shared/models/Follower";
 import Release from "@gridfire/shared/models/Release";
 import { Link } from "@gridfire/shared/types";
 import { ObjectId, Types } from "mongoose";
-import slugify from "./imports/slugify.js";
 
 const addLink = async (_id: string, user: ObjectId): Promise<ILink> => {
   const artist = await Artist.findOne({ _id, user }, "links").exec();

@@ -1,6 +1,6 @@
-import GridfireEditions from "@gridfire/hardhat/abi/GridfireEditions.json" with { type: "json" };
-import GridfirePayment from "@gridfire/hardhat/abi/GridfirePayment.json" with { type: "json" };
-import daiAbi from '@gridfire/shared/abi/dai';
+import daiAbi from "@gridfire/shared/abi/dai";
+import editionsABI from "@gridfire/shared/abi/editions";
+import paymentABI from "@gridfire/shared/abi/payment";
 import { Contract as IContract, Provider } from "@gridfire/shared/types";
 import assert from "node:assert/strict";
 
@@ -54,20 +54,18 @@ const contracts: IContract[] = [
   {
     address: DAI_CONTRACT_ADDRESS,
     abi: daiAbi,
-    events: [[EventNames.APPROVAL,[null, GRIDFIRE_PAYMENT_ADDRESS]]],
+    events: [[EventNames.APPROVAL, [null, GRIDFIRE_PAYMENT_ADDRESS]]]
   },
   {
     address: GRIDFIRE_EDITIONS_ADDRESS,
-    abi: GridfireEditions.abi,
-    events: [[EventNames.EDITION_MINTED], [EventNames.PURCHASE_EDITION]],
+    abi: editionsABI,
+    events: [[EventNames.EDITION_MINTED], [EventNames.PURCHASE_EDITION]]
   },
   {
     address: GRIDFIRE_PAYMENT_ADDRESS,
-    abi: GridfirePayment.abi,
-    events: [[EventNames.CLAIM], [EventNames.PURCHASE]],
+    abi: paymentABI,
+    events: [[EventNames.CLAIM], [EventNames.PURCHASE]]
   }
 ];
 
-const contractEvents = (contracts.flatMap(c => c.events.map(([name]) => name)).sort());
-
-export { contractEvents, contracts, PROVIDERS };
+export { contracts, PROVIDERS };
