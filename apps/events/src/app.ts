@@ -1,4 +1,5 @@
 import GridfireProvider from "@gridfire/events/controllers/web3/gridfireProvider";
+import onDaiApproval from "@gridfire/events/controllers/web3/onDaiApproval";
 import onEditionMinted from "@gridfire/events/controllers/web3/onEditionMinted";
 import onPurchase from "@gridfire/events/controllers/web3/onPurchase";
 import onPurchaseEdition from "@gridfire/events/controllers/web3/onPurchaseEdition";
@@ -8,6 +9,7 @@ import Logger from "@gridfire/shared/logger";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
+import onBalanceClaim from "./controllers/web3/onBalanceClaim.js";
 
 const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
 const logger = new Logger("Events");
@@ -86,6 +88,8 @@ try {
   gridfireProvider = new GridfireProvider({ providers: PROVIDERS, contracts });
 
   gridfireProvider
+    .on("Approval", onDaiApproval)
+    .on("Claim", onBalanceClaim)
     .on("EditionMinted", onEditionMinted)
     .on("PurchaseEdition", onPurchaseEdition)
     .on("Purchase", onPurchase)

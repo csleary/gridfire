@@ -7,6 +7,7 @@
       "@gridfire/api/*": ["./apps/api/src/*.ts", "./apps/api/src/*/index.ts"],
       "@gridfire/events/*": ["./apps/events/src/*.ts", "./apps/events/src/*/index.ts"],
       "@gridfire/worker/*": ["./apps/worker/src/*.ts", "./apps/worker/src/*/index.ts"],
+      "@gridfire/shared/abi/*": ["./shared/src/abi/*.ts"],
       "@gridfire/shared/amqp": ["./shared/src/amqp.ts"],
       "@gridfire/shared/logger": ["./shared/src/logger.ts"],
       "@gridfire/shared/models/*": ["./shared/src/models/*.ts"],

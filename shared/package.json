@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
+    "./abi/*": "./dist/abi/*.js",
     "./amqp": "./dist/amqp.js",
     "./models/*": "./dist/models/*.js",
     "./types/*": "./dist/types/*.js",

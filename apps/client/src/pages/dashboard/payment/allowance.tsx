@@ -98,7 +98,6 @@ const Allowance = () => {
       setIsSubmitting(true);
       await setDaiAllowance(allowance);
       dispatch(fetchDaiAllowance(account));
-      getApprovals(account);
 
       dispatch(
         toastSuccess({
@@ -179,12 +178,12 @@ const Allowance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {approvals.map(({ amount, blockNumber, transactionHash }) => (
-              <Tr key={transactionHash}>
+            {approvals.map(({ blockNumber, logIndex, transactionHash, value }) => (
+              <Tr key={`${transactionHash}-${logIndex}`}>
                 <Td>
                   <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                 </Td>
-                <Td isNumeric>◈ {Number(formatEther(amount)).toFixed(2)}</Td>
+                <Td isNumeric>◈ {Number(formatEther(value)).toFixed(2)}</Td>
               </Tr>
             ))}
           </Tbody>

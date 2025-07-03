@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "@/hooks";
 import { setArtworkUploading } from "@/state/artwork";
 import { updateTrackStatus } from "@/state/editor";
+import { endpoints } from "@/state/logs";
 import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
 import {
   setEncodingProgressFLAC,
@@ -54,6 +55,16 @@ const useSSE = () => {
     dispatch(setArtworkUploading(false));
     dispatch(toastSuccess({ message: "Artwork uploaded!", title: "Done!" }));
   }, [dispatch]);
+
+  const onApprovalEvent: SSEHandler = useCallback(
+    () => dispatch(endpoints.getApprovals.initiate(account, { forceRefetch: true })),
+    [account, dispatch]
+  );
+
+  const onClaimEvent: SSEHandler = useCallback(
+    () => dispatch(endpoints.getClaims.initiate(undefined, { forceRefetch: true })),
+    [dispatch]
+  );
 
   const onEncodingProgressFLAC: SSEHandler = useCallback(
     event => {
@@ -209,6 +220,8 @@ const useSSE = () => {
     if (sourceRef.current) {
       const source = sourceRef.current;
       source.removeEventListener("artworkUploaded", onArtworkUploaded);
+      source.removeEventListener("approvalEvent", onApprovalEvent);
+      source.removeEventListener("claimEvent", onClaimEvent);
       source.removeEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
       source.removeEventListener("mintedEvent", onEditionMinted);
       source.removeEventListener("notify", onNotify);
@@ -269,11 +282,15 @@ const useSSE = () => {
     const source = sourceRef.current;
     source.onopen = () => console.log("[SSE] Connection to server opened.");
     source.onmessage = (event: MessageEvent) => console.info(event.data);
+
     source.onerror = (error: any) => {
       console.error("[SSE] Error:", error);
       setShouldReconnect(true);
     };
+
     source.addEventListener("artworkUploaded", onArtworkUploaded);
+    source.addEventListener("approvalEvent", onApprovalEvent);
+    source.addEventListener("claimEvent", onClaimEvent);
     source.addEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
     source.addEventListener("mintedEvent", onEditionMinted);
     source.addEventListener("notify", onNotify);

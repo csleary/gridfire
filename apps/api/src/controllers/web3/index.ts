@@ -1,6 +1,6 @@
 import { GridfireEditions, GridfirePayment } from "@gridfire/api/controllers/imports/contracts";
-import daiAbi from "@gridfire/api/controllers/web3/dai";
 import provider from "@gridfire/api/controllers/web3/provider";
+import daiAbi from "@gridfire/shared/abi/dai";
 import Edition, { IEdition } from "@gridfire/shared/models/Edition";
 import Release from "@gridfire/shared/models/Release";
 import User from "@gridfire/shared/models/User";

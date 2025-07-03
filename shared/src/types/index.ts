@@ -33,10 +33,12 @@ interface BasketItem {
   releaseId: string;
 }
 
+type ContractEvent = [eventName: string, eventFilters?: any[]];
+
 interface Contract {
   address: string;
   abi: any;
-  eventNames: string[];
+  events: ContractEvent[];
 }
 
 interface Link {
@@ -46,10 +48,22 @@ interface Link {
 }
 
 enum NotificationType {
+  Approval = "approvalEvent",
+  Claim = "claimEvent",
   Mint = "mintedEvent",
   Purchase = "purchaseEvent",
   Sale = "saleEvent",
   PurchaseEdition = "purchaseEditionEvent"
+}
+
+interface ApprovalNotification {
+  type: NotificationType.Approval;
+  userId: string;
+}
+
+interface ClaimNotification {
+  type: NotificationType.Claim;
+  userId: string;
 }
 
 interface MintNotification {
@@ -58,7 +72,13 @@ interface MintNotification {
   userId: string;
 }
 
-type Notification = MintNotification | PurchaseEditionNotification | PurchaseNotification | SaleNotification;
+type Notification =
+  | ApprovalNotification
+  | ClaimNotification
+  | MintNotification
+  | PurchaseEditionNotification
+  | PurchaseNotification
+  | SaleNotification;
 
 interface PurchaseEditionNotification {
   artistName: string;

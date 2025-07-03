@@ -6,5 +6,5 @@
 .vscode
 Dockerfile
 docker-compose.yml
-manifests/
-node_modules/
+manifests
+node_modules

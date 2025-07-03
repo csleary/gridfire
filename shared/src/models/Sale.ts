@@ -26,20 +26,23 @@ export interface ISale {
 
 const { ObjectId } = Schema.Types;
 
-const saleSchema = new Schema<ISale>({
-  artistAddress: { type: String },
-  blockNumber: { type: String, required: true },
-  fee: { type: String },
-  logIndex: { type: String },
-  netAmount: { type: String },
-  paid: { type: String },
-  purchaseDate: Date,
-  release: { type: ObjectId, ref: Release },
-  transactionHash: { type: String, required: true },
-  type: { type: String, enum: SaleType, default: SaleType.Album },
-  user: { type: ObjectId, ref: User },
-  userAddress: { type: String }
-});
+const saleSchema = new Schema<ISale>(
+  {
+    artistAddress: { type: String },
+    blockNumber: { type: String, required: true },
+    fee: { type: String },
+    logIndex: { type: String },
+    netAmount: { type: String },
+    paid: { type: String },
+    purchaseDate: Date,
+    release: { type: ObjectId, ref: Release },
+    transactionHash: { type: String, required: true },
+    type: { type: String, enum: SaleType, default: SaleType.Album },
+    user: { type: ObjectId, ref: User },
+    userAddress: { type: String }
+  },
+  { timestamps: true }
+);
 
 saleSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
 saleSchema.index({ user: 1, release: 1 });

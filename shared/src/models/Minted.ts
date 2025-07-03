@@ -3,33 +3,33 @@ import Edition from "./Edition.js";
 import Release from "./Release.js";
 
 interface Minted {
-  transactionHash: string;
-  blockNumber: string;
-  releaseId: ObjectId;
-  artistAddress: string;
-  objectId: ObjectId;
-  editionId: bigint;
   amount: bigint;
+  artistAddress: string;
+  blockNumber: string;
+  editionId: bigint;
+  logIndex: string;
+  objectId: ObjectId;
   price: bigint;
+  releaseId: ObjectId;
+  transactionHash: string;
 }
 
-const MintedSchema = new Schema<Minted>(
+const mintedSchema = new Schema<Minted>(
   {
-    transactionHash: { type: String, required: true },
-    blockNumber: { type: String, required: true },
-    releaseId: { type: Schema.ObjectId, ref: Release, required: true },
-    artistAddress: { type: String, required: true },
-    objectId: { type: Schema.ObjectId, ref: Edition, required: true },
-    editionId: { type: String, required: true },
     amount: { type: String, required: true },
-    price: { type: String, required: true }
+    artistAddress: { type: String, required: true },
+    blockNumber: { type: String, required: true },
+    editionId: { type: String, required: true },
+    logIndex: { type: String },
+    objectId: { type: Schema.ObjectId, ref: Edition, required: true },
+    price: { type: String, required: true },
+    releaseId: { type: Schema.ObjectId, ref: Release, required: true },
+    transactionHash: { type: String, required: true }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
-MintedSchema.index({ transactionHash: 1 }, { unique: true });
-MintedSchema.index({ releaseId: 1 });
+mintedSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
+mintedSchema.index({ releaseId: 1 });
 
-export default model<Minted>("Minted", MintedSchema, "minted");
+export default model<Minted>("Minted", mintedSchema, "minted");

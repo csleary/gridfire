@@ -94,12 +94,12 @@ class GridfireProvider extends EventEmitter {
       }
 
       const config = this.#contracts.flatMap(contract => {
-        const { abi, address, eventNames } = contract;
+        const { abi, address, events } = contract;
         const iface = new Interface(abi);
 
-        return eventNames.flatMap(eventName => {
+        return events.flatMap(([eventName, eventFilters = []]) => {
           const event = iface.getEvent(eventName);
-          const topics = iface.encodeFilterTopics(event!, []);
+          const topics = iface.encodeFilterTopics(event!, eventFilters);
           const params = [{ fromBlock, toBlock: blockNumber, address, topics }];
           const request = { method: "eth_getLogs", params };
           return { eventName, iface, request };

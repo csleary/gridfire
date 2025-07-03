@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 interface GridfireLog {
-  amount: string;
   blockNumber: number;
+  logIndex: string;
   transactionHash: string;
+  value: string;
 }
 
 interface GridfirePaymentLog {
@@ -35,6 +36,7 @@ export const logsApi = createApi({
 });
 
 export const {
+  endpoints,
   useGetApprovalsQuery,
   useGetClaimsQuery,
   useGetPurchasesQuery,

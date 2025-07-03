@@ -1,39 +1,20 @@
 import logger from "@gridfire/api/controllers/logger";
-import {
-  getBlockNumber,
-  getDaiContract,
-  getGridfirePaymentContract,
-  getResolvedAddress
-} from "@gridfire/api/controllers/web3/index";
+import { getResolvedAddress } from "@gridfire/api/controllers/web3/index";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
+import Approval from "@gridfire/shared/models/Approval";
+import Claim from "@gridfire/shared/models/Claim";
 import Sale from "@gridfire/shared/models/Sale";
 import { IUser } from "@gridfire/shared/models/User";
-import { EventLog } from "ethers";
-import express from "express";
+import { Router } from "express";
 import { Types } from "mongoose";
 
-const { GRIDFIRE_PAYMENT_ADDRESS } = process.env;
-const router = express.Router();
+const router = Router();
 
 router.get("/approvals/:account", requireLogin, async (req, res) => {
   try {
     const { account } = req.params;
-    const daiContract = getDaiContract();
-    const approvalsFilter = daiContract.filters.Approval(account, GRIDFIRE_PAYMENT_ADDRESS);
-    const currentBlock = await getBlockNumber();
-    const approvals = (await daiContract.queryFilter(approvalsFilter, currentBlock - 100)) as EventLog[];
-
-    const leanApprovals = approvals.map(({ args, blockNumber, transactionHash }) => {
-      const { wad } = args;
-
-      return {
-        amount: wad.toString(),
-        blockNumber,
-        transactionHash
-      };
-    });
-
-    res.send(leanApprovals);
+    const approvals = await Approval.find({ owner: account }).lean();
+    res.json(approvals);
   } catch (error) {
     logger.error(error);
     res.sendStatus(400);
@@ -43,18 +24,8 @@ router.get("/approvals/:account", requireLogin, async (req, res) => {
 router.get("/claims", requireLogin, async (req, res) => {
   try {
     const { account } = req.user as IUser;
-    const gridfirePaymentContract = getGridfirePaymentContract();
-    const claimFilter = gridfirePaymentContract.filters.Claim(account);
-    const currentBlock = await getBlockNumber();
-    const claims = (await gridfirePaymentContract.queryFilter(claimFilter, currentBlock - 100)) as EventLog[];
-
-    const leanClaims = claims.map(({ args, blockNumber, transactionHash }) => ({
-      amount: args.amount.toString(),
-      blockNumber,
-      transactionHash
-    }));
-
-    res.json(leanClaims);
+    const claims = await Claim.find({ artist: account }).lean();
+    res.json(claims);
   } catch (error) {
     logger.error(error);
     res.sendStatus(400);

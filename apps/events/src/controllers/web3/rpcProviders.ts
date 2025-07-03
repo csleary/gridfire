@@ -1,6 +1,7 @@
 import GridfireEditions from "@gridfire/hardhat/abi/GridfireEditions.json" with { type: "json" };
 import GridfirePayment from "@gridfire/hardhat/abi/GridfirePayment.json" with { type: "json" };
-import { Contract, Provider } from "@gridfire/shared/types";
+import daiAbi from '@gridfire/shared/abi/dai';
+import { Contract as IContract, Provider } from "@gridfire/shared/types";
 import assert from "node:assert/strict";
 
 const {
@@ -8,6 +9,7 @@ const {
   API_KEY_ALCHEMY,
   API_KEY_CHAINNODES,
   API_KEY_QUICKNODE,
+  DAI_CONTRACT_ADDRESS,
   GRIDFIRE_EDITIONS_ADDRESS,
   GRIDFIRE_PAYMENT_ADDRESS,
   NODE_ENV
@@ -16,6 +18,7 @@ const {
 const hasKey = (key: string | undefined): boolean =>
   NODE_ENV !== "production" || (NODE_ENV === "production" && Boolean(key));
 
+assert(DAI_CONTRACT_ADDRESS, "DAI_CONTRACT_ADDRESS env var missing.");
 assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var missing.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var missing.");
 assert(hasKey(API_KEY_1RPC), "API_KEY_1RPC env var missing.");
@@ -24,6 +27,8 @@ assert(hasKey(API_KEY_CHAINNODES), "API_KEY_CHAINNODES env var missing.");
 assert(hasKey(API_KEY_QUICKNODE), "API_KEY_QUICKNODE env var missing.");
 
 export enum EventNames {
+  APPROVAL = "Approval",
+  CLAIM = "Claim",
   EDITION_MINTED = "EditionMinted",
   PURCHASE_EDITION = "PurchaseEdition",
   PURCHASE = "Purchase"
@@ -45,18 +50,24 @@ const PROVIDERS: Provider[] =
       ]
     : [[LOCALHOST, "http://localhost:8545"]];
 
-const contracts: Contract[] = [
+const contracts: IContract[] = [
+  {
+    address: DAI_CONTRACT_ADDRESS,
+    abi: daiAbi,
+    events: [[EventNames.APPROVAL,[null, GRIDFIRE_PAYMENT_ADDRESS]]],
+  },
   {
     address: GRIDFIRE_EDITIONS_ADDRESS,
     abi: GridfireEditions.abi,
-    eventNames: [EventNames.EDITION_MINTED, EventNames.PURCHASE_EDITION]
+    events: [[EventNames.EDITION_MINTED], [EventNames.PURCHASE_EDITION]],
   },
   {
     address: GRIDFIRE_PAYMENT_ADDRESS,
     abi: GridfirePayment.abi,
-    eventNames: [EventNames.PURCHASE]
+    events: [[EventNames.CLAIM], [EventNames.PURCHASE]],
   }
 ];
 
-export { contracts, PROVIDERS };
+const contractEvents = (contracts.flatMap(c => c.events.map(([name]) => name)).sort());
 
+export { contractEvents, contracts, PROVIDERS };

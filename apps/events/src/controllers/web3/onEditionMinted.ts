@@ -4,7 +4,7 @@ import Logger from "@gridfire/shared/logger";
 import Activity from "@gridfire/shared/models/Activity";
 import Minted from "@gridfire/shared/models/Minted";
 import { NotificationType } from "@gridfire/shared/types";
-import { AddressLike, BytesLike, decodeBytes32String, formatEther, Log } from "ethers";
+import { AddressLike, BytesLike, decodeBytes32String, EventLog, formatEther } from "ethers";
 
 const logger = new Logger("onEditionMinted");
 
@@ -15,7 +15,7 @@ const onEditionMinted = async (
   editionId: bigint,
   amount: bigint,
   price: bigint,
-  event: Log
+  event: EventLog & { logIndex: string }
 ) => {
   try {
     const releaseId = decodeBytes32String(releaseIdBytes);
@@ -24,29 +24,27 @@ const onEditionMinted = async (
     const edition = await updateEditionStatus(releaseId, decodedObjectId, editionId.toString());
 
     if (!edition) {
-      throw new Error(`Edition ${decodedObjectId} not found. (Release ${releaseId}`);
+      throw new Error(`[release ${releaseId}] Edition ${decodedObjectId} not found.`);
     }
 
     const { user, artist: artistId } = edition.release;
     const userId = user.toString();
     notifyUser(userId, { editionId: decodedObjectId.toString(), type: NotificationType.Mint, userId });
-
-    // Store 'MintedEdition' event in the db.
-    const receipt = await event.getTransactionReceipt();
-    const { blockNumber, transactionHash } = receipt as any;
+    const { blockNumber, logIndex, transactionHash } = event;
 
     await Minted.updateOne(
-      { transactionHash },
+      { logIndex, transactionHash },
       {
         $setOnInsert: {
-          transactionHash,
-          blockNumber,
-          releaseId,
-          artistAddress: artist,
-          objectId: decodedObjectId,
-          editionId: editionId.toString(),
           amount: amount.toString(),
-          price: price.toString()
+          artistAddress: artist,
+          blockNumber,
+          editionId: editionId.toString(),
+          logIndex,
+          objectId: decodedObjectId,
+          price: price.toString(),
+          releaseId,
+          transactionHash
         }
       },
       { upsert: true }

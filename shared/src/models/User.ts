@@ -21,6 +21,7 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.set("toJSON", { versionKey: false });
+userSchema.index({ account: 1 });
 
 export { IUser };
 export default model("User", userSchema, "users");

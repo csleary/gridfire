@@ -133,12 +133,12 @@ const Balance = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {claims.map(({ amount, blockNumber, transactionHash }) => (
-              <Tr key={transactionHash}>
+            {claims.map(({ blockNumber, logIndex, transactionHash, value }) => (
+              <Tr key={`${transactionHash}-${logIndex}`}>
                 <Td>
                   <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>
                 </Td>
-                <Td isNumeric>◈ {Number(formatEther(amount)).toFixed(2)}</Td>
+                <Td isNumeric>◈ {Number(formatEther(value)).toFixed(2)}</Td>
               </Tr>
             ))}
           </Tbody>
