@@ -12,6 +12,7 @@ export interface ISale {
   _id: ObjectId;
   artistAddress: string;
   blockNumber: string;
+  editionId: string | null;
   fee: string;
   logIndex: string;
   netAmount: string;
@@ -30,6 +31,7 @@ const saleSchema = new Schema<ISale>(
   {
     artistAddress: { type: String },
     blockNumber: { type: String, required: true },
+    editionId: { type: String, default: null },
     fee: { type: String },
     logIndex: { type: String },
     netAmount: { type: String },

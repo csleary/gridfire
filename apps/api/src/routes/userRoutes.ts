@@ -32,7 +32,7 @@ router.post("/address", requireLogin, async (req, res) => {
 router.get("/albums", requireLogin, async (req, res) => {
   const { _id: userId } = req.user as IUser;
 
-  const albums = await Sale.find({ type: "album", user: userId }, "paid purchaseDate transactionHash type", {
+  const albums = await Sale.find({ type: "album", user: userId }, "logIndex paid purchaseDate transactionHash type", {
     lean: true,
     sort: "-purchaseDate"
   })
@@ -65,6 +65,7 @@ router.get("/singles", requireLogin, async (req, res) => {
     { $sort: { purchaseDate: -1 } },
     {
       $project: {
+        logIndex: 1,
         paid: 1,
         purchaseDate: 1,
         release: {

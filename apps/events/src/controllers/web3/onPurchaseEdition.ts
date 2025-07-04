@@ -13,7 +13,7 @@ const logger = new Logger("onPurchaseEdition");
 const onPurchaseEdition = async (
   buyerAddress: string,
   artistAddress: string,
-  editionId: bigint,
+  editionIdBigint: bigint,
   amountPaid: bigint,
   artistShare: bigint,
   platformFee: bigint,
@@ -31,8 +31,8 @@ const onPurchaseEdition = async (
     }
 
     const userId = buyerUser._id.toString();
-    const id = editionId.toString();
-    logger.info(`User ${userId} paid ${daiPaid} DAI to ${artistAddress} for Edition ${id} (${releaseId}).`);
+    const editionId = editionIdBigint.toString();
+    logger.info(`User ${userId} paid ${daiPaid} DAI to ${artistAddress} for Edition ${editionId} (${releaseId}).`);
     const release = await Release.findById(releaseId, "artist artistName releaseTitle user").exec();
 
     if (!release) {
@@ -46,6 +46,7 @@ const onPurchaseEdition = async (
       amountPaid,
       artistAddress: getAddress(artistAddress),
       artistShare,
+      editionId,
       logIndex,
       platformFee,
       releaseId,
@@ -59,7 +60,7 @@ const onPurchaseEdition = async (
 
     Activity.sale({
       artist: artistId.toString(),
-      editionId: id,
+      editionId,
       release: releaseId,
       sale: sale._id.toString(),
       user: userId

@@ -114,6 +114,7 @@ interface RecordSaleParams {
   amountPaid: bigint;
   artistAddress: string;
   artistShare: bigint;
+  editionId?: string;
   logIndex: string;
   platformFee: bigint;
   releaseId: string;

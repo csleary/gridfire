@@ -3,7 +3,8 @@ import daiAbi from "@gridfire/shared/abi/dai";
 import editionsABI from "@gridfire/shared/abi/editions";
 import paymentABI from "@gridfire/shared/abi/payment";
 import Edition, { IEdition } from "@gridfire/shared/models/Edition";
-import Release from "@gridfire/shared/models/Release";
+import Release, { IRelease } from "@gridfire/shared/models/Release";
+import Sale, { ISale } from "@gridfire/shared/models/Sale";
 import User from "@gridfire/shared/models/User";
 import { Contract, Interface, getAddress, getDefaultProvider, resolveAddress } from "ethers";
 import { FilterQuery, ObjectId } from "mongoose";
@@ -75,16 +76,30 @@ const getTransaction = async (txId: string) => {
   return parsedTx;
 };
 
-const getUserGridfireEditions = async (userId: ObjectId) => {
+const getUserGridfireEditions = async (userId: ObjectId): Promise<(ISale & { release: IRelease })[]> => {
   const user = await User.findById(userId).exec();
   if (!user) return [];
+
+  // Todo get editions sent to a user via TransferSingle event.
+
+  const purchasedEditions = await Sale.find(
+    { type: "edition", user: userId },
+    "editionId logIndex paid purchaseDate transactionHash type",
+    { sort: "-purchaseDate" }
+  )
+    .populate({
+      path: "release",
+      model: Release,
+      select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
+    })
+    .lean();
+
   const userAccount = getAddress(user.account);
-  const allEditions = await Edition.find({ status: "minted" }).populate({ path: "release", model: Release }).lean();
-  const editionIds = allEditions.map(({ editionId }) => editionId);
-  const accounts = Array(allEditions.length).fill(userAccount);
+  const editionIds = purchasedEditions.map(({ editionId }) => editionId);
+  const accounts = Array(purchasedEditions.length).fill(userAccount);
   const gridFireEditionsContract = getGridfireEditionsContract();
   const balances: bigint[] = await gridFireEditionsContract.balanceOfBatch(accounts, editionIds);
-  const inWallet = allEditions.filter((_, i) => balances[i] > 0);
+  const inWallet = purchasedEditions.filter((_, i) => balances[i] > 0) as unknown as (ISale & { release: IRelease })[];
   return inWallet;
 };
 
