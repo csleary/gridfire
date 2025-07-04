@@ -5,6 +5,7 @@ import paymentABI from "@gridfire/shared/abi/payment";
 import Edition, { IEdition } from "@gridfire/shared/models/Edition";
 import Release, { IRelease } from "@gridfire/shared/models/Release";
 import Sale, { ISale } from "@gridfire/shared/models/Sale";
+import Transfer, { ITransfer } from "@gridfire/shared/models/Transfer";
 import User from "@gridfire/shared/models/User";
 import { Contract, Interface, getAddress, getDefaultProvider, resolveAddress } from "ethers";
 import { FilterQuery, ObjectId } from "mongoose";
@@ -76,11 +77,32 @@ const getTransaction = async (txId: string) => {
   return parsedTx;
 };
 
-const getUserGridfireEditions = async (userId: ObjectId): Promise<(ISale & { release: IRelease })[]> => {
+type PurchasedAndReceivedEditions =
+  | (ISale & { release: IRelease })[]
+  | (ITransfer & { editionId: string; release: IRelease })[];
+
+const getUserGridfireEditions = async (userId: ObjectId): Promise<PurchasedAndReceivedEditions> => {
   const user = await User.findById(userId).exec();
   if (!user) return [];
+  const userAccount = getAddress(user.account);
 
-  // Todo get editions sent to a user via TransferSingle event.
+  const receivedEditions = await Transfer.aggregate([
+    { $match: { to: userAccount } },
+    { $lookup: { from: Edition.collection.name, localField: "id", foreignField: "editionId", as: "edition" } },
+    { $lookup: { from: Release.collection.name, localField: "edition.release", foreignField: "_id", as: "release" } },
+    { $addFields: { editionId: "$id", release: { $first: "$release" } } },
+    {
+      $project: {
+        editionId: 1,
+        logIndex: 1,
+        paid: { $literal: 0 },
+        purchaseDate: "$createdAt",
+        transactionHash: 1,
+        type: "edition",
+        release: { _id: 1, artistName: 1, artwork: 1, releaseTitle: 1, "trackList._id": 1, "trackList.trackTitle": 1 }
+      }
+    }
+  ]).exec();
 
   const purchasedEditions = await Sale.find(
     { type: "edition", user: userId },
@@ -94,12 +116,14 @@ const getUserGridfireEditions = async (userId: ObjectId): Promise<(ISale & { rel
     })
     .lean();
 
-  const userAccount = getAddress(user.account);
-  const editionIds = purchasedEditions.map(({ editionId }) => editionId);
-  const accounts = Array(purchasedEditions.length).fill(userAccount);
+  const allEditions = [...receivedEditions, ...purchasedEditions];
+  if (allEditions.length === 0) return [];
+
+  const editionIds = allEditions.map(({ editionId }) => editionId);
+  const accounts = Array(allEditions.length).fill(userAccount);
   const gridFireEditionsContract = getGridfireEditionsContract();
   const balances: bigint[] = await gridFireEditionsContract.balanceOfBatch(accounts, editionIds);
-  const inWallet = purchasedEditions.filter((_, i) => balances[i] > 0) as unknown as (ISale & { release: IRelease })[];
+  const inWallet = allEditions.filter((_, i) => balances[i] > 0) as unknown as PurchasedAndReceivedEditions;
   return inWallet;
 };
 

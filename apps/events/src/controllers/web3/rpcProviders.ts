@@ -31,7 +31,8 @@ export enum EventNames {
   CLAIM = "Claim",
   EDITION_MINTED = "EditionMinted",
   PURCHASE_EDITION = "PurchaseEdition",
-  PURCHASE = "Purchase"
+  PURCHASE = "Purchase",
+  TRANSFER_SINGLE = "TransferSingle"
 }
 
 const ALCHEMY = Symbol("alchemy");
@@ -59,7 +60,7 @@ const contracts: IContract[] = [
   {
     address: GRIDFIRE_EDITIONS_ADDRESS,
     abi: editionsABI,
-    events: [[EventNames.EDITION_MINTED], [EventNames.PURCHASE_EDITION]]
+    events: [[EventNames.EDITION_MINTED], [EventNames.PURCHASE_EDITION], [EventNames.TRANSFER_SINGLE]]
   },
   {
     address: GRIDFIRE_PAYMENT_ADDRESS,

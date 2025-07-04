@@ -215,7 +215,6 @@ export interface ReleaseTrack {
 
 export interface Sale {
   _id: string;
-  purchaseId: string;
   paid: string;
   purchaseDate: string;
   release: string; // Album/track ID.

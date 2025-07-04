@@ -3,7 +3,8 @@ import onDaiApproval from "@gridfire/events/controllers/web3/onDaiApproval";
 import onEditionMinted from "@gridfire/events/controllers/web3/onEditionMinted";
 import onPurchase from "@gridfire/events/controllers/web3/onPurchase";
 import onPurchaseEdition from "@gridfire/events/controllers/web3/onPurchaseEdition";
-import { PROVIDERS, contracts } from "@gridfire/events/controllers/web3/rpcProviders";
+import onTransferSingle from "@gridfire/events/controllers/web3/onTransferSingle";
+import { contracts, EventNames, PROVIDERS } from "@gridfire/events/controllers/web3/rpcProviders";
 import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import mongoose from "mongoose";
@@ -88,11 +89,12 @@ try {
   gridfireProvider = new GridfireProvider({ providers: PROVIDERS, contracts });
 
   gridfireProvider
-    .on("Approval", onDaiApproval)
-    .on("Claim", onBalanceClaim)
-    .on("EditionMinted", onEditionMinted)
-    .on("PurchaseEdition", onPurchaseEdition)
-    .on("Purchase", onPurchase)
+    .on(EventNames.APPROVAL, onDaiApproval)
+    .on(EventNames.CLAIM, onBalanceClaim)
+    .on(EventNames.EDITION_MINTED, onEditionMinted)
+    .on(EventNames.PURCHASE_EDITION, onPurchaseEdition)
+    .on(EventNames.PURCHASE, onPurchase)
+    .on(EventNames.TRANSFER_SINGLE, onTransferSingle)
     .on("error", (...errors) => logger.error(...errors));
 } catch (error: any) {
   logger.error("Startup error:", error.message ?? error);
