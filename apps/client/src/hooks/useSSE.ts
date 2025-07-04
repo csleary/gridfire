@@ -242,7 +242,9 @@ const useSSE = () => {
       sourceRef.current = null;
     }
   }, [
+    onApprovalEvent,
     onArtworkUploaded,
+    onClaimEvent,
     onEditionMinted,
     onEncodingProgressFLAC,
     onNotify,
@@ -283,7 +285,7 @@ const useSSE = () => {
     source.onopen = () => console.log("[SSE] Connection to server opened.");
     source.onmessage = (event: MessageEvent) => console.info(event.data);
 
-    source.onerror = (error: any) => {
+    source.onerror = (error: unknown) => {
       console.error("[SSE] Error:", error);
       setShouldReconnect(true);
     };
@@ -309,7 +311,9 @@ const useSSE = () => {
     window.addEventListener("beforeunload", cleanup);
   }, [
     cleanup,
+    onApprovalEvent,
     onArtworkUploaded,
+    onClaimEvent,
     onEditionMinted,
     onEncodingProgressFLAC,
     onNotify,

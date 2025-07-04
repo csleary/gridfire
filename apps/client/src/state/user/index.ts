@@ -2,7 +2,7 @@ import { AppDispatch, RootState } from "@/main";
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "@/state/releases";
 import { toastError, toastSuccess } from "@/state/toast";
 import { ActiveProcess, Sale, UserFavourite, UserListItem } from "@/types";
-import { EntityState, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { EntityState, createEntityAdapter, createSelector, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 interface UserState {
@@ -181,6 +181,15 @@ const {
   selectTotal: selectActiveProcessTotal
 } = processAdapter.getSelectors((state: RootState) => state.user.processList);
 
+const selectFavourites = (state: RootState) => state.user.favourites;
+const selectWishList = (state: RootState) => state.user.wishList;
+
+const selectIsInFavourites = (releaseId: string) =>
+  createSelector([selectFavourites], favourites => favourites.some(({ release }) => release === releaseId));
+
+const selectIsInWishList = (releaseId: string) =>
+  createSelector([selectWishList], wishList => wishList.some(({ release }) => release === releaseId));
+
 export {
   addPaymentAddress,
   addToFavourites,
@@ -193,6 +202,8 @@ export {
   selectActiveProcessIds,
   selectActiveProcessList,
   selectActiveProcessTotal,
+  selectIsInFavourites,
+  selectIsInWishList,
   initialState as userInitialState
 };
 

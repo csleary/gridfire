@@ -107,13 +107,9 @@ const PaymentAddress = () => {
       </Heading>
       <FormControl isInvalid={Boolean(error)} mb={8}>
         <InputGroup>
-          <InputLeftElement
-            children={<Icon icon={faEthereum} />}
-            color="purple.300"
-            fontSize="1.5em"
-            pointerEvents="none"
-            top=".25rem"
-          />
+          <InputLeftElement color="purple.300" fontSize="1.5em" pointerEvents="none" top=".25rem">
+            <Icon icon={faEthereum} />
+          </InputLeftElement>
           <Input
             bg={useColorModeValue("white", "gray.400")}
             isDisabled={isSubmitting}

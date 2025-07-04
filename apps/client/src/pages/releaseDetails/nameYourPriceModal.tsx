@@ -87,7 +87,7 @@ const NameYourPriceModal = ({
         <ModalBody>
           <Text mb={8}>{info}</Text>
           <InputGroup mb={4} fontSize="1.5rem" size="lg">
-            <InputLeftAddon children="◈" />
+            <InputLeftAddon>◈</InputLeftAddon>
             <Input
               autoFocus
               inputMode="numeric"
@@ -102,7 +102,7 @@ const NameYourPriceModal = ({
               value={price}
               variant="modal"
             />
-            <InputRightAddon children="DAI" />
+            <InputRightAddon>DAI</InputRightAddon>
           </InputGroup>
           <ButtonGroup variant="outline" spacing="4" display="flex" justifyContent="center" mb="6">
             <Button isDisabled={isSubmitting} onClick={handleAddAmount(1)}>

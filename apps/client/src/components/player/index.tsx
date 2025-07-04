@@ -3,7 +3,6 @@ import { usePrevious } from "@/hooks/usePrevious";
 import { loadTrack, playerHide, playerPause, playerPlay, playerStop } from "@/state/player";
 import { toastWarning } from "@/state/toast";
 import { addToFavourites, removeFromFavourites } from "@/state/user";
-import { fadeAudio } from "@/utils";
 import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faChevronDown, faHeart, faPause, faPlay, faSpinner, faStop } from "@fortawesome/free-solid-svg-icons";
@@ -16,12 +15,16 @@ import PlayLogger from "./playLogger";
 import SeekBar from "./seekbar";
 import TrackInfo from "./trackInfo";
 
+const DASH_MIME = "application/dash+xml";
+const M3U_MIME = "application/vnd.apple.mpegurl";
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 const VITE_CDN_MP4 = import.meta.env.VITE_CDN_MP4;
 
 const Player = () => {
   const dispatch = useDispatch();
   const audioPlayerRef = useRef(new Audio());
+  const preloadManagerRef = useRef<shaka.media.PreloadManager | null>(null);
+  const preloadedTrackIdRef = useRef("");
   const seekBarRef = useRef(document.createElement("div"));
   const shakaRef = useRef(new shaka.Player());
   const activeRelease = useSelector(state => state.releases.activeRelease, shallowEqual);
@@ -39,6 +42,7 @@ const Player = () => {
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
   const [requiresGesture, setRequiresGesture] = useState(false);
+  const [supportInfo, setSupportInfo] = useState<shaka.extern.SupportType | null>(null);
   const prevTrackId = usePrevious(trackId);
   const { releaseTitle, trackList } = activeRelease;
   const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
@@ -46,20 +50,15 @@ const Player = () => {
   const isInFaves = favourites.some(({ release }) => release === releaseId);
   const playLoggerRef = useRef(new PlayLogger(trackId));
 
-  const onBuffering = ({ buffering }: { buffering: boolean }) => {
+  const onBuffering = useCallback(({ buffering }: { buffering: boolean }) => {
     setIsBuffering(buffering);
     const { audio } = shakaRef.current.getBufferedInfo();
     setBufferRanges(audio);
-  };
-
-  useEffect(() => {
-    if ("mediaSession" in navigator) {
-      navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
-    }
-  }, [isPlaying]);
+  }, []);
 
   useEffect(() => {
     shaka.polyfill.installAll();
+    shaka.Player.probeSupport().then(info => setSupportInfo(info));
 
     if (!shaka.Player.isBrowserSupported()) {
       return void dispatch(
@@ -73,31 +72,17 @@ const Player = () => {
     eventManager.listen(shakaRef.current, `buffering`, e => onBuffering(e as Event & { buffering: boolean }));
     eventManager.listen(shakaRef.current, `loaded`, () => setIsLoading(false));
     eventManager.listen(shakaRef.current, `loading`, () => setIsLoading(true));
-  }, [dispatch]);
+  }, [dispatch, onBuffering]);
 
-  const onTimeUpdate = useCallback(() => {
-    const { currentTime, duration } = audioPlayerRef.current;
-    const mins = Math.floor(currentTime / 60);
-    const secs = Math.floor(currentTime % 60);
-    const remaining = Math.floor(duration - (currentTime || 0)) || 0;
-    const remainingMins = Math.floor(remaining / 60) || 0;
-    const remainingSecs = (remaining % 60).toString(10).padStart(2, "0");
-    setElapsedTime(`${mins}:${secs.toString(10).padStart(2, "0")}`);
-    setRemainingTime(`-${remainingMins}:${remainingSecs}`);
-    setProgressPercent(currentTime / duration);
-    const { audio } = shakaRef.current.getBufferedInfo();
-    setBufferRanges(audio);
-    playLoggerRef.current.checkPlayTime();
-  }, []);
+  useEffect(() => {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+    }
+  }, [isPlaying]);
 
   const handleStop = useCallback(() => {
     audioPlayerRef.current.pause();
     audioPlayerRef.current.currentTime = 0;
-  }, []);
-
-  const onError = useCallback((error: any) => {
-    console.error(error);
-    navigator.mediaSession.playbackState = "none";
   }, []);
 
   const cueNextTrack = useCallback(
@@ -121,54 +106,6 @@ const Player = () => {
     [artistName, dispatch, handleStop, releaseId, releaseTitle, trackIndex, trackList]
   );
 
-  const onEnded = useCallback(() => {
-    playLoggerRef.current.checkPlayTime();
-    cueNextTrack();
-  }, [cueNextTrack]);
-
-  const onPlaying = useCallback(() => {
-    navigator.mediaSession.playbackState = "playing";
-    playLoggerRef.current.setStartTime();
-  }, []);
-
-  const onPlay = useCallback(() => {
-    dispatch(playerPlay());
-  }, [dispatch]);
-
-  const onPause = useCallback(() => {
-    playLoggerRef.current.updatePlayTime();
-    navigator.mediaSession.playbackState = "paused";
-  }, [dispatch]);
-
-  useEffect(() => {
-    audioPlayerRef.current.addEventListener("playing", onPlaying);
-    audioPlayerRef.current.addEventListener("play", onPlay);
-    audioPlayerRef.current.addEventListener("pause", onPause);
-    audioPlayerRef.current.addEventListener("timeupdate", onTimeUpdate);
-    audioPlayerRef.current.addEventListener("ended", onEnded);
-    audioPlayerRef.current.addEventListener("onerror", onError);
-
-    return () => {
-      if (!audioPlayerRef.current) return;
-      audioPlayerRef.current.removeEventListener("playing", onPlaying);
-      audioPlayerRef.current.removeEventListener("play", onPlay);
-      audioPlayerRef.current.removeEventListener("pause", onPause);
-      audioPlayerRef.current.removeEventListener("timeupdate", onTimeUpdate);
-      audioPlayerRef.current.removeEventListener("ended", onEnded);
-      audioPlayerRef.current.removeEventListener("onerror", onError);
-    };
-  }, [onEnded, onError, onPause, onPlay, onPlaying, onTimeUpdate]);
-
-  const handlePause = useCallback(() => {
-    if (!audioPlayerRef.current.paused) {
-      dispatch(playerPause());
-
-      fadeAudio(audioPlayerRef.current, "out").then(() => {
-        audioPlayerRef.current.pause();
-      });
-    }
-  }, [dispatch]);
-
   const handlePlay = useCallback(() => {
     if (audioPlayerRef.current.muted) {
       audioPlayerRef.current.muted = false; // Will be muted from a track change.
@@ -177,15 +114,7 @@ const Player = () => {
     const playPromise = audioPlayerRef.current.play();
 
     if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setRequiresGesture(false);
-
-          if (audioPlayerRef.current.volume === 0) {
-            fadeAudio(audioPlayerRef.current, "in");
-          }
-        })
-        .catch(() => setRequiresGesture(true));
+      playPromise.then(() => setRequiresGesture(false)).catch(() => setRequiresGesture(true));
     }
   }, []);
 
@@ -230,42 +159,154 @@ const Player = () => {
   }, [artistName, cueNextTrack, dispatch, handlePlay, releaseId, releaseTitle, trackIndex, trackList, trackTitle]);
 
   useEffect(() => {
+    if ("mediaSession" in navigator) setMediaSession();
+  }, [setMediaSession]);
+
+  const onEnded = useCallback(() => {
+    playLoggerRef.current.checkPlayTime();
+    cueNextTrack();
+  }, [cueNextTrack]);
+
+  const onError = useCallback((error: unknown) => {
+    console.error(error);
+    navigator.mediaSession.playbackState = "none";
+  }, []);
+
+  const onPause = useCallback(() => {
+    playLoggerRef.current.updatePlayTime();
+    navigator.mediaSession.playbackState = "paused";
+  }, []);
+
+  const onPlay = useCallback(() => {
+    dispatch(playerPlay());
+  }, [dispatch]);
+
+  const onPlaying = useCallback(() => {
+    navigator.mediaSession.playbackState = "playing";
+    playLoggerRef.current.setStartTime();
+  }, []);
+
+  const onTimeUpdate = useCallback(() => {
+    const { currentTime, duration } = audioPlayerRef.current;
+    const mins = Math.floor(currentTime / 60);
+    const secs = Math.floor(currentTime % 60);
+    const remaining = Math.floor(duration - (currentTime || 0)) || 0;
+    const remainingMins = Math.floor(remaining / 60) || 0;
+    const remainingSecs = (remaining % 60).toString(10).padStart(2, "0");
+    setElapsedTime(`${mins}:${secs.toString(10).padStart(2, "0")}`);
+    setRemainingTime(`-${remainingMins}:${remainingSecs}`);
+    setProgressPercent(currentTime / duration);
+    const { audio } = shakaRef.current.getBufferedInfo();
+    setBufferRanges(audio);
+    playLoggerRef.current.checkPlayTime();
+  }, []);
+
+  useEffect(() => {
+    const audioPlayer = audioPlayerRef.current;
+    audioPlayer.addEventListener("playing", onPlaying);
+    audioPlayer.addEventListener("play", onPlay);
+    audioPlayer.addEventListener("pause", onPause);
+    audioPlayer.addEventListener("timeupdate", onTimeUpdate);
+    audioPlayer.addEventListener("ended", onEnded);
+    audioPlayer.addEventListener("onerror", onError);
+
+    return () => {
+      if (!audioPlayer) return;
+      audioPlayer.removeEventListener("playing", onPlaying);
+      audioPlayer.removeEventListener("play", onPlay);
+      audioPlayer.removeEventListener("pause", onPause);
+      audioPlayer.removeEventListener("timeupdate", onTimeUpdate);
+      audioPlayer.removeEventListener("ended", onEnded);
+      audioPlayer.removeEventListener("onerror", onError);
+    };
+  }, [onEnded, onError, onPause, onPlay, onPlaying, onTimeUpdate]);
+
+  const handlePause = useCallback(() => {
+    if (!audioPlayerRef.current.paused) {
+      dispatch(playerPause());
+    }
+  }, [dispatch]);
+
+  const getManifestUri = useCallback(
+    (manifestTrackId: string) => {
+      if (!supportInfo || !releaseId) return null;
+      const urlStem = `${VITE_CDN_MP4}/${releaseId}`;
+      if (supportInfo.manifest[DASH_MIME]) return `${urlStem}/${manifestTrackId}/dash.mpd`;
+      if (supportInfo.manifest[M3U_MIME]) return `${urlStem}/${manifestTrackId}/master.m3u8`;
+      return null;
+    },
+    [releaseId, supportInfo]
+  );
+
+  const getMimeType = useCallback(() => {
+    if (!supportInfo) return null;
+    if (supportInfo.manifest[DASH_MIME]) return DASH_MIME;
+    if (supportInfo.manifest[M3U_MIME]) return M3U_MIME;
+    return null;
+  }, [supportInfo]);
+
+  const preloadTrackById = useCallback(
+    async (preloadTrackId: string) => {
+      try {
+        const assetUri = getManifestUri(preloadTrackId);
+        if (!assetUri) return;
+        const manager = await shakaRef.current.preload(assetUri, null, getMimeType());
+        preloadManagerRef.current = manager;
+        preloadedTrackIdRef.current = preloadTrackId;
+      } catch (error) {
+        onError(error);
+      }
+    },
+    [getManifestUri, getMimeType, onError]
+  );
+
+  useEffect(() => {
+    let nextTrackId;
+    for (let i = trackIndex + 1; i < trackList.length; i++) {
+      const { _id, isBonus } = trackList[i];
+      if (!isBonus) {
+        nextTrackId = _id;
+        break;
+      }
+    }
+
+    if (!nextTrackId) return;
+    preloadTrackById(nextTrackId);
+  }, [preloadTrackById, trackIndex, trackList]);
+
+  const loadPlayer = useCallback(
+    async (assetUriOrPreloader: string | shaka.media.PreloadManager) => {
+      try {
+        await shakaRef.current.load(assetUriOrPreloader, null, getMimeType());
+        handlePlay();
+      } catch (error) {
+        onError(error);
+      }
+    },
+    [getMimeType, handlePlay, onError]
+  );
+
+  useEffect(() => {
     if (!trackId || trackId === prevTrackId) return;
+    if (isBonus) return void cueNextTrack();
+    audioPlayerRef.current.volume = 1;
+    playLoggerRef.current = new PlayLogger(trackId);
+
+    if (preloadManagerRef.current && trackId === preloadedTrackIdRef.current) {
+      // We have a preloaded track; load and play.
+      return void loadPlayer(preloadManagerRef.current);
+    }
 
     if (prevTrackId) {
-      // User changed track; pause player to avoid time continuing to elapse.
+      // Pause while we load non-preloaded track.
       audioPlayerRef.current.currentTime = 0;
       audioPlayerRef.current.pause();
     }
 
-    if (isBonus) {
-      // Skip non-streaming tracks.
-      return void cueNextTrack();
-    }
-
-    shaka.Player.probeSupport().then(supportInfo => {
-      const urlStem = `${VITE_CDN_MP4}/${releaseId}/${trackId}`;
-      audioPlayerRef.current.volume = 1;
-      const mpdSupport = supportInfo.manifest["application/dash+xml"];
-      const m3uSupport = supportInfo.manifest["application/vnd.apple.mpegurl"];
-
-      if (mpdSupport) {
-        const mimeType = "application/dash+xml";
-        shakaRef.current.load(`${urlStem}/dash.mpd`, null, mimeType).then(handlePlay).catch(onError);
-      } else if (m3uSupport) {
-        const mimeType = "application/vnd.apple.mpegurl";
-        shakaRef.current.load(`${urlStem}/master.m3u8`, null, mimeType).then(handlePlay).catch(onError);
-      } else {
-        console.warn("No supported manifest format found for audio player.");
-      }
-
-      playLoggerRef.current = new PlayLogger(trackId);
-
-      if ("mediaSession" in navigator) {
-        setMediaSession();
-      }
-    });
-  }, [cueNextTrack, handlePlay, isBonus, onError, prevTrackId, releaseId, setMediaSession, trackId]);
+    const assetUri = getManifestUri(trackId);
+    if (!assetUri) return;
+    loadPlayer(assetUri);
+  }, [cueNextTrack, getManifestUri, isBonus, loadPlayer, prevTrackId, trackId]);
 
   const handleClickFavourites = () => {
     if (isInFaves) {

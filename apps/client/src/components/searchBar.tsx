@@ -109,11 +109,9 @@ const SearchBar = ({ ...rest }) => {
         <ModalOverlay />
         <ModalContent overflow="none" rounded="md" p={4}>
           <InputGroup size="lg">
-            <InputLeftElement
-              children={isSearching ? <Spinner /> : <Icon icon={faSearch} />}
-              color="gray.400"
-              pointerEvents="none"
-            />
+            <InputLeftElement color="gray.400" pointerEvents="none">
+              {isSearching ? <Spinner /> : <Icon icon={faSearch} />}
+            </InputLeftElement>
             <Input
               paddingLeft={12}
               paddingRight={12}

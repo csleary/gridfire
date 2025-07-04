@@ -7,7 +7,7 @@ class PlayLogger {
   #totalTimePlayed;
   #trackId;
 
-  constructor(trackId: string) {
+  constructor(trackId: string = "") {
     this.#hasLoggedPlay = false;
     this.#minDuration = 1000 * 30;
     this.#startTime = 0;
@@ -16,7 +16,7 @@ class PlayLogger {
   }
 
   setStartTime() {
-    if (this.#startTime === 0) {
+    if (this.#trackId && this.#startTime === 0) {
       this.#startTime = Date.now();
       axios.post(`/api/track/${this.#trackId}/0`);
     }
@@ -34,6 +34,7 @@ class PlayLogger {
   }
 
   updatePlayTime() {
+    if (!this.#trackId) return;
     this.#totalTimePlayed += Date.now() - this.#startTime;
     this.#startTime = 0;
     axios.post(`/api/track/${this.#trackId}/1`);

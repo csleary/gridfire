@@ -36,7 +36,7 @@ interface Props {
   trackTitle: string;
 }
 
-const AudioDropzone = ({ index, status, trackId, trackTitle }: Props) => {
+const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
   const dispatch = useDispatch();
   const audioUploadProgress = useSelector(state => state.tracks.audioUploadProgress[trackId]);
   const encodingProgressFLAC = useSelector(state => state.tracks.encodingProgressFLAC[trackId]);

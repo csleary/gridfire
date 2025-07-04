@@ -1,7 +1,14 @@
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { toastInfo } from "@/state/toast";
-import { addToFavourites, addToWishList, removeFromFavourites, removeFromWishList } from "@/state/user";
+import {
+  addToFavourites,
+  addToWishList,
+  removeFromFavourites,
+  removeFromWishList,
+  selectIsInFavourites,
+  selectIsInWishList
+} from "@/state/user";
 import { UserListItem } from "@/types";
 import {
   Box,
@@ -33,12 +40,11 @@ const Actions = () => {
   const [isSavingToFaves, setIsSavingToFaves] = useState(false);
   const [isSavingToList, setIsSavingToList] = useState(false);
   const account = useSelector(state => state.user.account);
-  const favourites = useSelector(state => state.user.favourites, shallowEqual);
   const isLoading = useSelector(state => state.releases.isLoading);
   const releaseId = useSelector(state => state.releases.activeRelease._id);
   const wishList = useSelector(state => state.user.wishList, shallowEqual);
-  const isInFaves = favourites.some(({ release }: UserListItem) => release === releaseId); // TODO: use createSelector for this.
-  const isInWishList = wishList.some(({ release }: UserListItem) => release === releaseId); // TODO: use createSelector for this.
+  const isInFaves = useSelector(selectIsInFavourites(releaseId));
+  const isInWishList = useSelector(selectIsInWishList(releaseId));
 
   useEffect(() => {
     if (wishList.length && releaseId) {

@@ -86,7 +86,7 @@ const Allowance = () => {
   const validate = (value: string) => {
     try {
       FixedNumber.fromString(value.toString(), "fixed128x18");
-    } catch (e) {
+    } catch (error) {
       return "Invalid amount.";
     }
   };
@@ -237,7 +237,7 @@ const Allowance = () => {
           <ModalBody>
             <Text mb={8}>Enter your desired DAI spending allowance below.</Text>
             <InputGroup mb={4} fontSize="1.5rem" size="lg">
-              <InputLeftAddon children="◈" />
+              <InputLeftAddon>◈</InputLeftAddon>
               <Input
                 autoFocus
                 isDisabled={isSubmitting}
@@ -251,7 +251,7 @@ const Allowance = () => {
                 value={allowance}
                 variant="modal"
               />
-              <InputRightAddon children="DAI" />
+              <InputRightAddon>DAI</InputRightAddon>
             </InputGroup>
             <ButtonGroup variant="outline" spacing="4" display="flex" justifyContent="center" mb="6">
               <Button isDisabled={isSubmitting} onClick={handleAddAmount(100)}>
