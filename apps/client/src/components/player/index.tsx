@@ -3,6 +3,7 @@ import { usePrevious } from "@/hooks/usePrevious";
 import { loadTrack, playerHide, playerPause, playerPlay, playerStop } from "@/state/player";
 import { toastWarning } from "@/state/toast";
 import { addToFavourites, removeFromFavourites } from "@/state/user";
+import { fadeAudio, getGainNode } from "@/utils/audio";
 import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faChevronDown, faHeart, faPause, faPlay, faSpinner, faStop } from "@fortawesome/free-solid-svg-icons";
@@ -81,9 +82,12 @@ const Player = () => {
   }, [isPlaying]);
 
   const handleStop = useCallback(() => {
-    audioPlayerRef.current.pause();
-    audioPlayerRef.current.currentTime = 0;
-  }, []);
+    fadeAudio("out").then(() => {
+      audioPlayerRef.current.pause();
+      audioPlayerRef.current.currentTime = 0;
+      dispatch(playerStop());
+    });
+  }, [dispatch]);
 
   const cueNextTrack = useCallback(
     (skip = 1) => {
@@ -107,14 +111,15 @@ const Player = () => {
   );
 
   const handlePlay = useCallback(() => {
-    if (audioPlayerRef.current.muted) {
-      audioPlayerRef.current.muted = false; // Will be muted from a track change.
-    }
-
     const playPromise = audioPlayerRef.current.play();
 
-    if (playPromise !== undefined) {
-      playPromise.then(() => setRequiresGesture(false)).catch(() => setRequiresGesture(true));
+    if (playPromise) {
+      playPromise
+        .then(() => {
+          if (getGainNode().gain.value === 0) fadeAudio("in");
+          setRequiresGesture(false);
+        })
+        .catch(() => setRequiresGesture(true));
     }
   }, []);
 
@@ -221,11 +226,15 @@ const Player = () => {
     };
   }, [onEnded, onError, onPause, onPlay, onPlaying, onTimeUpdate]);
 
-  const handlePause = useCallback(() => {
+  const handleClickPlay = useCallback(() => {
     if (!audioPlayerRef.current.paused) {
       dispatch(playerPause());
+      fadeAudio("out").then(() => audioPlayerRef.current.pause());
+      return;
     }
-  }, [dispatch]);
+
+    handlePlay();
+  }, [dispatch, handlePlay]);
 
   const getManifestUri = useCallback(
     (manifestTrackId: string) => {
@@ -278,6 +287,7 @@ const Player = () => {
     async (assetUriOrPreloader: string | shaka.media.PreloadManager) => {
       try {
         await shakaRef.current.load(assetUriOrPreloader, null, getMimeType());
+        getGainNode().gain.value = 1; // Turn gain back up after loading a new track.
         handlePlay();
       } catch (error) {
         onError(error);
@@ -289,7 +299,6 @@ const Player = () => {
   useEffect(() => {
     if (!trackId || trackId === prevTrackId) return;
     if (isBonus) return void cueNextTrack();
-    audioPlayerRef.current.volume = 1;
     playLoggerRef.current = new PlayLogger(trackId);
 
     if (preloadManagerRef.current && trackId === preloadedTrackIdRef.current) {
@@ -355,7 +364,7 @@ const Player = () => {
             ariaLabel="Start/resume playback."
             isDisabled={isLoading}
             icon={!requiresGesture && isBuffering ? faSpinner : isPlaying ? faPause : faPlay}
-            onClick={isPlaying ? handlePause : handlePlay}
+            onClick={handleClickPlay}
             spin={!requiresGesture && isBuffering}
             mr={2}
           />

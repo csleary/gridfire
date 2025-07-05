@@ -4,7 +4,7 @@ import { loadTrack } from "@/state/player";
 import { toastError, toastInfo, toastWarning } from "@/state/toast";
 import { addToBasket } from "@/state/web3";
 import { TrackForPurchase } from "@/types";
-import { fadeAudio } from "@/utils";
+import { fadeAudio, getGainNode } from "@/utils/audio";
 import { purchaseRelease } from "@/web3";
 import { Badge, Box, Button, ListItem, Spacer, Tooltip, UnorderedList, useColorModeValue } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
@@ -98,11 +98,11 @@ const TrackList = () => {
         const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
         if (audioPlayer.paused) {
-          audioPlayer.muted = true; // Prevents buffered audio from playing when loading a new track.
+          getGainNode().gain.value = 0; // Prevents buffered audio from playing when loading a new track.
           audioPlayer.play().catch(console.warn); // Use click event to start playback on iOS.
         }
 
-        fadeAudio(audioPlayer, "out").then(() => {
+        fadeAudio("out").then(() => {
           dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
           dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
         });

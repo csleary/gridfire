@@ -5,35 +5,6 @@ const createObjectId = () => {
   return `${timestamp}${randomHex}`;
 };
 
-const fadeAudio = (
-  audioElement: HTMLAudioElement,
-  fadeDirection: "in" | "out",
-  duration = fadeDirection === "out" ? 50 : 20
-) =>
-  new Promise(resolve => {
-    if (!audioElement) return void resolve(void 0);
-    const initialVolume = audioElement.volume;
-    const start = performance.now();
-
-    const fade =
-      fadeDirection === "out"
-        ? (t: number) => initialVolume * Math.cos(((t - start) * (Math.PI / 2)) / duration)
-        : (t: number) => (1 - initialVolume) * Math.sin(((t - start) * (Math.PI / 2)) / duration) + initialVolume;
-
-    const tick = (timestamp: number) => {
-      const elapsed = timestamp - start;
-      if (elapsed >= duration) {
-        audioElement.volume = fadeDirection === "out" ? 0 : 1;
-        resolve(void 0);
-      } else {
-        audioElement.volume = Math.min(1, Math.max(0, fade(timestamp)));
-        requestAnimationFrame(tick);
-      }
-    };
-
-    requestAnimationFrame(tick);
-  });
-
 const formatPrice = (value: string) => {
   const [integer = 0, float = 0] = value.toString().split(".");
   const priceAsFloatString = `${integer}.${float}`;
@@ -42,4 +13,4 @@ const formatPrice = (value: string) => {
   return price;
 };
 
-export { createObjectId, fadeAudio, formatPrice };
+export { createObjectId, formatPrice };

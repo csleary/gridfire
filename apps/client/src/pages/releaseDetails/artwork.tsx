@@ -3,7 +3,7 @@ import placeholder from "@/placeholder.svg";
 import { loadTrack, playerPause, playerPlay } from "@/state/player";
 import { toastInfo } from "@/state/toast";
 import { ReleaseTrack } from "@/types";
-import { fadeAudio } from "@/utils";
+import { fadeAudio, getGainNode } from "@/utils/audio";
 import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,17 +30,14 @@ const Artwork = () => {
 
     if (!audioPlayer.paused && playerReleaseId === releaseId) {
       dispatch(playerPause());
-
-      fadeAudio(audioPlayer, "out").then(() => {
-        audioPlayer.pause();
-      });
+      fadeAudio("out").then(() => audioPlayer.pause());
     } else if (audioPlayer.paused && playerReleaseId === releaseId) {
       audioPlayer.play();
-      fadeAudio(audioPlayer, "in");
+      fadeAudio("in");
       dispatch(playerPlay());
     } else {
       if (audioPlayer.paused) {
-        audioPlayer.muted = true; // Prevents buffered audio from playing when loading a new track.
+        getGainNode().gain.value = 0; // Prevents buffered audio from playing when loading a new track.
         audioPlayer.play().catch(console.warn); // Use click event to start playback on iOS.
       }
 
