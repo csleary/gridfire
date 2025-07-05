@@ -100,7 +100,9 @@ const BasketButton = () => {
                         {artistName} &bull; <Text as="em">{title}</Text>
                       </Text>
                       <Spacer />
-                      <Box mr={4}>◈ {Number(formatEther(price)).toFixed(2)}</Box>
+                      <Box mr={4} __css={{ textWrapMode: "nowrap" }}>
+                        ◈ {Number(formatEther(price)).toFixed(2)}
+                      </Box>
                       <IconButton
                         aria-label="Remove item from the basket."
                         icon={<Icon icon={faTimes} />}

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "@/hooks";
 import { usePrevious } from "@/hooks/usePrevious";
-import { loadTrack, playerHide, playerPause, playerPlay, playerStop } from "@/state/player";
+import { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } from "@/state/player";
 import { toastWarning } from "@/state/toast";
 import { addToFavourites, removeFromFavourites } from "@/state/user";
 import { fadeAudio, getGainNode } from "@/utils/audio";
@@ -31,6 +31,7 @@ const Player = () => {
   const activeRelease = useSelector(state => state.releases.activeRelease, shallowEqual);
   const favourites = useSelector(state => state.user.favourites, shallowEqual);
   const artistName = useSelector(state => state.player.artistName);
+  const isInitialised = useSelector(state => state.player.isInitialised);
   const isPlaying = useSelector(state => state.player.isPlaying);
   const releaseId = useSelector(state => state.player.releaseId);
   const showPlayer = useSelector(state => state.player.showPlayer);
@@ -38,11 +39,11 @@ const Player = () => {
   const trackTitle = useSelector(state => state.player.trackTitle);
   const [bufferRanges, setBufferRanges] = useState<shaka.extern.BufferedRange[]>([]);
   const [elapsedTime, setElapsedTime] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [remainingTime, setRemainingTime] = useState("");
   const [requiresGesture, setRequiresGesture] = useState(false);
+  const [shakaIsLoading, setShakaIsLoading] = useState(false);
   const [supportInfo, setSupportInfo] = useState<shaka.extern.SupportType | null>(null);
   const prevTrackId = usePrevious(trackId);
   const { releaseTitle, trackList } = activeRelease;
@@ -59,7 +60,14 @@ const Player = () => {
 
   useEffect(() => {
     shaka.polyfill.installAll();
-    shaka.Player.probeSupport().then(info => setSupportInfo(info));
+    shaka.Player.probeSupport()
+      .then(info => {
+        setSupportInfo(info);
+        dispatch(setIsInitialised(true));
+      })
+      .catch(error => {
+        console.error("Error probing Shaka Player support:", error);
+      });
 
     if (!shaka.Player.isBrowserSupported()) {
       return void dispatch(
@@ -71,8 +79,8 @@ const Player = () => {
     shakaRef.current.attach(audioPlayerRef.current);
     const eventManager = new shaka.util.EventManager();
     eventManager.listen(shakaRef.current, `buffering`, e => onBuffering(e as Event & { buffering: boolean }));
-    eventManager.listen(shakaRef.current, `loaded`, () => setIsLoading(false));
-    eventManager.listen(shakaRef.current, `loading`, () => setIsLoading(true));
+    eventManager.listen(shakaRef.current, `loaded`, () => setShakaIsLoading(false));
+    eventManager.listen(shakaRef.current, `loading`, () => setShakaIsLoading(true));
   }, [dispatch, onBuffering]);
 
   useEffect(() => {
@@ -297,9 +305,10 @@ const Player = () => {
   );
 
   useEffect(() => {
-    if (!trackId || trackId === prevTrackId) return;
+    if (!trackId) return;
+    if (!isInitialised) return;
+    if (trackId === prevTrackId) return;
     if (isBonus) return void cueNextTrack();
-    playLoggerRef.current = new PlayLogger(trackId);
 
     if (preloadManagerRef.current && trackId === preloadedTrackIdRef.current) {
       // We have a preloaded track; load and play.
@@ -315,7 +324,12 @@ const Player = () => {
     const assetUri = getManifestUri(trackId);
     if (!assetUri) return;
     loadPlayer(assetUri);
-  }, [cueNextTrack, getManifestUri, isBonus, loadPlayer, prevTrackId, trackId]);
+  }, [cueNextTrack, getManifestUri, isBonus, isInitialised, loadPlayer, prevTrackId, shakaIsLoading, trackId]);
+
+  useEffect(() => {
+    if (!trackId || trackId === prevTrackId) return;
+    playLoggerRef.current = new PlayLogger(trackId);
+  }, [prevTrackId, trackId]);
 
   const handleClickFavourites = () => {
     if (isInFaves) {
@@ -362,10 +376,10 @@ const Player = () => {
         <Flex flex="1 1 50%" justifyContent="flex-end">
           <PlayerButton
             ariaLabel="Start/resume playback."
-            isDisabled={isLoading}
+            isDisabled={!isInitialised || shakaIsLoading}
+            isLoading={!isInitialised || (!requiresGesture && isBuffering)}
             icon={!requiresGesture && isBuffering ? faSpinner : isPlaying ? faPause : faPlay}
             onClick={handleClickPlay}
-            spin={!requiresGesture && isBuffering}
             mr={2}
           />
           <PlayerButton ariaLabel="Stop audio playback." icon={faStop} onClick={handleStop} mr={2} />

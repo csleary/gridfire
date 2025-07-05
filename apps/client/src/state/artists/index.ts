@@ -4,7 +4,6 @@ import { Activity, Artist } from "@/types";
 import { EntityState, createDraftSafeSelector, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { DateTime } from "luxon";
-import { batch } from "react-redux";
 
 interface ArtistState {
   activeArtistId: string;
@@ -156,13 +155,11 @@ const updateArtist = (values: Artist) => async (dispatch: AppDispatch) => {
       return dispatch(setIsSubmitting(false));
     }
 
-    batch(() => {
-      dispatch(setArtist(res.data));
-      dispatch(setErrors(null));
-      dispatch(toastSuccess({ message: "Artist saved", title: "Success" }));
-      dispatch(setIsSubmitting(false));
-      dispatch(setIsPristine(true));
-    });
+    dispatch(setArtist(res.data));
+    dispatch(setErrors(null));
+    dispatch(setIsPristine(true));
+    dispatch(setIsSubmitting(false));
+    dispatch(toastSuccess({ message: "Artist saved", title: "Success" }));
   } catch (error: any) {
     dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
     dispatch(setIsLoading(false));

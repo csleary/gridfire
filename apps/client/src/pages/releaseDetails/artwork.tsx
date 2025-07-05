@@ -4,7 +4,7 @@ import { loadTrack, playerPause, playerPlay } from "@/state/player";
 import { toastInfo } from "@/state/toast";
 import { ReleaseTrack } from "@/types";
 import { fadeAudio, getGainNode } from "@/utils/audio";
-import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
+import { Box, Fade, Flex, IconButton, Image, Skeleton, Spinner, useDisclosure } from "@chakra-ui/react";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback } from "react";
@@ -19,6 +19,7 @@ const Artwork = () => {
   const artwork = useSelector(state => state.releases.activeRelease.artwork, shallowEqual);
   const isLoading = useSelector(state => state.releases.isLoading);
   const isPlaying = useSelector(state => state.player.isPlaying);
+  const playerIsInitialised = useSelector(state => state.player.isInitialised);
   const playerReleaseId = useSelector(state => state.player.releaseId);
   const releaseId = useSelector(state => state.releases.activeRelease._id);
   const releaseTitle = useSelector(state => state.releases.activeRelease.releaseTitle);
@@ -105,15 +106,20 @@ const Artwork = () => {
               flex="1"
               fontSize="5rem"
               height="unset"
+              isDisabled={!playerIsInitialised}
               justifyContent="center"
               role="group"
               icon={
-                <Box
-                  as={FontAwesomeIcon}
-                  icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
-                  transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-                  _groupHover={{ transform: "scale(1.2)" }}
-                />
+                !playerIsInitialised ? (
+                  <Spinner size="xl" />
+                ) : (
+                  <Box
+                    as={FontAwesomeIcon}
+                    icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
+                    transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
+                    _groupHover={{ transform: "scale(1.2)" }}
+                  />
+                )
               }
               onClick={handlePlayRelease}
               title={`${artistName} - ${releaseTitle}`}

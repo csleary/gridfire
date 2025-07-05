@@ -3,7 +3,6 @@ import { setActiveRelease } from "@/state/releases";
 import { toastError } from "@/state/toast";
 import { createSlice } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
-import { batch } from "react-redux";
 
 interface ArtworkState {
   artworkUploading: boolean;
@@ -53,11 +52,9 @@ const uploadArtwork = (releaseId: string, file: File) => async (dispatch: AppDis
     dispatch(setArtworkUploading(true));
     await axios.post(`/api/artwork/${releaseId}`, data, config);
   } catch (error: any) {
-    batch(() => {
-      dispatch(toastError({ message: error.response.data.error, title: "Error" }));
-      dispatch(setArtworkUploadProgress(0));
-      dispatch(setArtworkUploading(false));
-    });
+    dispatch(setArtworkUploading(false));
+    dispatch(setArtworkUploadProgress(0));
+    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 

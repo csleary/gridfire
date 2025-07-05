@@ -28,6 +28,7 @@ const TrackList = () => {
   const daiAllowance = useSelector(state => state.web3.daiAllowance);
   const isPaused = useSelector(state => state.player.isPaused);
   const isPlaying = useSelector(state => state.player.isPlaying);
+  const playerIsInitialised = useSelector(state => state.player.isInitialised);
   const playerTrackId = useSelector(state => state.player.trackId, shallowEqual);
   const purchases = useSelector(state => state.user.purchases, shallowEqual);
   const releaseId = useSelector(state => state.releases.activeRelease._id);
@@ -131,6 +132,7 @@ const TrackList = () => {
             ) : (
               <Button
                 color={titleColour}
+                disabled={!playerIsInitialised}
                 minWidth={2}
                 textAlign="left"
                 variant="link"

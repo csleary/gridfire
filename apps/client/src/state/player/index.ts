@@ -7,6 +7,7 @@ interface PlaylistTrack extends ReleaseTrack {
 
 interface PlayerState {
   artistName: string;
+  isInitialised: boolean;
   isPlaying: boolean;
   isPaused: boolean;
   playList: PlaylistTrack[];
@@ -19,6 +20,7 @@ interface PlayerState {
 
 const initialState: PlayerState = {
   artistName: "",
+  isInitialised: false,
   isPlaying: false,
   isPaused: false,
   playList: [],
@@ -34,7 +36,7 @@ const playerSlice = createSlice({
   initialState,
   reducers: {
     addToPlayList(state, action) {
-      state.playList = [...state.playList, action.payload];
+      state.playList.push(action.payload);
     },
     loadTrack(state, action) {
       const { artistName, releaseId, releaseTitle, trackId, trackTitle } = action.payload;
@@ -65,9 +67,12 @@ const playerSlice = createSlice({
     playerStop(state) {
       state.isPlaying = false;
       state.isPaused = false;
+    },
+    setIsInitialised(state, action) {
+      state.isInitialised = action.payload;
     }
   }
 });
 
-export const { loadTrack, playerHide, playerPause, playerPlay, playerStop } = playerSlice.actions;
+export const { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } = playerSlice.actions;
 export default playerSlice.reducer;

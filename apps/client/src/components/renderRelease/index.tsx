@@ -5,7 +5,7 @@ import { setIsLoading } from "@/state/releases";
 import { toastInfo } from "@/state/toast";
 import { PurchasedRelease, Release, ReleaseTrack } from "@/types";
 import { fadeAudio, getGainNode } from "@/utils/audio";
-import { Box, Fade, Flex, IconButton, Image, Skeleton, useDisclosure } from "@chakra-ui/react";
+import { Box, Fade, Flex, IconButton, Image, Skeleton, Spinner, useDisclosure } from "@chakra-ui/react";
 import { faEllipsisH, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link as RouterLink } from "react-router-dom";
@@ -30,6 +30,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
   const { isOpen, onOpen } = useDisclosure();
   const dispatch = useDispatch();
   const isPlaying = useSelector(state => state.player.isPlaying);
+  const playerIsInitialised = useSelector(state => state.player.isInitialised);
   const playerReleaseId = useSelector(state => state.player.releaseId);
 
   if (!release) {
@@ -152,15 +153,20 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
               flex="1 1 auto"
               fontSize="5rem"
               height="unset"
+              isDisabled={!playerIsInitialised}
               justifyContent="center"
               role="group"
               icon={
-                <Box
-                  as={FontAwesomeIcon}
-                  icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
-                  transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-                  _groupHover={{ transform: "scale(1.2)" }}
-                />
+                !playerIsInitialised ? (
+                  <Spinner size="xl" />
+                ) : (
+                  <Box
+                    as={FontAwesomeIcon}
+                    icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
+                    transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
+                    _groupHover={{ transform: "scale(1.2)" }}
+                  />
+                )
               }
               onClick={handleClick}
               title={`Play '${releaseTitle}', by ${artistName}`}
