@@ -12,11 +12,10 @@ import {
   WrapItem,
   useColorModeValue
 } from "@chakra-ui/react";
-import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import Icon from "./icon";
 
+const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContractAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
 
 const Footer: React.FC = () => {
@@ -36,12 +35,12 @@ const Footer: React.FC = () => {
             </ListItem>
             <ListItem>
               <Link href={`https://arbiscan.io/address/${paymentContractAddress}`} isExternal>
-                Contract
+                Payment contract
               </Link>
             </ListItem>
             <ListItem>
-              <Link href={"https://github.com/csleary/gridfire/discussions"} isExternal>
-                Discussion
+              <Link href={`https://arbiscan.io/address/${editionsContractAddress}`} isExternal>
+                Editions contract
               </Link>
             </ListItem>
           </List>
@@ -82,11 +81,6 @@ const Footer: React.FC = () => {
           <WrapItem>
             <Link fontSize="small" href="https://bsky.app/profile/ochremusic.com" isExternal>
               Bluesky
-            </Link>
-          </WrapItem>
-          <WrapItem>
-            <Link href="https://github.com/csleary/gridfire" isExternal>
-              <Icon icon={faGithub} />
             </Link>
           </WrapItem>
         </Wrap>
