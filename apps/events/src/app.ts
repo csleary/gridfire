@@ -15,7 +15,7 @@ import onBalanceClaim from "./controllers/web3/onBalanceClaim.js";
 const { HEALTH_PROBE_PORT, MONGODB_URI } = process.env;
 const logger = new Logger("Events");
 let healthProbeServer: net.Server | null = null;
-let gridfireProvider: GridfireProvider;
+let gridfireProviders: GridfireProvider[] = [];
 let isShuttingDown = false;
 
 assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
@@ -32,7 +32,7 @@ const handleShutdown = async () => {
     isShuttingDown = true;
     logger.info("Gracefully shutting down…");
 
-    if (gridfireProvider) {
+    for (const gridfireProvider of gridfireProviders || []) {
       logger.info("Closing gridfireProvider…");
       gridfireProvider.destroy();
     }
@@ -86,16 +86,33 @@ const setupHealthProbe = () =>
 
 try {
   await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect(), setupHealthProbe()]);
-  gridfireProvider = new GridfireProvider({ providers: PROVIDERS, contracts });
 
-  gridfireProvider
-    .on(EventNames.APPROVAL, onDaiApproval)
-    .on(EventNames.CLAIM, onBalanceClaim)
+  const providerHighPriority = new GridfireProvider({
+    contracts,
+    name: "provider A",
+    providers: PROVIDERS
+  });
+
+  providerHighPriority
     .on(EventNames.EDITION_MINTED, onEditionMinted)
     .on(EventNames.PURCHASE_EDITION, onPurchaseEdition)
-    .on(EventNames.PURCHASE, onPurchase)
-    .on(EventNames.TRANSFER_SINGLE, onTransferSingle)
-    .on("error", (...errors) => logger.error(...errors));
+    .on(EventNames.PURCHASE, onPurchase);
+
+  gridfireProviders.push(providerHighPriority);
+
+  const providerLowPriority = new GridfireProvider({
+    contracts,
+    name: "provider B",
+    pollingInterval: 20_000,
+    providers: PROVIDERS
+  });
+
+  providerLowPriority
+    .on(EventNames.APPROVAL, onDaiApproval)
+    .on(EventNames.CLAIM, onBalanceClaim)
+    .on(EventNames.TRANSFER_SINGLE, onTransferSingle);
+
+  gridfireProviders.push(providerLowPriority);
 } catch (error: any) {
   logger.error("Startup error:", error.message ?? error);
 }

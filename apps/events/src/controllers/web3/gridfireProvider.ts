@@ -8,69 +8,68 @@ import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import objectHash from "object-hash";
 
-const logger = new Logger("GridfireProvider");
 const isRejected = <T>(p: PromiseSettledResult<T>): p is PromiseRejectedResult => p.status === "rejected";
 
 interface GridfireProviderConfig {
-  providers: Provider[];
   contracts: Contract[];
+  name?: string;
+  pollingInterval?: number;
+  providers: Provider[];
+  quorum?: number;
 }
 
 class GridfireProvider extends EventEmitter {
   #contracts: Contract[] = [];
-  #currentBlockNumber: string = "";
   #id: bigint = 0n;
+  #lastCheckedBlockNumber: string = "";
+  #logger;
+  #name = "gridfireProvider";
   #pollingInterval: number = 10_000;
+  #providers: Map<symbol, string> = new Map([]);
   #quorum: number = 1;
   #timeout: NodeJS.Timeout;
-  #providers: Map<symbol, string> = new Map([]);
 
-  constructor({ providers, contracts }: GridfireProviderConfig) {
+  constructor({ contracts, name, pollingInterval, providers, quorum }: GridfireProviderConfig) {
     super();
     assert(providers.length > 0, "No providers provided.");
     assert(contracts.length > 0, "No contracts provided.");
-    providers.forEach(([provider, url]) => this.#providers.set(provider, url));
     contracts.forEach(contract => this.#contracts.push(contract));
-    this.#quorum = Math.ceil(this.#providers.size / 2);
+    this.#name = name || this.#name;
+    this.#logger = new Logger(this.#name);
+    this.#pollingInterval = pollingInterval || this.#pollingInterval;
+    this.#logger.info("Polling interval set to", this.#pollingInterval, "ms.");
+    providers.forEach(([provider, url]) => this.#providers.set(provider, url));
+    this.#logger.info("Using", this.#providers.size, "provider(s).");
+    this.#quorum = quorum || Math.ceil(this.#providers.size / 2);
+    this.#logger.info("Quorum set to", this.#quorum);
+
+    assert(
+      this.#providers.size >= this.#quorum,
+      `Not enough providers (${this.#providers.size}) for the specified quorum (${this.#quorum}).`
+    );
+
     this.#timeout = setTimeout(() => {}, 0);
     this.#getLogs();
+    this.on("error", (...errors) => this.#logger.error(...errors));
   }
 
   destroy() {
     super.removeAllListeners();
     clearTimeout(this.#timeout);
-    logger.info("Listeners removed, timeout cleared. Ready for shutdown.");
+    this.#logger.info("Listeners removed, timeout cleared. Ready for shutdown.");
   }
 
   #emitEvent(eventName: string, logDescription: LogDescription, log: EventLog): void {
     const { args } = logDescription;
-
-    this.emit(eventName, ...args, {
-      ...log,
-      getTransactionReceipt: this.#getTransactionReceipt.bind(this, log.transactionHash)
-    });
+    const getTransactionReceipt = this.#getTransactionReceipt.bind(this, log.transactionHash);
+    this.emit(eventName, ...args, { ...log, getTransactionReceipt });
   }
 
   async #getBlockNumber(): Promise<string> {
     const method = "eth_blockNumber";
-    const responses = await this.#send([{ method, params: [] }]);
-
-    const highestBlock = responses
-      .filter(filterErrors)
-      .sort((a, b) => {
-        const blockHeightA = getBigInt(a.data[0]?.result || 0n);
-        const blockHeightB = getBigInt(b.data[0]?.result || 0n);
-        if (blockHeightA < blockHeightB) return -1;
-        if (blockHeightA > blockHeightB) return 1;
-        return 0;
-      })
-      .pop();
-
-    if (!highestBlock) {
-      throw new Error("Could not get block height from any provider.");
-    }
-
-    const [{ result }] = highestBlock.data;
+    const definitiveResult = await this.#sendUntilQuorumReached([{ method, params: [] }]);
+    const [{ result }] = definitiveResult.data;
+    this.#logger.debug("Current block number:", result);
     return result;
   }
 
@@ -82,16 +81,19 @@ class GridfireProvider extends EventEmitter {
     try {
       const blockNumber = await this.#getBlockNumber();
 
-      if (blockNumber === this.#currentBlockNumber) {
+      if (blockNumber === this.#lastCheckedBlockNumber) {
+        this.#logger.debug("No new blocks found, skipping log retrieval.");
         return;
       }
 
       let fromBlock = "";
-      if (!this.#currentBlockNumber) {
+      if (!this.#lastCheckedBlockNumber) {
         fromBlock = blockNumber;
       } else {
-        fromBlock = toQuantity(getBigInt(this.#currentBlockNumber) + 1n);
+        fromBlock = toQuantity(getBigInt(this.#lastCheckedBlockNumber) + 1n);
       }
+
+      this.#logger.debug("Retrieving logs in block range:", fromBlock, "to", blockNumber);
 
       const config = this.#contracts.flatMap(contract => {
         const { abi, address, events } = contract;
@@ -107,8 +109,7 @@ class GridfireProvider extends EventEmitter {
       });
 
       const batch = config.map(({ request }) => request);
-      const responses = await this.#send(batch);
-      const definitiveResult = this.#getQuorumValue(responses);
+      const definitiveResult = await this.#sendUntilQuorumReached(batch);
 
       definitiveResult.data.forEach(({ result }: any, index: number) => {
         const { eventName, iface } = config[index];
@@ -119,7 +120,7 @@ class GridfireProvider extends EventEmitter {
         });
       });
 
-      this.#currentBlockNumber = blockNumber;
+      this.#lastCheckedBlockNumber = blockNumber;
     } catch (error: any) {
       this.emit("error", "[#getFilterLogs]", error.response?.data || error);
     } finally {
@@ -129,39 +130,34 @@ class GridfireProvider extends EventEmitter {
 
   async #getTransactionReceipt(transactionHash: string): Promise<JSONRPCResponse> {
     const method = "eth_getTransactionReceipt";
-    const responses = await this.#send([{ method, params: [transactionHash] }]);
-    const definitiveResult = this.#getQuorumValue(responses);
+    const definitiveResult = await this.#sendUntilQuorumReached([{ method, params: [transactionHash] }]);
     const [{ result }] = definitiveResult.data;
     return result;
   }
 
-  #getQuorumValue(results: ProviderResult[]): ProviderResult {
-    const filtered = results.filter(filterErrors);
-    const tooFewResults = filtered.length < this.#quorum;
-    let definitiveResult: ProviderResult | null = null;
-    const total = new Map();
+  #getQuorumResult(results: ProviderResult[]): ProviderResult | null {
     const excludeKeys = (key: string) => key === "id";
+    const filtered = results.filter(filterErrors);
+    const votes = new Map();
+    let definitiveResult: ProviderResult | null = null;
 
     filtered.forEach(result => {
       if (definitiveResult) return;
       const hash = objectHash(result.data, { excludeKeys });
-      total.set(hash, (total.get(hash) ?? 0) + 1);
+      votes.set(hash, (votes.get(hash) ?? 0) + 1);
 
-      if (tooFewResults || total.get(hash) === this.#quorum) {
+      if (votes.get(hash) === this.#quorum) {
         definitiveResult = result;
       }
     });
 
-    if (!definitiveResult) {
-      throw new Error("Quorum not reached on result.");
-    }
-
     return definitiveResult;
   }
 
-  #normaliseProviderResults(results: PromiseSettledResult<AxiosResponse<JSONRPCResponse[], any>>[]): ProviderResult[] {
-    const providers = Array.from(this.#providers);
-
+  #normaliseProviderResults(
+    providers: [symbol, string][],
+    results: PromiseSettledResult<AxiosResponse<JSONRPCResponse[], any>>[]
+  ): ProviderResult[] {
     return results.map((result, index) => {
       const [provider] = providers[index];
 
@@ -174,13 +170,59 @@ class GridfireProvider extends EventEmitter {
     });
   }
 
+  // Previous fan-out method.
   async #send(requests: ProviderRequest[], { timeout = 5_000 }: RequestOptions = {}): Promise<ProviderResult[]> {
     const providers = Array.from(this.#providers);
     const body = requests.map(({ method, params }) => ({ method, params, id: this.#getId(), jsonrpc: "2.0" }));
     const providerRequests = providers.map(([, url]) => axios.post(url, body, { timeout }));
     const promiseResults = await Promise.allSettled(providerRequests);
-    const providerResults = this.#normaliseProviderResults(promiseResults);
+    const providerResults = this.#normaliseProviderResults(providers, promiseResults);
     return providerResults;
+  }
+
+  #shuffle = <T>(array: T[]): T[] => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+  };
+
+  // Batched randomly in quorum-sized chunks to avoid hitting same provider too often.
+  async #sendUntilQuorumReached(
+    requests: ProviderRequest[],
+    { timeout = 5000 }: RequestOptions = {}
+  ): Promise<ProviderResult> {
+    const providers = this.#shuffle(Array.from(this.#providers));
+    const results: ProviderResult[] = [];
+    const body = requests.map(({ method, params }) => ({ method, params, id: this.#getId(), jsonrpc: "2.0" }));
+    let definitiveResult: ProviderResult | null = null;
+
+    const batches = providers.reduce<[symbol, string][][]>((total, _, i, array) => {
+      if (i % this.#quorum === 0) {
+        return [...total, array.slice(i, i + this.#quorum)];
+      }
+      return total;
+    }, []);
+
+    for (const batch of batches) {
+      const providerRequests = batch.map(([, url]) => axios.post(url, body, { timeout }));
+      const promiseResults = await Promise.allSettled(providerRequests);
+      results.push(...this.#normaliseProviderResults(providers, promiseResults));
+      const result = this.#getQuorumResult(results);
+
+      if (result !== null) {
+        definitiveResult = result;
+        break;
+      }
+    }
+
+    if (!definitiveResult) {
+      throw new Error(`Quorum (${this.#quorum}) not reached on result.`);
+    }
+
+    return definitiveResult;
   }
 }
 

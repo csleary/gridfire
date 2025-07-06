@@ -8,6 +8,7 @@ const {
   API_KEY_1RPC,
   API_KEY_ALCHEMY,
   API_KEY_CHAINNODES,
+  API_KEY_DRPC,
   API_KEY_QUICKNODE,
   DAI_CONTRACT_ADDRESS,
   GRIDFIRE_EDITIONS_ADDRESS,
@@ -23,6 +24,7 @@ assert(GRIDFIRE_EDITIONS_ADDRESS, "GRIDFIRE_EDITIONS_ADDRESS env var missing.");
 assert(GRIDFIRE_PAYMENT_ADDRESS, "GRIDFIRE_PAYMENT_ADDRESS env var missing.");
 assert(hasKey(API_KEY_1RPC), "API_KEY_1RPC env var missing.");
 assert(hasKey(API_KEY_ALCHEMY), "API_KEY_ALCHEMY env var missing.");
+assert(hasKey(API_KEY_DRPC), "API_KEY_DRPC env var missing.");
 assert(hasKey(API_KEY_CHAINNODES), "API_KEY_CHAINNODES env var missing.");
 assert(hasKey(API_KEY_QUICKNODE), "API_KEY_QUICKNODE env var missing.");
 
@@ -37,17 +39,21 @@ export enum EventNames {
 
 const ALCHEMY = Symbol("alchemy");
 const CHAINNODES = Symbol("chainnodes");
+const DRPC = Symbol("drpc");
 const LOCALHOST = Symbol("localhost");
-const QUIKNODE = Symbol("quiknode");
 const ONE_RPC = Symbol("1rpc");
+const QUIKNODE = Symbol("quiknode");
+const ALLNODES = Symbol("allnodes");
 
 const PROVIDERS: Provider[] =
   NODE_ENV === "production"
     ? [
         [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
+        [ALLNODES, "https://arbitrum-one-rpc.publicnode.com"],
         [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
         [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
-        // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`]
+        // [DRPC, `https://lb.drpc.org/arbitrum/${API_KEY_DRPC}`] // Limited to batches of 3.
+        // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`] // Blacklisted/blocked?
       ]
     : [[LOCALHOST, "http://localhost:8545"]];
 
