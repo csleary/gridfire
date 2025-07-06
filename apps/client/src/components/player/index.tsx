@@ -60,7 +60,7 @@ const Player = () => {
 
   useEffect(() => {
     shaka.polyfill.installAll();
-    shaka.Player.probeSupport()
+    shaka.Player.probeSupport(false)
       .then(info => {
         setSupportInfo(info);
         dispatch(setIsInitialised(true));
