@@ -16,7 +16,7 @@ import type { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
 const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
-const MIN_DURATION = 1000 * 25;
+const MIN_DURATION_FOR_PLAY = 25_000;
 const logger = new Logger("trackController");
 
 assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
@@ -61,9 +61,12 @@ const deleteTrack = async (trackId: string, user: ObjectId) => {
 
 const logPlay = async (trackId: string, release: string, streamId: string, user: string) => {
   logger.debug(`[${trackId}] Logging play…`);
-  await Play.create({ date: Date.now(), trackId, release, user });
-  logger.debug(`[${trackId}] Play logged.`);
-  await Stream.deleteOne({ _id: streamId }).exec();
+
+  await Play.create({ date: Date.now(), trackId, release, user })
+    .then(() => logger.debug(`[${trackId}] Play logged.`))
+    .catch(error => logger.error(error));
+
+  Stream.deleteOne({ _id: streamId }).exec();
 };
 
 const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: ObjectId; type: string }) => {
@@ -79,6 +82,7 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
   switch (Number.parseInt(type)) {
     case 0:
       logger.debug(`[${trackId}] Logging play time start.`);
+
       Stream.updateOne({ user, trackId }, { startTime: Date.now() }, { upsert: true })
         .exec()
         .catch((error: any) => {
@@ -109,7 +113,7 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
         if (
           stream != null &&
           stream.startTime !== null &&
-          stream.totalTimePlayed + Date.now() - stream.startTime > MIN_DURATION
+          stream.totalTimePlayed + Date.now() - stream.startTime > MIN_DURATION_FOR_PLAY
         ) {
           logPlay(trackId, releaseId, stream._id.toString(), user);
         }

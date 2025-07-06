@@ -14,7 +14,27 @@ interface IEdition {
   amount: string;
   cid: string;
   editionId: string;
-  metadata: object;
+  metadata: {
+    attributes: {
+      display_type: string;
+      trait_type: string;
+      value: number;
+    };
+    name: string;
+    description: string;
+    external_url: string;
+    image: string;
+    properties: {
+      artist: string;
+      title: string;
+      totalSupply: number;
+      tracks: [{ id: string; title: string }];
+      price: string;
+      priceInDai: string;
+      releaseDate: string;
+      info: string;
+    };
+  };
   price: string;
   release: Types.ObjectId;
   status: EditionStatus;

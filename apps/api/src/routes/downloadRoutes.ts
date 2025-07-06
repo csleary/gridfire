@@ -16,12 +16,10 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
       .populate({ path: "release", select: "+trackList.position" })
       .lean();
 
-    if (!sale) return void res.status(401).send({ error: "Not authorised." });
-    const { release, type } = sale;
+    if (!sale) return void res.sendStatus(403);
+    const { editionId, release, type } = sale;
     if (!release) return void res.sendStatus(404);
-    const isEdition = type === "edition";
-
-    zipDownload({ isEdition, release, res, format });
+    zipDownload({ editionId, format, release, res, type });
   } catch (error) {
     logger.error(error);
     res.sendStatus(403);

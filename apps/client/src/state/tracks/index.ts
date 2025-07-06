@@ -2,22 +2,22 @@ import { AppDispatch, GetState } from "@/main";
 import { selectTrackById, trackRemove } from "@/state/editor";
 import { toastError, toastInfo, toastSuccess } from "@/state/toast";
 import { addActiveProcess, removeActiveProcess } from "@/state/user";
-import { EntityId, createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
 
-const controllers = new Map<EntityId, AbortController>();
+const controllers = new Map<string, AbortController>();
 
 interface TracksState {
-  audioUploadProgress: Record<EntityId, number>;
-  encodingCompleteFLAC: Record<EntityId, boolean>;
-  encodingProgressFLAC: Record<EntityId, number>;
-  pipelineErrors: Record<EntityId, Record<EntityId, string>>;
-  storingProgressFLAC: Record<EntityId, number>;
-  trackIdsForDeletion: Record<EntityId, boolean>;
-  transcodingCompleteAAC: Record<EntityId, boolean>;
-  transcodingCompleteMP3: Record<EntityId, boolean>;
-  transcodingStartedAAC: Record<EntityId, boolean>;
-  transcodingStartedMP3: Record<EntityId, boolean>;
+  audioUploadProgress: Record<string, number>;
+  encodingCompleteFLAC: Record<string, boolean>;
+  encodingProgressFLAC: Record<string, number>;
+  pipelineErrors: Record<string, Record<string, string>>;
+  storingProgressFLAC: Record<string, number>;
+  trackIdsForDeletion: Record<string, boolean>;
+  transcodingCompleteAAC: Record<string, boolean>;
+  transcodingCompleteMP3: Record<string, boolean>;
+  transcodingStartedAAC: Record<string, boolean>;
+  transcodingStartedMP3: Record<string, boolean>;
 }
 
 const initialState: TracksState = {
@@ -108,7 +108,7 @@ const deleteTrack = (trackId: string) => async (dispatch: AppDispatch, getState:
   }
 };
 
-const cancelUpload = (trackId: EntityId) => (dispatch: AppDispatch) => {
+const cancelUpload = (trackId: string) => (dispatch: AppDispatch) => {
   const controller = controllers.get(trackId);
 
   if (controller) {
@@ -119,7 +119,7 @@ const cancelUpload = (trackId: EntityId) => (dispatch: AppDispatch) => {
   }
 };
 
-const getAbortController = (trackId: EntityId) => {
+const getAbortController = (trackId: string) => {
   let controller = controllers.get(trackId);
 
   if (!controller) {
