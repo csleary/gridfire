@@ -89,12 +89,11 @@ const Player = () => {
     }
   }, [isPlaying]);
 
-  const handleStop = useCallback(() => {
-    fadeAudio("out").then(() => {
-      audioPlayerRef.current.pause();
-      audioPlayerRef.current.currentTime = 0;
-      dispatch(playerStop());
-    });
+  const handleStop = useCallback(async () => {
+    await fadeAudio("out");
+    audioPlayerRef.current.pause();
+    audioPlayerRef.current.currentTime = 0;
+    dispatch(playerStop());
   }, [dispatch]);
 
   const cueNextTrack = useCallback(
@@ -118,16 +117,18 @@ const Player = () => {
     [artistName, dispatch, handleStop, releaseId, releaseTitle, trackIndex, trackList]
   );
 
-  const handlePlay = useCallback(() => {
-    const playPromise = audioPlayerRef.current.play();
+  const handlePlay = useCallback(async () => {
+    try {
+      await audioPlayerRef.current.play();
 
-    if (playPromise) {
-      playPromise
-        .then(() => {
-          if (getGainNode().gain.value === 0) fadeAudio("in");
-          setRequiresGesture(false);
-        })
-        .catch(() => setRequiresGesture(true));
+      if (!getGainNode().gain.value) {
+        fadeAudio("in");
+      }
+
+      setRequiresGesture(false);
+    } catch (error: unknown) {
+      console.warn("Playback rejection:", error);
+      setRequiresGesture(true);
     }
   }, []);
 
@@ -234,11 +235,16 @@ const Player = () => {
     };
   }, [onEnded, onError, onPause, onPlay, onPlaying, onTimeUpdate]);
 
-  const handleClickPlay = useCallback(() => {
+  const handleClickPlay = useCallback(async () => {
     if (!audioPlayerRef.current.paused) {
       dispatch(playerPause());
-      fadeAudio("out").then(() => audioPlayerRef.current.pause());
-      return;
+      await fadeAudio("out");
+      return void audioPlayerRef.current.pause();
+    }
+
+    if (!audioPlayerRef.current.currentTime) {
+      // Don't fade in start of track.
+      getGainNode().gain.value = 1;
     }
 
     handlePlay();
@@ -324,7 +330,17 @@ const Player = () => {
     const assetUri = getManifestUri(trackId);
     if (!assetUri) return;
     loadPlayer(assetUri);
-  }, [cueNextTrack, getManifestUri, isBonus, isInitialised, loadPlayer, prevTrackId, shakaIsLoading, trackId]);
+  }, [
+    cueNextTrack,
+    getManifestUri,
+    isBonus,
+    isInitialised,
+    loadPlayer,
+    prevTrackId,
+    shakaIsLoading,
+    showPlayer,
+    trackId
+  ]);
 
   useEffect(() => {
     if (!trackId || trackId === prevTrackId) return;

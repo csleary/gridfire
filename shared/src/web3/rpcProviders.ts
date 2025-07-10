@@ -42,17 +42,17 @@ const CHAINNODES = Symbol("chainnodes");
 const DRPC = Symbol("drpc");
 const LOCALHOST = Symbol("localhost");
 const ONE_RPC = Symbol("1rpc");
-const QUIKNODE = Symbol("quiknode");
+const QUICKNODE = Symbol("quiknode");
 const ALLNODES = Symbol("allnodes");
 
-const PROVIDERS: Provider[] =
+const allProviders: Provider[] =
   NODE_ENV === "production"
     ? [
         [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
         [ALLNODES, "https://arbitrum-one-rpc.publicnode.com"],
         [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
-        [QUIKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
-        // [DRPC, `https://lb.drpc.org/arbitrum/${API_KEY_DRPC}`] // Limited to batches of 3.
+        [QUICKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`],
+        [DRPC, `https://lb.drpc.org/arbitrum/${API_KEY_DRPC}`] // Limited to batches of 3. Just use for block numbers.
         // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`] // Blacklisted/blocked?
       ]
     : [[LOCALHOST, "http://localhost:8545"]];
@@ -75,4 +75,6 @@ const contracts: IContract[] = [
   }
 ];
 
-export { contracts, PROVIDERS };
+const blockProviders = allProviders;
+const providers = allProviders.filter(([provider]) => ![DRPC].includes(provider));
+export { blockProviders, contracts, providers };

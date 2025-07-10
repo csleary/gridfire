@@ -15,7 +15,7 @@ let connection: AmqpConnectionManager;
 let consumeChannel: ChannelWrapper;
 let consumerTags: string[] = [];
 let isShuttingDown = false;
-const logger = new Logger("AMQP");
+const logger = new Logger("amqp.ts");
 let publishChannel: ChannelWrapper;
 
 assert(RABBITMQ_DEFAULT_USER, "RABBITMQ_DEFAULT_USER env var missing.");
@@ -46,7 +46,10 @@ const onMessage = async (data: ConsumeMessage | null) => {
       await messageHandler(message);
     }
 
-    sseClient.send(userId, rest);
+    if (userId) {
+      sseClient.send(userId, rest);
+    }
+
     consumeChannel.ack(data);
   } catch (error: any) {
     logger.error("Error processing message:", error.message ?? error);
@@ -85,8 +88,14 @@ const amqpConnect: ConnectFunction = async ({ messageHandler } = {}) => {
     connection.on("disconnect", error => logger.error("Connection disconnected:", error));
     connection.on("unblocked ", error => logger.info("Connection unblocked:", error));
 
-    publishChannel = connection.createChannel({ json: true, name: "publisher" });
-    await publishChannel.assertExchange("user", "direct");
+    publishChannel = connection.createChannel({
+      json: true,
+      name: "publisher",
+      setup: async (channel: ConfirmChannel) => {
+        await channel.assertExchange("user", "direct");
+      }
+    });
+
     publishChannel.on("close", () => logger.warn("Publish channel closed."));
     publishChannel.on("connect", () => logger.info("Publish channel connected."));
     publishChannel.on("error", error => logger.error("Publish channel error:", error));

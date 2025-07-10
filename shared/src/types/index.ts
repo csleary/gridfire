@@ -104,7 +104,7 @@ type Provider = readonly [name: symbol, url: string];
 
 type ProviderRequest = { method: string; params: any[] };
 
-interface ProviderResult {
+interface ProviderResponse {
   provider: symbol;
   data: JSONRPCResponse[];
   error: any;
@@ -136,7 +136,10 @@ type ReleaseSingle = Omit<Pick<IRelease, "artist" | "artistName" | "trackList">,
   user: Pick<IUser, "_id" | "paymentAddress">;
 };
 
-type RequestOptions = { timeout?: number };
+type RequestOptions = {
+  quorum?: number; // Optionally override the quorum for this request.
+  timeout?: number; // Axios cancellation timeout in milliseconds.
+};
 
 interface SaleNotification {
   artistName: string;
@@ -169,7 +172,7 @@ export type {
   Notification,
   Provider,
   ProviderRequest,
-  ProviderResult,
+  ProviderResponse,
   PurchasedRelease,
   PurchaseEditionNotification,
   PurchaseNotification,

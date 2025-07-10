@@ -8,11 +8,12 @@
   "exports": {
     "./abi/*": "./dist/abi/*.js",
     "./amqp": "./dist/amqp.js",
+    "./logger": "./dist/logger.js",
     "./models/*": "./dist/models/*.js",
+    "./sseController": "./dist/sseController.js",
     "./types": "./dist/types/index.js",
     "./types/*": "./dist/types/*.js",
-    "./logger": "./dist/logger.js",
-    "./sseController": "./dist/sseController.js"
+    "./web3/*": "./dist/web3/*.js"
   },
   "dependencies": {
     "amqp-connection-manager": "^4.1.14",

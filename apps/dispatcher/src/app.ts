@@ -1,26 +1,20 @@
-import onDaiApproval from "@gridfire/events/controllers/onDaiApproval";
-import onEditionMinted from "@gridfire/events/controllers/onEditionMinted";
-import onPurchase from "@gridfire/events/controllers/onPurchase";
-import onPurchaseEdition from "@gridfire/events/controllers/onPurchaseEdition";
-import onTransferSingle from "@gridfire/events/controllers/onTransferSingle";
-import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
+import { amqpClose, amqpConnect, publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
-import { MessageHandler } from "@gridfire/shared/types/amqp";
+import Block from "@gridfire/shared/models/Block";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
-import { contracts, EventNames, providers } from "@gridfire/shared/web3/rpcProviders";
+import { blockProviders as providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
-import onBalanceClaim from "./controllers/onBalanceClaim.js";
 
-const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI } = process.env;
+const { HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
 const logger = new Logger("app.ts");
 let healthProbeServer: net.Server | null = null;
 let gridfireProviders: GridfireProvider[] = [];
+let intervalHandle: NodeJS.Timeout | null = null;
 let isShuttingDown = false;
 
 assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
-assert(INPUT_QUEUES, "INPUT_QUEUES env var missing.");
 assert(MONGODB_URI, "MONGODB_URI env var missing.");
 
 process
@@ -33,6 +27,12 @@ const handleShutdown = async () => {
 
     isShuttingDown = true;
     logger.info("Gracefully shutting down…");
+
+    if (intervalHandle) {
+      logger.info("Clearing dispatcher interval handle…");
+      clearInterval(intervalHandle);
+      intervalHandle = null;
+    }
 
     for (const gridfireProvider of gridfireProviders || []) {
       logger.info("Closing gridfireProvider…");
@@ -66,7 +66,6 @@ const handleShutdown = async () => {
 };
 
 process.on("SIGINT", handleShutdown).on("SIGTERM", handleShutdown);
-
 mongoose.set("strictQuery", true);
 const db = mongoose.connection;
 db.once("open", () => logger.info("Mongoose connected."));
@@ -87,24 +86,40 @@ const setupHealthProbe = () =>
   });
 
 try {
-  const provider = new GridfireProvider({ contracts, providers });
+  await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect(), setupHealthProbe()]);
 
-  provider
-    .on(EventNames.EDITION_MINTED, onEditionMinted)
-    .on(EventNames.PURCHASE_EDITION, onPurchaseEdition)
-    .on(EventNames.PURCHASE, onPurchase)
-    .on(EventNames.APPROVAL, onDaiApproval)
-    .on(EventNames.CLAIM, onBalanceClaim)
-    .on(EventNames.TRANSFER_SINGLE, onTransferSingle);
-
+  const RANGE_SIZE = 40; // ~10s.
+  const LAST_QUEUED_BLOCK_ID = "arbitrum_dispatcher";
+  const quorum = NODE_ENV === "production" ? 2 : 1;
+  const provider = new GridfireProvider({ providers, quorum });
   gridfireProviders.push(provider);
 
-  const messageHandler: MessageHandler = async message => {
-    const { fromBlock, toBlock } = message;
-    await provider.getLogs({ fromBlock, toBlock });
+  const dispatchBlockRange = async () => {
+    const doc = await Block.findById(LAST_QUEUED_BLOCK_ID).lean();
+    const { lastQueuedBlock = null } = doc ?? {};
+    logger.info(`Last queued block: ${lastQueuedBlock}`);
+    let rangeStart: number = lastQueuedBlock || 0;
+    const latestBlock = await provider.getBlockNumber({ finalised: true });
+
+    if (!lastQueuedBlock) {
+      rangeStart = latestBlock - RANGE_SIZE;
+    }
+
+    while (rangeStart + RANGE_SIZE < latestBlock) {
+      const fromBlock = `0x${(rangeStart + 1).toString(16)}`;
+      const toBlock = `0x${(rangeStart + RANGE_SIZE).toString(16)}`;
+      await publishToQueue("", "blocks", { fromBlock, toBlock });
+      rangeStart += RANGE_SIZE;
+    }
+
+    await Block.updateOne(
+      { _id: LAST_QUEUED_BLOCK_ID },
+      { lastQueuedBlock: rangeStart, lastQueuedBlockHex: rangeStart.toString(16) },
+      { upsert: true }
+    );
   };
 
-  await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect({ messageHandler }), setupHealthProbe()]);
+  intervalHandle = setInterval(dispatchBlockRange, 5_000);
 } catch (error: any) {
   logger.error("Startup error:", error.message ?? error);
 }

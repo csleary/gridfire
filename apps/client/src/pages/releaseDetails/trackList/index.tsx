@@ -28,6 +28,7 @@ const TrackList = () => {
   const daiAllowance = useSelector(state => state.web3.daiAllowance);
   const isPaused = useSelector(state => state.player.isPaused);
   const isPlaying = useSelector(state => state.player.isPlaying);
+  const isStopped = !isPlaying && !isPaused;
   const playerIsInitialised = useSelector(state => state.player.isInitialised);
   const playerTrackId = useSelector(state => state.player.trackId, shallowEqual);
   const purchases = useSelector(state => state.user.purchases, shallowEqual);
@@ -94,22 +95,40 @@ const TrackList = () => {
   );
 
   const handleClick = useCallback(
-    (trackId: string, trackTitle: string) => () => {
-      if (trackId !== playerTrackId) {
+    (trackId: string, trackTitle: string) => async () => {
+      try {
         const audioPlayer = document.getElementById("player") as HTMLAudioElement;
 
-        if (audioPlayer.paused) {
-          getGainNode().gain.value = 0; // Prevents buffered audio from playing when loading a new track.
-          audioPlayer.play().catch(console.warn); // Use click event to start playback on iOS.
+        if (isStopped && trackId === playerTrackId) {
+          getGainNode().gain.value = 1; // Starting playback; no fade.
+          return void audioPlayer.play();
         }
 
-        fadeAudio("out").then(() => {
+        if (isPaused && trackId === playerTrackId) {
+          await audioPlayer.play();
+          return void fadeAudio("in");
+        }
+
+        if (isPaused && playerTrackId && trackId !== playerTrackId) {
+          getGainNode().gain.value = 0; // Switching tracks; prevent buffered audio from playing when loading new track.
           dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
           dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
-        });
+          return;
+        }
+
+        if (trackId !== playerTrackId) {
+          if (isPlaying) {
+            await fadeAudio("out");
+          }
+
+          dispatch(loadTrack({ artistName, releaseId, releaseTitle, trackId, trackTitle }));
+          dispatch(toastInfo({ message: `'${trackTitle}'`, title: "Loading" }));
+        }
+      } catch (error) {
+        console.error(error);
       }
     },
-    [artistName, dispatch, playerTrackId, releaseId, releaseTitle]
+    [artistName, dispatch, isPaused, isPlaying, isStopped, playerTrackId, releaseId, releaseTitle]
   );
 
   return (

@@ -1,5 +1,5 @@
 {
-  "name": "@gridfire/events",
+  "name": "@gridfire/dispatcher",
   "version": "1.0.0",
   "private": true,
   "main": "dist/app.js",

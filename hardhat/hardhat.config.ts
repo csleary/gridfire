@@ -1,7 +1,7 @@
-import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
 import "dotenv/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import { HttpNetworkUserConfig } from "hardhat/types/config";
 
 const {
@@ -35,8 +35,8 @@ const config: HardhatUserConfig = {
         blockNumber: 348_000_000
       },
       mining: {
-        auto: true,
-        interval: 0
+        auto: false,
+        interval: 5000
       }
     }
   },
