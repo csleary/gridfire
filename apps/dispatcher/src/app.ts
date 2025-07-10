@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 
-const { HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
+const { RANGE_SIZE = 50, HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
 const logger = new Logger("app.ts");
 let healthProbeServer: net.Server | null = null;
 let gridfireProviders: GridfireProvider[] = [];
@@ -87,9 +87,8 @@ const setupHealthProbe = () =>
 
 try {
   await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect(), setupHealthProbe()]);
-
-  const RANGE_SIZE = 40; // ~10s.
   const LAST_QUEUED_BLOCK_ID = "arbitrum_dispatcher";
+  const rangeSize = Number(RANGE_SIZE);
   const quorum = NODE_ENV === "production" ? 2 : 1;
   const provider = new GridfireProvider({ providers, quorum });
   gridfireProviders.push(provider);
@@ -102,14 +101,14 @@ try {
     const latestBlock = await provider.getBlockNumber({ finalised: true });
 
     if (!lastQueuedBlock) {
-      rangeStart = latestBlock - RANGE_SIZE;
+      rangeStart = latestBlock - rangeSize;
     }
 
-    while (rangeStart + RANGE_SIZE < latestBlock) {
+    while (rangeStart + rangeSize < latestBlock) {
       const fromBlock = `0x${(rangeStart + 1).toString(16)}`;
-      const toBlock = `0x${(rangeStart + RANGE_SIZE).toString(16)}`;
+      const toBlock = `0x${(rangeStart + rangeSize).toString(16)}`;
       await publishToQueue("", "blocks", { fromBlock, toBlock });
-      rangeStart += RANGE_SIZE;
+      rangeStart += rangeSize;
     }
 
     await Block.updateOne(

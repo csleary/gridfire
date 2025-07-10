@@ -1,26 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: dispatcher
   namespace: gridfire-prod
   labels:
-    app: api
+    app: dispatcher
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: api
+      app: dispatcher
   template:
     metadata:
       labels:
-        app: api
+        app: dispatcher
     spec:
       containers:
-        - name: api
-          image: csleary/gridfire-api
+        - name: dispatcher
+          image: csleary/gridfire-web3-dispatcher
           imagePullPolicy: Always
-          ports:
-            - containerPort: 5000
           resources:
             requests:
               memory: 128Mi
@@ -29,10 +27,8 @@ spec:
               memory: 1.5Gi
               cpu: 1000m
           env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+            - name: HEALTH_PROBE_PORT
+              value: "9090"
           envFrom:
             - configMapRef:
                 name: amqp-config
@@ -41,33 +37,19 @@ spec:
             - secretRef:
                 name: api-secrets
             - secretRef:
-                name: aws-secrets
-            - secretRef:
                 name: mongodb-uri
             - secretRef:
                 name: rabbitmq-user
+          ports:
+            - containerPort: 9090
           startupProbe:
-            httpGet:
-              path: /livez
-              port: 5000
-          livenessProbe:
-            httpGet:
-              path: /livez
-              port: 5000
+            tcpSocket:
+              port: 9090
           readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 5000
+            tcpSocket:
+              port: 9090
+          livenessProbe:
+            tcpSocket:
+              port: 9090
       imagePullSecrets:
         - name: regcred
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: api
-  namespace: gridfire-prod
-spec:
-  selector:
-    app: api
-  ports:
-    - port: 5000

@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gridfire-web3-events
+  name: events
   namespace: gridfire-prod
   labels:
-    app: gridfire-web3-events
+    app: events
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: gridfire-web3-events
+      app: events
   template:
     metadata:
       labels:
-        app: gridfire-web3-events
+        app: events
     spec:
       containers:
-        - name: gridfire-web3-events
+        - name: events
           image: csleary/gridfire-web3-events
           imagePullPolicy: Always
           resources:
@@ -34,6 +34,8 @@ spec:
                 name: amqp-config
             - configMapRef:
                 name: api-config
+            - configMapRef:
+                name: events-config
             - secretRef:
                 name: api-secrets
             - secretRef:

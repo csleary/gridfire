@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gridfire-client
+  name: client
   namespace: gridfire-prod
   labels:
-    app: gridfire-client
+    app: client
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gridfire-client
+      app: client
   template:
     metadata:
       labels:
-        app: gridfire-client
+        app: client
     spec:
       containers:
-        - name: gridfire-client
+        - name: client
           image: csleary/gridfire-client
           imagePullPolicy: Always
           ports:
@@ -34,10 +34,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gridfire-client
+  name: client
   namespace: gridfire-prod
 spec:
   selector:
-    app: gridfire-client
+    app: client
   ports:
     - port: 80

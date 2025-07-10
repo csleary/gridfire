@@ -1,0 +1,21 @@
+FROM node:22-slim AS build
+WORKDIR /home/node/app
+COPY package.json yarn.lock tsconfig.json .yarnrc.yml ./
+COPY apps/dispatcher ./apps/dispatcher/
+COPY shared ./shared/
+COPY .yarn/releases/ .yarn/releases/
+RUN yarn install
+RUN yarn tsc --build shared
+RUN yarn tsc --build apps/dispatcher
+
+FROM node:22-slim
+WORKDIR /home/node/app
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY apps/dispatcher/package.json apps/dispatcher/
+COPY --from=build /home/node/app/apps/dispatcher/dist/ ./apps/dispatcher/dist/
+COPY shared/package.json ./shared/
+COPY --from=build /home/node/app/shared/dist ./shared/dist/
+COPY .yarn/releases/ .yarn/releases/
+RUN yarn workspaces focus @gridfire/dispatcher --production
+EXPOSE 9090
+ENTRYPOINT [ "node", "apps/dispatcher/dist/app.js" ]
