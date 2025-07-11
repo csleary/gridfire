@@ -30,6 +30,8 @@ spec:
             - configMapRef:
                 name: amqp-config
             - configMapRef:
+                name: ipfs-config
+            - configMapRef:
                 name: worker-config
             - secretRef:
                 name: aws-secrets

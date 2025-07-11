@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contracts-config
+  namespace: gridfire-prod
+data:
+  DAI_CONTRACT_ADDRESS: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
+  GRIDFIRE_EDITIONS_ADDRESS: "0xA85954b918c8065bE62fa1F68E2AAae27FaBB3d0"
+  GRIDFIRE_PAYMENT_ADDRESS: "0x10392831Abc8ddaa814b24327F1669c9e6F225aa"

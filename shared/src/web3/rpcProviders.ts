@@ -51,8 +51,8 @@ const allProviders: Provider[] =
         [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
         [ALLNODES, "https://arbitrum-one-rpc.publicnode.com"],
         [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
-        [QUICKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`],
         [DRPC, `https://lb.drpc.org/arbitrum/${API_KEY_DRPC}`] // Limited to batches of 3. Just use for block numbers.
+        // [QUICKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`],
         // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`] // Blacklisted/blocked?
       ]
     : [[LOCALHOST, "http://localhost:8545"]];

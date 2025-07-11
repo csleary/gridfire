@@ -33,7 +33,7 @@ spec:
             - configMapRef:
                 name: amqp-config
             - configMapRef:
-                name: api-config
+                name: contracts-config
             - configMapRef:
                 name: events-config
             - secretRef:

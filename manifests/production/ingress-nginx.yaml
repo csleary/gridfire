@@ -5,7 +5,7 @@ metadata:
   namespace: gridfire-prod
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
-    nginx.ingress.kubernetes.io/default-backend: gridfire-client
+    nginx.ingress.kubernetes.io/default-backend: client
     nginx.ingress.kubernetes.io/proxy-body-size: 256m
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
@@ -24,7 +24,7 @@ spec:
           - pathType: Prefix
             backend:
               service:
-                name: gridfire-api
+                name: api
                 port:
                   number: 5000
             path: /api
@@ -38,7 +38,7 @@ spec:
           - pathType: Prefix
             backend:
               service:
-                name: gridfire-client
+                name: client
                 port:
                   number: 80
             path: /

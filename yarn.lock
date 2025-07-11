@@ -2882,6 +2882,7 @@ __metadata:
     "@types/mocha": "npm:>=9.1.0"
     "@types/node": "npm:^24.0.10"
     chai: "npm:^4.2.0"
+    dotenv: "npm:^17.2.0"
     ethers: "npm:^6.15.0"
     hardhat: "npm:^2.24.3"
     hardhat-gas-reporter: "npm:^1.0.8"
@@ -7830,6 +7831,13 @@ __metadata:
   dependencies:
     esutils: "npm:^2.0.2"
   checksum: 10c0/b6416aaff1f380bf56c3b552f31fdf7a69b45689368deca72d28636f41c16bb28ec3ebc40ace97db4c1afc0ceeb8120e8492fe0046841c94c2933b2e30a7d5ac
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^17.2.0":
+  version: 17.2.0
+  resolution: "dotenv@npm:17.2.0"
+  checksum: 10c0/d4cb5c2a09c288c921ef47a78f51c765a763266e23e84465cde6a87b28b9f7fc5a9d1fe349ed3c880b4c7297f82dd736dba5b08fe95ce53833ce4a7258d0fc43
   languageName: node
   linkType: hard
 

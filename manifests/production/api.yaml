@@ -38,6 +38,12 @@ spec:
                 name: amqp-config
             - configMapRef:
                 name: api-config
+            - configMapRef:
+                name: contracts-config
+            - configMapRef:
+                name: ipfs-config
+            - configMapRef:
+                name: network-config
             - secretRef:
                 name: api-secrets
             - secretRef:

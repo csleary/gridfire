@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipfs-config
+  namespace: gridfire-prod
+data:
+  IPFS_GATEWAY_URL: https://gridfire.app/ipfs
+  IPFS_NODE_HOST: http://ipfs-node.default.svc.cluster.local:5001

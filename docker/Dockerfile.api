@@ -17,5 +17,6 @@ COPY shared/package.json ./shared/
 COPY --from=build /home/node/app/shared/dist ./shared/dist/
 COPY .yarn/releases/ .yarn/releases/
 RUN yarn workspaces focus @gridfire/api --production
+RUN mkdir ./tmp
 EXPOSE 5000 9090
 ENTRYPOINT [ "node", "apps/api/dist/app.js" ]

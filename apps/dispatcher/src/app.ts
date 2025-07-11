@@ -7,12 +7,12 @@ import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 
-const { RANGE_SIZE = 50, HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
+const { CHECK_INTERVAL_SECONDS = "10", RANGE_SIZE = "50", HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
 const logger = new Logger("app.ts");
-let healthProbeServer: net.Server | null = null;
 let gridfireProviders: GridfireProvider[] = [];
-let intervalHandle: NodeJS.Timeout | null = null;
+let healthProbeServer: net.Server | null = null;
 let isShuttingDown = false;
+let timeoutHandle: NodeJS.Timeout | null = null;
 
 assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
 assert(MONGODB_URI, "MONGODB_URI env var missing.");
@@ -28,10 +28,10 @@ const handleShutdown = async () => {
     isShuttingDown = true;
     logger.info("Gracefully shutting down…");
 
-    if (intervalHandle) {
+    if (timeoutHandle) {
       logger.info("Clearing dispatcher interval handle…");
-      clearInterval(intervalHandle);
-      intervalHandle = null;
+      clearTimeout(timeoutHandle);
+      timeoutHandle = null;
     }
 
     for (const gridfireProvider of gridfireProviders || []) {
@@ -87,6 +87,8 @@ const setupHealthProbe = () =>
 
 try {
   await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect(), setupHealthProbe()]);
+  logger.info(`Current block range size: ${RANGE_SIZE}.`);
+  logger.info(`Current block check interval: ${CHECK_INTERVAL_SECONDS} seconds.`);
   const LAST_QUEUED_BLOCK_ID = "arbitrum_dispatcher";
   const rangeSize = Number(RANGE_SIZE);
   const quorum = NODE_ENV === "production" ? 2 : 1;
@@ -96,19 +98,17 @@ try {
   const dispatchBlockRange = async () => {
     const doc = await Block.findById(LAST_QUEUED_BLOCK_ID).lean();
     const { lastQueuedBlock = null } = doc ?? {};
-    logger.info(`Last queued block: ${lastQueuedBlock}`);
-    let rangeStart: number = lastQueuedBlock || 0;
     const latestBlock = await provider.getBlockNumber({ finalised: true });
-
-    if (!lastQueuedBlock) {
-      rangeStart = latestBlock - rangeSize;
-    }
+    let rangeStart = lastQueuedBlock ?? latestBlock - rangeSize - 1;
 
     while (rangeStart + rangeSize < latestBlock) {
-      const fromBlock = `0x${(rangeStart + 1).toString(16)}`;
-      const toBlock = `0x${(rangeStart + rangeSize).toString(16)}`;
+      const fromBlock = `0x${(++rangeStart).toString(16)}`;
+      const endBlock = rangeStart + rangeSize;
+      const toBlock = `0x${endBlock.toString(16)}`;
       await publishToQueue("", "blocks", { fromBlock, toBlock });
+      logger.info(`Last queued block range: ${rangeStart}-${endBlock}`);
       rangeStart += rangeSize;
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Throttle dispatches
     }
 
     await Block.updateOne(
@@ -116,9 +116,11 @@ try {
       { lastQueuedBlock: rangeStart, lastQueuedBlockHex: rangeStart.toString(16) },
       { upsert: true }
     );
+
+    timeoutHandle = setTimeout(dispatchBlockRange, Number.parseInt(CHECK_INTERVAL_SECONDS) * 1000);
   };
 
-  intervalHandle = setInterval(dispatchBlockRange, 5_000);
+  await dispatchBlockRange();
 } catch (error: any) {
   logger.error("Startup error:", error.message ?? error);
 }
