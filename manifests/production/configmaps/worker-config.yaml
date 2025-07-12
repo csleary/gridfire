@@ -7,4 +7,4 @@ data:
   INPUT_QUEUES: transcode
   NODE_ENV: production
   QUEUE_TRANSCODE: transcode
-  TEMP_PATH: /home/node/tmp
+  TEMP_PATH: /home/node/app/tmp
