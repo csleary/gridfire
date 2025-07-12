@@ -1,5 +1,5 @@
 import logger from "@gridfire/api/controllers/logger";
-import { DRPC, LOCALHOST, providers as rpcProviders } from "@gridfire/shared/web3/rpcProviders";
+import { DRPC, LOCALHOST, ONE_RPC, providers as rpcProviders } from "@gridfire/shared/web3/rpcProviders";
 import { FallbackProvider, JsonRpcProvider } from "ethers";
 import assert from "node:assert/strict";
 
@@ -15,7 +15,7 @@ assert(hasKey(API_KEY_QUICKNODE), "API_KEY_QUICKNODE env var missing.");
 
 const eventProviders = new Map(
   [...rpcProviders].filter(([key]) => {
-    if (NODE_ENV !== "development") return ![DRPC, LOCALHOST].includes(key);
+    if (NODE_ENV !== "development") return ![DRPC, LOCALHOST, ONE_RPC].includes(key);
     return key === LOCALHOST;
   })
 );
