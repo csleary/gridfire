@@ -35,8 +35,8 @@ const config: HardhatUserConfig = {
         blockNumber: 348_000_000
       },
       mining: {
-        auto: false,
-        interval: 250
+        auto: true,
+        interval: 0
       }
     }
   },

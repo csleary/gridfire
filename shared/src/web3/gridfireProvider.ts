@@ -1,5 +1,11 @@
 import Logger from "@gridfire/shared/logger";
-import type { Contract, Provider, ProviderRequest, ProviderResponse, RequestOptions } from "@gridfire/shared/types";
+import type {
+  GridfireContract,
+  ProviderRequest,
+  ProviderResponse,
+  Providers,
+  RequestOptions
+} from "@gridfire/shared/types";
 import filterErrors from "@gridfire/shared/web3/filterErrors";
 import axios, { AxiosResponse } from "axios";
 import { Interface, Log, LogDescription, getBigInt } from "ethers";
@@ -12,9 +18,9 @@ const isRejected = <T>(p: PromiseSettledResult<T>): p is PromiseRejectedResult =
 const isSuccessResponse = (resp: JSONRPCResponse): resp is JSONRPCSuccessResponse => "result" in resp;
 
 interface GridfireProviderConfig {
-  contracts?: Contract[];
+  contracts?: GridfireContract[];
   name?: string;
-  providers: Provider[];
+  providers: Providers;
   quorum?: number;
 }
 
@@ -24,7 +30,7 @@ interface GetLogsOptions {
 }
 
 class GridfireProvider extends EventEmitter {
-  #contracts: Contract[] = [];
+  #contracts: GridfireContract[] = [];
   #id: bigint = 0n;
   #logger;
   #name = "gridfire provider";
@@ -33,11 +39,11 @@ class GridfireProvider extends EventEmitter {
 
   constructor({ contracts = [], name, providers, quorum }: GridfireProviderConfig) {
     super();
-    assert(providers.length > 0, "No providers provided.");
+    assert(providers.size > 0, "No providers provided.");
     contracts.forEach(contract => this.#contracts.push(contract));
     this.#logger = new Logger(this.#name);
     this.#name = name || this.#name;
-    providers.forEach(([provider, url]) => this.#providers.set(provider, url));
+    this.#providers = providers;
     this.#logger.info("Using", this.#providers.size, "provider(s).");
     this.#quorum = quorum || Math.ceil(this.#providers.size / 2);
     this.#logger.info("Quorum set to", this.#quorum);
@@ -130,7 +136,7 @@ class GridfireProvider extends EventEmitter {
         const { abi, address, events } = contract;
         const iface = new Interface(abi);
 
-        return events.flatMap(([eventName, eventFilters = []]) => {
+        return Array.from(events.entries()).flatMap(([eventName, eventFilters]) => {
           const event = iface.getEvent(eventName);
           const topics = iface.encodeFilterTopics(event!, eventFilters);
           const params = [{ fromBlock, toBlock, address, topics }];

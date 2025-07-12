@@ -43,7 +43,7 @@ import {
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { FixedNumber, formatEther } from "ethers";
-import { ChangeEventHandler, useEffect, useState } from "react";
+import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 const Allowance = () => {
@@ -68,8 +68,7 @@ const Allowance = () => {
       getApprovals(account);
       getPurchases(account);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
+  }, [account, dispatch, getApprovals, getPurchases]);
 
   useEffect(() => {
     if (daiAllowance != null) {
@@ -77,21 +76,22 @@ const Allowance = () => {
     }
   }, [daiAllowance]);
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
+  const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(e => {
     const { value } = e.currentTarget;
     setError("");
     setAllowance(value);
-  };
+  }, []);
 
-  const validate = (value: string) => {
+  const validate = useCallback((value: string) => {
     try {
       FixedNumber.fromString(value.toString(), "fixed128x18");
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error("Invalid amount:", error);
       return "Invalid amount.";
     }
-  };
+  }, []);
 
-  const handleApproval = async () => {
+  const handleApproval = useCallback(async () => {
     try {
       const error = validate(allowance);
       if (error) return setError(error);
@@ -101,7 +101,7 @@ const Allowance = () => {
 
       dispatch(
         toastSuccess({
-          message: `New DAI spending limit set to ◈ ${allowance.toString()}. Happy shopping!`,
+          message: `New DAI spending limit set to ◈ ${allowance.toString()}.`,
           title: "Success"
         })
       );
@@ -114,15 +114,22 @@ const Allowance = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [account, allowance, dispatch, location.state, navigate, validate]);
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setAllowance(formatEther(daiAllowance));
+    setAllowance(Number(formatEther(daiAllowance)).toFixed(2));
   };
 
-  const handleAddAmount = (amount: number) => () => {
-    setAllowance(prev => (Number(prev) + amount).toString());
+  const handleAddAmount = useCallback(
+    (amount: number) => () => {
+      setAllowance(prev => (Number(prev) + amount).toString());
+    },
+    []
+  );
+
+  const handleClick = () => {
+    setShowModal(true);
   };
 
   return (
@@ -153,7 +160,7 @@ const Allowance = () => {
           colorScheme={useColorModeValue("yellow", "purple")}
           isDisabled={!isConnected || isFetchingAllowance}
           leftIcon={<Icon icon={faWallet} />}
-          onClick={() => setShowModal(true)}
+          onClick={handleClick}
         >
           {!isConnected ? "Connect wallet" : isFetchingAllowance ? "Fetching allowance…" : "Set new allowance"}
         </Button>

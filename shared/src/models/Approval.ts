@@ -21,7 +21,7 @@ const approvalSchema = new Schema<Approval>(
   { timestamps: true }
 );
 
-approvalSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
-approvalSchema.index({ owner: 1 });
+approvalSchema.index({ transactionHash: 1, logIndex: 1, createdAt: -1 }, { unique: true });
+approvalSchema.index({ owner: 1, createdAt: -1 });
 
 export default model<Approval>("Approval", approvalSchema, "approvals");

@@ -2,12 +2,20 @@ import { amqpClose, amqpConnect, publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import Block from "@gridfire/shared/models/Block";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
-import { blockProviders as providers } from "@gridfire/shared/web3/rpcProviders";
+import { LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 
 const { CHECK_INTERVAL_SECONDS = "10", RANGE_SIZE = "50", HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
+
+const blockProviders = new Map(
+  [...providers].filter(([key]) => {
+    if (NODE_ENV !== "development") return ![LOCALHOST].includes(key);
+    return key === LOCALHOST;
+  })
+);
+
 const logger = new Logger("app.ts");
 let gridfireProviders: GridfireProvider[] = [];
 let healthProbeServer: net.Server | null = null;
@@ -87,37 +95,48 @@ const setupHealthProbe = () =>
 
 try {
   await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect(), setupHealthProbe()]);
-  logger.info(`Current block range size: ${RANGE_SIZE}.`);
+  const rangeSize = NODE_ENV !== "development" ? Number(RANGE_SIZE) : 1;
+  logger.info(`Current block range size: ${rangeSize}.`);
   logger.info(`Current block check interval: ${CHECK_INTERVAL_SECONDS} seconds.`);
   const LAST_QUEUED_BLOCK_ID = "arbitrum_dispatcher";
-  const rangeSize = Number(RANGE_SIZE);
-  const quorum = NODE_ENV === "production" ? 2 : 1;
-  const provider = new GridfireProvider({ providers, quorum });
+  const quorum = NODE_ENV !== "production" ? 1 : 2;
+  const provider = new GridfireProvider({ providers: blockProviders, quorum });
   gridfireProviders.push(provider);
 
   const dispatchBlockRange = async () => {
-    const doc = await Block.findById(LAST_QUEUED_BLOCK_ID).lean();
-    const { lastQueuedBlock = null } = doc ?? {};
-    const latestBlock = await provider.getBlockNumber({ finalised: true });
-    let rangeStart = lastQueuedBlock ?? latestBlock - rangeSize - 1;
+    try {
+      const lastQueuedInfo = await Block.findById(LAST_QUEUED_BLOCK_ID).lean();
+      const { lastQueuedBlock = null } = lastQueuedInfo ?? {};
+      const latestBlock = await provider.getBlockNumber({ finalised: true });
+      let rangeStart = lastQueuedBlock ?? latestBlock - rangeSize - 1;
 
-    while (rangeStart + rangeSize < latestBlock) {
-      const fromBlock = `0x${(++rangeStart).toString(16)}`;
-      const endBlock = rangeStart + rangeSize;
-      const toBlock = `0x${endBlock.toString(16)}`;
-      await publishToQueue("", "blocks", { fromBlock, toBlock });
-      logger.info(`Last queued block range: ${rangeStart}-${endBlock}`);
-      rangeStart += rangeSize;
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Throttle dispatches
+      while (rangeStart + rangeSize < latestBlock) {
+        const fromBlock = `0x${(++rangeStart).toString(16)}`;
+        const endBlock = rangeStart + rangeSize;
+        const toBlock = `0x${endBlock.toString(16)}`;
+        await publishToQueue("", "blocks", { fromBlock, toBlock });
+        logger.info(`Last queued block range: ${rangeStart}-${endBlock}`);
+        rangeStart += rangeSize;
+        // Throttle catch-up dispatches to avoid hitting provider frequency limits.
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      await Block.updateOne(
+        { _id: LAST_QUEUED_BLOCK_ID },
+        { lastQueuedBlock: rangeStart, lastQueuedBlockHex: rangeStart.toString(16) },
+        { upsert: true }
+      );
+
+      timeoutHandle = setTimeout(dispatchBlockRange, Number.parseInt(CHECK_INTERVAL_SECONDS) * 1000);
+    } catch (error) {
+      if (timeoutHandle) {
+        clearTimeout(timeoutHandle);
+        timeoutHandle = null;
+      }
+
+      logger.error("Error dispatching block range:", error);
+      setTimeout(dispatchBlockRange, 5000); // Delay dispatch attempt.
     }
-
-    await Block.updateOne(
-      { _id: LAST_QUEUED_BLOCK_ID },
-      { lastQueuedBlock: rangeStart, lastQueuedBlockHex: rangeStart.toString(16) },
-      { upsert: true }
-    );
-
-    timeoutHandle = setTimeout(dispatchBlockRange, Number.parseInt(CHECK_INTERVAL_SECONDS) * 1000);
   };
 
   await dispatchBlockRange();

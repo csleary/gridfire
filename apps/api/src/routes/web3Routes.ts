@@ -13,7 +13,7 @@ const router = Router();
 router.get("/approvals/:account", requireLogin, async (req, res) => {
   try {
     const { account } = req.params;
-    const approvals = await Approval.find({ owner: account }).lean();
+    const approvals = await Approval.find({ owner: account }, {}, { sort: { createdAt: -1, value: -1 } }).lean();
     res.json(approvals);
   } catch (error) {
     logger.error(error);

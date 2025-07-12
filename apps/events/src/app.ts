@@ -7,13 +7,21 @@ import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import { MessageHandler } from "@gridfire/shared/types/amqp";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
-import { contracts, EventNames, providers } from "@gridfire/shared/web3/rpcProviders";
+import { contracts, DRPC, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 import onBalanceClaim from "./controllers/onBalanceClaim.js";
 
-const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI } = process.env;
+const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI, NODE_ENV } = process.env;
+
+const eventProviders = new Map(
+  [...providers].filter(([key]) => {
+    if (NODE_ENV !== "development") return ![DRPC, LOCALHOST].includes(key);
+    return key === LOCALHOST;
+  })
+);
+
 const logger = new Logger("app.ts");
 let healthProbeServer: net.Server | null = null;
 let gridfireProviders: GridfireProvider[] = [];
@@ -87,7 +95,7 @@ const setupHealthProbe = () =>
   });
 
 try {
-  const provider = new GridfireProvider({ contracts, providers });
+  const provider = new GridfireProvider({ contracts, providers: eventProviders });
 
   provider
     .on(EventNames.EDITION_MINTED, onEditionMinted)

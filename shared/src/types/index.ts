@@ -33,12 +33,21 @@ interface BasketItem {
   releaseId: string;
 }
 
-type ContractEvent = [eventName: string, eventFilters?: any[]];
+enum EventNames {
+  APPROVAL = "Approval",
+  CLAIM = "Claim",
+  EDITION_MINTED = "EditionMinted",
+  PURCHASE_EDITION = "PurchaseEdition",
+  PURCHASE = "Purchase",
+  TRANSFER_SINGLE = "TransferSingle"
+}
 
-interface Contract {
-  address: string;
+type EventFilters = unknown[];
+
+interface GridfireContract {
   abi: any;
-  events: ContractEvent[];
+  address: string;
+  events: Map<EventNames, EventFilters>;
 }
 
 interface Link {
@@ -100,7 +109,7 @@ type PurchasedRelease = Promise<{
   type: SaleType;
 }>;
 
-type Provider = readonly [name: symbol, url: string];
+type Providers = Map<symbol, string>;
 
 type ProviderRequest = { method: string; params: any[] };
 
@@ -162,17 +171,17 @@ interface ValidatePurchaseParams {
   releaseId: string;
 }
 
-export { NotificationType };
+export { EventNames, NotificationType };
 export type {
   AuthenticatedRequest,
   BasketItem,
-  Contract,
+  GridfireContract,
   Link,
   MintNotification,
   Notification,
-  Provider,
   ProviderRequest,
   ProviderResponse,
+  Providers,
   PurchasedRelease,
   PurchaseEditionNotification,
   PurchaseNotification,
