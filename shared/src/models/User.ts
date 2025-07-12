@@ -1,4 +1,4 @@
-import { ObjectId, Schema, model } from "mongoose";
+import { model, ObjectId, Schema } from "mongoose";
 
 interface IUser {
   _id: ObjectId;
@@ -11,11 +11,11 @@ interface IUser {
 
 const userSchema = new Schema<IUser>(
   {
-    account: { type: String, trim: true, required: true },
-    emailAddress: { type: String, trim: true, lowercase: true, default: "" },
+    account: { required: true, trim: true, type: String },
+    emailAddress: { default: "", lowercase: true, trim: true, type: String },
     lastLogin: { type: Date },
-    paymentAddress: { type: String, trim: true },
-    username: { type: String, trim: true, lowercase: true, default: "" }
+    paymentAddress: { trim: true, type: String },
+    username: { default: "", lowercase: true, trim: true, type: String }
   },
   { timestamps: true }
 );

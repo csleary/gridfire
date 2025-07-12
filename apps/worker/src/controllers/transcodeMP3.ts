@@ -22,19 +22,19 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }: ReleaseContext) => {
   let mp3FilePath;
 
   try {
-    postMessage({ type: MessageType.TranscodingStartedMP3, trackId, userId });
+    postMessage({ trackId, type: MessageType.TranscodingStartedMP3, userId });
     const srcStream = await streamFromBucket(BUCKET_FLAC, bucketKey);
     const tempFilename = randomUUID({ disableEntropyCache: true });
     mp3FilePath = path.resolve(TEMP_PATH, tempFilename);
     await ffmpegEncodeMP3FromStream(srcStream, mp3FilePath);
     await streamToBucket(BUCKET_MP3, bucketKey, fs.createReadStream(mp3FilePath));
     await Release.updateOne(filter, { "trackList.$.status": "stored" }).exec();
-    postMessage({ type: MessageType.TranscodingCompleteMP3, trackId, userId });
-    postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "stored", userId });
+    postMessage({ trackId, type: MessageType.TranscodingCompleteMP3, userId });
+    postMessage({ releaseId, status: "stored", trackId, type: MessageType.TrackStatus, userId });
     logger.info(`[Worker] Track ${trackId} converted to MP3 and uploaded to B2.`);
   } catch (error) {
     logger.error(error);
-    postMessage({ type: MessageType.PipelineError, stage: "mp3", trackId, userId });
+    postMessage({ stage: "mp3", trackId, type: MessageType.PipelineError, userId });
   } finally {
     logger.info("Removing temp MP3 stage file:", mp3FilePath);
 

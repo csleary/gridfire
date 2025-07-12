@@ -1,9 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { useLazyGetClaimsQuery } from "@/state/logs";
-import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
-import { fetchDaiBalance } from "@/state/web3";
-import { claimBalance, getBalance } from "@/web3";
 import {
   Button,
   Divider,
@@ -28,6 +22,13 @@ import {
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { useEffect, useState } from "react";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { useLazyGetClaimsQuery } from "@/state/logs";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
+import { fetchDaiBalance } from "@/state/web3";
+import { claimBalance, getBalance } from "@/web3";
 
 const Balance = () => {
   const dispatch = useDispatch();
@@ -83,13 +84,13 @@ const Balance = () => {
       </Heading>
       <Flex
         bg={useColorModeValue("white", "gray.800")}
-        borderWidth="1px"
         borderColor={useColorModeValue("gray.200", "gray.700")}
+        borderWidth="1px"
         boxShadow="md"
         flexDirection="column"
-        rounded="lg"
         mb={12}
         p={4}
+        rounded="lg"
       >
         <Stat mb={4}>
           <StatLabel textAlign="center">Current DAI balance</StatLabel>
@@ -100,9 +101,9 @@ const Balance = () => {
         </Stat>
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
-          leftIcon={<Icon icon={faWallet} />}
           isDisabled={!isConnected || balance === "0" || account.toLowerCase() !== paymentAddress.toLowerCase()}
           isLoading={isClaiming}
+          leftIcon={<Icon icon={faWallet} />}
           loadingText="Claiming…"
           onClick={handleClaimBalance}
         >

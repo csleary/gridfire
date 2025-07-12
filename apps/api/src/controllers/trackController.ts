@@ -1,3 +1,5 @@
+import type { Readable } from "node:stream";
+
 import { deleteObject, deleteObjects, streamToBucket } from "@gridfire/api/controllers/storage";
 import { publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
@@ -12,7 +14,6 @@ import mime from "mime-types";
 import { ObjectId, Types } from "mongoose";
 import assert from "node:assert/strict";
 import { IncomingHttpHeaders } from "node:http";
-import type { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
 const { BUCKET_FLAC, BUCKET_MP3, BUCKET_MP4, BUCKET_SRC, QUEUE_TRANSCODE } = process.env;
@@ -55,21 +56,21 @@ const deleteTrack = async (trackId: string, user: ObjectId) => {
     { $pull: { trackList: { _id: trackId } } }
   ).exec();
 
-  await Release.updateOne({ _id: releaseId, user, trackList: { $size: 0 } }, { published: false }).exec();
+  await Release.updateOne({ _id: releaseId, trackList: { $size: 0 }, user }, { published: false }).exec();
   logger.info(`[${trackId.toString()}] Track deleted.`);
 };
 
 const logPlay = async (trackId: string, release: string, streamId: string, user: string) => {
   logger.debug(`[${trackId}] Logging play…`);
 
-  await Play.create({ date: Date.now(), trackId, release, user })
+  await Play.create({ date: Date.now(), release, trackId, user })
     .then(() => logger.debug(`[${trackId}] Play logged.`))
     .catch(error => logger.error(error));
 
   Stream.deleteOne({ _id: streamId }).exec();
 };
 
-const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: ObjectId; type: string }) => {
+const logStream = async ({ trackId, type, userId }: { trackId: string; type: string; userId?: ObjectId; }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
 
   if (!release) {
@@ -83,7 +84,7 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
     case 0:
       logger.debug(`[${trackId}] Logging play time start.`);
 
-      Stream.updateOne({ user, trackId }, { startTime: Date.now() }, { upsert: true })
+      Stream.updateOne({ trackId, user }, { startTime: Date.now() }, { upsert: true })
         .exec()
         .catch((error: any) => {
           if (error.code === 11000) return;
@@ -93,20 +94,20 @@ const logStream = async ({ trackId, userId, type }: { trackId: string; userId?: 
 
     case 1: // Update total time on pause/stop.
       {
-        const stream = await Stream.findOne({ user, trackId }).exec();
+        const stream = await Stream.findOne({ trackId, user }).exec();
         if (!stream) break;
         logger.debug(`[${trackId}] Updating play time.`);
 
         Stream.updateOne(
-          { user, trackId },
-          { totalTimePlayed: stream.totalTimePlayed + Date.now() - stream.startTime, startTime: null }
+          { trackId, user },
+          { startTime: null, totalTimePlayed: stream.totalTimePlayed + Date.now() - stream.startTime }
         ).exec();
       }
       break;
 
     case 2:
       {
-        const stream = await Stream.findOne({ user, trackId }).exec();
+        const stream = await Stream.findOne({ trackId, user }).exec();
         if (!stream) break;
         logger.debug(`[${trackId}] Total play time: ${stream.totalTimePlayed + Date.now() - stream.startTime}ms.`);
 
@@ -151,7 +152,7 @@ const createAsyncFileHandler =
     // Update track if it already exists.
     const release = await Release.findOneAndUpdate(
       filter,
-      { $set: { "trackList.$.trackTitle": trackTitle, "trackList.$.status": "uploading" } },
+      { $set: { "trackList.$.status": "uploading", "trackList.$.trackTitle": trackTitle } },
       { new: true }
     ).lean();
 
@@ -160,18 +161,18 @@ const createAsyncFileHandler =
       await Release.updateOne(
         { _id: releaseId, user: userId },
         {
-          $setOnInsert: { user: userId },
-          $addToSet: { trackList: { _id: trackId, trackTitle, status: "uploading" } }
+          $addToSet: { trackList: { _id: trackId, status: "uploading", trackTitle } },
+          $setOnInsert: { user: userId }
         },
         { upsert: true }
       ).exec();
     }
 
-    sseClient.send(userId.toString(), { type: MessageType.TrackStatus, releaseId, trackId, status: "uploading" });
+    sseClient.send(userId.toString(), { releaseId, status: "uploading", trackId, type: MessageType.TrackStatus });
     await streamToBucket(BUCKET_SRC, bucketKey, fileStream);
     logger.info(`Uploaded src file '${filename}' for track ${trackId}.`);
     await Release.updateOne(filter, { $set: { "trackList.$.status": "uploaded" } }).exec();
-    sseClient.send(userId.toString(), { type: MessageType.TrackStatus, releaseId, trackId, status: "uploaded" });
+    sseClient.send(userId.toString(), { releaseId, status: "uploaded", trackId, type: MessageType.TrackStatus });
     publishToQueue("", QUEUE_TRANSCODE, { job: "encodeFLAC", releaseId, trackId, trackTitle, userId });
   };
 

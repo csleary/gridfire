@@ -1,10 +1,3 @@
-import BasketButton from "@/components/header/basketButton";
-import Notifications from "@/components/header/notifications";
-import Icon from "@/components/icon";
-import SearchBar from "@/components/searchBar";
-import { useDispatch, useSelector } from "@/hooks";
-import { logOut } from "@/state/user";
-import { connectToWeb3 } from "@/state/web3";
 import {
   Badge,
   Button,
@@ -17,11 +10,11 @@ import {
   MenuList,
   Spacer,
   Tooltip,
-  Wrap,
-  WrapItem,
   useBoolean,
   useColorMode,
-  useColorModeValue
+  useColorModeValue,
+  Wrap,
+  WrapItem
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import {
@@ -43,6 +36,14 @@ import { formatEther, getAddress } from "ethers";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+
+import BasketButton from "@/components/header/basketButton";
+import Notifications from "@/components/header/notifications";
+import Icon from "@/components/icon";
+import SearchBar from "@/components/searchBar";
+import { useDispatch, useSelector } from "@/hooks";
+import { logOut } from "@/state/user";
+import { connectToWeb3 } from "@/state/web3";
 
 const MenuBar = () => {
   const [isTop, setIsTop] = useBoolean(true);
@@ -106,7 +107,6 @@ const MenuBar = () => {
 
   return (
     <Wrap
-      spacing={4}
       alignItems="center"
       backdropFilter="blur(10px)"
       backgroundColor={navBackgroundColor}
@@ -116,6 +116,7 @@ const MenuBar = () => {
       p={4}
       position="sticky"
       ref={el => void (navRef.current = el)}
+      spacing={4}
       top={0}
       transition="background-color 300ms ease-in-out"
       zIndex={1000}
@@ -126,10 +127,10 @@ const MenuBar = () => {
       <WrapItem alignItems="center">
         <Button
           as={NavLink}
-          to={"/"}
           fontStyle="italic"
           leftIcon={<Icon fixedWidth icon={faFireAlt} />}
           textTransform="uppercase"
+          to={"/"}
           variant="ghost"
         >
           Gridfire
@@ -141,10 +142,10 @@ const MenuBar = () => {
           <WrapItem>
             <Button
               as={NavLink}
-              to={"/login"}
               colorScheme={primaryButtonColor}
               leftIcon={<Icon fixedWidth icon={faSignInAlt} />}
               title="Click to log in."
+              to={"/login"}
             >
               Log In
             </Button>
@@ -159,12 +160,12 @@ const MenuBar = () => {
                 <Tooltip label="Your active account's DAI balance.">
                   <Badge
                     alignItems="center"
-                    display="flex"
-                    height={10}
                     colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : primaryButtonColor}
+                    display="flex"
                     fontSize="md"
-                    rounded="md"
+                    height={10}
                     px={4}
+                    rounded="md"
                   >
                     ◈ {daiDisplayBalance}
                   </Badge>
@@ -173,13 +174,13 @@ const MenuBar = () => {
               <WrapItem>
                 <Tooltip label={`Your active web3 account. Click to view account details on the explorer.`}>
                   <Button
+                    _hover={{ color: "initial", textDecoration: "none" }}
                     as={Link}
                     color="gray.400"
                     colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
                     href={`https://arbiscan.io/address/${account}`}
                     isExternal
                     leftIcon={<Icon fixedWidth icon={faEthereum} />}
-                    _hover={{ color: "initial", textDecoration: "none" }}
                     variant="ghost"
                   >
                     {accountShort}
@@ -213,52 +214,52 @@ const MenuBar = () => {
               <MenuList overflow="hidden" py={0}>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/payment"}
                   icon={<Icon fixedWidth icon={faEthereum} />}
                   sx={activeStyle}
+                  to={"/dashboard/payment"}
                 >
                   Payment
                 </MenuItem>
-                <MenuItem as={NavLink} to={"/dashboard"} end icon={<Icon fixedWidth icon={faMusic} />} sx={activeStyle}>
+                <MenuItem as={NavLink} end icon={<Icon fixedWidth icon={faMusic} />} sx={activeStyle} to={"/dashboard"}>
                   Releases
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/artists"}
                   icon={<Icon fixedWidth icon={faHeadphones} />}
                   sx={activeStyle}
+                  to={"/dashboard/artists"}
                 >
                   Artists
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/activity"}
                   icon={<Icon fixedWidth icon={faRectangleList} />}
                   sx={activeStyle}
+                  to={"/dashboard/activity"}
                 >
                   Activity
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/collection"}
                   icon={<Icon fixedWidth icon={faArchive} />}
                   sx={activeStyle}
+                  to={"/dashboard/collection"}
                 >
                   Collection
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/favourites"}
                   icon={<Icon fixedWidth icon={faHeart} />}
                   sx={activeStyle}
+                  to={"/dashboard/favourites"}
                 >
                   Faves
                 </MenuItem>
                 <MenuItem
                   as={NavLink}
-                  to={"/dashboard/wishlist"}
                   icon={<Icon fixedWidth icon={faMagic} />}
                   sx={activeStyle}
+                  to={"/dashboard/wishlist"}
                 >
                   List
                 </MenuItem>

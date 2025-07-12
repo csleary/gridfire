@@ -1,8 +1,9 @@
-import { AppDispatch } from "@/main";
-import { setActiveRelease } from "@/state/releases";
-import { toastError } from "@/state/toast";
 import { createSlice } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
+
+import { setActiveRelease } from "@/state/releases";
+import { toastError } from "@/state/toast";
+import { AppDispatch } from "@/types";
 
 interface ArtworkState {
   artworkUploading: boolean;
@@ -15,8 +16,8 @@ const initialState: ArtworkState = {
 };
 
 const artworkSlice = createSlice({
-  name: "artwork",
   initialState,
+  name: "artwork",
   reducers: {
     setArtworkUploading(state, action) {
       state.artworkUploading = action.payload;
@@ -60,4 +61,5 @@ const uploadArtwork = (releaseId: string, file: File) => async (dispatch: AppDis
 
 export const { setArtworkUploading, setArtworkUploadProgress } = artworkSlice.actions;
 export { deleteArtwork, uploadArtwork };
+export type { ArtworkState };
 export default artworkSlice.reducer;

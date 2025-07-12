@@ -2,7 +2,7 @@ import Logger from "@gridfire/shared/logger";
 import { isAxiosError } from "axios";
 import { JSONRPCResponse } from "json-rpc-2.0";
 
-type ProviderResult = { provider: symbol; data: JSONRPCResponse | JSONRPCResponse[]; error: any };
+type ProviderResult = { data: JSONRPCResponse | JSONRPCResponse[]; error: any; provider: symbol; };
 const logger = new Logger("filterErrors");
 const isBatchResponse = (data: JSONRPCResponse | JSONRPCResponse[]): data is JSONRPCResponse[] => Array.isArray(data);
 

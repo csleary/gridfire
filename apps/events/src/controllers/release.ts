@@ -3,7 +3,11 @@ import { SaleType } from "@gridfire/shared/models/Sale";
 import { PurchasedRelease, ReleaseAlbum, ReleaseSingle, ValidatePurchaseParams } from "@gridfire/shared/types";
 import { getAddress, parseEther } from "ethers";
 
-const validatePurchase = async ({ amountPaid, artistAddress, releaseId }: ValidatePurchaseParams): PurchasedRelease => {
+const validatePurchase = async ({
+  amountPaid,
+  artistAddress,
+  releaseId
+}: ValidatePurchaseParams): Promise<Omit<PurchasedRelease, "purchaseId">> => {
   let release;
   let price;
   let releaseTitle;

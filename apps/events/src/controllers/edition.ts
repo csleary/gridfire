@@ -5,7 +5,7 @@ const updateEditionStatus = async (releaseId: string, editionObjectId: string, e
   const filter = { _id: editionObjectId, release: releaseId };
   const update = { editionId, status: EditionStatus.Minted };
   const options = { new: true };
-  const populateOptions = { path: "release", model: Release, options: {}, select: "user artist" };
+  const populateOptions = { model: Release, options: {}, path: "release", select: "user artist" };
 
   const edition = await Edition.findOneAndUpdate(filter, update, options)
     .populate<{ release: IRelease }>(populateOptions)

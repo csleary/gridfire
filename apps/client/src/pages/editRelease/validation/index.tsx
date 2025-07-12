@@ -1,7 +1,7 @@
-import { EditorRelease, ReleaseTrack, TrackErrors } from "@/types";
+import { EditorRelease, ReleaseTrack, TrackErrors } from "@gridfire/shared/types";
 
 const checkRelease = ({ artist, artistName, price, releaseDate, releaseTitle }: EditorRelease) => {
-  const errors = { artistName: "", releaseTitle: "", releaseDate: "", price: "" };
+  const errors = { artistName: "", price: "", releaseDate: "", releaseTitle: "" };
   if (!artist && !artistName) errors.artistName = "Please select or enter an artist name.";
   if (!releaseTitle) errors.releaseTitle = "Please enter a release title.";
   if (!releaseDate) errors.releaseDate = "Please enter a release date.";

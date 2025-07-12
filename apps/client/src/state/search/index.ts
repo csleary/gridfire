@@ -1,7 +1,8 @@
-import { AppDispatch } from "@/main";
-import { Release } from "@/types";
+import { Release } from "@gridfire/shared/types";
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+
+import { AppDispatch } from "@/types";
 
 interface SearchState {
   isSearching: boolean;
@@ -16,19 +17,19 @@ const initialState: SearchState = {
 };
 
 const searchSlice = createSlice({
-  name: "search",
   initialState,
+  name: "search",
   reducers: {
     clearResults(state) {
       state.searchResults = [];
       state.searchQuery = "";
     },
-    setSearchResults(state, action) {
-      state.searchResults = action.payload;
-    },
     setSearching(state, action) {
       state.isSearching = action.payload.isSearching;
       state.searchQuery = action.payload.searchQuery;
+    },
+    setSearchResults(state, action) {
+      state.searchResults = action.payload;
     }
   }
 });
@@ -57,6 +58,7 @@ const searchReleases = (searchQuery: string) => async (dispatch: AppDispatch) =>
   return res;
 };
 
+export type { SearchState };
 export const { clearResults, setSearching, setSearchResults } = searchSlice.actions;
 export { searchReleases };
 export default searchSlice.reducer;

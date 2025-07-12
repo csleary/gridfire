@@ -1,9 +1,10 @@
-import { AppDispatch, RootState } from "@/main";
+import { ActiveProcess, Sale, UserFavourite, UserListItem } from "@gridfire/shared/types";
+import { createEntityAdapter, createSelector, createSlice, EntityState } from "@reduxjs/toolkit";
+import axios from "axios";
+
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "@/state/releases";
 import { toastError, toastSuccess } from "@/state/toast";
-import { ActiveProcess, Sale, UserFavourite, UserListItem } from "@/types";
-import { EntityState, createEntityAdapter, createSelector, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { AppDispatch, RootState } from "@/types";
 
 interface UserState {
   account: string;
@@ -36,8 +37,8 @@ const initialState: UserState = {
 };
 
 const userSlice = createSlice({
-  name: "user",
   initialState,
+  name: "user",
   reducers: {
     addActiveProcess(state, action) {
       const newProcess = action.payload;
@@ -103,7 +104,7 @@ const removeFromFavourites = (releaseId: string) => async (dispatch: AppDispatch
 };
 
 const addToWishList =
-  ({ releaseId, note }: { releaseId: string; note: string }) =>
+  ({ note, releaseId }: { note: string; releaseId: string }) =>
   async (dispatch: AppDispatch) => {
     const res = await axios.post(`/api/user/wishlist/${releaseId}`, { note });
     const { _id, dateAdded } = res.data;
@@ -176,8 +177,8 @@ export const {
 
 const {
   selectAll: selectActiveProcessList,
-  selectIds: selectActiveProcessIds,
   selectById: selectActiveProcessById,
+  selectIds: selectActiveProcessIds,
   selectTotal: selectActiveProcessTotal
 } = processAdapter.getSelectors((state: RootState) => state.user.processList);
 
@@ -207,4 +208,5 @@ export {
   initialState as userInitialState
 };
 
+export type { UserState };
 export default userSlice.reducer;

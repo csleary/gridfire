@@ -1,11 +1,12 @@
-import { AppDispatch, GetState, RootState } from "@/main";
-import { checkRelease, checkTrackList } from "@/pages/editRelease/validation";
-import { toastError, toastSuccess } from "@/state/toast";
-import { EditorRelease, Release, ReleaseErrors, ReleaseTrack, TrackErrors } from "@/types";
-import { createObjectId, formatPrice } from "@/utils";
-import { EntityState, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { EditorRelease, Release, ReleaseErrors, ReleaseTrack, TrackErrors } from "@gridfire/shared/types";
+import { createEntityAdapter, createSlice, EntityState } from "@reduxjs/toolkit";
 import axios from "axios";
 import { DateTime } from "luxon";
+
+import { checkRelease, checkTrackList } from "@/pages/editRelease/validation";
+import { toastError, toastSuccess } from "@/state/toast";
+import { AppDispatch, GetState, RootState } from "@/types";
+import { createObjectId, formatPrice } from "@/utils";
 
 interface EditorState {
   artworkUploading: boolean;
@@ -19,6 +20,7 @@ interface EditorState {
 }
 
 const defaultErrorState: ReleaseErrors = {
+  artist: "",
   artistName: "",
   price: "",
   releaseDate: "",
@@ -61,8 +63,8 @@ const initialState: EditorState = {
 };
 
 const editorSlice = createSlice({
-  name: "editor",
   initialState,
+  name: "editor",
   reducers: {
     createRelease(state) {
       state.artworkUploading = false;
@@ -84,9 +86,6 @@ const editorSlice = createSlice({
     removeTags(state) {
       state.release.tags = [];
     },
-    setFormattedPrice(state) {
-      state.release.price = formatPrice(state.release.price);
-    },
     setArtworkUploading(state, action) {
       state.artworkUploading = action.payload;
     },
@@ -95,6 +94,9 @@ const editorSlice = createSlice({
     },
     setErrors(state, action) {
       state.releaseErrors = action.payload;
+    },
+    setFormattedPrice(state) {
+      state.release.price = formatPrice(state.release.price);
     },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
@@ -105,12 +107,12 @@ const editorSlice = createSlice({
     setRelease(state, action) {
       state.release = action.payload;
     },
+    setTrackErrors(state, action) {
+      state.trackErrors = action.payload;
+    },
     setTrackList(state, action) {
       const { trackList } = action.payload;
       tracksAdapter.setAll(state.trackList, trackList);
-    },
-    setTrackErrors(state, action) {
-      state.trackErrors = action.payload;
     },
     trackAdd(state) {
       const newTrack: ReleaseTrack = {
@@ -136,7 +138,7 @@ const editorSlice = createSlice({
       tracksAdapter.setAll(state.trackList, nextTrackList);
     },
     trackNudge(state, action) {
-      const { trackId, direction } = action.payload;
+      const { direction, trackId } = action.payload;
       const { selectAll, selectIds, selectTotal } = tracksAdapter.getSelectors();
       const trackIds = [...selectIds(state.trackList)];
       const indexFrom = trackIds.findIndex(id => id === trackId);
@@ -156,26 +158,24 @@ const editorSlice = createSlice({
       }
     },
     trackSetError(state, action) {
-      const { trackId, name, value } = action.payload;
+      const { name, trackId, value } = action.payload;
       state.trackErrors[`${trackId}.${name}`] = value;
     },
     trackUpdate(state, action) {
-      const { id, changes } = action.payload;
+      const { changes, id } = action.payload;
 
       if (state.trackErrors[`${id}.trackTitle`]) {
         delete state.trackErrors[`${id}.trackTitle`];
       }
 
-      tracksAdapter.updateOne(state.trackList, { id, changes });
-    },
-    updateTrackStatus(state, action) {
-      tracksAdapter.updateOne(state.trackList, action.payload);
+      tracksAdapter.updateOne(state.trackList, { changes, id });
     },
     updateRelease(state, action) {
-      const { name, type, value, checked } = action.payload;
+      const { checked, name, type, value } = action.payload;
 
-      if (state.releaseErrors[name]) {
-        state.releaseErrors[name] = "";
+      // Explicitly type name as keyof ReleaseErrors for error handling
+      if ((name as keyof ReleaseErrors) in state.releaseErrors) {
+        state.releaseErrors[name as keyof ReleaseErrors] = "";
       }
 
       if (name === "releaseDate" && value) {
@@ -184,12 +184,12 @@ const editorSlice = createSlice({
       } else if (name === "artist") {
         state.release.artistName = "";
         state.release.artist = value;
-        state.releaseErrors[name] = "";
+        state.releaseErrors[name as keyof ReleaseErrors] = "";
         state.releaseErrors.artistName = "";
       } else if (name === "artistName") {
         state.release.artist = "";
         state.release.artistName = value;
-        state.releaseErrors[name] = "";
+        state.releaseErrors[name as keyof ReleaseErrors] = "";
         state.releaseErrors.artist = "";
       } else if (name === "tags") {
         const tag = value
@@ -198,10 +198,15 @@ const editorSlice = createSlice({
           .toLowerCase();
 
         if (!tag) return;
-        state.release.tags = [...new Set([...state.release.tags, tag])];
+        state.release.tags = [...new Set([tag, ...state.release.tags])];
       } else {
-        state.release[name] = type === "checkbox" ? checked : value;
+        if (name in state.release) {
+          (state.release as any)[name] = type === "checkbox" ? checked : value;
+        }
       }
+    },
+    updateTrackStatus(state, action) {
+      tracksAdapter.updateOne(state.trackList, action.payload);
     }
   }
 });
@@ -248,32 +253,33 @@ export const {
   createRelease,
   removeTag,
   removeTags,
-  trackAdd,
-  trackMove,
-  trackRemove,
-  trackSetError,
-  trackUpdate,
   setArtworkUploading,
   setArtworkUploadProgress,
   setErrors,
   setFormattedPrice,
   setIsLoading,
   setIsSubmitting,
-  trackNudge,
   setRelease,
   setTrackErrors,
   setTrackList,
+  trackAdd,
+  trackMove,
+  trackNudge,
+  trackRemove,
+  trackSetError,
+  trackUpdate,
   updateRelease,
   updateTrackStatus
 } = editorSlice.actions;
 
 const {
   selectAll: selectTracks,
-  selectIds: selectTrackIds,
   selectById: selectTrackById,
+  selectIds: selectTrackIds,
   selectTotal: selectTrackListSize
 } = tracksAdapter.getSelectors((state: RootState) => state.editor.trackList);
 
+export type { EditorState };
 export {
   defaultReleaseState,
   fetchReleaseForEditing,

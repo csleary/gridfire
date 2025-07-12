@@ -1,8 +1,9 @@
+import type { IUser } from "@gridfire/shared/models/User";
+
 import { deleteArtwork, uploadArtwork } from "@gridfire/api/controllers/artworkController";
 import logger from "@gridfire/api/controllers/logger";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Release from "@gridfire/shared/models/Release";
-import type { IUser } from "@gridfire/shared/models/User";
 import Busboy from "busboy";
 import { Router } from "express";
 import assert from "node:assert/strict";
@@ -32,7 +33,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
 
     busboy.on("file", async (fieldName, file, info) => {
       if (fieldName !== "artworkImageFile") return void res.sendStatus(403);
-      const { filename, encoding, mimeType } = info;
+      const { encoding, filename, mimeType } = info;
 
       logger.info(
         `[release ${releaseId}] Uploading artwork: ${filename}, encoding: ${encoding}, mime type: ${mimeType}`
@@ -43,7 +44,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       const filePath = path.join(TEMP_PATH, releaseId);
       const write = fs.createWriteStream(filePath);
       await pipeline(file, write, { signal });
-      filePromises.push(uploadArtwork({ userId, filePath, releaseId }));
+      filePromises.push(uploadArtwork({ filePath, releaseId, userId }));
     });
 
     busboy.on("finished", async () => {

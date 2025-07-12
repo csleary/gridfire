@@ -31,12 +31,12 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 1337,
       forking: {
-        url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`,
-        blockNumber: 348_000_000
+        blockNumber: 348_000_000,
+        url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`
       },
       mining: {
-        auto: true,
-        interval: 0
+        auto: false,
+        interval: 1000
       }
     }
   },

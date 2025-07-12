@@ -1,15 +1,16 @@
-import Logger from "@gridfire/shared/logger";
 import type { ServerSentMessage } from "@gridfire/shared/types/messages";
-import { MessageType } from "@gridfire/shared/types/messages";
 import type { ChannelWrapper } from "amqp-connection-manager";
 import type { ConsumeMessage } from "amqplib";
 import type { Response } from "express";
 import type { ObjectId } from "mongoose";
 import type { UUID } from "node:crypto";
 
-type SocketId = UUID;
+import Logger from "@gridfire/shared/logger";
+import { MessageType } from "@gridfire/shared/types/messages";
+
 type MessageHandler = (data: ConsumeMessage | null) => Promise<undefined>;
 type Session = Map<SocketId, Connection>;
+type SocketId = UUID;
 type UserId = string;
 
 const CHECK_INTERVAL = 1000 * 60 * 2;
@@ -17,15 +18,15 @@ const { POD_NAME = "dev" } = process.env;
 const logger = new Logger("SSE");
 
 interface Connection {
-  res: Response;
   lastPing: number;
+  res: Response;
 }
 
 class SSEClient {
   #consumerChannel: ChannelWrapper | null;
   #consumerTags: Map<string, string>;
-  #messageHandler: MessageHandler | null;
   #interval: NodeJS.Timeout | null;
+  #messageHandler: MessageHandler | null;
   #sessions: Map<UserId, Session>;
 
   constructor() {
@@ -51,13 +52,13 @@ class SSEClient {
 
       if (connections) {
         logger.info(`${context} Storing connection…`);
-        return connections.set(socketId, { res, lastPing: Date.now() });
+        return connections.set(socketId, { lastPing: Date.now(), res });
       }
     }
 
     logger.info(`${context} Storing first connection…`);
     const connections = new Map();
-    connections.set(socketId, { res, lastPing: Date.now() });
+    connections.set(socketId, { lastPing: Date.now(), res });
     this.#sessions.set(userId, connections);
     const userQueue = `user.${userId}.${POD_NAME}`;
     const queueOptions = { autoDelete: true, durable: false };
@@ -77,12 +78,8 @@ class SSEClient {
     }
   }
 
-  get(userId: UserId | ObjectId) {
+  get(userId: ObjectId | UserId) {
     return this.#sessions.get(userId.toString());
-  }
-
-  #has(userId: UserId) {
-    return this.#sessions.has(userId);
   }
 
   ping(userId: UserId, socketId: SocketId) {
@@ -95,7 +92,7 @@ class SSEClient {
     }
 
     const { res } = connections.get(socketId) as Connection;
-    connections.set(socketId, { res, lastPing: Date.now() });
+    connections.set(socketId, { lastPing: Date.now(), res });
     const connection = connections.get(socketId);
 
     if (connection) {
@@ -125,39 +122,6 @@ class SSEClient {
     }
   }
 
-  #runHouseKeeping() {
-    if (this.#interval) {
-      clearInterval(this.#interval);
-    }
-
-    const checkUserConnections = () => {
-      if (this.#sessions.size === 0) return;
-      logger.info("Checking for stale sockets…");
-      const iterator = this.#sessions.entries();
-
-      const checkForStaleConnection = ({ value, done }: IteratorResult<[UserId, Session]>) => {
-        if (done) return;
-        const [userId, connections] = value;
-        logger.debug(`User ${userId} has ${connections.size} connections.`);
-
-        for (const [socketId, { lastPing, res }] of connections.entries()) {
-          if (Date.now() - lastPing > CHECK_INTERVAL) {
-            logger.info(`Removing stale connection ${socketId} for user ${userId}.`);
-            if (res) res.end();
-            connections.delete(socketId);
-          }
-        }
-
-        if (connections.size === 0) this.remove(userId);
-        setTimeout(checkForStaleConnection, 0, iterator.next());
-      };
-
-      checkForStaleConnection(iterator.next());
-    };
-
-    this.#interval = setInterval(checkUserConnections, CHECK_INTERVAL);
-  }
-
   send(userId: UserId, message: ServerSentMessage) {
     const connections = this.get(userId.toString());
     if (!connections) return;
@@ -181,10 +145,46 @@ class SSEClient {
     this.#consumerChannel = channel;
     this.#messageHandler = messageHandler;
   }
+
+  #has(userId: UserId) {
+    return this.#sessions.has(userId);
+  }
+
+  #runHouseKeeping() {
+    if (this.#interval) {
+      clearInterval(this.#interval);
+    }
+
+    const checkUserConnections = () => {
+      if (this.#sessions.size === 0) return;
+      logger.info("Checking for stale sockets…");
+      const iterator = this.#sessions.entries();
+
+      const checkForStaleConnection = ({ done, value }: IteratorResult<[UserId, Session]>) => {
+        if (done) return;
+        const [userId, connections] = value;
+        logger.debug(`User ${userId} has ${connections.size} connections.`);
+
+        for (const [socketId, { lastPing, res }] of connections.entries()) {
+          if (Date.now() - lastPing > CHECK_INTERVAL) {
+            logger.info(`Removing stale connection ${socketId} for user ${userId}.`);
+            if (res) res.end();
+            connections.delete(socketId);
+          }
+        }
+
+        if (connections.size === 0) this.remove(userId);
+        setTimeout(checkForStaleConnection, 0, iterator.next());
+      };
+
+      checkForStaleConnection(iterator.next());
+    };
+
+    this.#interval = setInterval(checkUserConnections, CHECK_INTERVAL);
+  }
 }
 
 const sseClient = new SSEClient();
 
 export { SSEClient };
-
 export default sseClient;

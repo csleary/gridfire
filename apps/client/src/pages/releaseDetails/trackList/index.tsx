@@ -1,19 +1,20 @@
+import { Badge, Box, Button, ListItem, Spacer, Tooltip, UnorderedList, useColorModeValue } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
+import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { TrackForPurchase } from "@gridfire/shared/types";
+import axios from "axios";
+import { parseEther } from "ethers";
+import { lazy, useCallback, useState } from "react";
+import { shallowEqual } from "react-redux";
+
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { loadTrack } from "@/state/player";
 import { toastError, toastInfo, toastWarning } from "@/state/toast";
 import { addToBasket } from "@/state/web3";
-import { TrackForPurchase } from "@/types";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 import { purchaseRelease } from "@/web3";
-import { Badge, Box, Button, ListItem, Spacer, Tooltip, UnorderedList, useColorModeValue } from "@chakra-ui/react";
-import { keyframes } from "@emotion/react";
-import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
-import { parseEther } from "ethers";
-import { lazy, useCallback, useState } from "react";
-import { shallowEqual } from "react-redux";
 const AddToBasketButton = lazy(() => import("./addToBasketButton"));
 const PurchaseTrackButton = lazy(() => import("./purchaseTrackButton"));
 
@@ -50,10 +51,10 @@ const TrackList = () => {
         dispatch(
           addToBasket({
             artistName,
-            releaseId: trackId,
             imageUrl: `${VITE_CDN_IMG}/${releaseId}`,
             paymentAddress,
             price: priceInWei.toString(),
+            releaseId: trackId,
             title: trackTitle
           })
         );
@@ -132,7 +133,7 @@ const TrackList = () => {
   );
 
   return (
-    <UnorderedList marginInlineStart={0} mb={8} styleType="none" stylePosition="inside">
+    <UnorderedList marginInlineStart={0} mb={8} stylePosition="inside" styleType="none">
       {trackList.map(({ _id: trackId, duration, isBonus, isEditionOnly, price, trackTitle }, index) => {
         const allowanceTooLow = parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
         const inBasket = basket.some(item => item.releaseId === trackId);
@@ -140,7 +141,7 @@ const TrackList = () => {
         const trackInCollection = purchases.some(sale => sale.release === trackId);
 
         return (
-          <ListItem key={trackId} display="flex" alignItems="center" role="group">
+          <ListItem alignItems="center" display="flex" key={trackId} role="group">
             <Box as="span" color={secondaryColour} fontWeight="600" mr="2">
               {(index + 1).toString(10).padStart(2, "0")}
             </Box>
@@ -153,10 +154,10 @@ const TrackList = () => {
                 color={titleColour}
                 disabled={!playerIsInitialised}
                 minWidth={2}
+                onClick={handleClick(trackId, trackTitle)}
                 textAlign="left"
                 variant="link"
                 whiteSpace="break-spaces"
-                onClick={handleClick(trackId, trackTitle)}
               >
                 {trackTitle}
               </Button>
@@ -167,9 +168,9 @@ const TrackList = () => {
               </Box>
             ) : null}
             {isBonus ? null : trackId === playerTrackId && isPlaying ? (
-              <Box as={FontAwesomeIcon} icon={faPlay} animation={animation} ml={2} />
+              <Box animation={animation} as={FontAwesomeIcon} icon={faPlay} ml={2} />
             ) : trackId === playerTrackId && isPaused ? (
-              <Box as={FontAwesomeIcon} icon={faPause} animation={animation} ml={2} />
+              <Box animation={animation} as={FontAwesomeIcon} icon={faPause} ml={2} />
             ) : null}
             {isBonus ? (
               <Tooltip label={`'${trackTitle}' is a download exclusive.`}>
@@ -179,27 +180,27 @@ const TrackList = () => {
             {isEditionOnly ? (
               <Tooltip label={`'${trackTitle}' is an exclusive for one or more Editions.`}>
                 <Badge
-                  _before={{
-                    content: '""',
-                    zIndex: "-1",
-                    position: "absolute",
-                    inset: "0",
-                    background:
-                      "linear-gradient(45deg, var(--chakra-colors-green-200) 0%, var(--chakra-colors-blue-600) 40%, var(--chakra-colors-purple-600) 100% )",
-                    opacity: "0.65",
-                    transition: "opacity 0.3s",
+                  _after={{
+                    background: "inherit",
                     borderRadius: "inherit",
+                    content: '""',
+                    inset: "0",
+                    position: "absolute",
+                    zIndex: "-1"
+                  }}
+                  _before={{
                     _hover: {
                       opacity: "1.0"
-                    }
-                  }}
-                  _after={{
+                    },
+                    background:
+                      "linear-gradient(45deg, var(--chakra-colors-green-200) 0%, var(--chakra-colors-blue-600) 40%, var(--chakra-colors-purple-600) 100% )",
+                    borderRadius: "inherit",
                     content: '""',
-                    zIndex: "-1",
-                    position: "absolute",
                     inset: "0",
-                    background: "inherit",
-                    borderRadius: "inherit"
+                    opacity: "0.65",
+                    position: "absolute",
+                    transition: "opacity 0.3s",
+                    zIndex: "-1"
                   }}
                   boxShadow="none"
                   color="whiteAlpha.800"

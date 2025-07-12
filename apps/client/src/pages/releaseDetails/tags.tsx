@@ -1,10 +1,11 @@
-import Icon from "@/components/icon";
-import { useSelector } from "@/hooks";
 import { Tag, Wrap, WrapItem } from "@chakra-ui/react";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "@reduxjs/toolkit";
 import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
 
 const Tags = () => {
   const navigate = useNavigate();

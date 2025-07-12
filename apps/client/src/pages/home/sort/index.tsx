@@ -3,28 +3,28 @@ import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
-type SortOrder = "-1" | "1";
+type SortOrder = "1" | "-1";
 
 const sortOptions = [
-  { title: "Date Added", sortPath: "createdAt", 1: "Old", "-1": "New" },
-  { title: "Release Date", sortPath: "releaseDate", 1: "Old", "-1": "New" },
-  { title: "Artist Name", sortPath: "artistName", 1: "A\u2013Z", "-1": "Z\u2013A" },
-  { title: "Release Title", sortPath: "releaseTitle", 1: "A\u2013Z", "-1": "Z\u2013A" },
-  { title: "Price", sortPath: "price", "-1": "Desc.", 1: "Asc." }
+  { "-1": "New", 1: "Old", sortPath: "createdAt", title: "Date Added" },
+  { "-1": "New", 1: "Old", sortPath: "releaseDate", title: "Release Date" },
+  { "-1": "Z\u2013A", 1: "A\u2013Z", sortPath: "artistName", title: "Artist Name" },
+  { "-1": "Z\u2013A", 1: "A\u2013Z", sortPath: "releaseTitle", title: "Release Title" },
+  { "-1": "Desc.", 1: "Asc.", sortPath: "price", title: "Price" }
 ];
 
 interface Props {
-  handleFetchCatalogue: (options?: { sortBy?: string; sortOrder?: string; isPaging?: boolean }) => Promise<void>;
   currentSortOrder: string;
   currentSortPath: string;
+  handleFetchCatalogue: (options?: { isPaging?: boolean; sortBy?: string; sortOrder?: string; }) => Promise<void>;
   setCurrentSortOrder: (sortOrder: string) => void;
   setCurrentSortPath: (sortPath: string) => void;
 }
 
 const SortReleases = ({
-  handleFetchCatalogue,
   currentSortOrder,
   currentSortPath,
+  handleFetchCatalogue,
   setCurrentSortOrder,
   setCurrentSortPath
 }: Props) => {
@@ -48,7 +48,7 @@ const SortReleases = ({
   const currentSortOrderText = currentSortOption?.[currentSortOrder as SortOrder];
 
   return (
-    <ButtonGroup size="sm" isAttached mb={4}>
+    <ButtonGroup isAttached mb={4} size="sm">
       <Menu>
         <MenuButton as={Button} leftIcon={<FontAwesomeIcon icon={faSort} />}>
           {sortOptions.find(option => option.sortPath === currentSortPath)?.title}

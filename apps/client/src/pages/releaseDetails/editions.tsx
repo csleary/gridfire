@@ -1,7 +1,9 @@
-import { fetchVisibleGridfireEditionsByReleaseId } from "@/web3";
-import { Accordion, Box, Collapse, Divider, Flex, ScaleFade, VStack, useColorModeValue } from "@chakra-ui/react";
+import { Accordion, Box, Collapse, Divider, Flex, ScaleFade, useColorModeValue, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+import { fetchVisibleGridfireEditionsByReleaseId } from "@/web3";
+
 import Edition from "./edition";
 
 const Editions = () => {
@@ -32,20 +34,20 @@ const Editions = () => {
   return (
     <>
       <Collapse
-        transition={{ enter: { delay: 0.3, ease: [0.25, 0.8, 0.25, 1] } }}
-        in={editions.length > 0}
         animateOpacity
+        in={editions.length > 0}
+        transition={{ enter: { delay: 0.3, ease: [0.25, 0.8, 0.25, 1] } }}
         unmountOnExit
       >
         <Flex alignItems="center" mb={6}>
-          <Box color={textColor} fontWeight="semibold" fontSize="sm" textTransform="uppercase" mr={2}>
+          <Box color={textColor} fontSize="sm" fontWeight="semibold" mr={2} textTransform="uppercase">
             Editions
           </Box>
           <Divider borderColor={color} />
         </Flex>
         <ScaleFade in>
           <Accordion allowMultiple>
-            <VStack spacing={6} mb={8}>
+            <VStack mb={8} spacing={6}>
               {editions.map((edition, index) => {
                 const { editionId } = edition;
                 const formattedTokenId = BigInt(editionId).toString();

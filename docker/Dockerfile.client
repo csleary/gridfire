@@ -4,7 +4,10 @@ COPY package.json yarn.lock tsconfig.json .yarnrc.yml ./
 COPY apps/client/.env.production apps/client/index.html ./apps/client/package.json ./apps/client/tsconfig.json ./apps/client/vite.config.ts ./apps/client/
 COPY apps/client/public/ ./apps/client/public
 COPY apps/client/src/ ./apps/client/src
+COPY shared ./shared/
 COPY .yarn/releases/ .yarn/releases/
+RUN yarn install
+RUN yarn tsc --build shared
 RUN yarn workspaces focus @gridfire/client
 RUN yarn workspace @gridfire/client build
 

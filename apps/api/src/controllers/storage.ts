@@ -1,3 +1,5 @@
+import type { Readable } from "node:stream";
+
 import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
@@ -8,14 +10,13 @@ import {
 } from "@aws-sdk/client-s3";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { NodeJsClient } from "@smithy/types";
-import type { Readable } from "node:stream";
 
 const { S3_ENDPOINT } = process.env;
 
 const client = new S3Client({
   endpoint: S3_ENDPOINT,
-  region: "us-east-1",
-  forcePathStyle: true
+  forcePathStyle: true,
+  region: "us-east-1"
 }) as NodeJsClient<S3Client>;
 
 const streamFromBucket = async (bucketName: string, objectKey: string) => {
@@ -30,7 +31,7 @@ const streamToBucket = (
   readableStream: Readable & { truncated?: boolean },
   onProgress?: (progress: Progress) => void
 ) => {
-  const params = { Bucket: bucketName, Key: objectKey, Body: readableStream };
+  const params = { Body: readableStream, Bucket: bucketName, Key: objectKey };
   const upload = new Upload({ client, params });
   if (onProgress) upload.on("httpUploadProgress", onProgress);
   return upload.done();

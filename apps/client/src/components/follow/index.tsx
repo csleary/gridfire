@@ -1,10 +1,11 @@
-import Icon from "@/components/icon";
-import { useSelector } from "@/hooks";
 import { Button, Center, Flex, useColorModeValue } from "@chakra-ui/react";
 import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
 
 const Follow = () => {
   const accentColor = useColorModeValue("yellow.500", "purple.300");
@@ -71,14 +72,14 @@ const Follow = () => {
   return (
     <Flex alignItems="center" mb={8}>
       <Button
+        isLoading={isLoading}
         justifyContent="space-between"
         leftIcon={<Icon color={isFollowing ? accentColor : undefined} icon={isFollowing ? faCheck : faPlus} />}
-        isLoading={isLoading}
         minWidth="8rem"
         mr={2}
         onClick={handleClick}
-        onMouseOver={() => setIsHovering(true)}
         onMouseOut={() => setIsHovering(false)}
+        onMouseOver={() => setIsHovering(true)}
       >
         {isFollowing && isHovering ? "Unfollow" : isFollowing ? "Following" : "Follow"}
       </Button>

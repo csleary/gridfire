@@ -1,8 +1,9 @@
-import placeholder from "@/placeholder.svg";
-import { setIsLoading } from "@/state/releases";
-import { Fade, Image, Link, chakra, useDisclosure } from "@chakra-ui/react";
+import { chakra, Fade, Image, Link, useDisclosure } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+
+import placeholder from "@/placeholder.svg";
+import { setIsLoading } from "@/state/releases";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
@@ -22,7 +23,7 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
 
   return (
     <Fade in={isOpen}>
-      <Link as={RouterLink} to={`/release/${releaseId}`} display="block" pt="100%" position="relative">
+      <Link as={RouterLink} display="block" position="relative" pt="100%" to={`/release/${releaseId}`}>
         <Image
           alt={isStored ? `'${releaseTitle}' artwork.` : "No artwork uploaded."}
           fallbackSrc={placeholder}
@@ -30,8 +31,8 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
           loading="lazy"
           objectFit="cover"
           onClick={handleClickNavigate}
-          onLoad={onOpen}
           onError={onOpen}
+          onLoad={onOpen}
           position="absolute"
           src={isStored ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
         />

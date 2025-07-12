@@ -9,16 +9,13 @@ const recordSale = async ({
   logIndex,
   platformFee,
   releaseId,
+  transactionHash,
   transactionReceipt,
   type,
   userId
 }: RecordSaleParams): Promise<ISale> => {
   const paid = amountPaid.toString();
-  const { blockNumber, from: buyer, status, transactionHash } = transactionReceipt;
-
-  if (status !== "0x1") {
-    throw new Error(`Transaction failed. Status: ${status}. Hash: ${transactionHash}.`);
-  }
+  const { blockNumber, from: buyer } = transactionReceipt;
 
   if (type === "edition" && !editionId) {
     throw new Error("Edition ID required.");
@@ -43,7 +40,7 @@ const recordSale = async ({
         userAddress: buyer
       }
     },
-    { upsert: true, new: true }
+    { new: true, upsert: true }
   ).exec();
 
   return sale;

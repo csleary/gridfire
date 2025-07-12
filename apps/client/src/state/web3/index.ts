@@ -1,11 +1,12 @@
-import { AppDispatch, GetState } from "@/main";
-import { checkoutFreeBasket } from "@/state/releases";
-import { toastError, toastWarning } from "@/state/toast";
-import { BasketItem, SalesHistory } from "@/types";
-import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "@/web3";
+import { BasketItem, SalesHistory } from "@gridfire/shared/types";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { createSlice } from "@reduxjs/toolkit";
 import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
+
+import { checkoutFreeBasket } from "@/state/releases";
+import { toastError, toastWarning } from "@/state/toast";
+import { AppDispatch, GetState } from "@/types";
+import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "@/web3";
 
 const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
@@ -46,8 +47,8 @@ const initialState: Web3State = {
 };
 
 const web3Slice = createSlice({
-  name: "web3",
   initialState,
+  name: "web3",
   reducers: {
     addToBasket(state, action) {
       if (state.basket.some(({ releaseId }) => releaseId === action.payload.releaseId)) {
@@ -227,5 +228,6 @@ export const {
   setSales
 } = web3Slice.actions;
 
+export type { Web3State };
 export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance, fetchSales };
 export default web3Slice.reducer;

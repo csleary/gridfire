@@ -1,9 +1,10 @@
-import { AppDispatch, RootState } from "@/main";
-import { toastError, toastSuccess } from "@/state/toast";
-import { Activity, Artist } from "@/types";
-import { EntityState, createDraftSafeSelector, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { Activity, Artist } from "@gridfire/shared/types";
+import { createDraftSafeSelector, createEntityAdapter, createSlice, EntityState } from "@reduxjs/toolkit";
 import axios from "axios";
 import { DateTime } from "luxon";
+
+import { toastError, toastSuccess } from "@/state/toast";
+import { AppDispatch, RootState } from "@/types";
 
 interface ArtistState {
   activeArtistId: string;
@@ -11,9 +12,9 @@ interface ArtistState {
   artists: Artist[];
   errors: { [key: string]: string };
   isLoading: boolean;
-  isSubmitting: boolean;
   isPristine: boolean;
-  lastCheckedOn: string | null;
+  isSubmitting: boolean;
+  lastCheckedOn: null | string;
 }
 
 const activityAdapter = createEntityAdapter({
@@ -26,14 +27,14 @@ const initialState: ArtistState = {
   artists: [],
   errors: {},
   isLoading: false,
-  isSubmitting: false,
   isPristine: true,
+  isSubmitting: false,
   lastCheckedOn: DateTime.utc().toISO()
 };
 
 const artistSlice = createSlice({
-  name: "artists",
   initialState,
+  name: "artists",
   reducers: {
     addActivity(state, action) {
       activityAdapter.addOne(state.activity, action.payload);
@@ -173,12 +174,12 @@ export const {
   setArtist,
   setArtists,
   setErrors,
+  setIsLoading,
   setIsPristine,
   setIsSubmitting,
   setLastCheckedOn,
   setLink,
-  setValues,
-  setIsLoading
+  setValues
 } = artistSlice.actions;
 
 const { selectAll: selectAllActivity, selectTotal: selectTotalActivity } = activityAdapter.getSelectors(
@@ -210,4 +211,5 @@ export {
   updateArtist
 };
 
+export type { ArtistState };
 export default artistSlice.reducer;

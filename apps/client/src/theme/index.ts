@@ -1,4 +1,5 @@
 import { extendTheme } from "@chakra-ui/react";
+
 import Heading from "./components/heading";
 import Input from "./components/input";
 import Skeleton from "./components/skeleton";

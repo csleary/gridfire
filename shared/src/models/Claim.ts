@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { model, Schema } from "mongoose";
 
 interface Claim {
   artist: string;
@@ -10,15 +10,16 @@ interface Claim {
 
 const claimSchema = new Schema<Claim>(
   {
-    artist: { type: String, required: true },
-    blockNumber: { type: String, required: true },
-    logIndex: { type: String, required: true },
-    transactionHash: { type: String, required: true },
-    value: { type: String, required: true }
+    artist: { required: true, type: String },
+    blockNumber: { required: true, type: String },
+    logIndex: { required: true, type: String },
+    transactionHash: { required: true, type: String },
+    value: { required: true, type: String }
   },
   { timestamps: true }
 );
 
+// eslint-disable-next-line perfectionist/sort-objects
 claimSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
 claimSchema.index({ artist: 1 });
 

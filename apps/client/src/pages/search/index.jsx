@@ -1,10 +1,11 @@
-import Grid from "@/components/grid";
-import RenderRelease from "@/components/renderRelease";
-import { clearResults } from "@/state/search";
 import { Button, Heading } from "@chakra-ui/react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { clearResults } from "@/state/search";
 
 const SearchResults = () => {
   const dispatch = useDispatch();
@@ -29,8 +30,8 @@ const SearchResults = () => {
       {resultsNum ? (
         <Button
           alignSelf="flex-start"
-          leftIcon={<FontAwesomeIcon icon={faTimes} />}
           isDisabled={isSearching}
+          leftIcon={<FontAwesomeIcon icon={faTimes} />}
           onClick={() => dispatch(clearResults())}
           size="sm"
         >

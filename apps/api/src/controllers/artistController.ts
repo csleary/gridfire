@@ -64,9 +64,10 @@ const getActivity = async (userId: ObjectId) => {
 
   const activity = await Activity.aggregate([
     { $match: { artist: { $in: artistIds }, type: { $in: ["favourite", "follow", "sale"] } } },
-    { $lookup: { from: "artists", localField: "artist", foreignField: "_id", as: "artist" } },
+    { $lookup: { as: "artist", foreignField: "_id", from: "artists", localField: "artist" } },
     {
       $lookup: {
+        as: "edition",
         from: "editions",
         let: { editionId: "$editionId" },
         pipeline: [
@@ -75,13 +76,12 @@ const getActivity = async (userId: ObjectId) => {
               $expr: { $and: [{ $eq: ["$editionId", "$$editionId"] }, { $eq: ["$status", "minted"] }] }
             }
           }
-        ],
-        as: "edition"
+        ]
       }
     },
-    { $lookup: { from: "releases", localField: "release", foreignField: "_id", as: "release" } },
-    { $lookup: { from: "sales", localField: "sale", foreignField: "_id", as: "sale" } },
-    { $lookup: { from: "users", localField: "user", foreignField: "_id", as: "user" } },
+    { $lookup: { as: "release", foreignField: "_id", from: "releases", localField: "release" } },
+    { $lookup: { as: "sale", foreignField: "_id", from: "sales", localField: "sale" } },
+    { $lookup: { as: "user", foreignField: "_id", from: "users", localField: "user" } },
     {
       $addFields: {
         artist: { $first: "$artist" },
@@ -93,13 +93,13 @@ const getActivity = async (userId: ObjectId) => {
     },
     {
       $project: {
+        account: "$user.account",
+        amountPaid: "$sale.paid",
         artistName: "$artist.name",
         createdAt: 1,
         editionDescription: "$edition.metadata.description",
         releaseTitle: "$release.releaseTitle",
-        amountPaid: "$sale.paid",
-        type: 1,
-        account: "$user.account"
+        type: 1
       }
     },
     { $sort: { createdAt: -1 } }
@@ -114,7 +114,7 @@ const getFollowers = async (following: string, follower?: ObjectId) => {
     ...(follower ? [Follower.exists({ follower, following }).exec()] : [])
   ]);
 
-  return { numFollowers, isFollowing: Boolean(isFollowing) };
+  return { isFollowing: Boolean(isFollowing), numFollowers };
 };
 
 const getUserArtists = async (userId: ObjectId): Promise<any[]> => {
@@ -123,34 +123,34 @@ const getUserArtists = async (userId: ObjectId): Promise<any[]> => {
 };
 
 const unfollowArtist = async (following: string, follower: ObjectId) => {
-  await Follower.findOneAndDelete({ follower, following }).exec();
+  await Follower.deleteOne({ follower, following }).exec();
 };
 
 interface UpdateArtistParams {
   artistId: string;
-  name: string;
-  slug: string;
   biography: string;
   links: Link[];
+  name: string;
+  slug: string;
   userId: ObjectId;
 }
 
 const updateArtist = async ({
   artistId,
-  name,
-  slug,
   biography,
   links,
+  name,
+  slug,
   userId
 }: UpdateArtistParams): Promise<IArtist> => {
   // If slug string length is zero, set it to null to satisfy the unique index.
   const artist = await Artist.findOneAndUpdate(
     { _id: artistId, user: userId },
     {
-      name,
-      slug: slug && slug.length === 0 ? null : slugify(slug, { lower: true, strict: true }),
       biography,
-      links: links.slice(0, 10)
+      links: links.slice(0, 10),
+      name,
+      slug: slug && slug.length === 0 ? null : slugify(slug, { lower: true, strict: true })
     },
     { fields: { __v: 0 }, new: true, runValidators: true }
   ).lean();

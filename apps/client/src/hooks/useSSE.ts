@@ -1,3 +1,6 @@
+import axios from "axios";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useDispatch, useSelector } from "@/hooks";
 import { setArtworkUploading } from "@/state/artwork";
 import { updateTrackStatus } from "@/state/editor";
@@ -14,8 +17,6 @@ import {
 } from "@/state/tracks";
 import { fetchUser } from "@/state/user";
 import { fetchDaiBalance, setMintedEditionIds } from "@/state/web3";
-import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 type SSEHandler = (event: MessageEvent) => void;
 
@@ -33,7 +34,7 @@ const useSSE = () => {
 
   const onNotify: SSEHandler = useCallback(
     event => {
-      const { type, message } = JSON.parse(event.data);
+      const { message, type } = JSON.parse(event.data);
 
       switch (type) {
         case "error":
@@ -193,7 +194,7 @@ const useSSE = () => {
   const onTrackStatus: SSEHandler = useCallback(
     event => {
       const { status, trackId } = JSON.parse(event.data);
-      dispatch(updateTrackStatus({ id: trackId, changes: { status } }));
+      dispatch(updateTrackStatus({ changes: { status }, id: trackId }));
     },
     [dispatch]
   );

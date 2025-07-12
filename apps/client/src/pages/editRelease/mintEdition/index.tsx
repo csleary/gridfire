@@ -1,13 +1,15 @@
-import Icon from "@/components/icon";
-import { useSelector } from "@/hooks";
-import { MintedEdition } from "@/types";
-import { fetchGridfireEditionUris, fetchMintedGridfireEditionsByReleaseId } from "@/web3";
 import { Button, Heading, Text } from "@chakra-ui/react";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { MintedEdition } from "@gridfire/shared/types";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 import { useParams } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
+import { fetchGridfireEditionUris, fetchMintedGridfireEditionsByReleaseId } from "@/web3";
+
 import EditionEditor from "./editor";
 import MintedEditions from "./mintedEditions";
 

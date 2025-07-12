@@ -8,19 +8,18 @@ interface GridfireLog {
 }
 
 interface GridfirePaymentLog {
-  paid: string;
   artistId: string;
   artistName: string;
-  logIndex: string;
   blockNumber: number;
   editionId?: string;
+  logIndex: string;
+  paid: string;
   releaseId: string;
   releaseTitle: string;
   transactionHash: string;
 }
 
 export const logsApi = createApi({
-  reducerPath: "logsApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api/web3" }),
   endpoints: builder => ({
     getApprovals: builder.query<GridfireLog[], string>({
@@ -32,7 +31,8 @@ export const logsApi = createApi({
     getPurchases: builder.query<GridfirePaymentLog[], string>({
       query: account => `/purchases/${account}`
     })
-  })
+  }),
+  reducerPath: "logsApi"
 });
 
 export const {
@@ -44,3 +44,5 @@ export const {
   useLazyGetClaimsQuery,
   useLazyGetPurchasesQuery
 } = logsApi;
+
+export type { GridfireLog, GridfirePaymentLog };

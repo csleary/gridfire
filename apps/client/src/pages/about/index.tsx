@@ -5,7 +5,7 @@ const About = () => (
   <>
     <Helmet>
       <title>About Gridfire</title>
-      <meta name="description" content="Learn about the Gridfire music streaming and download platform." />
+      <meta content="Learn about the Gridfire music streaming and download platform." name="description" />
     </Helmet>
     <Container as="main" p={0}>
       <Heading as="h2">About Gridfire</Heading>

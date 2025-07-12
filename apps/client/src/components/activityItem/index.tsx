@@ -1,10 +1,18 @@
-import Icon from "@/components/icon";
-import { useSelector } from "@/hooks";
-import { Activity, ActivityFavourite, ActivityFollow, ActivitySale, ActivitySaleEdition, ActivityType } from "@/types";
 import { Box, ChakraProps, Flex, ListItem, useColorModeValue } from "@chakra-ui/react";
 import { faAsterisk, faHeart, faMoneyBillWave, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  Activity,
+  ActivityFavourite,
+  ActivityFollow,
+  ActivitySale,
+  ActivitySaleEdition,
+  ActivityType
+} from "@gridfire/shared/types";
 import { formatEther } from "ethers";
 import { DateTime } from "luxon";
+
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
 
 interface Props extends ChakraProps {
   activity: Activity;
@@ -16,7 +24,7 @@ const ItemDate = ({ createdAt, isUnread }: { createdAt: string; isUnread: boolea
   const unreadColor = useColorModeValue("orange.500", "yellow.400");
 
   return (
-    <Box display="inline-flex" alignItems="center">
+    <Box alignItems="center" display="inline-flex">
       <Box as="span" color={isUnread ? unreadColor : color} fontWeight={500} mr={2}>
         {date}
       </Box>
@@ -80,7 +88,7 @@ const ActivityItem = ({ activity, ...rest }: Props) => {
       );
     }
     case ActivityType.Sale: {
-      const { account, amountPaid = "0", releaseTitle, username }: ActivitySaleEdition | ActivitySale = activity;
+      const { account, amountPaid = "0", releaseTitle, username }: ActivitySale | ActivitySaleEdition = activity;
 
       return (
         <ListItem {...rest}>

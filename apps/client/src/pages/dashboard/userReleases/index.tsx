@@ -1,11 +1,12 @@
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchUserReleases } from "@/state/releases";
 import { Box, Button, Center, Grid, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { lazy, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserReleases } from "@/state/releases";
 const UserRelease = lazy(() => import("./userRelease"));
 
 function UserReleases() {
@@ -27,16 +28,16 @@ function UserReleases() {
     return (
       <Box as="main">
         <Heading as="h3">Add your first release</Heading>
-        <Text textAlign="center" mb={8}>
+        <Text mb={8} textAlign="center">
           You don&rsquo;t currently have any releases for sale. Please hit the button below to add your first release.
         </Text>
         <Center>
           <Button
             as={RouterLink}
             colorScheme={addReleaseButtonColor}
-            to={"/release/new"}
             leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
             title="Add Release"
+            to={"/release/new"}
           >
             Add Release
           </Button>
@@ -53,9 +54,9 @@ function UserReleases() {
       </Heading>
       <Grid
         as="ul"
-        templateColumns={["repeat(auto-fill, minmax(16rem, 1fr))", "repeat(auto-fill, minmax(28rem, 1fr))"]}
         gap={8}
         mb={8}
+        templateColumns={["repeat(auto-fill, minmax(16rem, 1fr))", "repeat(auto-fill, minmax(28rem, 1fr))"]}
       >
         {userReleases.map(release => (
           <UserRelease key={release._id} release={release} />
@@ -63,9 +64,9 @@ function UserReleases() {
       </Grid>
       <Button
         as={RouterLink}
-        to={"/release/new"}
         leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
         title="Add Release"
+        to={"/release/new"}
       >
         Add Release
       </Button>

@@ -1,10 +1,11 @@
 /* eslint-disable no-undef */
-const { encodeBytes32String, parseEther } = require("ethers");
+import { encodeBytes32String, parseEther } from "ethers";
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
-const assert = require("assert");
-const { daiAbi } = require("./utils");
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import assert from "assert";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+
+import { daiAbi } from "./utils";
 
 // Run on localhost mainnet fork with funded accounts.
 
@@ -34,10 +35,10 @@ describe("GridfireEditions contract", async () => {
 
   const editionToMint = {
     amount: 100,
+    objectId: encodeBytes32String("6335db4d9f6d66d370946a99"),
     price: parseEther(PRICE.toString()),
-    uri: "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
     releaseId: releaseIdBytes,
-    objectId: encodeBytes32String("6335db4d9f6d66d370946a99")
+    uri: "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi"
   };
 
   it("should NOT let buyer set editions address", async () => {

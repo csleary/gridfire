@@ -1,6 +1,7 @@
-import { useSelector } from "@/hooks";
 import { ReactElement } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { useSelector } from "@/hooks";
 
 const PrivateRoute = ({ children }: { children: ReactElement }) => {
   const navigate = useNavigate();

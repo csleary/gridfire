@@ -1,4 +1,4 @@
-import provider from "@gridfire/api/controllers/web3/provider";
+import provider from "@gridfire/api/controllers/provider";
 import daiAbi from "@gridfire/shared/abi/dai";
 import editionsABI from "@gridfire/shared/abi/editions";
 import paymentABI from "@gridfire/shared/abi/payment";
@@ -7,7 +7,7 @@ import Release, { IRelease } from "@gridfire/shared/models/Release";
 import Sale, { ISale } from "@gridfire/shared/models/Sale";
 import Transfer, { ITransfer } from "@gridfire/shared/models/Transfer";
 import User from "@gridfire/shared/models/User";
-import { Contract, Interface, getAddress, getDefaultProvider, resolveAddress } from "ethers";
+import { Contract, getAddress, getDefaultProvider, Interface, resolveAddress } from "ethers";
 import { FilterQuery, ObjectId } from "mongoose";
 import assert from "node:assert/strict";
 
@@ -49,7 +49,7 @@ const getGridfireEditionsByReleaseId = async (
   const accounts = Array(editions.length).fill(GRIDFIRE_EDITIONS_ADDRESS);
   const ids = editions.map(({ editionId }) => editionId);
   const gridFireEditionsContract = getGridfireEditionsContract();
-  const balances: BigInt[] = await gridFireEditionsContract.balanceOfBatch(accounts, ids);
+  const balances: bigint[] = await gridFireEditionsContract.balanceOfBatch(accounts, ids);
   const balancesMap = balances.reduce((map, balance = 0n, index) => map.set(ids[index], balance.toString()), new Map());
   return editions.map(edition => ({ ...edition, balance: balancesMap.get(edition.editionId) }));
 };
@@ -88,8 +88,8 @@ const getUserGridfireEditions = async (userId: ObjectId): Promise<PurchasedAndRe
 
   const receivedEditions = await Transfer.aggregate([
     { $match: { to: userAccount } },
-    { $lookup: { from: Edition.collection.name, localField: "id", foreignField: "editionId", as: "edition" } },
-    { $lookup: { from: Release.collection.name, localField: "edition.release", foreignField: "_id", as: "release" } },
+    { $lookup: { as: "edition", foreignField: "editionId", from: Edition.collection.name, localField: "id" } },
+    { $lookup: { as: "release", foreignField: "_id", from: Release.collection.name, localField: "edition.release" } },
     { $addFields: { editionId: "$id", release: { $first: "$release" } } },
     {
       $project: {
@@ -97,9 +97,9 @@ const getUserGridfireEditions = async (userId: ObjectId): Promise<PurchasedAndRe
         logIndex: 1,
         paid: { $literal: 0 },
         purchaseDate: "$createdAt",
+        release: { _id: 1, artistName: 1, artwork: 1, releaseTitle: 1, "trackList._id": 1, "trackList.trackTitle": 1 },
         transactionHash: 1,
-        type: "edition",
-        release: { _id: 1, artistName: 1, artwork: 1, releaseTitle: 1, "trackList._id": 1, "trackList.trackTitle": 1 }
+        type: "edition"
       }
     }
   ]).exec();
@@ -110,8 +110,8 @@ const getUserGridfireEditions = async (userId: ObjectId): Promise<PurchasedAndRe
     { sort: "-purchaseDate" }
   )
     .populate({
-      path: "release",
       model: Release,
+      path: "release",
       select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
     })
     .lean();
@@ -134,9 +134,9 @@ const setVisibility = async (user: ObjectId, editionId: string, visibility: "hid
 export {
   getBlockNumber,
   getDaiContract,
-  getGridfireEditionUris,
   getGridfireEditionsByReleaseId,
   getGridfireEditionsContract,
+  getGridfireEditionUris,
   getGridfirePaymentContract,
   getResolvedAddress,
   getTransaction,

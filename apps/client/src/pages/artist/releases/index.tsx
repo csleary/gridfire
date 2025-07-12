@@ -1,8 +1,9 @@
+import { Heading } from "@chakra-ui/react";
+import { shallowEqual } from "react-redux";
+
 import Grid from "@/components/grid";
 import RenderRelease from "@/components/renderRelease";
 import { useSelector } from "@/hooks";
-import { Heading } from "@chakra-ui/react";
-import { shallowEqual } from "react-redux";
 
 const Artist = () => {
   const releases = useSelector(state => state.releases.artist.releases, shallowEqual);
@@ -15,7 +16,7 @@ const Artist = () => {
       </Heading>
       <Grid>
         {releases.map(release => (
-          <RenderRelease key={release._id} showArtist={false} release={{ ...release, purchaseId: "" }} />
+          <RenderRelease key={release._id} release={{ ...release, purchaseId: "" }} showArtist={false} />
         ))}
       </Grid>
     </>

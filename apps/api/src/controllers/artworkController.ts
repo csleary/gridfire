@@ -14,15 +14,15 @@ assert(BUCKET_IMG, "BUCKET_IMG env var not set.");
 
 const deleteArtwork = async (releaseId: string) => {
   await Release.findByIdAndUpdate(releaseId, {
-    "artwork.status": "deleting",
-    "artwork.dateUpdated": Date.now()
+    "artwork.dateUpdated": Date.now(),
+    "artwork.status": "deleting"
   }).exec();
 
   await deleteObject(BUCKET_IMG, releaseId);
 
   const updatedRelease = await Release.findByIdAndUpdate(releaseId, {
-    "artwork.status": "pending",
     "artwork.dateUpdated": Date.now(),
+    "artwork.status": "pending",
     published: false
   }).exec();
 
@@ -47,7 +47,7 @@ const uploadArtwork = async ({
   try {
     await Release.updateOne(
       { _id: releaseId },
-      { "artwork.status": "storing", "artwork.dateCreated": Date.now() }
+      { "artwork.dateCreated": Date.now(), "artwork.status": "storing" }
     ).exec();
 
     sseClient.send(userId.toString(), {

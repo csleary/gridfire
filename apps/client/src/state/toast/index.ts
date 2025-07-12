@@ -1,11 +1,12 @@
-import theme from "@/theme";
 import { createStandaloneToast } from "@chakra-ui/toast";
+
+import theme from "@/theme";
 
 const { toast } = createStandaloneToast({
   defaultOptions: {
-    position: "top",
     duration: 5000,
-    isClosable: false
+    isClosable: false,
+    position: "top"
   },
   theme
 });

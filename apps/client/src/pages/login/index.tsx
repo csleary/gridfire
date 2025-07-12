@@ -1,9 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchUserFavourites, fetchUserWishList } from "@/state/releases";
-import { toastSuccess, toastWarning } from "@/state/toast";
-import { setIsLoading, updateUser } from "@/state/user";
-import { connectToWeb3 } from "@/state/web3";
 import {
   Alert,
   AlertIcon,
@@ -12,13 +6,20 @@ import {
   Center,
   Heading,
   Text,
-  VStack,
-  useColorModeValue
+  useColorModeValue,
+  VStack
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import axios from "axios";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserFavourites, fetchUserWishList } from "@/state/releases";
+import { toastSuccess, toastWarning } from "@/state/toast";
+import { setIsLoading, updateUser } from "@/state/user";
+import { connectToWeb3 } from "@/state/web3";
 
 declare const window: any; // eslint-disable-line
 
@@ -93,13 +94,13 @@ const Login = () => {
         </Heading>
         <Button
           colorScheme={useColorModeValue("yellow", "purple")}
-          leftIcon={<Icon icon={faEthereum} />}
           isLoading={isLoading}
+          leftIcon={<Icon icon={faEthereum} />}
           loadingText="Logging in…"
-          size="lg"
+          mb={8}
           minWidth="24rem"
           onClick={handleWeb3Login}
-          mb={8}
+          size="lg"
         >
           Log in with your Ethereum wallet
         </Button>
@@ -110,7 +111,7 @@ const Login = () => {
             {loginError}
           </Alert>
         ) : (
-          <Text textAlign="center" fontSize="xl">
+          <Text fontSize="xl" textAlign="center">
             Welcome to Gridfire.
             <br />
             Please use your web3 wallet to log in (e.g. Metamask).

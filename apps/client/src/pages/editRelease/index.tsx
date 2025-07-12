@@ -1,6 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { createRelease, fetchReleaseForEditing, saveRelease } from "@/state/editor";
 import {
   Alert,
   AlertDescription,
@@ -32,6 +29,10 @@ import { lazy, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { createRelease, fetchReleaseForEditing, saveRelease } from "@/state/editor";
 const Artwork = lazy(() => import("./artwork"));
 const DetailedInfo = lazy(() => import("./detailedInfo"));
 const Editions = lazy(() => import("./mintEdition"));
@@ -74,8 +75,8 @@ const EditRelease = () => {
       <Helmet>
         <title>{isEditing ? "Update Release" : "Add Release"}</title>
         <meta
-          name="description"
           content={isEditing ? "Update your releases on Gridfire." : "Add a new release to your Gridfire account."}
+          name="description"
         />
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>
@@ -84,11 +85,11 @@ const EditRelease = () => {
           <Button
             colorScheme={buttonColor}
             leftIcon={<Icon icon={faLink} />}
+            ml={2}
             onClick={() => navigate(`/release/${releaseId}`)}
             size="sm"
             title="Visit artist page."
             variant="ghost"
-            ml={2}
           >
             Visit page
           </Button>
@@ -96,22 +97,22 @@ const EditRelease = () => {
         <Button
           colorScheme={buttonColor}
           leftIcon={<Icon icon={faArrowLeftLong} />}
+          mb={4}
           onClick={() => navigate("/dashboard")}
           size="sm"
           variant="ghost"
-          mb={4}
         >
           Return to your releases
         </Button>
         <Tabs colorScheme={buttonColor} isFitted={!isSmallScreen} mb={8} position="relative">
-          <Box position="relative" mb={8}>
+          <Box mb={8} position="relative">
             <Box overflow="auto">
               <TabList width={["max-content", "initial"]}>
                 <Tab alignItems="center" whiteSpace="nowrap">
                   <Icon icon={faInfo} mr={2} />
                   Essential Info
                   {hasReleaseError ? (
-                    <Icon fixedWidth icon={faTriangleExclamation} color={errorAlertColor} ml={3} />
+                    <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} ml={3} />
                   ) : null}
                 </Tab>
                 <Tab alignItems="center" whiteSpace="nowrap">
@@ -126,7 +127,7 @@ const EditRelease = () => {
                   <Icon icon={faFileAudio} mr={2} />
                   Tracks
                   {hasTrackError ? (
-                    <Icon fixedWidth icon={faTriangleExclamation} color={errorAlertColor} ml={3} />
+                    <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} ml={3} />
                   ) : null}
                 </Tab>
                 <Tab alignItems="center" whiteSpace="nowrap">
@@ -155,7 +156,7 @@ const EditRelease = () => {
           </TabPanels>
         </Tabs>
         {hasReleaseError || hasTrackError ? (
-          <Alert status="error" mb={8}>
+          <Alert mb={8} status="error">
             <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
             <AlertTitle mr={2}>Error!</AlertTitle>
             <AlertDescription>Please address the form errors before saving.</AlertDescription>
@@ -164,10 +165,10 @@ const EditRelease = () => {
         <Flex justifyContent="flex-end">
           <Button
             colorScheme={buttonColor}
-            isLoading={isSubmitting}
-            loadingText="Saving…"
-            leftIcon={<Icon icon={hasReleaseError || hasTrackError ? faTimes : faCheck} />}
             isDisabled={hasReleaseError || hasTrackError || isSubmitting}
+            isLoading={isSubmitting}
+            leftIcon={<Icon icon={hasReleaseError || hasTrackError ? faTimes : faCheck} />}
+            loadingText="Saving…"
             onClick={handleSubmit}
           >
             {isEditing ? "Update Release" : "Add Release"}

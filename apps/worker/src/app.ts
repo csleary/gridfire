@@ -65,6 +65,8 @@ try {
   await mongoose.connect(MONGODB_URI);
   await amqpConnect({ messageHandler });
   await setupHealthProbe();
-} catch (error: any) {
-  logger.error(`Startup error: ${error.message}`);
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    logger.error(`Startup error: ${error.message}`);
+  }
 }

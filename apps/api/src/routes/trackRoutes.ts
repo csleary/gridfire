@@ -35,7 +35,7 @@ router.post("/:trackId/:type", async (req, res) => {
   try {
     const userId = req.user?._id || req.session?.user;
     const { trackId, type } = req.params;
-    const user = await logStream({ trackId, userId, type });
+    const user = await logStream({ trackId, type, userId });
 
     if (req.session) {
       req.session.user = user;

@@ -1,14 +1,15 @@
-import Grid from "@/components/grid";
-import Icon from "@/components/icon";
-import RenderRelease from "@/components/renderRelease";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchUserSingles } from "@/state/releases";
 import { Box, Flex, Heading, Link, Text, useColorModeValue } from "@chakra-ui/react";
 import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Grid from "@/components/grid";
+import Icon from "@/components/icon";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserSingles } from "@/state/releases";
 
 const Singles = () => {
   const receiptTextColour = useColorModeValue("gray.600", "gray.300");
@@ -34,13 +35,13 @@ const Singles = () => {
             return (
               <Box key={purchaseId}>
                 <RenderRelease
+                  mb={2}
                   release={{
                     ...release,
-                    releaseTitle: `${single?.trackTitle ?? ""} (taken from '${release.releaseTitle}')`,
-                    purchaseId
+                    purchaseId,
+                    releaseTitle: `${single?.trackTitle ?? ""} (taken from '${release.releaseTitle}')`
                   }}
                   type="collection"
-                  mb={2}
                 />
                 <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>

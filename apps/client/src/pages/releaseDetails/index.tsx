@@ -1,8 +1,3 @@
-import Card from "@/components/card";
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchRelease, setIsLoading } from "@/state/releases";
-import { fetchUser } from "@/state/user";
 import {
   Badge,
   Box,
@@ -15,10 +10,10 @@ import {
   Skeleton,
   SkeletonText,
   Text,
+  useColorModeValue,
   VStack,
   Wrap,
-  WrapItem,
-  useColorModeValue
+  WrapItem
 } from "@chakra-ui/react";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
 import { DateTime } from "luxon";
@@ -26,6 +21,12 @@ import { lazy, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+
+import Card from "@/components/card";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchRelease, setIsLoading } from "@/state/releases";
+import { fetchUser } from "@/state/user";
 const Actions = lazy(() => import("./actions"));
 const AddToBasketButton = lazy(() => import("./addToBasketButton"));
 const Artwork = lazy(() => import("./artwork"));
@@ -58,10 +59,10 @@ const ActiveRelease = () => {
     pubName,
     pubYear,
     recName,
-    recYear,
     recordLabel,
-    releaseTitle,
-    releaseDate
+    recYear,
+    releaseDate,
+    releaseTitle
   } = release;
 
   const loadRelease = useCallback(async () => {
@@ -100,37 +101,37 @@ const ActiveRelease = () => {
     <>
       <Helmet>
         {releaseTitle ? <title>{isLoading ? "Loading…" : `${releaseTitle} | ${artistName}`}</title> : null}
-        <meta name="description" content={`Listen to '${releaseTitle}' by ${artistName}.`} />
+        <meta content={`Listen to '${releaseTitle}' by ${artistName}.`} name="description" />
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>
-        <Wrap spacing={4} alignItems="stretch">
+        <Wrap alignItems="stretch" spacing={4}>
           <WrapItem as="section" flex="1 1 36ch">
             <VStack alignItems="stretch" flex="1 1 32rem" spacing={4}>
               <Artwork />
               <Actions />
             </VStack>
           </WrapItem>
-          <WrapItem as="section" flex="1 1 36ch" alignItems="stretch">
+          <WrapItem alignItems="stretch" as="section" flex="1 1 36ch">
             <Card flex="1 1 32rem" mb={0}>
               <Skeleton isLoaded={!isLoading}>
-                <Heading as="h2" size="2xl" mb={2}>
+                <Heading as="h2" mb={2} size="2xl">
                   {releaseTitle || <>&nbsp;</>}
                 </Heading>
               </Skeleton>
               <Skeleton isLoaded={!isLoading}>
                 <Link
-                  as={RouterLink}
-                  to={`/artist/${artist}`}
-                  color="gray.500"
                   _hover={{ color: "initial", textDecoration: "none" }}
+                  as={RouterLink}
+                  color="gray.500"
+                  to={`/artist/${artist}`}
                 >
                   <Heading
+                    _hover={{ color: useColorModeValue("gray.600", "gray.400") }}
                     as="h3"
                     color={useColorModeValue("gray.400", "gray.500")}
-                    _hover={{ color: useColorModeValue("gray.600", "gray.400") }}
+                    mb={8}
                     size="xl"
                     transition="color var(--chakra-transition-duration-normal)"
-                    mb={8}
                   >
                     {artistName || <>&nbsp;</>}
                   </Heading>
@@ -149,14 +150,14 @@ const ActiveRelease = () => {
               )}
               <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
               <Price price={price} />
-              <Wrap justify="center" spacing={4} mb={6}>
+              <Wrap justify="center" mb={6} spacing={4}>
                 <WrapItem>
                   <PurchaseButton inCollection={isInCollection} price={price} releaseId={releaseId} />
                 </WrapItem>
                 <WrapItem>
                   <AddToBasketButton
-                    imageUrl={`${VITE_CDN_IMG}/${releaseId}`}
                     artistName={artistName}
+                    imageUrl={`${VITE_CDN_IMG}/${releaseId}`}
                     inCollection={isInCollection}
                     price={price}
                     releaseId={releaseId}
@@ -172,8 +173,9 @@ const ActiveRelease = () => {
                 ) : recordLabel ? (
                   <Flex mb={2}>
                     <Flex
-                      as={Button}
+                      _hover={{ backgroundColor: "purple.300" }}
                       align="center"
+                      as={Button}
                       bg="purple.200"
                       height="unset"
                       justify="center"
@@ -182,7 +184,6 @@ const ActiveRelease = () => {
                       onClick={handleSearch.bind(null, [["label", recordLabel]])}
                       rounded="sm"
                       variant="unstyled"
-                      _hover={{ backgroundColor: "purple.300" }}
                     >
                       <Icon color={releaseInfoColor} icon={faRecordVinyl} />
                     </Flex>
@@ -195,8 +196,9 @@ const ActiveRelease = () => {
                   releaseDate && (
                     <Flex mb={2}>
                       <Flex
-                        as={Button}
+                        _hover={{ backgroundColor: "blue.200" }}
                         align="center"
+                        as={Button}
                         bg="blue.100"
                         height="unset"
                         justify="center"
@@ -205,7 +207,6 @@ const ActiveRelease = () => {
                         onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
                         rounded="sm"
                         variant="unstyled"
-                        _hover={{ backgroundColor: "blue.200" }}
                       >
                         <Icon color={releaseInfoColor} icon={faCalendar} title="Release date" />
                       </Flex>
@@ -229,14 +230,14 @@ const ActiveRelease = () => {
                 ) : null}
               </Box>
               {isLoading ? (
-                <SkeletonText mb={4} noOfLines={3} spacing={2} skeletonHeight={3} />
+                <SkeletonText mb={4} noOfLines={3} skeletonHeight={3} spacing={2} />
               ) : info ? (
                 <Text mb={4} whiteSpace="pre-line">
                   {info}
                 </Text>
               ) : null}
               {isLoading ? (
-                <SkeletonText mb={4} noOfLines={2} spacing={2} skeletonHeight={3} />
+                <SkeletonText mb={4} noOfLines={2} skeletonHeight={3} spacing={2} />
               ) : credits ? (
                 <Text mb={4} whiteSpace="pre-line">
                   {credits}

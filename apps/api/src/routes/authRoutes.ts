@@ -19,7 +19,7 @@ router.get("/web3", (req, res) => {
 
   const messageHash = keccak256(toUtf8Bytes(siweMessage));
 
-  res.cookie("web3Login", JSON.stringify({ messageHash, address }), {
+  res.cookie("web3Login", JSON.stringify({ address, messageHash }), {
     httpOnly: true,
     maxAge: 1000 * 60 * 3,
     sameSite: "strict",
@@ -34,7 +34,7 @@ router.get("/web3", (req, res) => {
 router.post("/web3", (req, res, next) =>
   passport.authenticate(
     "web3",
-    (authError: any, user: Express.User | false | null, info: object | string | Array<string | undefined>) => {
+    (authError: any, user: Express.User | false | null, info: Array<string | undefined> | object | string) => {
       res.clearCookie("web3Login");
       if (user === false) return res.status(401).json({ error: info });
       if (authError) return res.status(401).json({ error: authError.message });

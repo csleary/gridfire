@@ -1,4 +1,3 @@
-import DownloadModal from "@/components/renderRelease/downloadModal";
 import {
   Box,
   Button,
@@ -17,6 +16,8 @@ import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
+import DownloadModal from "@/components/renderRelease/downloadModal";
+
 interface Props {
   artistName: string;
   purchaseId: string;
@@ -30,28 +31,28 @@ const OverlayDownloadButton = ({ artistName, purchaseId, releaseId, releaseTitle
   return (
     <>
       <IconButton
-        aria-label="Download release"
+        _hover={{ color: "#fff" }}
         alignItems="center"
+        aria-label="Download release"
         color="hsla(233, 10%, 75%, 1)"
         display="flex"
         flex="1 1 100%"
         fontSize="5rem"
         height="unset"
-        justifyContent="center"
         icon={
           <Box
+            _groupHover={{ transform: "scale(1.2)" }}
             as={FontAwesomeIcon}
             icon={faCloudDownloadAlt}
             transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-            _groupHover={{ transform: "scale(1.2)" }}
           />
         }
+        justifyContent="center"
         onClick={() => setShowModal(true)}
         p="0"
         role="group"
         title={`Download ${artistName} - '${releaseTitle}'`}
         variant="unstyled"
-        _hover={{ color: "#fff" }}
       />
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="4xl">
         <ModalOverlay />

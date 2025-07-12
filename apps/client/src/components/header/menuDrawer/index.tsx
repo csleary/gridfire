@@ -1,10 +1,3 @@
-import BasketButton from "@/components/header/basketButton";
-import Notifications from "@/components/header/notifications";
-import Icon from "@/components/icon";
-import SearchBar from "@/components/searchBar";
-import { useDispatch, useSelector } from "@/hooks";
-import { logOut } from "@/state/user";
-import { connectToWeb3 } from "@/state/web3";
 import {
   Badge,
   Button,
@@ -20,13 +13,13 @@ import {
   IconButton,
   Link,
   Spacer,
-  VStack,
-  Wrap,
-  WrapItem,
   useBoolean,
   useColorMode,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
+  VStack,
+  Wrap,
+  WrapItem
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import {
@@ -49,6 +42,14 @@ import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
+import BasketButton from "@/components/header/basketButton";
+import Notifications from "@/components/header/notifications";
+import Icon from "@/components/icon";
+import SearchBar from "@/components/searchBar";
+import { useDispatch, useSelector } from "@/hooks";
+import { logOut } from "@/state/user";
+import { connectToWeb3 } from "@/state/web3";
+
 const MenuDrawer = () => {
   const [isTop, setIsTop] = useBoolean(true);
   const { toggleColorMode } = useColorMode();
@@ -58,7 +59,7 @@ const MenuDrawer = () => {
   const navBgDarkColor = isTop ? "var(--chakra-colors-gray-900)" : "var(--chakra-colors-blackAlpha-500)";
   const navBackgroundColor = useColorModeValue(navBgLightColor, navBgDarkColor);
   const primaryButtonColor = useColorModeValue("yellow", "purple");
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const dispatch = useDispatch();
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
@@ -101,7 +102,6 @@ const MenuDrawer = () => {
   return (
     <>
       <Wrap
-        spacing={2}
         alignItems="center"
         backdropFilter="blur(10px)"
         backgroundColor={navBackgroundColor}
@@ -109,6 +109,7 @@ const MenuDrawer = () => {
         p={2}
         position="sticky"
         ref={el => void (navRef.current = el)}
+        spacing={2}
         top={0}
         transition="background-color 300ms ease-in-out"
         zIndex={1000}
@@ -116,10 +117,10 @@ const MenuDrawer = () => {
         <WrapItem alignItems="center">
           <Button
             as={NavLink}
-            to={"/"}
             fontStyle="italic"
             leftIcon={<Icon fixedWidth icon={faFireAlt} />}
             textTransform="uppercase"
+            to={"/"}
             variant="ghost"
           >
             Gridfire
@@ -145,13 +146,13 @@ const MenuDrawer = () => {
           />
         </WrapItem>
       </Wrap>
-      <Drawer finalFocusRef={btnRef} isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer finalFocusRef={btnRef} isOpen={isOpen} onClose={onClose} placement="right">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader color="gray.400" p={4}>
             <Flex alignItems="center">
-              <Icon fixedWidth icon={faUserCircle} title={`Login account: ${userAccount}`} mr={2} />
+              <Icon fixedWidth icon={faUserCircle} mr={2} title={`Login account: ${userAccount}`} />
               {userAccountShort || "Dashboard"}
             </Flex>
           </DrawerHeader>
@@ -162,10 +163,10 @@ const MenuDrawer = () => {
                   <Button
                     as={NavLink}
                     colorScheme={primaryButtonColor}
-                    onClick={onClose}
-                    to={"/login"}
                     leftIcon={<Icon fixedWidth icon={faSignInAlt} mr={2} />}
+                    onClick={onClose}
                     title="Click to log in."
+                    to={"/login"}
                   >
                     Log In
                   </Button>
@@ -189,8 +190,8 @@ const MenuDrawer = () => {
                         colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
                         height="unset"
                         href={`https://arbiscan.io/address/${account}`}
-                        leftIcon={<Icon fixedWidth icon={faEthereum} />}
                         isExternal
+                        leftIcon={<Icon fixedWidth icon={faEthereum} />}
                         mr={2}
                         variant="link"
                       >
@@ -217,9 +218,9 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
-                    to={"/dashboard/payment"}
                     justifyContent="flex-start"
                     leftIcon={<Icon fixedWidth icon={faEthereum} />}
+                    to={"/dashboard/payment"}
                     variant="link"
                   >
                     Payment
@@ -227,9 +228,9 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
-                    to={"/dashboard"}
                     end
                     leftIcon={<Icon fixedWidth icon={faMusic} />}
+                    to={"/dashboard"}
                     variant="link"
                   >
                     Releases
@@ -237,8 +238,8 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
-                    to={"/dashboard/artists"}
                     leftIcon={<Icon fixedWidth icon={faHeadphones} />}
+                    to={"/dashboard/artists"}
                     variant="link"
                   >
                     Artists
@@ -246,8 +247,8 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
-                    to={"/dashboard/activity"}
                     leftIcon={<Icon fixedWidth icon={faRectangleList} />}
+                    to={"/dashboard/activity"}
                     variant="link"
                   >
                     Activity
@@ -255,8 +256,8 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
-                    to={"/dashboard/collection"}
                     leftIcon={<Icon fixedWidth icon={faArchive} />}
+                    to={"/dashboard/collection"}
                     variant="link"
                   >
                     Collection
@@ -264,8 +265,8 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
-                    to={"/dashboard/favourites"}
                     leftIcon={<Icon fixedWidth icon={faHeart} />}
+                    to={"/dashboard/favourites"}
                     variant="link"
                   >
                     Faves
@@ -273,8 +274,8 @@ const MenuDrawer = () => {
                   <Button
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
+                    leftIcon={<Icon fixedWidth icon={faMagic} />}
                     to={"/dashboard/wishlist"}
-                    leftIcon={<Icon icon={faMagic} fixedWidth />}
                     variant="link"
                   >
                     List
@@ -305,7 +306,7 @@ const MenuDrawer = () => {
             </VStack>
           </DrawerBody>
           <DrawerFooter p={4}>
-            <Button variant="outline" onClick={onClose}>
+            <Button onClick={onClose} variant="outline">
               Close
             </Button>
           </DrawerFooter>

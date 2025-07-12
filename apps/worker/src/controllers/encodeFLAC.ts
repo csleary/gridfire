@@ -13,7 +13,7 @@ import fs, { promises as fsPromises } from "node:fs";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const { BUCKET_FLAC, BUCKET_SRC, TEMP_PATH, QUEUE_TRANSCODE } = process.env;
+const { BUCKET_FLAC, BUCKET_SRC, QUEUE_TRANSCODE, TEMP_PATH } = process.env;
 assert(BUCKET_FLAC, "BUCKET_FLAC env var missing.");
 assert(BUCKET_SRC, "BUCKET_SRC env var missing.");
 assert(TEMP_PATH, "TEMP_PATH env var missing.");
@@ -21,22 +21,22 @@ assert(QUEUE_TRANSCODE, "QUEUE_TRANSCODE env var missing.");
 const logger = new Logger("encodeFLAC");
 
 interface EncodingProgress {
-  percent: number;
   loaded: number;
+  percent: number;
   total: number;
 }
 
 const onEncodingProgress =
   ({ trackId, userId }: TrackContext) =>
   ({ percent }: EncodingProgress) => {
-    postMessage({ type: MessageType.EncodingProgressFLAC, progress: Math.round(percent), trackId, userId });
+    postMessage({ progress: Math.round(percent), trackId, type: MessageType.EncodingProgressFLAC, userId });
   };
 
 const onStorageProgress =
   ({ trackId, userId }: TrackContext) =>
   ({ loaded = 0, total = 0 }: Progress) => {
     const progress = Math.floor((loaded / total) * 100);
-    postMessage({ type: MessageType.StoringProgressFLAC, progress, trackId, userId });
+    postMessage({ progress, trackId, type: MessageType.StoringProgressFLAC, userId });
   };
 
 const encodeFLAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseContext) => {
@@ -66,8 +66,8 @@ const encodeFLAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseCon
   } catch (error) {
     logger.error(error);
     await Release.updateOne(filter, { "trackList.$.status": "error" }).exec();
-    postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "error", userId });
-    postMessage({ type: MessageType.PipelineError, stage: "flac", trackId, userId });
+    postMessage({ releaseId, status: "error", trackId, type: MessageType.TrackStatus, userId });
+    postMessage({ stage: "flac", trackId, type: MessageType.PipelineError, userId });
     throw error;
   } finally {
     logger.log("Removing temp FLAC stage files:\n", inputPath, "\n", outputPath);

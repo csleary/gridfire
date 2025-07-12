@@ -1,15 +1,11 @@
-import { ReleaseTrack } from "@/types";
+import { ReleaseTrack } from "@gridfire/shared/types";
 import { createSlice } from "@reduxjs/toolkit";
-
-interface PlaylistTrack extends ReleaseTrack {
-  releaseId: string;
-}
 
 interface PlayerState {
   artistName: string;
   isInitialised: boolean;
-  isPlaying: boolean;
   isPaused: boolean;
+  isPlaying: boolean;
   playList: PlaylistTrack[];
   releaseId: string;
   releaseTitle: string;
@@ -18,11 +14,15 @@ interface PlayerState {
   trackTitle: string;
 }
 
+interface PlaylistTrack extends ReleaseTrack {
+  releaseId: string;
+}
+
 const initialState: PlayerState = {
   artistName: "",
   isInitialised: false,
-  isPlaying: false,
   isPaused: false,
+  isPlaying: false,
   playList: [],
   releaseId: "",
   releaseTitle: "",
@@ -32,8 +32,8 @@ const initialState: PlayerState = {
 };
 
 const playerSlice = createSlice({
-  name: "player",
   initialState,
+  name: "player",
   reducers: {
     addToPlayList(state, action) {
       state.playList.push(action.payload);
@@ -46,9 +46,6 @@ const playerSlice = createSlice({
       state.releaseTitle = releaseTitle;
       state.trackId = trackId;
       state.trackTitle = trackTitle;
-    },
-    removeFromPlayList(state, action) {
-      state.playList = state.playList.filter(({ releaseId }) => releaseId !== action.payload);
     },
     playerHide(state) {
       state.isPlaying = false;
@@ -68,11 +65,15 @@ const playerSlice = createSlice({
       state.isPlaying = false;
       state.isPaused = false;
     },
+    removeFromPlayList(state, action) {
+      state.playList = state.playList.filter(({ releaseId }) => releaseId !== action.payload);
+    },
     setIsInitialised(state, action) {
       state.isInitialised = action.payload;
     }
   }
 });
 
+export type { PlayerState };
 export const { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } = playerSlice.actions;
 export default playerSlice.reducer;

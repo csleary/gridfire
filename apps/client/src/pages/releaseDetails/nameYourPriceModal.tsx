@@ -1,5 +1,3 @@
-import Icon from "@/components/icon";
-import { formatPrice } from "@/utils";
 import {
   Alert,
   AlertDescription,
@@ -24,33 +22,36 @@ import {
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { FormEvent, useCallback, useState } from "react";
 
+import Icon from "@/components/icon";
+import { formatPrice } from "@/utils";
+
 const INFO_TEXT = "Enter the amount you wish to pay for this release.";
 const SUBMIT_INFO = "When you hit 'buy now', you will be prompted by your web3 wallet to finalise the payment.";
 const SUBMIT_BUTTON = "Buy Now";
 const SUBMIT_BUTTON_LOADING = "Purchasing…";
 
 interface Props {
-  initialPrice: string;
-  isSubmitting: boolean;
   handleCloseModal: () => void;
   handleSubmit: (price: string) => Promise<void>;
   info?: string;
+  initialPrice: string;
+  isSubmitting: boolean;
   showModal: boolean;
-  submitInfo?: string;
   submitButton?: string;
   submitButtonLoading?: string;
+  submitInfo?: string;
 }
 
 const NameYourPriceModal = ({
-  initialPrice,
-  isSubmitting = false,
   handleCloseModal,
   handleSubmit,
   info = INFO_TEXT,
+  initialPrice,
+  isSubmitting = false,
   showModal,
-  submitInfo = SUBMIT_INFO,
   submitButton = SUBMIT_BUTTON,
-  submitButtonLoading = SUBMIT_BUTTON_LOADING
+  submitButtonLoading = SUBMIT_BUTTON_LOADING,
+  submitInfo = SUBMIT_INFO
 }: Props) => {
   const [error, setError] = useState("");
   const [price, setPrice] = useState(initialPrice);
@@ -79,14 +80,14 @@ const NameYourPriceModal = ({
   };
 
   return (
-    <Modal isOpen={showModal} onClose={handleCloseModal} size="sm" isCentered>
+    <Modal isCentered isOpen={showModal} onClose={handleCloseModal} size="sm">
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
         <ModalHeader>Name Your Price</ModalHeader>
         <ModalBody>
           <Text mb={8}>{info}</Text>
-          <InputGroup mb={4} fontSize="1.5rem" size="lg">
+          <InputGroup fontSize="1.5rem" mb={4} size="lg">
             <InputLeftAddon>◈</InputLeftAddon>
             <Input
               autoFocus
@@ -104,7 +105,7 @@ const NameYourPriceModal = ({
             />
             <InputRightAddon>DAI</InputRightAddon>
           </InputGroup>
-          <ButtonGroup variant="outline" spacing="4" display="flex" justifyContent="center" mb="6">
+          <ButtonGroup display="flex" justifyContent="center" mb="6" spacing="4" variant="outline">
             <Button isDisabled={isSubmitting} onClick={handleAddAmount(1)}>
               +1
             </Button>
@@ -131,12 +132,12 @@ const NameYourPriceModal = ({
           <Button onClick={handleCloseModal}>Cancel</Button>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}
-            leftIcon={<Icon icon={faEthereum} />}
             isDisabled={isSubmitting}
             isLoading={isSubmitting}
+            leftIcon={<Icon icon={faEthereum} />}
             loadingText={submitButtonLoading}
-            onClick={handleNameYourPricePayment}
             ml="auto"
+            onClick={handleNameYourPricePayment}
           >
             {submitButton}
           </Button>

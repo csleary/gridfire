@@ -30,8 +30,8 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
     const srcStream = await streamFromBucket(BUCKET_FLAC, bucketKey);
     await pipeline(srcStream, fs.createWriteStream(inputPath));
     logger.info(`[${trackId}] Downloaded flac…`);
-    postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "transcoding", userId });
-    postMessage({ type: MessageType.TranscodingStartedAAC, trackId, userId });
+    postMessage({ releaseId, status: "transcoding", trackId, type: MessageType.TrackStatus, userId });
+    postMessage({ trackId, type: MessageType.TranscodingStartedAAC, userId });
 
     // Probe for track duration.
     fs.accessSync(inputPath, fs.constants.R_OK);
@@ -57,12 +57,12 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
 
     // Save track and clean up.
     await Release.updateOne(filter, { "trackList.$.duration": metadata.format.duration }).exec();
-    postMessage({ type: MessageType.TranscodingCompleteAAC, trackId, trackTitle, userId });
+    postMessage({ trackId, trackTitle, type: MessageType.TranscodingCompleteAAC, userId });
   } catch (error) {
     logger.error(error);
     await Release.updateOne(filter, { "trackList.$.status": "error" }).exec();
-    postMessage({ type: MessageType.TrackStatus, releaseId, trackId, status: "error", userId });
-    postMessage({ type: MessageType.PipelineError, stage: "aac", trackId, userId });
+    postMessage({ releaseId, status: "error", trackId, type: MessageType.TrackStatus, userId });
+    postMessage({ stage: "aac", trackId, type: MessageType.PipelineError, userId });
     throw error;
   } finally {
     logger.info("Removing temp AAC stage files:\n", inputPath, "\n", outputPath);

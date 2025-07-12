@@ -2,8 +2,8 @@ import ffmpeg from "fluent-ffmpeg";
 import { Readable } from "node:stream";
 
 interface Progress {
-  percent: number;
   loaded: number;
+  percent: number;
   total: number;
 }
 

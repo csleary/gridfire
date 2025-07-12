@@ -1,4 +1,5 @@
-import { Box, Wrap, useColorModeValue } from "@chakra-ui/react";
+import { Box, useColorModeValue, Wrap } from "@chakra-ui/react";
+
 import Feature from "./feature";
 
 const Features = () => {
@@ -6,11 +7,11 @@ const Features = () => {
     <Box
       as="section"
       bg={useColorModeValue("whiteAlpha.800", "blackAlpha.500")}
-      mx={[-3, -4]} // Mirror parent padding.
       mb={24}
+      mx={[-3, -4]} // Mirror parent padding.
       py={12}
     >
-      <Wrap spacing={12} justify="center">
+      <Wrap justify="center" spacing={12}>
         <Feature title="Low fees">
           Our cut is just 5%. The rest is yours.{" "}
           <Box as="span" color="gray.400">

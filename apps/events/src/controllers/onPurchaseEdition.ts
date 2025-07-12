@@ -6,7 +6,7 @@ import Release from "@gridfire/shared/models/Release";
 import { SaleType } from "@gridfire/shared/models/Sale";
 import User from "@gridfire/shared/models/User";
 import { NotificationType } from "@gridfire/shared/types";
-import { BytesLike, EventLog, decodeBytes32String, formatEther, getAddress } from "ethers";
+import { BytesLike, decodeBytes32String, EventLog, formatEther, getAddress } from "ethers";
 
 const logger = new Logger("onPurchaseEdition");
 
@@ -39,7 +39,7 @@ const onPurchaseEdition = async (
       throw new Error(`Release ${releaseId} not found.`);
     }
 
-    const { logIndex } = event;
+    const { logIndex, transactionHash } = event;
     const transactionReceipt = await event.getTransactionReceipt();
 
     const sale = await recordSale({
@@ -50,6 +50,7 @@ const onPurchaseEdition = async (
       logIndex,
       platformFee,
       releaseId,
+      transactionHash,
       transactionReceipt,
       type: SaleType.Edition,
       userId

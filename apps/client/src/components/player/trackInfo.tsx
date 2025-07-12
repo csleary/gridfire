@@ -1,6 +1,7 @@
 import { Flex, Text, useMediaQuery } from "@chakra-ui/react";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+
 import PlayerButton from "./playerButton";
 
 interface Props {
@@ -24,8 +25,8 @@ const TrackInfo = ({ artistName, releaseId, trackTitle }: Props) => {
       <PlayerButton
         ariaLabel="Visit the release page for this track."
         icon={faEllipsis}
-        onClick={() => navigate(`/release/${releaseId}`)}
         mr={2}
+        onClick={() => navigate(`/release/${releaseId}`)}
       />
     );
 

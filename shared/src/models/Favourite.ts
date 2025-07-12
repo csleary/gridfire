@@ -1,8 +1,8 @@
-import { ObjectId, Schema, model } from "mongoose";
+import { model, ObjectId, Schema } from "mongoose";
 
 interface IFavourite {
-  release: ObjectId;
   dateAdded: Date;
+  release: ObjectId;
   trackId: ObjectId;
   user: ObjectId;
 }
@@ -10,12 +10,13 @@ interface IFavourite {
 const { ObjectId } = Schema.Types;
 
 const favouriteSchema = new Schema<IFavourite>({
-  release: { type: ObjectId, ref: "Release", required: true },
-  dateAdded: { type: Date, required: true },
-  trackId: { type: ObjectId, required: false },
-  user: { type: ObjectId, ref: "User", required: true }
+  dateAdded: { required: true, type: Date },
+  release: { ref: "Release", required: true, type: ObjectId },
+  trackId: { required: false, type: ObjectId },
+  user: { ref: "User", required: true, type: ObjectId }
 });
 
+// eslint-disable-next-line perfectionist/sort-objects
 favouriteSchema.index({ user: 1, release: 1 }, { unique: true });
 
 export { IFavourite };

@@ -1,15 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { toastInfo } from "@/state/toast";
-import {
-  addToFavourites,
-  addToWishList,
-  removeFromFavourites,
-  removeFromWishList,
-  selectIsInFavourites,
-  selectIsInWishList
-} from "@/state/user";
-import { UserListItem } from "@/types";
 import {
   Box,
   Button,
@@ -29,12 +17,25 @@ import {
 } from "@chakra-ui/react";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faHeart, faMagic, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
+import { UserListItem } from "@gridfire/shared/types";
 import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastInfo } from "@/state/toast";
+import {
+  addToFavourites,
+  addToWishList,
+  removeFromFavourites,
+  removeFromWishList,
+  selectIsInFavourites,
+  selectIsInWishList
+} from "@/state/user";
+
 const Actions = () => {
   const buttonGroupBg = useColorModeValue("white", undefined);
-  const { isOpen, onToggle, onClose } = useDisclosure();
+  const { isOpen, onClose, onToggle } = useDisclosure();
   const dispatch = useDispatch();
   const [note, setNote] = useState("");
   const [isSavingToFaves, setIsSavingToFaves] = useState(false);
@@ -56,7 +57,7 @@ const Actions = () => {
   if (isLoading) {
     return (
       <Skeleton>
-        <ButtonGroup size="sm" isAttached variant="outline" bg={buttonGroupBg} mb={0}>
+        <ButtonGroup bg={buttonGroupBg} isAttached mb={0} size="sm" variant="outline">
           <Button />
         </ButtonGroup>
       </Skeleton>
@@ -64,11 +65,12 @@ const Actions = () => {
   }
 
   return (
-    <ButtonGroup size="sm" isAttached variant="outline" bg={buttonGroupBg}>
+    <ButtonGroup bg={buttonGroupBg} isAttached size="sm" variant="outline">
       <Button
+        flex={1}
         isLoading={isSavingToFaves}
-        loadingText="Saving…"
         leftIcon={<Icon color={isInFaves ? "red.400" : undefined} icon={isInFaves ? faHeart : heartOutline} />}
+        loadingText="Saving…"
         onClick={async () => {
           if (!account)
             return dispatch(
@@ -86,15 +88,14 @@ const Actions = () => {
           setIsSavingToFaves(false);
         }}
         title="Save to favourites."
-        flex={1}
       >
         Like
       </Button>
       <Popover isOpen={isOpen} onClose={onClose}>
         <PopoverTrigger>
           <Button
-            leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />}
             flex={1}
+            leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />}
             onClick={onToggle}
           >
             Wish List
@@ -105,24 +106,24 @@ const Actions = () => {
           <PopoverCloseButton />
           <PopoverHeader>Add to wishlist…</PopoverHeader>
           <PopoverBody>
-            <Box as="label" htmlFor="note" display="inline-block" mb={2}>
+            <Box as="label" display="inline-block" htmlFor="note" mb={2}>
               Enter an optional note for this release (private, just for your own reference):
             </Box>
             <Input
               id="note"
+              mb={2}
               name="note"
               onChange={e => setNote(e.target.value)}
               onKeyDown={async ({ key }) => {
                 if (key === "Enter") {
                   setIsSavingToList(true);
-                  await dispatch(addToWishList({ releaseId, note }));
+                  await dispatch(addToWishList({ note, releaseId }));
                   setIsSavingToList(false);
                   onClose();
                 }
               }}
               value={note}
               variant="modal"
-              mb={2}
             />
           </PopoverBody>
           <PopoverFooter display="flex" justifyContent="space-between">
@@ -142,8 +143,8 @@ const Actions = () => {
             </Button>
             <Button
               isLoading={isSavingToList}
-              loadingText="Saving…"
               leftIcon={<Icon icon={faMagic} />}
+              loadingText="Saving…"
               onClick={async () => {
                 if (!account) {
                   return void dispatch(
@@ -155,7 +156,7 @@ const Actions = () => {
                 }
 
                 setIsSavingToList(true);
-                dispatch(addToWishList({ releaseId, note }));
+                dispatch(addToWishList({ note, releaseId }));
                 setIsSavingToList(false);
                 onClose();
               }}

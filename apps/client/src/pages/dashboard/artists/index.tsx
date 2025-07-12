@@ -1,3 +1,28 @@
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  IconButton,
+  Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+  useColorModeValue,
+  VStack,
+  Wrap,
+  WrapItem
+} from "@chakra-ui/react";
+import { faCheck, faChevronDown, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { ChangeEventHandler, useEffect, useState } from "react";
+import { shallowEqual } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 import Card from "@/components/card";
 import Field from "@/components/field";
 import Icon from "@/components/icon";
@@ -14,30 +39,6 @@ import {
   setValues,
   updateArtist
 } from "@/state/artists";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  Container,
-  Flex,
-  Heading,
-  IconButton,
-  Input,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-  VStack,
-  Wrap,
-  WrapItem,
-  useColorModeValue
-} from "@chakra-ui/react";
-import { faCheck, faChevronDown, faLink, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { ChangeEventHandler, useEffect, useState } from "react";
-import { shallowEqual } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 const Artists = () => {
   const buttonColorScheme = useColorModeValue("yellow", "purple");
@@ -113,7 +114,7 @@ const Artists = () => {
         <Card>
           <Text mb={4}>Select an artist to edit their details:</Text>
           <Menu matchWidth>
-            <MenuButton as={Button} rightIcon={<Icon fixedWidth icon={faChevronDown} />} overflow="hidden" width="100%">
+            <MenuButton as={Button} overflow="hidden" rightIcon={<Icon fixedWidth icon={faChevronDown} />} width="100%">
               <Box as="span">{activeArtist?.name ?? "Select…"}</Box>
             </MenuButton>
             <MenuList>
@@ -137,11 +138,11 @@ const Artists = () => {
               <Button
                 colorScheme={buttonColorScheme}
                 leftIcon={<Icon icon={faLink} />}
+                ml={2}
                 onClick={() => navigate(activeArtist.slug ? `/${activeArtist.slug}` : `/artist/${activeArtistId}`)}
                 size="sm"
                 title="Visit artist page."
                 variant="ghost"
-                ml={2}
               >
                 Visit page
               </Button>
@@ -159,17 +160,17 @@ const Artists = () => {
             />
           </Card>
           <Card as="section">
-            <Box as="label" htmlFor="biography" color="gray.500" display="block" fontSize="xl" fontWeight={500} mb={4}>
+            <Box as="label" color="gray.500" display="block" fontSize="xl" fontWeight={500} htmlFor="biography" mb={4}>
               Biography
             </Box>
             <TextAreaWithCharLimit
               limit={2000}
-              onChange={handleChange}
               minHeight={64}
+              onChange={handleChange}
               value={activeArtist.biography || ""}
             />
             {errors.biography ? (
-              <Alert status="warning" mt={2}>
+              <Alert mt={2} status="warning">
                 <AlertIcon />
                 {errors.biography}
               </Alert>
@@ -179,16 +180,16 @@ const Artists = () => {
             <Box color="gray.500" fontSize="xl" fontWeight={500} mb={6}>
               Links
             </Box>
-            <VStack spacing={2} alignItems="stretch" mb={6}>
+            <VStack alignItems="stretch" mb={6} spacing={2}>
               {activeArtist.links?.map(({ _id: linkId, title, uri }) => (
-                <Wrap key={linkId} spacing={4} alignItems="flex-end">
-                  <WrapItem as="label" alignItems="center" flex={1}>
+                <Wrap alignItems="flex-end" key={linkId} spacing={4}>
+                  <WrapItem alignItems="center" as="label" flex={1}>
                     <Box as="span" color="gray.500" mr={2}>
                       Text
                     </Box>
                     <Input id={`${linkId}.title`} name={`${linkId}.title`} onChange={handleChange} value={title} />
                   </WrapItem>
-                  <WrapItem as="label" alignItems="center" flex={1}>
+                  <WrapItem alignItems="center" as="label" flex={1}>
                     <Box as="span" color="gray.500" mr={2}>
                       URL
                     </Box>
@@ -210,10 +211,10 @@ const Artists = () => {
             <Button
               isLoading={isAddingLink}
               leftIcon={<Icon icon={faPlusCircle} />}
+              mb={2}
               onClick={() => handleAddLink()}
               size="sm"
               title="Add a link"
-              mb={2}
             >
               Add a link
             </Button>
@@ -229,8 +230,8 @@ const Artists = () => {
           <Flex justifyContent="flex-end">
             <Button
               colorScheme={buttonColorScheme}
-              isLoading={isSubmitting}
               isDisabled={isPristine}
+              isLoading={isSubmitting}
               leftIcon={<Icon icon={faCheck} />}
               loadingText="Saving"
               onClick={handleSubmit}

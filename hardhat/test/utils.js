@@ -7,4 +7,4 @@ const daiAbi = [
   "function transfer(address to, uint amount)"
 ];
 
-module.exports = { daiAbi };
+export default { daiAbi };

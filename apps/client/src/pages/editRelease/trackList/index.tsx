@@ -1,10 +1,11 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { selectTrackIds, trackAdd, trackMove } from "@/state/editor";
 import { Button, Flex, Heading, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { DragEvent, DragEventHandler, lazy, useCallback, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { selectTrackIds, trackAdd, trackMove } from "@/state/editor";
 const Track = lazy(() => import("./track"));
 
 const isFileDrag = (e: DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
@@ -70,12 +71,12 @@ const TrackList = () => {
   );
 
   const dragHandlers = {
-    handleDragStart,
+    handleDragEnd,
     handleDragEnter,
-    handleDragOver,
     handleDragLeave,
-    handleDrop,
-    handleDragEnd
+    handleDragOver,
+    handleDragStart,
+    handleDrop
   };
 
   return (
@@ -108,12 +109,12 @@ const TrackList = () => {
       <Flex flexDirection="column">
         {trackIds.map((trackId, index) => (
           <Track
-            key={trackId}
             dragOriginIsInactive={dragOriginIsInactive}
             index={index}
             isActiveDragOver={dragOverId === trackId && dragOverId !== dragOriginId}
             isDragging={dragOriginId !== ""}
             isDragOrigin={dragOriginId === trackId}
+            key={trackId}
             trackId={trackId}
             {...dragHandlers}
           />

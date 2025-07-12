@@ -1,10 +1,11 @@
+import { Box, Heading } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { shallowEqual } from "react-redux";
+
 import Grid from "@/components/grid";
 import RenderRelease from "@/components/renderRelease";
 import { useDispatch, useSelector } from "@/hooks";
 import { fetchUserFavourites } from "@/state/releases";
-import { Box, Heading } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { shallowEqual } from "react-redux";
 
 const Favourites = () => {
   const dispatch = useDispatch();

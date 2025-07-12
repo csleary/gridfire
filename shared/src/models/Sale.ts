@@ -1,18 +1,18 @@
 import Release from "@gridfire/shared/models/Release";
 import User from "@gridfire/shared/models/User";
-import { ObjectId, Schema, model } from "mongoose";
+import { model, ObjectId, Schema } from "mongoose";
 
 export enum SaleType {
-  Single = "single",
   Album = "album",
-  Edition = "edition"
+  Edition = "edition",
+  Single = "single"
 }
 
 export interface ISale {
   _id: ObjectId;
   artistAddress: string;
   blockNumber: string;
-  editionId: string | null;
+  editionId: null | string;
   fee: string;
   logIndex: string;
   netAmount: string;
@@ -30,23 +30,25 @@ const { ObjectId } = Schema.Types;
 const saleSchema = new Schema<ISale>(
   {
     artistAddress: { type: String },
-    blockNumber: { type: String, required: true },
-    editionId: { type: String, default: null },
+    blockNumber: { required: true, type: String },
+    editionId: { default: null, type: String },
     fee: { type: String },
     logIndex: { type: String },
     netAmount: { type: String },
     paid: { type: String },
     purchaseDate: Date,
-    release: { type: ObjectId, ref: Release },
-    transactionHash: { type: String, required: true },
-    type: { type: String, enum: SaleType, default: SaleType.Album },
-    user: { type: ObjectId, ref: User },
+    release: { ref: Release, type: ObjectId },
+    transactionHash: { required: true, type: String },
+    type: { default: SaleType.Album, enum: SaleType, type: String },
+    user: { ref: User, type: ObjectId },
     userAddress: { type: String }
   },
   { timestamps: true }
 );
 
+// eslint-disable-next-line perfectionist/sort-objects
 saleSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
+// eslint-disable-next-line perfectionist/sort-objects
 saleSchema.index({ user: 1, release: 1 });
 saleSchema.index({ artistAddress: 1 });
 

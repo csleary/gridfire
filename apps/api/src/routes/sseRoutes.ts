@@ -13,7 +13,7 @@ router.get("/:userId/:uuid", async (req, res) => {
     sseClient.remove(userId);
   });
 
-  const headers = { "Content-Type": "text/event-stream", Connection: "keep-alive", "Cache-Control": "no-cache" };
+  const headers = { "Cache-Control": "no-cache", Connection: "keep-alive", "Content-Type": "text/event-stream" };
   res.writeHead(200, headers);
   res.write("data: [SSE] Subscribed to events.\n\n");
   await sseClient.add(res, userId, uuid as UUID);

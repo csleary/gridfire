@@ -14,18 +14,18 @@ const Dashboard = () => (
     <Helmet>
       <title>Dashboard | Gridfire</title>
       <meta
-        name="description"
         content="Take control of your Gridfire account. Add music, configure your payment details, add artist information and more."
+        name="description"
       />
     </Helmet>
     <Routes>
-      <Route path="/activity" element={<Activity />} />
-      <Route path="/artists" element={<Artists />} />
-      <Route path="/collection" element={<Collection />} />
-      <Route path="/favourites" element={<Favourites />} />
-      <Route path="/payment/*" element={<Payment />} />
-      <Route path="/wishlist" element={<Wishlist />} />
-      <Route path="/" element={<UserReleases />} />
+      <Route element={<Activity />} path="/activity" />
+      <Route element={<Artists />} path="/artists" />
+      <Route element={<Collection />} path="/collection" />
+      <Route element={<Favourites />} path="/favourites" />
+      <Route element={<Payment />} path="/payment/*" />
+      <Route element={<Wishlist />} path="/wishlist" />
+      <Route element={<UserReleases />} path="/" />
     </Routes>
   </>
 );

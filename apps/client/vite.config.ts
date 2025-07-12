@@ -9,7 +9,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src")
+      "@": path.resolve(__dirname, "src"),
+      "@gridfire/shared/abi": path.resolve(__dirname, "../../shared/src/abi"),
+      "@gridfire/shared/types": path.resolve(__dirname, "../../shared/src/types")
     }
   },
   server: {

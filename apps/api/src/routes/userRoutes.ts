@@ -1,3 +1,5 @@
+import type { IUser } from "@gridfire/shared/models/User";
+
 import logger from "@gridfire/api/controllers/logger";
 import { getUser, setPaymentAddress } from "@gridfire/api/controllers/userController";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
@@ -5,7 +7,6 @@ import Activity from "@gridfire/shared/models/Activity";
 import Favourite from "@gridfire/shared/models/Favourite";
 import Release, { IRelease } from "@gridfire/shared/models/Release";
 import Sale from "@gridfire/shared/models/Sale";
-import type { IUser } from "@gridfire/shared/models/User";
 import WishList from "@gridfire/shared/models/WishList";
 import { Router } from "express";
 
@@ -37,9 +38,9 @@ router.get("/albums", requireLogin, async (req, res) => {
     sort: "-purchaseDate"
   })
     .populate({
-      path: "release",
       model: Release,
       options: { lean: true },
+      path: "release",
       select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
     })
     .exec();
@@ -55,10 +56,10 @@ router.get("/singles", requireLogin, async (req, res) => {
     { $addFields: { trackId: "$release" } },
     {
       $lookup: {
-        from: "releases",
-        localField: "release",
+        as: "release",
         foreignField: "trackList._id",
-        as: "release"
+        from: "releases",
+        localField: "release"
       }
     },
     { $unwind: { path: "$release", preserveNullAndEmptyArrays: true } },
@@ -95,10 +96,10 @@ router.get("/favourites", requireLogin, async (req, res) => {
       sort: "-release.releaseDate"
     })
       .populate<{ release: IRelease }>({
-        path: "release",
         match: { published: true },
         model: Release,
         options: { lean: true },
+        path: "release",
         select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
       .exec();
@@ -121,9 +122,9 @@ router.post("/favourites/:releaseId", requireLogin, async (req, res) => {
       { new: true, upsert: true }
     )
       .populate<{ release: IRelease }>({
-        path: "release",
         match: { published: true },
         model: Release,
+        path: "release",
         select: "artist artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
       .lean();
@@ -154,18 +155,18 @@ router.get("/releases", requireLogin, async (req, res) => {
 
     const releases = await Release.aggregate([
       { $match: { user } },
-      { $lookup: { from: "favourites", localField: "_id", foreignField: "release", as: "favourites" } },
+      { $lookup: { as: "favourites", foreignField: "release", from: "favourites", localField: "_id" } },
       {
         $lookup: {
+          as: "plays",
           from: "plays",
           let: { releaseId: "$_id", userId: "$user" },
           pipeline: [
             { $match: { $expr: { $and: [{ $eq: ["$release", "$$releaseId"] }, { $ne: ["$user", "$$userId"] }] } } }
-          ],
-          as: "plays"
+          ]
         }
       },
-      { $lookup: { from: "sales", localField: "_id", foreignField: "release", as: "sales" } },
+      { $lookup: { as: "sales", foreignField: "release", from: "sales", localField: "_id" } },
       {
         $project: {
           artist: 1,
@@ -197,9 +198,9 @@ router.get("/wishlist", requireLogin, async (req, res) => {
 
     const userWishList = await WishList.find({ user }, "", { lean: true, sort: "-release.releaseDate" })
       .populate<{ release: IRelease }>({
-        path: "release",
         match: { published: true },
         model: Release,
+        path: "release",
         select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
       .lean();
@@ -223,9 +224,9 @@ router.post("/wishlist/:releaseId", requireLogin, async (req, res) => {
       { new: true, upsert: true }
     )
       .populate<{ release: IRelease }>({
-        path: "release",
         match: { published: true },
         model: Release,
+        path: "release",
         select: "artistName artwork releaseTitle trackList._id trackList.trackTitle"
       })
       .lean();

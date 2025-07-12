@@ -1,11 +1,14 @@
-import { store } from "@/main";
-import { addActiveProcess, removeActiveProcess } from "@/state/user";
-import { BasketItem } from "@/types";
-import { daiAbi, gridFireEditionsAbi, gridFirePaymentAbi } from "@/web3/abis";
+import daiAbi from "@gridfire/shared/abi/dai";
+import gridFireEditionsAbi from "@gridfire/shared/abi/editions";
+import gridFirePaymentAbi from "@gridfire/shared/abi/payment";
+import { BasketItem } from "@gridfire/shared/types";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
-import { BrowserProvider, Contract, Eip1193Provider, JsonRpcSigner, encodeBytes32String, parseEther } from "ethers";
+import { BrowserProvider, Contract, Eip1193Provider, encodeBytes32String, JsonRpcSigner, parseEther } from "ethers";
+
+import { store } from "@/main";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
 
 const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContactAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
@@ -101,7 +104,7 @@ const fetchUserEditions = async () => {
 
 const gridFireCheckout = async (basket: BasketItem[], userId: string) => {
   const processId = nanoid();
-  store.dispatch(addActiveProcess({ id: processId, description: "Checking out…", type: "purchase" }));
+  store.dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
 
   try {
     const provider = await getProvider();
@@ -110,9 +113,9 @@ const gridFireCheckout = async (basket: BasketItem[], userId: string) => {
 
     const contractBasket = basket.map(
       ({ paymentAddress, price, releaseId }: { paymentAddress: string; price: bigint; releaseId: string }) => ({
+        amountPaid: price,
         artist: paymentAddress,
-        releaseId: encodeBytes32String(releaseId),
-        amountPaid: price
+        releaseId: encodeBytes32String(releaseId)
       })
     );
 
@@ -135,7 +138,7 @@ interface MintEditionParams {
 
 const mintEdition = async ({ amount, description, price, releaseId, tracks }: MintEditionParams) => {
   const processId = nanoid();
-  store.dispatch(addActiveProcess({ id: processId, description: "Minting edition…", type: "mint" }));
+  store.dispatch(addActiveProcess({ description: "Minting edition…", id: processId, type: "mint" }));
   let objectId = "";
 
   try {
@@ -180,7 +183,7 @@ interface PurchaseEditionParams {
 
 const purchaseEdition = async ({ artist, editionId, price, releaseId }: PurchaseEditionParams) => {
   const processId = nanoid();
-  store.dispatch(addActiveProcess({ id: processId, description: "Purchasing edition…", type: "purchase" }));
+  store.dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
 
   try {
     const provider = await getProvider();
@@ -205,7 +208,7 @@ interface PurchaseReleaseParams {
 
 const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }: PurchaseReleaseParams) => {
   const processId = nanoid();
-  store.dispatch(addActiveProcess({ id: processId, description: "Purchasing edition…", type: "purchase" }));
+  store.dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
 
   try {
     const provider = await getProvider();

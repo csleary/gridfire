@@ -29,7 +29,7 @@ const validateFreePurchase = async ({ releaseId, userId }: { releaseId: string; 
 
   // Check if the purchase is for a single or an album.
   const releaseWithSingle = await Release.findOne({ "trackList._id": releaseId }, "artist artistName trackList.$")
-    .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
+    .populate({ model: User, options: { lean: true }, path: "user", select: "_id paymentAddress" })
     .exec();
 
   if (releaseWithSingle) {
@@ -40,7 +40,7 @@ const validateFreePurchase = async ({ releaseId, userId }: { releaseId: string; 
     type = SaleType.Single;
   } else {
     const releaseAlbum = await Release.findById(releaseId, "artist artistName price releaseTitle")
-      .populate({ path: "user", model: User, options: { lean: true }, select: "_id paymentAddress" })
+      .populate({ model: User, options: { lean: true }, path: "user", select: "_id paymentAddress" })
       .exec();
 
     if (!releaseAlbum) {
@@ -93,11 +93,11 @@ const recordSale = async ({
   }
 
   const sale = await Sale.create({
-    purchaseDate: Date.now(),
-    release: releaseId,
-    paid,
     fee: platformFee.toString(),
     netAmount: artistShare.toString(),
+    paid,
+    purchaseDate: Date.now(),
+    release: releaseId,
     transactionHash: "0x0",
     type,
     user: userId,

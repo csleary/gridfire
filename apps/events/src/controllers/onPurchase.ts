@@ -24,7 +24,7 @@ const onPurchase = async (
     const userId = decodeBytes32String(userIdBytes);
     logger.info(`User ${userId} paid ${daiPaid} DAI for release ${releaseId}.`);
     const transactionReceipt = await event.getTransactionReceipt();
-    const { logIndex } = event;
+    const { logIndex, transactionHash } = event;
 
     const { release, releaseTitle, type } = await validatePurchase({
       amountPaid,
@@ -39,6 +39,7 @@ const onPurchase = async (
       logIndex,
       platformFee,
       releaseId,
+      transactionHash,
       transactionReceipt,
       type,
       userId

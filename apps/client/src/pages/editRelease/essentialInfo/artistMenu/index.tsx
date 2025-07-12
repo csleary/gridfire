@@ -1,8 +1,3 @@
-import Field from "@/components/field";
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchArtists } from "@/state/artists";
-import { updateRelease } from "@/state/editor";
 import {
   Alert,
   Button,
@@ -18,6 +13,12 @@ import {
 import { faChevronDown, faPlusCircle, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchArtists } from "@/state/artists";
+import { updateRelease } from "@/state/editor";
 
 const ArtistMenu = () => {
   const errorAlertColor = useColorModeValue("red.800", "red.200");
@@ -65,15 +66,15 @@ const ArtistMenu = () => {
   if (showInput) {
     return (
       <Field
-        isDisabled={isLoading}
         error={releaseErrors.artistName}
+        isDisabled={isLoading}
         isRequired
         label={artists.length ? "New artist name" : "Artist name"}
         name="artistName"
         onBlur={handleBlur}
         onChange={handleChange}
-        value={artistName}
         size="lg"
+        value={artistName}
       />
     );
   }
@@ -84,23 +85,23 @@ const ArtistMenu = () => {
         Artist name
       </FormLabel>
       <Menu matchWidth>
-        <MenuButton as={Button} rightIcon={<Icon fixedWidth icon={faChevronDown} />} height={12}>
+        <MenuButton as={Button} height={12} rightIcon={<Icon fixedWidth icon={faChevronDown} />}>
           {showInput ? defaultLabel : selectedArtist?.name || defaultLabel}
         </MenuButton>
         <MenuList>
           {artists.map(({ _id: artistId, name }) => (
-            <MenuItem key={artistId} name="artist" value={artistId} onClick={handleClick}>
+            <MenuItem key={artistId} name="artist" onClick={handleClick} value={artistId}>
               {name}
             </MenuItem>
           ))}
           {artists.length ? <MenuDivider /> : null}
-          <MenuItem icon={<Icon icon={faPlusCircle} />} name="artist" value="" onClick={handleClick}>
+          <MenuItem icon={<Icon icon={faPlusCircle} />} name="artist" onClick={handleClick} value="">
             Create new artist…
           </MenuItem>
         </MenuList>
       </Menu>
       {releaseErrors.artistName ? (
-        <Alert status="error" mt={2}>
+        <Alert mt={2} status="error">
           <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
           {releaseErrors.artistName}
         </Alert>

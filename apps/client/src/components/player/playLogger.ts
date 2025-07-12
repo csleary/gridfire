@@ -15,13 +15,6 @@ class PlayLogger {
     this.#trackId = trackId;
   }
 
-  setStartTime() {
-    if (this.#trackId && this.#startTime === 0) {
-      this.#startTime = Date.now();
-      axios.post(`/api/track/${this.#trackId}/0`);
-    }
-  }
-
   checkPlayTime() {
     if (
       this.#hasLoggedPlay === false &&
@@ -30,6 +23,13 @@ class PlayLogger {
     ) {
       this.#hasLoggedPlay = true;
       axios.post(`/api/track/${this.#trackId}/2`);
+    }
+  }
+
+  setStartTime() {
+    if (this.#trackId && this.#startTime === 0) {
+      this.#startTime = Date.now();
+      axios.post(`/api/track/${this.#trackId}/0`);
     }
   }
 

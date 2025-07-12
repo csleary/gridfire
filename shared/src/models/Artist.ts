@@ -1,4 +1,12 @@
-import { Model, ObjectId, Schema, Types, model } from "mongoose";
+import { Model, model, ObjectId, Schema, Types } from "mongoose";
+
+interface IArtist {
+  biography: string;
+  links: Types.Array<ILink>;
+  name: string;
+  slug: string;
+  user: ObjectId;
+}
 
 interface ILink {
   _id: ObjectId;
@@ -6,17 +14,9 @@ interface ILink {
   uri: string;
 }
 
-interface IArtist {
-  user: ObjectId;
-  name: string;
-  slug: string;
-  biography: string;
-  links: Types.Array<ILink>;
-}
-
 const linkSchema = new Schema<ILink>({
-  title: { type: String, trim: true, default: "", maxLength: 100 },
-  uri: { type: String, trim: true, default: "", maxLength: 100 }
+  title: { default: "", maxLength: 100, trim: true, type: String },
+  uri: { default: "", maxLength: 100, trim: true, type: String }
 });
 
 type ArtistDocumentProps = {
@@ -27,11 +27,11 @@ type ArtistModelType = Model<IArtist, {}, ArtistDocumentProps>;
 
 const artistSchema = new Schema<IArtist>(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User" },
-    name: { type: String, trim: true, maxLength: 100 },
-    slug: { type: String, trim: true, maxLength: 50 },
-    biography: { type: String, trim: true, maxLength: 2000 },
-    links: [linkSchema]
+    biography: { maxLength: 2000, trim: true, type: String },
+    links: [linkSchema],
+    name: { maxLength: 100, trim: true, type: String },
+    slug: { maxLength: 50, trim: true, type: String },
+    user: { ref: "User", type: Schema.Types.ObjectId }
   },
   { timestamps: true }
 );
@@ -39,14 +39,14 @@ const artistSchema = new Schema<IArtist>(
 artistSchema.index(
   { slug: 1 },
   {
-    unique: true,
-    partialFilterExpression: {
-      slug: { $exists: true, $type: "string" }
-    },
     collation: {
       locale: "en",
       strength: 2
-    }
+    },
+    partialFilterExpression: {
+      slug: { $exists: true, $type: "string" }
+    },
+    unique: true
   }
 );
 

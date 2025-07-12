@@ -1,5 +1,6 @@
-import Logger from "@gridfire/shared/logger";
 import type { NextFunction, Request, Response } from "express";
+
+import Logger from "@gridfire/shared/logger";
 
 const logger = new Logger("errorHandlers");
 

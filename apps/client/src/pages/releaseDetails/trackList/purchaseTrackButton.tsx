@@ -1,14 +1,11 @@
-import { useDispatch, useSelector } from "@/hooks";
-import { toastWarning } from "@/state/toast";
 import { Box, Button, Tooltip, useColorModeValue } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NameYourPriceModal from "../nameYourPriceModal";
 
-interface TrackForPurchase {
-  price: string;
-  trackId: string;
-}
+import { useDispatch, useSelector } from "@/hooks";
+import { toastWarning } from "@/state/toast";
+
+import NameYourPriceModal from "../nameYourPriceModal";
 
 interface Props {
   allowanceTooLow: boolean;
@@ -20,6 +17,11 @@ interface Props {
   trackId: string;
   trackInCollection: boolean;
   trackTitle: string;
+}
+
+interface TrackForPurchase {
+  price: string;
+  trackId: string;
 }
 
 const PurchaseTrackButton = ({
@@ -44,8 +46,11 @@ const PurchaseTrackButton = ({
     <>
       <Tooltip label={`Purchase '${trackTitle}', by ${artistName}.`}>
         <Button
+          alignSelf="stretch"
           colorScheme={Number(price) === 0 ? nypColour : undefined}
+          height="unset"
           isDisabled={!isConnected || isFetchingAllowance || inCollection || isPurchasing || trackInCollection}
+          ml={1}
           onClick={
             allowanceTooLow
               ? () => {
@@ -62,9 +67,6 @@ const PurchaseTrackButton = ({
               : () => handlePurchaseTrack({ price, trackId })
           }
           size="sm"
-          alignSelf="stretch"
-          height="unset"
-          ml={1}
           variant="ghost"
         >
           {Number(price) === 0 ? (

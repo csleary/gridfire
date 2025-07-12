@@ -1,8 +1,10 @@
-import Icon from "@/components/icon";
 import { IconButton, Tooltip, useColorModeValue } from "@chakra-ui/react";
 import { faCheck, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+
 import NameYourPriceModal from "../nameYourPriceModal";
 
 interface Props {
@@ -54,26 +56,26 @@ const AddToBasketButton = ({
         label={trackInCollection ? "You own this track." : `Add '${trackTitle}', by ${artistName}, to your basket.`}
       >
         <IconButton
+          alignSelf="stretch"
           aria-label="Set a price for a release and add it to the basket."
-          isDisabled={inBasket}
+          height="unset"
           icon={
             <Icon
               color={trackInCollection ? checkColour : undefined}
               icon={trackInCollection ? faCheck : faShoppingBasket}
             />
           }
+          isDisabled={inBasket}
           onClick={handleClick}
           size="sm"
-          alignSelf="stretch"
-          height="unset"
           variant="ghost"
         />
       </Tooltip>
       <NameYourPriceModal
         handleCloseModal={() => setShowModal(false)}
         handleSubmit={handleSubmit}
-        initialPrice="1.50"
         info="Enter the amount you wish to pay for this track, before adding it to your basket."
+        initialPrice="1.50"
         isSubmitting={isAddingToBasket}
         showModal={showModal}
         submitButton="Add to Basket"

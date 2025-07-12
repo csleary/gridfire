@@ -1,3 +1,5 @@
+import type { IUser } from "@gridfire/shared/models/User";
+
 import { getArtworkStream } from "@gridfire/api/controllers/artworkController";
 import ipfs from "@gridfire/api/controllers/ipfsController";
 import logger from "@gridfire/api/controllers/logger";
@@ -6,11 +8,10 @@ import {
   getGridfireEditionUris,
   getUserGridfireEditions,
   setVisibility
-} from "@gridfire/api/controllers/web3/index";
+} from "@gridfire/api/controllers/web3";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Edition from "@gridfire/shared/models/Edition";
 import Release, { IRelease } from "@gridfire/shared/models/Release";
-import type { IUser } from "@gridfire/shared/models/User";
 import { parseEther } from "ethers";
 import { Router } from "express";
 
@@ -84,21 +85,21 @@ router.post("/mint", async (req, res) => {
         trait_type: "Release date",
         value: Date.parse(releaseDate.toISOString())
       },
-      name: title,
       description: description || `${artist} - ${title} (Gridfire edition)`,
       external_url: `${protocol}://${hostname}/release/${releaseId}`,
       image: `ipfs://${cidArtwork}`,
+      name: title,
       properties: {
         artist,
-        title,
-        totalSupply: amount,
-        tracks,
+        catalogueNumber: catNumber,
+        credits,
+        info,
         price: weiPrice.toString(),
         priceInDai,
         releaseDate: new Date(releaseDate).toUTCString(),
-        catalogueNumber: catNumber,
-        info,
-        credits
+        title,
+        totalSupply: amount,
+        tracks
       }
     };
 

@@ -1,19 +1,20 @@
+import type { AmqpConnectionManager, ChannelWrapper as OriginalChannelWrapper } from "amqp-connection-manager";
+import type { ConfirmChannel, ConsumeMessage } from "amqplib";
+
 import Logger from "@gridfire/shared/logger";
 import sseClient from "@gridfire/shared/sseController";
 import { ConnectFunction } from "@gridfire/shared/types/amqp";
-import type { AmqpConnectionManager, ChannelWrapper as OriginalChannelWrapper } from "amqp-connection-manager";
 import { connect } from "amqp-connection-manager";
-import type { ConfirmChannel, ConsumeMessage } from "amqplib";
 import assert from "node:assert/strict";
 
 interface ChannelWrapper extends OriginalChannelWrapper {
   context?: { messageHandler?: (message: any) => Promise<void> };
 }
 
-const { INPUT_QUEUES, RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST } = process.env;
+const { INPUT_QUEUES, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
 let connection: AmqpConnectionManager;
 let consumeChannel: ChannelWrapper;
-let consumerTags: string[] = [];
+const consumerTags: string[] = [];
 let isShuttingDown = false;
 const logger = new Logger("amqp.ts");
 let publishChannel: ChannelWrapper;

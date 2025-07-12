@@ -1,11 +1,12 @@
-import Icon from "@/components/icon";
-import ScaleFade from "@/components/transitions/scaleFade";
-import { MintedEdition } from "@/types";
 import { Box, Flex, FormLabel, Link, Stack, StackDivider, Switch, Text } from "@chakra-ui/react";
 import { faFileAudio } from "@fortawesome/free-regular-svg-icons";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
+import { MintedEdition } from "@gridfire/shared/types";
 import { formatEther } from "ethers";
 import { useParams } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import ScaleFade from "@/components/transitions/scaleFade";
 
 const VITE_IPFS_GATEWAY = import.meta.env.VITE_IPFS_GATEWAY;
 

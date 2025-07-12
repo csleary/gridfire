@@ -1,29 +1,29 @@
 import Edition from "@gridfire/shared/models/Edition";
-import { Schema, model } from "mongoose";
+import { model, Schema } from "mongoose";
 
 interface ITransfer {
   blockNumber: string;
-  logIndex: string;
-  transactionHash: string;
-  operator: string;
   from: string;
-  to: string;
   id: string;
-  value: string;
+  logIndex: string;
+  operator: string;
+  to: string;
+  transactionHash: string;
   type: string;
+  value: string;
 }
 
 const transferSchema = new Schema<ITransfer>(
   {
-    blockNumber: { type: String, required: true },
-    logIndex: { type: String, required: true },
-    transactionHash: { type: String, required: true },
-    operator: { type: String, required: true },
-    from: { type: String, required: true },
-    to: { type: String, required: true },
-    id: { type: String, required: true, ref: Edition },
-    value: { type: String, required: true },
-    type: { type: String, enum: ["single", "batch"], default: "single" }
+    blockNumber: { required: true, type: String },
+    from: { required: true, type: String },
+    id: { ref: Edition, required: true, type: String },
+    logIndex: { required: true, type: String },
+    operator: { required: true, type: String },
+    to: { required: true, type: String },
+    transactionHash: { required: true, type: String },
+    type: { default: "single", enum: ["single", "batch"], type: String },
+    value: { required: true, type: String }
   },
   { timestamps: true }
 );

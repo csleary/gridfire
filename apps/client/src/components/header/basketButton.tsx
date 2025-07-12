@@ -1,7 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { checkoutBasket, connectToWeb3, emptyBasket, fetchDaiBalance, removeFromBasket } from "@/state/web3";
-import { BasketItem } from "@/types";
 import {
   Avatar,
   AvatarGroup,
@@ -19,14 +15,19 @@ import {
   ModalOverlay,
   Spacer,
   Text,
-  VStack,
-  useColorModeValue
+  useColorModeValue,
+  VStack
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faShoppingBasket, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { BasketItem } from "@gridfire/shared/types";
 import { formatEther } from "ethers";
 import { useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { checkoutBasket, connectToWeb3, emptyBasket, fetchDaiBalance, removeFromBasket } from "@/state/web3";
 
 const BasketButton = () => {
   const dispatch = useDispatch();
@@ -71,36 +72,36 @@ const BasketButton = () => {
     <>
       <Button
         aria-label="Show the contents of your basket."
-        leftIcon={<Icon fixedWidth icon={faShoppingBasket} />}
         iconSpacing={0}
+        leftIcon={<Icon fixedWidth icon={faShoppingBasket} />}
         onClick={() => setShowModal(true)}
         px={2}
       >
         {basket.length ? (
-          <AvatarGroup size="xs" max={5} ml={2}>
+          <AvatarGroup max={5} ml={2} size="xs">
             {basket.map(({ imageUrl, releaseId, title }) => (
               <Avatar key={releaseId} loading="lazy" name={title} src={imageUrl} />
             ))}
           </AvatarGroup>
         ) : null}
       </Button>
-      <Modal isOpen={showModal} onClose={handleCloseModal} size="lg" isCentered>
+      <Modal isCentered isOpen={showModal} onClose={handleCloseModal} size="lg">
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
           <ModalHeader>Your Basket</ModalHeader>
           <ModalBody>
-            <VStack spacing={3} alignItems="unset">
+            <VStack alignItems="unset" spacing={3}>
               {basket.length ? (
                 <>
                   {basket.map(({ artistName, imageUrl, price, releaseId, title }) => (
-                    <Flex key={releaseId} alignItems="center">
-                      <Avatar name={title} src={imageUrl} mr={4} />
+                    <Flex alignItems="center" key={releaseId}>
+                      <Avatar mr={4} name={title} src={imageUrl} />
                       <Text as={RouterLink} to={`/release/${releaseId}`}>
                         {artistName} &bull; <Text as="em">{title}</Text>
                       </Text>
                       <Spacer />
-                      <Box mr={4} __css={{ textWrapMode: "nowrap" }}>
+                      <Box __css={{ textWrapMode: "nowrap" }} mr={4}>
                         ◈ {Number(formatEther(price)).toFixed(2)}
                       </Box>
                       <IconButton
@@ -128,12 +129,12 @@ const BasketButton = () => {
             <Button onClick={handleCloseModal}>Close</Button>
             <Button
               colorScheme={useColorModeValue("yellow", "purple")}
-              leftIcon={<Icon icon={faEthereum} />}
               isDisabled={!basket.length || isCheckingOut || isFetchingAllowance}
               isLoading={isCheckingOut}
+              leftIcon={<Icon icon={faEthereum} />}
               loadingText="Checking out…"
-              onClick={!isConnected ? handleConnect : allowanceTooLow ? handleNavigateToPayment : handleCheckout}
               ml="auto"
+              onClick={!isConnected ? handleConnect : allowanceTooLow ? handleNavigateToPayment : handleCheckout}
             >
               {!isConnected
                 ? "Connect wallet"

@@ -1,3 +1,5 @@
+import { combineReducers } from "redux";
+
 import artists from "@/state/artists";
 import artwork from "@/state/artwork";
 import editor from "@/state/editor";
@@ -8,7 +10,6 @@ import search from "@/state/search";
 import tracks from "@/state/tracks";
 import user from "@/state/user";
 import web3 from "@/state/web3";
-import { combineReducers } from "redux";
 
 const rootReducer = combineReducers({
   artists,

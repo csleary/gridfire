@@ -1,15 +1,17 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { deleteRelease, publishStatus, setReleaseIdsForDeletion } from "@/state/releases";
-import { toastSuccess, toastWarning } from "@/state/toast";
-import { UserRelease as IUserRelease } from "@/types";
 import { Box, Button, Divider, Flex, FormLabel, Stack, Switch, useColorModeValue } from "@chakra-ui/react";
 import { faCalendar, faEye, faEyeSlash, faFileAudio, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faCashRegister, faDollarSign, faHeart, faPencilAlt, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { UserRelease as IUserRelease } from "@gridfire/shared/types";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { shallowEqual } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { deleteRelease, publishStatus, setReleaseIdsForDeletion } from "@/state/releases";
+import { toastSuccess, toastWarning } from "@/state/toast";
+
 import Artwork from "./artwork";
 import StatusIcon from "./statusIcon";
 import Title from "./title";
@@ -41,7 +43,7 @@ function UserRelease({ release }: Props) {
   const [isPublishingRelease, setPublishingRelease] = useState(false);
 
   const cancelDeleteTrack = (id: string) => {
-    dispatch(setReleaseIdsForDeletion({ releaseId: id, isDeleting: false }));
+    dispatch(setReleaseIdsForDeletion({ isDeleting: false, releaseId: id }));
   };
 
   const handleDeleteRelease = () => {
@@ -64,18 +66,18 @@ function UserRelease({ release }: Props) {
   return (
     <Flex
       as="li"
-      flexDirection="column"
-      key={releaseId}
       bg={useColorModeValue("white", "gray.800")}
       borderColor={useColorModeValue("white", "gray.700")}
       borderWidth="1px"
       boxShadow="md"
+      flexDirection="column"
+      key={releaseId}
       position="relative"
     >
       <Artwork artwork={artwork} releaseId={releaseId} releaseTitle={releaseTitle} />
       <StatusIcon published={published} releaseTitle={releaseTitle} />
       <Title artist={artist} artistName={artistName} releaseId={releaseId} releaseTitle={releaseTitle} />
-      <Stack direction="column" spacing={4} p={4}>
+      <Stack direction="column" p={4} spacing={4}>
         <Divider borderColor={useColorModeValue("gray.200", "gray.600")} />
         <Stack
           color={useColorModeValue("gray.600", "gray.400")}
@@ -109,8 +111,8 @@ function UserRelease({ release }: Props) {
                 color={sales > 0 ? iconColor : "gray.500"}
                 fixedWidth
                 icon={faCashRegister}
-                title="Number of copies sold."
                 mr={2}
+                title="Number of copies sold."
               />
               {sales} sold
             </Box>
@@ -150,9 +152,9 @@ function UserRelease({ release }: Props) {
               </FormLabel>
               <Switch
                 colorScheme="green"
+                id={`${releaseId}-published`}
                 isChecked={published}
                 isDisabled={isPublishingRelease}
-                id={`${releaseId}-published`}
                 onChange={handlePublishStatus}
               />
             </Flex>
@@ -162,8 +164,8 @@ function UserRelease({ release }: Props) {
         <Stack direction="row" justifyContent="space-between" spacing={4}>
           <Button
             leftIcon={<Icon icon={faPencilAlt} />}
-            onClick={() => navigate(`/release/${releaseId}/edit`)}
             mr="-px"
+            onClick={() => navigate(`/release/${releaseId}/edit`)}
             size="sm"
           >
             Edit

@@ -1,9 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { toastError, toastWarning } from "@/state/toast";
-import { fetchDaiBalance } from "@/state/web3";
-import { EditionPurchase, MintedEdition } from "@/types";
-import { purchaseEdition } from "@/web3";
 import {
   AccordionButton,
   AccordionItem,
@@ -19,10 +13,17 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { EditionPurchase, MintedEdition } from "@gridfire/shared/types";
 import axios from "axios";
 import { formatEther } from "ethers";
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastError, toastWarning } from "@/state/toast";
+import { fetchDaiBalance } from "@/state/web3";
+import { purchaseEdition } from "@/web3";
 
 const colors = [
   "var(--chakra-colors-green-200)",
@@ -42,7 +43,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { releaseId = "" } = useParams();
-  const { editionId, amount, balance, metadata, price } = edition;
+  const { amount, balance, editionId, metadata, price } = edition;
   const { description, properties } = metadata;
   const { tracks } = properties;
   const account = useSelector(state => state.web3.account);
@@ -105,6 +106,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
         <Flex flexDirection="column">
           <Flex justifyContent="center">
             <AccordionButton
+              _hover={{ color: "blackAlpha.800" }}
               color="var(--chakra-colors-blackAlpha-700)"
               display="flex"
               flex={`${isExpanded ? 1 : 0} 0 16rem`}
@@ -112,25 +114,24 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
               fontWeight="bold"
               height="unset"
               justifyContent="space-between"
+              position="relative"
               px={4}
               py={3}
-              position="relative"
               role="group"
               transition={transition}
               width="unset"
-              _hover={{ color: "blackAlpha.800" }}
             >
               <Box
+                _groupHover={isExpanded ? undefined : { transform: "skewX(-10deg) scale(1.03)" }}
                 background={`linear-gradient(to right, ${color1}, ${color2})`}
-                position="absolute"
-                top={0}
-                right={0}
                 bottom={0}
                 left={0}
+                position="absolute"
+                right={0}
                 rounded="lg"
-                transition={transition}
+                top={0}
                 transform={isExpanded ? "none" : "skewX(-10deg)"}
-                _groupHover={isExpanded ? undefined : { transform: "skewX(-10deg) scale(1.03)" }}
+                transition={transition}
               />
               <Box mr={4} zIndex={1}>
                 <Box as="span" mr="0.2rem">
@@ -153,17 +154,17 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
             </AccordionButton>
           </Flex>
           <AccordionPanel
-            background={`linear-gradient(to right, ${color1}, ${color2})`}
-            mt={4}
-            p={4}
-            position="relative"
-            rounded="lg"
             _before={{
               backgroundColor: bgColor,
               content: '""',
               inset: "0",
               position: "absolute"
             }}
+            background={`linear-gradient(to right, ${color1}, ${color2})`}
+            mt={4}
+            p={4}
+            position="relative"
+            rounded="lg"
           >
             <Box position="relative">
               <Center color={descriptionColor} fontSize="2xl" fontWeight="500" mb={4} mt={-2} width="100%">
@@ -175,7 +176,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
               {tracks.length ? (
                 <>
                   <Text color={infoColor}>Featuring these exclusive tracks:</Text>
-                  <OrderedList fontWeight="500" mx={12} my={4} mb={12}>
+                  <OrderedList fontWeight="500" mb={12} mx={12} my={4}>
                     {tracks.map(({ id, title }) => (
                       <ListItem key={id}>{title}</ListItem>
                     ))}

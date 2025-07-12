@@ -1,14 +1,15 @@
-import Grid from "@/components/grid";
-import Icon from "@/components/icon";
-import RenderRelease from "@/components/renderRelease";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchUserWishList } from "@/state/releases";
 import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { faStickyNote as faStickyNoteOutline } from "@fortawesome/free-regular-svg-icons";
 import { faStickyNote } from "@fortawesome/free-solid-svg-icons";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Grid from "@/components/grid";
+import Icon from "@/components/icon";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserWishList } from "@/state/releases";
 
 const WishList = () => {
   const dispatch = useDispatch();
@@ -35,7 +36,7 @@ const WishList = () => {
             <RenderRelease release={withlisted.release} />
             <Box mt={2}>
               <Text>
-                <Icon verticalAlign="middle" color={noteColour} icon={noteIcon} mr={2} />
+                <Icon color={noteColour} icon={noteIcon} mr={2} verticalAlign="middle" />
                 {withlisted.note}
               </Text>
               <Text color={noteTextColour}>&ndash; {DateTime.fromISO(withlisted.dateAdded).toFormat("ff")}.</Text>

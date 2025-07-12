@@ -1,11 +1,3 @@
-type ServerSentMessage =
-  | MessageArtworkUploaded
-  | MessageEncodingError
-  | MessageEncodingProgress
-  | MessageTrackStatus
-  | MessageTranscoding
-  | MessageWorkerNotification;
-
 enum MessageType {
   ArtworkUploaded = "artworkUploaded",
   EncodingProgressFLAC = "encodingProgressFLAC",
@@ -24,7 +16,7 @@ enum MessageType {
   WorkerMessage = "workerMessage"
 }
 
-interface MessageArtworkUploaded extends RabbitmqMessage {}
+type MessageArtworkUploaded = RabbitmqMessage;
 
 interface MessageEncodingError extends RabbitmqMessage {
   releaseId: string;
@@ -32,9 +24,9 @@ interface MessageEncodingError extends RabbitmqMessage {
   trackId: string;
 }
 
-interface MessageTranscoding extends RabbitmqMessage {
+interface MessageEncodingProgress extends RabbitmqMessage {
+  progress: number;
   trackId: string;
-  trackTitle: string;
 }
 
 interface MessageTrackStatus extends RabbitmqMessage {
@@ -43,9 +35,9 @@ interface MessageTrackStatus extends RabbitmqMessage {
   trackId: string;
 }
 
-interface MessageEncodingProgress extends RabbitmqMessage {
-  progress: number;
+interface MessageTranscoding extends RabbitmqMessage {
   trackId: string;
+  trackTitle: string;
 }
 
 interface MessageWorkerNotification extends RabbitmqMessage {
@@ -58,6 +50,14 @@ interface RabbitmqMessage {
   type: MessageType;
   userId?: string;
 }
+
+type ServerSentMessage =
+  | MessageArtworkUploaded
+  | MessageEncodingError
+  | MessageEncodingProgress
+  | MessageTrackStatus
+  | MessageTranscoding
+  | MessageWorkerNotification;
 
 export { MessageType };
 export type {

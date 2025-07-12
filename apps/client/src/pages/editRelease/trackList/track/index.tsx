@@ -1,8 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "@/state/editor";
-import { deleteTrack, reEncodeTrack, setTrackIdsForDeletion } from "@/state/tracks";
-import { formatPrice } from "@/utils";
 import {
   Alert,
   AlertDescription,
@@ -19,14 +14,20 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  useColorModeValue,
   VStack,
   Wrap,
-  WrapItem,
-  useColorModeValue
+  WrapItem
 } from "@chakra-ui/react";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faArrowDown, faArrowUp, faBars, faMagicWandSparkles } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEventHandler, DragEventHandler, lazy, memo, useCallback } from "react";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { selectTrackById, selectTrackListSize, trackNudge, trackUpdate } from "@/state/editor";
+import { deleteTrack, reEncodeTrack, setTrackIdsForDeletion } from "@/state/tracks";
+import { formatPrice } from "@/utils";
 const AudioDropzone = lazy(() => import("./audioDropzone"));
 
 interface Props {
@@ -67,19 +68,19 @@ const Track = ({
   const { isBonus, isEditionOnly, price, status = "", trackTitle = "" } = track || {};
 
   const cancelDeleteTrack = (trackId: string) => {
-    dispatch(setTrackIdsForDeletion({ trackId, isDeleting: false }));
+    dispatch(setTrackIdsForDeletion({ isDeleting: false, trackId }));
   };
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     e => {
-      const { name, value, type, checked } = e.currentTarget;
+      const { checked, name, type, value } = e.currentTarget;
 
       if (name === "price") {
-        dispatch(trackUpdate({ id: trackId, changes: { [name]: value.replace(/[^0-9.]/g, "") } }));
+        dispatch(trackUpdate({ changes: { [name]: value.replace(/[^0-9.]/g, "") }, id: trackId }));
         return;
       }
 
-      dispatch(trackUpdate({ id: trackId, changes: { [name]: type === "checkbox" ? checked : value } }));
+      dispatch(trackUpdate({ changes: { [name]: type === "checkbox" ? checked : value }, id: trackId }));
     },
     [dispatch, trackId]
   );
@@ -90,7 +91,7 @@ const Track = ({
 
       if (name === "price") {
         const price = formatPrice(value);
-        dispatch(trackUpdate({ id: trackId, changes: { price } }));
+        dispatch(trackUpdate({ changes: { price }, id: trackId }));
         return;
       }
     },
@@ -129,17 +130,17 @@ const Track = ({
         padding={4}
         rounded="md"
         sx={{
-          transition: "outline 150ms",
-          "> *": { ...(isActiveDragOver || (dragOriginIsInactive && isDragOrigin) ? { pointerEvents: "none" } : {}) }
+          "> *": { ...(isActiveDragOver || (dragOriginIsInactive && isDragOrigin) ? { pointerEvents: "none" } : {}) },
+          transition: "outline 150ms"
         }}
       >
-        <VStack spacing={2} alignItems="flex-start" justifyContent="space-between" flex="1 1 auto" mr={4}>
+        <VStack alignItems="flex-start" flex="1 1 auto" justifyContent="space-between" mr={4} spacing={2}>
           <Wrap spacing={8} width="100%">
-            <WrapItem as="label" alignItems="center" color="gray.500" fontWeight="500" fontSize="1.5rem">
+            <WrapItem alignItems="center" as="label" color="gray.500" fontSize="1.5rem" fontWeight="500">
               {index + 1}
             </WrapItem>
             <WrapItem alignItems="center" flex="1 1 auto">
-              <FormLabel color="gray.400" htmlFor={`${trackId}.trackTitle`} whiteSpace="nowrap" mb={0}>
+              <FormLabel color="gray.400" htmlFor={`${trackId}.trackTitle`} mb={0} whiteSpace="nowrap">
                 Title
               </FormLabel>
               <Input
@@ -158,7 +159,7 @@ const Track = ({
               />
             </WrapItem>
             <WrapItem alignItems="center" flex="0 1 10rem">
-              <FormLabel color="gray.400" htmlFor={`${trackId}.price`} whiteSpace="nowrap" mb={0}>
+              <FormLabel color="gray.400" htmlFor={`${trackId}.price`} mb={0} whiteSpace="nowrap">
                 Price
               </FormLabel>
               <Input
@@ -196,21 +197,21 @@ const Track = ({
           </Wrap>
         </VStack>
         <AudioDropzone index={index} status={status} trackId={trackId} trackTitle={trackTitle} />
-        <VStack spacing={2} alignItems="center" justifyContent="space-between">
+        <VStack alignItems="center" justifyContent="space-between" spacing={2}>
           <Menu onClose={() => isDeleting && cancelDeleteTrack(trackId)}>
-            <MenuButton as={IconButton} aria-label="Options" icon={<Icon fixedWidth icon={faBars} />} variant="ghost" />
+            <MenuButton aria-label="Options" as={IconButton} icon={<Icon fixedWidth icon={faBars} />} variant="ghost" />
             <MenuList>
               <MenuItem
                 icon={<Icon icon={faArrowUp} />}
                 isDisabled={!index}
-                onClick={() => dispatch(trackNudge({ trackId, direction: "up" }))}
+                onClick={() => dispatch(trackNudge({ direction: "up", trackId }))}
               >
                 Move track up
               </MenuItem>
               <MenuItem
                 icon={<Icon icon={faArrowDown} />}
                 isDisabled={index + 1 === numTracks}
-                onClick={() => dispatch(trackNudge({ trackId, direction: "down" }))}
+                onClick={() => dispatch(trackNudge({ direction: "down", trackId }))}
               >
                 Move track down
               </MenuItem>
@@ -223,14 +224,14 @@ const Track = ({
                 Re-encode
               </MenuItem>
               <MenuItem
-                closeOnSelect={isDeleting ? true : false}
+                _focus={{ color: isDeleting ? "blackAlpha.800" : undefined }}
                 bgColor={isDeleting ? "red.300" : undefined}
-                fontWeight={isDeleting ? "500" : undefined}
+                closeOnSelect={isDeleting ? true : false}
                 color={isDeleting ? "var(--menu-bg)" : "red.300"}
+                fontWeight={isDeleting ? "500" : undefined}
                 icon={<Icon icon={faTrashAlt} />}
                 onClick={() => dispatch(deleteTrack(trackId))}
                 onKeyUp={({ key }) => key === "Escape" && cancelDeleteTrack(trackId)}
-                _focus={{ color: isDeleting ? "blackAlpha.800" : undefined }}
               >
                 {isDeleting ? "Click to confirm!" : "Delete"}
               </MenuItem>

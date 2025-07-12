@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { model, Schema } from "mongoose";
 
 interface IBlock {
   _id: string;
@@ -8,9 +8,9 @@ interface IBlock {
 
 const blockSchema = new Schema<IBlock>(
   {
-    _id: { type: String, required: true, default: "arbitrum_dispatcher" },
-    lastQueuedBlock: { type: Number, required: true },
-    lastQueuedBlockHex: { type: String, required: true }
+    _id: { default: "arbitrum_dispatcher", required: true, type: String },
+    lastQueuedBlock: { required: true, type: Number },
+    lastQueuedBlockHex: { required: true, type: String }
   },
   { timestamps: true }
 );

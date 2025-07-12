@@ -1,8 +1,3 @@
-import Card from "@/components/card";
-import Field from "@/components/field";
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { removeTag, removeTags, updateRelease } from "@/state/editor";
 import {
   Button,
   Flex,
@@ -18,6 +13,12 @@ import {
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Card from "@/components/card";
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { removeTag, removeTags, updateRelease } from "@/state/editor";
 
 const NUM_MAX_CHARS = 30;
 const NUM_MAX_TAGS = 20;
@@ -56,7 +57,7 @@ const Tags = () => {
   return (
     <Card as="section" p={4}>
       <FormControl>
-        <FormLabel htmlFor="tags" color="gray.500" fontWeight={500}>
+        <FormLabel color="gray.500" fontWeight={500} htmlFor="tags">
           Add Tags
         </FormLabel>
         <FormHelperText mb={1}>
@@ -84,14 +85,14 @@ const Tags = () => {
             <Text>Tags set so far…</Text>
             <Button
               colorScheme="red"
-              leftIcon={<Icon icon={faTimes} />}
-              size="xs"
               isDisabled={!tags.length}
+              leftIcon={<Icon icon={faTimes} />}
+              ml={2}
               name="removeTags"
               onClick={handleRemoveTags}
+              size="xs"
               title={"Remove all currently set tags."}
               variant="ghost"
-              ml={2}
             >
               Clear All
             </Button>

@@ -1,3 +1,6 @@
+import type { IArtist } from "@gridfire/shared/models/Artist";
+import type { IUser } from "@gridfire/shared/models/User";
+
 import {
   addLink,
   findIdBySlug,
@@ -10,8 +13,6 @@ import {
 } from "@gridfire/api/controllers/artistController";
 import logger from "@gridfire/api/controllers/logger";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
-import type { IArtist } from "@gridfire/shared/models/Artist";
-import type { IUser } from "@gridfire/shared/models/User";
 import { Router } from "express";
 import { Error } from "mongoose";
 
@@ -21,8 +22,8 @@ router.get("/:artistId/followers", async (req, res) => {
   try {
     const { artistId } = req.params;
     const { _id: userId } = req.user || {};
-    const { numFollowers, isFollowing } = await getFollowers(artistId, userId);
-    res.json({ numFollowers, isFollowing });
+    const { isFollowing, numFollowers } = await getFollowers(artistId, userId);
+    res.json({ isFollowing, numFollowers });
   } catch (error) {
     logger.error(error);
     res.sendStatus(400);
@@ -55,10 +56,10 @@ router.get("/", async (req, res) => {
 
 router.post("/:artistId", async (req, res) => {
   try {
-    const { name, slug, biography, links } = req.body;
+    const { biography, links, name, slug } = req.body;
     const { artistId } = req.params;
     const { _id: userId } = req.user as IUser;
-    const artist = (await updateArtist({ artistId, name, slug, biography, links, userId })) as IArtist;
+    const artist = (await updateArtist({ artistId, biography, links, name, slug, userId })) as IArtist;
     res.send(artist);
   } catch (error: any) {
     if (error.codeName === "DuplicateKey") {

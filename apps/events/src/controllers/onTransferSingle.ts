@@ -23,14 +23,14 @@ const onTransferSingle = async (
     {
       $setOnInsert: {
         blockNumber,
-        logIndex,
-        transactionHash,
-        operator,
         from,
-        to,
         id: id.toString(),
-        value: value.toString(),
-        type: "single"
+        logIndex,
+        operator,
+        to,
+        transactionHash,
+        type: "single",
+        value: value.toString()
       }
     },
     { upsert: true }

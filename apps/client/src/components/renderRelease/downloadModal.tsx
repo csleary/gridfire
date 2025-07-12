@@ -1,7 +1,8 @@
-import Icon from "@/components/icon";
-import placeholder from "@/placeholder.svg";
 import { Box, Button, Image, Link, Text, useColorModeValue, VStack, Wrap, WrapItem } from "@chakra-ui/react";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
+
+import Icon from "@/components/icon";
+import placeholder from "@/placeholder.svg";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 

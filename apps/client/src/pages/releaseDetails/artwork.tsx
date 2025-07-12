@@ -1,14 +1,15 @@
+import { Box, Fade, Flex, IconButton, Image, Skeleton, Spinner, useDisclosure } from "@chakra-ui/react";
+import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ReleaseTrack } from "@gridfire/shared/types";
+import { useCallback } from "react";
+import { shallowEqual } from "react-redux";
+
 import { useDispatch, useSelector } from "@/hooks";
 import placeholder from "@/placeholder.svg";
 import { loadTrack, playerPause, playerPlay } from "@/state/player";
 import { toastInfo } from "@/state/toast";
-import { ReleaseTrack } from "@/types";
 import { fadeAudio, getGainNode } from "@/utils/audio";
-import { Box, Fade, Flex, IconButton, Image, Skeleton, Spinner, useDisclosure } from "@chakra-ui/react";
-import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback } from "react";
-import { shallowEqual } from "react-redux";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
@@ -51,8 +52,6 @@ const Artwork = () => {
   return (
     <Skeleton isLoaded={!isLoading && isOpen}>
       <Box
-        key={releaseId}
-        position={"relative"}
         _hover={
           hasNoPlayableTracks
             ? undefined
@@ -65,16 +64,18 @@ const Artwork = () => {
                 }
               }
         }
+        key={releaseId}
+        position={"relative"}
       >
         <Fade in={isOpen}>
-          <Box display="block" pt="100%" position="relative">
+          <Box display="block" position="relative" pt="100%">
             <Image
               alt={releaseTitle}
               fallbackSrc={placeholder}
               inset={0}
               loading="lazy"
-              onLoad={onOpen}
               onError={onOpen}
+              onLoad={onOpen}
               position="absolute"
               src={
                 artwork.status === "stored"
@@ -99,32 +100,32 @@ const Artwork = () => {
         >
           {hasNoPlayableTracks ? null : (
             <IconButton
-              aria-label="Start audio playback."
+              _hover={{ color: "#fff" }}
               alignItems="center"
+              aria-label="Start audio playback."
               color="hsla(233, 10%, 75%, 1)"
               display="flex"
               flex="1"
               fontSize="5rem"
               height="unset"
-              isDisabled={!playerIsInitialised}
-              justifyContent="center"
-              role="group"
               icon={
                 !playerIsInitialised ? (
                   <Spinner size="xl" />
                 ) : (
                   <Box
+                    _groupHover={{ transform: "scale(1.2)" }}
                     as={FontAwesomeIcon}
                     icon={isPlaying && releaseId === playerReleaseId ? faPause : faPlay}
                     transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-                    _groupHover={{ transform: "scale(1.2)" }}
                   />
                 )
               }
+              isDisabled={!playerIsInitialised}
+              justifyContent="center"
               onClick={handlePlayRelease}
+              role="group"
               title={`${artistName} - ${releaseTitle}`}
               variant="unstyled"
-              _hover={{ color: "#fff" }}
             />
           )}
         </Flex>

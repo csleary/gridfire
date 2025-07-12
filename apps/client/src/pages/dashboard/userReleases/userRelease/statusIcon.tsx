@@ -1,6 +1,7 @@
-import Icon from "@/components/icon";
 import { Square, useColorModeValue } from "@chakra-ui/react";
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+
+import Icon from "@/components/icon";
 
 interface Props {
   published: boolean;
@@ -11,10 +12,10 @@ const StatusIcon = ({ published, releaseTitle }: Props) => {
   const publishedColor = useColorModeValue("green.400", "green.200");
 
   return (
-    <Square bg={useColorModeValue("white", "gray.700")} rounded="full" position="absolute" size={10} right={6} top={6}>
+    <Square bg={useColorModeValue("white", "gray.700")} position="absolute" right={6} rounded="full" size={10} top={6}>
       <Icon
-        fontSize="2rem"
         color={published ? publishedColor : "orange.300"}
+        fontSize="2rem"
         icon={published ? faCheckCircle : faExclamationCircle}
         title={
           published

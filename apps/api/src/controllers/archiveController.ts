@@ -20,7 +20,7 @@ interface Buckets {
 const buckets: Buckets = { flac: BUCKET_FLAC, mp3: BUCKET_MP3 };
 
 interface ZipStream {
-  editionId: string | null;
+  editionId: null | string;
   format: string;
   release: any;
   res: Response;

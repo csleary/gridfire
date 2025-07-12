@@ -1,3 +1,10 @@
+import { Box, Center, Flex, Link, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
+import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
+import detectEthereumProvider from "@metamask/detect-provider";
+import { BrowserProvider, Eip1193Provider, isError } from "ethers";
+import React, { lazy, Suspense, useCallback, useEffect, useRef } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import Footer from "@/components/footer";
 import Icon from "@/components/icon";
 import Player from "@/components/player";
@@ -7,12 +14,6 @@ import useSSE from "@/hooks/useSSE";
 import { setLastCheckedOn } from "@/state/artists";
 import { fetchUser } from "@/state/user";
 import { setIsConnected, setNetworkName } from "@/state/web3";
-import { Box, Center, Flex, Link, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
-import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
-import detectEthereumProvider from "@metamask/detect-provider";
-import { BrowserProvider, Eip1193Provider, isError } from "ethers";
-import React, { Suspense, lazy, useCallback, useEffect, useRef } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
 const About = lazy(() => import("@/pages/about"));
 const Artist = lazy(() => import("@/pages/artist"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
@@ -37,8 +38,10 @@ const App: React.FC = () => {
     const browserProvider = new BrowserProvider(ethereumRef.current as unknown as Eip1193Provider);
     providerRef.current = browserProvider;
 
-    providerRef.current.on("error", (error: any) => {
-      // Stub this out to avoid errors on network change.
+    providerRef.current.on("error", (error: unknown) => {
+      if (error instanceof Error) {
+        console.error(error);
+      }
     });
 
     if (!providerRef.current) {
@@ -56,9 +59,13 @@ const App: React.FC = () => {
       if (Boolean(id) && id !== VITE_CHAIN_ID) {
         dispatch(setIsConnected(false));
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!isError(error, "NETWORK_ERROR")) {
         console.warn(error);
+      }
+
+      if (error instanceof Error) {
+        console.error(error);
       }
     }
   }, [dispatch]);
@@ -76,8 +83,10 @@ const App: React.FC = () => {
       if (lastCheckedOn) {
         storedUserDate = JSON.parse(lastCheckedOn);
       }
-    } catch (error) {
-      //
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error);
+      }
     }
 
     if (storedUserDate && storedUserDate.user === userId) {
@@ -109,18 +118,18 @@ const App: React.FC = () => {
               Please switch to the Arbitrum network to use Gridfire
             </Box>
             <Link
-              isExternal
               href="https://chainlist.org/chain/42161"
+              isExternal
               rel="nofollow noopener"
-              textDecoration="underline"
               textAlign="center"
+              textDecoration="underline"
             >
               Add the Arbitrum network to your wallet on ChainList
             </Link>
           </Box>
         </Center>
       </Slide>
-      <Flex maxW="100%" bg={useColorModeValue("gray.50", "gray.900")} minH="100vh" flexDirection="column">
+      <Flex bg={useColorModeValue("gray.50", "gray.900")} flexDirection="column" maxW="100%" minH="100vh">
         <Suspense fallback={<></>}>
           <Header />
         </Suspense>
@@ -133,37 +142,37 @@ const App: React.FC = () => {
             }
           >
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/about" element={<About />} />
+              <Route element={<Home />} path="/" />
+              <Route element={<Login />} path="/login" />
+              <Route element={<SearchResults />} path="/search" />
+              <Route element={<About />} path="/about" />
               <Route
+                element={
+                  <PrivateRoute>
+                    <EditRelease />
+                  </PrivateRoute>
+                }
                 path="/release/new"
+              />
+              <Route
                 element={
                   <PrivateRoute>
                     <EditRelease />
                   </PrivateRoute>
                 }
-              />
-              <Route
                 path="/release/:releaseId/edit"
-                element={
-                  <PrivateRoute>
-                    <EditRelease />
-                  </PrivateRoute>
-                }
               />
-              <Route path="/release/:releaseId/*" element={<ReleaseDetails />} />
-              <Route path="/artist/:artistId" element={<Artist />} />
+              <Route element={<ReleaseDetails />} path="/release/:releaseId/*" />
+              <Route element={<Artist />} path="/artist/:artistId" />
               <Route
-                path="/dashboard/*"
                 element={
                   <PrivateRoute>
                     <Dashboard />
                   </PrivateRoute>
                 }
+                path="/dashboard/*"
               />
-              <Route path="/:artistSlug" element={<Artist />} />
+              <Route element={<Artist />} path="/:artistSlug" />
             </Routes>
             <Spacer mb={8} />
           </Suspense>

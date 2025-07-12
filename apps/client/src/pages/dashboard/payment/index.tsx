@@ -1,9 +1,10 @@
-import Icon from "@/components/icon";
 import { Container, Tab, TabList, TabPanel, TabPanels, Tabs, useColorModeValue } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faCheckCircle, faCoins } from "@fortawesome/free-solid-svg-icons";
 import { lazy, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+
+import Icon from "@/components/icon";
 const Balance = lazy(() => import("./balance"));
 const PaymentAddress = lazy(() => import("./paymentAddress"));
 const Allowance = lazy(() => import("./allowance"));
@@ -23,22 +24,22 @@ const Payment = () => {
   return (
     <Container as="main" maxW="container.sm" p={0}>
       <Tabs
-        index={activeTab}
-        onChange={setActiveTab}
         colorScheme={useColorModeValue("yellow", "purple")}
+        index={activeTab}
         isFitted
+        onChange={setActiveTab}
         variant="solid-rounded"
       >
-        <TabList mb={16} flexDirection={["column", "row"]}>
-          <Tab as={Link} to={`${stem}/balance`} alignItems="center">
+        <TabList flexDirection={["column", "row"]} mb={16}>
+          <Tab alignItems="center" as={Link} to={`${stem}/balance`}>
             <Icon icon={faCoins} mr={2} />
             Balance
           </Tab>
-          <Tab as={Link} to={`${stem}/address`} alignItems="center">
+          <Tab alignItems="center" as={Link} to={`${stem}/address`}>
             <Icon icon={faEthereum} mr={2} />
             Address
           </Tab>
-          <Tab as={Link} to={`${stem}/approvals`} alignItems="center">
+          <Tab alignItems="center" as={Link} to={`${stem}/approvals`}>
             <Icon icon={faCheckCircle} mr={2} />
             DAI
           </Tab>

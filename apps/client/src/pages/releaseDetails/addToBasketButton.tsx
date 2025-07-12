@@ -1,14 +1,16 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { toastError } from "@/state/toast";
-import { addToBasket, setIsAddingToBasket } from "@/state/web3";
-import { BasketItem } from "@/types";
 import { Button } from "@chakra-ui/react";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
+import { BasketItem } from "@gridfire/shared/types";
 import axios from "axios";
 import { parseEther } from "ethers";
 import { useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastError } from "@/state/toast";
+import { addToBasket, setIsAddingToBasket } from "@/state/web3";
+
 import NameYourPriceModal from "./nameYourPriceModal";
 
 interface Props {
@@ -39,7 +41,7 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
       }
 
       const priceInWei = parseEther(price);
-      dispatch(addToBasket({ artistName, releaseId, imageUrl, paymentAddress, price: priceInWei.toString(), title }));
+      dispatch(addToBasket({ artistName, imageUrl, paymentAddress, price: priceInWei.toString(), releaseId, title }));
     } catch (error: any) {
       dispatch(toastError({ message: error.message, title: "Error" }));
       console.error(error);
@@ -60,8 +62,8 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
     <>
       <Button
         isDisabled={isLoading || inCollection || isAddingToBasket || isInBasket}
-        leftIcon={<Icon icon={faShoppingBasket} />}
         isLoading={isAddingToBasket}
+        leftIcon={<Icon icon={faShoppingBasket} />}
         minW="8rem"
         onClick={handleClick}
       >
@@ -70,13 +72,13 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
       <NameYourPriceModal
         handleCloseModal={() => setShowModal(false)}
         handleSubmit={handleAddToBasket}
-        initialPrice="10.00"
         info="Enter the amount you wish to pay for this release, before adding it to your basket."
+        initialPrice="10.00"
         isSubmitting={isAddingToBasket}
         showModal={showModal}
-        submitInfo=""
         submitButton="Add to Basket"
         submitButtonLoading="Adding…"
+        submitInfo=""
       />
     </>
   );

@@ -56,8 +56,8 @@ router.get("/:releaseId", async (req, res) => {
     const userId = (req.user as IUser)?._id;
 
     const release = await Release.findOne({
-      _id: releaseId,
-      $or: [{ published: true }, { published: false, user: { $eq: userId } }] // Allow artists to see their own unpublished release pages.
+      $or: [{ published: true }, { published: false, user: { $eq: userId } }], // Allow artists to see their own unpublished release pages.
+      _id: releaseId
     }).exec();
 
     if (!release) {
@@ -76,7 +76,7 @@ router.get("/:releaseId/purchase", requireLogin, async (req, res) => {
     const { releaseId } = req.params;
 
     const release = await Release.findById(releaseId, "price", { lean: true })
-      .populate<{ user: IUser }>({ path: "user", model: User, options: { lean: true }, select: "paymentAddress" })
+      .populate<{ user: IUser }>({ model: User, options: { lean: true }, path: "user", select: "paymentAddress" })
       .exec();
 
     if (!release) {
@@ -153,11 +153,11 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       credits,
       info,
       price,
-      pubYear,
       pubName,
-      recYear,
+      pubYear,
       recName,
       recordLabel,
+      recYear,
       releaseDate,
       releaseTitle,
       tags,
@@ -178,13 +178,13 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       credits,
       info,
       price,
+      pubName,
+      pubYear,
+      recName,
       recordLabel,
+      recYear,
       releaseDate,
       releaseTitle,
-      pubYear,
-      pubName,
-      recYear,
-      recName,
       tags
     };
 
@@ -206,9 +206,9 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
               update: {
                 "trackList.$.isBonus": isBonus,
                 "trackList.$.isEditionOnly": isEditionOnly,
+                "trackList.$.position": index + 1,
                 "trackList.$.price": trackPrice,
-                "trackList.$.trackTitle": trackTitle,
-                "trackList.$.position": index + 1
+                "trackList.$.trackTitle": trackTitle
               }
             }
           },

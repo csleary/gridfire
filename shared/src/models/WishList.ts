@@ -1,21 +1,22 @@
-import { ObjectId, Schema, model } from "mongoose";
+import { model, ObjectId, Schema } from "mongoose";
 
 interface IWishList {
-  release: ObjectId;
   dateAdded: Date;
   note: string;
+  release: ObjectId;
   user: ObjectId;
 }
 
 const { ObjectId } = Schema.Types;
 
 const wishListSchema = new Schema<IWishList>({
-  release: { type: ObjectId, ref: "Release" },
   dateAdded: { type: Date },
   note: { type: String },
-  user: { type: ObjectId, ref: "User" }
+  release: { ref: "Release", type: ObjectId },
+  user: { ref: "User", type: ObjectId }
 });
 
+// eslint-disable-next-line perfectionist/sort-objects
 wishListSchema.index({ user: 1, release: 1 }, { unique: true });
 
 export { IWishList };

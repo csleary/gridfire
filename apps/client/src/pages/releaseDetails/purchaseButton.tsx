@@ -1,7 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { toastError, toastWarning } from "@/state/toast";
-import { purchaseRelease } from "@/web3";
 import { Button } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
@@ -9,6 +5,12 @@ import axios from "axios";
 import { parseEther } from "ethers";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { toastError, toastWarning } from "@/state/toast";
+import { purchaseRelease } from "@/web3";
+
 import NameYourPriceModal from "./nameYourPriceModal";
 
 interface Props {
@@ -75,8 +77,8 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
       <Button
         isDisabled={isLoading || !isConnected || isFetchingAllowance}
         isLoading={isPurchasing}
-        loadingText={"Purchasing"}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
+        loadingText={"Purchasing"}
         minWidth="16rem"
         onClick={handleClick}
       >

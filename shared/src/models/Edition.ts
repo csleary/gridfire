@@ -1,8 +1,8 @@
-import { Schema, Types, model } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 enum EditionStatus {
-  Pending = "pending",
-  Minted = "minted"
+  Minted = "minted",
+  Pending = "pending"
 }
 
 enum EditionVisibility {
@@ -20,19 +20,19 @@ interface IEdition {
       trait_type: string;
       value: number;
     };
-    name: string;
     description: string;
     external_url: string;
     image: string;
+    name: string;
     properties: {
       artist: string;
-      title: string;
-      totalSupply: number;
-      tracks: [{ id: string; title: string }];
+      info: string;
       price: string;
       priceInDai: string;
       releaseDate: string;
-      info: string;
+      title: string;
+      totalSupply: number;
+      tracks: [{ id: string; title: string }];
     };
   };
   price: string;
@@ -46,15 +46,15 @@ const { ObjectId } = Schema.Types;
 
 const editionSchema = new Schema<IEdition>(
   {
-    amount: { type: String, required: true },
-    cid: { type: String, required: true },
+    amount: { required: true, type: String },
+    cid: { required: true, type: String },
     editionId: { type: String },
-    metadata: { type: Object, required: true },
-    price: { type: String, required: true },
-    release: { type: ObjectId, ref: "Release", required: true },
-    status: { type: String, enum: EditionStatus, default: EditionStatus.Pending },
-    user: { type: ObjectId, ref: "User", required: true },
-    visibility: { type: String, enum: EditionVisibility, default: EditionVisibility.Visible }
+    metadata: { required: true, type: Object },
+    price: { required: true, type: String },
+    release: { ref: "Release", required: true, type: ObjectId },
+    status: { default: EditionStatus.Pending, enum: EditionStatus, type: String },
+    user: { ref: "User", required: true, type: ObjectId },
+    visibility: { default: EditionVisibility.Visible, enum: EditionVisibility, type: String }
   },
   { timestamps: true }
 );

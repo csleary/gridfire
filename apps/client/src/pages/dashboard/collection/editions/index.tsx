@@ -1,13 +1,14 @@
-import Grid from "@/components/grid";
-import Icon from "@/components/icon";
-import RenderRelease from "@/components/renderRelease";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchUserEditions } from "@/state/releases";
 import { Box, Flex, Heading, Link, Text, useColorModeValue } from "@chakra-ui/react";
 import { faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { formatEther } from "ethers";
 import { useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Grid from "@/components/grid";
+import Icon from "@/components/icon";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchUserEditions } from "@/state/releases";
 
 const Editions = () => {
   const receiptTextColour = useColorModeValue("gray.600", "gray.300");
@@ -35,7 +36,7 @@ const Editions = () => {
 
             return (
               <Box key={purchaseId}>
-                <RenderRelease release={{ ...release, releaseTitle, purchaseId }} type="collection" mb={2} />
+                <RenderRelease mb={2} release={{ ...release, purchaseId, releaseTitle }} type="collection" />
                 <Flex justifyContent="flex-end">
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />

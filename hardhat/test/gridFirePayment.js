@@ -1,10 +1,11 @@
 /* eslint-disable no-undef */
-const { encodeBytes32String, parseEther } = require("ethers");
+import { encodeBytes32String, parseEther } from "ethers";
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
-const assert = require("assert");
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
-const { daiAbi } = require("./utils");
+import assert, { equal } from "assert";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+
+import { daiAbi } from "./utils";
 
 // Run on localhost mainnet fork with funded accounts.
 
@@ -45,7 +46,7 @@ describe("GridfirePayment contract", async () => {
     );
 
     const { status } = await transactionReceipt.wait();
-    assert.equal(status, 1);
+    equal(status, 1);
     const artistShare = await gridfirePayment.getBalance(artist.address);
     const platformShare = await gridfirePayment.getBalance(owner.address);
     assert(parseEther("14.25") === artistShare);
@@ -84,7 +85,7 @@ describe("GridfirePayment contract", async () => {
 
     const transactionReceipt = await instance.checkout(tracks, encodeBytes32String("625716987c91fe99ee9d8a53"));
     const { status } = await transactionReceipt.wait();
-    assert.equal(status, 1);
+    equal(status, 1);
     const artistShare = await gridfirePayment.getBalance(artist.address);
     const platformShare = await gridfirePayment.getBalance(owner.address);
     assert(parseEther("5.7") === artistShare);
@@ -108,7 +109,7 @@ describe("GridfirePayment contract", async () => {
 
     {
       const { status } = await transactionReceipt.wait();
-      assert.equal(status, 1);
+      equal(status, 1);
       const artistShare = await gridfirePayment.getBalance(artist.address);
       const platformShare = await gridfirePayment.getBalance(owner.address);
       assert(parseEther("14.25") === artistShare);
@@ -119,7 +120,7 @@ describe("GridfirePayment contract", async () => {
       const instanceArtist = await gridfirePayment.connect(artist);
       const claimTxReceipt = await instanceArtist.claim();
       const { status } = await claimTxReceipt.wait();
-      assert.equal(status, 1);
+      equal(status, 1);
       const artistShare = await gridfirePayment.getBalance(artist.address);
       assert(0n === artistShare);
       const newBalance = await dai.balanceOf(artist.address);

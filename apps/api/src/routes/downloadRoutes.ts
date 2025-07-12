@@ -1,8 +1,9 @@
+import type { IUser } from "@gridfire/shared/models/User";
+
 import { zipDownload } from "@gridfire/api/controllers/archiveController";
 import logger from "@gridfire/api/controllers/logger";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Sale from "@gridfire/shared/models/Sale";
-import type { IUser } from "@gridfire/shared/models/User";
 import { Router } from "express";
 
 const router = Router();

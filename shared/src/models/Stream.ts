@@ -1,4 +1,4 @@
-import { ObjectId, Schema, model } from "mongoose";
+import { model, ObjectId, Schema } from "mongoose";
 
 interface IStream {
   date: Date;
@@ -11,13 +11,14 @@ interface IStream {
 const { ObjectId } = Schema.Types;
 
 const streamSchema = new Schema<IStream>({
-  date: { type: Date, default: Date.now },
+  date: { default: Date.now, type: Date },
   startTime: { type: Number },
-  totalTimePlayed: { type: Number, default: 0 },
+  totalTimePlayed: { default: 0, type: Number },
   trackId: { type: ObjectId },
-  user: { type: ObjectId, ref: "User" }
+  user: { ref: "User", type: ObjectId }
 });
 
+// eslint-disable-next-line perfectionist/sort-objects
 streamSchema.index({ user: 1, trackId: 1 }, { unique: true });
 streamSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
 

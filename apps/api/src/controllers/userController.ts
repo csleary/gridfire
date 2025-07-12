@@ -1,9 +1,10 @@
-import { getResolvedAddress } from "@gridfire/api/controllers/web3/index";
 import type { IFavourite } from "@gridfire/shared/models/Favourite";
 import type { ISale } from "@gridfire/shared/models/Sale";
 import type { IUser } from "@gridfire/shared/models/User";
-import User from "@gridfire/shared/models/User";
 import type { IWishList } from "@gridfire/shared/models/WishList";
+
+import { getResolvedAddress } from "@gridfire/api/controllers/web3";
+import User from "@gridfire/shared/models/User";
 import { ObjectId } from "mongoose";
 
 interface ExtendedUser extends IUser {
@@ -15,9 +16,9 @@ interface ExtendedUser extends IUser {
 const getUser = async (userId: ObjectId): Promise<ExtendedUser> => {
   const [user] = await User.aggregate([
     { $match: { _id: userId } },
-    { $lookup: { from: "favourites", localField: "_id", foreignField: "user", as: "favourites" } },
-    { $lookup: { from: "lists", localField: "_id", foreignField: "user", as: "wishList" } },
-    { $lookup: { from: "sales", localField: "_id", foreignField: "user", as: "purchases" } },
+    { $lookup: { as: "favourites", foreignField: "user", from: "favourites", localField: "_id" } },
+    { $lookup: { as: "wishList", foreignField: "user", from: "lists", localField: "_id" } },
+    { $lookup: { as: "purchases", foreignField: "user", from: "sales", localField: "_id" } },
     { $project: { __v: 0, purchases: { __v: 0 } } }
   ]).exec();
 

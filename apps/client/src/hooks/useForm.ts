@@ -2,12 +2,12 @@ import { ChangeEvent, FormEvent, useState } from "react";
 
 type FormatFunction = (value: string) => string;
 type SubmitFunction = (values: object) => Promise<void>;
-type ValidateFunction = (values: object) => object;
-
 interface UseFormParams {
   defaultState: object;
   validate: ValidateFunction;
 }
+
+type ValidateFunction = (values: object) => object;
 
 const useForm = ({ defaultState = {}, validate }: UseFormParams) => {
   const [errors, setErrors] = useState({});
@@ -40,9 +40,9 @@ const useForm = ({ defaultState = {}, validate }: UseFormParams) => {
 
   return {
     errors,
-    hasErrors,
     handleChange,
     handleSubmit,
+    hasErrors,
     isPristine,
     isSubmitting,
     values

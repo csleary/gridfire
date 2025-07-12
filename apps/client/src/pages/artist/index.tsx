@@ -1,12 +1,14 @@
-import Card from "@/components/card";
-import Follow from "@/components/follow";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchArtistCatalogue } from "@/state/releases";
-import { Divider, Heading, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
+import { Divider, Heading, useColorModeValue, Wrap, WrapItem } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
 import { useParams } from "react-router-dom";
+
+import Card from "@/components/card";
+import Follow from "@/components/follow";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchArtistCatalogue } from "@/state/releases";
+
 import Biography from "./biography";
 import Links from "./links";
 import Releases from "./releases";
@@ -26,11 +28,11 @@ const Artist = () => {
     <>
       <Helmet>
         <title>{isLoading ? "Loading…" : name}</title>
-        <meta name="description" content={`Music by ${name}.`} />
+        <meta content={`Music by ${name}.`} name="description" />
       </Helmet>
       <Heading as="h2">{name}</Heading>
       <Wrap spacing={8}>
-        <WrapItem as="section" alignItems="stretch" flex="1 1 64rem" flexDirection="column" order={[2, 2, 1]}>
+        <WrapItem alignItems="stretch" as="section" flex="1 1 64rem" flexDirection="column" order={[2, 2, 1]}>
           <Releases />
         </WrapItem>
         <WrapItem as="section" flex="0 1 80ch" m={0} order={[1, 1, 2]}>

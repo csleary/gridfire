@@ -1,5 +1,6 @@
-import logger from "@gridfire/api/controllers/logger";
+import "@gridfire/shared/types/express";
 import "@gridfire/api/controllers/passport";
+import logger from "@gridfire/api/controllers/logger";
 import { clientErrorHandler, errorHandler, logErrors } from "@gridfire/api/middlewares/errorHandlers";
 import artists from "@gridfire/api/routes/artistRoutes";
 import artwork from "@gridfire/api/routes/artworkRoutes";
@@ -51,7 +52,7 @@ await mongoose.connect(MONGODB_URI).catch(error => logger.error("Mongoose connec
 // Express
 app.use(express.json());
 app.use(cookieParser(COOKIE_KEY));
-app.use(cookieSession({ name: "gridFireSession", keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000 }));
+app.use(cookieSession({ keys: [COOKIE_KEY], maxAge: 28 * 24 * 60 * 60 * 1000, name: "gridFireSession" }));
 app.use(logErrors);
 app.use(clientErrorHandler);
 app.use(errorHandler);

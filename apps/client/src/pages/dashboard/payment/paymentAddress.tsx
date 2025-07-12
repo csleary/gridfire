@@ -1,8 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { addPaymentAddress } from "@/state/user";
-import { fetchSales } from "@/state/web3";
-import { fetchResolvedAddress } from "@/web3";
 import {
   Alert,
   AlertDescription,
@@ -31,6 +26,12 @@ import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faCheck, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { formatEther, getAddress, isAddress } from "ethers";
 import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { addPaymentAddress } from "@/state/user";
+import { fetchSales } from "@/state/web3";
+import { fetchResolvedAddress } from "@/web3";
 
 const PaymentAddress = () => {
   const errorAlertColor = useColorModeValue("red.800", "red.200");
@@ -112,9 +113,9 @@ const PaymentAddress = () => {
           </InputLeftElement>
           <Input
             bg={useColorModeValue("white", "gray.400")}
+            fontSize="1.5rem"
             isDisabled={isSubmitting}
             isInvalid={Boolean(error)}
-            fontSize="1.5rem"
             name="paymentAddress"
             onChange={handleChange}
             onKeyDown={e => {
@@ -129,7 +130,7 @@ const PaymentAddress = () => {
           />
         </InputGroup>
         {error ? (
-          <Alert status="error" mt={2}>
+          <Alert mt={2} status="error">
             <Icon color={errorAlertColor} fixedWidth icon={faTriangleExclamation} mr={3} />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -139,9 +140,9 @@ const PaymentAddress = () => {
       </FormControl>
       <Flex justifyContent="flex-end" mb={8}>
         <Button
-          leftIcon={<Icon icon={faCheck} />}
           isDisabled={Boolean(error) || !hasChanged || isPristine}
           isLoading={isSubmitting}
+          leftIcon={<Icon icon={faCheck} />}
           loadingText="Saving…"
           onClick={() => saveAddress()}
         >
@@ -168,7 +169,7 @@ const PaymentAddress = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {salesHistory.map(({ blockNumber, logIndex, artistShare, platformFee, transactionHash, userAddress }) => (
+            {salesHistory.map(({ artistShare, blockNumber, logIndex, platformFee, transactionHash, userAddress }) => (
               <Tr key={`${transactionHash}-${logIndex}`}>
                 <Td>
                   <Link href={`https://arbiscan.io/tx/${transactionHash}`}>{blockNumber}</Link>

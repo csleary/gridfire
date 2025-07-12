@@ -1,10 +1,3 @@
-import { toastError, toastSuccess } from "@/state/toast";
-import { addActiveProcess, removeActiveProcess } from "@/state/user";
-import { fetchUserEditions as _fetchUserEditions } from "@/web3";
-import { createSlice, nanoid } from "@reduxjs/toolkit";
-import axios from "axios";
-import { DateTime } from "luxon";
-import { AppDispatch, GetState } from "main";
 import {
   Artist,
   BasketItem,
@@ -15,7 +8,15 @@ import {
   ListItem,
   Release,
   UserRelease
-} from "types";
+} from "@gridfire/shared/types";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
+import axios from "axios";
+import { DateTime } from "luxon";
+
+import { toastError, toastSuccess } from "@/state/toast";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
+import { AppDispatch, GetState } from "@/types";
+import { fetchUserEditions as _fetchUserEditions } from "@/web3";
 
 interface ReleasesState {
   activeRelease: Release;
@@ -30,10 +31,10 @@ interface ReleasesState {
   reachedEndOfCat: boolean;
   releaseIdsForDeletion: { [key: string]: boolean };
   userAlbums: CollectionRelease[];
+  userEditions: CollectionEdition[];
   userFavourites: Favourite[];
   userReleases: UserRelease[];
   userSingles: CollectionSingle[];
-  userEditions: CollectionEdition[];
   userWishList: ListItem[];
 }
 
@@ -50,8 +51,8 @@ const defaultReleaseState: Release = {
   pubName: "",
   pubYear: "",
   recName: "",
-  recYear: "",
   recordLabel: "",
+  recYear: "",
   releaseDate: DateTime.local().toISODate(),
   releaseTitle: "",
   tags: [],
@@ -60,11 +61,11 @@ const defaultReleaseState: Release = {
 
 const defaultArtistState: Artist = {
   _id: "",
-  name: "",
-  slug: "",
   biography: "",
   links: [],
-  releases: []
+  name: "",
+  releases: [],
+  slug: ""
 };
 
 const initialState: ReleasesState = {
@@ -72,24 +73,24 @@ const initialState: ReleasesState = {
   artist: defaultArtistState,
   artworkUploading: false,
   artworkUploadProgress: 0,
-  isLoading: true,
   catalogue: [],
   catalogueLimit: 12,
   catalogueSkip: 0,
   editing: defaultReleaseState,
+  isLoading: true,
   reachedEndOfCat: false,
   releaseIdsForDeletion: {},
   userAlbums: [],
+  userEditions: [],
   userFavourites: [],
   userReleases: [],
   userSingles: [],
-  userEditions: [],
   userWishList: []
 };
 
 const releaseSlice = createSlice({
-  name: "releases",
   initialState,
+  name: "releases",
   reducers: {
     addFavouritesItem(state, action) {
       state.userFavourites = [action.payload, ...state.userFavourites];
@@ -105,6 +106,9 @@ const releaseSlice = createSlice({
     },
     removeWishListItem(state, action) {
       state.userWishList = state.userWishList.filter(({ release }) => release._id !== action.payload);
+    },
+    setActiveRelease(state, action) {
+      state.activeRelease = action.payload;
     },
     setArtistCatalogue(state, action) {
       state.artist = action.payload;
@@ -122,9 +126,6 @@ const releaseSlice = createSlice({
       state.catalogueSkip = isPaging ? state.catalogueSkip + state.catalogueLimit : 0;
       state.reachedEndOfCat = reachedEndOfCat;
     },
-    setActiveRelease(state, action) {
-      state.activeRelease = action.payload;
-    },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
@@ -132,7 +133,7 @@ const releaseSlice = createSlice({
       state.editing = action.payload;
     },
     setReleaseIdsForDeletion(state, action) {
-      const { releaseId, isDeleting } = action.payload;
+      const { isDeleting, releaseId } = action.payload;
       state.releaseIdsForDeletion = { ...state.releaseIdsForDeletion, [releaseId]: isDeleting };
     },
     setUserAlbums(state, action) {
@@ -164,7 +165,7 @@ const releaseSlice = createSlice({
 
 const checkoutFreeBasket = (basket: BasketItem[]) => async (dispatch: AppDispatch) => {
   const processId = nanoid();
-  dispatch(addActiveProcess({ id: processId, description: "Checking out…", type: "purchase" }));
+  dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
 
   try {
     await axios.post("/api/release/checkout", basket);
@@ -183,9 +184,9 @@ const deleteRelease =
         dispatch(removeRelease(releaseId));
         await axios.delete(`/api/release/${releaseId}`);
         dispatch(toastSuccess({ message: `Successfully deleted ${releaseTitle}.`, title: "Deleted" }));
-        dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: false }));
+        dispatch(setReleaseIdsForDeletion({ isDeleting: false, releaseId }));
       } else {
-        dispatch(setReleaseIdsForDeletion({ releaseId, isDeleting: true }));
+        dispatch(setReleaseIdsForDeletion({ isDeleting: true, releaseId }));
       }
     } catch (error: any) {
       dispatch(toastError({ message: error.response.data.error, title: "Error" }));
@@ -210,15 +211,15 @@ const fetchCatalogue =
   ({
     catalogueLimit,
     catalogueSkip,
+    isPaging = false,
     sortBy,
-    sortOrder,
-    isPaging = false
+    sortOrder
   }: {
     catalogueLimit: number;
     catalogueSkip: number;
+    isPaging?: boolean;
     sortBy: string;
     sortOrder: string;
-    isPaging?: boolean;
   }) =>
   async (dispatch: AppDispatch) => {
     try {
@@ -367,6 +368,8 @@ export const {
   setUserWishList,
   updateUserReleases
 } = releaseSlice.actions;
+
+export type { ReleasesState };
 
 export {
   checkoutFreeBasket,

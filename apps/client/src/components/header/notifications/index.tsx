@@ -1,8 +1,3 @@
-import ActivityItem from "@/components/activityItem";
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchActivity, selectRecentActivity, selectTotalUnread, setLastCheckedOn } from "@/state/artists";
-import { selectActiveProcessList, selectActiveProcessTotal } from "@/state/user";
 import {
   Badge,
   Box,
@@ -23,6 +18,12 @@ import { DateTime } from "luxon";
 import { useCallback, useEffect, useRef } from "react";
 import { shallowEqual } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+
+import ActivityItem from "@/components/activityItem";
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchActivity, selectRecentActivity, selectTotalUnread, setLastCheckedOn } from "@/state/artists";
+import { selectActiveProcessList, selectActiveProcessTotal } from "@/state/user";
 
 const Notifications = () => {
   const badgeColor = useColorModeValue("yellow", "purple");
@@ -49,7 +50,7 @@ const Notifications = () => {
       const date = DateTime.utc().toISO();
       dispatch(setLastCheckedOn(date));
       if (!user) return;
-      window.localStorage.setItem("lastCheckedOn", JSON.stringify({ user, date }));
+      window.localStorage.setItem("lastCheckedOn", JSON.stringify({ date, user }));
     }, 3000);
   }, [dispatch, user]);
 
@@ -61,7 +62,7 @@ const Notifications = () => {
 
   return (
     <>
-      <Popover isLazy placement="bottom-end" onOpen={onOpen} onClose={onClose}>
+      <Popover isLazy onClose={onClose} onOpen={onOpen} placement="bottom-end">
         <Box position="relative">
           <PopoverTrigger>
             <IconButton aria-label="Notifications" icon={<Icon fixedWidth icon={faBell} />} />
@@ -81,9 +82,9 @@ const Notifications = () => {
           {numProcesses > 0 ? (
             <Badge
               colorScheme={processBadgeColor}
+              left="0"
               pointerEvents="none"
               position="absolute"
-              left="0"
               top="0"
               transform="translate(-25%, -25%)"
             >
@@ -98,7 +99,7 @@ const Notifications = () => {
               <Stack divider={<StackDivider borderColor={dividerColor} />} spacing={0}>
                 {processList.length
                   ? processList.map(process => {
-                      const { id, description } = process;
+                      const { description, id } = process;
 
                       return (
                         <ListItem key={id} mx={-3} px={3} py={2}>
@@ -112,7 +113,7 @@ const Notifications = () => {
                 {activityList.map(activity => (
                   <ActivityItem activity={activity} key={activity._id} mx={-3} px={3} py={2} />
                 ))}
-                <Link as={RouterLink} to={"/dashboard/activity"} textAlign="center" px={3} py={2}>
+                <Link as={RouterLink} px={3} py={2} textAlign="center" to={"/dashboard/activity"}>
                   See all activity…
                 </Link>
               </Stack>

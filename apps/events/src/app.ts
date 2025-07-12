@@ -1,3 +1,4 @@
+import onBalanceClaim from "@gridfire/events/controllers/onBalanceClaim";
 import onDaiApproval from "@gridfire/events/controllers/onDaiApproval";
 import onEditionMinted from "@gridfire/events/controllers/onEditionMinted";
 import onPurchase from "@gridfire/events/controllers/onPurchase";
@@ -6,13 +7,15 @@ import onTransferSingle from "@gridfire/events/controllers/onTransferSingle";
 import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import { MessageHandler } from "@gridfire/shared/types/amqp";
+import { BlockMessage } from "@gridfire/shared/types/amqp";
+import { JobMessage } from "@gridfire/shared/types/amqp";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
 import { contracts, DRPC, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
-import onBalanceClaim from "./controllers/onBalanceClaim.js";
 
+const isBlockMessage = (msg: BlockMessage | JobMessage): msg is BlockMessage => "fromBlock" in msg && "toBlock" in msg;
 const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI, NODE_ENV } = process.env;
 
 const eventProviders = new Map(
@@ -24,7 +27,7 @@ const eventProviders = new Map(
 
 const logger = new Logger("app.ts");
 let healthProbeServer: net.Server | null = null;
-let gridfireProviders: GridfireProvider[] = [];
+const gridfireProviders: GridfireProvider[] = [];
 let isShuttingDown = false;
 
 assert(HEALTH_PROBE_PORT, "HEALTH_PROBE_PORT env var missing.");
@@ -108,11 +111,15 @@ try {
   gridfireProviders.push(provider);
 
   const messageHandler: MessageHandler = async message => {
-    const { fromBlock, toBlock } = message;
-    await provider.getLogs({ fromBlock, toBlock });
+    if (isBlockMessage(message)) {
+      const { fromBlock, toBlock } = message;
+      await provider.getLogs({ fromBlock, toBlock });
+    }
   };
 
   await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect({ messageHandler }), setupHealthProbe()]);
-} catch (error: any) {
-  logger.error("Startup error:", error.message ?? error);
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    logger.error("Startup error:", error.message ?? error);
+  }
 }

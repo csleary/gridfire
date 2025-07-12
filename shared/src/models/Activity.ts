@@ -1,4 +1,4 @@
-import { Model, ObjectId, Schema, model } from "mongoose";
+import { Model, model, ObjectId, Schema } from "mongoose";
 
 enum ActivityType {
   Favourite = "favourite",
@@ -6,6 +6,14 @@ enum ActivityType {
   Mint = "mint",
   Publish = "publish",
   Sale = "sale"
+}
+
+interface ActivityModel extends Model<IActivity> {
+  favourite(artist: string, release: string, user: string): void;
+  follow(artist: string, user: string): void;
+  mint(artist: string, editionId: string): void;
+  publish(artist: string, release: string): void;
+  sale(params: SaleParams): void;
 }
 
 interface IActivity {
@@ -26,24 +34,16 @@ interface SaleParams {
   user: string;
 }
 
-interface ActivityModel extends Model<IActivity> {
-  favourite(artist: string, release: string, user: string): void;
-  follow(artist: string, user: string): void;
-  mint(artist: string, editionId: string): void;
-  publish(artist: string, release: string): void;
-  sale(params: SaleParams): void;
-}
-
 const { ObjectId } = Schema.Types;
 
 const activitySchema = new Schema<IActivity, ActivityModel>(
   {
-    artist: { type: ObjectId, ref: "Artist", required: true },
+    artist: { ref: "Artist", required: true, type: ObjectId },
     editionId: { type: String },
-    release: { type: ObjectId, ref: "Release" },
-    sale: { type: ObjectId, ref: "Sale" },
-    type: { type: String, enum: ActivityType, required: true },
-    user: { type: ObjectId, ref: "User", required: true }
+    release: { ref: "Release", type: ObjectId },
+    sale: { ref: "Sale", type: ObjectId },
+    type: { enum: ActivityType, required: true, type: String },
+    user: { ref: "User", required: true, type: ObjectId }
   },
   { timestamps: true }
 );

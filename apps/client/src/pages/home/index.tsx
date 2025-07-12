@@ -1,13 +1,14 @@
-import Grid from "@/components/grid";
-import RenderRelease from "@/components/renderRelease";
-import { useDispatch, useSelector } from "@/hooks";
-import { fetchCatalogue } from "@/state/releases";
 import { Box, Button, Center, Container, Heading, Highlight, Skeleton, useColorModeValue } from "@chakra-ui/react";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { lazy, useCallback, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
+
+import Grid from "@/components/grid";
+import RenderRelease from "@/components/renderRelease";
+import { useDispatch, useSelector } from "@/hooks";
+import { fetchCatalogue } from "@/state/releases";
 const SortReleases = lazy(() => import("./sort"));
 const Features = lazy(() => import("./features"));
 
@@ -26,9 +27,9 @@ const Home: React.FC = () => {
   const bgHighlight = useColorModeValue("yellow.400", "purple.200");
 
   const handleFetchCatalogue = useCallback(
-    async ({ sortBy = currentSortPath, sortOrder = currentSortOrder, isPaging = false } = {}) => {
+    async ({ isPaging = false, sortBy = currentSortPath, sortOrder = currentSortOrder } = {}) => {
       setIsFetching(true);
-      dispatch(fetchCatalogue({ catalogueLimit, catalogueSkip, sortBy, sortOrder, isPaging })).then(() =>
+      dispatch(fetchCatalogue({ catalogueLimit, catalogueSkip, isPaging, sortBy, sortOrder })).then(() =>
         setIsFetching(false)
       );
     },
@@ -43,15 +44,15 @@ const Home: React.FC = () => {
     <>
       <Helmet>
         <title>Gridfire</title>
-        <meta name="description" content="Listen to the latest releases on Gridfire, a web3 music download store." />
+        <meta content="Listen to the latest releases on Gridfire, a web3 music download store." name="description" />
       </Helmet>
       {isLoadingUser || userAccount ? null : (
         <>
-          <Container maxWidth="container.xl" mt={12} mb={24}>
+          <Container maxWidth="container.xl" mb={24} mt={12}>
             <Heading lineHeight="tall" m={0}>
               <Highlight
                 query={["gridfire", "equitable", "sustainable", "supportive"]}
-                styles={{ px: "2", py: "1", rounded: "full", bg: bgHighlight }}
+                styles={{ bg: bgHighlight, px: "2", py: "1", rounded: "full" }}
               >
                 Gridfire is a new music streaming and download service, powered by decentralised protocols, to create a
                 more equitable, sustainable and supportive creative economy.
@@ -64,11 +65,11 @@ const Home: React.FC = () => {
       <Box as="section">
         <Heading textAlign="left">Recent Releases</Heading>
         <SortReleases
-          handleFetchCatalogue={handleFetchCatalogue}
-          currentSortPath={currentSortPath}
-          setCurrentSortPath={setCurrentSortPath}
           currentSortOrder={currentSortOrder}
+          currentSortPath={currentSortPath}
+          handleFetchCatalogue={handleFetchCatalogue}
           setCurrentSortOrder={setCurrentSortOrder}
+          setCurrentSortPath={setCurrentSortPath}
         />
         <Grid>
           {catalogue.map(release => (
@@ -82,11 +83,11 @@ const Home: React.FC = () => {
             <Button
               isDisabled={isFetching || reachedEndOfCat}
               leftIcon={<FontAwesomeIcon icon={faArrowDown} />}
+              mt={12}
               onClick={() =>
-                handleFetchCatalogue({ sortBy: currentSortPath, sortOrder: currentSortOrder, isPaging: true })
+                handleFetchCatalogue({ isPaging: true, sortBy: currentSortPath, sortOrder: currentSortOrder })
               }
               size="sm"
-              mt={12}
             >
               More
             </Button>

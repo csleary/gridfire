@@ -1,26 +1,28 @@
-import { useSelector } from "@/hooks";
 import { Box, CircularProgress, CircularProgressLabel, Tooltip, useColorModeValue } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { EntityId } from "@reduxjs/toolkit";
-import { ReactElement, memo } from "react";
+import { memo, ReactElement } from "react";
 import { shallowEqual } from "react-redux";
+
+import { useSelector } from "@/hooks";
 
 const pulsing = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const animation = `${pulsing} 500ms cubic-bezier(0, 0.85, 0.15, 1) alternate infinite 250ms`;
 
 interface Props {
+  children?: ReactElement;
   color: string;
   isComplete?: boolean;
   labelColor?: string;
   progress?: number;
   stageHasStarted?: boolean;
   stageName?: string;
-  children?: ReactElement;
   tooltipText?: string;
   trackId?: EntityId;
 }
 
 const ProgressIndicator = ({
+  children,
   color,
   isComplete = false,
   labelColor = color,
@@ -28,9 +30,9 @@ const ProgressIndicator = ({
   stageHasStarted = false,
   stageName = "",
   tooltipText,
-  trackId = "",
-  children = <Box as="span">{stageName.toUpperCase()}</Box>
+  trackId = ""
 }: Props) => {
+  children ??= <Box as="span">{stageName.toUpperCase()}</Box>;
   const errors = useSelector(state => state.tracks.pipelineErrors[trackId], shallowEqual);
   const error = errors?.[stageName];
 

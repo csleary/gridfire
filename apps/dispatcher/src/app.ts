@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 
-const { CHECK_INTERVAL_SECONDS = "10", RANGE_SIZE = "50", HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV } = process.env;
+const { CHECK_INTERVAL_SECONDS = "10", HEALTH_PROBE_PORT, MONGODB_URI, NODE_ENV, RANGE_SIZE = "50" } = process.env;
 
 const blockProviders = new Map(
   [...providers].filter(([key]) => {
@@ -17,7 +17,7 @@ const blockProviders = new Map(
 );
 
 const logger = new Logger("app.ts");
-let gridfireProviders: GridfireProvider[] = [];
+const gridfireProviders: GridfireProvider[] = [];
 let healthProbeServer: net.Server | null = null;
 let isShuttingDown = false;
 let timeoutHandle: NodeJS.Timeout | null = null;
@@ -95,11 +95,11 @@ const setupHealthProbe = () =>
 
 try {
   await Promise.all([mongoose.connect(MONGODB_URI), amqpConnect(), setupHealthProbe()]);
-  const rangeSize = NODE_ENV !== "development" ? Number(RANGE_SIZE) : 1;
+  const LAST_QUEUED_BLOCK_ID = "arbitrum_dispatcher";
+  const quorum = NODE_ENV !== "development" ? 2 : 1;
+  const rangeSize = NODE_ENV !== "development" ? Number(RANGE_SIZE) : 10;
   logger.info(`Current block range size: ${rangeSize}.`);
   logger.info(`Current block check interval: ${CHECK_INTERVAL_SECONDS} seconds.`);
-  const LAST_QUEUED_BLOCK_ID = "arbitrum_dispatcher";
-  const quorum = NODE_ENV !== "production" ? 1 : 2;
   const provider = new GridfireProvider({ providers: blockProviders, quorum });
   gridfireProviders.push(provider);
 
@@ -140,6 +140,8 @@ try {
   };
 
   await dispatchBlockRange();
-} catch (error: any) {
-  logger.error("Startup error:", error.message ?? error);
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    logger.error("Startup error:", error.message ?? error);
+  }
 }

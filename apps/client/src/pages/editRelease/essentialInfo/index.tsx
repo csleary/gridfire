@@ -1,9 +1,11 @@
-import Field from "@/components/field";
-import { useDispatch, useSelector } from "@/hooks";
-import { setFormattedPrice, updateRelease } from "@/state/editor";
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { ChangeEventHandler, useCallback } from "react";
 import { shallowEqual } from "react-redux";
+
+import Field from "@/components/field";
+import { useDispatch, useSelector } from "@/hooks";
+import { setFormattedPrice, updateRelease } from "@/state/editor";
+
 import ArtistMenu from "./artistMenu";
 
 interface Props {
@@ -33,7 +35,7 @@ const EssentialInfo = ({ isEditing }: Props) => {
       <SimpleGrid as="section" columns={[1, null, 2]} spacing={12}>
         <Box>
           {isEditing && artist ? (
-            <Field isDisabled isReadOnly label="Artist name" name="artistName" value={artistName} size="lg" />
+            <Field isDisabled isReadOnly label="Artist name" name="artistName" size="lg" value={artistName} />
           ) : (
             <ArtistMenu />
           )}
@@ -43,8 +45,8 @@ const EssentialInfo = ({ isEditing }: Props) => {
             label="Release Title"
             name="releaseTitle"
             onChange={handleChange}
-            value={releaseTitle}
             size="lg"
+            value={releaseTitle}
           />
         </Box>
         <Box>
@@ -54,9 +56,9 @@ const EssentialInfo = ({ isEditing }: Props) => {
             label="Release Date"
             name="releaseDate"
             onChange={handleChange}
+            size="lg"
             type="date"
             value={releaseDate}
-            size="lg"
           />
           <Field
             error={releaseErrors.price}
@@ -67,8 +69,8 @@ const EssentialInfo = ({ isEditing }: Props) => {
             name="price"
             onBlur={() => dispatch(setFormattedPrice())}
             onChange={handleChange}
-            value={price}
             size="lg"
+            value={price}
           />
         </Box>
       </SimpleGrid>

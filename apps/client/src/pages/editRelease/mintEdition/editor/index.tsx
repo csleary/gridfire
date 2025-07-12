@@ -1,10 +1,3 @@
-import Field from "@/components/field";
-import Icon from "@/components/icon";
-import { useSelector } from "@/hooks";
-import { selectTracks } from "@/state/editor";
-import { MintedEdition, ReleaseTrack } from "@/types";
-import { formatPrice } from "@/utils";
-import { mintEdition } from "@/web3";
 import {
   Badge,
   Box,
@@ -24,8 +17,16 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { MintedEdition, ReleaseTrack } from "@gridfire/shared/types";
 import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
 import { shallowEqual } from "react-redux";
+
+import Field from "@/components/field";
+import Icon from "@/components/icon";
+import { useSelector } from "@/hooks";
+import { selectTracks } from "@/state/editor";
+import { formatPrice } from "@/utils";
+import { mintEdition } from "@/web3";
 
 interface DefaultValues {
   amount: number;
@@ -74,11 +75,11 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   }, []);
 
   const handleChangeTrack: ChangeEventHandler<HTMLInputElement> = e => {
-    const { name: trackId, checked } = e.currentTarget;
+    const { checked, name: trackId } = e.currentTarget;
 
     setValues(prev => ({
       ...prev,
-      tracks: checked ? [...new Set([...prev.tracks, trackId])] : prev.tracks.filter(id => id !== trackId)
+      tracks: checked ? [...new Set([trackId, ...prev.tracks])] : prev.tracks.filter(id => id !== trackId)
     }));
   };
 
@@ -136,7 +137,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   };
 
   return (
-    <Modal isOpen={showModal} onClose={handleClose} size="md" isCentered>
+    <Modal isCentered isOpen={showModal} onClose={handleClose} size="md">
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
@@ -215,12 +216,12 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
           <Button onClick={handleClose}>Cancel</Button>
           <Button
             colorScheme={useColorModeValue("yellow", "purple")}
-            leftIcon={<Icon icon={faEthereum} />}
-            loadingText="Minting…"
             isDisabled={hasError || isPurchasing}
             isLoading={isPurchasing}
-            onClick={handleMint}
+            leftIcon={<Icon icon={faEthereum} />}
+            loadingText="Minting…"
             ml="auto"
+            onClick={handleMint}
           >
             Mint Gridfire Edition
           </Button>

@@ -11,11 +11,6 @@ class Logger {
     this.#hostname = NODE_ENV === "production" ? os.hostname() : process.cwd().split("/").pop() || "";
   }
 
-  #getDate(): string {
-    const timeZone = "Europe/Amsterdam";
-    return new Date().toLocaleString("en-UK", { timeZone });
-  }
-
   debug(...args: any[]) {
     if (NODE_ENV === "production") return;
     this.log(...args);
@@ -35,6 +30,11 @@ class Logger {
 
   warn(...args: any[]) {
     console.warn(this.#getDate(), this.#hostname, this.#contextName, ...args);
+  }
+
+  #getDate(): string {
+    const timeZone = "Europe/Amsterdam";
+    return new Date().toLocaleString("en-UK", { timeZone });
   }
 }
 

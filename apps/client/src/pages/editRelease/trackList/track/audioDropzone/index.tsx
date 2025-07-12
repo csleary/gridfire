@@ -1,13 +1,15 @@
+import { Box, useColorModeValue, Wrap, WrapItem } from "@chakra-ui/react";
+import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
+import mime from "mime";
+import { memo, MouseEventHandler } from "react";
+import { useDropzone } from "react-dropzone";
+
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { trackSetError, trackUpdate, updateTrackStatus } from "@/state/editor";
 import { toastError, toastInfo } from "@/state/toast";
 import { cancelUpload, uploadAudio } from "@/state/tracks";
-import { Box, Wrap, WrapItem, useColorModeValue } from "@chakra-ui/react";
-import { faServer, faUpload } from "@fortawesome/free-solid-svg-icons";
-import mime from "mime";
-import { MouseEventHandler, memo } from "react";
-import { useDropzone } from "react-dropzone";
+
 import ProgressIndicator from "./progressIndicator";
 
 type AcceptedFileTypes = { [key: string]: string[] };
@@ -53,7 +55,7 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
   const handleClick: MouseEventHandler = e => {
     if (isUploading) {
       dispatch(cancelUpload(trackId));
-      dispatch(updateTrackStatus({ id: trackId, changes: { status: "pending" } }));
+      dispatch(updateTrackStatus({ changes: { status: "pending" }, id: trackId }));
       e.stopPropagation();
       e.preventDefault();
     }
@@ -78,8 +80,8 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
     const { name } = audioFile;
 
     if (!trackTitle && name) {
-      dispatch(trackSetError({ trackId, name, value: "" }));
-      dispatch(trackUpdate({ id: trackId, changes: { trackTitle: name } }));
+      dispatch(trackSetError({ name, trackId, value: "" }));
+      dispatch(trackUpdate({ changes: { trackTitle: name }, id: trackId }));
     }
 
     if (isProcessing) {
@@ -92,11 +94,11 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
     } else {
       trackTitle ||= name;
       dispatch(toastInfo({ message: `Uploading ${trackTitle}…`, title: "Uploading" }));
-      dispatch(uploadAudio({ releaseId, trackId, trackTitle, audioFile }));
+      dispatch(uploadAudio({ audioFile, releaseId, trackId, trackTitle }));
     }
   };
 
-  const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
+  const { getInputProps, getRootProps, isDragAccept, isDragReject } = useDropzone({
     accept: acceptedFileTypes,
     disabled: isProcessing,
     multiple: false,
@@ -107,6 +109,11 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
 
   return (
     <Wrap
+      _hover={{
+        backgroundColor: useColorModeValue("white", "black"),
+        borderColor: useColorModeValue("green.400", "purple.300"),
+        cursor: "pointer"
+      }}
       backgroundColor={useColorModeValue("gray.50", "gray.900")}
       borderColor={useColorModeValue("gray.400", isDragAccept ? "blue.200" : isDragReject ? "red" : "gray.600")}
       borderStyle="dashed"
@@ -120,18 +127,13 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
       rounded="lg"
       spacing={4}
       transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-      _hover={{
-        backgroundColor: useColorModeValue("white", "black"),
-        borderColor: useColorModeValue("green.400", "purple.300"),
-        cursor: "pointer"
-      }}
       {...getRootProps({ onClick: handleClick })}
     >
       <input name="trackTitle" {...getInputProps()} />
       <WrapItem>
         <ProgressIndicator
           color="purple.200"
-          isComplete={["uploaded", "transcoding", "stored"].includes(status)}
+          isComplete={["stored", "transcoding", "uploaded"].includes(status)}
           labelColor={useColorModeValue("purple.300", "purple.200")}
           progress={audioUploadProgress}
           stageHasStarted={audioUploadProgress > 0}
@@ -145,7 +147,7 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color="blue.200"
-          isComplete={["uploaded", "encoded", "transcoding", "stored"].includes(status)}
+          isComplete={["encoded", "stored", "transcoding", "uploaded"].includes(status)}
           labelColor="blue.200"
           progress={encodingProgressFLAC}
           stageHasStarted={encodingProgressFLAC > 0}
@@ -157,7 +159,7 @@ const AudioDropzone = ({ status, trackId, trackTitle }: Props) => {
       <WrapItem>
         <ProgressIndicator
           color="green.200"
-          isComplete={["uploaded", "encoded", "transcoding", "stored"].includes(status)}
+          isComplete={["encoded", "stored", "transcoding", "uploaded"].includes(status)}
           labelColor={useColorModeValue("green.300", "green.200")}
           progress={storingProgressFLAC}
           stageHasStarted={storingProgressFLAC > 0}

@@ -35,14 +35,14 @@ router.get("/search", async (req, res) => {
     return {
       ...prev,
       $or: [
-        { artistName: { $regex: value, $options: "i" } },
-        { releaseTitle: { $regex: value, $options: "i" } },
-        { recordLabel: { $regex: value, $options: "i" } },
-        { tags: { $regex: value, $options: "i" } },
-        { "trackList.trackTitle": { $regex: value, $options: "i" } },
-        { catNumber: { $regex: value, $options: "i" } },
-        { info: { $regex: value, $options: "i" } },
-        { credits: { $regex: value, $options: "i" } }
+        { artistName: { $options: "i", $regex: value } },
+        { releaseTitle: { $options: "i", $regex: value } },
+        { recordLabel: { $options: "i", $regex: value } },
+        { tags: { $options: "i", $regex: value } },
+        { "trackList.trackTitle": { $options: "i", $regex: value } },
+        { catNumber: { $options: "i", $regex: value } },
+        { info: { $options: "i", $regex: value } },
+        { credits: { $options: "i", $regex: value } }
       ]
     };
   }, {});
@@ -80,6 +80,7 @@ router.get("/:artistIdOrSlug", async (req, res) => {
       { $match: isValidObjectId(artistIdOrSlug) ? { _id: new ObjectId(artistIdOrSlug) } : { slug: artistIdOrSlug } },
       {
         $lookup: {
+          as: "releases",
           from: "releases",
           let: { artistId: "$_id" },
           pipeline: [
@@ -89,17 +90,16 @@ router.get("/:artistIdOrSlug", async (req, res) => {
               }
             },
             { $sort: { releaseDate: -1 } }
-          ],
-          as: "releases"
+          ]
         }
       },
       {
         $project: {
-          name: 1,
-          slug: 1,
           biography: 1,
           links: 1,
-          releases: 1
+          name: 1,
+          releases: 1,
+          slug: 1
         }
       }
     ]).exec();

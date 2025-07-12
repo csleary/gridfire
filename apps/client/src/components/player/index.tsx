@@ -1,15 +1,17 @@
-import { useDispatch, useSelector } from "@/hooks";
-import { usePrevious } from "@/hooks/usePrevious";
-import { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } from "@/state/player";
-import { toastWarning } from "@/state/toast";
-import { addToFavourites, removeFromFavourites } from "@/state/user";
-import { fadeAudio, getGainNode } from "@/utils/audio";
 import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { faHeart as heartOutline } from "@fortawesome/free-regular-svg-icons";
 import { faChevronDown, faHeart, faPause, faPlay, faSpinner, faStop } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { shallowEqual } from "react-redux";
 import shaka from "shaka-player";
+
+import { useDispatch, useSelector } from "@/hooks";
+import { usePrevious } from "@/hooks/usePrevious";
+import { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } from "@/state/player";
+import { toastWarning } from "@/state/toast";
+import { addToFavourites, removeFromFavourites } from "@/state/user";
+import { fadeAudio, getGainNode } from "@/utils/audio";
+
 import PlaybackTime from "./playbackTime";
 import PlayerButton from "./playerButton";
 import PlayLogger from "./playLogger";
@@ -24,7 +26,7 @@ const VITE_CDN_MP4 = import.meta.env.VITE_CDN_MP4;
 const Player = () => {
   const dispatch = useDispatch();
   const audioPlayerRef = useRef(new Audio());
-  const preloadManagerRef = useRef<shaka.media.PreloadManager | null>(null);
+  const preloadManagerRef = useRef<null | shaka.media.PreloadManager>(null);
   const preloadedTrackIdRef = useRef("");
   const seekBarRef = useRef(document.createElement("div"));
   const shakaRef = useRef(new shaka.Player());
@@ -44,7 +46,7 @@ const Player = () => {
   const [remainingTime, setRemainingTime] = useState("");
   const [requiresGesture, setRequiresGesture] = useState(false);
   const [shakaIsLoading, setShakaIsLoading] = useState(false);
-  const [supportInfo, setSupportInfo] = useState<shaka.extern.SupportType | null>(null);
+  const [supportInfo, setSupportInfo] = useState<null | shaka.extern.SupportType>(null);
   const prevTrackId = usePrevious(trackId);
   const { releaseTitle, trackList } = activeRelease;
   const trackIndex = useMemo(() => trackList.findIndex(({ _id }) => _id === trackId), [trackId, trackList]);
@@ -106,7 +108,7 @@ const Player = () => {
           return;
         }
 
-        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
+        const cuedTrack = { artistName, releaseId, releaseTitle, trackId: nextTrackId, trackTitle };
         dispatch(loadTrack(cuedTrack));
         return;
       }
@@ -134,10 +136,10 @@ const Player = () => {
 
   const setMediaSession = useCallback(() => {
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: trackTitle,
-      artist: artistName,
       album: releaseTitle,
-      artwork: [{ src: `${VITE_CDN_IMG}/${releaseId}`, sizes: "1000x1000", type: "image/png" }]
+      artist: artistName,
+      artwork: [{ sizes: "1000x1000", src: `${VITE_CDN_IMG}/${releaseId}`, type: "image/png" }],
+      title: trackTitle
     });
 
     navigator.mediaSession.setActionHandler("play", handlePlay);
@@ -162,7 +164,7 @@ const Player = () => {
     navigator.mediaSession.setActionHandler("previoustrack", () => {
       if (trackList[trackIndex - 1]) {
         const { _id: nextTrackId, trackTitle } = trackList[trackIndex - 1];
-        const cuedTrack = { releaseId, releaseTitle, trackId: nextTrackId, artistName, trackTitle };
+        const cuedTrack = { artistName, releaseId, releaseTitle, trackId: nextTrackId, trackTitle };
         dispatch(loadTrack(cuedTrack));
       } else {
         audioPlayerRef.current.currentTime = 0;
@@ -298,7 +300,7 @@ const Player = () => {
   }, [preloadTrackById, trackIndex, trackList]);
 
   const loadPlayer = useCallback(
-    async (assetUriOrPreloader: string | shaka.media.PreloadManager) => {
+    async (assetUriOrPreloader: shaka.media.PreloadManager | string) => {
       try {
         await shakaRef.current.load(assetUriOrPreloader, null, getMimeType());
         getGainNode().gain.value = 1; // Turn gain back up after loading a new track.
@@ -367,7 +369,6 @@ const Player = () => {
 
   return (
     <Box
-      role="group"
       background="gray.800"
       bottom="0"
       color="gray.300"
@@ -375,6 +376,7 @@ const Player = () => {
       left="0"
       position="fixed"
       right="0"
+      role="group"
       transform={showPlayer ? "translateY(0)" : "translateY(100%)"}
       transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
       visibility={showPlayer ? "visible" : "hidden"}
@@ -388,24 +390,24 @@ const Player = () => {
         progressPercent={progressPercent}
         seekBarRef={seekBarRef}
       />
-      <Flex alignItems="center" flex="1" justifyContent="space-between" height="3.25rem">
+      <Flex alignItems="center" flex="1" height="3.25rem" justifyContent="space-between">
         <Flex flex="1 1 50%" justifyContent="flex-end">
           <PlayerButton
             ariaLabel="Start/resume playback."
+            icon={!requiresGesture && isBuffering ? faSpinner : isPlaying ? faPause : faPlay}
             isDisabled={!isInitialised || shakaIsLoading}
             isLoading={!isInitialised || (!requiresGesture && isBuffering)}
-            icon={!requiresGesture && isBuffering ? faSpinner : isPlaying ? faPause : faPlay}
-            onClick={handleClickPlay}
             mr={2}
+            onClick={handleClickPlay}
           />
-          <PlayerButton ariaLabel="Stop audio playback." icon={faStop} onClick={handleStop} mr={2} />
+          <PlayerButton ariaLabel="Stop audio playback." icon={faStop} mr={2} onClick={handleStop} />
           <PlayerButton
+            _hover={{ color: undefined }}
             ariaLabel="Save this track to your favourites."
             color={isInFaves ? "red.400" : undefined}
             icon={isInFaves ? faHeart : heartOutline}
-            onClick={handleClickFavourites}
             mr={2}
-            _hover={{ color: undefined }}
+            onClick={handleClickFavourites}
             transition="color 0.3s ease-in-out"
           />
         </Flex>

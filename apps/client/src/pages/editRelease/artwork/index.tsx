@@ -1,7 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { deleteArtwork, uploadArtwork } from "@/state/artwork";
-import { toastError, toastSuccess, toastWarning } from "@/state/toast";
 import {
   Box,
   Center,
@@ -21,6 +17,11 @@ import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import mime from "mime";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { deleteArtwork, uploadArtwork } from "@/state/artwork";
+import { toastError, toastSuccess, toastWarning } from "@/state/toast";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
@@ -90,7 +91,7 @@ const Artwork = () => {
     };
   };
 
-  const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
+  const { getInputProps, getRootProps, isDragAccept, isDragReject } = useDropzone({
     accept: acceptedFileTypes,
     disabled: artworkUploading,
     maxSize: 1024 * 1024 * 20,
@@ -117,10 +118,16 @@ const Artwork = () => {
       <Heading as="h3">Artwork</Heading>
       <Square
         {...getRootProps()}
-        borderWidth="2px"
-        borderStyle="dashed"
-        borderColor={useColorModeValue("gray.400", isDragAccept ? "purple.400" : isDragReject ? "red" : "gray.600")}
+        _after={{ content: '""', paddingBottom: "100%" }}
+        _hover={{
+          backgroundColor: useColorModeValue("white", "black"),
+          borderColor: useColorModeValue("green.400", "purple.300"),
+          cursor: "pointer"
+        }}
         bg={useColorModeValue("white", "gray.800")}
+        borderColor={useColorModeValue("gray.400", isDragAccept ? "purple.400" : isDragReject ? "red" : "gray.600")}
+        borderStyle="dashed"
+        borderWidth="2px"
         fontWeight={500}
         minH={48}
         overflow="hidden"
@@ -128,44 +135,38 @@ const Artwork = () => {
         role="group"
         rounded="md"
         transition="0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-        _after={{ content: '""', paddingBottom: "100%" }}
-        _hover={{
-          backgroundColor: useColorModeValue("white", "black"),
-          borderColor: useColorModeValue("green.400", "purple.300"),
-          cursor: "pointer"
-        }}
       >
         <input {...getInputProps()} />
         {coverArtPreview ? (
           <Fade in={artworkIsLoaded}>
             <Img
               alt={`The cover art for ${(releaseTitle && `'${releaseTitle}'`) || "this release."}`}
-              onLoad={() => setArtworkIsLoaded(true)}
-              src={coverArtPreview}
-              position="absolute"
               bottom={0}
               left={0}
+              onLoad={() => setArtworkIsLoaded(true)}
+              position="absolute"
               right={0}
+              src={coverArtPreview}
               top={0}
             />
           </Fade>
         ) : null}
         <Box
+          background={artworkUploading ? "rgb(0 0 0 / 75%)" : "rgb(0 0 0 / 0%)"}
           bottom={0}
           left={0}
+          position="absolute"
           right={0}
           top={0}
           transition="background 0.5s cubic-bezier(0.2, 0.8, 0.4, 1)"
-          background={artworkUploading ? "rgb(0 0 0 / 75%)" : "rgb(0 0 0 / 0%)"}
-          position="absolute"
         >
           <Center height="100%" padding={8}>
             {artworkUploading ? (
               <CircularProgress
-                trackColor={trackColor}
                 color="blue.200"
                 size="4rem"
                 thickness=".75rem"
+                trackColor={trackColor}
                 value={artworkUploadProgress}
               >
                 <CircularProgressLabel
@@ -196,19 +197,19 @@ const Artwork = () => {
         </Box>
         {coverArtPreview ? (
           <IconButton
+            _groupHover={{ opacity: 1, visibility: "visible" }}
             aria-label="Delete artwork"
             colorScheme="red"
             icon={<Icon icon={faTrashAlt} />}
             onClick={handleDeleteArtwork}
-            title="Delete the artwork (will take your release offline)."
             opacity={0}
             position="absolute"
             right={12}
+            size="lg"
+            title="Delete the artwork (will take your release offline)."
             top={12}
             transition="0.25s cubic-bezier(0.2, 0.8, 0.4, 1)"
-            size="lg"
             visibility="hidden"
-            _groupHover={{ opacity: 1, visibility: "visible" }}
           />
         ) : null}
       </Square>

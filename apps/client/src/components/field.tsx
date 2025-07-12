@@ -1,4 +1,3 @@
-import Icon from "@/components/icon";
 import {
   ChakraProps,
   FormControl,
@@ -11,6 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEvent, HTMLAttributes, KeyboardEvent, ReactNode } from "react";
+
+import Icon from "@/components/icon";
 
 interface Props extends ChakraProps {
   component?: string;
@@ -64,7 +65,7 @@ const Field = ({
 
   return (
     <FormControl isInvalid={Boolean(isInvalid || error || errors[name])} mb={mb}>
-      <FormLabel htmlFor={name} color="gray.500" fontWeight={500} mb={1}>
+      <FormLabel color="gray.500" fontWeight={500} htmlFor={name} mb={1}>
         {label}
       </FormLabel>
       {component === "textarea" ? (

@@ -1,7 +1,8 @@
-import { useSelector } from "@/hooks";
 import { Box, Flex, Link, useColorModeValue } from "@chakra-ui/react";
 import { shallowEqual } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+
+import { useSelector } from "@/hooks";
 
 interface Props {
   artist: string;
@@ -16,25 +17,25 @@ const Title = ({ artist, artistName, releaseId, releaseTitle }: Props) => {
 
   return (
     <Flex
-      fontSize="xl"
       alignItems="center"
       color={useColorModeValue("gray.600", "gray.200")}
       flex={1}
+      fontSize="xl"
       fontWeight={500}
       justifyContent="center"
-      px={4}
-      pt={2}
       pb={0}
+      pt={2}
+      px={4}
       textAlign="center"
     >
       <Box overflow="hidden" textOverflow="ellipsis">
-        <Link as={RouterLink} to={`/artist/${slug ? slug : artist}`} whiteSpace="nowrap" title={artistName}>
+        <Link as={RouterLink} title={artistName} to={`/artist/${slug ? slug : artist}`} whiteSpace="nowrap">
           {artistName || "?"}
         </Link>
         <Box as="span" mx={4}>
           &bull;
         </Box>
-        <Link as={RouterLink} to={`/release/${releaseId}`} fontStyle="italic" whiteSpace="nowrap" title={releaseTitle}>
+        <Link as={RouterLink} fontStyle="italic" title={releaseTitle} to={`/release/${releaseId}`} whiteSpace="nowrap">
           {releaseTitle || "Untitled Release"}
         </Link>
       </Box>

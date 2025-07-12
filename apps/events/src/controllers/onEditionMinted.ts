@@ -27,7 +27,7 @@ const onEditionMinted = async (
       throw new Error(`[release ${releaseId}] Edition ${decodedObjectId} not found.`);
     }
 
-    const { user, artist: artistId } = edition.release;
+    const { artist: artistId, user } = edition.release;
     const userId = user.toString();
     notifyUser(userId, { editionId: decodedObjectId.toString(), type: NotificationType.Mint, userId });
     const { blockNumber, logIndex, transactionHash } = event;

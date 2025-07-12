@@ -1,7 +1,8 @@
-import { useSelector } from "@/hooks";
 import { Box, Heading } from "@chakra-ui/react";
 import { lazy } from "react";
 import { shallowEqual } from "react-redux";
+
+import { useSelector } from "@/hooks";
 const Albums = lazy(() => import("./albums"));
 const Editions = lazy(() => import("./editions"));
 const Singles = lazy(() => import("./singles"));

@@ -1,5 +1,5 @@
 import logger from "@gridfire/api/controllers/logger";
-import { getResolvedAddress } from "@gridfire/api/controllers/web3/index";
+import { getResolvedAddress } from "@gridfire/api/controllers/web3";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Approval from "@gridfire/shared/models/Approval";
 import Claim from "@gridfire/shared/models/Claim";
@@ -51,14 +51,38 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
       { $match: { user: new Types.ObjectId(userId.toString()) } },
       {
         $facet: {
+          album: [
+            { $match: { type: { $in: ["edition", "album"] } } },
+            {
+              $lookup: {
+                as: "release",
+                foreignField: "_id",
+                from: "releases",
+                localField: "release"
+              }
+            },
+            {
+              $project: {
+                artistId: { $first: "$release.artist" },
+                artistName: { $first: "$release.artistName" },
+                blockNumber: 1,
+                logIndex: 1,
+                paid: 1,
+                releaseId: { $first: "$release._id" },
+                releaseTitle: { $first: "$release.releaseTitle" },
+                transactionHash: 1
+              }
+            }
+          ],
           single: [
             { $match: { type: "single" } },
             {
               $lookup: {
-                from: "releases",
-                localField: "release",
+                as: "release",
                 foreignField: "trackList._id",
+                from: "releases",
                 let: { trackId: "$release" },
+                localField: "release",
                 pipeline: [
                   { $unwind: "$trackList" },
                   {
@@ -68,8 +92,7 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
                       }
                     }
                   }
-                ],
-                as: "release"
+                ]
               }
             },
             {
@@ -82,29 +105,6 @@ router.get("/purchases/:account", requireLogin, async (req, res) => {
                 releaseId: { $first: "$release._id" },
                 releaseTitle: { $first: "$release.releaseTitle" },
                 trackTitle: { $first: "$release.trackList.trackTitle" },
-                transactionHash: 1
-              }
-            }
-          ],
-          album: [
-            { $match: { type: { $in: ["edition", "album"] } } },
-            {
-              $lookup: {
-                from: "releases",
-                localField: "release",
-                foreignField: "_id",
-                as: "release"
-              }
-            },
-            {
-              $project: {
-                artistId: { $first: "$release.artist" },
-                artistName: { $first: "$release.artistName" },
-                blockNumber: 1,
-                logIndex: 1,
-                paid: 1,
-                releaseId: { $first: "$release._id" },
-                releaseTitle: { $first: "$release.releaseTitle" },
                 transactionHash: 1
               }
             }
@@ -136,25 +136,14 @@ router.get("/sales", requireLogin, async (req, res) => {
       { $match: { artistAddress: paymentAddress } },
       {
         $facet: {
-          single: [
-            { $match: { type: "single" } },
+          album: [
+            { $match: { type: { $in: ["edition", "album"] } } },
             {
               $lookup: {
+                as: "release",
+                foreignField: "_id",
                 from: "releases",
-                localField: "release",
-                foreignField: "trackList._id",
-                let: { trackId: "$release" },
-                pipeline: [
-                  { $unwind: "$trackList" },
-                  {
-                    $match: {
-                      $expr: {
-                        $eq: ["$trackList._id", "$$trackId"]
-                      }
-                    }
-                  }
-                ],
-                as: "release"
+                localField: "release"
               }
             },
             {
@@ -169,14 +158,25 @@ router.get("/sales", requireLogin, async (req, res) => {
               }
             }
           ],
-          album: [
-            { $match: { type: { $in: ["edition", "album"] } } },
+          single: [
+            { $match: { type: "single" } },
             {
               $lookup: {
+                as: "release",
+                foreignField: "trackList._id",
                 from: "releases",
+                let: { trackId: "$release" },
                 localField: "release",
-                foreignField: "_id",
-                as: "release"
+                pipeline: [
+                  { $unwind: "$trackList" },
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ["$trackList._id", "$$trackId"]
+                      }
+                    }
+                  }
+                ]
               }
             },
             {

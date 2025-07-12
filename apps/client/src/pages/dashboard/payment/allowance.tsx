@@ -1,9 +1,3 @@
-import Icon from "@/components/icon";
-import { useDispatch, useSelector } from "@/hooks";
-import { useLazyGetApprovalsQuery, useLazyGetPurchasesQuery } from "@/state/logs";
-import { toastSuccess } from "@/state/toast";
-import { fetchDaiAllowance } from "@/state/web3";
-import { setDaiAllowance } from "@/web3";
 import {
   Alert,
   AlertDescription,
@@ -45,6 +39,13 @@ import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { FixedNumber, formatEther } from "ethers";
 import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+
+import Icon from "@/components/icon";
+import { useDispatch, useSelector } from "@/hooks";
+import { useLazyGetApprovalsQuery, useLazyGetPurchasesQuery } from "@/state/logs";
+import { toastSuccess } from "@/state/toast";
+import { fetchDaiAllowance } from "@/state/web3";
+import { setDaiAllowance } from "@/web3";
 
 const Allowance = () => {
   const dispatch = useDispatch();
@@ -139,13 +140,13 @@ const Allowance = () => {
       </Heading>
       <Flex
         bg={useColorModeValue("white", "gray.800")}
-        borderWidth="1px"
         borderColor={useColorModeValue("gray.200", "gray.700")}
+        borderWidth="1px"
         boxShadow="md"
         flexDirection="column"
-        rounded="lg"
         mb={8}
         p={4}
+        rounded="lg"
       >
         <Stat mb={4}>
           <StatLabel textAlign="center">
@@ -212,7 +213,7 @@ const Allowance = () => {
           </Thead>
           <Tbody>
             {purchases.map(
-              ({ paid, artistId, artistName, blockNumber, logIndex, releaseId, releaseTitle, transactionHash }) => {
+              ({ artistId, artistName, blockNumber, logIndex, paid, releaseId, releaseTitle, transactionHash }) => {
                 return (
                   <Tr key={`${transactionHash}-${logIndex}`}>
                     <Td>
@@ -236,14 +237,14 @@ const Allowance = () => {
           </Tbody>
         </Table>
       </TableContainer>
-      <Modal isOpen={showModal} onClose={handleCloseModal} size="sm" isCentered>
+      <Modal isCentered isOpen={showModal} onClose={handleCloseModal} size="sm">
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
           <ModalHeader>Set DAI Allowance</ModalHeader>
           <ModalBody>
             <Text mb={8}>Enter your desired DAI spending allowance below.</Text>
-            <InputGroup mb={4} fontSize="1.5rem" size="lg">
+            <InputGroup fontSize="1.5rem" mb={4} size="lg">
               <InputLeftAddon>◈</InputLeftAddon>
               <Input
                 autoFocus
@@ -260,7 +261,7 @@ const Allowance = () => {
               />
               <InputRightAddon>DAI</InputRightAddon>
             </InputGroup>
-            <ButtonGroup variant="outline" spacing="4" display="flex" justifyContent="center" mb="6">
+            <ButtonGroup display="flex" justifyContent="center" mb="6" spacing="4" variant="outline">
               <Button isDisabled={isSubmitting} onClick={handleAddAmount(100)}>
                 +100
               </Button>
@@ -291,12 +292,12 @@ const Allowance = () => {
             <Button onClick={handleCloseModal}>Cancel</Button>
             <Button
               colorScheme={useColorModeValue("yellow", "purple")}
-              leftIcon={<Icon icon={faEthereum} />}
               isDisabled={isSubmitting}
               isLoading={isSubmitting}
+              leftIcon={<Icon icon={faEthereum} />}
               loadingText="Confirming…"
-              onClick={handleApproval}
               ml="auto"
+              onClick={handleApproval}
             >
               Confirm
             </Button>

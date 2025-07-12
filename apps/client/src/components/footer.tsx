@@ -1,4 +1,3 @@
-import { useSelector } from "@/hooks";
 import {
   Center,
   Container,
@@ -8,12 +7,14 @@ import {
   List,
   ListItem,
   Text,
+  useColorModeValue,
   Wrap,
-  WrapItem,
-  useColorModeValue
+  WrapItem
 } from "@chakra-ui/react";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
+
+import { useSelector } from "@/hooks";
 
 const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContractAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
