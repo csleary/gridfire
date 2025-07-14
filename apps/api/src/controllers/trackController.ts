@@ -7,10 +7,11 @@ import Play from "@gridfire/shared/models/Play";
 import Release from "@gridfire/shared/models/Release";
 import Stream from "@gridfire/shared/models/Stream";
 import sseClient from "@gridfire/shared/sseController";
-import { MessageType } from "@gridfire/shared/types/messages";
+import { MessageTrackStatus, MessageType } from "@gridfire/shared/types";
 import Busboy from "busboy";
 import { Request } from "express";
 import mime from "mime-types";
+import { MongoServerError } from "mongodb";
 import { ObjectId, Types } from "mongoose";
 import assert from "node:assert/strict";
 import { IncomingHttpHeaders } from "node:http";
@@ -70,7 +71,7 @@ const logPlay = async (trackId: string, release: string, streamId: string, user:
   Stream.deleteOne({ _id: streamId }).exec();
 };
 
-const logStream = async ({ trackId, type, userId }: { trackId: string; type: string; userId?: ObjectId; }) => {
+const logStream = async ({ trackId, type, userId }: { trackId: string; type: string; userId?: ObjectId }) => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
 
   if (!release) {
@@ -86,8 +87,8 @@ const logStream = async ({ trackId, type, userId }: { trackId: string; type: str
 
       Stream.updateOne({ trackId, user }, { startTime: Date.now() }, { upsert: true })
         .exec()
-        .catch((error: any) => {
-          if (error.code === 11000) return;
+        .catch((error: unknown) => {
+          if (error instanceof MongoServerError && error.code === 11000) return;
           logger.error(error);
         });
       break;
@@ -128,12 +129,27 @@ const logStream = async ({ trackId, type, userId }: { trackId: string; type: str
   return user;
 };
 
+interface FileHandlerArgs {
+  fields: FormDataFields;
+  userId: string;
+}
+
+type FileStream = Readable & { truncated?: boolean };
+
+interface FormDataFields {
+  releaseId: string;
+  trackId: string;
+  trackTitle: string;
+}
+
+interface FormDataFileInfo {
+  filename: string;
+  mimeType: string;
+}
+
 const createAsyncFileHandler =
-  ({ fields, userId }: { fields: { releaseId: string; trackId: string; trackTitle: string }; userId: ObjectId }) =>
-  async (
-    fileStream: Readable & { truncated?: boolean },
-    { filename, mimeType }: { filename: string; mimeType: string }
-  ) => {
+  ({ fields, userId }: FileHandlerArgs) =>
+  async (fileStream: FileStream, { filename, mimeType }: FormDataFileInfo) => {
     const { releaseId, trackId, trackTitle = "" } = fields;
     const bucketKey = `${releaseId}/${trackId}`;
     const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
@@ -168,25 +184,65 @@ const createAsyncFileHandler =
       ).exec();
     }
 
-    sseClient.send(userId.toString(), { releaseId, status: "uploading", trackId, type: MessageType.TrackStatus });
+    const uploadingPayload: Omit<MessageTrackStatus, "userId"> = {
+      releaseId,
+      status: "uploading",
+      trackId,
+      type: MessageType.TrackStatus
+    };
+
+    sseClient.send(userId, uploadingPayload);
     await streamToBucket(BUCKET_SRC, bucketKey, fileStream);
     logger.info(`Uploaded src file '${filename}' for track ${trackId}.`);
     await Release.updateOne(filter, { $set: { "trackList.$.status": "uploaded" } }).exec();
-    sseClient.send(userId.toString(), { releaseId, status: "uploaded", trackId, type: MessageType.TrackStatus });
-    publishToQueue("", QUEUE_TRANSCODE, { job: "encodeFLAC", releaseId, trackId, trackTitle, userId });
+
+    const uploadedPayload: Omit<MessageTrackStatus, "userId"> = {
+      releaseId,
+      status: "uploaded",
+      trackId,
+      type: MessageType.TrackStatus
+    };
+
+    sseClient.send(userId, uploadedPayload);
+
+    publishToQueue("", QUEUE_TRANSCODE, {
+      job: "encodeFLAC",
+      releaseId,
+      trackId,
+      trackTitle,
+      type: MessageType.Job,
+      userId
+    });
   };
 
-const reEncodeTrack = async (userId: ObjectId, trackId: string) => {
+const reEncodeTrack = async (userId: string, trackId: string) => {
   const release = await Release.findOne({ "trackList._id": trackId, user: userId }, { "trackList.$": 1 }).lean();
 
   if (!release) {
     throw new Error("Release not found.");
   }
 
-  const { _id: releaseId, trackList } = release;
+  const releaseId = release._id.toString();
+  const { trackList } = release;
   const [{ trackTitle = "" }] = trackList;
-  await publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackTitle, userId });
-  await publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
+
+  await publishToQueue("", QUEUE_TRANSCODE, {
+    job: "transcodeAAC",
+    releaseId,
+    trackId,
+    trackTitle,
+    type: MessageType.Job,
+    userId
+  });
+
+  await publishToQueue("", QUEUE_TRANSCODE, {
+    job: "transcodeMP3",
+    releaseId,
+    trackId,
+    trackTitle,
+    type: MessageType.Job,
+    userId
+  });
 };
 
 const uploadTrack = async ({
@@ -196,8 +252,8 @@ const uploadTrack = async ({
 }: {
   headers: IncomingHttpHeaders;
   req: Request;
-  userId: ObjectId;
-}) => {
+  userId: string;
+}): Promise<void> => {
   const busboy = Busboy({ headers, limits: { fileSize: 1 << 30 } });
   const fields = { releaseId: "", trackId: "", trackTitle: "" };
   const filePromises: Promise<void>[] = [];

@@ -1,10 +1,11 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
-import axios, { AxiosProgressEvent } from "axios";
+import axios, { AxiosProgressEvent, isAxiosError } from "axios";
 
 import { selectTrackById, trackRemove } from "@/state/editor";
 import { toastError, toastInfo, toastSuccess } from "@/state/toast";
 import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { AppDispatch, GetState } from "@/types";
+import handleError from "@/utils/handleError";
 
 const controllers = new Map<string, AbortController>();
 
@@ -103,9 +104,9 @@ const deleteTrack = (trackId: string) => async (dispatch: AppDispatch, getState:
     } else {
       dispatch(setTrackIdsForDeletion({ isDeleting: true, trackId }));
     }
-  } catch (error: any) {
-    if (error.response?.status === 404) return;
-    dispatch(toastError({ message: error.response?.data?.error, title: "Error" }));
+  } catch (error: unknown) {
+    if (isAxiosError(error) && error.response?.status === 404) return;
+    handleError(error, dispatch);
   }
 };
 
@@ -151,7 +152,8 @@ const reEncodeTrack = (trackId: string) => async (dispatch: AppDispatch, getStat
     dispatch(setTranscodingCompleteMP3({ isComplete: false, trackId }));
     await axios.patch(`/api/track/${trackId}`);
     dispatch(toastSuccess({ message: `Re-encoding '${trackTitle}'…`, title: "Re-encoding" }));
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error(error);
     dispatch(toastError({ message: `We were unable to re-enqueue '${trackTitle}' for encoding.`, title: "Error" }));
   }
 };
@@ -187,12 +189,12 @@ const uploadAudio =
       };
 
       await axios.put("/api/track", formData, config);
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (axios.isCancel(error)) {
         return;
       }
 
-      dispatch(toastError({ message: `Upload failed! ${error.message}`, title: "Error" }));
+      handleError(error, dispatch, "An error occurred while uploading the audio file.");
     } finally {
       controllers.delete(trackId);
       dispatch(removeActiveProcess(processId));

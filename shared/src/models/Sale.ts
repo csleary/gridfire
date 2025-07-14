@@ -46,10 +46,10 @@ const saleSchema = new Schema<ISale>(
   { timestamps: true }
 );
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 saleSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
-// eslint-disable-next-line perfectionist/sort-objects
 saleSchema.index({ user: 1, release: 1 });
 saleSchema.index({ artistAddress: 1 });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model("Sale", saleSchema, "sales");

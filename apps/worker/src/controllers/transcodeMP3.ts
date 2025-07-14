@@ -1,7 +1,7 @@
 import Logger from "@gridfire/shared/logger";
 import Release from "@gridfire/shared/models/Release";
+import { MessageType } from "@gridfire/shared/types";
 import { ReleaseContext } from "@gridfire/shared/types/index";
-import { MessageType } from "@gridfire/shared/types/messages";
 import { ffmpegEncodeMP3FromStream } from "@gridfire/worker/controllers/ffmpeg";
 import postMessage from "@gridfire/worker/controllers/postMessage";
 import { streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage";

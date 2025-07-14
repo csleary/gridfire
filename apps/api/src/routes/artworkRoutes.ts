@@ -17,7 +17,7 @@ const router = Router();
 
 router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
-    const { _id: userId } = req.user as IUser;
+    const userId = (req.user as IUser)._id.toString();
     const { releaseId } = req.params;
     const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
     const filePromises: Promise<void>[] = [];

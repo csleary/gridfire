@@ -11,7 +11,8 @@ import {
   WrapItem
 } from "@chakra-ui/react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
+import { EditorRelease } from "@gridfire/shared/types";
+import { ChangeEvent, KeyboardEvent, useState } from "react";
 import { shallowEqual } from "react-redux";
 
 import Card from "@/components/card";
@@ -42,13 +43,13 @@ const Tags = () => {
     const { name, value } = currentTarget;
 
     if (key === "Enter") {
-      dispatch(updateRelease({ name, value }));
+      dispatch(updateRelease({ name: name as keyof Omit<EditorRelease, "artwork" | "published">, value }));
       setTagsError("");
       setTagsInput("");
     }
   };
 
-  const handleRemoveTags = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleRemoveTags = () => {
     dispatch(removeTags());
     setTagsInput("");
     setTagsError("");

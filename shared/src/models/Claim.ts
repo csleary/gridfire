@@ -19,8 +19,9 @@ const claimSchema = new Schema<Claim>(
   { timestamps: true }
 );
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 claimSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
 claimSchema.index({ artist: 1 });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model<Claim>("Claim", claimSchema, "claims");

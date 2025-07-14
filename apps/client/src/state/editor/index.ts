@@ -1,12 +1,15 @@
+import type { PayloadAction } from "@reduxjs/toolkit";
+
 import { EditorRelease, Release, ReleaseErrors, ReleaseTrack, TrackErrors } from "@gridfire/shared/types";
 import { createEntityAdapter, createSlice, EntityState } from "@reduxjs/toolkit";
 import axios from "axios";
 import { DateTime } from "luxon";
 
 import { checkRelease, checkTrackList } from "@/pages/editRelease/validation";
-import { toastError, toastSuccess } from "@/state/toast";
+import { toastSuccess } from "@/state/toast";
 import { AppDispatch, GetState, RootState } from "@/types";
 import { createObjectId, formatPrice } from "@/utils";
+import handleError from "@/utils/handleError";
 
 interface EditorState {
   artworkUploading: boolean;
@@ -17,6 +20,11 @@ interface EditorState {
   releaseErrors: ReleaseErrors;
   trackErrors: TrackErrors;
   trackList: EntityState<ReleaseTrack, string>;
+}
+
+interface UpdateReleasePayload {
+  name: keyof Omit<EditorRelease, "artwork" | "published">;
+  value: string;
 }
 
 const defaultErrorState: ReleaseErrors = {
@@ -170,11 +178,11 @@ const editorSlice = createSlice({
 
       tracksAdapter.updateOne(state.trackList, { changes, id });
     },
-    updateRelease(state, action) {
-      const { checked, name, type, value } = action.payload;
+    updateRelease(state, action: PayloadAction<UpdateReleasePayload>) {
+      const { name, value } = action.payload;
 
-      // Explicitly type name as keyof ReleaseErrors for error handling
       if ((name as keyof ReleaseErrors) in state.releaseErrors) {
+        // Explicitly type name as keyof ReleaseErrors for error handling
         state.releaseErrors[name as keyof ReleaseErrors] = "";
       }
 
@@ -200,9 +208,7 @@ const editorSlice = createSlice({
         if (!tag) return;
         state.release.tags = [...new Set([tag, ...state.release.tags])];
       } else {
-        if (name in state.release) {
-          (state.release as any)[name] = type === "checkbox" ? checked : value;
-        }
+        state.release[name] = value;
       }
     },
     updateTrackStatus(state, action) {
@@ -219,8 +225,8 @@ const fetchReleaseForEditing = (releaseId: string) => async (dispatch: AppDispat
     const releaseDate = DateTime.fromISO(release.releaseDate).toISODate() || "";
     dispatch(setRelease({ ...rest, releaseDate }));
     dispatch(setTrackList({ trackList }));
-  } catch (error: any) {
-    dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch, "Release currently unavailable.");
     throw error;
   }
 };
@@ -242,8 +248,8 @@ const saveRelease = () => async (dispatch: AppDispatch, getState: GetState) => {
     await axios.post(`/api/release/${releaseId}`, { ...release, trackList });
     const message = `${releaseTitle ? `'${releaseTitle}'` : "Release"} has been updated.`;
     dispatch(toastSuccess({ message, title: "Saved" }));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   } finally {
     dispatch(setIsSubmitting(false));
   }

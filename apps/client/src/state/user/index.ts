@@ -3,8 +3,9 @@ import { createEntityAdapter, createSelector, createSlice, EntityState } from "@
 import axios from "axios";
 
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "@/state/releases";
-import { toastError, toastSuccess } from "@/state/toast";
+import { toastSuccess } from "@/state/toast";
 import { AppDispatch, RootState } from "@/types";
+import handleError from "@/utils/handleError";
 
 interface UserState {
   account: string;
@@ -129,10 +130,8 @@ const addPaymentAddress =
       dispatch(setPaymentAddress(res.data));
       dispatch(toastSuccess({ message: "Payment address saved.", title: "Saved!" }));
       return res.data;
-    } catch (error: any) {
-      dispatch(
-        toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" })
-      );
+    } catch (error: unknown) {
+      handleError(error, dispatch);
     }
   };
 
@@ -142,8 +141,8 @@ const fetchUser = () => async (dispatch: AppDispatch) => {
     const res = await axios.get("/api/user");
     if (res.data) dispatch(updateUser(res.data));
     return res.data;
-  } catch (error: any) {
-    dispatch(toastError({ message: error.message, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   } finally {
     dispatch(setIsLoading(false));
   }
@@ -154,8 +153,8 @@ const logOut = () => async (dispatch: AppDispatch) => {
     await axios.get("/api/auth/logout");
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
     dispatch(clearUser());
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   } finally {
     dispatch(setIsLoading(false));
   }

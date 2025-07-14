@@ -21,9 +21,9 @@ const approvalSchema = new Schema<Approval>(
   { timestamps: true }
 );
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 approvalSchema.index({ transactionHash: 1, logIndex: 1, createdAt: -1 }, { unique: true });
-// eslint-disable-next-line perfectionist/sort-objects
 approvalSchema.index({ owner: 1, createdAt: -1 });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model<Approval>("Approval", approvalSchema, "approvals");

@@ -16,7 +16,7 @@ import { faThumbsUp, faTimesCircle, faTrashAlt } from "@fortawesome/free-regular
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import mime from "mime";
 import { MouseEvent, useEffect, useRef, useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { FileRejection, useDropzone } from "react-dropzone";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
@@ -57,7 +57,7 @@ const Artwork = () => {
     };
   }, [isStored, releaseId]);
 
-  const onDrop = (accepted: any, rejected: any) => {
+  const onDrop = (accepted: File[], rejected: FileRejection[]) => {
     if (rejected.length) {
       return dispatch(
         toastError({

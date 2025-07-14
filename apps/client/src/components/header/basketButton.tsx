@@ -40,7 +40,7 @@ const BasketButton = () => {
   const isConnected = useSelector(state => state.web3.isConnected);
   const isFetchingAllowance = useSelector(state => state.web3.isFetchingAllowance);
   const [showModal, setShowModal] = useState(false);
-  const total = basket.reduce((prev, { price }: BasketItem) => prev + BigInt(price), BigInt("0"));
+  const total = basket.reduce((prev, { price }: BasketItem) => prev + price, 0n);
   const allowanceTooLow = total > BigInt(daiAllowance);
 
   const handleCheckout = async () => {

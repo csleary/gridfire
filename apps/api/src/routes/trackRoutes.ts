@@ -8,20 +8,25 @@ const router = Router();
 router.put("/", requireLogin, async (req, res) => {
   try {
     const { headers, user } = req;
-    const { _id: userId } = user as IUser;
+    const userId = (user as IUser)._id.toString();
     await uploadTrack({ headers, req, userId });
     res.sendStatus(201);
-  } catch (error: any) {
-    console.log(error);
-    if (res.headersSent) return;
-    res.sendStatus(error.status || 400);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(error);
+      if (res.headersSent) return;
+
+      if (error.cause && typeof error.cause === "object" && "status" in error.cause) {
+        res.sendStatus(Number(error.cause.status) || 400);
+      }
+    }
   }
 });
 
 router.patch("/:trackId", async (req, res) => {
   try {
     const { user } = req;
-    const { _id: userId } = user as IUser;
+    const userId = (user as IUser)._id.toString();
     const { trackId } = req.params;
     await reEncodeTrack(userId, trackId);
     res.sendStatus(200);

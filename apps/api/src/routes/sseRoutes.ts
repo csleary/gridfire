@@ -1,5 +1,6 @@
 import { publishToQueue } from "@gridfire/shared/amqp";
 import sseClient from "@gridfire/shared/sseController";
+import { MessageType } from "@gridfire/shared/types";
 import { Router } from "express";
 import { UUID } from "node:crypto";
 
@@ -21,7 +22,7 @@ router.get("/:userId/:uuid", async (req, res) => {
 
 router.get("/:userId/:uuid/ping", (req, res) => {
   const { userId, uuid } = req.params;
-  publishToQueue("user", userId, { ping: true, userId, uuid });
+  publishToQueue("user", userId, { type: MessageType.Ping, userId, uuid: uuid as UUID });
   res.sendStatus(200);
 });
 

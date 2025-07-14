@@ -1,4 +1,5 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
+import { EditorRelease } from "@gridfire/shared/types";
 import { ChangeEventHandler, useCallback } from "react";
 
 import Field from "@/components/field";
@@ -18,10 +19,10 @@ const DetailedInfo = () => {
   const recordLabel = useSelector(state => state.editor.release.recordLabel);
   const recYear = useSelector(state => state.editor.release.recYear);
 
-  const handleChange: ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement> = useCallback(
+  const handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback(
     e => {
-      const { checked, name, type, value } = e.currentTarget;
-      dispatch(updateRelease({ checked, name, type, value }));
+      const { name, value } = e.currentTarget;
+      dispatch(updateRelease({ name: name as keyof Omit<EditorRelease, "artwork" | "published">, value }));
     },
     [dispatch]
   );

@@ -195,8 +195,8 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
     dispatch(setAccount(firstAccount));
     dispatch(setIsConnected(true));
     dispatch(setNetworkName({ chainId: chainId.toString(), name }));
-  } catch (error: any) {
-    if (error.code === -32002) {
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === -32002) {
       dispatch(
         toastWarning({
           message:
@@ -204,7 +204,7 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
           title: "Your wallet is processing a previous request"
         })
       );
-    } else if (!isError(error, "NETWORK_ERROR")) {
+    } else if (!isError(error, "NETWORK_ERROR") && error instanceof Error) {
       dispatch(toastError({ message: error.message }));
     }
   }

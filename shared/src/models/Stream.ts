@@ -18,8 +18,9 @@ const streamSchema = new Schema<IStream>({
   user: { ref: "User", type: ObjectId }
 });
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 streamSchema.index({ user: 1, trackId: 1 }, { unique: true });
 streamSchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model<IStream>("Stream", streamSchema, "streams");

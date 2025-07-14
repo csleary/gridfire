@@ -16,8 +16,9 @@ const favouriteSchema = new Schema<IFavourite>({
   user: { ref: "User", required: true, type: ObjectId }
 });
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 favouriteSchema.index({ user: 1, release: 1 }, { unique: true });
+/* eslint-enable perfectionist/sort-objects*/
 
 export { IFavourite };
 export default model<IFavourite>("Favourite", favouriteSchema, "favourites");

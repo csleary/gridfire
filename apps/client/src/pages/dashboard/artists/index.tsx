@@ -182,7 +182,7 @@ const Artists = () => {
             </Box>
             <VStack alignItems="stretch" mb={6} spacing={2}>
               {activeArtist.links?.map(({ _id: linkId, title, uri }) => (
-                <Wrap alignItems="flex-end" key={linkId} spacing={4}>
+                <Wrap alignItems="flex-end" key={linkId.toString()} spacing={4}>
                   <WrapItem alignItems="center" as="label" flex={1}>
                     <Box as="span" color="gray.500" mr={2}>
                       Text

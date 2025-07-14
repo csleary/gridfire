@@ -2,8 +2,8 @@ import { Progress } from "@aws-sdk/lib-storage";
 import { publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import Release from "@gridfire/shared/models/Release";
+import { MessageType } from "@gridfire/shared/types";
 import { ReleaseContext, TrackContext } from "@gridfire/shared/types/index";
-import { MessageType } from "@gridfire/shared/types/messages";
 import { ffmpegEncodeFLAC } from "@gridfire/worker/controllers/ffmpeg";
 import postMessage from "@gridfire/worker/controllers/postMessage";
 import { deleteObject, streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage";
@@ -61,8 +61,24 @@ const encodeFLAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseCon
     logger.info(`Removing SRC file: ${bucketKey}…`);
     await deleteObject(BUCKET_SRC, bucketKey);
     logger.info(`SRC file '${bucketKey}' removed from B2.`);
-    publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeAAC", releaseId, trackId, trackTitle, userId });
-    publishToQueue("", QUEUE_TRANSCODE, { job: "transcodeMP3", releaseId, trackId, userId });
+
+    publishToQueue("", QUEUE_TRANSCODE, {
+      job: "transcodeAAC",
+      releaseId,
+      trackId,
+      trackTitle,
+      type: MessageType.Job,
+      userId
+    });
+
+    publishToQueue("", QUEUE_TRANSCODE, {
+      job: "transcodeMP3",
+      releaseId,
+      trackId,
+      trackTitle,
+      type: MessageType.Job,
+      userId
+    });
   } catch (error) {
     logger.error(error);
     await Release.updateOne(filter, { "trackList.$.status": "error" }).exec();

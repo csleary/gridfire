@@ -11,6 +11,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faChevronDown, faPlusCircle, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { EditorRelease } from "@gridfire/shared/types";
 import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
 
@@ -47,13 +48,13 @@ const ArtistMenu = () => {
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = e => {
     const { name, value } = e.currentTarget;
-    dispatch(updateRelease({ name, value }));
+    dispatch(updateRelease({ name: name as keyof Omit<EditorRelease, "artwork" | "published">, value }));
     if (value === "") setShowInput(true);
   };
 
   const handleChange: FieldEventHandler = e => {
-    const { checked, name, type, value } = e.currentTarget;
-    dispatch(updateRelease({ checked, name, type, value }));
+    const { name, value } = e.currentTarget;
+    dispatch(updateRelease({ name: name as keyof Omit<EditorRelease, "artwork" | "published">, value }));
   };
 
   const handleBlur: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = e => {

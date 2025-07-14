@@ -1,4 +1,4 @@
-import type { ServerSentMessage } from "@gridfire/shared/types/messages";
+import type { ServerSentMessage } from "@gridfire/shared/types";
 
 import { publishToQueue } from "@gridfire/shared/amqp";
 

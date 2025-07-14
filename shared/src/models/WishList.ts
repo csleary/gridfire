@@ -16,8 +16,9 @@ const wishListSchema = new Schema<IWishList>({
   user: { ref: "User", type: ObjectId }
 });
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 wishListSchema.index({ user: 1, release: 1 }, { unique: true });
+/* eslint-enable perfectionist/sort-objects*/
 
 export { IWishList };
 export default model<IWishList>("WishList", wishListSchema, "lists");

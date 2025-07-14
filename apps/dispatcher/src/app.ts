@@ -1,6 +1,7 @@
 import { amqpClose, amqpConnect, publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import Block from "@gridfire/shared/models/Block";
+import { MessageType } from "@gridfire/shared/types";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
 import { LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
@@ -114,7 +115,7 @@ try {
         const fromBlock = `0x${(++rangeStart).toString(16)}`;
         const endBlock = rangeStart + rangeSize;
         const toBlock = `0x${endBlock.toString(16)}`;
-        await publishToQueue("", "blocks", { fromBlock, toBlock });
+        await publishToQueue("", "blocks", { fromBlock, toBlock, type: MessageType.BlockRange });
         logger.info(`Last queued block range: ${rangeStart}-${endBlock}`);
         rangeStart += rangeSize;
         // Throttle catch-up dispatches to avoid hitting provider frequency limits.

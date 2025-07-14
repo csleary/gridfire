@@ -16,7 +16,8 @@ const playSchema = new Schema<IPlay>({
   user: { ref: "User", type: ObjectId }
 });
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 playSchema.index({ release: 1, trackId: 1, date: -1, user: 1 });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model<IPlay>("Play", playSchema, "plays");

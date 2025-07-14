@@ -1,21 +1,10 @@
-interface BlockMessage {
-  fromBlock: string;
-  toBlock: string;
-}
+import { BlockRangeMessage, JobMessage } from "@gridfire/shared/types/messages";
 
 type ConnectFunction = (options?: ConnectOptions) => Promise<void>;
 interface ConnectOptions {
   messageHandler?: MessageHandler;
 }
 
-interface JobMessage {
-  job: string;
-  releaseId: string;
-  trackId: string;
-  trackTitle: string;
-  userId: string;
-}
+type MessageHandler = (message: BlockRangeMessage | JobMessage) => Promise<void>;
 
-type MessageHandler = (message: BlockMessage | JobMessage) => Promise<void>;
-
-export type { BlockMessage, ConnectFunction, ConnectOptions, JobMessage, MessageHandler };
+export type { ConnectFunction, ConnectOptions, MessageHandler };

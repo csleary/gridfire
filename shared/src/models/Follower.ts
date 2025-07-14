@@ -15,8 +15,9 @@ const followerSchema = new Schema<IFollower>(
   { timestamps: true }
 );
 
+/* eslint-disable perfectionist/sort-objects*/
 followerSchema.index({ follower: 1, following: 1 }, { unique: true });
-// eslint-disable-next-line perfectionist/sort-objects
 followerSchema.index({ following: 1, follower: 1 }, { unique: true });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model<IFollower>("Follower", followerSchema, "followers");

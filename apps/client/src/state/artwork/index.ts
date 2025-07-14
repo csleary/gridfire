@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
 
 import { setActiveRelease } from "@/state/releases";
-import { toastError } from "@/state/toast";
 import { AppDispatch } from "@/types";
+import handleError from "@/utils/handleError";
 
 interface ArtworkState {
   artworkUploading: boolean;
@@ -32,8 +32,8 @@ const deleteArtwork = (releaseId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.delete(`/api/artwork/${releaseId}`);
     dispatch(setActiveRelease(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -52,10 +52,10 @@ const uploadArtwork = (releaseId: string, file: File) => async (dispatch: AppDis
   try {
     dispatch(setArtworkUploading(true));
     await axios.post(`/api/artwork/${releaseId}`, data, config);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    handleError(error, dispatch);
     dispatch(setArtworkUploading(false));
     dispatch(setArtworkUploadProgress(0));
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
   }
 };
 

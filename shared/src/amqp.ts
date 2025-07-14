@@ -3,12 +3,25 @@ import type { ConfirmChannel, ConsumeMessage } from "amqplib";
 
 import Logger from "@gridfire/shared/logger";
 import sseClient from "@gridfire/shared/sseController";
-import { ConnectFunction } from "@gridfire/shared/types/amqp";
+import {
+  AmqpMessage,
+  BlockRangeMessage,
+  ConnectFunction,
+  JobMessage,
+  KeepAliveMessage,
+  MessageType,
+  Notification,
+  ServerSentMessage
+} from "@gridfire/shared/types";
 import { connect } from "amqp-connection-manager";
 import assert from "node:assert/strict";
 
+const isKeepAlive = (message: AmqpMessage): message is KeepAliveMessage => message.type === MessageType.Ping;
+const isServerSentMessage = (message: AmqpMessage): message is ServerSentMessage => message.type in MessageType;
+const isUnknownMessage = (message: AmqpMessage): message is AmqpMessage => !(message.type in MessageType);
+
 interface ChannelWrapper extends OriginalChannelWrapper {
-  context?: { messageHandler?: (message: any) => Promise<void> };
+  context?: { messageHandler?: (message: BlockRangeMessage | JobMessage) => Promise<void> };
 }
 
 const { INPUT_QUEUES, RABBITMQ_DEFAULT_PASS, RABBITMQ_DEFAULT_USER, RABBITMQ_HOST } = process.env;
@@ -36,9 +49,15 @@ const onMessage = async (data: ConsumeMessage | null) => {
 
   try {
     const message = JSON.parse(data.content.toString());
-    const { ping, userId, uuid, ...rest } = message;
 
-    if (ping) {
+    if (isUnknownMessage(message)) {
+      logger.warn("Received unknown message type:", message.type);
+      consumeChannel.ack(data);
+      return;
+    }
+
+    if (isKeepAlive(message)) {
+      const { userId, uuid } = message;
       sseClient.ping(userId, uuid);
       return void consumeChannel.ack(data);
     }
@@ -47,14 +66,17 @@ const onMessage = async (data: ConsumeMessage | null) => {
       await messageHandler(message);
     }
 
-    if (userId) {
+    if (isServerSentMessage(message)) {
+      const { userId, ...rest } = message;
       sseClient.send(userId, rest);
     }
 
     consumeChannel.ack(data);
-  } catch (error: any) {
-    logger.error("Error processing message:", error.message ?? error);
-    consumeChannel.nack(data, false, false);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error("Error processing message:", error.message ?? error);
+      consumeChannel.nack(data, false, false);
+    }
   }
 };
 
@@ -123,12 +145,18 @@ const amqpConnect: ConnectFunction = async ({ messageHandler } = {}) => {
     consumeChannel.on("error", error => logger.error("Consume channel error:", error));
     consumeChannel.context = { messageHandler };
     sseClient.setConsumerChannel(consumeChannel, onMessage);
-  } catch (error: any) {
-    logger.error(`Connection error: ${error.message}`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Connection error: ${error.message}`);
+    }
   }
 };
 
-const publishToQueue = async (exchange: string, routingKey: string, message: any) => {
+const publishToQueue = async (
+  exchange: string,
+  routingKey: string,
+  message: BlockRangeMessage | JobMessage | KeepAliveMessage | Notification | ServerSentMessage
+): Promise<void> => {
   await publishChannel.publish(exchange, routingKey, message, { persistent: true });
 };
 

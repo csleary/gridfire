@@ -4,7 +4,8 @@
 .pnp.*
 .vscode
 .yarn/*
-apps/events/dist
+**/*.tsbuildinfo
+**/dist
 apps/worker/bin
 hardhat/.*
 hardhat/artifacts

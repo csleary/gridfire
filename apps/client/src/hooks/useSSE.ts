@@ -1,3 +1,4 @@
+import { MessageType, NotificationType } from "@gridfire/shared/types";
 import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -220,24 +221,24 @@ const useSSE = () => {
 
     if (sourceRef.current) {
       const source = sourceRef.current;
-      source.removeEventListener("artworkUploaded", onArtworkUploaded);
-      source.removeEventListener("approvalEvent", onApprovalEvent);
-      source.removeEventListener("claimEvent", onClaimEvent);
-      source.removeEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
-      source.removeEventListener("mintedEvent", onEditionMinted);
-      source.removeEventListener("notify", onNotify);
-      source.removeEventListener("pipelineError", onPipelineError);
-      source.removeEventListener("pong", onPong);
-      source.removeEventListener("purchaseEditionEvent", onPurchaseEditionEvent);
-      source.removeEventListener("purchaseEvent", onPurchaseEvent);
-      source.removeEventListener("saleEvent", onSaleEvent);
-      source.removeEventListener("storingProgressFLAC", onStoringProgressFLAC);
-      source.removeEventListener("trackStatus", onTrackStatus);
-      source.removeEventListener("transcodingCompleteAAC", onTranscodingCompleteAAC);
-      source.removeEventListener("transcodingCompleteMP3", onTranscodingCompleteMP3);
-      source.removeEventListener("transcodingStartedAAC", onTranscodingStartedAAC);
-      source.removeEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
-      source.removeEventListener("workerMessage", onWorkerMessage);
+      source.removeEventListener(MessageType.ArtworkUploaded, onArtworkUploaded);
+      source.removeEventListener(NotificationType.Approval, onApprovalEvent);
+      source.removeEventListener(NotificationType.Claim, onClaimEvent);
+      source.removeEventListener(MessageType.EncodingProgressFLAC, onEncodingProgressFLAC);
+      source.removeEventListener(NotificationType.Mint, onEditionMinted);
+      source.removeEventListener(MessageType.Notify, onNotify);
+      source.removeEventListener(MessageType.PipelineError, onPipelineError);
+      source.removeEventListener(MessageType.Pong, onPong);
+      source.removeEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
+      source.removeEventListener(NotificationType.Purchase, onPurchaseEvent);
+      source.removeEventListener(NotificationType.Sale, onSaleEvent);
+      source.removeEventListener(MessageType.StoringProgressFLAC, onStoringProgressFLAC);
+      source.removeEventListener(MessageType.TrackStatus, onTrackStatus);
+      source.removeEventListener(MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC);
+      source.removeEventListener(MessageType.TranscodingCompleteMP3, onTranscodingCompleteMP3);
+      source.removeEventListener(MessageType.TranscodingStartedAAC, onTranscodingStartedAAC);
+      source.removeEventListener(MessageType.TranscodingStartedMP3, onTranscodingStartedMP3);
+      source.removeEventListener(MessageType.WorkerMessage, onWorkerMessage);
       window.removeEventListener("beforeunload", cleanup);
       sourceRef.current.close();
       sourceRef.current = null;
@@ -268,6 +269,7 @@ const useSSE = () => {
       const connectionId = connectionIdRef.current;
       await axios.get(`/api/sse/${userId}/${connectionId}/ping`);
     } catch (error) {
+      console.error("[SSE] Ping error:", error);
       setShouldReconnect(true);
     }
   }, [connectionIdRef, userId]);
@@ -283,7 +285,7 @@ const useSSE = () => {
 
     pingInterval.current = setInterval(pingConnection, PING_INTERVAL);
     const source = sourceRef.current;
-    source.onopen = () => console.log("[SSE] Connection to server opened.");
+    source.onopen = () => console.log("[SSE] Connected.");
     source.onmessage = (event: MessageEvent) => console.info(event.data);
 
     source.onerror = (error: unknown) => {
@@ -291,24 +293,24 @@ const useSSE = () => {
       setShouldReconnect(true);
     };
 
-    source.addEventListener("artworkUploaded", onArtworkUploaded);
-    source.addEventListener("approvalEvent", onApprovalEvent);
-    source.addEventListener("claimEvent", onClaimEvent);
-    source.addEventListener("encodingProgressFLAC", onEncodingProgressFLAC);
-    source.addEventListener("mintedEvent", onEditionMinted);
-    source.addEventListener("notify", onNotify);
-    source.addEventListener("pipelineError", onPipelineError);
-    source.addEventListener("pong", onPong);
-    source.addEventListener("purchaseEditionEvent", onPurchaseEditionEvent);
-    source.addEventListener("purchaseEvent", onPurchaseEvent);
-    source.addEventListener("saleEvent", onSaleEvent);
-    source.addEventListener("storingProgressFLAC", onStoringProgressFLAC);
-    source.addEventListener("trackStatus", onTrackStatus);
-    source.addEventListener("transcodingCompleteAAC", onTranscodingCompleteAAC);
-    source.addEventListener("transcodingCompleteMP3", onTranscodingCompleteMP3);
-    source.addEventListener("transcodingStartedAAC", onTranscodingStartedAAC);
-    source.addEventListener("transcodingStartedMP3", onTranscodingStartedMP3);
-    source.addEventListener("workerMessage", onWorkerMessage);
+    source.addEventListener(MessageType.ArtworkUploaded, onArtworkUploaded);
+    source.addEventListener(NotificationType.Approval, onApprovalEvent);
+    source.addEventListener(NotificationType.Claim, onClaimEvent);
+    source.addEventListener(MessageType.EncodingProgressFLAC, onEncodingProgressFLAC);
+    source.addEventListener(NotificationType.Mint, onEditionMinted);
+    source.addEventListener(MessageType.Notify, onNotify);
+    source.addEventListener(MessageType.PipelineError, onPipelineError);
+    source.addEventListener(MessageType.Pong, onPong);
+    source.addEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
+    source.addEventListener(NotificationType.Purchase, onPurchaseEvent);
+    source.addEventListener(NotificationType.Sale, onSaleEvent);
+    source.addEventListener(MessageType.StoringProgressFLAC, onStoringProgressFLAC);
+    source.addEventListener(MessageType.TrackStatus, onTrackStatus);
+    source.addEventListener(MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC);
+    source.addEventListener(MessageType.TranscodingCompleteMP3, onTranscodingCompleteMP3);
+    source.addEventListener(MessageType.TranscodingStartedAAC, onTranscodingStartedAAC);
+    source.addEventListener(MessageType.TranscodingStartedMP3, onTranscodingStartedMP3);
+    source.addEventListener(MessageType.WorkerMessage, onWorkerMessage);
     window.addEventListener("beforeunload", cleanup);
   }, [
     cleanup,
@@ -341,16 +343,26 @@ const useSSE = () => {
     return cleanup;
   }, [cleanup, createConnection, userId]);
 
+  const reconnect = useCallback(async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 5_000));
+      console.warn("[SSE] Reconnecting…");
+      connectionIdRef.current = window.crypto.randomUUID();
+      createConnection();
+      setShouldReconnect(false);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("[SSE] Reconnect error:", error.message);
+      }
+    }
+  }, [createConnection]);
+
   useEffect(() => {
     if (!userId) return;
     if (!shouldReconnect) return;
-    console.warn("[SSE] Reconnecting…");
     cleanup();
-    setShouldReconnect(false);
-    console.info("[SSE] Initialising connection…");
-    connectionIdRef.current = window.crypto.randomUUID();
-    createConnection();
-  }, [cleanup, createConnection, shouldReconnect, userId]);
+    reconnect();
+  }, [cleanup, reconnect, shouldReconnect, userId]);
 };
 
 export default useSSE;

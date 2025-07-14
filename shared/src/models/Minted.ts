@@ -30,8 +30,9 @@ const mintedSchema = new Schema<Minted>(
   { timestamps: true }
 );
 
-// eslint-disable-next-line perfectionist/sort-objects
+/* eslint-disable perfectionist/sort-objects*/
 mintedSchema.index({ transactionHash: 1, logIndex: 1 }, { unique: true });
 mintedSchema.index({ releaseId: 1 });
+/* eslint-enable perfectionist/sort-objects*/
 
 export default model<Minted>("Minted", mintedSchema, "minted");

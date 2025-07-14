@@ -23,7 +23,7 @@ type ArtistDocumentProps = {
   links: Types.DocumentArray<ILink>;
 };
 
-type ArtistModelType = Model<IArtist, {}, ArtistDocumentProps>;
+type ArtistModelType = Model<IArtist, object, ArtistDocumentProps>;
 
 const artistSchema = new Schema<IArtist>(
   {
@@ -56,5 +56,5 @@ artistSchema.post("save", release => {
 
 artistSchema.set("toJSON", { versionKey: false });
 
-export type { ArtistModelType, IArtist, ILink };
+export type { IArtist, ILink };
 export default model<IArtist, ArtistModelType>("Artist", artistSchema, "artists");

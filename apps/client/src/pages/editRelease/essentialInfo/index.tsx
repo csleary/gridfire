@@ -1,4 +1,5 @@
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
+import { EditorRelease } from "@gridfire/shared/types";
 import { ChangeEventHandler, useCallback } from "react";
 import { shallowEqual } from "react-redux";
 
@@ -21,10 +22,10 @@ const EssentialInfo = ({ isEditing }: Props) => {
   const releaseErrors = useSelector(state => state.editor.releaseErrors, shallowEqual);
   const releaseTitle = useSelector(state => state.editor.release.releaseTitle);
 
-  const handleChange: ChangeEventHandler<HTMLInputElement & HTMLTextAreaElement> = useCallback(
+  const handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback(
     e => {
-      const { checked, name, type, value } = e.currentTarget;
-      dispatch(updateRelease({ checked, name, type, value }));
+      const { name, value } = e.currentTarget;
+      dispatch(updateRelease({ name: name as keyof Omit<EditorRelease, "artwork" | "published">, value }));
     },
     [dispatch]
   );

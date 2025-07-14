@@ -1,12 +1,14 @@
+import { UUID } from "node:crypto";
+
 enum MessageType {
   ArtworkUploaded = "artworkUploaded",
+  BlockRange = "blockRange",
   EncodingProgressFLAC = "encodingProgressFLAC",
-  MintedEvent = "mintedEvent",
+  Job = "job",
   Notify = "notify",
+  Ping = "ping",
   PipelineError = "pipelineError",
-  PurchaseEditionEvent = "purchaseEditionEvent",
-  PurchaseEvent = "purchaseEvent",
-  SaleEvent = "saleEvent",
+  Pong = "pong",
   StoringProgressFLAC = "storingProgressFLAC",
   TrackStatus = "trackStatus",
   TranscodingCompleteAAC = "transcodingCompleteAAC",
@@ -16,39 +18,58 @@ enum MessageType {
   WorkerMessage = "workerMessage"
 }
 
-type MessageArtworkUploaded = RabbitmqMessage;
+interface AmqpMessage {
+  type: MessageType;
+  userId: string;
+}
 
-interface MessageEncodingError extends RabbitmqMessage {
+interface BlockRangeMessage {
+  fromBlock: string;
+  toBlock: string;
+  type: MessageType.BlockRange;
+}
+
+interface JobMessage {
+  job: string;
+  releaseId: string;
+  trackId: string;
+  trackTitle: string;
+  type: MessageType.Job;
+  userId: string;
+}
+
+interface KeepAliveMessage extends AmqpMessage {
+  uuid: UUID;
+}
+
+type MessageArtworkUploaded = AmqpMessage;
+
+interface MessageEncodingError extends AmqpMessage {
   releaseId: string;
   stage: string;
   trackId: string;
 }
 
-interface MessageEncodingProgress extends RabbitmqMessage {
+interface MessageEncodingProgress extends AmqpMessage {
   progress: number;
   trackId: string;
 }
 
-interface MessageTrackStatus extends RabbitmqMessage {
+interface MessageTrackStatus extends AmqpMessage {
   releaseId: string;
   status: string;
   trackId: string;
 }
 
-interface MessageTranscoding extends RabbitmqMessage {
+interface MessageTranscoding extends AmqpMessage {
   trackId: string;
   trackTitle: string;
 }
 
-interface MessageWorkerNotification extends RabbitmqMessage {
+interface MessageWorkerNotification extends AmqpMessage {
   message: string;
   title: string;
   type: MessageType.WorkerMessage;
-}
-
-interface RabbitmqMessage {
-  type: MessageType;
-  userId?: string;
 }
 
 type ServerSentMessage =
@@ -59,13 +80,19 @@ type ServerSentMessage =
   | MessageTranscoding
   | MessageWorkerNotification;
 
-export { MessageType };
+type ServerSentMessagePayload = Omit<ServerSentMessage, "userId">;
+
 export type {
+  AmqpMessage,
+  BlockRangeMessage,
+  JobMessage,
+  KeepAliveMessage,
   MessageEncodingError,
   MessageEncodingProgress,
   MessageTrackStatus,
   MessageTranscoding,
   MessageWorkerNotification,
-  RabbitmqMessage,
-  ServerSentMessage
+  ServerSentMessage,
+  ServerSentMessagePayload
 };
+export { MessageType };

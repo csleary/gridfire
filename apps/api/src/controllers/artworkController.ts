@@ -1,8 +1,7 @@
 import { deleteObject, streamFromBucket, streamToBucket } from "@gridfire/api/controllers/storage";
 import Release from "@gridfire/shared/models/Release";
 import sseClient from "@gridfire/shared/sseController";
-import { MessageType } from "@gridfire/shared/types/messages";
-import { ObjectId } from "mongoose";
+import { MessageType, MessageWorkerNotification } from "@gridfire/shared/types";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import sharp from "sharp";
@@ -42,7 +41,7 @@ const uploadArtwork = async ({
 }: {
   filePath: string;
   releaseId: string;
-  userId: ObjectId;
+  userId: string;
 }) => {
   try {
     await Release.updateOne(
@@ -50,12 +49,13 @@ const uploadArtwork = async ({
       { "artwork.dateCreated": Date.now(), "artwork.status": "storing" }
     ).exec();
 
-    sseClient.send(userId.toString(), {
+    const payload: Omit<MessageWorkerNotification, "userId"> = {
       message: "Optimising and storing artwork…",
       title: "Processing",
       type: MessageType.WorkerMessage
-    });
+    };
 
+    sseClient.send(userId, payload);
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).webp();
     await streamToBucket(BUCKET_IMG, releaseId, file.pipe(optimisedImg));
@@ -65,7 +65,7 @@ const uploadArtwork = async ({
       { "artwork.dateUpdated": Date.now(), "artwork.status": "stored" }
     ).exec();
 
-    sseClient.send(userId.toString(), { type: MessageType.ArtworkUploaded });
+    sseClient.send(userId, { type: MessageType.ArtworkUploaded });
   } finally {
     fsPromises.unlink(filePath).catch(console.log);
   }

@@ -16,6 +16,7 @@ import { DateTime } from "luxon";
 import { toastError, toastSuccess } from "@/state/toast";
 import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { AppDispatch, GetState } from "@/types";
+import handleError from "@/utils/handleError";
 import { fetchUserEditions as _fetchUserEditions } from "@/web3";
 
 interface ReleasesState {
@@ -169,8 +170,8 @@ const checkoutFreeBasket = (basket: BasketItem[]) => async (dispatch: AppDispatc
 
   try {
     await axios.post("/api/release/checkout", basket);
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   } finally {
     dispatch(removeActiveProcess(processId));
   }
@@ -188,8 +189,8 @@ const deleteRelease =
       } else {
         dispatch(setReleaseIdsForDeletion({ isDeleting: true, releaseId }));
       }
-    } catch (error: any) {
-      dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+    } catch (error: unknown) {
+      handleError(error, dispatch);
     }
   };
 
@@ -200,8 +201,8 @@ const fetchArtistCatalogue =
       dispatch(setIsLoading(true));
       const res = await axios.get(`/api/catalogue/${artistSlug || artistId}`);
       dispatch(setArtistCatalogue(res.data));
-    } catch (error: any) {
-      dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+    } catch (error: unknown) {
+      handleError(error, dispatch);
     } finally {
       dispatch(setIsLoading(false));
     }
@@ -233,9 +234,10 @@ const fetchCatalogue =
       });
 
       dispatch(setCatalogue({ catalogue: res.data, isPaging }));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      handleError(error, dispatch);
+    } finally {
       dispatch(setIsLoading(false));
-      dispatch(toastError({ message: error.response?.data?.error, title: "Error" }));
     }
   };
 
@@ -244,8 +246,8 @@ const fetchRelease = (releaseId: string) => async (dispatch: AppDispatch) => {
     dispatch(setIsLoading(true));
     const res = await axios.get(`/api/release/${releaseId}`);
     dispatch(setActiveRelease(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
     throw error;
   } finally {
     dispatch(setIsLoading(false));
@@ -256,8 +258,8 @@ const fetchReleaseForEditing = (releaseId: string) => async (dispatch: AppDispat
   try {
     const res = await axios.get(`/api/release/${releaseId}`);
     dispatch(setReleaseForEditing(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: "Release currently unavailable.", title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
     throw error;
   }
 };
@@ -266,8 +268,8 @@ const fetchUserAlbums = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get("/api/user/albums");
     dispatch(setUserAlbums(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -275,8 +277,8 @@ const fetchUserEditions = () => async (dispatch: AppDispatch) => {
   try {
     const editions = await _fetchUserEditions();
     dispatch(setUserEditions(editions));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -287,8 +289,8 @@ const fetchUserFavourites = () => async (dispatch: AppDispatch) => {
     if (res.data) {
       dispatch(setUserFavourites(res.data));
     }
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -301,8 +303,8 @@ const fetchUserSingles = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get("/api/user/singles");
     dispatch(setUserSingles(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -313,8 +315,8 @@ const fetchUserWishList = () => async (dispatch: AppDispatch) => {
     if (res.data) {
       dispatch(setUserWishList(res.data));
     }
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -328,8 +330,8 @@ const publishStatus = (releaseId: string) => async (dispatch: AppDispatch) => {
 
     dispatch(updateUserReleases(res.data));
     return true;
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   } finally {
     dispatch(setIsLoading(false));
   }
@@ -341,8 +343,8 @@ const updateRelease = (values: Release) => async (dispatch: AppDispatch) => {
   try {
     await axios.post(`/api/release/${releaseId}`, values);
     dispatch(setReleaseForEditing(values));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 

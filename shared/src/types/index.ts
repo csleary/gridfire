@@ -4,6 +4,31 @@ import { IUser } from "@gridfire/shared/models/User";
 import { InterfaceAbi, TransactionReceipt } from "ethers";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import { ObjectId } from "mongoose";
+export type { ConnectFunction, ConnectOptions, MessageHandler } from "@gridfire/shared/types/amqp";
+export type {
+  AmqpMessage,
+  BlockRangeMessage,
+  JobMessage,
+  KeepAliveMessage,
+  MessageEncodingError,
+  MessageEncodingProgress,
+  MessageTrackStatus,
+  MessageTranscoding,
+  MessageWorkerNotification,
+  ServerSentMessage,
+  ServerSentMessagePayload
+} from "@gridfire/shared/types/messages";
+export { MessageType } from "@gridfire/shared/types/messages";
+export { NotificationType } from "@gridfire/shared/types/notifications";
+export type {
+  ApprovalNotification,
+  ClaimNotification,
+  MintNotification,
+  Notification,
+  PurchaseEditionNotification,
+  PurchaseNotification,
+  SaleNotification
+} from "@gridfire/shared/types/notifications";
 
 enum ActiveProcessType {
   Mint = "mint",
@@ -26,15 +51,6 @@ enum EventNames {
   PURCHASE = "Purchase",
   PURCHASE_EDITION = "PurchaseEdition",
   TRANSFER_SINGLE = "TransferSingle"
-}
-
-enum NotificationType {
-  Approval = "approvalEvent",
-  Claim = "claimEvent",
-  Mint = "mintedEvent",
-  Purchase = "purchaseEvent",
-  PurchaseEdition = "purchaseEditionEvent",
-  Sale = "saleEvent"
 }
 
 interface ActiveProcess {
@@ -82,11 +98,6 @@ interface ActivitySaleEdition extends ActivitySale {
   editionDescription: string;
 }
 
-interface ApprovalNotification {
-  type: NotificationType.Approval;
-  userId: string;
-}
-
 interface Artist {
   _id: string;
   biography: string;
@@ -109,11 +120,6 @@ interface BasketItem {
   title: string;
   trackId?: string; // For track purchases.
   trackTitle?: string; // For track purchases.
-}
-
-interface ClaimNotification {
-  type: NotificationType.Claim;
-  userId: string;
 }
 
 interface CollectionEdition extends CollectionRelease {
@@ -178,7 +184,7 @@ interface GridfireContract {
 }
 
 interface Link {
-  _id?: ObjectId;
+  _id: ObjectId;
   title: string;
   uri: string;
 }
@@ -200,20 +206,6 @@ interface MintedEdition {
   uri: string;
   visibility: "hidden" | "visible";
 }
-
-interface MintNotification {
-  editionId: string;
-  type: NotificationType.Mint;
-  userId: string;
-}
-
-type Notification =
-  | ApprovalNotification
-  | ClaimNotification
-  | MintNotification
-  | PurchaseEditionNotification
-  | PurchaseNotification
-  | SaleNotification;
 
 type ProviderRequest = { method: string; params: unknown[] };
 
@@ -242,20 +234,6 @@ type PurchasedRelease = {
   releaseTitle: string;
   type: SaleType;
 };
-
-interface PurchaseEditionNotification {
-  artistName: string;
-  releaseTitle: string;
-  type: NotificationType.PurchaseEdition;
-  userId: string;
-}
-
-interface PurchaseNotification {
-  artistName: string;
-  releaseTitle: string;
-  type: NotificationType.Purchase;
-  userId: string;
-}
 
 interface RecordSaleParams {
   amountPaid: bigint;
@@ -336,16 +314,6 @@ interface Sale {
   transaction: TransactionReceipt;
 }
 
-interface SaleNotification {
-  artistName: string;
-  artistShare: string;
-  buyerAddress: string;
-  platformFee: string;
-  releaseTitle: string;
-  type: NotificationType.Sale;
-  userId: string;
-}
-
 type SalesHistory = Purchase[];
 
 interface TrackContext {
@@ -388,22 +356,19 @@ interface ValidatePurchaseParams {
   releaseId: string;
 }
 
-export { ActiveProcessType, ActivityType, EventNames, NotificationType };
+export { ActiveProcessType, ActivityType, EventNames };
 
 export type {
   ActiveProcess,
   Activity,
-  ActivityBase as ActivityCommon,
   ActivityFavourite,
   ActivityFollow,
   ActivityMint,
   ActivitySale,
   ActivitySaleEdition,
-  ApprovalNotification,
   Artist,
   AuthenticatedRequest,
   BasketItem,
-  ClaimNotification,
   CollectionEdition,
   CollectionRelease,
   CollectionSingle,
@@ -417,15 +382,11 @@ export type {
   Link,
   ListItem,
   MintedEdition,
-  MintNotification,
-  Notification,
   ProviderRequest,
   ProviderResponse,
   Providers,
   Purchase,
   PurchasedRelease,
-  PurchaseEditionNotification,
-  PurchaseNotification,
   RecordSaleParams,
   Release,
   ReleaseAlbum,
@@ -435,7 +396,6 @@ export type {
   ReleaseTrack,
   RequestOptions,
   Sale,
-  SaleNotification,
   SalesHistory,
   TrackContext,
   TrackErrors,

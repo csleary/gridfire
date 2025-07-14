@@ -3,13 +3,8 @@ import Activity from "@gridfire/shared/models/Activity";
 import Release from "@gridfire/shared/models/Release";
 import Sale, { ISale, SaleType } from "@gridfire/shared/models/Sale";
 import User from "@gridfire/shared/models/User";
-import { BasketItem } from "@gridfire/shared/types";
+import { BasketItem, NotificationType } from "@gridfire/shared/types";
 import { parseEther } from "ethers";
-
-enum NotificationType {
-  Purchase = "purchaseEvent",
-  Sale = "saleEvent"
-}
 
 interface RecordSaleParams {
   amountPaid: bigint;

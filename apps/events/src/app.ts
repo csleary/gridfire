@@ -6,16 +6,16 @@ import onPurchaseEdition from "@gridfire/events/controllers/onPurchaseEdition";
 import onTransferSingle from "@gridfire/events/controllers/onTransferSingle";
 import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
-import { MessageHandler } from "@gridfire/shared/types/amqp";
-import { BlockMessage } from "@gridfire/shared/types/amqp";
-import { JobMessage } from "@gridfire/shared/types/amqp";
+import { BlockRangeMessage, JobMessage, MessageHandler } from "@gridfire/shared/types";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
 import { contracts, DRPC, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 
-const isBlockMessage = (msg: BlockMessage | JobMessage): msg is BlockMessage => "fromBlock" in msg && "toBlock" in msg;
+const isBlockRangeMessage = (msg: BlockRangeMessage | JobMessage): msg is BlockRangeMessage =>
+  "fromBlock" in msg && "toBlock" in msg;
+
 const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI, NODE_ENV } = process.env;
 
 const eventProviders = new Map(
@@ -111,7 +111,7 @@ try {
   gridfireProviders.push(provider);
 
   const messageHandler: MessageHandler = async message => {
-    if (isBlockMessage(message)) {
+    if (isBlockRangeMessage(message)) {
       const { fromBlock, toBlock } = message;
       await provider.getLogs({ fromBlock, toBlock });
     }

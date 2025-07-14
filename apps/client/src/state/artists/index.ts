@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 
 import { toastError, toastSuccess } from "@/state/toast";
 import { AppDispatch, RootState } from "@/types";
+import handleError from "@/utils/handleError";
 
 interface ArtistState {
   activeArtistId: string;
@@ -119,8 +120,8 @@ const addLink = (activeArtistId: string) => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.patch(`/api/artist/${activeArtistId}/link`);
     dispatch(setLink({ artistId: activeArtistId, link: res.data }));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data.error ?? error.toString(), title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -128,8 +129,8 @@ const fetchActivity = () => async (dispatch: AppDispatch) => {
   try {
     const res = await axios.get(`/api/artist/activity`);
     dispatch(setActivity(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data?.error || error.message || error.toString(), title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   }
 };
 
@@ -138,8 +139,8 @@ const fetchArtists = () => async (dispatch: AppDispatch) => {
     dispatch(setIsLoading(true));
     const res = await axios.get("/api/artist");
     dispatch(setArtists(res.data));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
   } finally {
     dispatch(setIsLoading(false));
   }
@@ -161,8 +162,8 @@ const updateArtist = (values: Artist) => async (dispatch: AppDispatch) => {
     dispatch(setIsPristine(true));
     dispatch(setIsSubmitting(false));
     dispatch(toastSuccess({ message: "Artist saved", title: "Success" }));
-  } catch (error: any) {
-    dispatch(toastError({ message: error.response?.data.error, title: "Error" }));
+  } catch (error: unknown) {
+    handleError(error, dispatch);
     dispatch(setIsLoading(false));
   }
 };
