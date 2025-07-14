@@ -1,4 +1,14 @@
-import { Badge, Box, Button, ListItem, Spacer, Tooltip, UnorderedList, useColorModeValue } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  ListItem,
+  Spacer,
+  Tooltip,
+  UnorderedList,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,6 +50,7 @@ const TrackList = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const secondaryColour = useColorModeValue("gray.400", "gray.500");
   const titleColour = useColorModeValue("gray.500", "gray.300");
+  const downloadExclusiveColour = useColorModeValue("gray.400", "gray.500");
 
   const handleAddToBasket = useCallback(
     async ({ price, trackId, trackTitle }: { price: string; trackId: string; trackTitle: string }) => {
@@ -167,6 +178,7 @@ const TrackList = () => {
                 ({Math.floor(duration / 60)}:{(Math.ceil(duration) % 60).toString(10).padStart(2, "0")})
               </Box>
             ) : null}
+            <Spacer />
             {isBonus ? null : trackId === playerTrackId && isPlaying ? (
               <Box animation={animation} as={FontAwesomeIcon} icon={faPlay} ml={2} />
             ) : trackId === playerTrackId && isPaused ? (
@@ -174,46 +186,64 @@ const TrackList = () => {
             ) : null}
             {isBonus ? (
               <Tooltip label={`'${trackTitle}' is a download exclusive.`}>
-                <Icon color="gray.300" icon={faCloudDownload} ml={2} />
+                <IconButton
+                  alignSelf="stretch"
+                  aria-label={`'${trackTitle}' is a download exclusive.`}
+                  cursor="unset"
+                  height="unset"
+                  icon={<Icon color={downloadExclusiveColour} fixedWidth icon={faCloudDownload} />}
+                  size="sm"
+                  variant="unstyled"
+                />
               </Tooltip>
             ) : null}
             {isEditionOnly ? (
               <Tooltip label={`'${trackTitle}' is an exclusive for one or more Editions.`}>
-                <Badge
-                  _after={{
-                    background: "inherit",
-                    borderRadius: "inherit",
-                    content: '""',
-                    inset: "0",
-                    position: "absolute",
-                    zIndex: "-1"
-                  }}
-                  _before={{
-                    _hover: {
-                      opacity: "1.0"
-                    },
-                    background:
-                      "linear-gradient(45deg, var(--chakra-colors-green-200) 0%, var(--chakra-colors-blue-600) 40%, var(--chakra-colors-purple-600) 100% )",
-                    borderRadius: "inherit",
-                    content: '""',
-                    inset: "0",
-                    opacity: "0.65",
-                    position: "absolute",
-                    transition: "opacity 0.3s",
-                    zIndex: "-1"
-                  }}
-                  boxShadow="none"
-                  color="whiteAlpha.800"
-                  ml={2}
-                  position="relative"
-                  variant="outline"
-                  zIndex="1"
-                >
-                  Edition
-                </Badge>
+                <IconButton
+                  alignItems="center"
+                  alignSelf="stretch"
+                  aria-label={`'${trackTitle}' is an exclusive for one or more Editions.`}
+                  cursor="unset"
+                  display="flex"
+                  height="unset"
+                  icon={
+                    <Badge
+                      _after={{
+                        background: "inherit",
+                        borderRadius: "inherit",
+                        content: '""',
+                        inset: "0",
+                        position: "absolute",
+                        zIndex: "-1"
+                      }}
+                      _before={{
+                        _hover: {
+                          opacity: "1.0"
+                        },
+                        background:
+                          "linear-gradient(45deg, var(--chakra-colors-green-200) 0%, var(--chakra-colors-blue-600) 40%, var(--chakra-colors-purple-600) 100% )",
+                        borderRadius: "inherit",
+                        content: '""',
+                        inset: "0",
+                        opacity: "0.65",
+                        position: "absolute",
+                        transition: "opacity 0.3s",
+                        zIndex: "-1"
+                      }}
+                      boxShadow="none"
+                      color="whiteAlpha.800"
+                      position="relative"
+                      variant="outline"
+                      zIndex="1"
+                    >
+                      Edition
+                    </Badge>
+                  }
+                  size="sm"
+                  variant="unstyled"
+                />
               </Tooltip>
             ) : null}
-            <Spacer />
             {isBonus || isEditionOnly ? null : (
               <PurchaseTrackButton
                 allowanceTooLow={allowanceTooLow}

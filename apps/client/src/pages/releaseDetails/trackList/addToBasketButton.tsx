@@ -28,7 +28,7 @@ const AddToBasketButton = ({
   trackInCollection,
   trackTitle
 }: Props) => {
-  const checkColour = useColorModeValue("yellow.400", "purple.200");
+  const checkColour = useColorModeValue("green.300", "purple.200");
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [isAddingToBasket, setIsAddingToBasket] = useState(false);
@@ -62,6 +62,7 @@ const AddToBasketButton = ({
           icon={
             <Icon
               color={trackInCollection ? checkColour : undefined}
+              fixedWidth
               icon={trackInCollection ? faCheck : faShoppingBasket}
             />
           }
