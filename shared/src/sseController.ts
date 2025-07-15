@@ -26,6 +26,7 @@ interface Connection {
 class SSEClient {
   #consumerChannel: ChannelWrapper | null = null;
   #consumerTags: Map<string, string> = new Map();
+  #houseKeepingActive = false;
   #interval: NodeJS.Timeout | null = null;
   #messageHandler: MessageHandler | null = null;
   #sessions: Map<UserId, Session> = new Map();
@@ -56,10 +57,10 @@ class SSEClient {
     const connections = new Map();
     connections.set(socketId, { lastPing: Date.now(), res });
     this.#sessions.set(userId, connections);
-    const userQueue = `user.${userId}.${POD_NAME}`;
-    const queueOptions = { autoDelete: true, durable: false };
 
     if (this.#consumerChannel) {
+      const userQueue = `user.${userId}.${POD_NAME}`;
+      const queueOptions = { autoDelete: true, durable: false };
       await this.#consumerChannel.assertQueue(userQueue, queueOptions);
       await this.#consumerChannel.bindQueue(userQueue, "user", userId);
 
@@ -87,20 +88,78 @@ class SSEClient {
       return;
     }
 
-    const { res } = connections.get(socketId) || {};
+    const connection = connections.get(socketId);
 
-    if (!res) {
+    if (!connection) {
       logger.info(`Connection ID ${socketId} not found for user ${userId}.`);
       return;
     }
 
+    const { res } = connection;
     connections.set(socketId, { lastPing: Date.now(), res });
     res.write("event: pong\n");
     res.write("data: \n\n");
     return;
   }
 
-  async remove(userId: UserId) {
+  removeConnection(userId: UserId, socketId: SocketId) {
+    const connections = this.get(userId);
+
+    if (!connections) {
+      logger.info(`[removeConnection] No connections found for user ${userId}.`);
+      return;
+    }
+
+    if (connections.has(socketId)) {
+      logger.info(`[removeConnection] Removing connection ${socketId} for user ${userId}.`);
+      connections.delete(socketId);
+    } else {
+      logger.info(`[removeConnection] Connection ID ${socketId} not found for user ${userId}.`);
+    }
+
+    if (connections.size === 0) {
+      this.#remove(userId);
+    }
+  }
+
+  send(userId: UserId, message: ServerSentMessagePayload): void {
+    const connections = this.get(userId.toString());
+
+    if (!connections) {
+      return void logger.warn(`[send] No connections found for user ${userId}.`);
+    }
+
+    for (const [socketId, { res }] of connections.entries()) {
+      const data = JSON.stringify(message);
+      logger.info(`[send] Sending message for user ${userId} via socket ${socketId}: ${data}`);
+
+      try {
+        if (message.type === MessageType.WorkerMessage) {
+          res.write("event: workerMessage\n");
+          res.write(`data: ${data}\n\n`);
+        } else {
+          res.write(`event: ${message.type}\n`);
+          res.write(`data: ${data}\n\n`);
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          logger.error(`[send] Error sending message to user ${userId} via socket ${socketId}: ${error.message}`);
+          connections.delete(socketId);
+        }
+      }
+    }
+  }
+
+  setConsumerChannel(channel: ChannelWrapper, messageHandler: MessageHandler) {
+    this.#consumerChannel = channel;
+    this.#messageHandler = messageHandler;
+  }
+
+  #has(userId: UserId) {
+    return this.#sessions.has(userId);
+  }
+
+  async #remove(userId: UserId) {
     logger.info(`Removing connection for user ${userId}…`);
     this.#sessions.delete(userId);
 
@@ -118,34 +177,6 @@ class SSEClient {
     }
   }
 
-  send(userId: UserId, message: ServerSentMessagePayload): void {
-    const connections = this.get(userId.toString());
-    if (!connections) return;
-
-    for (const [socketId, { res }] of connections.entries()) {
-      const logEntry = JSON.stringify(message);
-      logger.info(`Sending message for user ${userId} via socket ${socketId}: ${logEntry}`);
-      const data = JSON.stringify(message);
-
-      if (message.type === MessageType.WorkerMessage) {
-        res.write("event: workerMessage\n");
-        res.write(`data: ${data}\n\n`);
-      } else {
-        res.write(`event: ${message.type}\n`);
-        res.write(`data: ${data}\n\n`);
-      }
-    }
-  }
-
-  setConsumerChannel(channel: ChannelWrapper, messageHandler: MessageHandler) {
-    this.#consumerChannel = channel;
-    this.#messageHandler = messageHandler;
-  }
-
-  #has(userId: UserId) {
-    return this.#sessions.has(userId);
-  }
-
   #runHouseKeeping() {
     if (this.#interval) {
       clearInterval(this.#interval);
@@ -153,27 +184,37 @@ class SSEClient {
 
     const checkUserConnections = () => {
       if (this.#sessions.size === 0) return;
-      logger.info("Checking for stale sockets…");
-      const iterator = this.#sessions.entries();
 
-      const checkForStaleConnection = ({ done, value }: IteratorResult<[UserId, Session]>) => {
-        if (done) return;
-        const [userId, connections] = value;
-        logger.debug(`User ${userId} has ${connections.size} connections.`);
+      if (this.#houseKeepingActive) {
+        return void logger.debug("[housekeeping] Already active. Skipping this check.");
+      }
 
-        for (const [socketId, { lastPing, res }] of connections.entries()) {
-          if (Date.now() - lastPing > CHECK_INTERVAL) {
-            logger.info(`Removing stale connection ${socketId} for user ${userId}.`);
-            if (res) res.end();
-            connections.delete(socketId);
+      logger.info("[housekeeping] Checking for stale sockets…");
+      this.#houseKeepingActive = true;
+
+      try {
+        for (const [userId, connections] of this.#sessions.entries()) {
+          logger.debug(`User ${userId} has ${connections.size} connections.`);
+
+          for (const [socketId, { lastPing, res }] of connections.entries()) {
+            if (Date.now() - lastPing > CHECK_INTERVAL) {
+              logger.info(`Removing stale connection ${socketId} for user ${userId}.`);
+              if (res) res.end();
+              connections.delete(socketId);
+            }
+          }
+
+          if (connections.size === 0) {
+            this.#remove(userId);
           }
         }
 
-        if (connections.size === 0) this.remove(userId);
-        setTimeout(checkForStaleConnection, 0, iterator.next());
-      };
-
-      checkForStaleConnection(iterator.next());
+        logger.info("[housekeeping] Checks complete.");
+      } catch (error: unknown) {
+        logger.error("[housekeeping] Error:", error);
+      } finally {
+        this.#houseKeepingActive = false;
+      }
     };
 
     this.#interval = setInterval(checkUserConnections, CHECK_INTERVAL);
@@ -182,5 +223,5 @@ class SSEClient {
 
 const sseClient = new SSEClient();
 
-export { SSEClient };
+export type { SSEClient };
 export default sseClient;

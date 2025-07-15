@@ -1,8 +1,9 @@
+import type { UUID } from "node:crypto";
+
 import { publishToQueue } from "@gridfire/shared/amqp";
 import sseClient from "@gridfire/shared/sseController";
 import { MessageType } from "@gridfire/shared/types";
 import { Router } from "express";
-import { UUID } from "node:crypto";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.get("/:userId/:uuid", async (req, res) => {
 
   req.on("close", () => {
     console.log(`[SSE] Connection [${uuid}] closed for user ${userId}`);
-    sseClient.remove(userId);
+    sseClient.removeConnection(userId, uuid as UUID);
   });
 
   const headers = { "Cache-Control": "no-cache", Connection: "keep-alive", "Content-Type": "text/event-stream" };

@@ -41,6 +41,7 @@ interface Props {
   showModal: boolean;
 }
 
+const defaultErrors = { amount: "", description: "", price: "" };
 const defaultValues: DefaultValues = { amount: 100, description: "", price: "50.00", tracks: [] };
 
 const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
@@ -51,7 +52,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   const trackList = useSelector(selectTracks, shallowEqual);
   const [isPurchasing, setIsMinting] = useState(false);
   const [values, setValues] = useState(defaultValues);
-  const [errors, setErrors] = useState({ amount: "", description: "", price: "" });
+  const [errors, setErrors] = useState(defaultErrors);
   const hasError = Object.values(errors).some(Boolean);
   const editionTrackPool = trackList.filter(({ isEditionOnly }: ReleaseTrack) => Boolean(isEditionOnly));
 
@@ -64,8 +65,11 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   );
 
   useEffect(() => {
-    setValues(prev => ({ ...prev, description: `${artistName} - ${releaseTitle}` }));
-  }, [artistName, releaseTitle]);
+    if (showModal) {
+      setValues(prev => ({ ...prev, description: `${artistName} - ${releaseTitle}` }));
+      setErrors(defaultErrors);
+    }
+  }, [artistName, releaseTitle, showModal]);
 
   const handleChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback(e => {
     const { name, value } = e.currentTarget;
@@ -85,6 +89,11 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
 
   const handleBlur = () => setValues(prev => ({ ...prev, price: formatPrice(prev.price) }));
 
+  const resetValues = () => {
+    setValues(defaultValues);
+    setErrors(defaultErrors);
+  };
+
   const handleClose = () => {
     handleCloseModal();
     resetValues();
@@ -92,7 +101,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
 
   const validate = () => {
     const { amount, description, price } = values;
-    const errors = { amount: "", description: "", price: "" };
+    const errors = defaultErrors;
 
     if (!description) {
       errors.description = "Please enter a description for this Edition.";
@@ -124,16 +133,11 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
       const { amount, description, price, tracks } = values;
       await mintEdition({ amount, description, price, releaseId, tracks });
       handleClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     } finally {
       setIsMinting(false);
     }
-  };
-
-  const resetValues = () => {
-    setValues(defaultValues);
-    setErrors({ amount: "", description: "", price: "" });
   };
 
   return (
