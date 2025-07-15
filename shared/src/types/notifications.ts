@@ -1,3 +1,5 @@
+import type { AmqpMessage } from "@gridfire/shared/types/messages";
+
 enum NotificationType {
   Approval = "approvalEvent",
   Claim = "claimEvent",
@@ -7,17 +9,17 @@ enum NotificationType {
   Sale = "saleEvent"
 }
 
-interface ApprovalNotification {
+interface ApprovalNotification extends AmqpMessage {
   type: NotificationType.Approval;
   userId: string;
 }
 
-interface ClaimNotification {
+interface ClaimNotification extends AmqpMessage {
   type: NotificationType.Claim;
   userId: string;
 }
 
-interface MintNotification {
+interface MintNotification extends AmqpMessage {
   editionId: string;
   type: NotificationType.Mint;
   userId: string;
@@ -31,21 +33,21 @@ type Notification =
   | PurchaseNotification
   | SaleNotification;
 
-interface PurchaseEditionNotification {
+interface PurchaseEditionNotification extends AmqpMessage {
   artistName: string;
   releaseTitle: string;
   type: NotificationType.PurchaseEdition;
   userId: string;
 }
 
-interface PurchaseNotification {
+interface PurchaseNotification extends AmqpMessage {
   artistName: string;
   releaseTitle: string;
   type: NotificationType.Purchase;
   userId: string;
 }
 
-interface SaleNotification {
+interface SaleNotification extends AmqpMessage {
   artistName: string;
   artistShare: string;
   buyerAddress: string;

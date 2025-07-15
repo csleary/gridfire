@@ -4,21 +4,18 @@ import type { ConfirmChannel, ConsumeMessage } from "amqplib";
 import Logger from "@gridfire/shared/logger";
 import sseClient from "@gridfire/shared/sseController";
 import {
-  AmqpMessage,
   BlockRangeMessage,
   ConnectFunction,
+  isJobOrBlockRangeMessage,
+  isKeepAliveMessage,
+  isServerSentMessage,
   JobMessage,
   KeepAliveMessage,
-  MessageType,
   Notification,
   ServerSentMessage
 } from "@gridfire/shared/types";
 import { connect } from "amqp-connection-manager";
 import assert from "node:assert/strict";
-
-const isKeepAlive = (message: AmqpMessage): message is KeepAliveMessage => message.type === MessageType.Ping;
-const isServerSentMessage = (message: AmqpMessage): message is ServerSentMessage => message.type in MessageType;
-const isUnknownMessage = (message: AmqpMessage): message is AmqpMessage => !(message.type in MessageType);
 
 interface ChannelWrapper extends OriginalChannelWrapper {
   context?: { messageHandler?: (message: BlockRangeMessage | JobMessage) => Promise<void> };
@@ -50,27 +47,24 @@ const onMessage = async (data: ConsumeMessage | null) => {
   try {
     const message = JSON.parse(data.content.toString());
 
-    if (isUnknownMessage(message)) {
-      logger.warn("Received unknown message type:", message.type);
-      consumeChannel.ack(data);
-      return;
-    }
-
-    if (isKeepAlive(message)) {
+    if (isKeepAliveMessage(message)) {
       const { userId, uuid } = message;
       sseClient.ping(userId, uuid);
       return void consumeChannel.ack(data);
     }
 
-    if (messageHandler) {
-      await messageHandler(message);
-    }
-
     if (isServerSentMessage(message)) {
       const { userId, ...rest } = message;
       sseClient.send(userId, rest);
+      return void consumeChannel.ack(data);
     }
 
+    if (isJobOrBlockRangeMessage(message) && messageHandler) {
+      await messageHandler(message);
+      return void consumeChannel.ack(data);
+    }
+
+    logger.error("Received unknown message type:", message);
     consumeChannel.ack(data);
   } catch (error: unknown) {
     if (error instanceof Error) {

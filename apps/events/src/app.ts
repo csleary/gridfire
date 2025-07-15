@@ -6,15 +6,12 @@ import onPurchaseEdition from "@gridfire/events/controllers/onPurchaseEdition";
 import onTransferSingle from "@gridfire/events/controllers/onTransferSingle";
 import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
-import { BlockRangeMessage, JobMessage, MessageHandler } from "@gridfire/shared/types";
+import { isBlockRangeMessage, MessageHandler } from "@gridfire/shared/types";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
 import { contracts, DRPC, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
-
-const isBlockRangeMessage = (msg: BlockRangeMessage | JobMessage): msg is BlockRangeMessage =>
-  "fromBlock" in msg && "toBlock" in msg;
 
 const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI, NODE_ENV } = process.env;
 

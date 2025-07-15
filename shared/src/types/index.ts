@@ -4,31 +4,18 @@ import { IUser } from "@gridfire/shared/models/User";
 import { InterfaceAbi, TransactionReceipt } from "ethers";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import { ObjectId } from "mongoose";
-export type { ConnectFunction, ConnectOptions, MessageHandler } from "@gridfire/shared/types/amqp";
-export type {
-  AmqpMessage,
-  BlockRangeMessage,
-  JobMessage,
-  KeepAliveMessage,
-  MessageEncodingError,
-  MessageEncodingProgress,
-  MessageTrackStatus,
-  MessageTranscoding,
-  MessageWorkerNotification,
-  ServerSentMessage,
-  ServerSentMessagePayload
+export type * from "@gridfire/shared/types/amqp";
+export type * from "@gridfire/shared/types/messages";
+export {
+  isBlockRangeMessage,
+  isJobMessage,
+  isJobOrBlockRangeMessage,
+  isKeepAliveMessage,
+  isServerSentMessage,
+  MessageType
 } from "@gridfire/shared/types/messages";
-export { MessageType } from "@gridfire/shared/types/messages";
 export { NotificationType } from "@gridfire/shared/types/notifications";
-export type {
-  ApprovalNotification,
-  ClaimNotification,
-  MintNotification,
-  Notification,
-  PurchaseEditionNotification,
-  PurchaseNotification,
-  SaleNotification
-} from "@gridfire/shared/types/notifications";
+export type * from "@gridfire/shared/types/notifications";
 
 enum ActiveProcessType {
   Mint = "mint",
