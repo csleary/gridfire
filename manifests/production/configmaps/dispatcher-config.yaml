@@ -5,5 +5,7 @@ metadata:
   namespace: gridfire-prod
 data:
   CHECK_INTERVAL_SECONDS: "10"
+  DISABLED_PROVIDERS: "1rpc, quicknode"
   NODE_ENV: production
+  QUORUM: "1"
   RANGE_SIZE: "50"

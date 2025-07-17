@@ -4,5 +4,7 @@ metadata:
   name: events-config
   namespace: gridfire-prod
 data:
+  DISABLED_PROVIDERS: "1rpc, drpc, quicknode"
   INPUT_QUEUES: blocks
   NODE_ENV: production
+  QUORUM: "1"

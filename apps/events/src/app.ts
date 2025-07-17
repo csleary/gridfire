@@ -8,17 +8,29 @@ import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import { isBlockRangeMessage, MessageHandler } from "@gridfire/shared/types";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
-import { contracts, DRPC, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
+import { contracts, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
 import assert from "node:assert/strict";
 import net from "node:net";
 
-const { HEALTH_PROBE_PORT, INPUT_QUEUES, MONGODB_URI, NODE_ENV } = process.env;
+const {
+  DISABLED_PROVIDERS,
+  HEALTH_PROBE_PORT,
+  INPUT_QUEUES,
+  MONGODB_URI,
+  NODE_ENV,
+  QUORUM = NODE_ENV !== "development" ? 2 : 1
+} = process.env;
+
+const disabledProviders = DISABLED_PROVIDERS ? DISABLED_PROVIDERS.split(",").map(p => p.trim()) : [];
 
 const eventProviders = new Map(
-  [...providers].filter(([key]) => {
-    if (NODE_ENV !== "development") return ![DRPC, LOCALHOST].includes(key);
-    return key === LOCALHOST;
+  Array.from(providers).filter(([key]) => {
+    if (NODE_ENV !== "production") {
+      return key === LOCALHOST;
+    }
+
+    return key !== LOCALHOST && key.description && !disabledProviders.includes(key.description!);
   })
 );
 
@@ -95,7 +107,7 @@ const setupHealthProbe = () =>
   });
 
 try {
-  const provider = new GridfireProvider({ contracts, providers: eventProviders });
+  const provider = new GridfireProvider({ contracts, providers: eventProviders, quorum: Number(QUORUM) });
 
   provider
     .on(EventNames.EDITION_MINTED, onEditionMinted)

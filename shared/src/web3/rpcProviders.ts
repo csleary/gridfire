@@ -36,7 +36,7 @@ const CHAINNODES = Symbol("chainnodes");
 const DRPC = Symbol("drpc");
 const LOCALHOST = Symbol("localhost");
 const ONE_RPC = Symbol("1rpc");
-const QUICKNODE = Symbol("quiknode");
+const QUICKNODE = Symbol("quicknode");
 
 const providers: Providers = new Map([
   [ALCHEMY, `https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}`],
@@ -44,7 +44,7 @@ const providers: Providers = new Map([
   [CHAINNODES, `https://arbitrum-one.chainnodes.org/${API_KEY_CHAINNODES}`],
   [DRPC, `https://lb.drpc.org/arbitrum/${API_KEY_DRPC}`],
   [LOCALHOST, "http://localhost:8545"],
-  // [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`],
+  [ONE_RPC, `https://1rpc.io/${API_KEY_1RPC}/arb`],
   [QUICKNODE, `https://prettiest-few-darkness.arbitrum-mainnet.discover.quiknode.pro/${API_KEY_QUICKNODE}/`]
 ]);
 

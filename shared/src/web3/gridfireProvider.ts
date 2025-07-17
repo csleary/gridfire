@@ -36,7 +36,6 @@ class GridfireProvider extends EventEmitter {
   #logger;
   #name = "gridfire provider";
   #providers: Map<symbol, string> = new Map([]);
-
   #quorum: number = 1;
 
   constructor({ contracts = [], name, providers, quorum }: GridfireProviderConfig) {
@@ -65,7 +64,7 @@ class GridfireProvider extends EventEmitter {
   async getBlockNumber({ finalised } = { finalised: false }): Promise<number> {
     if (finalised) {
       this.#logger.debug("Fetching latest finalised block…");
-      const currentBlockHex = await this.#getFinalisedBlockNumber();
+      const currentBlockHex = await this.#getBlockByNumber();
       return Number.parseInt(currentBlockHex, 16);
     }
 
@@ -125,6 +124,29 @@ class GridfireProvider extends EventEmitter {
     this.emit(eventName, ...args, { ...log, getTransactionReceipt });
   }
 
+  async #getBlockByNumber(): Promise<string> {
+    const method = "eth_getBlockByNumber";
+    const responses = await this.#send([{ method, params: ["latest", false] }]); // transaction_detail_flag bool
+
+    const highestBlock = responses
+      .filter(filterErrors)
+      .sort((a, b) => {
+        const blockHeightA = getBigInt(a.data[0]?.result.number || 0n);
+        const blockHeightB = getBigInt(b.data[0]?.result.number || 0n);
+        if (blockHeightA < blockHeightB) return -1;
+        if (blockHeightA > blockHeightB) return 1;
+        return 0;
+      })
+      .pop();
+
+    if (!highestBlock) {
+      throw new Error("Could not get block height from any provider.");
+    }
+
+    const [{ result }] = highestBlock.data;
+    return result.number;
+  }
+
   async #getBlockNumber(): Promise<string> {
     const method = "eth_blockNumber";
     const responses = await this.#send([{ method, params: [] }]);
@@ -146,29 +168,6 @@ class GridfireProvider extends EventEmitter {
 
     const [{ result }] = highestBlock.data;
     return result;
-  }
-
-  async #getFinalisedBlockNumber(): Promise<string> {
-    const method = "eth_getBlockByNumber";
-    const responses = await this.#send([{ method, params: ["finalized", false] }]); // transaction_detail_flag bool
-
-    const highestBlock = responses
-      .filter(filterErrors)
-      .sort((a, b) => {
-        const blockHeightA = getBigInt(a.data[0]?.result.number || 0n);
-        const blockHeightB = getBigInt(b.data[0]?.result.number || 0n);
-        if (blockHeightA < blockHeightB) return -1;
-        if (blockHeightA > blockHeightB) return 1;
-        return 0;
-      })
-      .pop();
-
-    if (!highestBlock) {
-      throw new Error("Could not get block height from any provider.");
-    }
-
-    const [{ result }] = highestBlock.data;
-    return result.number;
   }
 
   #getId(): string {
@@ -274,7 +273,7 @@ class GridfireProvider extends EventEmitter {
         break;
       }
 
-      this.#logger.info("Received:", JSON.stringify(batchResults, null, 2));
+      this.#logger.debug("Received:", JSON.stringify(batchResults, null, 2));
       this.#logger.info("Quorum not reached; continuing to next batch…");
     }
 
