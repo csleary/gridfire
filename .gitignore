@@ -1,5 +1,3 @@
-!.yarn/plugins
-!.yarn/releases
 .env*
 .pnp.*
 .vscode
@@ -13,3 +11,5 @@ hardhat/cache
 hardhat/typechain-types
 manifests/secrets
 node_modules
+!.yarn/plugins
+!.yarn/releases
