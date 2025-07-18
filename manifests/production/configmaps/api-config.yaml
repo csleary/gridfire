@@ -4,6 +4,7 @@ metadata:
   name: api-config
   namespace: gridfire-prod
 data:
+  DISABLED_PROVIDERS: "1rpc, drpc, quicknode"
   NODE_ENV: production
   QUEUE_TRANSCODE: transcode
   TEMP_PATH: /home/node/app/tmp

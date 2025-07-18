@@ -1,9 +1,10 @@
 import logger from "@gridfire/api/controllers/logger";
-import { DRPC, LOCALHOST, ONE_RPC, providers as rpcProviders } from "@gridfire/shared/web3/rpcProviders";
+import { LOCALHOST, providers as rpcProviders } from "@gridfire/shared/web3/rpcProviders";
 import { FallbackProvider, JsonRpcProvider } from "ethers";
 import assert from "node:assert/strict";
 
-const { API_KEY_1RPC, API_KEY_ALCHEMY, API_KEY_CHAINNODES, API_KEY_QUICKNODE, NODE_ENV } = process.env;
+const { API_KEY_1RPC, API_KEY_ALCHEMY, API_KEY_CHAINNODES, API_KEY_QUICKNODE, DISABLED_PROVIDERS, NODE_ENV } =
+  process.env;
 
 const hasKey = (key: string | undefined): boolean =>
   NODE_ENV !== "production" || (NODE_ENV === "production" && Boolean(key));
@@ -13,10 +14,14 @@ assert(hasKey(API_KEY_ALCHEMY), "API_KEY_ALCHEMY env var missing.");
 assert(hasKey(API_KEY_CHAINNODES), "API_KEY_CHAINNODES env var missing.");
 assert(hasKey(API_KEY_QUICKNODE), "API_KEY_QUICKNODE env var missing.");
 
+const disabledProviders = DISABLED_PROVIDERS ? DISABLED_PROVIDERS.split(",").map(p => p.trim()) : [];
+
 const eventProviders = new Map(
-  [...rpcProviders].filter(([key]) => {
-    if (NODE_ENV !== "development") return ![DRPC, LOCALHOST, ONE_RPC].includes(key);
-    return key === LOCALHOST;
+  Array.from(rpcProviders).filter(([key]) => {
+    if (NODE_ENV !== "production") {
+      return key === LOCALHOST;
+    }
+    return key !== LOCALHOST && key.description && !disabledProviders.includes(key.description!);
   })
 );
 

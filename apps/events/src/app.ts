@@ -29,7 +29,6 @@ const eventProviders = new Map(
     if (NODE_ENV !== "production") {
       return key === LOCALHOST;
     }
-
     return key !== LOCALHOST && key.description && !disabledProviders.includes(key.description!);
   })
 );
