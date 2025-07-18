@@ -1,14 +1,14 @@
-name: build api
+name: build dispatcher
 
 on:
   workflow_dispatch:
   push:
     branches: ["master"]
     paths:
-      - "docker/Dockerfile.api"
-      - "apps/api/**"
+      - "docker/Dockerfile.dispatcher"
+      - "apps/dispatcher/**"
       - "shared/**"
-      - ".github/workflows/docker-build-api.yml"
+      - ".github/workflows/docker-build-dispatcher.yml"
 
 jobs:
   build:
@@ -24,6 +24,6 @@ jobs:
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
-          file: docker/Dockerfile.api
+          file: docker/Dockerfile.dispatcher
           push: true
-          tags: csleary/gridfire-api:${{ github.sha }}
+          tags: csleary/gridfire-web3-dispatcher:${{ github.sha }}
