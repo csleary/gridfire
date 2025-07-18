@@ -3,12 +3,11 @@ name: build api
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "docker/Dockerfile.api"
       - "apps/api/**"
       - "shared/**"
-      - ".github/workflows/docker-build-api.yml"
 
 jobs:
   build:

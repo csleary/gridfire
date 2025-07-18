@@ -3,12 +3,11 @@ name: build worker
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "docker/Dockerfile.worker"
       - "apps/worker/**"
       - "shared/**"
-      - ".github/workflows/docker-build-worker.yml"
 
 jobs:
   build:

@@ -3,12 +3,11 @@ name: build dispatcher
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "docker/Dockerfile.dispatcher"
       - "apps/dispatcher/**"
       - "shared/**"
-      - ".github/workflows/docker-build-dispatcher.yml"
 
 jobs:
   build:
