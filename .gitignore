@@ -4,12 +4,12 @@
 .yarn/*
 **/*.tsbuildinfo
 **/dist
-apps/worker/bin
 hardhat/.*
 hardhat/artifacts
 hardhat/cache
 hardhat/typechain-types
 manifests/secrets
 node_modules
+!apps/client/.env.production
 !.yarn/plugins
 !.yarn/releases
