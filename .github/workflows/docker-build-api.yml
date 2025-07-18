@@ -26,4 +26,4 @@ jobs:
           context: .
           file: docker/Dockerfile.api
           push: true
-          tags: csleary/gridfire-api:$(date +%s)
+          tags: csleary/gridfire-api:${{ github.sha }}
