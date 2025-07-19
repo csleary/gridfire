@@ -1,8 +1,8 @@
-import type { ServerSentMessage } from "@gridfire/shared/types";
+import type { UserServerSentMessage } from "@gridfire/shared/types";
 
 import { publishToQueue } from "@gridfire/shared/amqp";
 
-const postMessage = (message: ServerSentMessage) => {
+const postMessage = (message: UserServerSentMessage) => {
   const { userId = "" } = message;
   publishToQueue("user", userId, message);
 };

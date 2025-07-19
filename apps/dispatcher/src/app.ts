@@ -117,9 +117,17 @@ try {
 
   const dispatchBlockRange = async () => {
     try {
+      const latestBlock = await provider.getBlockNumber({ blockTag: "latest" });
       const lastQueuedInfo = await Block.findById(LAST_QUEUED_BLOCK_ID).lean();
+
+      if (!lastQueuedInfo) {
+        await Block.updateOne(
+          { _id: LAST_QUEUED_BLOCK_ID },
+          { lastQueuedBlock: latestBlock, lastQueuedBlockHex: latestBlock.toString(16) },
+          { upsert: true }
+        ).exec();
+      }
       const { lastQueuedBlock = null } = lastQueuedInfo ?? {};
-      const latestBlock = await provider.getBlockNumber({ finalised: true });
       let rangeStart = lastQueuedBlock ? lastQueuedBlock + 1 : latestBlock;
 
       while (rangeStart + rangeSize < latestBlock) {
@@ -133,7 +141,7 @@ try {
           { _id: LAST_QUEUED_BLOCK_ID },
           { lastQueuedBlock: rangeEnd, lastQueuedBlockHex: rangeEnd.toString(16) },
           { upsert: true }
-        );
+        ).exec();
 
         rangeStart += rangeSize + 1;
         // Throttle catch-up dispatches to avoid hitting provider frequency limits.

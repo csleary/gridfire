@@ -1,5 +1,9 @@
 import type { AmqpMessage } from "@gridfire/shared/types/messages";
 
+/**
+ * Contract event notifications.
+ */
+
 enum NotificationType {
   Approval = "approvalEvent",
   Claim = "claimEvent",

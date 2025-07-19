@@ -150,6 +150,18 @@ class SSEClient {
     }
   }
 
+  sendToAll(message: ServerSentMessagePayload): void {
+    if (this.#sessions.size === 0) return;
+    logger.info(`[sendToAll] Sending message to all users: ${JSON.stringify(message)}`);
+    for (const [, connections] of this.#sessions.entries()) {
+      for (const [, { res }] of connections.entries()) {
+        const data = JSON.stringify(message);
+        res.write(`event: ${message.type}\n`);
+        res.write(`data: ${data}\n\n`);
+      }
+    }
+  }
+
   setConsumerChannel(channel: ChannelWrapper, messageHandler: MessageHandler) {
     this.#consumerChannel = channel;
     this.#messageHandler = messageHandler;

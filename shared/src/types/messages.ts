@@ -10,7 +10,10 @@ const isJobMessage = (message: AmqpMessage): message is JobMessage => "job" in m
 const isKeepAliveMessage = (message: AmqpMessage): message is KeepAliveMessage =>
   "userId" in message && "uuid" in message;
 
-const isServerSentMessage = (message: AmqpMessage): message is ServerSentMessage =>
+const isGlobalServerSentMessage = (message: AmqpMessage): message is GlobalServerSentMessage =>
+  [MessageType.BlockRangeChecked].some(t => t === message.type) && !("userId" in message);
+
+const isServerSentMessage = (message: AmqpMessage): message is UserServerSentMessage =>
   [
     MessageType.ArtworkUploaded,
     MessageType.EncodingProgressFLAC,
@@ -29,11 +32,13 @@ const isServerSentMessage = (message: AmqpMessage): message is ServerSentMessage
     NotificationType.Purchase,
     NotificationType.PurchaseEdition,
     NotificationType.Sale
-  ].includes(message.type);
+  ].some(t => t === message.type);
 
+// Worker messages (either audio-encoding worker or contract event worker).
 enum MessageType {
   ArtworkUploaded = "artworkUploaded",
   BlockRange = "blockRange",
+  BlockRangeChecked = "blockRangeChecked",
   EncodingProgressFLAC = "encodingProgressFLAC",
   Job = "job",
   Notify = "notify",
@@ -53,11 +58,20 @@ interface AmqpMessage {
   type: MessageType | NotificationType;
 }
 
+interface BlockRangeChecked extends Omit<AmqpMessage, "userId"> {
+  date: number;
+  fromBlock: number;
+  toBlock: number;
+  type: MessageType.BlockRangeChecked;
+}
+
 interface BlockRangeMessage extends Omit<AmqpMessage, "userId"> {
   fromBlock: string;
   toBlock: string;
   type: MessageType.BlockRange;
 }
+
+type GlobalServerSentMessage = BlockRangeChecked;
 
 interface JobMessage extends AmqpMessage {
   job: string;
@@ -111,7 +125,9 @@ interface MessageWorkerNotification extends AmqpMessage {
   userId: string;
 }
 
-type ServerSentMessage =
+type ServerSentMessagePayload = Omit<UserServerSentMessage, "userId">;
+
+type UserServerSentMessage =
   | MessageArtworkUploaded
   | MessageEncodingError
   | MessageEncodingProgress
@@ -119,11 +135,10 @@ type ServerSentMessage =
   | MessageTranscoding
   | MessageWorkerNotification;
 
-type ServerSentMessagePayload = Omit<ServerSentMessage, "userId">;
-
 export type {
   AmqpMessage,
   BlockRangeMessage,
+  GlobalServerSentMessage,
   JobMessage,
   KeepAliveMessage,
   MessageEncodingError,
@@ -131,12 +146,13 @@ export type {
   MessageTrackStatus,
   MessageTranscoding,
   MessageWorkerNotification,
-  ServerSentMessage,
-  ServerSentMessagePayload
+  ServerSentMessagePayload,
+  UserServerSentMessage
 };
 
 export {
   isBlockRangeMessage,
+  isGlobalServerSentMessage,
   isJobMessage,
   isJobOrBlockRangeMessage,
   isKeepAliveMessage,

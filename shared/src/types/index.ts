@@ -8,6 +8,7 @@ export type * from "@gridfire/shared/types/amqp";
 export type * from "@gridfire/shared/types/messages";
 export {
   isBlockRangeMessage,
+  isGlobalServerSentMessage,
   isJobMessage,
   isJobOrBlockRangeMessage,
   isKeepAliveMessage,

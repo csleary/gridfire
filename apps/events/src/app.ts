@@ -4,9 +4,9 @@ import onEditionMinted from "@gridfire/events/controllers/onEditionMinted";
 import onPurchase from "@gridfire/events/controllers/onPurchase";
 import onPurchaseEdition from "@gridfire/events/controllers/onPurchaseEdition";
 import onTransferSingle from "@gridfire/events/controllers/onTransferSingle";
-import { amqpClose, amqpConnect } from "@gridfire/shared/amqp";
+import { amqpClose, amqpConnect, publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
-import { isBlockRangeMessage, MessageHandler } from "@gridfire/shared/types";
+import { isBlockRangeMessage, MessageHandler, MessageType } from "@gridfire/shared/types";
 import GridfireProvider from "@gridfire/shared/web3/gridfireProvider";
 import { contracts, EventNames, LOCALHOST, providers } from "@gridfire/shared/web3/rpcProviders";
 import mongoose from "mongoose";
@@ -122,6 +122,13 @@ try {
     if (isBlockRangeMessage(message)) {
       const { fromBlock, toBlock } = message;
       await provider.getLogs({ fromBlock, toBlock });
+
+      await publishToQueue("", "client", {
+        date: Date.now(),
+        fromBlock: Number.parseInt(fromBlock, 16),
+        toBlock: Number.parseInt(toBlock, 16),
+        type: MessageType.BlockRangeChecked
+      });
     }
   };
 

@@ -6,13 +6,15 @@ import sseClient from "@gridfire/shared/sseController";
 import {
   BlockRangeMessage,
   ConnectFunction,
+  GlobalServerSentMessage,
+  isGlobalServerSentMessage,
   isJobOrBlockRangeMessage,
   isKeepAliveMessage,
   isServerSentMessage,
   JobMessage,
   KeepAliveMessage,
   Notification,
-  ServerSentMessage
+  UserServerSentMessage
 } from "@gridfire/shared/types";
 import { connect } from "amqp-connection-manager";
 import assert from "node:assert/strict";
@@ -50,6 +52,11 @@ const onMessage = async (data: ConsumeMessage | null) => {
     if (isKeepAliveMessage(message)) {
       const { userId, uuid } = message;
       sseClient.ping(userId, uuid);
+      return void consumeChannel.ack(data);
+    }
+
+    if (isGlobalServerSentMessage(message)) {
+      sseClient.sendToAll(message);
       return void consumeChannel.ack(data);
     }
 
@@ -149,7 +156,13 @@ const amqpConnect: ConnectFunction = async ({ messageHandler } = {}) => {
 const publishToQueue = async (
   exchange: string,
   routingKey: string,
-  message: BlockRangeMessage | JobMessage | KeepAliveMessage | Notification | ServerSentMessage
+  message:
+    | BlockRangeMessage
+    | GlobalServerSentMessage
+    | JobMessage
+    | KeepAliveMessage
+    | Notification
+    | UserServerSentMessage
 ): Promise<void> => {
   await publishChannel.publish(exchange, routingKey, message, { persistent: true });
 };

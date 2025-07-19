@@ -23,6 +23,8 @@ interface Web3State {
   isConnected: boolean;
   isFetchingAllowance: boolean;
   isFetchingSales: boolean;
+  lastCheckedBlockDate: number;
+  lastCheckedBlockNumber: number;
   mintedEditionIds: string[];
   networkName: string;
   sales: SalesHistory;
@@ -41,6 +43,8 @@ const initialState: Web3State = {
   isConnected: false,
   isFetchingAllowance: false,
   isFetchingSales: false,
+  lastCheckedBlockDate: 0,
+  lastCheckedBlockNumber: 0,
   mintedEditionIds: [],
   networkName: "",
   sales: []
@@ -90,6 +94,11 @@ const web3Slice = createSlice({
     },
     setIsFetchingSales(state, action) {
       state.isFetchingSales = action.payload;
+    },
+    setLastCheckedBlock(state, action) {
+      const { date, toBlock } = action.payload;
+      state.lastCheckedBlockDate = date;
+      state.lastCheckedBlockNumber = toBlock;
     },
     setMintedEditionIds(state, action) {
       state.mintedEditionIds = [...state.mintedEditionIds, action.payload];
@@ -223,6 +232,7 @@ export const {
   setIsConnected,
   setIsFetchingAllowance,
   setIsFetchingSales,
+  setLastCheckedBlock,
   setMintedEditionIds,
   setNetworkName,
   setSales

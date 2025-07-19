@@ -61,10 +61,10 @@ class GridfireProvider extends EventEmitter {
     this.#logger.info("Listeners removed, timeout cleared. Ready for shutdown.");
   }
 
-  async getBlockNumber({ finalised } = { finalised: false }): Promise<number> {
-    if (finalised) {
+  async getBlockNumber({ blockTag }: { blockTag?: string } = {}): Promise<number> {
+    if (blockTag) {
       this.#logger.debug("Fetching latest finalised block…");
-      const currentBlockHex = await this.#getBlockByNumber();
+      const currentBlockHex = await this.#getBlockByNumber(blockTag);
       return Number.parseInt(currentBlockHex, 16);
     }
 
@@ -124,9 +124,9 @@ class GridfireProvider extends EventEmitter {
     this.emit(eventName, ...args, { ...log, getTransactionReceipt });
   }
 
-  async #getBlockByNumber(): Promise<string> {
+  async #getBlockByNumber(blockTag: string): Promise<string> {
     const method = "eth_getBlockByNumber";
-    const responses = await this.#send([{ method, params: ["latest", false] }]); // transaction_detail_flag bool
+    const responses = await this.#send([{ method, params: [blockTag, false] }]); // transaction_detail_flag bool
 
     const highestBlock = responses
       .filter(filterErrors)

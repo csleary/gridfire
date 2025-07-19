@@ -70,7 +70,7 @@ app.use("/api/track", track);
 app.use("/api/user", user);
 app.use("/api/web3", web3);
 app.use("/livez", (req, res) => void res.sendStatus(200));
-app.use("/readyz", (req, res) => (isReady ? void res.sendStatus(200) : void res.sendStatus(400)));
+app.use("/readyz", (req, res) => void res.sendStatus(isReady ? 200 : 400));
 
 const handleShutdown = async () => {
   if (isShuttingDown) {

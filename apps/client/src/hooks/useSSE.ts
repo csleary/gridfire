@@ -17,7 +17,7 @@ import {
   setTranscodingStartedMP3
 } from "@/state/tracks";
 import { fetchUser } from "@/state/user";
-import { fetchDaiBalance, setMintedEditionIds } from "@/state/web3";
+import { fetchDaiBalance, setLastCheckedBlock, setMintedEditionIds } from "@/state/web3";
 
 type SSEHandler = (event: MessageEvent) => void;
 
@@ -72,6 +72,14 @@ const useSSE = () => {
     event => {
       const { progress, trackId } = JSON.parse(event.data);
       dispatch(setEncodingProgressFLAC({ progress, trackId }));
+    },
+    [dispatch]
+  );
+
+  const onCheckedBlock: SSEHandler = useCallback(
+    event => {
+      const { date, fromBlock, toBlock } = JSON.parse(event.data);
+      dispatch(setLastCheckedBlock({ date, fromBlock, toBlock }));
     },
     [dispatch]
   );
@@ -222,16 +230,11 @@ const useSSE = () => {
     if (sourceRef.current) {
       const source = sourceRef.current;
       source.removeEventListener(MessageType.ArtworkUploaded, onArtworkUploaded);
-      source.removeEventListener(NotificationType.Approval, onApprovalEvent);
-      source.removeEventListener(NotificationType.Claim, onClaimEvent);
+      source.removeEventListener(MessageType.BlockRangeChecked, onCheckedBlock);
       source.removeEventListener(MessageType.EncodingProgressFLAC, onEncodingProgressFLAC);
-      source.removeEventListener(NotificationType.Mint, onEditionMinted);
       source.removeEventListener(MessageType.Notify, onNotify);
       source.removeEventListener(MessageType.PipelineError, onPipelineError);
       source.removeEventListener(MessageType.Pong, onPong);
-      source.removeEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
-      source.removeEventListener(NotificationType.Purchase, onPurchaseEvent);
-      source.removeEventListener(NotificationType.Sale, onSaleEvent);
       source.removeEventListener(MessageType.StoringProgressFLAC, onStoringProgressFLAC);
       source.removeEventListener(MessageType.TrackStatus, onTrackStatus);
       source.removeEventListener(MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC);
@@ -239,6 +242,12 @@ const useSSE = () => {
       source.removeEventListener(MessageType.TranscodingStartedAAC, onTranscodingStartedAAC);
       source.removeEventListener(MessageType.TranscodingStartedMP3, onTranscodingStartedMP3);
       source.removeEventListener(MessageType.WorkerMessage, onWorkerMessage);
+      source.removeEventListener(NotificationType.Approval, onApprovalEvent);
+      source.removeEventListener(NotificationType.Claim, onClaimEvent);
+      source.removeEventListener(NotificationType.Mint, onEditionMinted);
+      source.removeEventListener(NotificationType.Purchase, onPurchaseEvent);
+      source.removeEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
+      source.removeEventListener(NotificationType.Sale, onSaleEvent);
       window.removeEventListener("beforeunload", cleanup);
       sourceRef.current.close();
       sourceRef.current = null;
@@ -246,6 +255,7 @@ const useSSE = () => {
   }, [
     onApprovalEvent,
     onArtworkUploaded,
+    onCheckedBlock,
     onClaimEvent,
     onEditionMinted,
     onEncodingProgressFLAC,
@@ -294,16 +304,11 @@ const useSSE = () => {
     };
 
     source.addEventListener(MessageType.ArtworkUploaded, onArtworkUploaded);
-    source.addEventListener(NotificationType.Approval, onApprovalEvent);
-    source.addEventListener(NotificationType.Claim, onClaimEvent);
+    source.addEventListener(MessageType.BlockRangeChecked, onCheckedBlock);
     source.addEventListener(MessageType.EncodingProgressFLAC, onEncodingProgressFLAC);
-    source.addEventListener(NotificationType.Mint, onEditionMinted);
     source.addEventListener(MessageType.Notify, onNotify);
     source.addEventListener(MessageType.PipelineError, onPipelineError);
     source.addEventListener(MessageType.Pong, onPong);
-    source.addEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
-    source.addEventListener(NotificationType.Purchase, onPurchaseEvent);
-    source.addEventListener(NotificationType.Sale, onSaleEvent);
     source.addEventListener(MessageType.StoringProgressFLAC, onStoringProgressFLAC);
     source.addEventListener(MessageType.TrackStatus, onTrackStatus);
     source.addEventListener(MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC);
@@ -311,11 +316,18 @@ const useSSE = () => {
     source.addEventListener(MessageType.TranscodingStartedAAC, onTranscodingStartedAAC);
     source.addEventListener(MessageType.TranscodingStartedMP3, onTranscodingStartedMP3);
     source.addEventListener(MessageType.WorkerMessage, onWorkerMessage);
+    source.addEventListener(NotificationType.Approval, onApprovalEvent);
+    source.addEventListener(NotificationType.Claim, onClaimEvent);
+    source.addEventListener(NotificationType.Mint, onEditionMinted);
+    source.addEventListener(NotificationType.Purchase, onPurchaseEvent);
+    source.addEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
+    source.addEventListener(NotificationType.Sale, onSaleEvent);
     window.addEventListener("beforeunload", cleanup);
   }, [
     cleanup,
     onApprovalEvent,
     onArtworkUploaded,
+    onCheckedBlock,
     onClaimEvent,
     onEditionMinted,
     onEncodingProgressFLAC,
