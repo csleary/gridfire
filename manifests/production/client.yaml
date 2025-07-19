@@ -30,14 +30,3 @@ spec:
               cpu: 1000m
       imagePullSecrets:
         - name: regcred
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: client
-  namespace: gridfire-prod
-spec:
-  selector:
-    app: client
-  ports:
-    - port: 80

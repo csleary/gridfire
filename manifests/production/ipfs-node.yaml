@@ -38,19 +38,3 @@ spec:
         resources:
           requests:
             storage: 5Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ipfs-node
-  namespace: gridfire-prod
-spec:
-  selector:
-    app: ipfs-node
-  ports:
-    - name: p2p
-      port: 4001
-    - name: rpc
-      port: 5001
-    - name: gateway
-      port: 8080
