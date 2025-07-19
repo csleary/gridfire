@@ -1,6 +1,6 @@
 import { MessageType, NotificationType } from "@gridfire/shared/types";
 import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDispatch, useSelector } from "@/hooks";
 import { setArtworkUploading } from "@/state/artwork";
@@ -20,18 +20,31 @@ import { fetchUser } from "@/state/user";
 import { fetchDaiBalance, setLastCheckedBlock, setMintedEditionIds } from "@/state/web3";
 
 type SSEHandler = (event: MessageEvent) => void;
-
 const PING_INTERVAL = 1000 * 15;
 
 const useSSE = () => {
   const dispatch = useDispatch();
+  const connectionIdRef = useRef(window.crypto.randomUUID());
   const pingInterval = useRef<ReturnType<typeof setInterval>>(null);
   const keepAlive = useRef<ReturnType<typeof setTimeout>>(null);
   const sourceRef = useRef<EventSource>(null);
   const account = useSelector(state => state.user.account);
   const userId = useSelector(state => state.user.userId);
   const [shouldReconnect, setShouldReconnect] = useState(false);
-  const connectionIdRef = useRef(window.crypto.randomUUID());
+  let identifier = userId;
+
+  if (!identifier) {
+    // Fallback to localStorage if userId is not available.
+    identifier = window.localStorage.getItem("eventsUserId") || "";
+  }
+
+  if (!identifier) {
+    // Generate and save a new identifier if none exists.
+    identifier = window.crypto.randomUUID();
+    window.localStorage.setItem("eventsUserId", identifier);
+  }
+
+  const url = `/api/sse/${identifier}/${connectionIdRef.current}`;
 
   const onNotify: SSEHandler = useCallback(
     event => {
@@ -216,6 +229,59 @@ const useSSE = () => {
     [dispatch]
   );
 
+  const globalEventHandlers = useMemo(
+    () =>
+      new Map([
+        [MessageType.BlockRangeChecked, onCheckedBlock],
+        [MessageType.Pong, onPong]
+      ]),
+    [onCheckedBlock, onPong]
+  );
+
+  const userEventHandlers = useMemo(
+    () =>
+      new Map<MessageType | NotificationType, SSEHandler>([
+        [MessageType.ArtworkUploaded, onArtworkUploaded],
+        [MessageType.EncodingProgressFLAC, onEncodingProgressFLAC],
+        [MessageType.Notify, onNotify],
+        [MessageType.PipelineError, onPipelineError],
+        [MessageType.Pong, onPong],
+        [MessageType.StoringProgressFLAC, onStoringProgressFLAC],
+        [MessageType.TrackStatus, onTrackStatus],
+        [MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC],
+        [MessageType.TranscodingCompleteMP3, onTranscodingCompleteMP3],
+        [MessageType.TranscodingStartedAAC, onTranscodingStartedAAC],
+        [MessageType.TranscodingStartedMP3, onTranscodingStartedMP3],
+        [MessageType.WorkerMessage, onWorkerMessage],
+        [NotificationType.Approval, onApprovalEvent],
+        [NotificationType.Claim, onClaimEvent],
+        [NotificationType.Mint, onEditionMinted],
+        [NotificationType.Purchase, onPurchaseEvent],
+        [NotificationType.PurchaseEdition, onPurchaseEditionEvent],
+        [NotificationType.Sale, onSaleEvent]
+      ]),
+    [
+      onApprovalEvent,
+      onArtworkUploaded,
+      onClaimEvent,
+      onEditionMinted,
+      onEncodingProgressFLAC,
+      onNotify,
+      onPipelineError,
+      onPong,
+      onPurchaseEditionEvent,
+      onPurchaseEvent,
+      onSaleEvent,
+      onStoringProgressFLAC,
+      onTrackStatus,
+      onTranscodingCompleteAAC,
+      onTranscodingCompleteMP3,
+      onTranscodingStartedAAC,
+      onTranscodingStartedMP3,
+      onWorkerMessage
+    ]
+  );
+
   const cleanup = useCallback(() => {
     if (keepAlive.current) {
       clearTimeout(keepAlive.current);
@@ -229,65 +295,35 @@ const useSSE = () => {
 
     if (sourceRef.current) {
       const source = sourceRef.current;
-      source.removeEventListener(MessageType.ArtworkUploaded, onArtworkUploaded);
-      source.removeEventListener(MessageType.BlockRangeChecked, onCheckedBlock);
-      source.removeEventListener(MessageType.EncodingProgressFLAC, onEncodingProgressFLAC);
-      source.removeEventListener(MessageType.Notify, onNotify);
-      source.removeEventListener(MessageType.PipelineError, onPipelineError);
-      source.removeEventListener(MessageType.Pong, onPong);
-      source.removeEventListener(MessageType.StoringProgressFLAC, onStoringProgressFLAC);
-      source.removeEventListener(MessageType.TrackStatus, onTrackStatus);
-      source.removeEventListener(MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC);
-      source.removeEventListener(MessageType.TranscodingCompleteMP3, onTranscodingCompleteMP3);
-      source.removeEventListener(MessageType.TranscodingStartedAAC, onTranscodingStartedAAC);
-      source.removeEventListener(MessageType.TranscodingStartedMP3, onTranscodingStartedMP3);
-      source.removeEventListener(MessageType.WorkerMessage, onWorkerMessage);
-      source.removeEventListener(NotificationType.Approval, onApprovalEvent);
-      source.removeEventListener(NotificationType.Claim, onClaimEvent);
-      source.removeEventListener(NotificationType.Mint, onEditionMinted);
-      source.removeEventListener(NotificationType.Purchase, onPurchaseEvent);
-      source.removeEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
-      source.removeEventListener(NotificationType.Sale, onSaleEvent);
+
+      globalEventHandlers.forEach((handler, type) => {
+        source.removeEventListener(type, handler);
+      });
+
+      if (userId) {
+        userEventHandlers.forEach((handler, type) => {
+          source.removeEventListener(type, handler);
+        });
+      }
+
       window.removeEventListener("beforeunload", cleanup);
       sourceRef.current.close();
       sourceRef.current = null;
     }
-  }, [
-    onApprovalEvent,
-    onArtworkUploaded,
-    onCheckedBlock,
-    onClaimEvent,
-    onEditionMinted,
-    onEncodingProgressFLAC,
-    onNotify,
-    onPipelineError,
-    onPong,
-    onPurchaseEditionEvent,
-    onPurchaseEvent,
-    onSaleEvent,
-    onStoringProgressFLAC,
-    onTrackStatus,
-    onTranscodingCompleteAAC,
-    onTranscodingCompleteMP3,
-    onTranscodingStartedAAC,
-    onTranscodingStartedMP3,
-    onWorkerMessage
-  ]);
+  }, [globalEventHandlers, userEventHandlers, userId]);
 
   const pingConnection = useCallback(async () => {
     try {
-      const connectionId = connectionIdRef.current;
-      await axios.get(`/api/sse/${userId}/${connectionId}/ping`);
+      await axios.get(`${url}/ping`);
     } catch (error) {
       console.error("[SSE] Ping error:", error);
       setShouldReconnect(true);
     }
-  }, [connectionIdRef, userId]);
+  }, [url]);
 
   const createConnection = useCallback(() => {
     if (sourceRef.current) return;
-    const connectionId = connectionIdRef.current;
-    sourceRef.current = new EventSource(`/api/sse/${userId}/${connectionId}`);
+    sourceRef.current = new EventSource(url);
 
     keepAlive.current = setTimeout(() => {
       setShouldReconnect(true);
@@ -303,57 +339,24 @@ const useSSE = () => {
       setShouldReconnect(true);
     };
 
-    source.addEventListener(MessageType.ArtworkUploaded, onArtworkUploaded);
-    source.addEventListener(MessageType.BlockRangeChecked, onCheckedBlock);
-    source.addEventListener(MessageType.EncodingProgressFLAC, onEncodingProgressFLAC);
-    source.addEventListener(MessageType.Notify, onNotify);
-    source.addEventListener(MessageType.PipelineError, onPipelineError);
-    source.addEventListener(MessageType.Pong, onPong);
-    source.addEventListener(MessageType.StoringProgressFLAC, onStoringProgressFLAC);
-    source.addEventListener(MessageType.TrackStatus, onTrackStatus);
-    source.addEventListener(MessageType.TranscodingCompleteAAC, onTranscodingCompleteAAC);
-    source.addEventListener(MessageType.TranscodingCompleteMP3, onTranscodingCompleteMP3);
-    source.addEventListener(MessageType.TranscodingStartedAAC, onTranscodingStartedAAC);
-    source.addEventListener(MessageType.TranscodingStartedMP3, onTranscodingStartedMP3);
-    source.addEventListener(MessageType.WorkerMessage, onWorkerMessage);
-    source.addEventListener(NotificationType.Approval, onApprovalEvent);
-    source.addEventListener(NotificationType.Claim, onClaimEvent);
-    source.addEventListener(NotificationType.Mint, onEditionMinted);
-    source.addEventListener(NotificationType.Purchase, onPurchaseEvent);
-    source.addEventListener(NotificationType.PurchaseEdition, onPurchaseEditionEvent);
-    source.addEventListener(NotificationType.Sale, onSaleEvent);
+    globalEventHandlers.forEach((handler, type) => {
+      source.addEventListener(type, handler);
+    });
+
+    if (userId) {
+      userEventHandlers.forEach((handler, type) => {
+        source.addEventListener(type, handler);
+      });
+    }
+
     window.addEventListener("beforeunload", cleanup);
-  }, [
-    cleanup,
-    onApprovalEvent,
-    onArtworkUploaded,
-    onCheckedBlock,
-    onClaimEvent,
-    onEditionMinted,
-    onEncodingProgressFLAC,
-    onNotify,
-    onPipelineError,
-    onPong,
-    onPurchaseEditionEvent,
-    onPurchaseEvent,
-    onSaleEvent,
-    onStoringProgressFLAC,
-    onTrackStatus,
-    onTranscodingCompleteAAC,
-    onTranscodingCompleteMP3,
-    onTranscodingStartedAAC,
-    onTranscodingStartedMP3,
-    onWorkerMessage,
-    pingConnection,
-    userId
-  ]);
+  }, [cleanup, globalEventHandlers, pingConnection, url, userEventHandlers, userId]);
 
   useEffect(() => {
-    if (!userId) return;
     console.info("[SSE] Initialising connection…");
     createConnection();
     return cleanup;
-  }, [cleanup, createConnection, userId]);
+  }, [cleanup, createConnection]);
 
   const reconnect = useCallback(async () => {
     try {
@@ -370,7 +373,6 @@ const useSSE = () => {
   }, [createConnection]);
 
   useEffect(() => {
-    if (!userId) return;
     if (!shouldReconnect) return;
     cleanup();
     reconnect();

@@ -5,6 +5,7 @@ metadata:
   namespace: gridfire-prod
 data:
   DISABLED_PROVIDERS: "1rpc, drpc, quicknode"
+  INPUT_QUEUES: client
   NODE_ENV: production
   QUEUE_TRANSCODE: transcode
   TEMP_PATH: /home/node/app/tmp
