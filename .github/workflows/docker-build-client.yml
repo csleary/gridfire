@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to the Kubernetes cluster
         uses: azure/k8s-deploy@v5
         with:
-          namespace: default
+          namespace: gridfire-prod
           manifests: |
             manifests/production/client.yaml
           images: |
