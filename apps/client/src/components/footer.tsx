@@ -76,24 +76,26 @@ const Footer: React.FC = () => {
         ) : null}
       </HStack>
       <Divider borderColor={useColorModeValue("gray.300", "gray.600")} my={8} />
-      <Center mb={2}>
+      <Center mb={16}>
         {lastCheckedBlockNumber ? (
-          <Text color={gridbotTextColour}>
+          <Text color={gridbotTextColour} textAlign={"center"}>
             <Icon color="green.400" fontSize="small" icon={faCircle} mr={2} />
-            Gridbot scanned block{" "}
+            Gridbot online
+            <br />
+            Latest block:{" "}
             <Link href={`https://arbiscan.io/block/${lastCheckedBlockNumber}`} isExternal>
               {lastCheckedBlockNumber}
             </Link>{" "}
-            ({DateTime.fromMillis(lastCheckedBlockDate).toLocaleString(DateTime.TIME_WITH_SECONDS)})
+            at {DateTime.fromMillis(lastCheckedBlockDate).toLocaleString(DateTime.TIME_WITH_SECONDS)}
           </Text>
         ) : (
           <Text color={gridbotTextColour}>
-            <Icon color="red.400" fontSize="small" icon={faCircle} mr={2} />
-            No block information yet
+            <Icon color="orange.300" fontSize="small" icon={faCircle} mr={2} />
+            Waiting for Gridbot
           </Text>
         )}
       </Center>
-      <Center>
+      <Center mb={16}>
         <Wrap spacing={3}>
           <WrapItem>
             <Text fontSize="small">
