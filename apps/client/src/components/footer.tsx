@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
   const year = today.getFullYear();
 
   return (
-    <Container as="footer" maxW="container.xl" p={0} pt={8}>
+    <Container as="footer" maxW="container.xl" mt={16} pt={8}>
       <HStack alignItems="flex-start">
         <Center flex={1}>
           <List>

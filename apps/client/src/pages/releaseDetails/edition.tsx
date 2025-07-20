@@ -5,7 +5,9 @@ import {
   Box,
   Button,
   Center,
+  Divider,
   Flex,
+  Heading,
   ListItem,
   OrderedList,
   Spinner,
@@ -15,6 +17,7 @@ import {
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { EditionPurchase, MintedEdition } from "@gridfire/shared/types";
 import axios from "axios";
+import { isAxiosError } from "axios";
 import { formatEther } from "ethers";
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -62,7 +65,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const formattedPrice = Number(formatEther(price)).toFixed(2);
   const isSoldOut = BigInt(balance) === 0n;
   const isDisabled = !isConnected || isFetchingAllowance || isPurchasing || isSoldOut;
-  const transition = "200ms ease-in-out";
+  const transition = "150ms ease-in-out";
 
   const handlePurchase = async ({ editionId, price }: EditionPurchase) => {
     try {
@@ -72,12 +75,21 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
       await purchaseEdition({ artist, editionId, price, releaseId });
       fetchEditions();
       dispatch(fetchDaiBalance(account));
-    } catch (error: any) {
-      if (error.code === "ACTION_REJECTED") {
+    } catch (error: unknown) {
+      console.log(error);
+
+      if (error && typeof error === "object" && "code" in error && error.code === "ACTION_REJECTED") {
         return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
       }
 
-      dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
+      if (isAxiosError(error)) {
+        return void dispatch(toastError({ message: error.response?.data?.message, title: "Request error" }));
+      }
+
+      if (error instanceof Error) {
+        dispatch(toastError({ message: error.message, title: "Error" }));
+      }
+
       console.error(error);
     } finally {
       setIsPurchasing(false);
@@ -101,18 +113,18 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   };
 
   return (
-    <AccordionItem border="none" width="100%">
+    <AccordionItem alignSelf="stretch" border="none">
       {({ isExpanded }) => (
-        <Flex flexDirection="column">
-          <Flex justifyContent="center">
+        <>
+          <Heading display="flex" justifyContent="center" m={0}>
             <AccordionButton
+              _expanded={{ flex: "1 0 16rem" }}
               _hover={{ color: "blackAlpha.800" }}
               color="var(--chakra-colors-blackAlpha-700)"
               display="flex"
-              flex={`${isExpanded ? 1 : 0} 0 16rem`}
+              flex="0 0 16rem"
               fontSize="lg"
               fontWeight="bold"
-              height="unset"
               justifyContent="space-between"
               position="relative"
               px={4}
@@ -122,14 +134,11 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
               width="unset"
             >
               <Box
-                _groupHover={isExpanded ? undefined : { transform: "skewX(-10deg) scale(1.03)" }}
+                _groupHover={isExpanded ? undefined : { transform: "skewX(-10deg) scale(1.05)" }}
                 background={`linear-gradient(to right, ${color1}, ${color2})`}
-                bottom={0}
-                left={0}
+                inset={0}
                 position="absolute"
-                right={0}
                 rounded="lg"
-                top={0}
                 transform={isExpanded ? "none" : "skewX(-10deg)"}
                 transition={transition}
               />
@@ -152,7 +161,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
                 )}
               </Box>
             </AccordionButton>
-          </Flex>
+          </Heading>
           <AccordionPanel
             _before={{
               backgroundColor: bgColor,
@@ -162,14 +171,15 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
             }}
             background={`linear-gradient(to right, ${color1}, ${color2})`}
             mt={4}
-            p={4}
+            p={6}
             position="relative"
             rounded="lg"
           >
             <Box position="relative">
-              <Center color={descriptionColor} fontSize="2xl" fontWeight="500" mb={4} mt={-2} width="100%">
+              <Center color={descriptionColor} fontSize="2xl" fontWeight="500" mb={4} mt={-2}>
                 {description}
               </Center>
+              <Divider borderColor="whiteAlpha.300" my={4} />
               <Text color={infoColor} mb={4}>
                 Edition of {formattedAmount} ({formattedBalance} remaining).
               </Text>
@@ -183,6 +193,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
                   </OrderedList>
                 </>
               ) : null}
+              <Divider borderColor="whiteAlpha.300" my={6} />
               <Center>
                 <Button
                   display="block"
@@ -196,7 +207,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
               </Center>
             </Box>
           </AccordionPanel>
-        </Flex>
+        </>
       )}
     </AccordionItem>
   );

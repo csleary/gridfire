@@ -46,7 +46,7 @@ const Editions = () => {
           <Divider borderColor={color} />
         </Flex>
         <ScaleFade in>
-          <Accordion allowMultiple>
+          <Accordion allowMultiple allowToggle>
             <VStack mb={8} spacing={6}>
               {editions.map((edition, index) => {
                 const { editionId } = edition;

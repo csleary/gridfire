@@ -9,7 +9,7 @@ hardhat/artifacts
 hardhat/cache
 hardhat/typechain-types
 manifests/secrets
-node_modules
+**/node_modules
 !apps/client/.env.production
 !.yarn/plugins
 !.yarn/releases
