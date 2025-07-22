@@ -3,9 +3,9 @@ import axios from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDispatch, useSelector } from "@/hooks";
+import { endpoints } from "@/state/api/web3Slice";
 import { setArtworkUploading } from "@/state/artwork";
 import { updateTrackStatus } from "@/state/editor";
-import { endpoints } from "@/state/logs";
 import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
 import {
   setEncodingProgressFLAC,

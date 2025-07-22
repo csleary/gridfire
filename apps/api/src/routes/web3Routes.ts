@@ -2,6 +2,7 @@ import logger from "@gridfire/api/controllers/logger";
 import { getResolvedAddress } from "@gridfire/api/controllers/web3";
 import requireLogin from "@gridfire/api/middlewares/requireLogin";
 import Approval from "@gridfire/shared/models/Approval";
+import Block from "@gridfire/shared/models/Block";
 import Claim from "@gridfire/shared/models/Claim";
 import Sale from "@gridfire/shared/models/Sale";
 import { IUser } from "@gridfire/shared/models/User";
@@ -9,6 +10,16 @@ import { Router } from "express";
 import { Types } from "mongoose";
 
 const router = Router();
+
+router.get("/block-range", async (req, res) => {
+  try {
+    const block = await Block.findById("arbitrum_dispatcher", { __v: 0, _id: 0 }).lean();
+    res.json(block);
+  } catch (error) {
+    logger.error(error);
+    res.sendStatus(400);
+  }
+});
 
 router.get("/approvals/:account", requireLogin, async (req, res) => {
   try {

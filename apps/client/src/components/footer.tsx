@@ -17,6 +17,7 @@ import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { useSelector } from "@/hooks";
+import { useGetBlockRangeQuery } from "@/state/api/web3Slice";
 
 import Icon from "./icon";
 
@@ -24,10 +25,15 @@ const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContractAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
 
 const Footer: React.FC = () => {
+  const blockRangeQuery = useGetBlockRangeQuery();
+  const { data, isLoading } = blockRangeQuery ?? {};
+  const { lastQueuedBlock = 0, updatedAt = 0 } = data ?? {};
   const account = useSelector(state => state.user.account);
   const gridbotTextColour = useColorModeValue("gray.600", "gray.400");
-  const lastCheckedBlockDate = useSelector(state => state.web3.lastCheckedBlockDate);
-  const lastCheckedBlockNumber = useSelector(state => state.web3.lastCheckedBlockNumber);
+  const lastCheckedBlockDate = useSelector(state => state.web3.lastCheckedBlockDate) || new Date(updatedAt).getTime();
+  const lastCheckedBlockNumber = useSelector(state => state.web3.lastCheckedBlockNumber) || lastQueuedBlock;
+  const moreThanDayOld = DateTime.now().diff(DateTime.fromMillis(lastCheckedBlockDate), "days").days > 1;
+  const isStale = DateTime.now().diff(DateTime.fromMillis(lastCheckedBlockDate), "minutes").minutes > 10;
   const today = new Date();
   const year = today.getFullYear();
 
@@ -77,16 +83,20 @@ const Footer: React.FC = () => {
       </HStack>
       <Divider borderColor={useColorModeValue("gray.300", "gray.600")} my={8} />
       <Center mb={16}>
-        {lastCheckedBlockNumber ? (
+        {!isLoading && lastCheckedBlockNumber ? (
           <Text color={gridbotTextColour} textAlign={"center"}>
-            <Icon color="green.400" fontSize="small" icon={faCircle} mr={2} />
-            Gridbot online
+            <Icon color={isStale ? "red.400" : "green.400"} fontSize="small" icon={faCircle} mr={2} />
+            Gridbot block status
             <br />
-            Latest block:{" "}
+            Scanned{" "}
             <Link href={`https://arbiscan.io/block/${lastCheckedBlockNumber}`} isExternal>
               {lastCheckedBlockNumber}
             </Link>{" "}
-            at {DateTime.fromMillis(lastCheckedBlockDate).toLocaleString(DateTime.TIME_WITH_SECONDS)}
+            (
+            {moreThanDayOld
+              ? DateTime.fromMillis(lastCheckedBlockDate).toRelative()
+              : DateTime.fromMillis(lastCheckedBlockDate).toLocaleString(DateTime.TIME_WITH_SECONDS)}
+            )
           </Text>
         ) : (
           <Text color={gridbotTextColour}>

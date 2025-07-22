@@ -7,13 +7,13 @@ import { Provider } from "react-redux";
 
 import App from "@/App";
 import rootReducer from "@/state";
-import { logsApi } from "@/state/logs";
+import { apiSlice } from "@/state/api/apiSlice";
 
 import theme from "./theme";
 
 const store = configureStore({
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({ immutableCheck: true, serializableCheck: true }).concat(logsApi.middleware),
+    getDefaultMiddleware({ immutableCheck: true, serializableCheck: true }).concat(apiSlice.middleware),
   reducer: rootReducer
 });
 

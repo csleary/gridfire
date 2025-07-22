@@ -1,4 +1,11 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { apiSlice } from "./apiSlice";
+
+interface BlockRangeDocument {
+  createdAt: string;
+  lastQueuedBlock: number;
+  lastQueuedBlockHex: string;
+  updatedAt: string;
+}
 
 interface GridfireLog {
   blockNumber: number;
@@ -19,30 +26,30 @@ interface GridfirePaymentLog {
   transactionHash: string;
 }
 
-export const logsApi = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: "/api/web3" }),
+const web3Slice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getApprovals: builder.query<GridfireLog[], string>({
-      query: account => `/approvals/${account}`
+      query: account => `/web3/approvals/${account}`
+    }),
+    getBlockRange: builder.query<BlockRangeDocument, void>({
+      query: () => "/web3/block-range"
     }),
     getClaims: builder.query<GridfireLog[], void>({
-      query: () => "/claims"
+      query: () => "/web3/claims"
     }),
     getPurchases: builder.query<GridfirePaymentLog[], string>({
-      query: account => `/purchases/${account}`
+      query: account => `/web3/purchases/${account}`
     })
-  }),
-  reducerPath: "logsApi"
+  })
 });
 
 export const {
   endpoints,
   useGetApprovalsQuery,
+  useGetBlockRangeQuery,
   useGetClaimsQuery,
   useGetPurchasesQuery,
   useLazyGetApprovalsQuery,
   useLazyGetClaimsQuery,
   useLazyGetPurchasesQuery
-} = logsApi;
-
-export type { GridfireLog, GridfirePaymentLog };
+} = web3Slice;
