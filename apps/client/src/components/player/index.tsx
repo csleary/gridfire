@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "@/hooks";
 import { usePrevious } from "@/hooks/usePrevious";
 import { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } from "@/state/player";
 import { toastWarning } from "@/state/toast";
-import { addToFavourites, removeFromFavourites } from "@/state/user";
+import { addToFavourites, removeFromFavourites } from "@/state/userReleaseThunks";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 
 import PlaybackTime from "./playbackTime";
