@@ -10,6 +10,12 @@ import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCh
 
 const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
+interface BrowserWallet extends Eip1193Provider {
+  on: (event: string, listener: (...args: unknown[]) => void) => void;
+  removeAllListeners: (event?: string) => void;
+  removeListener: (event: string, listener: (...args: unknown[]) => void) => void;
+}
+
 interface Web3State {
   account: string;
   accountShort: string;
@@ -219,6 +225,28 @@ const connectToWeb3 = () => async (dispatch: AppDispatch) => {
   }
 };
 
+const reconnectToWeb3 = () => async (dispatch: AppDispatch) => {
+  const ethereum = await detectEthereumProvider();
+  if (!ethereum) return;
+
+  const provider = new BrowserProvider(ethereum as unknown as Eip1193Provider);
+
+  try {
+    const accounts = await provider.send("eth_accounts", []);
+    const [firstAccount] = accounts;
+    if (!firstAccount) return;
+    const network = await provider.getNetwork();
+    const { chainId, name } = network;
+    dispatch(fetchDaiAllowance(firstAccount));
+    dispatch(fetchDaiBalance(firstAccount));
+    dispatch(setAccount(firstAccount));
+    dispatch(setIsConnected(true));
+    dispatch(setNetworkName({ chainId: chainId.toString(), name }));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const {
   addToBasket,
   emptyBasket,
@@ -238,6 +266,6 @@ export const {
   setSales
 } = web3Slice.actions;
 
-export type { Web3State };
-export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance, fetchSales };
+export type { BrowserWallet, Web3State };
+export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance, fetchSales, reconnectToWeb3 };
 export default web3Slice.reducer;

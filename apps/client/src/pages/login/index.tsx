@@ -64,16 +64,17 @@ const Login = () => {
       dispatch(fetchUserFavourites());
       dispatch(fetchUserWishList());
       dispatch(connectToWeb3());
+      window.localStorage.setItem("wasConnected", "true");
       const { pathname } = location.state || {};
       if (pathname) return navigate(pathname);
       navigate("/");
-    } catch (error: any) {
-      if (error.code === 4001) {
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "code" in error && error.code === 4001) {
         const message = "Sign-in request declined.";
         return void dispatch(toastWarning({ message, title: "Login cancelled" }));
       }
 
-      if (error.code === -32002) {
+      if (error && typeof error === "object" && "code" in error && error.code === -32002) {
         const message = "Please complete the unlock/login process in your web3 wallet before retrying.";
         return void setLoginError(message);
       }

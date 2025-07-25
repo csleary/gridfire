@@ -1,7 +1,7 @@
 import { Box, Center, Flex, Link, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { BrowserProvider, Eip1193Provider, isError } from "ethers";
+import { BrowserProvider, isError } from "ethers";
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -12,8 +12,9 @@ import PrivateRoute from "@/components/privateRoute";
 import { useDispatch, useSelector } from "@/hooks";
 import useSSE from "@/hooks/useSSE";
 import { setLastCheckedOn } from "@/state/artists";
-import { fetchUser } from "@/state/user";
-import { setIsConnected, setNetworkName } from "@/state/web3";
+import { fetchUser, logOut } from "@/state/user";
+import { BrowserWallet, reconnectToWeb3, setIsConnected, setNetworkName } from "@/state/web3";
+
 const About = lazy(() => import("@/pages/about"));
 const Artist = lazy(() => import("@/pages/artist"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
@@ -29,19 +30,19 @@ const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 const App: React.FC = () => {
   useSSE();
   const dispatch = useDispatch();
-  const ethereumRef = useRef<any>(null);
+  const ethereumRef = useRef<BrowserWallet>(null);
   const providerRef = useRef<BrowserProvider>(null);
+  const account = useSelector(state => state.web3.account);
   const chainId = useSelector(state => state.web3.chainId);
   const isCorrectChain = Boolean(chainId) && chainId === VITE_CHAIN_ID;
 
   const getNetwork = useCallback(async () => {
-    const browserProvider = new BrowserProvider(ethereumRef.current as unknown as Eip1193Provider);
+    if (!ethereumRef.current) return;
+    const browserProvider = new BrowserProvider(ethereumRef.current);
     providerRef.current = browserProvider;
 
     providerRef.current.on("error", (error: unknown) => {
-      if (error instanceof Error) {
-        console.error(error);
-      }
+      console.error(error);
     });
 
     if (!providerRef.current) {
@@ -72,6 +73,33 @@ const App: React.FC = () => {
 
   const handleChainChanged = useCallback(getNetwork, [getNetwork]);
 
+  const handleAccountsChanged = useCallback(
+    (...args: unknown[]) => {
+      if (!account) return;
+      const accounts = args[0] as string[] | undefined;
+      const [newAccount] = accounts ?? [];
+
+      if (!newAccount || newAccount.toLowerCase() !== account.toLowerCase()) {
+        dispatch(logOut());
+      }
+    },
+    [account, dispatch]
+  );
+
+  const initialiseWeb3 = useCallback(async () => {
+    const ethereum = (await detectEthereumProvider()) as BrowserWallet | null;
+    if (ethereum == null) return;
+    ethereumRef.current = ethereum;
+    ethereumRef.current.on("chainChanged", handleChainChanged);
+    ethereumRef.current.on("accountsChanged", handleAccountsChanged);
+    const wasConnected = window.localStorage.getItem("wasConnected") === "true";
+    getNetwork();
+
+    if (wasConnected) {
+      dispatch(reconnectToWeb3());
+    }
+  }, [dispatch, getNetwork, handleAccountsChanged, handleChainChanged]);
+
   const getUser = useCallback(async () => {
     const user = await dispatch(fetchUser());
     const { _id: userId } = user || {};
@@ -95,18 +123,16 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
-  const initialiseWeb3 = useCallback(async () => {
-    const ethereum = await detectEthereumProvider();
-    if (ethereum == null) return;
-    ethereumRef.current = ethereum;
-    ethereumRef.current.on("chainChanged", handleChainChanged);
-    getNetwork();
-  }, [getNetwork, handleChainChanged]);
-
   useEffect(() => {
     getUser();
     initialiseWeb3();
-  }, [getUser, initialiseWeb3]);
+
+    return () => {
+      if (ethereumRef.current) {
+        ethereumRef.current.removeAllListeners();
+      }
+    };
+  }, [getUser, handleAccountsChanged, handleChainChanged, initialiseWeb3]);
 
   return (
     <BrowserRouter>

@@ -35,8 +35,8 @@ const config: HardhatUserConfig = {
         url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`
       },
       mining: {
-        auto: false,
-        interval: 1000
+        auto: true
+        // interval: 1000
       }
     }
   },

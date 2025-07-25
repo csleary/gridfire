@@ -1,9 +1,10 @@
-/* eslint-disable no-undef */
-const { ethers } = require("ethers");
+import hre from "hardhat";
+
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
 const GRIDFIRE_PAYMENT_ADDRESS = "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0";
 const OWNER_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
 const ARTIST_ADDRESS = "0x6ecba09ea8fa363546b3b546734f0ab56887d489";
+const { ethers } = hre;
 
 async function main() {
   const daiAbi = ["function balanceOf(address) view returns (uint)", "function transfer(address to, uint amount)"];

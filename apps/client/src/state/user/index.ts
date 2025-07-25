@@ -116,6 +116,7 @@ const fetchUser = () => async (dispatch: AppDispatch) => {
 const logOut = () => async (dispatch: AppDispatch) => {
   try {
     await axios.get("/api/auth/logout");
+    window.localStorage.removeItem("wasConnected");
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
     dispatch(clearUser());
   } catch (error: unknown) {

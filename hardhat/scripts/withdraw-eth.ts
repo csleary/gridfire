@@ -1,6 +1,7 @@
-/* eslint-disable no-undef */
+import hre from "hardhat";
 
-const { DEPLOYER_TESTNET_PRIVATE_KEY, GRIDFIRE_PAYMENT_ADDRESS } = process.env;
+const { DEPLOYER_TESTNET_PRIVATE_KEY = "", GRIDFIRE_PAYMENT_ADDRESS = "" } = process.env;
+const { ethers } = hre;
 
 async function main() {
   const wallet = new ethers.Wallet(DEPLOYER_TESTNET_PRIVATE_KEY);

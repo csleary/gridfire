@@ -1,5 +1,7 @@
-/* eslint-disable no-undef */
-const { GRIDFIRE_EDITIONS_ADDRESS, GRIDFIRE_PAYMENT_ADDRESS } = process.env;
+import hre from "hardhat";
+
+const { GRIDFIRE_EDITIONS_ADDRESS = "", GRIDFIRE_PAYMENT_ADDRESS = "" } = process.env;
+const { ethers, upgrades } = hre;
 
 async function main() {
   const [deployer] = await ethers.getSigners();

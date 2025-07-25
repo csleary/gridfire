@@ -1,16 +1,22 @@
-/* eslint-disable no-undef */
 import { encodeBytes32String, parseEther } from "ethers";
 const DAI_CONTRACT_ADDRESS = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
 import assert, { equal } from "assert";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+import { GridfirePayment } from "../typechain-types";
 import { daiAbi } from "./utils";
 
-// Run on localhost mainnet fork with funded accounts.
+/**
+ * Run on localhost mainnet fork with dai-funded accounts:
+ * yarn hardhat:node
+ * yarn hardhat:fund
+ * npx hardhat test --network localhost
+ * Note: test assumes default fee of 5% (50 thousandths).
+ */
 
 describe("GridfirePayment contract", async () => {
-  let gridfirePayment;
+  let gridfirePayment: GridfirePayment;
 
   beforeEach(async () => {
     const GridfirePayment = await ethers.getContractFactory("GridfirePayment");
@@ -34,7 +40,7 @@ describe("GridfirePayment contract", async () => {
   it("should purchase a release", async () => {
     const [owner, buyer, artist] = await ethers.getSigners();
     const dai = new ethers.Contract(DAI_CONTRACT_ADDRESS, daiAbi, buyer);
-    const instance = await gridfirePayment.connect(buyer);
+    const instance = gridfirePayment.connect(buyer);
     const instanceAddress = await instance.getAddress();
     await dai.approve(instanceAddress, parseEther("200")).catch(console.error);
 
@@ -45,7 +51,7 @@ describe("GridfirePayment contract", async () => {
       encodeBytes32String("62e27da802f11bcfd8cdee0c")
     );
 
-    const { status } = await transactionReceipt.wait();
+    const { status } = (await transactionReceipt.wait()) || {};
     equal(status, 1);
     const artistShare = await gridfirePayment.getBalance(artist.address);
     const platformShare = await gridfirePayment.getBalance(owner.address);
@@ -56,7 +62,7 @@ describe("GridfirePayment contract", async () => {
   it("should be able to checkout a basket of tracks", async () => {
     const [owner, buyer, artist] = await ethers.getSigners();
     const dai = new ethers.Contract(DAI_CONTRACT_ADDRESS, daiAbi, buyer);
-    const instance = await gridfirePayment.connect(buyer);
+    const instance = gridfirePayment.connect(buyer);
     const instanceAddress = await instance.getAddress();
     await dai.approve(instanceAddress, parseEther("200"));
 
@@ -84,7 +90,7 @@ describe("GridfirePayment contract", async () => {
     ];
 
     const transactionReceipt = await instance.checkout(tracks, encodeBytes32String("625716987c91fe99ee9d8a53"));
-    const { status } = await transactionReceipt.wait();
+    const { status } = (await transactionReceipt.wait()) || {};
     equal(status, 1);
     const artistShare = await gridfirePayment.getBalance(artist.address);
     const platformShare = await gridfirePayment.getBalance(owner.address);
@@ -95,7 +101,7 @@ describe("GridfirePayment contract", async () => {
   it("should let the artist claim their balance", async () => {
     const [owner, buyer, artist] = await ethers.getSigners();
     const dai = new ethers.Contract(DAI_CONTRACT_ADDRESS, daiAbi, buyer);
-    const instanceBuyer = await gridfirePayment.connect(buyer);
+    const instanceBuyer = gridfirePayment.connect(buyer);
     const instanceAddress = await instanceBuyer.getAddress();
     await dai.approve(instanceAddress, parseEther("200"));
     const oldBalance = await dai.balanceOf(artist.address);
@@ -108,7 +114,7 @@ describe("GridfirePayment contract", async () => {
     );
 
     {
-      const { status } = await transactionReceipt.wait();
+      const { status } = (await transactionReceipt.wait()) || {};
       equal(status, 1);
       const artistShare = await gridfirePayment.getBalance(artist.address);
       const platformShare = await gridfirePayment.getBalance(owner.address);
@@ -117,22 +123,22 @@ describe("GridfirePayment contract", async () => {
     }
 
     {
-      const instanceArtist = await gridfirePayment.connect(artist);
+      const instanceArtist = gridfirePayment.connect(artist);
       const claimTxReceipt = await instanceArtist.claim();
-      const { status } = await claimTxReceipt.wait();
+      const { status } = (await claimTxReceipt.wait()) || {};
       equal(status, 1);
       const artistShare = await gridfirePayment.getBalance(artist.address);
       assert(0n === artistShare);
       const newBalance = await dai.balanceOf(artist.address);
-      assert(newBalance - oldBalance === parseEther("14.25"));
+      assert(BigInt(newBalance) - BigInt(oldBalance) === parseEther("14.25"));
     }
   });
 
   it("should reject as contract address not set", async () => {
-    const [owner, buyer, artist] = await ethers.getSigners();
-    const instanceBuyer = await gridfirePayment.connect(buyer);
+    const [, buyer, artist] = await ethers.getSigners();
+    const instanceBuyer = gridfirePayment.connect(buyer);
     await expect(instanceBuyer.transferEditionPayment(artist, buyer, parseEther("10"))).to.be.revertedWith(
-      "gridfireEditions address not set."
+      "Editions address not set."
     );
   });
 });
