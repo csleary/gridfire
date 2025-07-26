@@ -163,6 +163,12 @@ contract GridfireEditions is
 
     /// @notice Internal hook that is called after any token transfer, mint, or burn.
     /// @inheritdoc ERC1155Upgradeable
+    /// @param from The address from which tokens are transferred.
+    /// @param to The address to which tokens are transferred.
+    /// @param ids The IDs of the tokens being transferred.
+    /// @param values The amounts of the tokens being transferred.
+    /// @dev This function is overridden to ensure that the base implementation is called.
+    /// @dev It is used to update the state of the contract after token transfers.
     function _update(
         address from,
         address to,

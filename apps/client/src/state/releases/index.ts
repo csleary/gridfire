@@ -157,7 +157,7 @@ const releaseSlice = createSlice({
     },
     updateUserReleases(state, action) {
       state.userReleases = state.userReleases.map(release => {
-        if (release._id === action.payload._id) return action.payload;
+        if (release._id === action.payload._id) return { ...release, ...action.payload }; // Keep metadata like faves, plays, sales, etc.
         return release;
       });
     }
