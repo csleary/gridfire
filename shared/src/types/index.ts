@@ -5,6 +5,7 @@ import { InterfaceAbi, TransactionReceipt } from "ethers";
 import { JSONRPCResponse } from "json-rpc-2.0";
 import { ObjectId } from "mongoose";
 export type * from "@gridfire/shared/types/amqp";
+export { LocalStorageKeys } from "@gridfire/shared/types/localStorage";
 export type * from "@gridfire/shared/types/messages";
 export {
   isBlockRangeMessage,

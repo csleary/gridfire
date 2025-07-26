@@ -10,6 +10,7 @@ import {
   VStack
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { LocalStorageKeys } from "@gridfire/shared/types";
 import axios from "axios";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -64,7 +65,7 @@ const Login = () => {
       dispatch(fetchUserFavourites());
       dispatch(fetchUserWishList());
       dispatch(connectToWeb3());
-      window.localStorage.setItem("wasConnected", "true");
+      window.localStorage.setItem(LocalStorageKeys.WAS_CONNECTED, "true");
       const { pathname } = location.state || {};
       if (pathname) return navigate(pathname);
       navigate("/");

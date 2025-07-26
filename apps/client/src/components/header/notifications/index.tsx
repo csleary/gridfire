@@ -14,6 +14,7 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { faBell, faBolt } from "@fortawesome/free-solid-svg-icons";
+import { LocalStorageKeys } from "@gridfire/shared/types";
 import { DateTime } from "luxon";
 import { useCallback, useEffect, useRef } from "react";
 import { shallowEqual } from "react-redux";
@@ -50,7 +51,7 @@ const Notifications = () => {
       const date = DateTime.utc().toISO();
       dispatch(setLastCheckedOn(date));
       if (!user) return;
-      window.localStorage.setItem("lastCheckedOn", JSON.stringify({ date, user }));
+      window.localStorage.setItem(LocalStorageKeys.LAST_CHECKED_ON, JSON.stringify({ date, user }));
     }, 3000);
   }, [dispatch, user]);
 

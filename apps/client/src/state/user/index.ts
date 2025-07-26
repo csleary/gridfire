@@ -1,4 +1,4 @@
-import { ActiveProcess, Sale, UserFavourite, UserListItem } from "@gridfire/shared/types";
+import { ActiveProcess, LocalStorageKeys, Sale, UserFavourite, UserListItem } from "@gridfire/shared/types";
 import { createEntityAdapter, createSelector, createSlice, EntityState } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -116,7 +116,7 @@ const fetchUser = () => async (dispatch: AppDispatch) => {
 const logOut = () => async (dispatch: AppDispatch) => {
   try {
     await axios.get("/api/auth/logout");
-    window.localStorage.removeItem("wasConnected");
+    window.localStorage.removeItem(LocalStorageKeys.WAS_CONNECTED);
     dispatch(toastSuccess({ message: "Thanks for visiting. You are now logged out." }));
     dispatch(clearUser());
   } catch (error: unknown) {

@@ -1,4 +1,4 @@
-import { MessageType, NotificationType } from "@gridfire/shared/types";
+import { LocalStorageKeys, MessageType, NotificationType } from "@gridfire/shared/types";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -35,13 +35,13 @@ const useSSE = () => {
 
   if (!identifier) {
     // Fallback to localStorage if userId is not available.
-    identifier = window.localStorage.getItem("eventsUserId") || "";
+    identifier = window.localStorage.getItem(LocalStorageKeys.EVENTS_USER_ID) || "";
   }
 
   if (!identifier) {
     // Generate and save a new identifier if none exists.
     identifier = window.crypto.randomUUID();
-    window.localStorage.setItem("eventsUserId", identifier);
+    window.localStorage.setItem(LocalStorageKeys.EVENTS_USER_ID, identifier);
   }
 
   const url = `/api/sse/${identifier}/${connectionIdRef.current}`;

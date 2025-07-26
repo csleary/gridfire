@@ -1,7 +1,8 @@
 import { Box, Center, Flex, Link, Slide, Spacer, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { faNetworkWired } from "@fortawesome/free-solid-svg-icons";
+import { LocalStorageKeys } from "@gridfire/shared/types";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { BrowserProvider, isError } from "ethers";
+import { BrowserProvider, getAddress, isError } from "ethers";
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -75,11 +76,11 @@ const App: React.FC = () => {
 
   const handleAccountsChanged = useCallback(
     (...args: unknown[]) => {
-      if (!account) return;
+      if (!account) return; // User is not logged in; ignore account changes.
       const accounts = args[0] as string[] | undefined;
       const [newAccount] = accounts ?? [];
 
-      if (!newAccount || newAccount.toLowerCase() !== account.toLowerCase()) {
+      if (!newAccount || getAddress(newAccount) !== getAddress(account)) {
         dispatch(logOut());
       }
     },
@@ -92,7 +93,7 @@ const App: React.FC = () => {
     ethereumRef.current = ethereum;
     ethereumRef.current.on("chainChanged", handleChainChanged);
     ethereumRef.current.on("accountsChanged", handleAccountsChanged);
-    const wasConnected = window.localStorage.getItem("wasConnected") === "true";
+    const wasConnected = window.localStorage.getItem(LocalStorageKeys.WAS_CONNECTED) === "true";
     getNetwork();
 
     if (wasConnected) {
@@ -104,7 +105,7 @@ const App: React.FC = () => {
     const user = await dispatch(fetchUser());
     const { _id: userId } = user || {};
     if (!userId) return;
-    const lastCheckedOn = window.localStorage.getItem("lastCheckedOn");
+    const lastCheckedOn = window.localStorage.getItem(LocalStorageKeys.LAST_CHECKED_ON);
     let storedUserDate = null;
 
     try {

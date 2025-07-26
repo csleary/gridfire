@@ -1,20 +1,13 @@
 import {
   Box,
   Button,
-  Fade,
-  IconButton,
   Image,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
   LinkBox,
   LinkOverlay,
   Modal,
   ModalBody,
   ModalContent,
   ModalOverlay,
-  Spinner,
   Text,
   useColorModeValue,
   useDisclosure,
@@ -22,17 +15,18 @@ import {
   Wrap,
   WrapItem
 } from "@chakra-ui/react";
-import { faBackspace, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { ReleaseTrack } from "@gridfire/shared/types";
 import debounce from "lodash.debounce";
-import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { shallowEqual } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import Icon from "@/components/icon";
+import SearchInput from "@/components/searchInput";
 import { useDispatch, useSelector } from "@/hooks";
 import { usePrevious } from "@/hooks/usePrevious";
-import { clearResults, searchReleases } from "@/state/search";
+import { searchReleases } from "@/state/search";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
@@ -53,8 +47,6 @@ const SearchBar = ({ ...rest }) => {
   const metaColour = useColorModeValue("gray.500", "gray.400");
   const dispatch = useDispatch();
   const { search } = useLocation();
-  const navigate = useNavigate();
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const isSearching = useSelector(state => state.search.isSearching);
   const searchQuery = useSelector(state => state.search.searchQuery);
   const searchResults = useSelector(state => state.search.searchResults, shallowEqual);
@@ -67,12 +59,6 @@ const SearchBar = ({ ...rest }) => {
     const stringQuery = listQuery.join(",");
     if (stringQuery) dispatch(searchReleases(stringQuery));
   }, [dispatch, search]);
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.key === "Enter") {
-      navigate("/search");
-    }
-  };
 
   // eslint-disable-next-line
   const handleSearch = useCallback(
@@ -88,14 +74,6 @@ const SearchBar = ({ ...rest }) => {
     }
   }, [handleSearch, previousQuery, searchText]);
 
-  const handleSearchInput = (e: FormEvent<HTMLInputElement>) => setSearchText(e.currentTarget.value);
-
-  const handleClearSearch = () => {
-    dispatch(clearResults());
-    setSearchText("");
-    inputRef.current?.focus();
-  };
-
   const handleClose = () => {
     onClose();
     setSearchText("");
@@ -109,34 +87,7 @@ const SearchBar = ({ ...rest }) => {
       <Modal isOpen={isOpen} onClose={handleClose} size="xl">
         <ModalOverlay />
         <ModalContent overflow="none" p={4} rounded="md">
-          <InputGroup size="lg">
-            <InputLeftElement color="gray.400" pointerEvents="none">
-              {isSearching ? <Spinner /> : <Icon icon={faSearch} />}
-            </InputLeftElement>
-            <Input
-              onChange={handleSearchInput}
-              onKeyDown={handleKeyDown}
-              paddingLeft={12}
-              paddingRight={12}
-              placeholder="Search…"
-              ref={el => void (inputRef.current = el)}
-              value={searchText}
-              variant="flushed"
-            />
-            <InputRightElement>
-              <Fade in={Boolean(searchText)}>
-                <IconButton
-                  _hover={{ color: useColorModeValue("gray.800", "gray.200") }}
-                  aria-label="Clear the search term."
-                  color="gray.400"
-                  icon={<Icon icon={faBackspace} />}
-                  onClick={handleClearSearch}
-                  size="sm"
-                  variant="unstyled"
-                />
-              </Fade>
-            </InputRightElement>
-          </InputGroup>
+          <SearchInput />
           <ModalBody mt={6} p={0}>
             <VStack alignItems="stretch" role="listbox" spacing={4}>
               {searchResults.length ? (

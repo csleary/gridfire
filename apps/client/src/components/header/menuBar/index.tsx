@@ -1,5 +1,6 @@
 import {
   Badge,
+  Box,
   Button,
   IconButton,
   Link,
@@ -27,12 +28,13 @@ import {
   faMoon,
   faMusic,
   faRectangleList,
+  faSearch,
   faSignInAlt,
   faSignOutAlt,
   faSun,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
-import { formatEther, getAddress } from "ethers";
+import { formatEther } from "ethers";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -67,7 +69,6 @@ const MenuBar = () => {
   const navRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const account = useSelector(state => state.web3.account);
-  const accountShort = useSelector(state => state.web3.accountShort);
   const daiBalance = useSelector(state => state.web3.daiBalance);
   const isConnected = useSelector(state => state.web3.isConnected);
   const userAccount = useSelector(state => state.user.account);
@@ -157,34 +158,24 @@ const MenuBar = () => {
           {isConnected ? (
             <>
               <WrapItem alignItems="center">
-                <Tooltip label="Your active account's DAI balance.">
-                  <Badge
-                    alignItems="center"
-                    colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : primaryButtonColor}
-                    display="flex"
-                    fontSize="md"
-                    height={10}
-                    px={4}
-                    rounded="md"
-                  >
-                    ◈ {daiDisplayBalance}
-                  </Badge>
-                </Tooltip>
-              </WrapItem>
-              <WrapItem>
-                <Tooltip label={`Your active web3 account. Click to view account details on the explorer.`}>
-                  <Button
-                    _hover={{ color: "initial", textDecoration: "none" }}
-                    as={Link}
-                    color="gray.400"
-                    colorScheme={getAddress(account) !== getAddress(userAccount) ? "yellow" : undefined}
-                    href={`https://arbiscan.io/address/${account}`}
-                    isExternal
-                    leftIcon={<Icon fixedWidth icon={faEthereum} />}
-                    variant="ghost"
-                  >
-                    {accountShort}
-                  </Button>
+                <Tooltip label="Your active account's DAI balance (visit explorer).">
+                  <Link _hover={{ textDecoration: "none" }} href={`https://arbiscan.io/address/${account}`} isExternal>
+                    <Badge
+                      _hover={{ color: "purple.100" }}
+                      alignItems="center"
+                      colorScheme={primaryButtonColor}
+                      display="flex"
+                      fontSize="md"
+                      height={10}
+                      px={4}
+                      rounded="md"
+                      transitionDuration="var(--chakra-transition-duration-normal)"
+                      transitionProperty="color"
+                      transitionTimingFunction="ease-in-out"
+                    >
+                      ◈ {daiDisplayBalance}
+                    </Badge>
+                  </Link>
                 </Tooltip>
               </WrapItem>
             </>
@@ -263,6 +254,13 @@ const MenuBar = () => {
                 >
                   List
                 </MenuItem>
+                <MenuItem as={NavLink} icon={<Icon fixedWidth icon={faSearch} />} sx={activeStyle} to={"/search"}>
+                  Search
+                </MenuItem>
+                <MenuDivider m={0} />
+                <Box px={3} py={4}>
+                  {toggleThemeButton}
+                </Box>
                 <MenuDivider m={0} />
                 <MenuItem icon={<Icon fixedWidth icon={faSignOutAlt} />} onClick={handleLogout}>
                   Sign Out
@@ -270,7 +268,6 @@ const MenuBar = () => {
               </MenuList>
             </Menu>
           </WrapItem>
-          <WrapItem>{toggleThemeButton}</WrapItem>
         </>
       )}
     </Wrap>
