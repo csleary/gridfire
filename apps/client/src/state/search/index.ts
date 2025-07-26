@@ -35,6 +35,10 @@ const searchSlice = createSlice({
 });
 
 const searchReleases = (searchQuery: string) => async (dispatch: AppDispatch) => {
+  if (!searchQuery.trim()) {
+    return void dispatch(clearResults());
+  }
+
   dispatch(setSearching({ isSearching: true, searchQuery }));
 
   const params = searchQuery
@@ -52,10 +56,15 @@ const searchReleases = (searchQuery: string) => async (dispatch: AppDispatch) =>
       return { ...prev, text: current.trim() };
     }, {});
 
-  const res = await axios.get("/api/catalogue/search", { params });
-  dispatch(setSearchResults(res.data));
-  dispatch(setSearching({ isSearching: false, searchQuery }));
-  return res;
+  try {
+    const res = await axios.get("/api/catalogue/search", { params });
+    dispatch(setSearchResults(res.data));
+    return res;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    dispatch(setSearching({ isSearching: false, searchQuery }));
+  }
 };
 
 export type { SearchState };

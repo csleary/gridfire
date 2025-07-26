@@ -50,7 +50,7 @@ const SearchInput = (props: ChakraProps) => {
   const previousQuery = usePrevious(searchText);
 
   useEffect(() => {
-    if (searchText.length && searchText !== previousQuery) {
+    if (searchText !== previousQuery) {
       handleSearch(searchText);
     }
   }, [handleSearch, previousQuery, searchText]);
