@@ -1,4 +1,5 @@
 {
+  "prettier.documentSelectors": ["**/*.sol"],
   "arrowParens": "avoid",
   "printWidth": 120,
   "trailingComma": "none"

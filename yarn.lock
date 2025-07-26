@@ -1413,6 +1413,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bytecodealliance/preview2-shim@npm:0.17.2":
+  version: 0.17.2
+  resolution: "@bytecodealliance/preview2-shim@npm:0.17.2"
+  checksum: 10c0/d839bd5ca4f4d845e32b15fde2ad98e4125b2d8f1d9ec4864e5aa997f07563e5e4800c476d01aa93bde7a0fa88e75f75f8cb28241a9e204f3c18e6c2d84c1c47
+  languageName: node
+  linkType: hard
+
 "@chainsafe/is-ip@npm:^2.0.1":
   version: 2.1.0
   resolution: "@chainsafe/is-ip@npm:2.1.0"
@@ -2691,6 +2698,8 @@ __metadata:
     ethers: "npm:^6.15.0"
     hardhat: "npm:^2.26.1"
     hardhat-gas-reporter: "npm:^2.3.0"
+    prettier: "npm:^3.6.2"
+    prettier-plugin-solidity: "npm:^2.1.0"
     solhint: "npm:^6.0.0"
     solidity-coverage: "npm:^0.8.16"
     ts-node: "npm:^10.9.2"
@@ -3600,6 +3609,15 @@ __metadata:
   version: 0.15.12
   resolution: "@nomicfoundation/ignition-ui@npm:0.15.12"
   checksum: 10c0/b25607ebc191f8976b0f83c5394307d28434ac2034e8419a72355d7b52af95b3d3fde9d48b18363d140b452fe43b269f623bc0a72ad07f6d13d0ee803df4151d
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang@npm:1.2.0":
+  version: 1.2.0
+  resolution: "@nomicfoundation/slang@npm:1.2.0"
+  dependencies:
+    "@bytecodealliance/preview2-shim": "npm:0.17.2"
+  checksum: 10c0/05c7b2435f0b35d42be7875ce422a3b32823ea1788fbecbc23a475dfa873fab8ce0a82442cd92f2f4d4485904ea29dab890274afb4bc5be0549a7c9b6cfc9ede
   languageName: node
   linkType: hard
 
@@ -12045,12 +12063,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier-plugin-solidity@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "prettier-plugin-solidity@npm:2.1.0"
+  dependencies:
+    "@nomicfoundation/slang": "npm:1.2.0"
+    "@solidity-parser/parser": "npm:^0.20.1"
+    semver: "npm:^7.7.2"
+  peerDependencies:
+    prettier: ">=3.0.0"
+  checksum: 10c0/798349adcacc901eab8cc4c6192dee97b052700932e4bfe7718d37239b1ebbb3cd933b6a5ef37611a2c7ec0ddfbbebcd768412873e64aee767f8cf8eabbf4c60
+  languageName: node
+  linkType: hard
+
 "prettier@npm:^2.3.1, prettier@npm:^2.8.3":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
     prettier: bin-prettier.js
   checksum: 10c0/463ea8f9a0946cd5b828d8cf27bd8b567345cf02f56562d5ecde198b91f47a76b7ac9eae0facd247ace70e927143af6135e8cf411986b8cb8478784a4d6d724a
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "prettier@npm:3.6.2"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 10c0/488cb2f2b99ec13da1e50074912870217c11edaddedeadc649b1244c749d15ba94e846423d062e2c4c9ae683e2d65f754de28889ba06e697ac4f988d44f45812
   languageName: node
   linkType: hard
 
