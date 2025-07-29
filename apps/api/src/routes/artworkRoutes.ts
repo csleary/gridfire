@@ -44,7 +44,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
       const filePath = path.join(TEMP_PATH, releaseId);
       const write = fs.createWriteStream(filePath);
       await pipeline(file, write, { signal });
-      filePromises.push(uploadArtwork({ filePath, releaseId, userId }));
+      filePromises.push(uploadArtwork({ filePath, mimeType, releaseId, userId }));
     });
 
     busboy.on("finished", async () => {

@@ -56,7 +56,12 @@ const encodeFLAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseCon
     await ffmpegEncodeFLAC(inputPath, outputPath, onEncodingProgress({ trackId, userId }));
     fs.accessSync(outputPath, fs.constants.R_OK);
     const body = fs.createReadStream(outputPath);
-    await streamToBucket(BUCKET_FLAC, bucketKey, body, onStorageProgress({ trackId, userId }));
+
+    await streamToBucket(BUCKET_FLAC, bucketKey, body, {
+      mimeType: "audio/flac",
+      onProgress: onStorageProgress({ trackId, userId })
+    });
+
     await Release.updateOne(filter, { "trackList.$.status": "encoded" }).exec();
     logger.info(`Removing SRC file: ${bucketKey}…`);
     await deleteObject(BUCKET_SRC, bucketKey);

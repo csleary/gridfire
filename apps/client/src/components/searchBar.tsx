@@ -111,6 +111,7 @@ const SearchBar = ({ ...rest }) => {
                             boxSize="8rem"
                             loading="lazy"
                             objectFit="cover"
+                            rel="preconnect"
                             rounded="full"
                             src={`${VITE_CDN_IMG}/${releaseId}`}
                           />

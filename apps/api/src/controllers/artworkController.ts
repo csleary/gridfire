@@ -36,10 +36,12 @@ const getArtworkStream = async (releaseId: string) => streamFromBucket(BUCKET_IM
 
 const uploadArtwork = async ({
   filePath,
+  mimeType,
   releaseId,
   userId
 }: {
   filePath: string;
+  mimeType?: string;
   releaseId: string;
   userId: string;
 }) => {
@@ -58,7 +60,7 @@ const uploadArtwork = async ({
     sseClient.send(userId, payload);
     const file = fs.createReadStream(filePath);
     const optimisedImg = sharp().resize(1000, 1000).webp();
-    await streamToBucket(BUCKET_IMG, releaseId, file.pipe(optimisedImg));
+    await streamToBucket(BUCKET_IMG, releaseId, file.pipe(optimisedImg), { mimeType });
 
     await Release.updateOne(
       { _id: releaseId },

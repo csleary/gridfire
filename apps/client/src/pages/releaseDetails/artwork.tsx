@@ -77,6 +77,7 @@ const Artwork = () => {
               onError={onOpen}
               onLoad={onOpen}
               position="absolute"
+              rel="preconnect"
               src={
                 artwork.status === "stored"
                   ? `${VITE_CDN_IMG}/${releaseId}`

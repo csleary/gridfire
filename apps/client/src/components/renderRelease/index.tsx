@@ -113,6 +113,7 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             onError={onOpen}
             onLoad={onOpen}
             position="absolute"
+            rel="preconnect"
             src={artwork.status === "stored" ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
           />
         </Fade>

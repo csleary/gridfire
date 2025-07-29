@@ -34,6 +34,7 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
           onError={onOpen}
           onLoad={onOpen}
           position="absolute"
+          rel="preconnect"
           src={isStored ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
         />
       </Link>

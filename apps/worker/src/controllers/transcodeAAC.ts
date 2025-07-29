@@ -52,7 +52,7 @@ const transcodeAAC = async ({ releaseId, trackId, trackTitle, userId }: ReleaseC
 
     for (const file of files) {
       const mp4Stream = fs.createReadStream(path.resolve(TEMP_PATH, outputDir, file));
-      await streamToBucket(BUCKET_MP4, `${bucketKey}/${file}`, mp4Stream);
+      await streamToBucket(BUCKET_MP4, `${bucketKey}/${file}`, mp4Stream, { mimeType: "audio/mp4" });
     }
 
     // Save track and clean up.

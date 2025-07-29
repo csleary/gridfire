@@ -153,11 +153,13 @@ const createAsyncFileHandler =
     const { releaseId, trackId, trackTitle = "" } = fields;
     const bucketKey = `${releaseId}/${trackId}`;
     const filter = { _id: releaseId, "trackList._id": trackId, user: userId };
-    const extension = mime.extension(mimeType);
+    const fileExtension = filename.split(".").at(-1)?.toLowerCase() || "";
+    const mimeFileExtension = mime.extension(mimeType);
 
     const isAccepted =
-      (typeof extension === "string" && ["aiff", "flac", "wav"].includes(extension)) ||
-      ["audio/flac", "audio/x-flac"].includes(mimeType);
+      (typeof mimeFileExtension === "string" && ["aiff", "flac", "wav"].includes(mimeFileExtension)) ||
+      ["audio/flac", "audio/x-flac"].includes(mimeType) ||
+      ["aif", "aiff", "flac", "wav"].includes(fileExtension);
 
     if (!isAccepted) {
       throw new Error("File type not recognised. Needs to be flac/aiff/wav.");
@@ -192,7 +194,7 @@ const createAsyncFileHandler =
     };
 
     sseClient.send(userId, uploadingPayload);
-    await streamToBucket(BUCKET_SRC, bucketKey, fileStream);
+    await streamToBucket(BUCKET_SRC, bucketKey, fileStream, { mimeType });
     logger.info(`Uploaded src file '${filename}' for track ${trackId}.`);
     await Release.updateOne(filter, { $set: { "trackList.$.status": "uploaded" } }).exec();
 

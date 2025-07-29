@@ -24,6 +24,7 @@ const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }: Prop
             alt={`${artistName} - ${releaseTitle}`}
             className="lazyload"
             fallbackSrc={placeholder}
+            rel="preconnect"
             src={`${VITE_CDN_IMG}/${releaseId}`}
           />
         </WrapItem>

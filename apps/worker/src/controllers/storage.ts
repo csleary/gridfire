@@ -29,9 +29,10 @@ const streamToBucket = (
   bucketName: string,
   objectKey: string,
   readableStream: Readable,
-  onProgress?: (progress: Progress) => void
+  { mimeType, onProgress }: { mimeType?: string; onProgress?: (progress: Progress) => void } = {}
 ) => {
-  const params = { Body: readableStream, Bucket: bucketName, Key: objectKey };
+  const params = { Body: readableStream, Bucket: bucketName, ContentType: "", Key: objectKey };
+  if (mimeType) params.ContentType = mimeType;
   const upload = new Upload({ client, params });
   if (onProgress) upload.on("httpUploadProgress", onProgress);
   return upload.done();

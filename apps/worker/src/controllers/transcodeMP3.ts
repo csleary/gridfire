@@ -27,7 +27,7 @@ const transcodeMP3 = async ({ releaseId, trackId, userId }: ReleaseContext) => {
     const tempFilename = randomUUID({ disableEntropyCache: true });
     mp3FilePath = path.resolve(TEMP_PATH, tempFilename);
     await ffmpegEncodeMP3FromStream(srcStream, mp3FilePath);
-    await streamToBucket(BUCKET_MP3, bucketKey, fs.createReadStream(mp3FilePath));
+    await streamToBucket(BUCKET_MP3, bucketKey, fs.createReadStream(mp3FilePath), { mimeType: "audio/mpeg" });
     await Release.updateOne(filter, { "trackList.$.status": "stored" }).exec();
     postMessage({ trackId, type: MessageType.TranscodingCompleteMP3, userId });
     postMessage({ releaseId, status: "stored", trackId, type: MessageType.TrackStatus, userId });
