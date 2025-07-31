@@ -13,8 +13,7 @@ import { addActiveProcess, removeActiveProcess } from "@/state/user";
 const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContactAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
 const daiContractAddress = import.meta.env.VITE_DAI_CONTRACT_ADDRESS;
-const ethereum = await detectEthereumProvider();
-let provider = new BrowserProvider(ethereum as unknown as Eip1193Provider) as BrowserProvider;
+let provider: BrowserProvider | undefined;
 
 const getProvider = async () => {
   if (provider) {
@@ -22,6 +21,7 @@ const getProvider = async () => {
   }
 
   const ethereum = await detectEthereumProvider();
+
   if (!ethereum) {
     throw new Error("Please install a we3 wallet (e.g. MetaMask).");
   }

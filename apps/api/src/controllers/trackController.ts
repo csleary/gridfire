@@ -1,6 +1,6 @@
 import type { Readable } from "node:stream";
 
-import { deleteObject, deleteObjects, streamToBucket } from "@gridfire/api/controllers/storage";
+import { deleteObject, deleteObjects, streamToBucket } from "@gridfire/shared";
 import { publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import Play from "@gridfire/shared/models/Play";

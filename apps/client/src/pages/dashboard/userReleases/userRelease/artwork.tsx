@@ -35,7 +35,23 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
           onLoad={onOpen}
           position="absolute"
           rel="preconnect"
-          src={isStored ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
+          {...(isStored
+            ? {
+                sizes: `(max-width: 959px) calc(100vw - 32px),
+                          (max-width: 1439px) calc((100vw - 48px)/2),
+                          (max-width: 1919px) calc((100vw - 48px)/3),
+                          (max-width: 2399px) calc((100vw - 48px)/4),
+                          477px`,
+                src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`,
+                srcSet: `${VITE_CDN_IMG}/${releaseId}/320w.webp 320w,
+                           ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,
+                           ${VITE_CDN_IMG}/${releaseId}/960w.webp 960w,
+                           ${VITE_CDN_IMG}/${releaseId}/1024w.webp 1024w,
+                           ${VITE_CDN_IMG}/${releaseId}/1440w.webp 1440w,
+                           ${VITE_CDN_IMG}/${releaseId}/1920w.webp 1920w,
+                           ${VITE_CDN_IMG}/${releaseId}/2560w.webp 2560w`
+              }
+            : { src: placeholder })}
         />
       </Link>
     </Fade>

@@ -12,9 +12,8 @@ import { setIsLoading } from "@/state/releases";
 import { toastInfo } from "@/state/toast";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 
-const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
-
 type DownloadRelease = Release & { purchaseId: string };
+const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface Props extends ChakraProps {
   release: DownloadRelease | Release;
@@ -114,7 +113,23 @@ const RenderRelease = ({ release, showArtist = true, showTitle = true, type, ...
             onLoad={onOpen}
             position="absolute"
             rel="preconnect"
-            src={artwork.status === "stored" ? `${VITE_CDN_IMG}/${releaseId}` : placeholder}
+            {...(artwork.status === "stored"
+              ? {
+                  sizes: `(max-width: 683px) calc(100vw - 32px),
+                          (max-width: 1454px) calc((100vw - 48px)/2),
+                          (max-width: 1919px) calc((100vw - 48px)/3),
+                          (max-width: 2399px) calc((100vw - 48px)/4),
+                          477px`,
+                  src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`,
+                  srcSet: `${VITE_CDN_IMG}/${releaseId}/320w.webp 320w,
+                           ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,
+                           ${VITE_CDN_IMG}/${releaseId}/960w.webp 960w,
+                           ${VITE_CDN_IMG}/${releaseId}/1024w.webp 1024w,
+                           ${VITE_CDN_IMG}/${releaseId}/1440w.webp 1440w,
+                           ${VITE_CDN_IMG}/${releaseId}/1920w.webp 1920w,
+                           ${VITE_CDN_IMG}/${releaseId}/2560w.webp 2560w`
+                }
+              : { src: placeholder })}
           />
         </Fade>
       </Box>

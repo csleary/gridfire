@@ -1,4 +1,5 @@
 import { Progress } from "@aws-sdk/lib-storage";
+import { deleteObject, streamFromBucket, streamToBucket } from "@gridfire/shared";
 import { publishToQueue } from "@gridfire/shared/amqp";
 import Logger from "@gridfire/shared/logger";
 import Release from "@gridfire/shared/models/Release";
@@ -6,7 +7,6 @@ import { MessageType } from "@gridfire/shared/types";
 import { ReleaseContext, TrackContext } from "@gridfire/shared/types/index";
 import { ffmpegEncodeFLAC } from "@gridfire/worker/controllers/ffmpeg";
 import postMessage from "@gridfire/worker/controllers/postMessage";
-import { deleteObject, streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import fs, { promises as fsPromises } from "node:fs";

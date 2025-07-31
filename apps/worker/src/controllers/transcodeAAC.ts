@@ -1,3 +1,4 @@
+import { streamFromBucket, streamToBucket } from "@gridfire/shared";
 import Logger from "@gridfire/shared/logger";
 import Release from "@gridfire/shared/models/Release";
 import { MessageType } from "@gridfire/shared/types";
@@ -5,7 +6,6 @@ import { ReleaseContext } from "@gridfire/shared/types/index";
 import { ffmpegEncodeFragmentedAAC, ffprobeGetTrackDuration } from "@gridfire/worker/controllers/ffmpeg";
 import packageMP4 from "@gridfire/worker/controllers/packageMP4";
 import postMessage from "@gridfire/worker/controllers/postMessage";
-import { streamFromBucket, streamToBucket } from "@gridfire/worker/controllers/storage";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import fs, { promises as fsPromises } from "node:fs";

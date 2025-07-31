@@ -19,7 +19,7 @@ router.post("/:releaseId", requireLogin, async (req, res) => {
   try {
     const userId = (req.user as IUser)._id.toString();
     const { releaseId } = req.params;
-    const busboy = Busboy({ headers: req.headers, limits: { fileSize: 1024 * 1024 * 20 } });
+    const busboy = Busboy({ headers: req.headers, limits: { fileSize: 50 << 20 } });
     const filePromises: Promise<void>[] = [];
     const abortController = new AbortController();
     const { signal } = abortController;

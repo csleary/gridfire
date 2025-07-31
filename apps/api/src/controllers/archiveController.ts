@@ -1,5 +1,5 @@
 import { getArtworkStream } from "@gridfire/api/controllers/artworkController";
-import { streamFromBucket } from "@gridfire/api/controllers/storage";
+import { streamFromBucket } from "@gridfire/shared";
 import Logger from "@gridfire/shared/logger";
 import Edition from "@gridfire/shared/models/Edition";
 import archiver from "archiver";

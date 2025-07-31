@@ -1,3 +1,5 @@
+import type { Readable } from "node:stream";
+
 import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
@@ -7,28 +9,32 @@ import {
   S3Client
 } from "@aws-sdk/client-s3";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
-import assert from "assert/strict";
-import { Readable } from "stream";
+import { NodeJsClient } from "@smithy/types";
 
 const { S3_ENDPOINT } = process.env;
-assert(S3_ENDPOINT, "S3_ENDPOINT env var missing.");
 
 const client = new S3Client({
   endpoint: S3_ENDPOINT,
   forcePathStyle: true,
   region: "us-east-1"
-});
+}) as NodeJsClient<S3Client>;
 
 const streamFromBucket = async (bucketName: string, objectKey: string) => {
   const getObjectCommand = new GetObjectCommand({ Bucket: bucketName, Key: objectKey });
-  const { Body } = await client.send(getObjectCommand);
-  return Body as Readable;
+  const res = await client.send(getObjectCommand);
+  const { Body } = res || {};
+
+  if (!Body) {
+    throw new Error(`Failed to get object '${objectKey}' from bucket '${bucketName}'.`);
+  }
+
+  return Body;
 };
 
 const streamToBucket = (
   bucketName: string,
   objectKey: string,
-  readableStream: Readable,
+  readableStream: Readable & { truncated?: boolean },
   { mimeType, onProgress }: { mimeType?: string; onProgress?: (progress: Progress) => void } = {}
 ) => {
   const params = { Body: readableStream, Bucket: bucketName, ContentType: "", Key: objectKey };
