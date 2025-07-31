@@ -139,8 +139,8 @@ const BasketButton = () => {
               {!isConnected
                 ? "Connect wallet"
                 : allowanceTooLow
-                ? "Approval required"
-                : `Checkout ~ ${Number(formatEther(total)).toFixed(2)} USD`}
+                  ? "Approval required"
+                  : `Checkout ~ ${Number(formatEther(total)).toFixed(2)} USD`}
             </Button>
           </ModalFooter>
         </ModalContent>

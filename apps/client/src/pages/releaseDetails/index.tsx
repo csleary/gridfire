@@ -157,7 +157,7 @@ const ActiveRelease = () => {
                 <WrapItem>
                   <AddToBasketButton
                     artistName={artistName}
-                    imageUrl={`${VITE_CDN_IMG}/${releaseId}`}
+                    imageUrl={`${VITE_CDN_IMG}/${releaseId}/320w.webp`}
                     inCollection={isInCollection}
                     price={price}
                     releaseId={releaseId}

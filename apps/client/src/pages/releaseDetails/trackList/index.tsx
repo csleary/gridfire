@@ -62,7 +62,7 @@ const TrackList = () => {
         dispatch(
           addToBasket({
             artistName,
-            imageUrl: `${VITE_CDN_IMG}/${releaseId}`,
+            imageUrl: `${VITE_CDN_IMG}/${releaseId}/320w.webp`,
             paymentAddress,
             price: priceInWei.toString(),
             releaseId: trackId,
