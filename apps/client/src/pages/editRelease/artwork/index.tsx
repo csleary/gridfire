@@ -94,7 +94,7 @@ const Artwork = () => {
   const { getInputProps, getRootProps, isDragAccept, isDragReject } = useDropzone({
     accept: acceptedFileTypes,
     disabled: artworkUploading,
-    maxSize: 1024 * 1024 * 20,
+    maxSize: 50 << 20,
     multiple: false,
     noDragEventsBubbling: true,
     noKeyboard: true,
