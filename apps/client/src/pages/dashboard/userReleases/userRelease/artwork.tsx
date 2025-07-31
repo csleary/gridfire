@@ -37,11 +37,11 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
           rel="preconnect"
           {...(isStored
             ? {
-                sizes: `(max-width: 959px) calc(100vw - 32px),
-                          (max-width: 1439px) calc((100vw - 48px)/2),
-                          (max-width: 1919px) calc((100vw - 48px)/3),
-                          (max-width: 2399px) calc((100vw - 48px)/4),
-                          477px`,
+                sizes: `(max-width: 959px) calc(100vw - 2rem),
+                          (max-width: 1439px) calc((100vw - 4rem)/2),
+                          (max-width: 1919px) calc((100vw - 6rem)/3),
+                          (max-width: 2399px) calc((100vw - 8rem)/4),
+                          640px`,
                 src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`,
                 srcSet: `${VITE_CDN_IMG}/${releaseId}/320w.webp 320w,
                            ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,
