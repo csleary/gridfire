@@ -104,7 +104,7 @@ interface BasketItem {
   artistName: string;
   imageUrl: string;
   paymentAddress: string;
-  price: bigint;
+  price: string; // Price in DAI (wei, bigint string format).
   releaseId: string;
   title: string;
   trackId?: string; // For track purchases.

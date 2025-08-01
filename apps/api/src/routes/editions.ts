@@ -22,9 +22,11 @@ router.get("/user", requireLogin, async (req, res) => {
     const { _id: userId } = req.user as IUser;
     const editions = await getUserGridfireEditions(userId);
     res.json(editions);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
 
@@ -39,9 +41,11 @@ router.get("/:releaseId", async (req, res) => {
     });
 
     res.json(editions);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
 
@@ -147,9 +151,11 @@ router.get("/:releaseId/uri", async (req, res) => {
     const { releaseId } = req.params;
     const uris = await getGridfireEditionUris(releaseId);
     res.json(uris);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
 
@@ -165,9 +171,11 @@ router.get("/:releaseId/minted", async (req, res) => {
     });
 
     res.json(editions);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
 
@@ -180,9 +188,11 @@ router.patch("/:editionId/visibility", async (req, res) => {
     await setVisibility(userId, editionId, visibility);
     logger.info(`Edition ${editionId} hidden for user ${userId}.`);
     res.sendStatus(200);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error);
-    res.status(400).json({ error: error.message || error.toString() });
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
 

@@ -32,7 +32,7 @@ const deleteArtwork = async (releaseId: string) => {
   return updatedRelease.toJSON();
 };
 
-const getArtworkStream = async (releaseId: string) => streamFromBucket(BUCKET_IMG, releaseId);
+const getArtworkStream = async (releaseId: string) => streamFromBucket(BUCKET_IMG, `${releaseId}/1024w.webp`);
 
 const uploadArtwork = async ({
   filePath,
