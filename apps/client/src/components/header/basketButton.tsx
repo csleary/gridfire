@@ -90,7 +90,8 @@ const BasketButton = () => {
         <ModalContent>
           <ModalCloseButton />
           <ModalHeader>Your Basket</ModalHeader>
-          <ModalBody>
+          <Divider />
+          <ModalBody p={[null, 6]}>
             <VStack alignItems="unset" spacing={3}>
               {basket.length ? (
                 <>
@@ -123,9 +124,9 @@ const BasketButton = () => {
                 </Text>
               )}
             </VStack>
-            <Divider mt={4} />
           </ModalBody>
-          <ModalFooter>
+          <Divider />
+          <ModalFooter p={[null, 6]}>
             <Button onClick={handleCloseModal}>Close</Button>
             <Button
               colorScheme={useColorModeValue("yellow", "purple")}

@@ -5,11 +5,14 @@ const ReleaseGrid = ({ children, ...rest }: { children: ReactNode }) => {
   return (
     <Grid
       gap={8}
-      templateColumns={[
-        "repeat(auto-fill, minmax(12rem, 1fr))",
-        "repeat(auto-fill, minmax(24rem, 1fr))",
-        "repeat(auto-fill, minmax(28rem, 1fr))"
-      ]}
+      templateColumns={{
+        "2xl": "repeat(5, 1fr)",
+        base: "repeat(1, 1fr)",
+        lg: "repeat(3, 1fr)",
+        md: "repeat(2, 1fr)",
+        sm: "repeat(1, 1fr)",
+        xl: "repeat(4, 1fr)"
+      }}
       {...rest}
     >
       {children}

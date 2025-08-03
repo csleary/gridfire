@@ -127,7 +127,7 @@ const checkoutBasket =
       dispatch(setError(""));
       dispatch(setIsCheckingOut(true));
 
-      const total = basket.reduce((prev, { price }) => prev + price, 0n);
+      const total = basket.reduce((prev, { price }) => prev + BigInt(price), 0n);
       const { userId } = getState().user;
 
       // Only do contract checkout if there's a non-zero price.

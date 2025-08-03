@@ -2,13 +2,11 @@ import axios from "axios";
 
 import { addFavouritesItem, addWishListItem, removeFavouritesItem, removeWishListItem } from "@/state/releases";
 import { toastSuccess } from "@/state/toast";
-import {
-  addUserFavouritesItem,
-  addUserWishListItem,
-  removeUserFavouritesItem,
-  removeUserWishListItem
-} from "@/state/user";
 import { AppDispatch } from "@/types";
+
+const { addUserFavouritesItem, addUserWishListItem, removeUserFavouritesItem, removeUserWishListItem } = await import(
+  "@/state/user"
+);
 
 const addToFavourites = (releaseId: string) => async (dispatch: AppDispatch) => {
   const res = await axios.post(`/api/user/favourites/${releaseId}`);

@@ -70,7 +70,7 @@ const Follow = () => {
   };
 
   return (
-    <Flex alignItems="center" mb={8}>
+    <Flex alignItems="center">
       <Button
         isLoading={isLoading}
         justifyContent="space-between"

@@ -138,7 +138,15 @@ const Player = () => {
     navigator.mediaSession.metadata = new MediaMetadata({
       album: releaseTitle,
       artist: artistName,
-      artwork: [{ sizes: "1000x1000", src: `${VITE_CDN_IMG}/${releaseId}`, type: "image/png" }],
+      artwork: [
+        { sizes: "320x320", src: `${VITE_CDN_IMG}/${releaseId}/320w.webp`, type: "image/webp" },
+        { sizes: "640x640", src: `${VITE_CDN_IMG}/${releaseId}/640w.webp`, type: "image/webp" },
+        { sizes: "960x960", src: `${VITE_CDN_IMG}/${releaseId}/960w.webp`, type: "image/webp" },
+        { sizes: "1024x1024", src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`, type: "image/webp" },
+        { sizes: "1440x1440", src: `${VITE_CDN_IMG}/${releaseId}/1440w.webp`, type: "image/webp" },
+        { sizes: "1920x1920", src: `${VITE_CDN_IMG}/${releaseId}/1920w.webp`, type: "image/webp" },
+        { sizes: "2560x2560", src: `${VITE_CDN_IMG}/${releaseId}/2560w.webp`, type: "image/webp" }
+      ],
       title: trackTitle
     });
 

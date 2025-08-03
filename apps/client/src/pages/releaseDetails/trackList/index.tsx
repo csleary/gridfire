@@ -13,7 +13,7 @@ import { keyframes } from "@emotion/react";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TrackForPurchase } from "@gridfire/shared/types";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { parseEther } from "ethers";
 import { lazy, useCallback, useState } from "react";
 import { shallowEqual } from "react-redux";
@@ -83,12 +83,14 @@ const TrackList = () => {
         const res = await axios.get(`/api/release/${releaseId}/purchase`);
         const { paymentAddress } = res.data;
         await purchaseRelease({ paymentAddress, price, releaseId: trackId, userId });
-      } catch (error: any) {
-        if (error.code === "ACTION_REJECTED") {
+      } catch (error: unknown) {
+        if (!error || typeof error !== "object") return;
+
+        if ("code" in error && error.code === "ACTION_REJECTED") {
           return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
         }
 
-        if (error.code === -32603) {
+        if ("code" in error && error.code === -32603) {
           return void dispatch(
             toastError({
               message: "DAI balance too low. Please add more DAI or use a different account.",
@@ -97,7 +99,12 @@ const TrackList = () => {
           );
         }
 
-        dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
+        if (isAxiosError(error)) {
+          return void dispatch(toastError({ message: error.response?.data?.message || error.message, title: "Error" }));
+        } else if (error instanceof Error) {
+          dispatch(toastError({ message: error.message, title: "Error" }));
+        }
+
         console.error(error);
       } finally {
         setIsPurchasing(false);

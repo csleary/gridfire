@@ -1,4 +1,4 @@
-import { Heading, Text, VStack } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack } from "@chakra-ui/react";
 
 import { useSelector } from "@/hooks";
 
@@ -6,9 +6,9 @@ const Artist = () => {
   const biography = useSelector(state => state.releases.artist.biography) ?? "";
 
   return (
-    <>
+    <Box>
       <Heading as="h3">Biography</Heading>
-      <VStack mb={12} spacing={6}>
+      <VStack spacing={6}>
         {biography
           .split("\n")
           .filter(text => text.trim().length)
@@ -16,7 +16,7 @@ const Artist = () => {
             <Text key={index}>{paragraph}</Text>
           ))}
       </VStack>
-    </>
+    </Box>
   );
 };
 

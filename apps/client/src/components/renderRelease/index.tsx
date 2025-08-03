@@ -16,7 +16,7 @@ type DownloadRelease = Release & { purchaseId: string };
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
 interface Props extends ChakraProps {
-  imgSizes?: string;
+  imgSizes?: string; // For different contexts.
   release: DownloadRelease | Release;
   showArtist?: boolean;
   showTitle?: boolean;
@@ -118,19 +118,20 @@ const RenderRelease = ({ imgSizes = "", release, showArtist = true, showTitle = 
               ? {
                   sizes:
                     imgSizes ||
-                    `(max-width: 683px) calc(100vw - 2rem),
-                    (max-width: 1454px) calc((100vw - 4rem)/2),
-                    (max-width: 1919px) calc((100vw - 6rem)/3),
-                    (max-width: 2399px) calc((100vw - 8rem)/4),
-                    960px`,
+                    `(max-width: 479px) calc(100vw - 24px),
+                     (max-width: 767px) calc(100vw - 2rem),
+                     (max-width: 1023px) calc((100vw - 4rem)/2),
+                     (max-width: 1279px) calc((100vw - 6rem)/3),
+                     (max-width: 1535px) calc((100vw - 8rem)/4),
+                     640px`,
                   src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`,
                   srcSet: `${VITE_CDN_IMG}/${releaseId}/320w.webp 320w,
-                             ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,
-                             ${VITE_CDN_IMG}/${releaseId}/960w.webp 960w,
-                             ${VITE_CDN_IMG}/${releaseId}/1024w.webp 1024w,
-                             ${VITE_CDN_IMG}/${releaseId}/1440w.webp 1440w,
-                             ${VITE_CDN_IMG}/${releaseId}/1920w.webp 1920w,
-                             ${VITE_CDN_IMG}/${releaseId}/2560w.webp 2560w`
+                           ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,
+                           ${VITE_CDN_IMG}/${releaseId}/960w.webp 960w,
+                           ${VITE_CDN_IMG}/${releaseId}/1024w.webp 1024w,
+                           ${VITE_CDN_IMG}/${releaseId}/1440w.webp 1440w,
+                           ${VITE_CDN_IMG}/${releaseId}/1920w.webp 1920w,
+                           ${VITE_CDN_IMG}/${releaseId}/2560w.webp 2560w`
                 }
               : { src: placeholder })}
           />

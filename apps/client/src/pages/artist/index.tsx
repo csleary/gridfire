@@ -1,4 +1,4 @@
-import { Divider, Heading, useColorModeValue, Wrap, WrapItem } from "@chakra-ui/react";
+import { Divider, Flex, Grid, Heading, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
@@ -15,8 +15,8 @@ import Releases from "./releases";
 
 const Artist = () => {
   const dividerColor = useColorModeValue("gray.200", "gray.600");
-  const { artistId, artistSlug } = useParams();
   const dispatch = useDispatch();
+  const { artistId, artistSlug } = useParams();
   const name = useSelector(state => state.releases.artist.name, shallowEqual);
   const [isLoading, setLoading] = useState(true);
 
@@ -31,20 +31,44 @@ const Artist = () => {
         <meta content={`Music by ${name}.`} name="description" />
       </Helmet>
       <Heading as="h2">{name}</Heading>
-      <Wrap spacing={8}>
-        <WrapItem alignItems="stretch" as="section" flex="1 1 64rem" flexDirection="column" order={[2, 2, 1]}>
-          <Releases />
-        </WrapItem>
-        <WrapItem as="section" flex="0 1 80ch" m={0} order={[1, 1, 2]}>
-          <Card alignSelf="stretch" flex={1} m={0}>
-            <Follow />
-            <Divider borderColor={dividerColor} mb={12} mt={6} />
-            <Biography />
-            <Divider borderColor={dividerColor} mb={12} mt={6} />
-            <Links />
-          </Card>
-        </WrapItem>
-      </Wrap>
+      <Grid
+        alignItems="stretch"
+        gap={8}
+        templateColumns={{
+          "2xl": "repeat(3, 1fr)",
+          "3xl": "repeat(4, 1fr)",
+          base: "1fr",
+          md: "repeat(2, 1fr)",
+          xl: "repeat(3, 1fr)"
+        }}
+      >
+        <Releases />
+        <Card flex="1" gridColumn={{ base: "1/-1", md: "-2/-1" }} gridRow={{ base: "4" }} m={0}>
+          <Links />
+        </Card>
+        <Card
+          gridColumn={{ base: "1/-1", md: "-2/-1" }}
+          gridRow={{ base: "2", md: "2/span 2" }}
+          height={{ base: "unset", md: 0 }}
+          m={0}
+          minHeight="100%"
+          overflowY="auto"
+        >
+          <Biography />
+        </Card>
+        <Card
+          aspectRatio={1}
+          gridColumn={{ base: "1/-1", md: "-2/-1" }}
+          gridRow={{ base: "1/1", md: "1" }}
+          height={{ base: "unset", md: 0 }}
+          m={0}
+          minHeight="100%"
+          overflowY="auto"
+          p={4}
+        >
+          <Follow />
+        </Card>
+      </Grid>
     </>
   );
 };
