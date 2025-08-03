@@ -42,13 +42,14 @@ const Artist = () => {
           xl: "repeat(3, 1fr)"
         }}
       >
-        <Releases />
-        <Card flex="1" gridColumn={{ base: "1/-1", md: "-2/-1" }} gridRow={{ base: "4" }} m={0}>
-          <Links />
+        <Card m={0} p={4}>
+          <Follow />
         </Card>
+        <Releases />
         <Card
+          // https://stackoverflow.com/questions/43352501/css-grid-content-to-use-free-space-but-scroll-when-bigger/47421254
           gridColumn={{ base: "1/-1", md: "-2/-1" }}
-          gridRow={{ base: "2", md: "2/span 2" }}
+          gridRow={{ base: "1", md: "1/span 2" }}
           height={{ base: "unset", md: 0 }}
           m={0}
           minHeight="100%"
@@ -56,17 +57,8 @@ const Artist = () => {
         >
           <Biography />
         </Card>
-        <Card
-          aspectRatio={1}
-          gridColumn={{ base: "1/-1", md: "-2/-1" }}
-          gridRow={{ base: "1/1", md: "1" }}
-          height={{ base: "unset", md: 0 }}
-          m={0}
-          minHeight="100%"
-          overflowY="auto"
-          p={4}
-        >
-          <Follow />
+        <Card flex="1" m={0}>
+          <Links />
         </Card>
       </Grid>
     </>
