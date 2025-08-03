@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "@/hooks";
 import { endpoints } from "@/state/api/web3Slice";
 import { setArtworkUploading } from "@/state/artwork";
 import { updateTrackStatus } from "@/state/editor";
-import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "@/utils/toast";
 import {
   setEncodingProgressFLAC,
   setPipelineError,

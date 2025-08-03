@@ -32,7 +32,11 @@ const SearchInput = (props: ChakraProps) => {
     const listQuery = [];
     for (const [key, value] of searchParams.entries()) listQuery.push(`${key}:${value}`);
     const stringQuery = listQuery.join(",");
-    if (stringQuery) dispatch(searchReleases(stringQuery));
+
+    if (stringQuery) {
+      setSearchText(stringQuery);
+      dispatch(searchReleases(stringQuery));
+    }
   }, [dispatch, search]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -53,7 +57,7 @@ const SearchInput = (props: ChakraProps) => {
     if (searchText !== previousQuery) {
       handleSearch(searchText);
     }
-  }, [handleSearch, previousQuery, searchText]);
+  }, [handleSearch, previousQuery, search, searchText]);
 
   const handleSearchInput = (e: FormEvent<HTMLInputElement>) => setSearchText(e.currentTarget.value);
 

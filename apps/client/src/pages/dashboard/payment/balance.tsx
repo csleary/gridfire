@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { useLazyGetClaimsQuery } from "@/state/api/web3Slice";
-import { toastError, toastInfo, toastSuccess, toastWarning } from "@/state/toast";
+import { toastError, toastInfo, toastSuccess, toastWarning } from "@/utils/toast";
 import { fetchDaiBalance } from "@/state/web3";
 import { claimBalance, getBalance } from "@/web3";
 
@@ -110,10 +110,10 @@ const Balance = () => {
           {!isConnected
             ? "Connect wallet"
             : account.toLowerCase() !== paymentAddress.toLowerCase()
-            ? "Switch to payment account"
-            : isClaiming
-            ? "Claiming…"
-            : "Claim balance"}
+              ? "Switch to payment account"
+              : isClaiming
+                ? "Claiming…"
+                : "Claim balance"}
         </Button>
       </Flex>
       <Text mb={12}>

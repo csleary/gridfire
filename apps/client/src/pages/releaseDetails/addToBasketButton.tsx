@@ -8,7 +8,7 @@ import { shallowEqual } from "react-redux";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastError } from "@/state/toast";
+import { toastError } from "@/utils/toast";
 import { addToBasket, setIsAddingToBasket } from "@/state/web3";
 
 import NameYourPriceModal from "./nameYourPriceModal";

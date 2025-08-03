@@ -23,9 +23,9 @@ import { shallowEqual } from "react-redux";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastInfo } from "@/state/toast";
+import { toastInfo } from "@/utils/toast";
 import { selectIsInFavourites, selectIsInWishList } from "@/state/user";
-import { addToFavourites, addToWishList, removeFromFavourites, removeFromWishList } from "@/state/userReleaseThunks";
+import { addToFavourites, addToWishList, removeFromFavourites, removeFromWishList } from "@/state/thunks";
 
 const Actions = () => {
   const buttonGroupBg = useColorModeValue("white", undefined);

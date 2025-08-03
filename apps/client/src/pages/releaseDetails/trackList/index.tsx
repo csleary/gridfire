@@ -21,7 +21,7 @@ import { shallowEqual } from "react-redux";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { loadTrack } from "@/state/player";
-import { toastError, toastInfo, toastWarning } from "@/state/toast";
+import { toastError, toastInfo, toastWarning } from "@/utils/toast";
 import { addToBasket } from "@/state/web3";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 import { purchaseRelease } from "@/web3";

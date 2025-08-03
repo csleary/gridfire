@@ -1,11 +1,10 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent, isAxiosError } from "axios";
 
-import { selectTrackById, trackRemove } from "@/state/editor";
-import { toastError, toastInfo, toastSuccess } from "@/state/toast";
-import { addActiveProcess, removeActiveProcess } from "@/state/user";
+import { addActiveUserProcess, getTrackById, removeActiveUserProcess, removeTrackById } from "@/state/thunks";
 import { AppDispatch, GetState } from "@/types";
 import handleError from "@/utils/handleError";
+import { toastError, toastInfo, toastSuccess } from "@/utils/toast";
 
 const controllers = new Map<string, AbortController>();
 
@@ -95,9 +94,9 @@ const trackSlice = createSlice({
 const deleteTrack = (trackId: string) => async (dispatch: AppDispatch, getState: GetState) => {
   try {
     if (getState().tracks.trackIdsForDeletion[trackId]) {
-      dispatch(trackRemove(trackId));
+      dispatch(removeTrackById(trackId));
       await axios.delete(`/api/track/${trackId}`);
-      const trackTitle = selectTrackById(getState(), trackId)?.trackTitle || "";
+      const trackTitle = dispatch(getTrackById(trackId))?.trackTitle || "";
       const message = `${trackTitle ? `'${trackTitle}'` : "Track"} deleted.`;
       dispatch(toastSuccess({ message, title: "Done" }));
       dispatch(setTrackIdsForDeletion({ isDeleting: false, trackId }));
@@ -139,8 +138,8 @@ interface UploadAudioParams {
   trackTitle: string;
 }
 
-const reEncodeTrack = (trackId: string) => async (dispatch: AppDispatch, getState: GetState) => {
-  const track = selectTrackById(getState(), trackId);
+const reEncodeTrack = (trackId: string) => async (dispatch: AppDispatch) => {
+  const track = dispatch(getTrackById(trackId));
   if (!track) return;
   const { status, trackTitle } = track;
   if (status !== "stored") return;
@@ -164,7 +163,7 @@ const uploadAudio =
     const processId = nanoid();
 
     dispatch(
-      addActiveProcess({
+      addActiveUserProcess({
         description: `Uploading audio for '${trackTitle}'…`,
         id: processId,
         type: "upload"
@@ -197,7 +196,7 @@ const uploadAudio =
       handleError(error, dispatch, "An error occurred while uploading the audio file.");
     } finally {
       controllers.delete(trackId);
-      dispatch(removeActiveProcess(processId));
+      dispatch(removeActiveUserProcess(processId));
     }
   };
 

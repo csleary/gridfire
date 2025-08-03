@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastError, toastWarning } from "@/state/toast";
+import { toastError, toastWarning } from "@/utils/toast";
 import { purchaseRelease } from "@/web3";
 
 import NameYourPriceModal from "./nameYourPriceModal";
@@ -85,12 +85,12 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
         {inCollection
           ? "In collection"
           : !isConnected
-          ? "Connect"
-          : allowanceTooLow
-          ? "Set allowance"
-          : Number(price) === 0
-          ? "Name your price"
-          : "Buy"}
+            ? "Connect"
+            : allowanceTooLow
+              ? "Set allowance"
+              : Number(price) === 0
+                ? "Name your price"
+                : "Buy"}
       </Button>
       <NameYourPriceModal
         handleCloseModal={() => setShowModal(false)}

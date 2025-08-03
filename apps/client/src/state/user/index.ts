@@ -2,9 +2,9 @@ import { ActiveProcess, LocalStorageKeys, Sale, UserFavourite, UserListItem } fr
 import { createEntityAdapter, createSelector, createSlice, EntityState } from "@reduxjs/toolkit";
 import axios from "axios";
 
-import { toastSuccess } from "@/state/toast";
 import { AppDispatch, RootState } from "@/types";
 import handleError from "@/utils/handleError";
+import { toastSuccess } from "@/utils/toast";
 
 interface UserState {
   account: string;

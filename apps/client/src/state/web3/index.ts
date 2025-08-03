@@ -3,9 +3,9 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { createSlice } from "@reduxjs/toolkit";
 import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
 
-import { checkoutFreeBasket } from "@/state/releases";
-import { toastError, toastWarning } from "@/state/toast";
+import { checkoutFreeBasket } from "@/state/thunks";
 import { AppDispatch, GetState } from "@/types";
+import { toastError, toastWarning } from "@/utils/toast";
 import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "@/web3";
 
 const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
@@ -266,6 +266,6 @@ export const {
   setSales
 } = web3Slice.actions;
 
-export type { BrowserWallet, Web3State };
 export { checkoutBasket, connectToWeb3, fetchDaiAllowance, fetchDaiBalance, fetchSales, reconnectToWeb3 };
+export type { BrowserWallet, Web3State };
 export default web3Slice.reducer;

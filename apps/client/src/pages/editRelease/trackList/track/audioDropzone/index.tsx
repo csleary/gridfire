@@ -7,7 +7,7 @@ import { useDropzone } from "react-dropzone";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { trackSetError, trackUpdate, updateTrackStatus } from "@/state/editor";
-import { toastError, toastInfo } from "@/state/toast";
+import { toastError, toastInfo } from "@/utils/toast";
 import { cancelUpload, uploadAudio } from "@/state/tracks";
 
 import ProgressIndicator from "./progressIndicator";

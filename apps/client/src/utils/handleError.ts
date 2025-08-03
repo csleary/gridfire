@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { AppDispatch } from "@/types";
 
-import { toastError } from "../state/toast";
+import { toastError } from "./toast";
 
 const handleError = (error: unknown, dispatch: AppDispatch, message?: string) => {
   if (axios.isCancel(error)) {

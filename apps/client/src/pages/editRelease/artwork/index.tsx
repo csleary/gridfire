@@ -20,8 +20,9 @@ import { FileRejection, useDropzone } from "react-dropzone";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { deleteArtwork, uploadArtwork } from "@/state/artwork";
-import { toastError, toastSuccess, toastWarning } from "@/state/toast";
+import { uploadArtwork } from "@/state/artwork";
+import { deleteArtwork } from "@/state/thunks";
+import { toastError, toastSuccess, toastWarning } from "@/utils/toast";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
@@ -49,7 +50,7 @@ const Artwork = () => {
   const isStored = status === "stored";
 
   useEffect(() => {
-    if (isStored) return setCoverArtPreview(`${VITE_CDN_IMG}/${releaseId}`);
+    if (isStored) return setCoverArtPreview(`${VITE_CDN_IMG}/${releaseId}/640w.webp`);
     setCoverArtPreview("");
 
     return () => {

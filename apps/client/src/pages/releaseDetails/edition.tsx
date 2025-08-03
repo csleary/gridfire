@@ -24,7 +24,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastError, toastWarning } from "@/state/toast";
+import { toastError, toastWarning } from "@/utils/toast";
 import { fetchDaiBalance } from "@/state/web3";
 import { purchaseEdition } from "@/web3";
 

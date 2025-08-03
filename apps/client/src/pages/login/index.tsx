@@ -18,7 +18,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { fetchUserFavourites, fetchUserWishList } from "@/state/releases";
-import { toastSuccess, toastWarning } from "@/state/toast";
+import { toastSuccess, toastWarning } from "@/utils/toast";
 import { setIsLoading, updateUser } from "@/state/user";
 import { connectToWeb3 } from "@/state/web3";
 

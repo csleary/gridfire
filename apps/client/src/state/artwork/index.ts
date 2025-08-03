@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios, { AxiosProgressEvent } from "axios";
 
-import { setActiveRelease } from "@/state/releases";
 import { AppDispatch } from "@/types";
 import handleError from "@/utils/handleError";
 
@@ -28,15 +27,6 @@ const artworkSlice = createSlice({
   }
 });
 
-const deleteArtwork = (releaseId: string) => async (dispatch: AppDispatch) => {
-  try {
-    const res = await axios.delete(`/api/artwork/${releaseId}`);
-    dispatch(setActiveRelease(res.data));
-  } catch (error: unknown) {
-    handleError(error, dispatch);
-  }
-};
-
 const uploadArtwork = (releaseId: string, file: File) => async (dispatch: AppDispatch) => {
   const data = new FormData();
   data.append("artworkImageFile", file);
@@ -60,6 +50,6 @@ const uploadArtwork = (releaseId: string, file: File) => async (dispatch: AppDis
 };
 
 export const { setArtworkUploading, setArtworkUploadProgress } = artworkSlice.actions;
-export { deleteArtwork, uploadArtwork };
+export { uploadArtwork };
 export type { ArtworkState };
 export default artworkSlice.reducer;

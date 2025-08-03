@@ -3,9 +3,9 @@ import { createDraftSafeSelector, createEntityAdapter, createSlice, EntityState 
 import axios from "axios";
 import { DateTime } from "luxon";
 
-import { toastError, toastSuccess } from "@/state/toast";
 import { AppDispatch, RootState } from "@/types";
 import handleError from "@/utils/handleError";
+import { toastError, toastSuccess } from "@/utils/toast";
 
 interface ArtistState {
   activeArtistId: string;

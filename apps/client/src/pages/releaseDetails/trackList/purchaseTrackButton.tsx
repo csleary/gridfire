@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "@/hooks";
-import { toastWarning } from "@/state/toast";
+import { toastWarning } from "@/utils/toast";
 
 import NameYourPriceModal from "../nameYourPriceModal";
 
@@ -63,8 +63,8 @@ const PurchaseTrackButton = ({
                   navigate("/dashboard/payment/approvals");
                 }
               : Number(price) === 0
-              ? () => setShowModal(true)
-              : () => handlePurchaseTrack({ price, trackId })
+                ? () => setShowModal(true)
+                : () => handlePurchaseTrack({ price, trackId })
           }
           size="sm"
           variant="ghost"

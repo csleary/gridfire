@@ -8,7 +8,7 @@ import { shallowEqual } from "react-redux";
 import { useDispatch, useSelector } from "@/hooks";
 import placeholder from "@/placeholder.svg";
 import { loadTrack, playerPause, playerPlay } from "@/state/player";
-import { toastInfo } from "@/state/toast";
+import { toastInfo } from "@/utils/toast";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;

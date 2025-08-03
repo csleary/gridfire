@@ -1,6 +1,5 @@
 import {
   Artist,
-  BasketItem,
   CollectionEdition,
   CollectionRelease,
   CollectionSingle,
@@ -9,14 +8,13 @@ import {
   Release,
   UserRelease
 } from "@gridfire/shared/types";
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { DateTime } from "luxon";
 
-import { toastError, toastSuccess } from "@/state/toast";
-import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { AppDispatch, GetState } from "@/types";
 import handleError from "@/utils/handleError";
+import { toastError, toastSuccess } from "@/utils/toast";
 import { fetchUserEditions as _fetchUserEditions } from "@/web3";
 
 interface ReleasesState {
@@ -163,19 +161,6 @@ const releaseSlice = createSlice({
     }
   }
 });
-
-const checkoutFreeBasket = (basket: BasketItem[]) => async (dispatch: AppDispatch) => {
-  const processId = nanoid();
-  dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
-
-  try {
-    await axios.post("/api/release/checkout", basket);
-  } catch (error: unknown) {
-    handleError(error, dispatch);
-  } finally {
-    dispatch(removeActiveProcess(processId));
-  }
-};
 
 const deleteRelease =
   (releaseId: string, releaseTitle = "release") =>
@@ -374,7 +359,6 @@ export const {
 export type { ReleasesState };
 
 export {
-  checkoutFreeBasket,
   defaultReleaseState,
   deleteRelease,
   fetchArtistCatalogue,

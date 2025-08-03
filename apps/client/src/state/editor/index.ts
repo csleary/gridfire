@@ -6,10 +6,10 @@ import axios from "axios";
 import { DateTime } from "luxon";
 
 import { checkRelease, checkTrackList } from "@/pages/editRelease/validation";
-import { toastSuccess } from "@/state/toast";
 import { AppDispatch, GetState, RootState } from "@/types";
 import { createObjectId, formatPrice } from "@/utils";
 import handleError from "@/utils/handleError";
+import { toastSuccess } from "@/utils/toast";
 
 interface EditorState {
   artworkUploading: boolean;

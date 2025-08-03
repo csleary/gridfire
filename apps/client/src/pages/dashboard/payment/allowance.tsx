@@ -43,7 +43,7 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { useLazyGetApprovalsQuery, useLazyGetPurchasesQuery } from "@/state/api/web3Slice";
-import { toastSuccess } from "@/state/toast";
+import { toastSuccess } from "@/utils/toast";
 import { fetchDaiAllowance } from "@/state/web3";
 import { setDaiAllowance } from "@/web3";
 

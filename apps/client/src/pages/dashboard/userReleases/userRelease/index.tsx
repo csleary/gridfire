@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { deleteRelease, publishStatus, setReleaseIdsForDeletion } from "@/state/releases";
-import { toastSuccess, toastWarning } from "@/state/toast";
+import { toastSuccess, toastWarning } from "@/utils/toast";
 
 import Artwork from "./artwork";
 import StatusIcon from "./statusIcon";

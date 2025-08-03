@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "@/hooks";
 import placeholder from "@/placeholder.svg";
 import { loadTrack, playerPause, playerPlay } from "@/state/player";
 import { setIsLoading } from "@/state/releases";
-import { toastInfo } from "@/state/toast";
+import { toastInfo } from "@/utils/toast";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 
 type DownloadRelease = Release & { purchaseId: string };
