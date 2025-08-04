@@ -8,8 +8,8 @@ import { shallowEqual } from "react-redux";
 import { useDispatch, useSelector } from "@/hooks";
 import placeholder from "@/placeholder.svg";
 import { loadTrack, playerPause, playerPlay } from "@/state/player";
-import { toastInfo } from "@/utils/toast";
 import { fadeAudio, getGainNode } from "@/utils/audio";
+import { toastInfo } from "@/utils/toast";
 
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
 
@@ -81,8 +81,8 @@ const Artwork = () => {
               {...(artwork.status === "stored"
                 ? {
                     sizes: `(max-width: 479px) calc(100vw - 24px),
-                            (max-width: 767px) calc(100vw - 3rem),
-                            632px`,
+                            (max-width: 992px) calc(100vw - 3rem),
+                            628px`,
                     src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`,
                     srcSet: `${VITE_CDN_IMG}/${releaseId}/320w.webp 320w,
                              ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,

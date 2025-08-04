@@ -104,9 +104,9 @@ const ActiveRelease = () => {
         <meta content={`Listen to '${releaseTitle}' by ${artistName}.`} name="description" />
       </Helmet>
       <Container as="main" maxW="container.xl" p={0}>
-        <Wrap alignItems="stretch" spacing={4}>
+        <Wrap alignItems="stretch" spacing={{ "3xl": 8, base: 4, xl: 6 }}>
           <WrapItem as="section" flex="1 1 36ch">
-            <VStack alignItems="stretch" flex="1 1 32rem" spacing={4}>
+            <VStack alignItems="stretch" flex="1 1 32rem" spacing={{ "3xl": 8, base: 4, xl: 6 }}>
               <Artwork />
               <Actions />
             </VStack>

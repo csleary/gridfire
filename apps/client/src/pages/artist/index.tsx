@@ -1,4 +1,4 @@
-import { Divider, Flex, Grid, Heading, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
+import { Grid, Heading } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
@@ -14,7 +14,6 @@ import Links from "./links";
 import Releases from "./releases";
 
 const Artist = () => {
-  const dividerColor = useColorModeValue("gray.200", "gray.600");
   const dispatch = useDispatch();
   const { artistId, artistSlug } = useParams();
   const name = useSelector(state => state.releases.artist.name, shallowEqual);
@@ -33,7 +32,7 @@ const Artist = () => {
       <Heading as="h2">{name}</Heading>
       <Grid
         alignItems="stretch"
-        gap={8}
+        gap={{ "3xl": 8, base: 4, xl: 6 }}
         templateColumns={{
           "2xl": "repeat(3, 1fr)",
           "3xl": "repeat(4, 1fr)",
@@ -42,7 +41,7 @@ const Artist = () => {
           xl: "repeat(3, 1fr)"
         }}
       >
-        <Card m={0} p={4}>
+        <Card m={0} px={4} py={4}>
           <Follow />
         </Card>
         <Releases />
