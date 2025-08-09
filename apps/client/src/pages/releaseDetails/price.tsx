@@ -13,7 +13,7 @@ const Price = ({ price }: Props) => {
   const [dai, cents] = Number(price).toFixed(2).split(".");
 
   return (
-    <Skeleton isLoaded={!isLoading} mb={6}>
+    <Skeleton isLoaded={!isLoading} mb={12}>
       <Flex justifyContent="center">
         <Flex alignItems="flex-start">
           <Heading alignSelf="center" as="span" color="gray.500" mb={0} mr="0.2rem" size="xl">

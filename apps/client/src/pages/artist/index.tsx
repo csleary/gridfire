@@ -1,4 +1,4 @@
-import { Grid, Heading } from "@chakra-ui/react";
+import { Box, Grid, Heading } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { shallowEqual } from "react-redux";
@@ -29,7 +29,6 @@ const Artist = () => {
         <title>{isLoading ? "Loading…" : name}</title>
         <meta content={`Music by ${name}.`} name="description" />
       </Helmet>
-      <Heading as="h2">{name}</Heading>
       <Grid
         alignItems="stretch"
         gap={{ "3xl": 8, base: 4, xl: 6 }}
@@ -41,14 +40,16 @@ const Artist = () => {
           xl: "repeat(3, 1fr)"
         }}
       >
-        <Card m={0} px={4} py={4}>
-          <Follow />
-        </Card>
+        <Heading as="h2" gridColumn={{ base: "1/-1", xl: "2/-2" }} gridRow={{ base: "1" }} m={0}>
+          {name}
+        </Heading>
+        <Follow gridColumn={{ base: "1", xl: "-2/-1" }} gridRow={{ base: "2", xl: "1" }} justifySelf={{ xl: "end" }} />
+        <Box aria-hidden="true" display={{ base: "none", xl: "block" }} gridColumn={{ xl: 1 }} gridRow="1" />
         <Releases />
         <Card
           // https://stackoverflow.com/questions/43352501/css-grid-content-to-use-free-space-but-scroll-when-bigger/47421254
-          gridColumn={{ base: "1/-1", md: "-2/-1" }}
-          gridRow={{ base: "1", md: "1/span 2" }}
+          gridColumn={{ base: "1", md: "-2/-1" }}
+          gridRow={{ base: "3", md: "2/span 2" }}
           height={{ base: "unset", md: 0 }}
           m={0}
           minHeight="100%"

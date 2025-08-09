@@ -16,6 +16,7 @@ import {
   WrapItem
 } from "@chakra-ui/react";
 import { faCalendar, faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import { DateTime } from "luxon";
 import { lazy, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet";
@@ -68,10 +69,11 @@ const ActiveRelease = () => {
   const loadRelease = useCallback(async () => {
     try {
       await dispatch(fetchRelease(releaseId));
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         return void navigate("/");
       }
+
       console.error("Failed to fetch release:", error);
     } finally {
       dispatch(setIsLoading(false));
@@ -148,25 +150,22 @@ const ActiveRelease = () => {
               ) : (
                 <TrackList />
               )}
-              <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
+              <Divider borderColor={useColorModeValue("gray.200", "gray.600")} mb={8} />
               <Price price={price} />
-              <Wrap justify="center" mb={6} spacing={4}>
-                <WrapItem>
-                  <PurchaseButton inCollection={isInCollection} price={price} releaseId={releaseId} />
-                </WrapItem>
-                <WrapItem>
-                  <AddToBasketButton
-                    artistName={artistName}
-                    imageUrl={`${VITE_CDN_IMG}/${releaseId}/320w.webp`}
-                    inCollection={isInCollection}
-                    price={price}
-                    releaseId={releaseId}
-                    title={releaseTitle}
-                  />
-                </WrapItem>
-              </Wrap>
+              <Flex flexWrap="wrap" gap={4} justify="center" mb={6}>
+                <PurchaseButton flex="3 1 8rem" inCollection={isInCollection} price={price} releaseId={releaseId} />
+                <AddToBasketButton
+                  artistName={artistName}
+                  flex="1 1 8rem"
+                  imageUrl={`${VITE_CDN_IMG}/${releaseId}/320w.webp`}
+                  inCollection={isInCollection}
+                  price={price}
+                  releaseId={releaseId}
+                  title={releaseTitle}
+                />
+              </Flex>
               <Editions />
-              <Divider borderColor={useColorModeValue("gray.200", "gray.500")} mb={8} />
+              <Divider borderColor={useColorModeValue("gray.200", "gray.600")} mb={8} />
               <Box mb={6}>
                 {isLoading ? (
                   <Skeleton height={6} mb={2} />
@@ -204,7 +203,7 @@ const ActiveRelease = () => {
                         justify="center"
                         minW={10}
                         mr={3}
-                        onClick={handleSearch.bind(null, [["year", new Date(releaseDate).getFullYear().toString()]])}
+                        onClick={() => handleSearch([["year", new Date(releaseDate).getFullYear().toString()]])}
                         rounded="sm"
                         variant="unstyled"
                       >
@@ -243,18 +242,20 @@ const ActiveRelease = () => {
                   {credits}
                 </Text>
               ) : null}
-              <Box mb={6}>
-                {pubYear && (
-                  <Text color="gray.400" fontSize="sm" fontWeight={500}>
-                    &copy; {pubYear} {pubName}
-                  </Text>
-                )}
-                {recYear && (
-                  <Text color="gray.400" fontSize="sm" fontWeight={500}>
-                    &#8471; {recYear} {recName}
-                  </Text>
-                )}
-              </Box>
+              {(pubYear || recYear) && (
+                <Box mb={6}>
+                  {pubYear && (
+                    <Text color="gray.400" fontSize="sm" fontWeight={500}>
+                      &copy; {pubYear} {pubName}
+                    </Text>
+                  )}
+                  {recYear && (
+                    <Text color="gray.400" fontSize="sm" fontWeight={500}>
+                      &#8471; {recYear} {recName}
+                    </Text>
+                  )}
+                </Box>
+              )}
               <Tags />
             </Card>
           </WrapItem>

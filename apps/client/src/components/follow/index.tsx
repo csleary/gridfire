@@ -1,4 +1,4 @@
-import { Button, Center, Flex, useColorModeValue } from "@chakra-ui/react";
+import { Button, Center, ChakraProps, Flex, useColorModeValue } from "@chakra-ui/react";
 import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
@@ -7,7 +7,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Icon from "@/components/icon";
 import { useSelector } from "@/hooks";
 
-const Follow = () => {
+const Follow = (props: ChakraProps) => {
   const accentColor = useColorModeValue("yellow.500", "purple.300");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const location = useLocation();
@@ -70,7 +70,7 @@ const Follow = () => {
   };
 
   return (
-    <Flex alignItems="center">
+    <Flex alignItems="center" {...props}>
       <Button
         isLoading={isLoading}
         justifyContent="space-between"

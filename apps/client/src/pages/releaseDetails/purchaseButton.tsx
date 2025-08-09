@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, ChakraProps } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
@@ -13,13 +13,13 @@ import { purchaseRelease } from "@/web3";
 
 import NameYourPriceModal from "./nameYourPriceModal";
 
-interface Props {
+interface Props extends ChakraProps {
   inCollection: boolean;
   price: string;
   releaseId: string;
 }
 
-const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
+const PurchaseButton = ({ inCollection, price, releaseId, ...rest }: Props) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -43,21 +43,31 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
       }
 
       await purchaseRelease({ paymentAddress, price, releaseId, userId });
-    } catch (error: any) {
-      if (error.code === "ACTION_REJECTED") {
-        return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "code" in error) {
+        if (error.code === 4001) {
+          return void dispatch(toastWarning({ message: "Transaction rejected.", title: "Rejected" }));
+        }
+
+        if (error.code === "ACTION_REJECTED") {
+          return void dispatch(toastWarning({ message: "Purchase cancelled.", title: "Cancelled" }));
+        }
+
+        if (error.code === -32603) {
+          return void dispatch(
+            toastError({
+              message: "Please add more DAI or use a different account.",
+              title: "DAI balance too low."
+            })
+          );
+        }
       }
 
-      if (error.code === -32603) {
-        return void dispatch(
-          toastError({
-            message: "Please add more DAI or use a different account.",
-            title: "DAI balance too low."
-          })
-        );
+      if (error instanceof Error) {
+        return void dispatch(toastError({ message: error.message, title: "Error" }));
       }
 
-      dispatch(toastError({ message: error.data?.message || error.message || error.toString(), title: "Error" }));
+      dispatch(toastError({ message: "An error occurred during this purchase.", title: "Error" }));
       console.error(error);
     } finally {
       setIsPurchasing(false);
@@ -79,8 +89,8 @@ const PurchaseButton = ({ inCollection, price, releaseId }: Props) => {
         isLoading={isPurchasing}
         leftIcon={<Icon icon={inCollection ? faCheckCircle : faEthereum} />}
         loadingText={"Purchasing"}
-        minWidth="16rem"
         onClick={handleClick}
+        {...rest}
       >
         {inCollection
           ? "In collection"

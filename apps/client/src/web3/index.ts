@@ -112,7 +112,7 @@ const gridFireCheckout = async (basket: BasketItem[], userId: string) => {
     const gridFireContract = getGridfireContract(signer);
 
     const contractBasket = basket.map(
-      ({ paymentAddress, price, releaseId }: { paymentAddress: string; price: bigint; releaseId: string }) => ({
+      ({ paymentAddress, price, releaseId }: { paymentAddress: string; price: string; releaseId: string }) => ({
         amountPaid: price,
         artist: paymentAddress,
         releaseId: encodeBytes32String(releaseId)

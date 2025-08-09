@@ -21,9 +21,9 @@ import { shallowEqual } from "react-redux";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { loadTrack } from "@/state/player";
-import { toastError, toastInfo, toastWarning } from "@/utils/toast";
 import { addToBasket } from "@/state/web3";
 import { fadeAudio, getGainNode } from "@/utils/audio";
+import { toastError, toastInfo, toastWarning } from "@/utils/toast";
 import { purchaseRelease } from "@/web3";
 const AddToBasketButton = lazy(() => import("./addToBasketButton"));
 const PurchaseTrackButton = lazy(() => import("./purchaseTrackButton"));
@@ -151,7 +151,7 @@ const TrackList = () => {
   );
 
   return (
-    <UnorderedList marginInlineStart={0} mb={8} stylePosition="inside" styleType="none">
+    <UnorderedList marginInlineStart={0} mb={6} stylePosition="inside" styleType="none">
       {trackList.map(({ _id: trackId, duration, isBonus, isEditionOnly, price, trackTitle }, index) => {
         const allowanceTooLow = parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n;
         const inBasket = basket.some(item => item.releaseId === trackId);

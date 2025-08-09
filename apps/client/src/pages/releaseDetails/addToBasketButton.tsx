@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, ChakraProps } from "@chakra-ui/react";
 import { faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { BasketItem } from "@gridfire/shared/types";
 import axios from "axios";
@@ -8,12 +8,12 @@ import { shallowEqual } from "react-redux";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastError } from "@/utils/toast";
 import { addToBasket, setIsAddingToBasket } from "@/state/web3";
+import { toastError } from "@/utils/toast";
 
 import NameYourPriceModal from "./nameYourPriceModal";
 
-interface Props {
+interface Props extends ChakraProps {
   artistName: string;
   imageUrl: string;
   inCollection: boolean;
@@ -22,7 +22,7 @@ interface Props {
   title: string;
 }
 
-const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title }: Props) => {
+const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseId, title, ...rest }: Props) => {
   const dispatch = useDispatch();
   const basket = useSelector(state => state.web3.basket, shallowEqual);
   const isAddingToBasket = useSelector(state => state.web3.isAddingToBasket);
@@ -42,8 +42,11 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
 
       const priceInWei = parseEther(price);
       dispatch(addToBasket({ artistName, imageUrl, paymentAddress, price: priceInWei.toString(), releaseId, title }));
-    } catch (error: any) {
-      dispatch(toastError({ message: error.message, title: "Error" }));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        dispatch(toastError({ message: error.message, title: "Error" }));
+      }
+
       console.error(error);
     } finally {
       dispatch(setIsAddingToBasket(false));
@@ -64,8 +67,8 @@ const AddToBasketButton = ({ artistName, imageUrl, inCollection, price, releaseI
         isDisabled={isLoading || inCollection || isAddingToBasket || isInBasket}
         isLoading={isAddingToBasket}
         leftIcon={<Icon icon={faShoppingBasket} />}
-        minW="8rem"
         onClick={handleClick}
+        {...rest}
       >
         {isInBasket ? "Added" : "Add"}
       </Button>
