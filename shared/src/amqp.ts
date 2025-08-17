@@ -133,6 +133,7 @@ const amqpConnect: ConnectFunction = async ({ messageHandler } = {}) => {
             queueName = queueName.trim();
             assert(queueName, "QUEUE_NAMES env var is not set correctly.");
             await channel.assertQueue(queueName, { durable: true });
+            await channel.prefetch(1, true);
             const config = await channel.consume(queueName, onMessage);
             const { consumerTag } = config || {};
             consumerTags.push(consumerTag);

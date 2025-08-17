@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       forking: {
         blockNumber: 348_000_000,
-        url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`
+        url: "https://arbitrum-one-rpc.publicnode.com"
       },
       mining: {
         auto: true

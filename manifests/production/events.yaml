@@ -21,11 +21,11 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              memory: 128Mi
+              memory: 263M
               cpu: 25m
             limits:
-              memory: 1.5Gi
-              cpu: 1000m
+              memory: 263M
+              cpu: 25m
           env:
             - name: HEALTH_PROBE_PORT
               value: "9090"

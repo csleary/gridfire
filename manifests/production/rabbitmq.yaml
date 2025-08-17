@@ -27,11 +27,11 @@ spec:
               mountPath: /var/lib/rabbitmq/mnesia
           resources:
             requests:
-              memory: 128Mi
-              cpu: 25m
+              cpu: 49m
+              memory: 263M
             limits:
-              memory: 1Gi
-              cpu: 250m
+              cpu: 49m
+              memory: 263M
           envFrom:
             - configMapRef:
                 name: rabbitmq-config

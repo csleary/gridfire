@@ -21,11 +21,11 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              memory: 128Mi
-              cpu: 25m
+              memory: 381M
+              cpu: 63m
             limits:
-              memory: 1.5Gi
-              cpu: 1000m
+              memory: 381M
+              cpu: 63m
           envFrom:
             - configMapRef:
                 name: amqp-config
