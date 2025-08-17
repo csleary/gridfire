@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/use-gzip: "true"
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: monitoring-grafana
+      port:
+        number: 80
+  tls:
+    - hosts:
+        - grafana.gridfire.app
+      secretName: tls-secret
+  rules:
+    - host: grafana.gridfire.app
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: monitoring-grafana
+                port:
+                  number: 80
+            path: /
