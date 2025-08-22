@@ -113,7 +113,7 @@ const SearchBar = ({ ...rest }) => {
                             objectFit="cover"
                             rel="preconnect"
                             rounded="full"
-                            src={`${VITE_CDN_IMG}/${releaseId}`}
+                            src={`${VITE_CDN_IMG}/${releaseId}/320w.webp`}
                           />
                         </WrapItem>
                         <WrapItem flex="1 1 32ch">
