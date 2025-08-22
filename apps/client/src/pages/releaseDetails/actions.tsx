@@ -23,9 +23,9 @@ import { shallowEqual } from "react-redux";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastInfo } from "@/utils/toast";
-import { selectIsInFavourites, selectIsInWishList } from "@/state/user";
 import { addToFavourites, addToWishList, removeFromFavourites, removeFromWishList } from "@/state/thunks";
+import { selectIsInFavourites, selectIsInWishList } from "@/state/user";
+import { toastInfo } from "@/utils/toast";
 
 const Actions = () => {
   const buttonGroupBg = useColorModeValue("white", undefined);
@@ -59,110 +59,112 @@ const Actions = () => {
   }
 
   return (
-    <ButtonGroup bg={buttonGroupBg} isAttached size="sm" variant="outline">
-      <Button
-        flex={1}
-        isLoading={isSavingToFaves}
-        leftIcon={<Icon color={isInFaves ? "red.400" : undefined} icon={isInFaves ? faHeart : heartOutline} />}
-        loadingText="Saving…"
-        onClick={async () => {
-          if (!account)
-            return dispatch(
-              toastInfo({
-                message: "You need to be logged in to save this track to your favourites.",
-                title: "Please log in"
-              })
-            );
-          if (isInFaves) {
-            dispatch(removeFromFavourites(releaseId));
-            return;
-          }
-          setIsSavingToFaves(true);
-          await dispatch(addToFavourites(releaseId));
-          setIsSavingToFaves(false);
-        }}
-        title="Save to favourites."
-      >
-        Like
-      </Button>
-      <Popover isOpen={isOpen} onClose={onClose}>
-        <PopoverTrigger>
-          <Button
-            flex={1}
-            leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />}
-            onClick={onToggle}
-          >
-            Wish List
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverCloseButton />
-          <PopoverHeader>Add to wishlist…</PopoverHeader>
-          <PopoverBody>
-            <Box as="label" display="inline-block" htmlFor="note" mb={2}>
-              Enter an optional note for this release (private, just for your own reference):
-            </Box>
-            <Input
-              id="note"
-              mb={2}
-              name="note"
-              onChange={e => setNote(e.target.value)}
-              onKeyDown={async ({ key }) => {
-                if (key === "Enter") {
+    <Skeleton display="flex" isLoaded={!isLoading}>
+      <ButtonGroup bg={buttonGroupBg} flex={1} isAttached px={{ base: 3, lg: 0 }} size="sm" variant="outline">
+        <Button
+          flex={1}
+          isLoading={isSavingToFaves}
+          leftIcon={<Icon color={isInFaves ? "red.400" : undefined} icon={isInFaves ? faHeart : heartOutline} />}
+          loadingText="Saving…"
+          onClick={async () => {
+            if (!account)
+              return dispatch(
+                toastInfo({
+                  message: "You need to be logged in to save this track to your favourites.",
+                  title: "Please log in"
+                })
+              );
+            if (isInFaves) {
+              dispatch(removeFromFavourites(releaseId));
+              return;
+            }
+            setIsSavingToFaves(true);
+            await dispatch(addToFavourites(releaseId));
+            setIsSavingToFaves(false);
+          }}
+          title="Save to favourites."
+        >
+          Like
+        </Button>
+        <Popover isOpen={isOpen} onClose={onClose}>
+          <PopoverTrigger>
+            <Button
+              flex={1}
+              leftIcon={<Icon color={isInWishList ? "purple.400" : undefined} icon={faMagic} />}
+              onClick={onToggle}
+            >
+              Wish List
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverArrow />
+            <PopoverCloseButton />
+            <PopoverHeader>Add to wishlist…</PopoverHeader>
+            <PopoverBody>
+              <Box as="label" display="inline-block" htmlFor="note" mb={2}>
+                Enter an optional note for this release (private, just for your own reference):
+              </Box>
+              <Input
+                id="note"
+                mb={2}
+                name="note"
+                onChange={e => setNote(e.target.value)}
+                onKeyDown={async ({ key }) => {
+                  if (key === "Enter") {
+                    setIsSavingToList(true);
+                    await dispatch(addToWishList({ note, releaseId }));
+                    setIsSavingToList(false);
+                    onClose();
+                  }
+                }}
+                value={note}
+                variant="modal"
+              />
+            </PopoverBody>
+            <PopoverFooter display="flex" justifyContent="space-between">
+              <Button
+                colorScheme="red"
+                isDisabled={!isInWishList}
+                leftIcon={<Icon icon={faMinusCircle} />}
+                onClick={() => {
+                  dispatch(removeFromWishList(releaseId));
+                  onClose();
+                  setNote("");
+                }}
+                title="Remove from wish list."
+                variant="ghost"
+              >
+                Remove
+              </Button>
+              <Button
+                isLoading={isSavingToList}
+                leftIcon={<Icon icon={faMagic} />}
+                loadingText="Saving…"
+                onClick={async () => {
+                  if (!account) {
+                    return void dispatch(
+                      toastInfo({
+                        message: "You need to be logged in to save this track to your wish list.",
+                        title: "Please log in"
+                      })
+                    );
+                  }
+
                   setIsSavingToList(true);
-                  await dispatch(addToWishList({ note, releaseId }));
+                  dispatch(addToWishList({ note, releaseId }));
                   setIsSavingToList(false);
                   onClose();
-                }
-              }}
-              value={note}
-              variant="modal"
-            />
-          </PopoverBody>
-          <PopoverFooter display="flex" justifyContent="space-between">
-            <Button
-              colorScheme="red"
-              isDisabled={!isInWishList}
-              leftIcon={<Icon icon={faMinusCircle} />}
-              onClick={() => {
-                dispatch(removeFromWishList(releaseId));
-                onClose();
-                setNote("");
-              }}
-              title="Remove from wish list."
-              variant="ghost"
-            >
-              Remove
-            </Button>
-            <Button
-              isLoading={isSavingToList}
-              leftIcon={<Icon icon={faMagic} />}
-              loadingText="Saving…"
-              onClick={async () => {
-                if (!account) {
-                  return void dispatch(
-                    toastInfo({
-                      message: "You need to be logged in to save this track to your wish list.",
-                      title: "Please log in"
-                    })
-                  );
-                }
-
-                setIsSavingToList(true);
-                dispatch(addToWishList({ note, releaseId }));
-                setIsSavingToList(false);
-                onClose();
-              }}
-              title="Save to wish list."
-              variant="solid"
-            >
-              {isInWishList ? "Update" : "Save"}
-            </Button>
-          </PopoverFooter>
-        </PopoverContent>
-      </Popover>
-    </ButtonGroup>
+                }}
+                title="Save to wish list."
+                variant="solid"
+              >
+                {isInWishList ? "Update" : "Save"}
+              </Button>
+            </PopoverFooter>
+          </PopoverContent>
+        </Popover>
+      </ButtonGroup>
+    </Skeleton>
   );
 };
 

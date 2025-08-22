@@ -1,12 +1,15 @@
 import { BasketItem, SalesHistory } from "@gridfire/shared/types";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { createSlice } from "@reduxjs/toolkit";
+import { nanoid } from "@reduxjs/toolkit";
 import { BrowserProvider, Eip1193Provider, getAddress, isError, toQuantity } from "ethers";
 
 import { checkoutFreeBasket } from "@/state/thunks";
 import { AppDispatch, GetState } from "@/types";
 import { toastError, toastWarning } from "@/utils/toast";
 import { fetchGridfirePurchaseEvents, getDaiAllowance, getDaiBalance, gridFireCheckout } from "@/web3";
+
+import { addActiveProcess, removeActiveProcess } from "../user";
 
 const VITE_CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
@@ -123,7 +126,10 @@ const web3Slice = createSlice({
 const checkoutBasket =
   (basket: BasketItem[] = []) =>
   async (dispatch: AppDispatch, getState: GetState) => {
+    const processId = nanoid();
+
     try {
+      dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
       dispatch(setError(""));
       dispatch(setIsCheckingOut(true));
 
@@ -140,6 +146,7 @@ const checkoutBasket =
       dispatch(setError(error));
       throw error;
     } finally {
+      dispatch(removeActiveProcess(processId));
       dispatch(setIsCheckingOut(false));
     }
   };

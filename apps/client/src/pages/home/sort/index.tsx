@@ -16,7 +16,7 @@ const sortOptions = [
 interface Props {
   currentSortOrder: string;
   currentSortPath: string;
-  handleFetchCatalogue: (options?: { isPaging?: boolean; sortBy?: string; sortOrder?: string; }) => Promise<void>;
+  handleFetchCatalogue: (options?: { isPaging?: boolean; sortBy?: string; sortOrder?: string }) => Promise<void>;
   setCurrentSortOrder: (sortOrder: string) => void;
   setCurrentSortPath: (sortPath: string) => void;
 }
@@ -48,7 +48,7 @@ const SortReleases = ({
   const currentSortOrderText = currentSortOption?.[currentSortOrder as SortOrder];
 
   return (
-    <ButtonGroup isAttached mb={4} size="sm">
+    <ButtonGroup isAttached mb={8} px={{ base: 3, lg: 0 }} size="sm">
       <Menu>
         <MenuButton as={Button} leftIcon={<FontAwesomeIcon icon={faSort} />}>
           {sortOptions.find(option => option.sortPath === currentSortPath)?.title}

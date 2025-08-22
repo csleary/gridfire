@@ -4,8 +4,8 @@ import RenderRelease from "@/components/renderRelease";
 import { useSelector } from "@/hooks";
 
 const imgSizes = `
-  (max-width: 479px) calc(100vw - 24px),
-  (max-width: 767px) calc(100vw - 2rem),
+  (max-width: 479px) 100vw,
+  (max-width: 767px) 100vw,
   (max-width: 1279px) calc((100vw - 4rem)/2),
   (max-width: 1919px) calc((100vw - 6rem)/3),
   640px

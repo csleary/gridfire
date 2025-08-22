@@ -34,7 +34,7 @@ const WishList = () => {
         {userWishList.map(withlisted => (
           <Box key={withlisted._id}>
             <RenderRelease release={withlisted.release} />
-            <Box mt={2}>
+            <Box mt={2} px={{ base: 3, lg: 0 }}>
               <Text>
                 <Icon color={noteColour} icon={noteIcon} mr={2} verticalAlign="middle" />
                 {withlisted.note}

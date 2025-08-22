@@ -31,7 +31,7 @@ const Artist = () => {
       </Helmet>
       <Grid
         alignItems="stretch"
-        gap={{ "3xl": 8, base: 4, xl: 6 }}
+        gap={{ "3xl": 8, base: 6, xl: 6 }}
         templateColumns={{
           "2xl": "repeat(3, 1fr)",
           "3xl": "repeat(4, 1fr)",

@@ -80,7 +80,7 @@ const Artwork = () => {
               rel="preconnect"
               {...(artwork.status === "stored"
                 ? {
-                    sizes: `(max-width: 479px) calc(100vw - 24px),
+                    sizes: `(max-width: 479px) 100vw,
                             (max-width: 992px) calc(100vw - 3rem),
                             628px`,
                     src: `${VITE_CDN_IMG}/${releaseId}/1024w.webp`,

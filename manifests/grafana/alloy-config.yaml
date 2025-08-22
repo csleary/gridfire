@@ -8,25 +8,41 @@ data:
       role = "pod"
     }
 
+    discovery.relabel "metrics_integrations_rabbitmq_node1" {
+        targets = [{
+            __address__ = "rabbitmq.gridfire-prod.svc.cluster.local:15692",
+        }]
+
+        rule {
+            target_label = "instance"
+            replacement  = "rabbitmq-0"
+        }
+    }
+
     discovery.relabel "pod_logs" {
       targets = discovery.kubernetes.pods.targets
+
       rule {
         source_labels = ["__meta_kubernetes_namespace"]
         target_label  = "namespace"
       }
+
       rule {
         source_labels = ["__meta_kubernetes_pod_name"]
         target_label  = "pod"
       }
+
       rule {
         source_labels = ["__meta_kubernetes_pod_container_name"]
         target_label  = "container"
       }
+
       rule {
         source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
         separator     = "/"
         target_label  = "job"
       }
+
       rule {
         source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
         separator     = "/"
@@ -34,6 +50,7 @@ data:
         replacement   = "/var/log/pods/*$1/*.log"
         target_label  = "__path__"
       }
+
       rule {
         action = "replace"
         source_labels = ["__meta_kubernetes_pod_container_id"]
@@ -55,18 +72,22 @@ data:
     loki.process "pod_logs" {
       stage.match {
         selector = "{namespace=\"myapp\"}"
+
         stage.regex {
           expression = "(?P<method>GET|PUT|POST|DELETE)"
         }
+
         stage.labels {
           values = {
             method  = "",
           }
         }
       }
+
       stage.match {
         selector = "{tmp_container_runtime=\"containerd\"}"
         stage.cri {}
+
         stage.labels {
           values = {
             flags   = "",
@@ -74,15 +95,7 @@ data:
           }
         }
       }
-      stage.match {
-        selector = "{tmp_container_runtime=\"docker\"}"
-        stage.docker {}
-        stage.labels {
-          values = {
-            stream  = "",
-          }
-        }
-      }
+
       stage.label_drop {
         values = ["tmp_container_runtime"]
       }
@@ -93,5 +106,17 @@ data:
     loki.write "loki" {
       endpoint {
         url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+      }
+    }
+
+    prometheus.scrape "metrics_integrations_rabbitmq" {
+        targets    = concat(discovery.relabel.metrics_integrations_rabbitmq_node1.output)
+        forward_to = [prometheus.remote_write.metrics_service.receiver]
+        job_name   = "integrations/rabbitmq"
+    }
+
+    prometheus.remote_write "metrics_service" {
+      endpoint {
+        url = "http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
       }
     }

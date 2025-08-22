@@ -3,12 +3,8 @@ import gridFireEditionsAbi from "@gridfire/shared/abi/editions";
 import gridFirePaymentAbi from "@gridfire/shared/abi/payment";
 import { BasketItem } from "@gridfire/shared/types";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BrowserProvider, Contract, Eip1193Provider, encodeBytes32String, JsonRpcSigner, parseEther } from "ethers";
-
-import { store } from "@/main";
-import { addActiveProcess, removeActiveProcess } from "@/state/user";
 
 const editionsContractAddress = import.meta.env.VITE_GRIDFIRE_EDITIONS_ADDRESS;
 const paymentContactAddress = import.meta.env.VITE_GRIDFIRE_PAYMENT_ADDRESS;
@@ -103,29 +99,22 @@ const fetchUserEditions = async () => {
 };
 
 const gridFireCheckout = async (basket: BasketItem[], userId: string) => {
-  const processId = nanoid();
-  store.dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+  const gridFireContract = getGridfireContract(signer);
 
-  try {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const gridFireContract = getGridfireContract(signer);
+  const contractBasket = basket.map(
+    ({ paymentAddress, price, releaseId }: { paymentAddress: string; price: string; releaseId: string }) => ({
+      amountPaid: price,
+      artist: paymentAddress,
+      releaseId: encodeBytes32String(releaseId)
+    })
+  );
 
-    const contractBasket = basket.map(
-      ({ paymentAddress, price, releaseId }: { paymentAddress: string; price: string; releaseId: string }) => ({
-        amountPaid: price,
-        artist: paymentAddress,
-        releaseId: encodeBytes32String(releaseId)
-      })
-    );
-
-    const transactionReceipt = await gridFireContract.checkout(contractBasket, encodeBytes32String(userId));
-    const { status, transactionHash } = await transactionReceipt.wait();
-    if (status !== 1) throw new Error("Transaction unsuccessful.");
-    return transactionHash;
-  } finally {
-    store.dispatch(removeActiveProcess(processId));
-  }
+  const transactionReceipt = await gridFireContract.checkout(contractBasket, encodeBytes32String(userId));
+  const { status, transactionHash } = await transactionReceipt.wait();
+  if (status !== 1) throw new Error("Transaction unsuccessful.");
+  return transactionHash;
 };
 
 interface MintEditionParams {
@@ -137,8 +126,6 @@ interface MintEditionParams {
 }
 
 const mintEdition = async ({ amount, description, price, releaseId, tracks }: MintEditionParams) => {
-  const processId = nanoid();
-  store.dispatch(addActiveProcess({ description: "Minting edition…", id: processId, type: "mint" }));
   let objectId = "";
 
   try {
@@ -169,8 +156,6 @@ const mintEdition = async ({ amount, description, price, releaseId, tracks }: Mi
     }
 
     throw error;
-  } finally {
-    store.dispatch(removeActiveProcess(processId));
   }
 };
 
@@ -182,21 +167,14 @@ interface PurchaseEditionParams {
 }
 
 const purchaseEdition = async ({ artist, editionId, price, releaseId }: PurchaseEditionParams) => {
-  const processId = nanoid();
-  store.dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
-
-  try {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const gridFireEditions = getGridfireEditionsContract(signer);
-    const releaseIdBytes = encodeBytes32String(releaseId);
-    const transactionReceipt = await gridFireEditions.purchaseGridfireEdition(editionId, price, artist, releaseIdBytes);
-    const { status, transactionHash } = await transactionReceipt.wait();
-    if (status !== 1) throw new Error("Transaction unsuccessful.");
-    return transactionHash;
-  } finally {
-    store.dispatch(removeActiveProcess(processId));
-  }
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+  const gridFireEditions = getGridfireEditionsContract(signer);
+  const releaseIdBytes = encodeBytes32String(releaseId);
+  const transactionReceipt = await gridFireEditions.purchaseGridfireEdition(editionId, price, artist, releaseIdBytes);
+  const { status, transactionHash } = await transactionReceipt.wait();
+  if (status !== 1) throw new Error("Transaction unsuccessful.");
+  return transactionHash;
 };
 
 interface PurchaseReleaseParams {
@@ -207,30 +185,23 @@ interface PurchaseReleaseParams {
 }
 
 const purchaseRelease = async ({ paymentAddress, price, releaseId, userId }: PurchaseReleaseParams) => {
-  const processId = nanoid();
-  store.dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+  const gridFirePayment = getGridfireContract(signer);
+  const weiReleasePrice = parseEther(`${price}`);
+  const releaseIdBytes = encodeBytes32String(releaseId);
+  const userIdBytes = encodeBytes32String(userId);
 
-  try {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const gridFirePayment = getGridfireContract(signer);
-    const weiReleasePrice = parseEther(`${price}`);
-    const releaseIdBytes = encodeBytes32String(releaseId);
-    const userIdBytes = encodeBytes32String(userId);
+  const transactionReceipt = await gridFirePayment.purchase(
+    paymentAddress,
+    weiReleasePrice,
+    releaseIdBytes,
+    userIdBytes
+  );
 
-    const transactionReceipt = await gridFirePayment.purchase(
-      paymentAddress,
-      weiReleasePrice,
-      releaseIdBytes,
-      userIdBytes
-    );
-
-    const { status, transactionHash } = await transactionReceipt.wait();
-    if (status !== 1) throw new Error("Transaction unsuccessful.");
-    return transactionHash;
-  } finally {
-    store.dispatch(removeActiveProcess(processId));
-  }
+  const { status, transactionHash } = await transactionReceipt.wait();
+  if (status !== 1) throw new Error("Transaction unsuccessful.");
+  return transactionHash;
 };
 
 const setDaiAllowance = async (newLimitInDai = "") => {

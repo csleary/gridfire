@@ -8,3 +8,8 @@ grafana:
     size: 20Gi
     finalizers:
       - kubernetes.io/pvc-protection
+
+# For alloy to write rabbitmq metrics
+prometheus:
+  prometheusSpec:
+    enableRemoteWriteReceiver: true

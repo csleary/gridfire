@@ -13,3 +13,5 @@ spec:
     - port: 15672
       name: management
       targetPort: 15672
+    - port: 15692
+      name: prometheus

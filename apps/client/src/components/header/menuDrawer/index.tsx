@@ -1,5 +1,6 @@
 import {
   Badge,
+  Box,
   Button,
   Divider,
   Drawer,
@@ -29,6 +30,7 @@ import {
   faHeadphones,
   faHeart,
   faMagic,
+  faMagnifyingGlass,
   faMoon,
   faMusic,
   faRectangleList,
@@ -220,6 +222,7 @@ const MenuDrawer = () => {
                     as={NavLink}
                     justifyContent="flex-start"
                     leftIcon={<Icon fixedWidth icon={faEthereum} />}
+                    onClick={onClose}
                     to={"/dashboard/payment"}
                     variant="link"
                   >
@@ -230,6 +233,7 @@ const MenuDrawer = () => {
                     as={NavLink}
                     end
                     leftIcon={<Icon fixedWidth icon={faMusic} />}
+                    onClick={onClose}
                     to={"/dashboard"}
                     variant="link"
                   >
@@ -239,6 +243,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     leftIcon={<Icon fixedWidth icon={faHeadphones} />}
+                    onClick={onClose}
                     to={"/dashboard/artists"}
                     variant="link"
                   >
@@ -248,6 +253,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     leftIcon={<Icon fixedWidth icon={faRectangleList} />}
+                    onClick={onClose}
                     to={"/dashboard/activity"}
                     variant="link"
                   >
@@ -257,6 +263,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     leftIcon={<Icon fixedWidth icon={faArchive} />}
+                    onClick={onClose}
                     to={"/dashboard/collection"}
                     variant="link"
                   >
@@ -266,6 +273,7 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     leftIcon={<Icon fixedWidth icon={faHeart} />}
+                    onClick={onClose}
                     to={"/dashboard/favourites"}
                     variant="link"
                   >
@@ -275,12 +283,22 @@ const MenuDrawer = () => {
                     _hover={{ textDecoration: "none" }}
                     as={NavLink}
                     leftIcon={<Icon fixedWidth icon={faMagic} />}
+                    onClick={onClose}
                     to={"/dashboard/wishlist"}
                     variant="link"
                   >
                     List
                   </Button>
-                  <SearchBar variant="link" />
+                  <Button
+                    _hover={{ textDecoration: "none" }}
+                    as={NavLink}
+                    leftIcon={<Icon fixedWidth icon={faMagnifyingGlass} />}
+                    onClick={onClose}
+                    to={"/search"}
+                    variant="link"
+                  >
+                    Search
+                  </Button>
                   <Divider />
                   <Button
                     _hover={{ textDecoration: "none" }}

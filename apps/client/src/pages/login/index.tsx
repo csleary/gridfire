@@ -18,9 +18,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { fetchUserFavourites, fetchUserWishList } from "@/state/releases";
-import { toastSuccess, toastWarning } from "@/utils/toast";
 import { setIsLoading, updateUser } from "@/state/user";
 import { connectToWeb3 } from "@/state/web3";
+import { toastSuccess, toastWarning } from "@/utils/toast";
 
 declare const window: any; // eslint-disable-line
 
@@ -89,7 +89,7 @@ const Login = () => {
   };
 
   return (
-    <Center flex={1}>
+    <Center flex={1} px={{ base: 3, lg: 0 }}>
       <VStack spacing={8}>
         <Heading as="h2" fontSize="5xl" m={0}>
           Log In
@@ -100,7 +100,7 @@ const Login = () => {
           leftIcon={<Icon icon={faEthereum} />}
           loadingText="Logging in…"
           mb={8}
-          minWidth="24rem"
+          minWidth={["100%", "24rem"]}
           onClick={handleWeb3Login}
           size="lg"
         >

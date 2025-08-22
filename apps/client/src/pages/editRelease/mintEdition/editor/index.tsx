@@ -18,13 +18,15 @@ import {
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { MintedEdition, ReleaseTrack } from "@gridfire/shared/types";
+import { nanoid } from "@reduxjs/toolkit";
 import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
 import { shallowEqual } from "react-redux";
 
 import Field from "@/components/field";
 import Icon from "@/components/icon";
-import { useSelector } from "@/hooks";
+import { useDispatch, useSelector } from "@/hooks";
 import { selectTracks } from "@/state/editor";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { formatPrice } from "@/utils";
 import { mintEdition } from "@/web3";
 
@@ -46,6 +48,7 @@ const defaultValues: DefaultValues = { amount: 100, description: "", price: "50.
 
 const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   const checkboxColour = useColorModeValue("yellow", "purple");
+  const dispatch = useDispatch();
   const artistName = useSelector(state => state.editor.release.artistName);
   const releaseId = useSelector(state => state.editor.release._id);
   const releaseTitle = useSelector(state => state.editor.release.releaseTitle);
@@ -121,7 +124,10 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
   };
 
   const handleMint = async () => {
+    const processId = nanoid();
+
     try {
+      dispatch(addActiveProcess({ description: "Minting edition…", id: processId, type: "mint" }));
       setIsMinting(true);
       const errors = validate();
 
@@ -136,6 +142,7 @@ const EditionEditor = ({ editions, handleCloseModal, showModal }: Props) => {
     } catch (error: unknown) {
       console.error(error);
     } finally {
+      dispatch(removeActiveProcess(processId));
       setIsMinting(false);
     }
   };

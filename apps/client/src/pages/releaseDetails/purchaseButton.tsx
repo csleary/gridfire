@@ -1,6 +1,7 @@
 import { Button, ChakraProps } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
 import { parseEther } from "ethers";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { toastError, toastWarning } from "@/utils/toast";
 import { purchaseRelease } from "@/web3";
 
@@ -33,7 +35,10 @@ const PurchaseButton = ({ inCollection, price, releaseId, ...rest }: Props) => {
   const allowanceTooLow = price && (parseEther(price.toString()) > BigInt(daiAllowance) || BigInt(daiAllowance) === 0n);
 
   const handlePayment = async (price: string) => {
+    const processId = nanoid();
+
     try {
+      dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress, price: releasePrice } = res.data;
@@ -70,6 +75,7 @@ const PurchaseButton = ({ inCollection, price, releaseId, ...rest }: Props) => {
       dispatch(toastError({ message: "An error occurred during this purchase.", title: "Error" }));
       console.error(error);
     } finally {
+      dispatch(removeActiveProcess(processId));
       setIsPurchasing(false);
     }
   };

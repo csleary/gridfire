@@ -9,8 +9,8 @@ import { useDispatch, useSelector } from "@/hooks";
 import placeholder from "@/placeholder.svg";
 import { loadTrack, playerPause, playerPlay } from "@/state/player";
 import { setIsLoading } from "@/state/releases";
-import { toastInfo } from "@/utils/toast";
 import { fadeAudio, getGainNode } from "@/utils/audio";
+import { toastInfo } from "@/utils/toast";
 
 type DownloadRelease = Release & { purchaseId: string };
 const VITE_CDN_IMG = import.meta.env.VITE_CDN_IMG;
@@ -118,8 +118,8 @@ const RenderRelease = ({ imgSizes = "", release, showArtist = true, showTitle = 
               ? {
                   sizes:
                     imgSizes ||
-                    `(max-width: 479px) calc(100vw - 24px),
-                     (max-width: 767px) calc(100vw - 2rem),
+                    `(max-width: 479px) 100vw,
+                     (max-width: 767px) 100vw,
                      (max-width: 1023px) calc((100vw - 4rem)/2),
                      (max-width: 1279px) calc((100vw - 6rem)/3),
                      (max-width: 1535px) calc((100vw - 8rem)/4),

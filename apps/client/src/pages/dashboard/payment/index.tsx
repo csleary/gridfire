@@ -22,7 +22,7 @@ const Payment = () => {
   }, [pathname]);
 
   return (
-    <Container as="main" maxW="container.sm" p={0}>
+    <Container as="main" maxW="container.sm" px={{ base: 3, lg: 0 }} py={0}>
       <Tabs
         colorScheme={useColorModeValue("yellow", "purple")}
         index={activeTab}

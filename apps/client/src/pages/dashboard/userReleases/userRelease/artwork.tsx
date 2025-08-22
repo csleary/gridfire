@@ -37,8 +37,8 @@ const Artwork = ({ artwork, releaseId, releaseTitle }: Props) => {
           rel="preconnect"
           {...(isStored
             ? {
-                sizes: `(max-width: 479px) calc(100vw - 24px),
-                        (max-width: 959px) calc(100vw - 2rem),
+                sizes: `(max-width: 479px) 100vw,
+                        (max-width: 959px) 100vw,
                         (max-width: 1439px) calc((100vw - 4rem)/2),
                         (max-width: 1919px) calc((100vw - 6rem)/3),
                         (max-width: 2399px) calc((100vw - 8rem)/4),

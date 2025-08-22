@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { EditionPurchase, MintedEdition } from "@gridfire/shared/types";
+import { nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
 import { isAxiosError } from "axios";
 import { formatEther } from "ethers";
@@ -24,8 +25,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
-import { toastError, toastWarning } from "@/utils/toast";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { fetchDaiBalance } from "@/state/web3";
+import { toastError, toastWarning } from "@/utils/toast";
 import { purchaseEdition } from "@/web3";
 
 const colors = [
@@ -68,7 +70,10 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
   const transition = "150ms ease-in-out";
 
   const handlePurchase = async ({ editionId, price }: EditionPurchase) => {
+    const processId = nanoid();
+
     try {
+      dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
       setIsPurchasing(true);
       const res = await axios.get(`/api/release/${releaseId}/purchase`);
       const { paymentAddress: artist } = res.data;
@@ -92,6 +97,7 @@ const Edition = ({ edition, fetchEditions, index }: Props) => {
 
       console.error(error);
     } finally {
+      dispatch(removeActiveProcess(processId));
       setIsPurchasing(false);
     }
   };

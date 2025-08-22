@@ -53,9 +53,9 @@ const removeFromWishList = (releaseId: string) => async (dispatch: AppDispatch) 
 
 const checkoutFreeBasket = (basket: BasketItem[]) => async (dispatch: AppDispatch) => {
   const processId = nanoid();
-  dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
 
   try {
+    dispatch(addActiveProcess({ description: "Checking out…", id: processId, type: "purchase" }));
     await axios.post("/api/release/checkout", basket);
   } catch (error: unknown) {
     handleError(error, dispatch);

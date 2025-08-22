@@ -7,7 +7,7 @@ const About = () => (
       <title>About Gridfire</title>
       <meta content="Learn about the Gridfire music streaming and download platform." name="description" />
     </Helmet>
-    <Container as="main" p={0}>
+    <Container as="main" p={{ base: 3, lg: 0 }}>
       <Heading as="h2">About Gridfire</Heading>
       <Text fontSize="xl" mb={6}>
         Gridfire is a music streaming and download store, using the Arbitrum blockchain for payments and NFT Editions.

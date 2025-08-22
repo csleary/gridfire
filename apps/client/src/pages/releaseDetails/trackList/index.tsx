@@ -13,6 +13,7 @@ import { keyframes } from "@emotion/react";
 import { faCloudDownload, faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TrackForPurchase } from "@gridfire/shared/types";
+import { nanoid } from "@reduxjs/toolkit";
 import axios, { isAxiosError } from "axios";
 import { parseEther } from "ethers";
 import { lazy, useCallback, useState } from "react";
@@ -21,6 +22,7 @@ import { shallowEqual } from "react-redux";
 import Icon from "@/components/icon";
 import { useDispatch, useSelector } from "@/hooks";
 import { loadTrack } from "@/state/player";
+import { addActiveProcess, removeActiveProcess } from "@/state/user";
 import { addToBasket } from "@/state/web3";
 import { fadeAudio, getGainNode } from "@/utils/audio";
 import { toastError, toastInfo, toastWarning } from "@/utils/toast";
@@ -78,7 +80,10 @@ const TrackList = () => {
 
   const handlePurchaseTrack = useCallback(
     async ({ price, trackId }: TrackForPurchase) => {
+      const processId = nanoid();
+
       try {
+        dispatch(addActiveProcess({ description: "Purchasing edition…", id: processId, type: "purchase" }));
         setIsPurchasing(true);
         const res = await axios.get(`/api/release/${releaseId}/purchase`);
         const { paymentAddress } = res.data;
@@ -107,6 +112,7 @@ const TrackList = () => {
 
         console.error(error);
       } finally {
+        dispatch(removeActiveProcess(processId));
         setIsPurchasing(false);
       }
     },

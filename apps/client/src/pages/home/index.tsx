@@ -63,7 +63,9 @@ const Home: React.FC = () => {
         </>
       )}
       <Box as="section">
-        <Heading textAlign="left">Recent Releases</Heading>
+        <Heading px={{ base: 3, lg: 0 }} textAlign="left">
+          Recent Releases
+        </Heading>
         <SortReleases
           currentSortOrder={currentSortOrder}
           currentSortPath={currentSortPath}

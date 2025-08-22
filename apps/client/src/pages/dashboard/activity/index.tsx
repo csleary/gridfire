@@ -20,7 +20,7 @@ const Activity = () => {
       <Helmet>
         <title>Activity</title>
       </Helmet>
-      <Container as="main" maxWidth="container.xl" p={0}>
+      <Container as="main" maxWidth="container.xl" p={0} px={{ base: 3, lg: 0 }}>
         <Heading as="h2">Activity</Heading>
         <List>
           <Stack>

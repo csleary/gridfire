@@ -70,7 +70,7 @@ const Follow = (props: ChakraProps) => {
   };
 
   return (
-    <Flex alignItems="center" {...props}>
+    <Flex alignItems="center" {...props} px={{ base: 6, lg: 0 }}>
       <Button
         isLoading={isLoading}
         justifyContent="space-between"

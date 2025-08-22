@@ -43,7 +43,7 @@ const Singles = () => {
                   }}
                   type="collection"
                 />
-                <Flex justifyContent="flex-end">
+                <Flex justifyContent="flex-end" px={{ base: 3, lg: 0 }}>
                   <Text color={receiptTextColour}>
                     <Icon color={receiptColour} icon={faReceipt} mr={2} />
                     <Link href={`https://arbiscan.io/tx/${transactionHash}`} variant="unstyled">
