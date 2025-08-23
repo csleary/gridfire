@@ -46,28 +46,36 @@ const zipDownload = async ({ editionId, format, release, res, type }: ZipStream)
       throw new Error("Edition ID is required for edition downloads.");
     }
 
+    const abortController = new AbortController();
     const archive = archiver("zip");
     archive.on("end", () => logger.info(`Download archiving complete for release ${release} [${type}].`));
-    archive.on("error", error => logger.error("Archiver error:", error));
+
+    archive.on("error", error => {
+      abortController.abort();
+      archive.abort();
+      if (["ABORTED", "ERR_STREAM_PREMATURE_CLOSE", "QUEUECLOSED"].includes(error.code)) return;
+      logger.error("Archiver error:", error);
+    });
+
     archive.on("warning", error => logger.warn("Archiver warning:", error));
-    const streamPromise = pipeline(archive, res);
+
+    pipeline(archive, res, { signal: abortController.signal }).catch(error => {
+      abortController.abort();
+      archive.abort();
+      if (["ABORTED", "ERR_STREAM_PREMATURE_CLOSE"].includes(error.code)) return;
+      if (error.name === "AbortError") return;
+      logger.error("Pipeline error:", error);
+    });
 
     switch (type) {
       case SaleType.Album:
         {
-          const fullRelease = await Release.findById(release).lean();
-
-          if (!fullRelease) {
-            return void res.sendStatus(404);
-          }
-
+          const fullRelease = await Release.findById(release, "+trackList.position").lean();
+          if (!fullRelease) throw new Error(`Release ${release} not found.`);
           const { _id: releaseId, artistName, releaseTitle, trackList } = fullRelease;
           res.attachment(`${artistName} - ${releaseTitle}.zip`);
           const artworkStream = await getArtworkStream(releaseId.toString());
-
-          if (artworkStream) {
-            archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.webp` });
-          }
+          if (artworkStream) archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.webp` });
 
           for (const { _id, isEditionOnly, position, trackTitle } of trackList) {
             const trackId = _id.toString();
@@ -91,25 +99,14 @@ const zipDownload = async ({ editionId, format, release, res, type }: ZipStream)
         {
           const exclusiveTracks = new Set<string>();
           const edition = await Edition.findOne({ editionId, release }).exec();
-
-          if (!edition) {
-            return void res.sendStatus(404);
-          }
-
+          if (!edition) throw new Error(`Edition ${editionId} not found.`);
           edition.metadata.properties.tracks.forEach(({ id }: { id: string }) => exclusiveTracks.add(id));
           const fullRelease = await Release.findById(release).lean();
-
-          if (!fullRelease) {
-            return void res.sendStatus(404);
-          }
-
+          if (!fullRelease) throw new Error(`Release ${release} not found.`);
           const { _id: releaseId, artistName, releaseTitle, trackList } = fullRelease;
           res.attachment(`${artistName} - ${releaseTitle}.zip`);
           const artworkStream = await getArtworkStream(releaseId.toString());
-
-          if (artworkStream) {
-            archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.webp` });
-          }
+          if (artworkStream) archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.webp` });
 
           for (const { _id, isEditionOnly, position, trackTitle } of trackList) {
             const trackId = _id.toString();
@@ -141,17 +138,11 @@ const zipDownload = async ({ editionId, format, release, res, type }: ZipStream)
             "artist artistName releaseTitle trackList.$"
           ).lean();
 
-          if (!fullRelease) {
-            return void res.sendStatus(404);
-          }
-
+          if (!fullRelease) throw new Error(`Release ${release} not found.`);
           const { _id: releaseId, artistName, releaseTitle, trackList } = fullRelease;
           res.attachment(`${artistName} - ${releaseTitle}.zip`);
           const artworkStream = await getArtworkStream(releaseId.toString());
-
-          if (artworkStream) {
-            archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.webp` });
-          }
+          if (artworkStream) archive.append(artworkStream, { name: `${artistName} - ${releaseTitle}.webp` });
 
           for (const { _id, position, trackTitle } of trackList) {
             const trackId = _id.toString();
@@ -174,16 +165,18 @@ const zipDownload = async ({ editionId, format, release, res, type }: ZipStream)
         throw new Error(`Unknown sale type '${type}' for release ${release}.`);
     }
 
-    archive.finalize();
-    await streamPromise;
+    await archive.finalize();
   } catch (error) {
-    logger.error(error);
-
-    if (!res.headersSent) {
-      res.sendStatus(500);
-    } else {
-      res.end();
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      ["ABORTED", "ERR_STREAM_PREMATURE_CLOSE", "QUEUECLOSED"].includes(String(error.code))
+    ) {
+      return void logger.warn("Download aborted.");
     }
+
+    throw error;
   }
 };
 

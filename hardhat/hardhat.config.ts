@@ -20,7 +20,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     "arb-mainnet": {
-      url: `https://arbitrum-one-rpc.publicnode.com`
+      url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_MAINNET_KEY}`
     },
     "arb-rinkeby": {
       url: `https://arb-rinkeby.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_RINKEBY_KEY}`
@@ -35,8 +35,8 @@ const config: HardhatUserConfig = {
         url: "https://arbitrum-one-rpc.publicnode.com"
       },
       mining: {
-        auto: true
-        // interval: 1000
+        // auto: true
+        interval: 1000
       }
     }
   },

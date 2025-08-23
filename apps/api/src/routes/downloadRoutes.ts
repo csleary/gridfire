@@ -24,7 +24,7 @@ router.get("/:purchaseId/:format", requireLogin, async (req, res) => {
     zipDownload({ editionId, format: format as Formats, release, res, type });
   } catch (error) {
     logger.error(error);
-    res.sendStatus(403);
+    res.sendStatus(500);
   }
 });
 
