@@ -38,12 +38,12 @@ router.patch("/:trackId", async (req, res) => {
 
 router.post("/:trackId/:type", async (req, res) => {
   try {
-    const userId = req.user?._id || req.session?.user;
+    const userId = req.user?._id.toString() || req.session?.streamUserId || "";
     const { trackId, type } = req.params;
-    const user = await logStream({ trackId, type, userId });
+    const streamUserId = await logStream({ trackId, type, userId });
 
     if (req.session) {
-      req.session.user = user;
+      req.session.streamUserId = streamUserId;
     }
 
     res.sendStatus(200);

@@ -71,7 +71,15 @@ const logPlay = async (trackId: string, release: string, streamId: string, user:
   Stream.deleteOne({ _id: streamId }).exec();
 };
 
-const logStream = async ({ trackId, type, userId }: { trackId: string; type: string; userId?: ObjectId }) => {
+const logStream = async ({
+  trackId,
+  type,
+  userId
+}: {
+  trackId: string;
+  type: string;
+  userId: string;
+}): Promise<string> => {
   const release = await Release.findOne({ "trackList._id": trackId }, "trackList.$ user").exec();
 
   if (!release) {
@@ -79,7 +87,7 @@ const logStream = async ({ trackId, type, userId }: { trackId: string; type: str
   }
 
   const releaseId = release._id.toString();
-  const user = userId?.toString() || new Types.ObjectId().toString();
+  const user = userId || new Types.ObjectId().toString();
 
   switch (Number.parseInt(type)) {
     case 0:

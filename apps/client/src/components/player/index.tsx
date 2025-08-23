@@ -8,9 +8,9 @@ import shaka from "shaka-player";
 import { useDispatch, useSelector } from "@/hooks";
 import { usePrevious } from "@/hooks/usePrevious";
 import { loadTrack, playerHide, playerPause, playerPlay, playerStop, setIsInitialised } from "@/state/player";
-import { toastWarning } from "@/utils/toast";
 import { addToFavourites, removeFromFavourites } from "@/state/thunks";
 import { fadeAudio, getGainNode } from "@/utils/audio";
+import { toastWarning } from "@/utils/toast";
 
 import PlaybackTime from "./playbackTime";
 import PlayerButton from "./playerButton";
