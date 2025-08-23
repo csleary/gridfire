@@ -98,10 +98,10 @@ const zipDownload = async ({ editionId, format, release, res, type }: ZipStream)
       case SaleType.Edition:
         {
           const exclusiveTracks = new Set<string>();
-          const edition = await Edition.findOne({ editionId, release }).exec();
+          const edition = await Edition.findOne({ editionId, release }).lean();
           if (!edition) throw new Error(`Edition ${editionId} not found.`);
           edition.metadata.properties.tracks.forEach(({ id }: { id: string }) => exclusiveTracks.add(id));
-          const fullRelease = await Release.findById(release).lean();
+          const fullRelease = await Release.findById(release, "+trackList.position").lean();
           if (!fullRelease) throw new Error(`Release ${release} not found.`);
           const { _id: releaseId, artistName, releaseTitle, trackList } = fullRelease;
           res.attachment(`${artistName} - ${releaseTitle}.zip`);
@@ -112,7 +112,7 @@ const zipDownload = async ({ editionId, format, release, res, type }: ZipStream)
             const trackId = _id.toString();
 
             if (isEditionOnly && !exclusiveTracks.has(trackId)) {
-              logger.info(`[track ${trackId}] Skipping exclusive track not found in edition ${editionId}.`);
+              logger.info(`[track ${trackId}] Exclusive track '${trackTitle}' not in edition ${editionId}. Skipping.`);
               continue;
             }
 
