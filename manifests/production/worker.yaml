@@ -17,15 +17,15 @@ spec:
     spec:
       containers:
         - name: worker
-          image: csleary/gridfire-worker
+          image: csleary/gridfire-worker:44562c8a65978997f047d68f67944aeef0207429
           imagePullPolicy: Always
           resources:
             requests:
-              memory: 381M
-              cpu: 63m
+              memory: 256Mi
+              cpu: 250m
             limits:
-              memory: 381M
-              cpu: 63m
+              memory: 2Gi
+              cpu: "1.5"
           envFrom:
             - configMapRef:
                 name: amqp-config

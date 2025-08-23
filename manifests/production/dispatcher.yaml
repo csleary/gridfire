@@ -17,15 +17,15 @@ spec:
     spec:
       containers:
         - name: dispatcher
-          image: csleary/gridfire-web3-dispatcher
+          image: csleary/gridfire-web3-dispatcher:44562c8a65978997f047d68f67944aeef0207429
           imagePullPolicy: Always
           resources:
             requests:
-              memory: 263M
+              memory: 500Mi
               cpu: 25m
             limits:
-              memory: 263M
-              cpu: 25m
+              memory: 1Gi
+              cpu: 500m
           env:
             - name: HEALTH_PROBE_PORT
               value: "9090"

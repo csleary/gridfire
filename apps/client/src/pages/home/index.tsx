@@ -12,6 +12,8 @@ import { fetchCatalogue } from "@/state/releases";
 const SortReleases = lazy(() => import("./sort"));
 const Features = lazy(() => import("./features"));
 
+const colors = ["var(--chakra-colors-purple-100)", "var(--chakra-colors-blue-100)", "var(--chakra-colors-green-200)"];
+
 const Home: React.FC = () => {
   const dispatch = useDispatch();
   const catalogue = useSelector(state => state.releases.catalogue, shallowEqual);
@@ -24,20 +26,34 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentSortPath, setCurrentSortPath] = useState("releaseDate");
   const [currentSortOrder, setCurrentSortOrder] = useState("-1");
-  const bgHighlight = useColorModeValue("yellow.400", "purple.200");
+
+  const highlight = useColorModeValue(
+    { bg: "yellow.400", px: "2", py: "1", rounded: "full" },
+    {
+      bg: `linear-gradient(to right, ${colors.join(", ")})`,
+      bgClip: "text",
+      color: "transparent",
+      fontWeight: 400
+    }
+  );
 
   const handleFetchCatalogue = useCallback(
     async ({ isPaging = false, sortBy = currentSortPath, sortOrder = currentSortOrder } = {}) => {
-      setIsFetching(true);
-      dispatch(fetchCatalogue({ catalogueLimit, catalogueSkip, isPaging, sortBy, sortOrder })).then(() =>
-        setIsFetching(false)
-      );
+      try {
+        setIsFetching(true);
+        await dispatch(fetchCatalogue({ catalogueLimit, catalogueSkip, isPaging, sortBy, sortOrder }));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+        setIsFetching(false);
+      }
     },
     [catalogueLimit, catalogueSkip, dispatch, currentSortOrder, currentSortPath]
   );
 
   useEffect(() => {
-    handleFetchCatalogue().finally(() => setIsLoading(false));
+    handleFetchCatalogue();
   }, [handleFetchCatalogue]);
 
   return (
@@ -48,12 +64,9 @@ const Home: React.FC = () => {
       </Helmet>
       {isLoadingUser || userAccount ? null : (
         <>
-          <Container maxWidth="container.xl" mb={24} mt={12}>
+          <Container maxWidth="container.xl" mb={8}>
             <Heading lineHeight="tall" m={0}>
-              <Highlight
-                query={["gridfire", "equitable", "sustainable", "supportive"]}
-                styles={{ bg: bgHighlight, px: "2", py: "1", rounded: "full" }}
-              >
+              <Highlight query={["gridfire", "equitable", "sustainable", "supportive"]} styles={highlight}>
                 Gridfire is a new music streaming and download service, powered by decentralised protocols, to create a
                 more equitable, sustainable and supportive creative economy.
               </Highlight>

@@ -2372,7 +2372,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-svg-core@npm:^6.2.0":
+"@fortawesome/fontawesome-svg-core@npm:6.7.2":
   version: 6.7.2
   resolution: "@fortawesome/fontawesome-svg-core@npm:6.7.2"
   dependencies:
@@ -2381,7 +2381,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-brands-svg-icons@npm:^6.2.0":
+"@fortawesome/free-brands-svg-icons@npm:6.7.2":
   version: 6.7.2
   resolution: "@fortawesome/free-brands-svg-icons@npm:6.7.2"
   dependencies:
@@ -2390,7 +2390,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-regular-svg-icons@npm:^6.2.0":
+"@fortawesome/free-regular-svg-icons@npm:6.7.2":
   version: 6.7.2
   resolution: "@fortawesome/free-regular-svg-icons@npm:6.7.2"
   dependencies:
@@ -2399,7 +2399,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-solid-svg-icons@npm:^6.2.0":
+"@fortawesome/free-solid-svg-icons@npm:6.7.2":
   version: 6.7.2
   resolution: "@fortawesome/free-solid-svg-icons@npm:6.7.2"
   dependencies:
@@ -2408,15 +2408,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/react-fontawesome@npm:^0.2.0":
-  version: 0.2.2
-  resolution: "@fortawesome/react-fontawesome@npm:0.2.2"
+"@fortawesome/react-fontawesome@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@fortawesome/react-fontawesome@npm:3.0.0"
   dependencies:
-    prop-types: "npm:^15.8.1"
+    semver: "npm:^7.7.2"
   peerDependencies:
-    "@fortawesome/fontawesome-svg-core": ~1 || ~6
-    react: ">=16.3"
-  checksum: 10c0/824f96cd9be2e637738de3073450b30fe6b5a91b4f95df804c162b47ddf7d1a43df5ed7439a01e7236e888edc093efad1e61322ac693ddc3ae01147b90318745
+    "@fortawesome/fontawesome-svg-core": ~6 || ~7
+    react: ^18.0.0 || ^19.0.0
+  checksum: 10c0/071d7548e5a43351490b83c702d59670820495b332a733dd6f517d50769b3037fd0287927a6857211e7fe60c137c36bbc4d11a91c948adf1928f99685c3cc06d
   languageName: node
   linkType: hard
 
@@ -2469,11 +2469,11 @@ __metadata:
     "@chakra-ui/toast": "npm:^7.0.2"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
-    "@fortawesome/fontawesome-svg-core": "npm:^6.2.0"
-    "@fortawesome/free-brands-svg-icons": "npm:^6.2.0"
-    "@fortawesome/free-regular-svg-icons": "npm:^6.2.0"
-    "@fortawesome/free-solid-svg-icons": "npm:^6.2.0"
-    "@fortawesome/react-fontawesome": "npm:^0.2.0"
+    "@fortawesome/fontawesome-svg-core": "npm:6.7.2"
+    "@fortawesome/free-brands-svg-icons": "npm:6.7.2"
+    "@fortawesome/free-regular-svg-icons": "npm:6.7.2"
+    "@fortawesome/free-solid-svg-icons": "npm:6.7.2"
+    "@fortawesome/react-fontawesome": "npm:^3.0.0"
     "@gridfire/shared": "npm:*"
     "@metamask/detect-provider": "npm:^2.0.0"
     "@reduxjs/toolkit": "npm:^2.8.2"

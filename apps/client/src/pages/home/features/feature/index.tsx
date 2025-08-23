@@ -1,26 +1,38 @@
-import { Box, Divider, Heading, useColorModeValue, WrapItem } from "@chakra-ui/react";
+import { Box, Heading, useColorModeValue } from "@chakra-ui/react";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+
+import Icon from "@/components/icon";
+
+const colors = ["var(--chakra-colors-purple-100)", "var(--chakra-colors-blue-100)", "var(--chakra-colors-green-200)"];
 
 interface Props {
   children: React.ReactNode;
+  icon: IconProp;
   title: string;
 }
 
-const Feature = ({ children, title }: Props) => {
+const Feature = ({ children, icon, title }: Props) => {
   const color = useColorModeValue("black", "purple.200");
 
   return (
-    <WrapItem alignItems="center" flex="0 1 50ch" flexDirection="column" padding={12} position="relative">
-      <Box bgColor={useColorModeValue("gray.50", "gray.900")} inset={0} position="absolute" transform="skewX(-10deg)" />
-      <Box zIndex="1">
-        <Heading color={color} fontWeight={500} mb={4} paddingInlineEnd={6} paddingInlineStart={6} py={1} size="lg">
-          {title}
-        </Heading>
-        <Divider borderColor={useColorModeValue("gray.300", "purple.200")} borderWidth="2px 0" mb={3} />
-        <Heading fontWeight={500} mb={0} size="md" textAlign="left">
-          {children}
-        </Heading>
-      </Box>
-    </WrapItem>
+    <Box bgColor={useColorModeValue("gray.50", "gray.900")} flex="0 0 100%" p={6}>
+      <Heading
+        bg={`linear-gradient(to right, ${colors.join(", ")})`}
+        bgClip="text"
+        color="transparent"
+        fontWeight={500}
+        mb={4}
+        px={6}
+        py={1}
+        size="2xl"
+      >
+        <Icon color={color} icon={icon} /> {title}
+      </Heading>
+      <Box bg={useColorModeValue("gray.300", `linear-gradient(to right, ${colors.join(", ")})`)} height="2px" mb={3} />
+      <Heading fontWeight={500} mb={0} size="xl" textAlign="left">
+        {children}
+      </Heading>
+    </Box>
   );
 };
 

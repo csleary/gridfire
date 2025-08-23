@@ -17,17 +17,17 @@ spec:
     spec:
       containers:
         - name: api
-          image: csleary/gridfire-api
+          image: csleary/gridfire-api:2d81b121ff0ad2594c5af74cf0000c9c83c105f5
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
           resources:
             requests:
-              memory: 263M
-              cpu: 35m
+              memory: 500Mi
+              cpu: 25m
             limits:
-              memory: 263M
-              cpu: 35m
+              memory: 1Gi
+              cpu: 500m
           env:
             - name: POD_NAME
               valueFrom:

@@ -17,16 +17,16 @@ spec:
     spec:
       containers:
         - name: client
-          image: csleary/gridfire-client
+          image: csleary/gridfire-client:2d81b121ff0ad2594c5af74cf0000c9c83c105f5
           imagePullPolicy: Always
           ports:
             - containerPort: 80
           resources:
             requests:
-              memory: 263M
+              memory: 128Mi
               cpu: 25m
             limits:
-              memory: 263M
-              cpu: 25m
+              memory: 1Gi
+              cpu: 500m
       imagePullSecrets:
         - name: regcred
