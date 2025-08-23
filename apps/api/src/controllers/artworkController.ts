@@ -1,4 +1,5 @@
 import { deleteObjects, streamFromBucket, streamToBucket } from "@gridfire/shared";
+import Logger from "@gridfire/shared/logger";
 import Release from "@gridfire/shared/models/Release";
 import sseClient from "@gridfire/shared/sseController";
 import { MessageType, MessageWorkerNotification } from "@gridfire/shared/types";
@@ -8,6 +9,7 @@ import sharp from "sharp";
 
 const { BUCKET_IMG } = process.env;
 const fsPromises = fs.promises;
+const logger = new Logger("artworkController");
 
 assert(BUCKET_IMG, "BUCKET_IMG env var not set.");
 
@@ -32,7 +34,15 @@ const deleteArtwork = async (releaseId: string) => {
   return updatedRelease.toJSON();
 };
 
-const getArtworkStream = async (releaseId: string) => streamFromBucket(BUCKET_IMG, `${releaseId}/1024w.webp`);
+const getArtworkStream = async (releaseId: string) => {
+  try {
+    const stream = await streamFromBucket(BUCKET_IMG, `${releaseId}/2560w.webp`);
+    return stream;
+  } catch (error) {
+    logger.error(`Error fetching artwork for release ${releaseId}:`, error);
+    return null;
+  }
+};
 
 const uploadArtwork = async ({
   filePath,

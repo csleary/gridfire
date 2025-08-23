@@ -1,4 +1,16 @@
-import { Box, Button, Image, Link, Text, useColorModeValue, VStack, Wrap, WrapItem } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Fade,
+  Image,
+  Link,
+  Text,
+  useColorModeValue,
+  useDisclosure,
+  VStack,
+  Wrap,
+  WrapItem
+} from "@chakra-ui/react";
 import { faCloudDownloadAlt } from "@fortawesome/free-solid-svg-icons";
 
 import Icon from "@/components/icon";
@@ -15,18 +27,30 @@ interface Props {
 
 const DownloadModal = ({ artistName, purchaseId, releaseId, releaseTitle }: Props) => {
   const primaryButtonColor = useColorModeValue("yellow", "purple");
+  const { isOpen, onOpen } = useDisclosure();
 
   return (
     <>
       <Wrap as="section" mb={4} spacing={8}>
         <WrapItem flex="1 1 24rem">
-          <Image
-            alt={`${artistName} - ${releaseTitle}`}
-            className="lazyload"
-            fallbackSrc={placeholder}
-            rel="preconnect"
-            src={`${VITE_CDN_IMG}/${releaseId}`}
-          />
+          <Fade in={isOpen}>
+            <Image
+              alt={`${artistName} - ${releaseTitle}`}
+              fallbackSrc={placeholder}
+              loading="lazy"
+              onLoad={onOpen}
+              rel="preconnect"
+              sizes={`(max-width: 992px) calc(100vw - 2rem), 400px`}
+              src={`${VITE_CDN_IMG}/${releaseId}/1024w.webp`}
+              srcSet={`${VITE_CDN_IMG}/${releaseId}/320w.webp 320w,
+                       ${VITE_CDN_IMG}/${releaseId}/640w.webp 640w,
+                       ${VITE_CDN_IMG}/${releaseId}/960w.webp 960w,
+                       ${VITE_CDN_IMG}/${releaseId}/1024w.webp 1024w,
+                       ${VITE_CDN_IMG}/${releaseId}/1440w.webp 1440w,
+                       ${VITE_CDN_IMG}/${releaseId}/1920w.webp 1920w,
+                       ${VITE_CDN_IMG}/${releaseId}/2560w.webp 2560w`}
+            />
+          </Fade>
         </WrapItem>
         <WrapItem alignItems="stretch" flex="1 1 24rem">
           <VStack flex="1" justifyContent="space-between" spacing={12}>

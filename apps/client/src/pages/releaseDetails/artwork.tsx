@@ -74,7 +74,6 @@ const Artwork = () => {
               fallbackSrc={placeholder}
               inset={0}
               loading="lazy"
-              onError={onOpen}
               onLoad={onOpen}
               position="absolute"
               rel="preconnect"
