@@ -9,9 +9,9 @@ const Artist = () => {
   return (
     <>
       <Heading as="h3">Links</Heading>
-      <VStack alignItems="flex-start" as="ul" listStyleType="none">
+      <VStack alignItems="flex-start">
         {links.map(({ title, uri }) => (
-          <Link as="li" href={uri} key={uri} rel="nofollow noopener">
+          <Link href={uri} key={uri} rel="nofollow noopener">
             {title}
           </Link>
         ))}
